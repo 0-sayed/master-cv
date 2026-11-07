@@ -1,0 +1,48 @@
+flowchart TD
+    T000["T000: Bootstrap the existing fork and isolated development"]
+    T001["T001: Prove and harden Arabic document compatibility"]
+    T002["T002: Implement the native design system and bilingual shell"]
+    T003["T003: Deliver accounts and the private career workspace"]
+    T004["T004: Deliver the complete native CV workspace"]
+    T005["T005: Deliver bounded AI operations and usage accounting"]
+    T006["T006: Deliver reviewed AI extraction and CV improvement"]
+    T007["T007: Deliver job tailoring and independent language variants"]
+    T008["T008: Deliver retained personal career tools"]
+    T009["T009: Complete account settings and data-rights workflows"]
+    T010["T010: Deliver Moyasar billing and entitlement lifecycle"]
+    T011["T011: Deliver the public landing and acquisition journey"]
+    T012["T012: Prepare Saudi deployment and operational recovery"]
+    T013["T013: Qualify the free beta"]
+    T014["T014: Activate mobile authentication"]
+    T015["T015: Qualify the paid release"]
+
+    T000 --> T001
+    T000 --> T002
+    T002 --> T003
+    T001 --> T004
+    T003 --> T004
+    T004 --> T005
+    T005 --> T006
+    T006 --> T007
+    T007 --> T008
+    T013 --> T008
+    T005 --> T009
+    T005 --> T010
+    T013 --> T010
+    T007 --> T011
+    T009 --> T011
+    T005 --> T012
+    T009 --> T012
+    T007 --> T013
+    T009 --> T013
+    T011 --> T013
+    T012 --> T013
+    T003 --> T014
+    T009 --> T014
+    T008 --> T015
+    T010 --> T015
+    T013 --> T015
+
+    classDef pending fill:#e5e7eb,stroke:#6b7280,color:#111827;
+    classDef done fill:#dcfce7,stroke:#16a34a,color:#14532d;
+    class T000,T001,T002,T003,T004,T005,T006,T007,T008,T009,T010,T011,T012,T013,T014,T015 pending;
