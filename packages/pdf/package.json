@@ -26,8 +26,8 @@
 		"test:agent": "vp test run --reporter=agent --reporter=json --outputFile.json=reports/vitest-results.json --passWithNoTests"
 	},
 	"dependencies": {
-		"@formepdf/core": "0.28.0",
-		"@formepdf/react": "0.28.0",
+		"@formepdf/core": "0.30.0",
+		"@formepdf/react": "0.30.0",
 		"@reactive-resume/fonts": "workspace:*",
 		"@reactive-resume/resume": "workspace:*",
 		"@reactive-resume/schema": "workspace:*",
@@ -35,17 +35,17 @@
 		"cjk-regex": "^3.5.0",
 		"fast-png": "^8.0.0",
 		"fflate": "catalog:",
-		"harfbuzzjs": "1.6.3",
-		"node-html-parser": "^9.0.5",
+		"harfbuzzjs": "1.6.4",
+		"node-html-parser": "^9.0.6",
 		"react": "catalog:",
 		"react-reconciler": "0.34.0"
 	},
 	"devDependencies": {
-		"@napi-rs/canvas": "1.0.12",
+		"@napi-rs/canvas": "1.1.0",
 		"@reactive-resume/config": "workspace:*",
 		"@types/react": "catalog:",
-		"@types/react-reconciler": "^0.34.0",
-		"pdfjs-dist": "6.4.299",
+		"@types/react-reconciler": "^0.34.1",
+		"pdfjs-dist": "6.5.438",
 		"tsrs": "catalog:",
 		"typescript": "catalog:",
 		"vite-plus": "catalog:"

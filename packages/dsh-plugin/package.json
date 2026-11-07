@@ -62,7 +62,7 @@
 		"@deepseek-ai/schemastery": "^3.18.5",
 		"@reactive-resume/config": "workspace:*",
 		"@reactive-resume/mcp": "workspace:*",
-		"tsdown": "^0.23.1",
+		"tsdown": "^0.23.5",
 		"tsrs": "catalog:",
 		"typescript": "catalog:",
 		"vite-plus": "catalog:"
