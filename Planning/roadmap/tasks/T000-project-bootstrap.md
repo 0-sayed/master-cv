@@ -91,7 +91,7 @@ deferred.
 - Default Mode A: Planning adoption and bootstrap stay on chore/t000-project-bootstrap in one L PR. A focused executor
   may run on that branch; register main-driven scheduling only after merge.
 - Mode B requires explicit permission for a one-time main seed; do not bypass protection or add a small planning-only
-  PR. Both modes preserve the same 14-task graph.
+  PR. Both modes preserve the same 16-task graph.
 - Preserve required backing services/native packages; retaining code does not approve integrations or native-store
   delivery. Generate secrets only in ignored files and bind local services to loopback.
 - T001/T002 consume the merged foundation; T005 owns new durable AI/usage, T010 Moyasar and T012 production
@@ -139,6 +139,5 @@ deferred.
 
 ## Execution record
 
-Existing execution is recorded in [T000 evidence](../../../docs/t000-evidence.md) and the [execution
-ledger](../../../.superpowers/t000/progress.md). These records describe uncommitted execution and outstanding gates;
-they do not establish fresh verification or approval. T000 remains [ ] pending until authorized merge.
+Existing execution and outstanding gates are recorded in [T000 evidence](../../../docs/t000-evidence.md).
+Historical records do not establish fresh verification or approval. T000 remains [ ] pending until authorized merge.

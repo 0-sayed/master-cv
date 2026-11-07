@@ -35,7 +35,7 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 
 ## Agent skills
 
-- Issues and specs: GitHub Issues for `reactive-resume/reactive-resume`. See `docs/agents/issue-tracker.md`.
+- Issues and specs: GitHub Issues for `0-sayed/master-cv`. Upstream is a read-only source of reviewed updates, not the destination for product work. See `docs/agents/issue-tracker.md`.
 - Check `git status --short` before editing. Preserve unrelated changes, including existing edits in this file.
 - Use scripts and configuration as the source of truth when documentation disagrees with them.
 
@@ -57,21 +57,16 @@ Run commands from the workspace root unless stated otherwise:
 
 ```sh
 pnpm install --frozen-lockfile
-test -e .env.local || cp .env.example .env.local
-docker compose -f compose.dev.yml up -d postgres redis seaweedfs seaweedfs_create_bucket
-docker compose -f compose.dev.yml ps
+pnpm local:init
+docker compose -f compose.yaml up -d --wait postgres
+pnpm db:migrate
 ```
 
-Copy the environment template only when `.env.local` does not already exist. For host-run development, edit these values in `.env.local`; the template uses container hostnames:
-
-```dotenv
-APP_URL=http://localhost:3000
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres
-S3_ENDPOINT=http://localhost:8333
-REDIS_URL=redis://localhost:6379
-```
-
-Set `AUTH_SECRET` to a generated secret (`openssl rand -hex 32`). If using saved AI providers or the assistant, also set a separate `ENCRYPTION_SECRET` of at least 32 characters. For database-only development, start just `postgres` and set `STORAGE_BACKEND=local` to avoid the template's S3 defaults.
+`local:init` creates ignored `.env` infrastructure inputs and `.env.local` app configuration with generated,
+worktree-local credentials, loopback database URLs and local filesystem storage. It preserves hand-written
+configuration instead of replacing it. For custom ports, run it once, retain `POSTGRES_PASSWORD` in `.env`,
+edit the distinct port values there and rerun it before starting Compose. See [development.md](../development.md)
+for the verified setup, optional Redis/S3 services and isolation contract.
 
 ## Development workflow
 
@@ -88,7 +83,7 @@ pnpm db:studio
 ```
 
 - `pnpm dev` runs Vite on `PORT` (default `3000`), Hono on `SERVER_PORT` (default `3001`), and the email template preview on `3002`. Vite proxies API requests to Hono. Vite supplies hot reload; `tsx watch` restarts the server.
-- `pnpm dev:web` starts only Vite; API workflows still need a server. If ports are busy, change `PORT` and `SERVER_PORT` consistently in `.env.local`; keep the email preview's `3002` port free when running all dev tasks.
+- `pnpm dev:web` starts only Vite; API workflows still need a server. If ports are busy, set distinct `PORT`, `SERVER_PORT`, `EMAIL_PORT` and `POSTGRES_PORT` in the generated `.env`, then rerun `pnpm local:init` before starting services.
 - Server startup applies migrations before initializing auth and serving traffic. `pnpm db:migrate` applies them without starting the app; `pnpm db:studio` opens the database UI.
 - After adding user-facing strings, use Lingui macros and run `pnpm lingui:extract`. Catalogs live in `apps/web/locales/*.po`; `pnpm pdf:translations` regenerates PDF translations. Root build/check scripts run PDF translation generation automatically.
 - `pnpm docs:gen` regenerates the OpenAPI spec and semantic CSS reference. Use it when changing those public surfaces.
@@ -131,7 +126,7 @@ Narrow cross-cutting helpers go in `packages/utils` only after checking no domai
 
 ## Native mobile app
 
-- **Feature parity is required.** The web app and the native mobile app must always offer the same user-facing features. A change that adds, removes, or changes a feature in `apps/web` must make the matching change in `apps/mobile` in the same work, and the reverse. Share logic through workspace packages (`packages/api`, `packages/schema`, `packages/resume`, `packages/pdf`) rather than duplicating it. An exception forced by store policy (for example, the hidden iOS Donate row) needs the owner's explicit decision and a note in `docs/contributing/mobile-release-handoff.md`.
+- **Retain native source and validate affected shared packages.** Native-store delivery and web/native feature parity are outside the personal web roadmap. Share logic through workspace packages when needed; T014 owns the separately gated mobile authentication increment. Do not remove native packages or silently omit affected validation.
 - **Over-the-air update or new store build.** The runtime version uses an Expo fingerprint (`apps/mobile/fingerprint.config.js`). JavaScript, styling, copy, translation, and bundled-asset changes ship as an EAS Update: a stable Docker release publishes it to the `production` channel automatically, and no store submission is needed. A change to native code needs a new store build: native dependencies or config plugins, permissions or entitlements, `app.config.ts` native fields (icon, splash, schemes, associated domains), Expo SDK upgrades, `apps/mobile/patches`, or Forme native sources and `packages/forme-native/scripts/prebuilt.json`. Run `eas fingerprint:compare --build-id <last store build>` from `apps/mobile` to check. A changed fingerprint means a new store build. Release steps: `docs/contributing/mobile-release-handoff.md` → **Releasing a new version**.
 - Old binaries and old OTA bundles stay in use for weeks. Keep API changes backward compatible, and deploy the backend before releasing mobile changes that depend on it. Never bump the runtime version to force an incompatible update onto old binaries.
 
@@ -222,15 +217,17 @@ pnpm test:e2e:ui
 ```sh
 pnpm build
 NODE_ENV=production pnpm start
-docker compose up -d --build
+docker compose -f compose.yml up -d --build
 ```
 
 - Build outputs: `apps/web/dist` (SPA/assets), `apps/web/dist-prerender` (localized marketing HTML), and `apps/server/dist` (`index.mjs` plus server/deployment chunks). `pnpm start` runs the built server; set `NODE_ENV=production` so it uses `PORT` instead of `SERVER_PORT`. Export runtime variables or provide root `.env`; `.env.local` is not loaded by `start`.
+  .env and production operations require separate owner approval; the commands above are inherited capabilities, not bootstrap authorization. Default `compose.yaml` is the isolated local environment.
+
 - Production Compose loads `.env.example` then `.env`, not `.env.local`. Configure `.env` with container hostnames (`postgres`, `redis`, `seaweedfs`) and production secrets before running it. The Docker image runs as `node`, listens on `3000`, and persists local storage through `/app/data`. Health endpoint: `/api/health`.
 - `vercel.json` defines Vercel Services (project framework must be `Services`): `frontend` (`apps/web`, static `dist`) and `backend` (`apps/server`, entrypoint `apps/server/vercel.mjs` re-exporting the tsdown build). The backend build runs `pnpm build` for both apps, then `node apps/server/dist/prepare-deployment.mjs`. Top-level rewrites send paths whose last segment has a file extension to `frontend` and everything else, including HTML shells, to `backend`, except the server-owned paths listed first. The Function uses Node 24 and a 300-second budget. `outputDirectory: "."` on `backend` stops the builder from treating `dist/index.mjs` (the Docker entrypoint) as the handler.
 - Vercel environment normalization accepts `POSTGRES_URL`, direct/unpooled DB aliases, and `KV_URL`. `APP_URL` can be derived from Vercel host variables. Blob is the default when no S3 credentials are set. Preview deployments require isolated resources before enabling `ALLOW_PREVIEW_MIGRATIONS=true`; see `docs/self-hosting/vercel.mdx`.
-- `.github/workflows/e2e.yml` gates core unit/browser flows; `vercel.yml` builds and checks the serverless artifact on PRs and pushes to `main`. `autofix.yml` runs write-capable `pnpm knip --fix` and `pnpm check`. GitHub runners are the default; `USE_BLACKSMITH=true` switches runners and paired actions.
-- `docker-build.yml` publishes native AMD64/ARM64 images. `main` publishes nightly aliases; release tags/explicit release dispatch publish stable aliases and can trigger configured production integrations. See `docs/agents/container-publishing.md` before release work.
+- `.github/workflows/e2e.yml` gates core unit/browser flows. `autofix.yml` runs read-only static validation and conflict-marker checks. The inherited Vercel deployment workflow remains disabled behind explicit approval; validation does not authorize deployment.
+- `docker-build.yml` validates the container image on PRs. Registry publication, native updates and production integrations remain approval-gated; see the workflow and `docs/agents/container-publishing.md` before separately authorized release work.
 - Deployment smoke tests create/delete accounts and files; run only against a dedicated test installation. Details: `docs/contributing/deployment-checks.mdx`.
 
 ## Security and pull requests

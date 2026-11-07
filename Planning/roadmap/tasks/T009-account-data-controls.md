@@ -36,8 +36,8 @@ deferred.
 
 ## Figma targets
 
-- Own S28/S29/S30/S36 for email settings, data export, deletion and help.
-- Inspect email-change pending, fresh-proof expiry/failure, export pending/ready/failed, deletion review and completion.
+- Own S28/S29/S30/S31/S36 for email settings, data export, deletion request/pending confirmation and help.
+- Inspect email-change pending, fresh-proof expiry/failure, export pending/ready/failed, deletion review, request pending, failure/retry and completion.
 - Resolve current masters and dialogs in [figma-map.json](../../context/design/figma-map.json) during implementation.
   Verify current names/renders using authorized access; do not hard-code node IDs or implement Popup Simulator/Note frames.
 - T014 later consumes these settings/proof contracts for mobile instances; they are disabled at launch.

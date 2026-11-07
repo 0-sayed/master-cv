@@ -23,7 +23,7 @@
 
 ## Confirmed personal MVP at a glance
 
-The **personal-only boundary is confirmed**. The seven capabilities below explain the proposed personal workflow drawn from the original requirements; exact formats, allowances, and release sequencing still need agreement.
+The **personal-only boundary is confirmed**. The seven capabilities below explain the proposed personal workflow drawn from the original requirements; PDF-only launch, the Start allowance and the free-beta-before-paid sequence are settled in D04/D05/D18/D29. Launch templates and the Focus copy allowance still need agreement.
 
 | Main feature           | What the person can do                                                                        | Requirement  |
 | ---------------------- | --------------------------------------------------------------------------------------------- | ------------ |

@@ -83,7 +83,7 @@ Show total payable amount, billing interval, renewal behavior, cancellation, and
 
 ### Gateway positioning — chosen Moyasar, unvalidated familiarity hypothesis
 
-Use Moyasar through the existing Hono payment adapter; selection is not merchant/method/recurrence activation or a fee quote. Obtain the written rate card and merchant activation. UI copy stays neutral: “a Saudi payment gateway.” No familiarity, endorsement, compliance or conversion claim is established.
+Use Moyasar through the planned payment adapter inside the existing Hono backend; selection is not merchant/method/recurrence activation or a fee quote. Obtain the written rate card and merchant activation. UI copy stays neutral: “a Saudi payment gateway.” No familiarity, endorsement, compliance or conversion claim is established.
 
 ### Current design example versus the production offer
 
