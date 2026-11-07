@@ -1,5 +1,3 @@
-name: reactive_resume
-
 services:
   reactive_resume:
     build:
@@ -12,14 +10,16 @@ services:
     environment:
       PORT: "3000"
       SERVER_PORT: "3001"
-      APP_URL: http://localhost:3000
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/postgres
-      S3_ENDPOINT: http://seaweedfs:8333
-      REDIS_URL: redis://redis:6379
+      APP_URL: http://localhost:${PORT:-3000}
+      DATABASE_URL: postgresql://master_cv:${POSTGRES_PASSWORD:?Run pnpm local:init}@postgres:5432/master_cv
+      STORAGE_BACKEND: local
+      LOCAL_STORAGE_PATH: /app/data
+      EMAIL_PORT: "3002"
       CHOKIDAR_USEPOLLING: "true"
     ports:
-      - "127.0.0.1:3000:3000"
-      - "127.0.0.1:3001:3001"
+      - "127.0.0.1:${PORT:-3000}:3000"
+      - "127.0.0.1:${SERVER_PORT:-3001}:3001"
+      - "127.0.0.1:${EMAIL_PORT:-3002}:3002"
     volumes:
       - ./data:/app/data
     profiles:
@@ -29,15 +29,19 @@ services:
         - action: sync
           path: .
           target: /app
+          ignore:
+            - .git/
+            - .env*
+            - Planning/
+            - .worktrees/
+            - .superpowers/
+            - node_modules/
+            - data/
+            - test-results/
+            - playwright-report/
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-      seaweedfs:
-        condition: service_healthy
-      seaweedfs_create_bucket:
-        condition: service_completed_successfully
     healthcheck:
       test:
         [
@@ -52,31 +56,32 @@ services:
       retries: 3
 
   postgres:
-    image: postgres:latest
+    image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
     restart: unless-stopped
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: master_cv
+      POSTGRES_USER: master_cv
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run pnpm local:init}
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      test: ["CMD-SHELL", "pg_isready -U master_cv -d master_cv"]
       start_period: 10s
       interval: 30s
       timeout: 10s
       retries: 3
 
   redis:
-    image: redis:latest
+    profiles: [redis]
+    image: redis:7-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
     restart: unless-stopped
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       start_period: 5s
@@ -85,16 +90,17 @@ services:
       retries: 3
 
   seaweedfs:
-    image: chrislusf/seaweedfs:latest
+    profiles: [s3]
+    image: chrislusf/seaweedfs:latest@sha256:4e61d15fd35994cb1e43e1e553dff106794841fd9a99ade2fc8c8bfce4d7872d
     restart: unless-stopped
     command: server -s3 -filer -dir=/data -ip=0.0.0.0
     environment:
-      AWS_ACCESS_KEY_ID: seaweedfs
-      AWS_SECRET_ACCESS_KEY: seaweedfs
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-local-development}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
     volumes:
       - seaweedfs_data:/data
     ports:
-      - "127.0.0.1:8333:8333"
+      - "127.0.0.1:${S3_PORT:-8333}:8333"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8888"]
       start_period: 10s
@@ -103,11 +109,12 @@ services:
       retries: 3
 
   seaweedfs_create_bucket:
-    image: amazon/aws-cli:latest
+    profiles: [s3]
+    image: amazon/aws-cli:latest@sha256:efe32e825cf203652eaca3e7e94679580274e7d567c39270aaa36a5144737108
     restart: on-failure
     environment:
-      AWS_ACCESS_KEY_ID: seaweedfs
-      AWS_SECRET_ACCESS_KEY: seaweedfs
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:-local-development}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:-}
       AWS_DEFAULT_REGION: us-east-1
     entrypoint: >
       /bin/sh -c "

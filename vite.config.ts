@@ -177,6 +177,10 @@ export default defineConfig({
 			"**/routeTree.gen.ts",
 			"packages/pdf/src/semantic/__fixtures__/**/*.css",
 			"pnpm-lock.yaml",
+			// Generated design registry: preserve its canonical serialization (5 MB).
+			"Planning/context/design/figma-map.json",
+			// Roadmap checker requires exact single-space OTP table identifiers.
+			"Planning/context/technical/security.md",
 			"migrations/**",
 			"docs/spec.json",
 			"docs/guides/json-resume-schema.mdx",

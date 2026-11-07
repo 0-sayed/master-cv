@@ -52,7 +52,15 @@
 		"lint:agent": "vp lint --deny-warnings --format=agent",
 		"format": "vp fmt --write",
 		"format:check": "vp fmt --check",
-		"test:cloudflare": "node tooling/cloudflare/smoke.mjs"
+		"test:cloudflare": "node tooling/cloudflare/smoke.mjs",
+		"local:init": "node tooling/local/init.mjs",
+		"validate:static": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm knip && pnpm exec turbo boundaries",
+		"validate": "pnpm validate:static && pnpm test && pnpm build",
+		"hooks:install": "lefthook install",
+		"security:secrets": "gitleaks git --redact --no-banner",
+		"security:staged": "gitleaks git --staged --redact --no-banner",
+		"security:audit": "pnpm audit --audit-level high",
+		"security:licenses": "node tooling/security/licenses.mjs"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^21.2.4",

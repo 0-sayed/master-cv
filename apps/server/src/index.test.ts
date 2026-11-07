@@ -4,6 +4,9 @@ import { serve } from "@hono/node-server";
 
 const events = vi.hoisted(() => [] as string[]);
 const appFetch = vi.hoisted(() => vi.fn());
+const closePool = vi.hoisted(() => vi.fn(async () => {}));
+vi.mock("@reactive-resume/db/client", () => ({ getPool: () => ({ end: closePool }) }));
+vi.mock("@reactive-resume/db/redis", () => ({ getRedis: () => null }));
 vi.mock("./startup/checks", () => ({
 	runStartupChecks: async () => {
 		await Promise.resolve();
@@ -83,6 +86,7 @@ describe("server startup", () => {
 			await closed;
 			// Exit waits for the HTTP drain and the scheduler's stop together, a few microtasks after "close".
 			await vi.waitFor(() => expect(exit).toHaveBeenCalledExactlyOnceWith(0));
+			expect(closePool).toHaveBeenCalled();
 		} finally {
 			finished.resolve(new Response("drained"));
 			await new Promise<void>((resolve) => runningServer.close(() => resolve()));

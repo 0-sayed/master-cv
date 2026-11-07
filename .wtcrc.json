@@ -1,0 +1,6 @@
+{
+	"portStride": 100,
+	"envOverrides": {
+		"APP_URL": "http://localhost:${PORT}"
+	}
+}

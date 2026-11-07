@@ -31,6 +31,7 @@ import { handleAppleAppSiteAssociation, handleAndroidAssetLinks } from "./app-li
 import { handleAuth, handleOAuth } from "./auth";
 import { handleCareerJobs } from "./career-jobs";
 import { handleHealth } from "./health";
+import { handleHttpError, requestObservability } from "./observability";
 import { handlePublicResumePdf } from "./public-resume-pdf";
 import { handleResumePdfDownload } from "./resume-pdf";
 
@@ -66,6 +67,8 @@ type AppOptions = {
 export function createApp(options: AppOptions = {}) {
 	prepareMcpDiscovery();
 	const app = new Hono<ServerEnvironment>();
+	app.use("*", requestObservability);
+	app.onError(handleHttpError);
 	const proxies = new BlockList();
 	for (const range of env.TRUSTED_PROXIES) {
 		const [address, prefix] = range.split("/");

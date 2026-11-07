@@ -76,6 +76,7 @@ it.each([
 			join(directory, "curl"),
 			`#!/usr/bin/env bash
 set -eu
+[[ "$*" == *"https://master-cv.invalid/api/health?"* ]] || exit 2
 count=$(cat "$FIXTURE/count")
 count=$((count + 1))
 echo "$count" > "$FIXTURE/count"
@@ -87,7 +88,13 @@ printf '%s\\n' "$line"
 		);
 		const result = spawnSync("bash", ["-eu", "-c", script], {
 			encoding: "utf8",
-			env: { ...process.env, PATH: `${directory}:${process.env.PATH}`, FIXTURE: directory, COMMIT_SHA: commit },
+			env: {
+				...process.env,
+				PATH: `${directory}:${process.env.PATH}`,
+				FIXTURE: directory,
+				COMMIT_SHA: commit,
+				PRODUCTION_URL: "https://master-cv.invalid",
+			},
 		});
 		expect(result.status, result.stderr).toBe(status);
 		expect(Number(readFileSync(join(directory, "count"), "utf8"))).toBe(probes);
