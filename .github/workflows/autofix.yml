@@ -23,6 +23,16 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Reject conflict markers
+        run: |
+          status=0
+          git grep -nE '^(<{7} |={7}$|>{7} )' -- . || status=$?
+          if [ "$status" -eq 0 ]; then
+            echo 'Unresolved conflict markers found.' >&2
+            exit 1
+          elif [ "$status" -ne 1 ]; then
+            exit "$status"
+          fi
       - run: pnpm validate:static
       - name: Ensure validation did not rewrite source
         run: git diff --exit-code
