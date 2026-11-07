@@ -33,7 +33,9 @@ with mode 0600. It refuses to replace hand-written `.env.local`. Keep an existin
 or move its configuration aside before using the generator; never discard local credentials implicitly.
 
 The default ports are web 3000, Hono 3001, email preview 3002 and PostgreSQL 5432. Set distinct
-`PORT`, `SERVER_PORT`, `EMAIL_PORT` and `POSTGRES_PORT` in ignored `.env` before generation if occupied.
+`PORT`, `SERVER_PORT`, `EMAIL_PORT` and `POSTGRES_PORT` in ignored `.env` if occupied: first run
+`pnpm local:init` to generate credentials, edit those ports while retaining `POSTGRES_PASSWORD`, then rerun
+`pnpm local:init` before starting Compose. The generator preserves existing infrastructure credentials.
 `APP_URL` is the frontend origin and determines auth callbacks and absolute application URLs.
 Host-run connections use loopback; the optional container app uses `postgres` service DNS.
 

@@ -75,3 +75,27 @@ it("retains deliberate app settings when WTC refreshes the allocated ports", () 
 		S3_BUCKET: "fixture-bucket",
 	});
 });
+
+it("rejects ports that differ only by leading zeroes", () => {
+	const root = fixture();
+	writeFileSync(join(root, ".env"), "PORT=03000\nSERVER_PORT=3000\nPOSTGRES_PASSWORD=fixture-password\n");
+	expect(() => initLocal(root)).toThrow(/distinct/);
+});
+
+it.each([
+	'quoted "fixture"',
+	"C:\\fixture\\new\\resume",
+	"a value with 'single' and \"double\" quotes",
+	"first line\nsecond line # preserved",
+	"all three: ' \" `",
+])("preserves a custom setting across repeated restarts: %s", (value) => {
+	const root = fixture();
+	initLocal(root);
+	const appPath = join(root, ".env.local");
+	const quoted = !value.includes("'") ? `'${value}'` : !value.includes("`") ? `\`${value}\`` : value;
+	writeFileSync(appPath, readFileSync(appPath, "utf8") + `CUSTOM_SETTING=${quoted}\n`);
+	expect(parseEnv(readFileSync(appPath, "utf8")).CUSTOM_SETTING).toBe(value);
+	initLocal(root);
+	initLocal(root);
+	expect(parseEnv(readFileSync(appPath, "utf8")).CUSTOM_SETTING).toBe(value);
+});
