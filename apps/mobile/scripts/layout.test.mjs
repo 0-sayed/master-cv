@@ -342,6 +342,7 @@ const { KnowledgeScreen } = load("features/career/knowledge.tsx", {
 native.FlatList = "FlatList";
 const documentQuery = { data: [], isError: false, refetch() {} };
 const { DocumentsLibrary } = load("features/documents/library.tsx", {
+	"expo-observe": { useObserve: () => ({ markInteractive() {} }) },
 	"@legendapp/list/reanimated": { AnimatedLegendList: "FlatList" },
 	"./document-sheets": { DocumentSheets: "DocumentSheets" },
 	"./filter": load("features/documents/filter.ts"),

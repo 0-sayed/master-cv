@@ -1,3 +1,8 @@
+> [!NOTE]
+> This checkout is **Master CV**, a private product based on the complete Reactive Resume v6 source.
+> Start with the [Master CV development guide](docs/development.md) and [Planning](Planning/context/README.md).
+> The application is being adapted through T000-T015; the upstream branding and functionality below remain.
+
 > [!IMPORTANT]
 > Reactive Resume now lives at **[`reactive-resume/reactive-resume`](https://github.com/reactive-resume/reactive-resume)** on GitHub.  
 > GHCR images publish to `ghcr.io/reactive-resume/reactive-resume`.  

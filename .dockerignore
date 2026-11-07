@@ -30,3 +30,15 @@ reports
 # Generated service-worker assets are rebuilt during the web build.
 public/sw.js
 public/workbox-*.js
+
+# Private planning, agent state and browser artifacts are never image inputs.
+Planning
+AGENTS.md
+CLAUDE.md
+.superpowers
+.worktrees
+.codex
+.agents
+.claude
+playwright-report
+test-results
