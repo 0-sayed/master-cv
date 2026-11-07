@@ -130,8 +130,8 @@ def check(snapshot=None):
             errors.append(f'{file.name}: header/branch mismatch')
         if f'**Depends on:** {", ".join(row["deps"]) or "None"} · **Priority:** {row["priority"]}' not in text:
             errors.append(f'{file.name}: dependency/priority mismatch')
-        if row['size'] != 'L' or row['status'] != '[ ]':
-            errors.append(f'{tid}: size/status must be L/pending')
+        if row['size'] != 'L' or row['status'] not in {'[ ]', '[x]'}:
+            errors.append(f'{tid}: size/status must be L and pending or complete')
         used = set(re.findall(r'\b(?:B-[CEO]\d{2}|A\d{2})\b', text))
         if used - required:
             errors.append(f'{file.name}: unknown requirement IDs {sorted(used - required)}')
@@ -164,8 +164,13 @@ def check(snapshot=None):
         errors.append('Mermaid nodes/edges differ from index.')
     classes = re.findall(r'^\s*class\s+([T\d,]+)\s+(pending|done);', graph, re.M)
     classified = Counter(tid for ids, _ in classes for tid in ids.split(','))
-    if set(classified) != task_ids or any(c != 1 for c in classified.values()) or any(c != 'pending' for _, c in classes):
-        errors.append('Every pending task must have exactly one pending class.')
+    if set(classified) != task_ids or any(c != 1 for c in classified.values()):
+        errors.append('Every task must have exactly one completion class.')
+    for ids, state in classes:
+        for tid in ids.split(','):
+            expected = 'done' if table.get(tid, {}).get('status') == '[x]' else 'pending'
+            if state != expected:
+                errors.append(f'{tid}: graph completion class must match the task table ({expected}).')
     roots = {tid for tid, row in table.items() if not row['deps']}
     visited = set()
     while True:
@@ -207,7 +212,9 @@ def check(snapshot=None):
         for value in re.findall(r'`([^`]+)`', row['context']):
             if not (planning / value).is_file():
                 errors.append(f'Index Context path missing: {value}')
-    output.append(f'Graph: {len(table)} pending L tasks; {len(edges)} matching edges; acyclic; sole root T000.')
+    completed = sum(row['status'] == '[x]' for row in table.values())
+    output.append(f'Graph: {len(table) - completed} pending and {completed} completed L tasks; '
+                  f'{len(edges)} matching edges; acyclic; sole root T000.')
     output.append(f'Brief structure/ownership: {len(files)-2} briefs; {min(line_counts)}-{max(line_counts)} lines; '
                   f'{path_count} existing path references checked.')
 
@@ -221,7 +228,7 @@ def check(snapshot=None):
         ('technical decisions', decision_text, r'^\| (T\d{2}) \|', {f'T{i:02}' for i in range(1, 17)}),
         ('requirements', requirements_text, r'^\| (B-[CEO]\d{2}|A\d{2}) \|', required),
         ('OTP controls', security_text, r'^\| (OTP-\d{2}) \|', {f'OTP-{i:02}' for i in range(1, 13)}),
-        ('tasks', table_text, r'^\| \[ \]\s*\|[^\n]*?`(T\d{3})` -', task_ids),
+        ('tasks', table_text, r'^\| \[(?: |x)\]\s*\|[^\n]*?`(T\d{3})` -', task_ids),
     ]:
         found = re.findall(pattern, source, re.M)
         if set(found) != expected or len(found) != len(set(found)):
