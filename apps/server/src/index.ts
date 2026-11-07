@@ -1,5 +1,7 @@
 import { pathToFileURL } from "node:url";
 import { serve } from "@hono/node-server";
+import { getPool } from "@reactive-resume/db/client";
+import { getRedis } from "@reactive-resume/db/redis";
 import { env } from "@reactive-resume/env/server";
 import { runStartupChecks } from "./startup/checks";
 
@@ -47,10 +49,17 @@ export async function main() {
 				else resolve();
 			});
 		});
-		void Promise.allSettled([httpDrain, careerScheduler.stop()]).then((results) => {
+		void Promise.allSettled([httpDrain, careerScheduler.stop()]).then(async (results) => {
 			const failed = results.some((result) => result.status === "rejected");
 			if (failed) console.error("Failed to drain server work during shutdown.");
-			process.exit(failed ? 1 : 0);
+			try {
+				await getPool().end();
+				getRedis()?.disconnect();
+				process.exit(failed ? 1 : 0);
+			} catch {
+				console.error("Failed to close backing-service connections during shutdown.");
+				process.exit(1);
+			}
 		});
 	};
 	process.once("SIGTERM", shutdown);

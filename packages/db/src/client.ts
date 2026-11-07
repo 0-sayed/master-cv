@@ -21,7 +21,15 @@ export function getPool() {
 			idleTimeoutMillis: 10_000,
 		});
 		const logPgError = (error: unknown) => {
-			console.error("[db] postgres connection error:", error);
+			const code = error && typeof error === "object" && "code" in error ? error.code : undefined;
+			const safeCode =
+				typeof code === "string" &&
+				(/^[A-Z0-9]{5}$/.test(code) ||
+					["ECONNREFUSED", "ECONNRESET", "ETIMEDOUT", "ENOTFOUND", "EAI_AGAIN"].includes(code))
+					? code
+					: "unknown";
+			// pg may attach a whole client (including credentials) to the error object.
+			console.error({ event: "postgres_connection_error", code: safeCode });
 		};
 		// A Postgres connection can drop at any time — e.g. a serverless Postgres such as Neon
 		// terminating the connection (code 57P01). `pg` surfaces this as an 'error' event, and
