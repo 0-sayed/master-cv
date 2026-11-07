@@ -1,0 +1,38 @@
+name: PR Metadata
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  title:
+    name: Conventional PR title
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+    steps:
+      # Metadata only: no checkout, scripts or packages from the PR head.
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            if (!/^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([^\r\n)]+\))?!?: \S.+$/.test(title)) {
+              core.setFailed('Use a Conventional Commit title, for example: chore: bootstrap project');
+            }
+  assign:
+    name: Assign PR author
+    if: github.event.action == 'opened' && github.event.pull_request.user.type == 'User'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            await github.rest.issues.addAssignees({
+              ...context.repo,
+              issue_number: context.payload.pull_request.number,
+              assignees: [context.payload.pull_request.user.login],
+            });

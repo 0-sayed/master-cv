@@ -21,7 +21,7 @@ jobs:
 
       - name: Checkout Repository (Blacksmith)
         if: ${{ vars.USE_BLACKSMITH == 'true' }}
-        uses: useblacksmith/checkout@v1
+        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           persist-credentials: false
 

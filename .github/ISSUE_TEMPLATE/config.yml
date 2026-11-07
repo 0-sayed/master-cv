@@ -1,8 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Questions and support
-    url: https://github.com/reactive-resume/reactive-resume/discussions/categories/q-a
-    about: Get help with setup, configuration, and using Reactive Resume.
-  - name: Security vulnerability
-    url: https://github.com/reactive-resume/reactive-resume/security/advisories/new
-    about: Report security vulnerabilities privately.
+    url: https://github.com/0-sayed/master-cv/issues/new?template=1-bug-report.yml
+    about: Get help with Master CV in the product repository. Do not include credentials or private CV data.

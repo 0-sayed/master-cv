@@ -1,0 +1,89 @@
+# Exact Gitleaks fingerprints only; rationale and owner blockers: docs/t000-evidence.md.
+# Test-scoped synthetic encryption/cron credentials injected into mocked fixture environment.
+ba4bec2bd8fef665629d5a4092e1ecfcd5c6880e:packages/api/src/features/career/jobs.integration.test.ts:generic-api-key:196
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+5d90dcb7d0400b366b4d7461752e10013e5ed313:docs/guides/using-the-api.mdx:curl-auth-header:58
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+5d90dcb7d0400b366b4d7461752e10013e5ed313:docs/guides/using-the-api.mdx:curl-auth-header:83
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+5d90dcb7d0400b366b4d7461752e10013e5ed313:docs/guides/using-the-api.mdx:curl-auth-header:90
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+5d90dcb7d0400b366b4d7461752e10013e5ed313:docs/guides/using-the-api.mdx:curl-auth-header:140
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+5d90dcb7d0400b366b4d7461752e10013e5ed313:docs/guides/using-the-api.mdx:curl-auth-header:151
+# Test-scoped synthetic encryption/cron credentials injected into mocked fixture environment.
+5d90dcb7d0400b366b4d7461752e10013e5ed313:packages/api/src/features/web-access/credentials.integration.test.ts:generic-api-key:9
+# Test-scoped synthetic encryption/cron credentials injected into mocked fixture environment.
+5d90dcb7d0400b366b4d7461752e10013e5ed313:packages/api/src/features/web-access/credentials.integration.test.ts:generic-api-key:65
+# Test-scoped synthetic encryption/cron credentials injected into mocked fixture environment.
+5d90dcb7d0400b366b4d7461752e10013e5ed313:packages/api/src/features/web-access/credentials.integration.test.ts:generic-api-key:127
+# Test-scoped synthetic encryption/cron credentials injected into mocked fixture environment.
+5d90dcb7d0400b366b4d7461752e10013e5ed313:packages/api/src/features/web-access/credentials.integration.test.ts:generic-api-key:178
+# Inherited deterministic ENCRYPTION_SECRET for CI artifact validation; not a production key.
+8c40313980c4e384f042696c72044bd908948d1b:.github/workflows/vercel.yml:generic-api-key:32
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+fbf1f8fbaca6f3b5e894b6cd128c12686df893a3:docs/guides/using-the-api.mdx:curl-auth-header:95
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+cc01fb941874bcef4e8cffb9de4f91bd4ca20538:docs/guides/using-the-patch-api.mdx:curl-auth-header:65
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+cc01fb941874bcef4e8cffb9de4f91bd4ca20538:docs/guides/using-the-patch-api.mdx:curl-auth-header:81
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+cc01fb941874bcef4e8cffb9de4f91bd4ca20538:docs/guides/using-the-patch-api.mdx:curl-auth-header:114
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+cc01fb941874bcef4e8cffb9de4f91bd4ca20538:docs/guides/using-the-patch-api.mdx:curl-auth-header:129
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+cc01fb941874bcef4e8cffb9de4f91bd4ca20538:docs/guides/using-the-patch-api.mdx:curl-auth-header:145
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+cc01fb941874bcef4e8cffb9de4f91bd4ca20538:docs/guides/using-the-patch-api.mdx:curl-auth-header:163
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+cad390fa13f75103ad0f0f8dc32727a82ab6909b:docs/guides/using-the-api.mdx:curl-auth-header:46
+# Historical TypeScript import identifier/module path, not a LinkedIn credential.
+a32def20860aea9bc5a16a126464c13a75148be5:apps/client/src/pages/dashboard/resumes/_dialogs/import.tsx:linkedin-client-secret:4
+# Historical TypeScript import identifier/module path, not a LinkedIn credential.
+22933bd41222a3292814f6c0fbbbcbc32eda5f51:libs/parser/src/linkedin/index.ts:linkedin-client-id:19
+# Historical synthetic demo photograph public download URL; token is an image download locator, not a provider service credential.
+5ec1f21bd30eec9da4ef1203baba8b89bf4b5a95:src/data/demoState.json:generic-api-key:140
+# Vendored Yarn parser distribution/documentation string, not credential configuration.
+9c1380f401988f81c437aa3b7dc97d6b06d685ad:.yarn/releases/yarn-3.2.0.cjs:generic-api-key:127
+# Inherited deterministic ENCRYPTION_SECRET for CI artifact validation; not a production key.
+.github/workflows/vercel.yml:generic-api-key:30
+# Figma file identifier in the planning registry, not authentication material.
+Planning/context/design/figma-map.json:generic-api-key:151
+# Figma file identifier in the planning registry, not authentication material.
+Planning/context/design/copy-deck.json:generic-api-key:5
+# Figma file identifier in the planning registry, not authentication material.
+Planning/context/design/figma-map.json:generic-api-key:187928
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+docs/guides/using-the-api.mdx:curl-auth-header:58
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+docs/guides/using-the-api.mdx:curl-auth-header:83
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+docs/guides/using-the-api.mdx:curl-auth-header:90
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+docs/guides/using-the-api.mdx:curl-auth-header:136
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+docs/guides/using-the-api.mdx:curl-auth-header:140
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+docs/guides/using-the-api.mdx:curl-auth-header:151
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+docs/guides/using-the-patch-api.mdx:curl-auth-header:64
+# Documentation curl example uses YOUR/API_KEY placeholder; inspected every flagged span.
+docs/guides/using-the-patch-api.mdx:curl-auth-header:80
+# Test-scoped synthetic encryption/cron credentials injected into mocked fixture environment.
+packages/api/src/features/career/jobs.integration.test.ts:generic-api-key:196
+# Test-scoped synthetic encryption/cron credentials injected into mocked fixture environment.
+packages/api/src/features/web-access/credentials.integration.test.ts:generic-api-key:9
+# Test-scoped synthetic encryption/cron credentials injected into mocked fixture environment.
+packages/api/src/features/web-access/credentials.integration.test.ts:generic-api-key:70
+# Test-scoped synthetic encryption/cron credentials injected into mocked fixture environment.
+packages/api/src/features/web-access/credentials.integration.test.ts:generic-api-key:132
+# Test-scoped synthetic encryption/cron credentials injected into mocked fixture environment.
+packages/api/src/features/web-access/credentials.integration.test.ts:generic-api-key:183
+# Inherited upstream history: committed by the upstream author before this fork; not owner credentials, absent from current files. Owner accepted 2026-11-05.
+22933bd41222a3292814f6c0fbbbcbc32eda5f51:nx.json:generic-api-key:3
+# Inherited upstream history: committed by the upstream author before this fork; not owner credentials, absent from current files. Owner accepted 2026-11-05.
+aec78cf87514f90e349d21297331b91b2e2256ae:.env.example:sentry-access-token:7
+# Inherited upstream history: committed by the upstream author before this fork; not owner credentials, absent from current files. Owner accepted 2026-11-05.
+70ef926b709292f931e7ee0139fc01d58bc4031e:gatsby-config.js:gcp-api-key:46
+# Inherited upstream history: committed by the upstream author before this fork; not owner credentials, absent from current files. Owner accepted 2026-11-05.
+3311e3b49bc2619675851a7beb1201a77562c54d:public/index.html:gcp-api-key:42

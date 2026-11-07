@@ -4,6 +4,8 @@
 pre-commit:
   parallel: true
   jobs:
+    - name: staged secret scan
+      run: pnpm security:staged
     - name: check merge conflict markers
       glob: "*"
       exclude:
