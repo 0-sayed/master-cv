@@ -6,7 +6,12 @@ The Task Graph remains unchanged. No staging, commit, push, PR, deployment or re
 ## Final local verification — 2026-11-05
 
 - Uncommitted working tree on `chore/t000-project-bootstrap`; source HEAD `677b18784c953d26cd4876531441f8cf25d2ef62`.
-  **Final tested commit: PENDING — fill after the authorized commit and verify it matches the tested tree.**
+  **Final tested commit: `21c66d24b025446bb6e6d46e70e62fe97e2a39a1` — committed tree verified against the complete tested snapshot on 2026-11-07.**
+- Authorized pre-commit gate on 2026-11-07: `pnpm exec turbo run test:ci --concurrency=1` passed all 20 tasks
+  (2,031 tests; zero failed/skipped; no cache hits). PostgreSQL 17 ran in its own disposable container with tmpfs,
+  a dynamically allocated loopback port, generated test secrets, local storage and two migrated databases matching CI.
+  The container was stopped and removed afterwards; existing containers and environment files were untouched.
+  Mobile still has no `test:ci` script; its accepted native prerequisite gap remains recorded below.
 - Node **24.22.1**, pnpm **12.14.0**; child Node version also verified. No Git writes, Figma access, deployment, publication or GitHub settings changes.
 - T000 contributes to A07/A08/A12/A13; no owned Figma frame and no business release gate passed.
 
