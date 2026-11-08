@@ -1,7 +1,8 @@
 # T002 implementation evidence
 
 2026-11-08. Branch `feat/t002-design-system-shell`, base `8c7b6f6a5fa01a8492f95afb11f939e7adaa0706`,
-plus the uncommitted working diff. No commit, push, deployment, release approval, A07 pass or graph completion.
+plus the committed T002 changes in [PR #11](https://github.com/0-sayed/master-cv/pull/11).
+No deployment, release approval, A07 pass or T002 graph completion is claimed.
 
 ## Delivery scope
 
@@ -129,8 +130,9 @@ records and source/extraction evidence remain in the ignored task workspace beca
 - Formatting APIs are ready for feature adoption with correct domain semantics. Imported/partial/Hijri CV dates
   remain outside the instant formatter. Native packages typecheck; no native runtime test is claimed.
 
-The foundation implementation is finished within D34's agreed delivery scope. Branch and working diff remain
-uncommitted, unrelated artifacts are preserved, and Task Graph remains unchanged pending authorized merge.
+The foundation implementation is committed and pushed within D34's agreed delivery scope. Unrelated artifacts
+are preserved. T001 is marked done at the owner's explicit instruction after PR #9 merged; T002 stays pending
+until the owner merges this PR.
 
 ## Font review follow-up — 2026-11-08
 
@@ -160,9 +162,8 @@ Fresh verification for this follow-up:
 
 The proposed T002 delivery explicitly includes both migration artifacts:
 `migrations/20261108115423_chemical_nextwave/migration.sql` and
-`migrations/20261108115423_chemical_nextwave/snapshot.json`. Both exist, are unignored, and remain untracked/unstaged
-with the other new T002 files. Include both in a later authorized commit. No replacement migration or schema edit
-was necessary, and no staging or commit occurred.
+`migrations/20261108115423_chemical_nextwave/snapshot.json`. Both are tracked in the T002 feature commit.
+No replacement migration or schema edit was necessary.
 
 Screenshots: `test-results/t002-font-review/{en,ar}-{light,dark}-{1440,390}.png`.
 Font report: `test-results/t002-font-review/font-rendering.json`.
@@ -170,3 +171,12 @@ Logs: `/tmp/master-cv-woff2-{build,e2e,browser,migration-test,schema-check}.log`
 `/tmp/master-cv-woff2-assets.json`. Initial probe runs before server readiness and with an overly strict Arabic
 internal-family-name expectation are excluded; the final probe verifies the existing Arabic PostScript faces.
 No production Arabic change was required. The user development app remains on port 3000.
+
+## Shipping verification — 2026-11-08
+
+The initial full workspace run passed 2,541 tests with 108 environment-gated skips across 20 successful tasks.
+After the review fixes, the affected UI package passes 33 tests and the server passes 159 with 4 existing skips.
+The final built browser run passes 83 tests with 3 feature-gated skips, including all 9 PDF cases and the four new
+sizing/navigation regressions. The server-locale and code-entry regressions failed before their fixes.
+Lint, typecheck (22 tasks), Knip, boundaries, roadmap and changed-file formatting pass. Final AR/EN desktop/mobile
+light/dark screenshots were inspected. The PDF investigation is recorded in [its evidence note](t002-pdf-investigation.md).

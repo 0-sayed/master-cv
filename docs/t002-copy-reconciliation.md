@@ -1,6 +1,6 @@
 # T002 copy reconciliation
 
-2026-11-08, uncommitted `feat/t002-design-system-shell`. Delivery follows the owner's agreed
+2026-11-08, `feat/t002-design-system-shell`, committed in [PR #11](https://github.com/0-sayed/master-cv/pull/11). Delivery follows the owner's agreed
 [D34 scope](../Planning/context/decisions.md#d34--t002-foundation-delivery-boundary--2026-11-08):
 finish the shared theme/language foundation; each existing feature task handles its screen wording.
 
