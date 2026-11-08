@@ -305,12 +305,22 @@ function getFallbackResponseHeaders(pathname: string) {
  * A prerendered page's language: a `?locale=` address first (its hreflang alternates), then the visitor's saved
  * choice, in the order the app reads them (apps/web/src/libs/locale.ts).
  */
-function getPageLocale(request: Request) {
+async function getPageLocale(request: Request) {
 	const requested = new URL(request.url).searchParams.get("locale");
-	if (isUiLocale(requested)) return { locale: requested, requested: true };
+	if (isUiLocale(requested)) return { locale: requested, requested: true, personalized: false };
 
-	const saved = request.headers.get("cookie")?.match(/(?:^|;\s*)locale=([^;]*)/)?.[1] ?? "";
-	return { locale: isUiLocale(saved) ? saved : defaultUiLocale, requested: false };
+	const cookie = request.headers.get("cookie");
+	const saved = cookie?.match(/(?:^|;\s*)locale=([^;]*)/)?.[1] ?? "";
+	if (cookie) {
+		const { auth } = await import("@reactive-resume/auth/config");
+		// Only a browser session supplies an account preference, never API-key or bearer authentication.
+		const headers = new Headers({ cookie });
+		const session = await auth.api.getSession({ headers, query: { disableCookieCache: true } });
+		if (isUiLocale(session?.user.uiLocale)) {
+			return { locale: session.user.uiLocale, requested: false, personalized: true };
+		}
+	}
+	return { locale: isUiLocale(saved) ? saved : defaultUiLocale, requested: false, personalized: false };
 }
 
 function notFoundResponse(options: { head?: boolean; noindex?: boolean } = {}) {
@@ -390,7 +400,7 @@ export async function handleWebApp(request: Request, readFile: ReadWebFile = (pa
 
 	const prerendered = prerenderedPages[pathname];
 	if (prerendered) {
-		const { locale, requested } = getPageLocale(request);
+		const { locale, requested, personalized } = await getPageLocale(request);
 		const origin = new URL(env.APP_URL).origin;
 		// Without a prerendered page (a build that skipped it), the app renders the page in the browser.
 		const page = await readFile(`${prerenderRoot}/${prerendered.name}/${locale}.html`).catch(() =>
@@ -408,7 +418,7 @@ export async function handleWebApp(request: Request, readFile: ReadWebFile = (pa
 		// The saved locale changes what this address shows, so caches have to key on the cookie.
 		return new Response(
 			page.replace("</head>", () => `${markup}</head>`),
-			{ headers: { ...headers, Vary: "Cookie" } },
+			{ headers: { ...headers, Vary: "Cookie", ...(personalized ? { "Cache-Control": "private, no-store" } : {}) } },
 		);
 	}
 

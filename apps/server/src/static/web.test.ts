@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -5,7 +6,10 @@ const mocks = vi.hoisted(() => ({
 	env: { APP_URL: "https://rxresu.me", ROOT_RESUME_ID: undefined as string | undefined },
 	serveStatic: vi.fn(() => vi.fn()),
 	getPublicResumeSocialMeta: vi.fn(),
+	getSession: vi.fn(),
 }));
+
+vi.mock("@reactive-resume/auth/config", () => ({ auth: { api: { getSession: mocks.getSession } } }));
 
 vi.mock("@reactive-resume/api/features/resume/social-meta", () => ({
 	getPublicResumeSocialMeta: mocks.getPublicResumeSocialMeta,
@@ -37,6 +41,34 @@ describe("web app fallback classification", () => {
 		mocks.env.ROOT_RESUME_ID = undefined;
 		vi.mocked(fs.readFile).mockResolvedValue("<html>app</html>");
 		mocks.getPublicResumeSocialMeta.mockResolvedValue(null);
+		mocks.getSession.mockResolvedValue(null);
+	});
+
+	it.each([
+		["en-US", "ar-SA"],
+		["ar-SA", "en-US"],
+	])("prerenders the saved %s account preference ahead of a %s cookie", async (saved, cookie) => {
+		mocks.getSession.mockResolvedValue({ user: { uiLocale: saved } });
+		vi.mocked(fs.readFile).mockImplementation((path) => {
+			const locale = String(path).match(/dist-prerender\/home\/(.+)\.html$/)?.[1];
+			return Promise.resolve(`<html><head></head><body>${locale ?? "shell"}</body></html>`);
+		});
+		const response = await handleWebApp(
+			new Request("https://example.com/", {
+				headers: {
+					cookie: `session_token=synthetic; locale=${cookie}`,
+					"x-api-key": "synthetic",
+					authorization: "Bearer synthetic",
+				},
+			}),
+		);
+		expect(await response.text()).toContain(`<body>${saved}</body>`);
+		expect(response.headers.get("cache-control")).toBe("private, no-store");
+		const call = mocks.getSession.mock.calls[0];
+		assert.ok(call);
+		const sessionHeaders = call[0].headers as Headers;
+		expect(sessionHeaders.get("x-api-key")).toBeNull();
+		expect(sessionHeaders.get("authorization")).toBeNull();
 	});
 
 	it("injects canonical metadata and structured data into tracking-parameter root requests only", async () => {

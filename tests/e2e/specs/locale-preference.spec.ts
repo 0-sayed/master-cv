@@ -26,6 +26,10 @@ test("validates and isolates a persisted UI locale, including a fresh cookie-fre
 	const other = await browser.newContext({ baseURL });
 	const second = createAccount(testInfo);
 	try {
+		// The initial server HTML must agree with the account even before client-side locale loading.
+		const home = await fresh.request.get("/");
+		expect(home.headers()["cache-control"]).toBe("private, no-store");
+		expect(await home.text()).toMatch(/<html[^>]*lang="en-US"/);
 		const page = await fresh.newPage();
 		await page.goto("/dashboard/settings/preferences");
 		await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
