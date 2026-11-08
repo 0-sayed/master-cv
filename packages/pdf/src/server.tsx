@@ -5,12 +5,12 @@ import type { Template } from "@reactive-resume/schema/templates";
 import * as forme from "@formepdf/core";
 import { parseResumeData } from "@reactive-resume/schema/resume/data";
 import { configureFontReader } from "./forme/fonts";
-import { readServerFont } from "./forme/fonts.node";
+import { readServerFont } from "./forme/fonts.node.ts";
 import { readServerImage } from "./forme/images.node.ts";
 import { assertPdfFonts, renderResume } from "./forme/render";
 
-export { configureOwnPictureReader } from "./forme/images.node";
-export { readServerFont } from "./forme/fonts.node";
+export { configureOwnPictureReader } from "./forme/images.node.ts";
+export { readServerFont } from "./forme/fonts.node.ts";
 
 configureFontReader(readServerFont);
 
