@@ -5,6 +5,10 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import { useState } from "react";
 import { OTPField } from "./otp-field";
 describe("OTPField", () => {
+	it.each(["alpha", "alphanumeric", "none"] as const)("offers a text keyboard for %s codes", (validationType) => {
+		render(<OTPField length={4} validationType={validationType} />);
+		for (const input of screen.getAllByRole("textbox")) expect(input).toHaveAttribute("inputmode", "text");
+	});
 	it("accepts Arabic/Persian paste, preserves zero and does not submit by default", async () => {
 		const submit = vi.fn((event) => event.preventDefault());
 		function Field() {

@@ -15,7 +15,7 @@ function OTPField({
 			data-slot="otp-field"
 			length={length}
 			dir="ltr"
-			inputMode="numeric"
+			inputMode={validationType === "numeric" ? "numeric" : "text"}
 			validationType={validationType === "numeric" ? "none" : validationType}
 			normalizeValue={(value) => {
 				const normalized = validationType === "numeric" ? normalizeNumericDigits(value).replace(/\D/g, "") : value;

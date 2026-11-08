@@ -1,10 +1,29 @@
-import { render, screen } from "@testing-library/react";
+import assert from "node:assert/strict";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { useState } from "react";
 import { VerificationCodeField } from "./verification-code-field";
 
 describe("VerificationCodeField", () => {
+	it("shows the current editing cell and selected digits, then clears the indicator on blur", async () => {
+		render(<VerificationCodeField aria-label="Code" length={6} value="012345" onValueChange={vi.fn()} />);
+		const input = screen.getByRole("textbox", { name: "Code" }) as HTMLInputElement;
+		assert.ok(input.parentElement);
+		const cells = input.parentElement.querySelectorAll('[data-slot="code-cell"]');
+		await userEvent.click(input);
+		await userEvent.keyboard("{Home}{ArrowRight}{ArrowRight}");
+		expect(input.selectionStart).toBe(2);
+		expect(cells[2]).toHaveAttribute("data-active");
+		expect(cells[1]).not.toHaveAttribute("data-active");
+		input.setSelectionRange(2, 4);
+		fireEvent.select(input);
+		expect(cells[2]).toHaveAttribute("data-active");
+		expect(cells[3]).toHaveAttribute("data-active");
+		expect(cells[4]).not.toHaveAttribute("data-active");
+		await userEvent.tab();
+		for (const cell of cells) expect(cell).not.toHaveAttribute("data-active");
+	});
 	it("keeps a read-only code immutable when the user pastes", async () => {
 		const change = vi.fn();
 		render(<VerificationCodeField aria-label="Code" length={6} value="012345" onValueChange={change} readOnly />);
