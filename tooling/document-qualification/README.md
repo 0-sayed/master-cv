@@ -7,7 +7,7 @@ synthetic inputs and historical reader baselines used by these tests are committ
 `fixtures/regressions/`, so a fresh checkout does not depend on ignored local evidence. No H6
 fixture or sealed result is reopened or regraded by these tests.
 
-This is a failing release gate, separate from ordinary unit tests. It renders actual server PDFs and compares the same bytes through PDF.js 6.4.299 and a checksum-pinned Poppler 22.02.0 Ubuntu revision. Poppler `-layout` is retained as a diagnostic and cannot replace a failed default extraction.
+The local command fails on qualification errors, but qualification CI is report-only. It renders actual server PDFs and compares the same bytes through PDF.js 6.4.299 and a checksum-pinned Poppler 22.02.0 Ubuntu revision. Poppler `-layout` is retained as a diagnostic and cannot replace a failed default extraction.
 
 From the repository root, use Node 24 and the existing pnpm toolchain:
 

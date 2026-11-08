@@ -5,7 +5,7 @@ Status: **complete**, owner-reviewed visually across all 18 templates (Arabic, E
 ## What T001 delivers
 
 - Arabic, English and mixed CVs export through the existing Reactive Resume Forme PDF engine with a pinned, self-hosted Noto Sans Arabic 2.009 (2.012 splits words in PDF.js).
-- D31: exported PDFs display Western digits. D33: tashkeel (U+064B–U+0652, U+0670) is removed at export and import; tatweel (هـ) is kept. Saved CV content is never changed.
+- D31: exported PDFs display Western digits. D33: tashkeel (U+064B–U+0652, U+0670) is removed at export and import; tatweel (ـ) and the Hijri suffix (هـ) are kept. Saved CV content is never changed.
 - D33 point 4 (final owner decision): in Arabic/mixed documents every date range reads in natural Arabic order, start on the right, spaced dash (e.g. `2016 - 2019`, `2015 - حتى الآن`, year-month as `08/1999 - 12/2003`), on the role line. English keeps the upstream `2015 – 2017`. Labelled free-text dates are shown as typed.
 - RTL layout: centred headers, mirrored timelines, accent bars, icons and ratings; contact line matches upstream, with phone numbers kept left-to-right and readable by PDF.js and Poppler.
 - English renders are pixel- and bbox-identical to base `b617646fa` across all 18 templates / 75 pages using the same installed Forme 0.31.0 engine. This comparison does not compare engine versions.
