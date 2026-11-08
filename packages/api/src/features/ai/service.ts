@@ -28,6 +28,7 @@ import {
 import { buildAiExtractionTemplate } from "@reactive-resume/ai/resume/extraction-template";
 import { sanitizeAndParseResumeJson } from "@reactive-resume/ai/resume/sanitize";
 import { AI_PROVIDER_DEFAULT_BASE_URLS, AI_PROVIDER_DISPLAY_NAMES, aiProviderSchema } from "@reactive-resume/ai/types";
+import { normalizeImportedText } from "@reactive-resume/import/normalize";
 import { isDirectOpenAIProvider } from "./capabilities";
 import { resolveAiBaseUrl } from "./url-policy";
 
@@ -361,12 +362,14 @@ function decodeXmlEntities(value: string): string {
 function extractDocxText(file: z.infer<typeof fileInputSchema>): string {
 	const documentXml = readDocumentXml(file.data);
 	// ponytail: minimal OOXML body-text extraction; add a DOCX parser dependency if tracked changes matter.
-	const text = decodeXmlEntities(
-		documentXml
-			.replace(/<w:tab\b[^>]*\/>/g, "\t")
-			.replace(/<w:br\b[^>]*\/>/g, "\n")
-			.replace(/<\/w:p>/g, "\n")
-			.replace(/<[^>]+>/g, ""),
+	const text = normalizeImportedText(
+		decodeXmlEntities(
+			documentXml
+				.replace(/<w:tab\b[^>]*\/>/g, "\t")
+				.replace(/<w:br\b[^>]*\/>/g, "\n")
+				.replace(/<\/w:p>/g, "\n")
+				.replace(/<[^>]+>/g, ""),
+		),
 	)
 		.replace(/\r/g, "")
 		.replace(/[ \t]+\n/g, "\n")

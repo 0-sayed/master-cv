@@ -1,7 +1,54 @@
-import { beforeAll, describe, expect, it } from "vite-plus/test";
+import { beforeAll, describe, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { sampleResumeData } from "@reactive-resume/schema/resume/sample";
-import { detectImportKind, detectJsonImportKind, parseResumeJson } from "./read-file";
+import { detectImportKind, detectJsonImportKind, parseResumeJson, readResumeFile } from "./read-file";
+
+const pdf = vi.hoisted(() => ({ extract: vi.fn() }));
+vi.mock("@/features/ats-checker/extract-client", () => ({ extractPdf: pdf.extract }));
+
+it("imports Arabic month dates using the source PDF language while the interface is English", async () => {
+	const lines = [
+		"أحمد العتيبي",
+		"synthetic@example.test",
+		"الخبرة العملية",
+		"شركة الأفق | مهندس برمجيات",
+		"يناير ٢٠٢٠ - مارس ٢٠٢٢",
+		"التعليم",
+		"جامعة الملك سعود | علوم الحاسب",
+		"٢٠١٦ - ٢٠٢٠",
+	];
+	pdf.extract.mockResolvedValue({
+		version: 1,
+		file: { name: "ar.pdf", sizeBytes: 1, magicBytesOk: true },
+		pageCount: 1,
+		truncated: false,
+		fonts: [],
+		links: [],
+		operatorsAvailable: false,
+		metadata: { language: "ar-SA" },
+		pages: [
+			{
+				pageNumber: 1,
+				width: 595,
+				height: 842,
+				rotation: 0,
+				operators: null,
+				items: lines.map((str, index) => ({
+					str,
+					width: 400,
+					height: 10,
+					dir: /[\u0600-\u06ff]/u.test(str) ? "rtl" : "ltr",
+					transform: [10, 0, 0, 10, 60, 780 - index * 20],
+					fontRef: "font",
+					hasEOL: true,
+				})),
+			},
+		],
+	});
+	const data = await readResumeFile(new File(["%PDF-"], "ar.pdf"), "pdf", { aiAvailable: false });
+	expect(data.metadata.page.locale).toBe("ar-SA");
+	expect(data.sections.experience.items[0]?.dates).toMatchObject({ start: "2020-01", end: "2022-03" });
+});
 
 beforeAll(() => i18n.loadAndActivate({ locale: "en-US", messages: {} }));
 

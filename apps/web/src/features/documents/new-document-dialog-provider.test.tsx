@@ -11,10 +11,10 @@ const api = vi.hoisted(() => ({
 	importResume: vi.fn(),
 	parsePdf: vi.fn(),
 	parseDocx: vi.fn(),
-	extractPdfLines: vi.fn(),
+	extractPdfText: vi.fn(),
 }));
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
-vi.mock("@/features/resume/import/pdf-text", () => ({ extractPdfLines: api.extractPdfLines }));
+vi.mock("@/features/resume/import/pdf-text", () => ({ extractPdfText: api.extractPdfText }));
 vi.mock("@/libs/orpc/client", () => ({
 	client: { resume: { import: api.importResume }, ai: { parsePdf: api.parsePdf, parseDocx: api.parseDocx } },
 	orpc: {
@@ -36,13 +36,9 @@ beforeEach(() => {
 	queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	api.providers.mockRejectedValue(new Error("Provider lookup offline"));
 	api.importResume.mockResolvedValue("imported-resume");
-	api.extractPdfLines.mockResolvedValue([
-		"Alex Morgan",
-		"alex@example.test",
-		"Product Manager",
-		"Experience",
-		"Customer research",
-	]);
+	api.extractPdfText.mockResolvedValue({
+		lines: ["Alex Morgan", "alex@example.test", "Product Manager", "Experience", "Customer research"],
+	});
 });
 afterEach(() => {
 	cleanup();
@@ -65,7 +61,7 @@ it("imports a PDF through the local text reader when AI connection lookup fails"
 	mount(file);
 	await screen.findByRole("heading", { name: "Imported" });
 	expect(api.providers).toHaveBeenCalled();
-	expect(api.extractPdfLines).toHaveBeenCalledWith(file);
+	expect(api.extractPdfText).toHaveBeenCalledWith(file);
 	expect(api.importResume).toHaveBeenCalledWith({
 		data: expect.objectContaining({ basics: expect.objectContaining({ name: "Alex Morgan" }) }),
 	});
@@ -81,5 +77,5 @@ it("keeps a recoverable connection error for Word files that require AI", async 
 	expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled();
 	expect(api.importResume).not.toHaveBeenCalled();
 	expect(api.parseDocx).not.toHaveBeenCalled();
-	expect(api.extractPdfLines).not.toHaveBeenCalled();
+	expect(api.extractPdfText).not.toHaveBeenCalled();
 });

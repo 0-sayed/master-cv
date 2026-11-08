@@ -97,13 +97,14 @@ describe("AI DOCX parsing", () => {
 			apiKey: "test-key",
 			baseURL: "https://example.test/v1",
 			mediaType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-			file: { name: "resume.docx", data: createDocxBase64("Jane Doe &amp; Co") },
+			file: { name: "resume.docx", data: createDocxBase64("Jane Doe &amp; Co أَحْمَدُ ١٢ ۳۴ ـٰ ١٤٤٥ هـ صـ") },
 		});
 
 		const request = generateTextMock.mock.calls[0]?.[0] as { messages: unknown[] };
 		const messages = JSON.stringify(request.messages);
 
-		expect(messages).toContain("Jane Doe & Co");
+		expect(messages).toContain("Jane Doe & Co أحمد 12 34 ـ 1445 هـ صـ");
+		expect(messages).not.toMatch(/[٠-٩۰-۹\u064B-\u0652\u0670]/u);
 		expect(messages).toContain("converted to plain text");
 		expect(messages).not.toContain('"type":"file"');
 	});
