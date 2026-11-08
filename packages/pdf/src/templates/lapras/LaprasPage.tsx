@@ -90,7 +90,7 @@ const Header = ({ styles }: LaprasHeaderProps) => (
 );
 
 const useLaprasTemplate = (): LaprasTemplate => {
-	const { picture, metadata, r, foreground, background, primary, metrics, base } = useTemplateBase();
+	const { picture, metadata, rtl, r, foreground, background, primary, metrics, base } = useTemplateBase();
 
 	return useMemo(() => {
 		const borderColor = "#CCCCCC";
@@ -150,6 +150,7 @@ const useLaprasTemplate = (): LaprasTemplate => {
 				padding: metrics.gapX(1),
 			},
 			headerTitle: {
+				...(rtl ? { flex: 1, minWidth: 0 } : {}),
 				rowGap: metrics.gapY(0.5),
 			},
 			headerIdentity: {
@@ -185,5 +186,5 @@ const useLaprasTemplate = (): LaprasTemplate => {
 				icon: createIconSlot({ metadata, accentFor }),
 			} satisfies LaprasStyles,
 		};
-	}, [picture, metadata, r, primary, metrics, base, foreground, background]);
+	}, [picture, metadata, rtl, r, primary, metrics, base, foreground, background]);
 };

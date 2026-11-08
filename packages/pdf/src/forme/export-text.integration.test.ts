@@ -34,7 +34,6 @@ it.each([
 	["שלום עולם ניסיון עבודה", "Noto Sans Hebrew", "he-IL"],
 	["שָׁלוֹם עוֹלָם", "Noto Sans Hebrew", "he-IL"],
 	["مرحبا بالعالم مهندس برمجيات", "Noto Sans Arabic", "ar-SA"],
-	["مَرْحَبًا بِالْعَالَمِ", "Noto Sans Arabic", "ar-SA"],
 	["नमस्ते दुनिया अनुभव कौशल", "Noto Sans Devanagari", "hi-IN"],
 	["प्रशिक्षण क्षेत्र दृष्टि क्षत्रिय", "Noto Sans Devanagari", "hi-IN"],
 	["日本語の履歴書 職務経験", "Noto Sans JP", "ja-JP"],
@@ -43,6 +42,12 @@ it.each([
 	["LessPass 6.1k⭐★ rated ★★★☆☆", "IBM Plex Sans", "en-US"],
 ] as const)("preserves exported Unicode text: %s", { timeout: 60_000 }, async (text, font, locale) => {
 	expect(await exportText(`<p>${text}</p>`, font, locale)).toContain(text);
+});
+
+it("exports Arabic without tashkeel per D33", { timeout: 60_000 }, async () => {
+	const text = await exportText("<p>مَرْحَبًا بِالْعَالَمِ</p>", "Noto Sans Arabic", "ar-SA");
+	expect(text).toContain("مرحبا بالعالم");
+	expect(text).not.toMatch(/[ً-ْٰ]/u);
 });
 
 it.each(["span", "em", "a"])(

@@ -186,7 +186,7 @@ describe("semantic binding host fidelity", () => {
 	it.each([
 		["azurill", 4],
 		["ditgar", 1],
-		["ditto", 3],
+		["ditto", 1], // A hidden picture has neither a picture anchor nor a contact offset.
 		["gengar", 1],
 		["glalie", 1],
 		["leafish", 3],

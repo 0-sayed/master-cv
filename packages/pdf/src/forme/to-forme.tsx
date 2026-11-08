@@ -16,7 +16,10 @@ import {
 	serialize,
 } from "@formepdf/react";
 import { cloneElement, createElement, isValidElement } from "react";
+import { isRTL } from "@reactive-resume/utils/locale";
+import { normalizeNumericDigits, removeArabicDiacritics } from "@reactive-resume/utils/string";
 import { NODE_CONTENT_PREFIX, NODE_SOURCE_PREFIX, RESUME_NODE_PROP } from "../page-map";
+import { freeTextDateRuns } from "./free-text-dates";
 import { HOST } from "./primitives";
 import { flattenAlpha, flattenStyle, toFormeStyle, toPoints, WHITE } from "./style";
 
@@ -31,6 +34,7 @@ type Edges = { top: number; right: number; bottom: number; left: number };
 
 /** Source location of a repeated page background, so free-form measuring can skip it. */
 export const FIXED_SOURCE = "rr-fixed";
+export const NO_WRAP_SOURCE = "rr-no-wrap";
 
 /**
  * List items carry their place in the document into the layout: a source location's line is the item's index + 1
@@ -41,10 +45,17 @@ export const LIST_ROLE = { marker: 2, content: 3, item: 4 } as const;
 const LIST_SOURCE = "rr-list";
 
 type Context = {
+	rtlDocument: boolean;
 	fontSize: number;
 	pageWidth: number;
 	pageHeight: number;
 	inText: boolean;
+	inLink: boolean;
+	noWrap: { count: number; sizes: ReadonlyMap<number, number> };
+	fittedFontSize?: number;
+	dateParagraph?: string;
+	/** Direction inherited by this paragraph before its own inline overrides. */
+	direction: "auto" | "ltr" | "rtl";
 	/** The pictures, loaded by `renderResume`, by source. */
 	images: ReadonlyMap<string, LoadedImage>;
 	/** The key of the nearest tagged block (see `tagNode`). */
@@ -136,6 +147,7 @@ const childContext = (context: Context, parent: ParentStyle, inText = context.in
 	insideRow: context.insideRow || parent.style.flexDirection === "row" || parent.style.flexDirection === "row-reverse",
 	rowParent: parent.style.flexDirection === "row" || parent.style.flexDirection === "row-reverse",
 	inText,
+	direction: parent.style.direction ?? context.direction,
 });
 
 const NO_EDGES: Edges = { top: 0, right: 0, bottom: 0, left: 0 };
@@ -408,7 +420,7 @@ const CONTAINER_KEYS = new Set([
 
 /**
  * Forme 0.25 gives an absolute box no height from its `top` and `bottom`, where Yoga stretched it between them
- * (Azurill's timeline line). A plain bar down the whole content box becomes the left border of a box around the other
+ * (Azurill's timeline line). A plain bar down the whole content box becomes the matching border around the other
  * children instead: that box is as tall as they are, and its border is drawn on every page it reaches. A box that
  * merely stretches along a row keeps its whole height on the page where the row breaks.
  */
@@ -418,13 +430,13 @@ function barAsBorder(spread: { style: FormeStyle; children: ReactNode[] }): {
 } {
 	const isBar = (child: ReactNode): child is ReactElement<{ style: FormeStyle }> => {
 		if (!isValidElement<{ style?: FormeStyle }>(child)) return false;
-		const { position, height, top, bottom, left, width, backgroundColor } = child.props.style ?? {};
+		const { position, height, top, bottom, left, right, width, backgroundColor } = child.props.style ?? {};
 		return (
 			position === "absolute" &&
 			height === undefined &&
 			top === 0 &&
 			bottom === 0 &&
-			typeof left === "number" &&
+			(typeof left === "number" || typeof right === "number") &&
 			typeof width === "number" &&
 			width > 0 &&
 			typeof backgroundColor === "string"
@@ -432,15 +444,21 @@ function barAsBorder(spread: { style: FormeStyle; children: ReactNode[] }): {
 	};
 	const bar = spread.children.find(isBar);
 	if (!bar) return spread;
-	const { left, width, backgroundColor } = bar.props.style as { left: number; width: number; backgroundColor: string };
+	const { left, right, width, backgroundColor } = bar.props.style as {
+		left?: number;
+		right?: number;
+		width: number;
+		backgroundColor: string;
+	};
+	const fromRight = right !== undefined;
 
 	const outer: Record<string, unknown> = {};
 	const inner: Record<string, unknown> = { position: "relative", flexGrow: 1 };
 	for (const [property, value] of Object.entries(spread.style))
 		(CONTAINER_KEYS.has(property) ? inner : outer)[property] = value;
 	// Forme strokes a border centred on the box's edge, so the edge sits half the bar's width in.
-	const edge = left + width / 2;
-	inner.marginLeft = -(edge + width);
+	const edge = (right ?? left ?? 0) + width / 2;
+	inner[fromRight ? "marginRight" : "marginLeft"] = -(edge + width);
 
 	const content = createElement(
 		FormeView,
@@ -451,7 +469,12 @@ function barAsBorder(spread: { style: FormeStyle; children: ReactNode[] }): {
 		FormeView,
 		{
 			key: "bar",
-			style: { flexGrow: 1, marginLeft: edge, borderLeftWidth: width, borderLeftColor: backgroundColor },
+			style: {
+				flexGrow: 1,
+				...(fromRight
+					? { marginRight: edge, borderRightWidth: width, borderRightColor: backgroundColor }
+					: { marginLeft: edge, borderLeftWidth: width, borderLeftColor: backgroundColor }),
+			},
 		},
 		content,
 	);
@@ -462,13 +485,35 @@ function convertChildren(children: HostNode[], context: Context): ReactNode[] {
 	return children.map((child, index) => convertNode(child, context, index));
 }
 
+const inlineText = (node: HostNode): string => ("text" in node ? node.text : node.children.map(inlineText).join(""));
+
 function convertNode(node: HostNode, parentContext: Context, key: number): ReactNode {
-	if ("text" in node) return node.text;
+	// D31/D33: normalize every display run, never saved content or link destinations.
+	if ("text" in node) {
+		const text = removeArabicDiacritics(normalizeNumericDigits(node.text));
+		if (parentContext.inLink || !parentContext.rtlDocument || parentContext.direction === "ltr") return text;
+		const runs = freeTextDateRuns(node.text, parentContext.dateParagraph);
+		if (!runs.some((run) => run.numeric)) return text;
+		// Inline isolates preserve numeric order; only date labels bind with NBSP. Prose may still wrap.
+		return removeArabicDiacritics(
+			runs
+				.map((run) =>
+					run.numeric
+						? `\u2066${run.text}\u2069`
+						: /^(?:من | (?:إلى|حتى|هـ))$/u.test(run.text)
+							? run.text.replaceAll(" ", "\u00a0")
+							: run.text,
+				)
+				.join(""),
+		);
+	}
 	const { props } = node;
 	const ownKey = props[RESUME_NODE_PROP];
 	// Everything drawn inside a tagged block carries its key, so a block Forme leaves out of its layout (it does when
 	// a plain box breaks across pages) can be found by what it contains.
 	let context = typeof ownKey === "string" && ownKey.length > 0 ? { ...parentContext, nodeKey: ownKey } : parentContext;
+	if (node.type === HOST.link) context = { ...context, inLink: true };
+	if (node.type === HOST.text && !context.inText) context = { ...context, dateParagraph: inlineText(node) };
 	if (props["data-resume-list-item"])
 		context = { ...context, listItem: { index: context.lists.count++, role: LIST_ROLE.item } };
 	else if (context.listItem && (props["data-resume-list-marker"] || props["data-resume-list-content"]))
@@ -541,6 +586,17 @@ function convertNode(node: HostNode, parentContext: Context, key: number): React
 		case HOST.link: {
 			const converted = convertStyle(props.style, context, node);
 			const { style } = converted;
+			if (context.fittedFontSize !== undefined) style.fontSize = context.fittedFontSize;
+			const fitIndex = props["data-export-no-wrap"] && !context.inText ? context.noWrap.count++ : undefined;
+			if (fitIndex !== undefined) {
+				style.fontSize = context.noWrap.sizes.get(fitIndex) ?? style.fontSize ?? context.fontSize;
+				style.hyphens = "none";
+				style.direction = "ltr";
+				context = { ...context, fittedFontSize: style.fontSize as number };
+			}
+			const markFit = (element: ReactElement) => {
+				if (fitIndex !== undefined) context.sourceMap.set(element, { file: NO_WRAP_SOURCE, line: fitIndex, column: 0 });
+			};
 			if (converted.hidden) return null;
 			// react-pdf gives a text with nothing in it no height; Forme gives it a line.
 			if (!context.inText && node.children.every(isEmptyText)) {
@@ -580,12 +636,18 @@ function convertNode(node: HostNode, parentContext: Context, key: number): React
 				}
 				flush();
 				const viewStyle: FormeStyle = { flexDirection: "column", ...flowStyle(props, style) };
-				const element = createElement(FormeView, { key, style: viewStyle, ...(href ? { href } : {}) }, ...children);
+				const row = unreverseRow({ style: viewStyle, children });
+				const element = createElement(FormeView, { key, style: row.style, ...(href ? { href } : {}) }, ...row.children);
 				tagNode(element, props, context);
 				return element;
 			}
 			const runs = context.inText ? node.children : withoutTrailingBreaks(node.children);
-			const children = convertChildren(runs, childContext(context, converted, true));
+			const convertedRuns = convertChildren(runs, childContext(context, converted, true));
+			// An inline LTR field needs an explicit isolate in its enclosing RTL paragraph.
+			const children =
+				context.inText && context.direction === "rtl" && style.direction === "ltr"
+					? ["\u2066", ...convertedRuns, "\u2069"]
+					: convertedRuns;
 			const textStyle: FormeStyle = { ...context.textDefaults, ...flowStyle(props, style) };
 			// Forme 0.25 loses the rest of the page (boxes at y -1.8e308) when a row with a text as a direct child breaks
 			// across pages. The text sits in a box that takes its place in the row; a text with a background, border or
@@ -598,12 +660,14 @@ function convertNode(node: HostNode, parentContext: Context, key: number): React
 					(ROW_ITEM_KEYS.has(property) || TEXT_BOX_KEYS.has(property) ? box : text)[property] = value;
 				const inner = createElement(FormeText, { style: text as FormeStyle, ...(href ? { href } : {}) }, ...children);
 				tagNode(inner, props, context);
+				markFit(inner);
 				const wrapper = createElement(FormeView, { key, style: box as FormeStyle }, inner);
 				tagNode(wrapper, props, context);
 				return strutMinWidth(wrapper, context);
 			}
 			const element = createElement(FormeText, { key, style: textStyle, ...(href ? { href } : {}) }, ...children);
 			tagNode(element, props, context);
+			markFit(element);
 			return context.inText ? element : strutMinWidth(element, context);
 		}
 		case HOST.image: {
@@ -966,6 +1030,7 @@ export type ConvertedDocument = { document: FormeDocument; warnings: string[] };
  * is how the page map finds them.
  */
 export type ConvertOptions = {
+	noWrapFontSizes?: ReadonlyMap<number, number>;
 	images?: ReadonlyMap<string, LoadedImage>;
 	/**
 	 * Forme 0.25 sometimes gives a row within a row a box at y -1.8e308 on the next page when the outer row splits,
@@ -990,16 +1055,21 @@ export function toFormeDocument(
 		breakBeforeListItems = new Set(),
 		breakBeforeNodes = new Set(),
 		freeFormHeights = [],
+		noWrapFontSizes = new Map(),
 	}: ConvertOptions = {},
 ): ConvertedDocument {
 	const root = tree.find((node): node is HostElement => node.type === HOST.document);
 	if (!root) throw new Error("The resume didn't render a <Document>.");
 
 	const context: Context = {
+		rtlDocument: typeof root.props.language === "string" && isRTL(root.props.language),
 		fontSize: 12,
 		pageWidth: DEFAULT_PAGE.width,
 		pageHeight: DEFAULT_PAGE.height,
 		inText: false,
+		inLink: false,
+		noWrap: { count: 0, sizes: noWrapFontSizes },
+		direction: "ltr",
 		parentPadding: NO_EDGES,
 		insideRow: false,
 		rowParent: false,

@@ -65,17 +65,16 @@ const findText = (items: TextItem[], text: string) => {
 	return item;
 };
 
-/** Dates end flush with the content box's right edge. */
+/** English retains upstream trailing-edge date geometry. */
 const expectTrailingAlignment = (items: TextItem[]) => {
-	const expectedText = ["2010", "2011", "2012", "Paris • 2020", "Paris • 2021", "Paris • 2022", "Paris • 2023"];
-	for (const text of expectedText) {
+	for (const text of ["2010", "2011", "2012", "Paris • 2020", "Paris • 2021", "Paris • 2022", "Paris • 2023"]) {
 		const item = findText(items, text);
 		expect(item.transform[4] + item.width, text).toBeCloseTo(565.28, 1);
 	}
 };
 
 describe("optional experience and education header fields (#3338)", () => {
-	it("keeps dates at the trailing edge with empty leading fields", async () => {
+	it("keeps English dates at the upstream trailing edge with empty optional leading fields", async () => {
 		const data = fixture();
 		data.metadata.stylesheet = { mode: "semantic", source: { languageVersion: 1, text: "@version 1;" } };
 		const items = await renderText(data);

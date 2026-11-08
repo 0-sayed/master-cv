@@ -37,10 +37,12 @@ function trimFonts(directory: Directory, incoming: number) {
 
 /** Disk failures never prevent a network font download. Store raw bytes; pdf owns WOFF conversion. */
 export async function readCachedFont(source: string): Promise<Uint8Array> {
+	// Bundled document fonts come from the selected installation, including on a cold native cache.
+	const resolvedSource = new URL(source, getServer()).href;
 	const directory = new Directory(Paths.cache, "pdf-fonts-v1");
 	let file: File | undefined;
 	try {
-		file = new File(directory, await digestStringAsync(CryptoDigestAlgorithm.SHA256, source));
+		file = new File(directory, await digestStringAsync(CryptoDigestAlgorithm.SHA256, resolvedSource));
 		const target = file;
 		const cached = await inFontCache(async () => {
 			directory.create({ intermediates: true, idempotent: true });
@@ -55,7 +57,7 @@ export async function readCachedFont(source: string): Promise<Uint8Array> {
 	} catch {
 		file = undefined;
 	}
-	const bytes = await downloadFont(source, expoFetch as unknown as typeof fetch);
+	const bytes = await downloadFont(resolvedSource, expoFetch as unknown as typeof fetch);
 	if (!isFont(bytes)) throw new Error("Invalid font signature");
 	if (file && bytes.length <= MAX_FONT_CACHE_BYTES) {
 		const target = file;

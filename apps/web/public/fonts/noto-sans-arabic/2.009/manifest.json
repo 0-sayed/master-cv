@@ -1,0 +1,63 @@
+{
+	"family": "Noto Sans Arabic",
+	"version": "2.009",
+	"commit": "ffebf8c1ee449e544955a7e813c54f9b73848eac",
+	"license": "OFL-1.1",
+	"licenseSource": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/LICENSE",
+	"faces": [
+		{
+			"weight": "100",
+			"file": "NotoSansArabic-Thin.ttf",
+			"source": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansArabic/NotoSansArabic-Thin.ttf",
+			"sha256": "4a640ec110b9750efbcec8d70c473def04a9f49b17643172c2f79e1c73ed4a10"
+		},
+		{
+			"weight": "200",
+			"file": "NotoSansArabic-ExtraLight.ttf",
+			"source": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansArabic/NotoSansArabic-ExtraLight.ttf",
+			"sha256": "573f8db6ea9f1d0acef2fc55ac157e1a8b699c43ded7365c7135471e3b5c1a0c"
+		},
+		{
+			"weight": "300",
+			"file": "NotoSansArabic-Light.ttf",
+			"source": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansArabic/NotoSansArabic-Light.ttf",
+			"sha256": "dbf3284f47fa1320f3060c1af26a2a1f13e21423ca5c5be5fc6f8a063eebf8be"
+		},
+		{
+			"weight": "400",
+			"file": "NotoSansArabic-Regular.ttf",
+			"source": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansArabic/NotoSansArabic-Regular.ttf",
+			"sha256": "ceea25b464a656dc3b26849bab9356740401af62aedf1bfa8b7f0d9b75925b1b"
+		},
+		{
+			"weight": "500",
+			"file": "NotoSansArabic-Medium.ttf",
+			"source": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansArabic/NotoSansArabic-Medium.ttf",
+			"sha256": "751d14b3063f4989c05645dacdb99c8b8b986b1927efd31774fe46f4d25dfaa5"
+		},
+		{
+			"weight": "600",
+			"file": "NotoSansArabic-SemiBold.ttf",
+			"source": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansArabic/NotoSansArabic-SemiBold.ttf",
+			"sha256": "83f122d791bb830b14c59d571859d823349827e4afef23ffa09f5369f62dc5e7"
+		},
+		{
+			"weight": "700",
+			"file": "NotoSansArabic-Bold.ttf",
+			"source": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansArabic/NotoSansArabic-Bold.ttf",
+			"sha256": "ed2711b387750ae991b6a980b8dd16fdd65e6702b97e9f52adf3a8edf09ef4df"
+		},
+		{
+			"weight": "800",
+			"file": "NotoSansArabic-ExtraBold.ttf",
+			"source": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansArabic/NotoSansArabic-ExtraBold.ttf",
+			"sha256": "1bf6ea44c322b764407bbcc700c5d63b53b7fb27aa01c7bb70ddb089561bcdf5"
+		},
+		{
+			"weight": "900",
+			"file": "NotoSansArabic-Black.ttf",
+			"source": "https://raw.githubusercontent.com/notofonts/noto-fonts/ffebf8c1ee449e544955a7e813c54f9b73848eac/hinted/ttf/NotoSansArabic/NotoSansArabic-Black.ttf",
+			"sha256": "e13ece07a2ae6fd3e4a528e1b0213fa47ad25d37c685da4320197bac665531d2"
+		}
+	]
+}

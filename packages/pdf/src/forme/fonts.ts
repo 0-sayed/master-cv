@@ -16,12 +16,12 @@ const FALLBACK_AFTER_MS = 3000;
 let preferredHost = GSTATIC_HOSTS[0] ?? "";
 
 function fetchFont(src: string, signal: AbortSignal, fetcher: typeof fetch): Promise<Response> {
-	const url = new URL(src);
+	const url = new URL(src, globalThis.location?.href);
 	const check = (response: Response) => {
 		if (!response.ok) throw new Error(`Font ${src}: HTTP ${response.status}`);
 		return response;
 	};
-	if (!GSTATIC_HOSTS.includes(url.hostname)) return fetcher(src, { signal }).then(check);
+	if (!GSTATIC_HOSTS.includes(url.hostname)) return fetcher(url, { signal }).then(check);
 
 	const hosts = [preferredHost, ...GSTATIC_HOSTS.filter((host) => host !== preferredHost)];
 	const attempts = hosts.map(() => new AbortController());

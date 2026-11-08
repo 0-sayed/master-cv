@@ -109,3 +109,14 @@ it("uses the configured font reader and native streaming fetch without the globa
 	expect(loaded.fonts.map((face) => face.src)).toEqual([bytes, bytes]);
 	expect(fetcher).toHaveBeenCalledOnce();
 });
+
+it("resolves bundled font URLs against the browser installation", async () => {
+	vi.stubGlobal("location", { href: "https://resume.example/editor/synthetic" });
+	const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(new Uint8Array([0, 1, 0, 0])));
+	await expect(downloadFont("/fonts/noto-sans-arabic/2.009/NotoSansArabic-Regular.ttf", fetcher)).resolves.toEqual(
+		new Uint8Array([0, 1, 0, 0]),
+	);
+	expect(String(fetcher.mock.calls[0]?.[0])).toBe(
+		"https://resume.example/fonts/noto-sans-arabic/2.009/NotoSansArabic-Regular.ttf",
+	);
+});

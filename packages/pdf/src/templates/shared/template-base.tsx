@@ -67,6 +67,7 @@ export const TemplateHeader = ({
 }) => {
 	const { basics, picture } = useRender();
 	const hasPicture = hasTemplatePicture(picture);
+	const identityAlignment = styles.identity.textAlign ? { textAlign: styles.identity.textAlign } : {};
 	const contactList = (
 		<SemanticContactListView style={styles.contactList}>
 			<EmailContactItem email={basics.email} style={styles.contactItem} textStyle={styles.contactText} />
@@ -90,8 +91,8 @@ export const TemplateHeader = ({
 
 			<View style={styles.title}>
 				<View style={styles.identity}>
-					<Heading style={styles.name}>{basics.name}</Heading>
-					<Text>{basics.headline}</Text>
+					<Heading style={{ ...styles.name, ...identityAlignment }}>{basics.name}</Heading>
+					<Text style={identityAlignment}>{basics.headline}</Text>
 				</View>
 				{!contactListOutsideTitle && contactList}
 			</View>
