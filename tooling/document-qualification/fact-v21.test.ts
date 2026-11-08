@@ -245,3 +245,82 @@ it("D33 derives mark-free names and Western digits without mutating source gold"
 	expect(gold.fields.find((field) => field.id === "d33-name")?.value).toBe("أحمد 12 34 ـ");
 	expect(input).toEqual(before);
 });
+
+it("retains an undated employer as the anchor of its dated nested role", async () => {
+	const { qualificationFixtures } = await import("./fixtures");
+	const input = qualificationFixtures().find((x) => x.id === "EN01");
+	assert(input);
+	input.data.metadata.layout.pages = [{ fullWidth: true, main: ["experience"], sidebar: [] }];
+	const job = input.data.sections.experience.items[0];
+	assert(job);
+	input.data.sections.experience.items = [job];
+	job.company = "Employer";
+	job.period = "";
+	job.roles = [{ id: "role", position: "Engineer", period: "2020", description: "" }];
+	input.gold = {
+		review: { status: "draft" },
+		text: "Experience Employer Engineer 2020",
+		fields: [{ id: "date", value: "2020" }],
+		associations: [],
+		order: [],
+		forbidden: [],
+	};
+	const gold = expectedDisplayGold(input);
+	expect(gold.entrySpans?.map((entry) => entry.id)).toEqual(["span:experience:0", "span:experience:0:role:0"]);
+	expect(compareQualification(gold, input.gold.text, "fact-level v2.1").passed).toBe(true);
+});
+it("cannot borrow a missing nested role and date from the next employer", () => {
+	const gold = {
+		review: { status: "draft" as const },
+		text: "Experience Alpha Engineer 2020 Beta Engineer 2020 Skills",
+		fields: [
+			{ id: "a", value: "Alpha" },
+			{ id: "b", value: "Beta" },
+			{ id: "role", value: "Engineer" },
+			{ id: "date", value: "2020" },
+		],
+		associations: [],
+		order: [] as [string, string][],
+		forbidden: [],
+		entrySpans: [
+			{ id: "a", anchor: "Alpha", dates: [], next: ["Beta", "Skills"] },
+			{ id: "ar", anchor: "Engineer", dates: ["2020"], after: "a", next: ["Beta", "Skills"] },
+			{ id: "b", anchor: "Beta", dates: [], next: ["Skills"] },
+			{ id: "br", anchor: "Engineer", dates: ["2020"], after: "b", next: ["Skills"] },
+		],
+	};
+	const result = compareQualification(gold, "Experience Alpha Beta Engineer 2020 Skills", "fact-level v2.1");
+	expect(result.associationFailures).toContain("ar");
+	expect(compareQualification(gold, gold.text, "fact-level v2.1").passed).toBe(true);
+});
+
+it("retains a following undated employer as a nested-role boundary", async () => {
+	const { qualificationFixtures } = await import("./fixtures");
+	const input = qualificationFixtures().find((item) => item.id === "EN01");
+	assert(input);
+	input.data.metadata.layout.pages = [{ fullWidth: true, main: ["experience"], sidebar: [] }];
+	const job = input.data.sections.experience.items[0];
+	assert(job);
+	input.data.sections.experience.items = [
+		{
+			...job,
+			company: "Alpha",
+			period: "",
+			roles: [{ id: "role", position: "Engineer", period: "2020", description: "" }],
+		},
+		{ ...job, id: "beta", company: "Beta", period: "", roles: [] },
+	];
+	input.gold = {
+		review: { status: "draft" },
+		text: "Experience Alpha Engineer 2020 Beta",
+		fields: [{ id: "date", value: "2020" }],
+		associations: [],
+		order: [],
+		forbidden: [],
+	};
+	const gold = expectedDisplayGold(input);
+	expect(compareQualification(gold, input.gold.text, "fact-level v2.1").passed).toBe(true);
+	expect(
+		compareQualification(gold, "Experience Alpha Beta Engineer 2020", "fact-level v2.1").associationFailures,
+	).toContain("span:experience:0:role:0");
+});

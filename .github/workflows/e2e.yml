@@ -94,6 +94,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y poppler-utils libfontconfig1 libfreetype6 libjpeg8 liblcms2-2 libnspr4 libnss3 libopenjp2-7 libpng16-16 libstdc++6 libtiff5 zlib1g libcairo2
           node tooling/document-qualification/install-poppler.mjs
+          echo "$GITHUB_WORKSPACE/.superpowers/document-toolchain/bin" >> "$GITHUB_PATH"
 
       - name: Check Package Boundaries
         run: pnpm exec turbo boundaries

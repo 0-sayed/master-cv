@@ -89,3 +89,36 @@ it("inventories certification facts, omitting hidden credentials and URL targets
 		expect(text).toContain(value);
 	for (const value of ["9898", "7777"]) expect(text).not.toContain(value);
 });
+
+it.each(["experience", "education", "projects", "certifications", "skills"] as const)(
+	"omits headings for blank draft %s rows",
+	(id) => {
+		const input = qualificationFixtures().find((x) => x.id === "EN01");
+		assert(input);
+		const data = input.data;
+		data.metadata.layout.pages = [{ fullWidth: true, main: [id], sidebar: [] }];
+		const section = data.sections[id];
+		section.title = "Draft section heading";
+		for (const item of section.items) {
+			if ("company" in item) item.company = " ";
+			if ("school" in item) item.school = " ";
+			if ("name" in item) item.name = " ";
+			if ("title" in item) item.title = " ";
+		}
+		expect(sourceGoldText(data)).not.toContain(section.title);
+	},
+);
+it("omits disabled headings and summaries without visible content", () => {
+	const input = qualificationFixtures().find((x) => x.id === "EN01");
+	assert(input);
+	const data = input.data;
+	data.summary.title = "Summary marker";
+	data.sections.skills.title = "Skills marker";
+	data.summary.showHeading = false;
+	data.sections.skills.showHeading = false;
+	expect(sourceGoldText(data)).not.toContain("Summary marker");
+	expect(sourceGoldText(data)).not.toContain("Skills marker");
+	data.summary.showHeading = true;
+	data.summary.content = "<p> </p>";
+	expect(sourceGoldText(data)).not.toContain("Summary marker");
+});

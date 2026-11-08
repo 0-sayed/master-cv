@@ -53,15 +53,32 @@ export function sourceGoldText(data: ResumeData): string {
 	for (const page of data.metadata.layout.pages)
 		for (const id of [...page.main, ...(page.fullWidth ? [] : page.sidebar)]) {
 			if (id === "summary") {
-				if (!data.summary.hidden) values.push(data.summary.title, plainText(data.summary.content));
+				const content = plainText(data.summary.content);
+				if (!data.summary.hidden && content) {
+					if (data.summary.showHeading !== false) values.push(data.summary.title);
+					values.push(content);
+				}
 				continue;
 			}
 			if (!(id in data.sections)) throw new Error(`Source gold factory does not support section ${id}`);
 			const section = data.sections[id as keyof typeof data.sections];
 			if (section.hidden) continue;
-			const visible = section.items.filter((item) => !item.hidden);
+			const visible = section.items.filter((item) => {
+				if (item.hidden) return false;
+				const title =
+					"company" in item
+						? item.company
+						: "school" in item
+							? item.school
+							: "title" in item
+								? item.title
+								: "name" in item
+									? item.name
+									: undefined;
+				return title === undefined || Boolean(title.trim());
+			});
 			if (!visible.length) continue;
-			values.push(section.title);
+			if (section.showHeading !== false) values.push(section.title);
 			switch (id) {
 				case "experience":
 					for (const job of data.sections.experience.items.filter((item) => !item.hidden && item.company.trim())) {

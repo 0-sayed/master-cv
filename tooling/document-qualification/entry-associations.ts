@@ -23,8 +23,9 @@ export function entryAssociationFailures(
 			.sort((a, b) => a.start - b.start)[0];
 	};
 	const breaks = [...observed.matchAll(/\r?\n/gu)].map((match) => normalize(observed.slice(0, match.index)).length);
-	const anchors = new Map<string, { start: number; end: number; lower: number }>();
-	for (const entry of entries) {
+	const anchors = new Map<string, { start: number; end: number; lower: number; upper: number }>();
+	// Establish parent anchors first so children cannot search through the next employer.
+	for (const entry of [...entries.filter((entry) => !entry.after), ...entries.filter((entry) => entry.after)]) {
 		let lower = 0;
 		let upper = text.length;
 		if (entry.section) {
@@ -40,13 +41,18 @@ export function entryAssociationFailures(
 			const parent = anchors.get(entry.after);
 			if (!parent) continue;
 			lower = Math.max(lower, parent.end);
+			upper = Math.min(upper, parent.upper);
+			for (const other of entries.filter((other) => !other.after && other.id !== entry.after)) {
+				const boundary = anchors.get(other.id);
+				if (boundary && boundary.start >= parent.end) upper = Math.min(upper, boundary.start);
+			}
 		}
 		const found = factFieldSpan(text.slice(lower, upper), {
 			id: entry.id,
 			value: normalize(entry.anchor),
 			occurrence: entry.occurrence,
 		});
-		if (found) anchors.set(entry.id, { start: lower + found.start, end: lower + found.end, lower });
+		if (found) anchors.set(entry.id, { start: lower + found.start, end: lower + found.end, lower, upper });
 	}
 	const starts = new Map([...anchors].map(([id, anchor]) => [id, anchor.start]));
 	const endOf = (id: string) => {

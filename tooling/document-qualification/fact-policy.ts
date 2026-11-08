@@ -28,8 +28,12 @@ function dateProjection(text: string) {
 	return { value, offsets };
 }
 function sameRun(left: string, right: string): boolean {
-	return [/\d/u, /[\p{Script=Latin}_]/u, /[\p{Script=Arabic}\p{M}]/u].some(
-		(script) => script.test(left) && script.test(right),
+	return (
+		(/\d/u.test(left) && /[\p{L}\p{M}_]/u.test(right)) ||
+		(/\d/u.test(right) && /[\p{L}\p{M}_]/u.test(left)) ||
+		[/\d/u, /[\p{Script=Latin}_]/u, /[\p{Script=Arabic}\p{M}]/u].some(
+			(script) => script.test(left) && script.test(right),
+		)
 	);
 }
 function completeBoundary(

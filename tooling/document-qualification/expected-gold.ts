@@ -37,6 +37,7 @@ export function expectedDisplayGold(input: QualificationCase): Gold {
 	};
 	const sectionHeadings: string[] = [];
 	const owners: NonNullable<Gold["entrySpans"]> = [];
+	const roleParents = new Set<string>();
 	const sourceDates = new Set<string>();
 	for (const id of sectionIds) {
 		if (id === "summary") {
@@ -80,6 +81,8 @@ export function expectedDisplayGold(input: QualificationCase): Gold {
 				allowLeading: data.metadata.page.locale === "ar-SA",
 			});
 			if ("roles" in item) {
+				// Undated employers still bound roles belonging to the preceding employer.
+				roleParents.add(ownerId);
 				const roleOccurrences = new Map<string, number>();
 				for (const [roleIndex, role] of item.roles.entries()) {
 					if (!role.position.trim() || !role.period) continue;
@@ -109,7 +112,7 @@ export function expectedDisplayGold(input: QualificationCase): Gold {
 			: {}),
 	}));
 	gold.entrySpans = owners
-		.filter((owner) => owner.dates.length)
+		.filter((owner) => owner.dates.length || roleParents.has(owner.id))
 		.map((owner) => ({
 			...owner,
 			anchor: expectedExportTextDisplay(owner.anchor),

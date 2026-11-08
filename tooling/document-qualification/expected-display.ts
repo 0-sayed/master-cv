@@ -5,8 +5,8 @@ export function expectedExportDateDisplay(source: string, rtl = true): string {
 	// Whole date facts only. Contact, prose and identifier contexts never enter range recognition.
 	const part = "(?:[12]\\d{3}(?:-\\d{2}(?:-\\d{2})?)?|\\d{1,2}/(?:\\d{1,2}/)?[12]\\d{3})";
 	const closed = new RegExp(`^(${part})(\\s+هـ)?\\s*[–—-]\\s*(${part})(\\s+هـ)?$`, "u").exec(value);
-	const open = new RegExp(`^(${part})\\s*[–—-]\\s*(Present|حتى الآن|حالياً)$`, "u").exec(value);
-	if (open) return `${open[1]}- ${open[2]}`;
+	const open = new RegExp(`^(${part})\\s*[–—-]\\s*(Present|حتى الآن|حالياً|حاليا|الآن|الحاضر)$`, "u").exec(value);
+	if (open) return `${open[1]} - ${open[2]}`;
 	if (!closed) return value;
 	const first = closed[1];
 	const last = closed[3];

@@ -12,8 +12,8 @@ it.each([
 	["2020-01-02 – 2021-12-31", "2020-01-02-2021-12-31"],
 	["١٢/٠٩/٢٠٣٢", "12/09/2032"],
 	["1440 هـ", "1440 هـ"],
-	["2024 – Present", "2024- Present"],
-	["2024 – حتى الآن", "2024- حتى الآن"],
+	["2024 – Present", "2024 - Present"],
+	["2024 – حتى الآن", "2024 - حتى الآن"],
 ])("derives D31 display independently: %s", (source, expected) => {
 	expect(expectedExportDateDisplay(source)).toBe(expected);
 });
@@ -38,4 +38,10 @@ it("D33 leaves English date spacing intact while normalizing digits", () => {
 it("D33 source display keeps tatweel and the exact owner labelled range", () => {
 	expect(expectedExportTextDisplay("١٤٤٥-١٤٤٦ هـ أَحْمَدُ ـٰ")).toBe("1445-1446 هـ أحمد ـ");
 	expect(expectedExportDateDisplay("من 2009 إلى 2011")).toBe("من 2009 إلى 2011");
+});
+
+it.each(["حتى الآن", "حالياً", "حاليا", "الآن", "الحاضر"])("projects the current RTL ongoing label: %s", (label) => {
+	expect(expectedExportTextDisplay(expectedExportDateDisplay(`2020-${label}`))).toBe(
+		`2020 - ${label === "حالياً" ? "حاليا" : label}`,
+	);
 });

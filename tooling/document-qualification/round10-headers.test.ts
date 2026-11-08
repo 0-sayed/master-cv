@@ -1,3 +1,4 @@
+import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import assert from "node:assert/strict";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { expect, it } from "vite-plus/test";
@@ -6,6 +7,31 @@ import { createResumePdfFile } from "@reactive-resume/pdf/server";
 import { extractQualificationPdf } from "./extract";
 import { validateManifest } from "./manifest";
 import { regressionIt } from "./regression-status";
+
+const projectDateValues = (items: ResumeData["sections"]["projects"]["items"]): string[] =>
+	items
+		.filter((item) => !item.hidden && item.name.trim())
+		.map((item) => item.dates?.raw ?? item.period)
+		.filter(Boolean);
+it("inventories dates for every visible, titled project", async () => {
+	const { defaultResumeData } = await import("@reactive-resume/schema/resume/default");
+	const data = structuredClone(defaultResumeData);
+	const item = {
+		id: "first",
+		hidden: false,
+		name: "First",
+		period: "1447 هـ",
+		description: "",
+		website: { url: "", label: "", inlineLink: false },
+	};
+	data.sections.projects.items = [
+		item,
+		{ ...item, id: "second", period: "2011 - 2013" },
+		{ ...item, id: "hidden", hidden: true, period: "8888" },
+		{ ...item, id: "draft", name: " ", period: "9999" },
+	];
+	expect(projectDateValues(data.sections.projects.items)).toEqual(["1447 هـ", "2011 - 2013"]);
+});
 
 for (const id of ["H5-EN-10", "H5-EN-11", "H5-EN-14", "H5-MIXED-15", "H5-MIXED-18", "H5-MIXED-19"])
 	regressionIt(`keeps every project date within Projects: ${id}`)(
@@ -38,13 +64,10 @@ for (const id of ["H5-EN-10", "H5-EN-11", "H5-EN-14", "H5-MIXED-15", "H5-MIXED-1
 					.toBeGreaterThan(
 						text.indexOf(input.data.sections.projects.title || (input.language === "en" ? "Projects" : "المشاريع")),
 					);
-				const rawDate: string | undefined = input.data.sections.projects.items[1]?.dates?.raw;
-				assert(rawDate);
-				const numbers = rawDate.includes("/")
-					? ["12/09/2032"]
-					: rawDate.includes("من")
-						? ["2011", "2013"]
-						: ["2015", "2017"];
+				const numbers = projectDateValues(input.data.sections.projects.items).flatMap(
+					(value) => value.match(/\d{1,2}\/\d{1,2}\/\d{4}|\d{4}/gu) ?? [],
+				);
+				expect(numbers.length).toBeGreaterThan(0);
 				for (const number of numbers) {
 					expect
 						.soft(

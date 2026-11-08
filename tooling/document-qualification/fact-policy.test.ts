@@ -162,3 +162,7 @@ describe("D32 fact-level v2", () => {
 			expect(compare(source(expected), observed).passed).toBe(false);
 	});
 });
+
+it.each(["2020s", "s2020", "2020هـجري", "عام2020"])("rejects an unasserted alphanumeric join: %s", (text) => {
+	expect(compare(source("2020", "date"), text).passed).toBe(false);
+});

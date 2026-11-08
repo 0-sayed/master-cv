@@ -36,6 +36,9 @@ export async function verifiedPoppler(executable?: string) {
 		libraryDirectory,
 		revision: pins.poppler.revision,
 		artifacts,
-		env: { ...process.env, LD_LIBRARY_PATH: libraryDirectory },
+		env: {
+			...process.env,
+			LD_LIBRARY_PATH: [libraryDirectory, process.env.LD_LIBRARY_PATH].filter(Boolean).join(":"),
+		},
 	};
 }

@@ -3,7 +3,7 @@ import type { ResumeData } from "@reactive-resume/schema/resume/data";
 
 export type QualificationPolicy = "strict v1" | "fact-level v2" | "fact-level v2.1";
 export type Gold = {
-	review: { status: "draft" | "reviewed"; reviewer?: string | undefined; date?: string | undefined };
+	review: { status: "draft" } | { status: "reviewed"; reviewer: string; date: string };
 	text: string;
 	fields: {
 		id: string;
