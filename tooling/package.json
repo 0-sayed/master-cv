@@ -17,8 +17,8 @@
 		"@reactive-resume/schema": "workspace:*"
 	},
 	"devDependencies": {
-		"node-html-parser": "9.0.5",
-		"@lingui/format-po": "^6.10.0",
+		"node-html-parser": "9.0.6",
+		"@lingui/format-po": "^6.12.0",
 		"@phosphor-icons/react": "^2.1.10",
 		"@reactive-resume/config": "workspace:*",
 		"@reactive-resume/env": "workspace:*",
@@ -37,7 +37,7 @@
 		"wrangler": "catalog:",
 		"@reactive-resume/pdf": "workspace:*",
 		"@reactive-resume/import": "workspace:*",
-		"pdfjs-dist": "6.4.299",
+		"pdfjs-dist": "6.5.438",
 		"zod": "catalog:"
 	}
 }
