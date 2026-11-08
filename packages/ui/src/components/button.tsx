@@ -28,6 +28,7 @@ const buttonVariants = cva(
 			},
 		},
 		compoundVariants: [
+			{ variant: "link", className: "min-h-0 py-0 pointer-coarse:min-h-0" },
 			{ variant: "ghost", size: "default", className: "px-3" },
 			// Press feedback; a text link doesn't press, and a loading button blocks activation.
 			{ variant: ["primary", "secondary", "ghost", "danger"], className: "not-aria-busy:active:scale-[0.97]" },
