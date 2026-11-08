@@ -1,0 +1,1050 @@
+[
+	{
+		"id": "H2-MIXED-17",
+		"language": "mixed",
+		"split": "development",
+		"paths": ["export"],
+		"data": {
+			"picture": {
+				"hidden": true,
+				"fit": "cover",
+				"url": "",
+				"size": 80,
+				"rotation": 0,
+				"aspectRatio": 1,
+				"borderRadius": 0,
+				"borderColor": "rgba(0, 0, 0, 0.5)",
+				"borderWidth": 0,
+				"shadowColor": "rgba(0, 0, 0, 0.5)",
+				"shadowWidth": 0
+			},
+			"basics": {
+				"name": "جُود الطَّائِفِي",
+				"headline": "Data Specialist",
+				"email": "holdout2.17@example.test",
+				"phone": "+۹۶۶ ۵۰ ۷۰۰ ۱۵۹۲",
+				"location": "جدة",
+				"website": {
+					"url": "https://example.test/h2/H2-MIXED-17",
+					"label": "example.test/h2/H2-MIXED-17"
+				},
+				"customFields": []
+			},
+			"summary": {
+				"title": "",
+				"icon": "article",
+				"columns": 1,
+				"hidden": false,
+				"showHeading": true,
+				"keepTogether": false,
+				"startOnNewPage": false,
+				"content": "<p>طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات.</p>"
+			},
+			"sections": {
+				"profiles": {
+					"title": "",
+					"icon": "messenger-logo",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"experience": {
+					"title": "",
+					"icon": "briefcase",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H2-MIXED-17-current",
+							"hidden": false,
+							"company": "شركة حروف",
+							"position": "",
+							"location": "جدة",
+							"period": "2019 – 2022",
+							"dates": {
+								"start": "2019",
+								"end": "2022",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": [
+								{
+									"id": "H2-MIXED-17-senior",
+									"position": "Data Specialist",
+									"period": "2021 – 2022",
+									"dates": {
+										"start": "2021",
+										"end": "2022",
+										"present": false
+									},
+									"description": "<p>راجعت 17 مسار وثائق.</p>"
+								},
+								{
+									"id": "H2-MIXED-17-junior",
+									"position": "مهندس مساعد",
+									"period": "2019 – 2020",
+									"dates": {
+										"start": "2019",
+										"end": "2020",
+										"present": false
+									},
+									"description": ""
+								}
+							]
+						},
+						{
+							"id": "H2-MIXED-17-prior",
+							"hidden": false,
+							"company": "مؤسسة السَّرْد 17",
+							"position": "مطور وثائق",
+							"location": "جدة",
+							"period": "2016 – 2018",
+							"dates": {
+								"start": "2016",
+								"end": "2018",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": []
+						}
+					]
+				},
+				"education": {
+					"title": "",
+					"icon": "graduation-cap",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H2-MIXED-17-school",
+							"hidden": false,
+							"school": "كلية السِّدْر التقنية",
+							"degree": "نظم البرمجيات",
+							"area": "",
+							"grade": "",
+							"location": "",
+							"period": "2014 – 2015",
+							"dates": {
+								"start": "2014",
+								"end": "2015",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"projects": {
+					"title": "",
+					"icon": "code-simple",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H2-MIXED-17-hijri",
+							"hidden": false,
+							"name": "نقل الأرشيف الهجري",
+							"period": "1442 هـ - 1443 هـ",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "1442 هـ - 1443 هـ"
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						},
+						{
+							"id": "H2-MIXED-17-gregorian",
+							"hidden": false,
+							"name": "مراجعة التاريخ",
+							"period": "من 2021 إلى 2024",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "من 2021 إلى 2024"
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"skills": {
+					"title": "",
+					"icon": "compass-tool",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H2-MIXED-17-skill",
+							"hidden": false,
+							"icon": "",
+							"iconColor": "",
+							"name": "Python / تحليل البيانات",
+							"proficiency": "",
+							"level": 0,
+							"keywords": ["SQL", "API"]
+						}
+					],
+					"keywordLayout": "inline",
+					"layout": "default"
+				},
+				"languages": {
+					"title": "",
+					"icon": "translate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"interests": {
+					"title": "",
+					"icon": "football",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"awards": {
+					"title": "",
+					"icon": "trophy",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"certifications": {
+					"title": "",
+					"icon": "certificate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"publications": {
+					"title": "",
+					"icon": "books",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"volunteer": {
+					"title": "",
+					"icon": "hand-heart",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"references": {
+					"title": "",
+					"icon": "phone",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				}
+			},
+			"customSections": [],
+			"metadata": {
+				"template": "leafish",
+				"layout": {
+					"sidebarWidth": 35,
+					"pages": [
+						{
+							"fullWidth": false,
+							"main": ["summary", "experience", "education", "projects"],
+							"sidebar": ["skills"]
+						}
+					]
+				},
+				"page": {
+					"gapX": 4,
+					"gapY": 6,
+					"marginX": 14,
+					"marginY": 12,
+					"format": "a4",
+					"locale": "ar-SA",
+					"dateFormat": "short",
+					"hideLinkUnderline": false,
+					"hideIcons": true,
+					"hideSectionIcons": true
+				},
+				"design": {
+					"level": {
+						"icon": "star",
+						"type": "circle"
+					},
+					"colors": {
+						"primary": "rgba(220, 38, 38, 1)",
+						"text": "rgba(0, 0, 0, 1)",
+						"background": "rgba(255, 255, 255, 1)"
+					}
+				},
+				"typography": {
+					"body": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["400", "500"],
+						"fontSize": 10,
+						"lineHeight": 1.5
+					},
+					"heading": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["600"],
+						"fontSize": 14,
+						"lineHeight": 1.5
+					}
+				},
+				"notes": "",
+				"styleRules": []
+			}
+		},
+		"gold": {
+			"review": {
+				"status": "draft"
+			},
+			"text": "جُود الطَّائِفِي Data Specialist holdout2.17@example.test +۹۶۶ ۵۰ ۷۰۰ ۱۵۹۲ جدة example.test/h2/H2-MIXED-17 طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات. شركة حروف جدة 2019 – 2022 Data Specialist 2021 – 2022 راجعت 17 مسار وثائق. مهندس مساعد 2019 – 2020 مؤسسة السَّرْد 17 مطور وثائق جدة 2016 – 2018 كلية السِّدْر التقنية نظم البرمجيات 2014 – 2015 نقل الأرشيف الهجري 1442 هـ - 1443 هـ مراجعة التاريخ من 2021 إلى 2024 Python / تحليل البيانات SQL API",
+			"fields": [
+				{
+					"id": "name",
+					"value": "جُود الطَّائِفِي"
+				},
+				{
+					"id": "email",
+					"value": "holdout2.17@example.test"
+				},
+				{
+					"id": "phone",
+					"value": "+۹۶۶ ۵۰ ۷۰۰ ۱۵۹۲"
+				},
+				{
+					"id": "company",
+					"value": "شركة حروف"
+				},
+				{
+					"id": "job-start",
+					"value": "2019"
+				},
+				{
+					"id": "job-end",
+					"value": "2022"
+				},
+				{
+					"id": "role",
+					"value": "Data Specialist",
+					"occurrence": 1
+				},
+				{
+					"id": "junior-role",
+					"value": "مهندس مساعد"
+				},
+				{
+					"id": "old-company",
+					"value": "مؤسسة السَّرْد 17"
+				},
+				{
+					"id": "old-role",
+					"value": "مطور وثائق"
+				},
+				{
+					"id": "old-start",
+					"value": "2016"
+				},
+				{
+					"id": "old-end",
+					"value": "2018"
+				},
+				{
+					"id": "school",
+					"value": "كلية السِّدْر التقنية"
+				},
+				{
+					"id": "education-start",
+					"value": "2014"
+				},
+				{
+					"id": "skill",
+					"value": "Python / تحليل البيانات",
+					"match": "mixed-free-text"
+				},
+				{
+					"id": "hijri-raw",
+					"value": "1442 هـ - 1443 هـ",
+					"match": "date"
+				},
+				{
+					"id": "gregorian-raw",
+					"value": "من 2021 إلى 2024",
+					"match": "date"
+				},
+				{
+					"id": "promotion",
+					"value": "2021"
+				},
+				{
+					"id": "senior-end",
+					"value": "2022",
+					"occurrence": 1
+				},
+				{
+					"id": "junior-start",
+					"value": "2019",
+					"occurrence": 1
+				},
+				{
+					"id": "junior-end",
+					"value": "2020"
+				},
+				{
+					"id": "school-degree",
+					"value": "نظم البرمجيات"
+				},
+				{
+					"id": "hijri-raw-title",
+					"value": "نقل الأرشيف الهجري"
+				},
+				{
+					"id": "gregorian-raw-title",
+					"value": "مراجعة التاريخ"
+				},
+				{
+					"id": "location",
+					"value": "جدة"
+				},
+				{
+					"id": "education-end",
+					"value": "2015"
+				},
+				{
+					"id": "basic-website",
+					"value": "example.test/h2/H2-MIXED-17"
+				}
+			],
+			"associations": [
+				{
+					"id": "current-employer",
+					"fields": [
+						"company",
+						"job-start",
+						"job-end",
+						"role",
+						"promotion",
+						"senior-end",
+						"junior-role",
+						"junior-start",
+						"junior-end"
+					]
+				},
+				{
+					"id": "prior-employer",
+					"fields": ["old-company", "old-role", "old-start", "old-end"]
+				},
+				{
+					"id": "education",
+					"fields": ["school", "education-start", "school-degree", "education-end"]
+				},
+				{
+					"id": "hijri-raw-entry",
+					"fields": ["hijri-raw-title", "hijri-raw"]
+				},
+				{
+					"id": "gregorian-raw-entry",
+					"fields": ["gregorian-raw-title", "gregorian-raw"]
+				}
+			],
+			"order": [
+				["name", "company"],
+				["company", "old-company"],
+				["old-company", "school"],
+				["company", "role"],
+				["role", "promotion"],
+				["promotion", "senior-end"],
+				["senior-end", "junior-role"],
+				["junior-role", "junior-start"],
+				["junior-start", "junior-end"],
+				["junior-end", "old-company"],
+				["job-start", "job-end"],
+				["old-start", "old-end"],
+				["education-start", "education-end"]
+			],
+			"forbidden": ["HIDDEN-FACT"]
+		}
+	},
+	{
+		"id": "H2-MIXED-20",
+		"language": "mixed",
+		"split": "development",
+		"paths": ["export"],
+		"data": {
+			"picture": {
+				"hidden": true,
+				"fit": "cover",
+				"url": "",
+				"size": 80,
+				"rotation": 0,
+				"aspectRatio": 1,
+				"borderRadius": 0,
+				"borderColor": "rgba(0, 0, 0, 0.5)",
+				"borderWidth": 0,
+				"shadowColor": "rgba(0, 0, 0, 0.5)",
+				"shadowWidth": 0
+			},
+			"basics": {
+				"name": "سُلَيْمَان عِزَّت",
+				"headline": "مهندس خدمات",
+				"email": "holdout2.20@example.test",
+				"phone": "+۹۶۶ ۵۰ ۷۰۰ ۱۷۰۳",
+				"location": "جدة",
+				"website": {
+					"url": "https://example.test/h2/H2-MIXED-20",
+					"label": "example.test/h2/H2-MIXED-20"
+				},
+				"customFields": []
+			},
+			"summary": {
+				"title": "",
+				"icon": "article",
+				"columns": 1,
+				"hidden": false,
+				"showHeading": true,
+				"keepTogether": false,
+				"startOnNewPage": false,
+				"content": "<p>طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات.</p>"
+			},
+			"sections": {
+				"profiles": {
+					"title": "",
+					"icon": "messenger-logo",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"experience": {
+					"title": "",
+					"icon": "briefcase",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H2-MIXED-20-current",
+							"hidden": false,
+							"company": "Maple Platform Lab",
+							"position": "",
+							"location": "جدة",
+							"period": "2022 – 2025",
+							"dates": {
+								"start": "2022",
+								"end": "2025",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": [
+								{
+									"id": "H2-MIXED-20-senior",
+									"position": "مهندس خدمات",
+									"period": "2024 – 2025",
+									"dates": {
+										"start": "2024",
+										"end": "2025",
+										"present": false
+									},
+									"description": "<p>راجعت 17 مسار وثائق.</p>"
+								},
+								{
+									"id": "H2-MIXED-20-junior",
+									"position": "مهندس مساعد",
+									"period": "2022 – 2023",
+									"dates": {
+										"start": "2022",
+										"end": "2023",
+										"present": false
+									},
+									"description": ""
+								}
+							]
+						},
+						{
+							"id": "H2-MIXED-20-prior",
+							"hidden": false,
+							"company": "مؤسسة السَّرْد 20",
+							"position": "مطور وثائق",
+							"location": "جدة",
+							"period": "2019 – 2021",
+							"dates": {
+								"start": "2019",
+								"end": "2021",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": []
+						}
+					]
+				},
+				"education": {
+					"title": "",
+					"icon": "graduation-cap",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H2-MIXED-20-school",
+							"hidden": false,
+							"school": "كلية السِّدْر التقنية",
+							"degree": "نظم البرمجيات",
+							"area": "",
+							"grade": "",
+							"location": "",
+							"period": "2017 – 2018",
+							"dates": {
+								"start": "2017",
+								"end": "2018",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"projects": {
+					"title": "",
+					"icon": "code-simple",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H2-MIXED-20-hijri",
+							"hidden": false,
+							"name": "نقل الأرشيف الهجري",
+							"period": "1445 هـ",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "1445 هـ"
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						},
+						{
+							"id": "H2-MIXED-20-gregorian",
+							"hidden": false,
+							"name": "مراجعة التاريخ",
+							"period": "04/04/2025",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "04/04/2025"
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"skills": {
+					"title": "",
+					"icon": "compass-tool",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H2-MIXED-20-skill",
+							"hidden": false,
+							"icon": "",
+							"iconColor": "",
+							"name": "Python / تحليل البيانات",
+							"proficiency": "",
+							"level": 0,
+							"keywords": ["SQL", "API"]
+						}
+					],
+					"keywordLayout": "inline",
+					"layout": "default"
+				},
+				"languages": {
+					"title": "",
+					"icon": "translate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"interests": {
+					"title": "",
+					"icon": "football",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"awards": {
+					"title": "",
+					"icon": "trophy",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"certifications": {
+					"title": "",
+					"icon": "certificate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"publications": {
+					"title": "",
+					"icon": "books",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"volunteer": {
+					"title": "",
+					"icon": "hand-heart",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"references": {
+					"title": "",
+					"icon": "phone",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				}
+			},
+			"customSections": [],
+			"metadata": {
+				"template": "chikorita",
+				"layout": {
+					"sidebarWidth": 35,
+					"pages": [
+						{
+							"fullWidth": false,
+							"main": ["summary", "experience", "education", "projects"],
+							"sidebar": ["skills"]
+						}
+					]
+				},
+				"page": {
+					"gapX": 4,
+					"gapY": 6,
+					"marginX": 14,
+					"marginY": 12,
+					"format": "a4",
+					"locale": "ar-SA",
+					"dateFormat": "short",
+					"hideLinkUnderline": false,
+					"hideIcons": true,
+					"hideSectionIcons": true
+				},
+				"design": {
+					"level": {
+						"icon": "star",
+						"type": "circle"
+					},
+					"colors": {
+						"primary": "rgba(220, 38, 38, 1)",
+						"text": "rgba(0, 0, 0, 1)",
+						"background": "rgba(255, 255, 255, 1)"
+					}
+				},
+				"typography": {
+					"body": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["400", "500"],
+						"fontSize": 10,
+						"lineHeight": 1.5
+					},
+					"heading": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["600"],
+						"fontSize": 14,
+						"lineHeight": 1.5
+					}
+				},
+				"notes": "",
+				"styleRules": []
+			}
+		},
+		"gold": {
+			"review": {
+				"status": "draft"
+			},
+			"text": "سُلَيْمَان عِزَّت مهندس خدمات holdout2.20@example.test +۹۶۶ ۵۰ ۷۰۰ ۱۷۰۳ جدة example.test/h2/H2-MIXED-20 طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات. Maple Platform Lab جدة 2022 – 2025 مهندس خدمات 2024 – 2025 راجعت 17 مسار وثائق. مهندس مساعد 2022 – 2023 مؤسسة السَّرْد 20 مطور وثائق جدة 2019 – 2021 كلية السِّدْر التقنية نظم البرمجيات 2017 – 2018 نقل الأرشيف الهجري 1445 هـ مراجعة التاريخ 04/04/2025 Python / تحليل البيانات SQL API",
+			"fields": [
+				{
+					"id": "name",
+					"value": "سُلَيْمَان عِزَّت"
+				},
+				{
+					"id": "email",
+					"value": "holdout2.20@example.test"
+				},
+				{
+					"id": "phone",
+					"value": "+۹۶۶ ۵۰ ۷۰۰ ۱۷۰۳"
+				},
+				{
+					"id": "company",
+					"value": "Maple Platform Lab"
+				},
+				{
+					"id": "job-start",
+					"value": "2022"
+				},
+				{
+					"id": "job-end",
+					"value": "2025"
+				},
+				{
+					"id": "role",
+					"value": "مهندس خدمات",
+					"occurrence": 1
+				},
+				{
+					"id": "junior-role",
+					"value": "مهندس مساعد"
+				},
+				{
+					"id": "old-company",
+					"value": "مؤسسة السَّرْد 20"
+				},
+				{
+					"id": "old-role",
+					"value": "مطور وثائق"
+				},
+				{
+					"id": "old-start",
+					"value": "2019"
+				},
+				{
+					"id": "old-end",
+					"value": "2021"
+				},
+				{
+					"id": "school",
+					"value": "كلية السِّدْر التقنية"
+				},
+				{
+					"id": "education-start",
+					"value": "2017"
+				},
+				{
+					"id": "skill",
+					"value": "Python / تحليل البيانات",
+					"match": "mixed-free-text"
+				},
+				{
+					"id": "hijri-raw",
+					"value": "1445 هـ",
+					"match": "date"
+				},
+				{
+					"id": "gregorian-raw",
+					"value": "04/04/2025",
+					"match": "date"
+				},
+				{
+					"id": "promotion",
+					"value": "2024"
+				},
+				{
+					"id": "senior-end",
+					"value": "2025",
+					"occurrence": 1
+				},
+				{
+					"id": "junior-start",
+					"value": "2022",
+					"occurrence": 1
+				},
+				{
+					"id": "junior-end",
+					"value": "2023"
+				},
+				{
+					"id": "school-degree",
+					"value": "نظم البرمجيات"
+				},
+				{
+					"id": "hijri-raw-title",
+					"value": "نقل الأرشيف الهجري"
+				},
+				{
+					"id": "gregorian-raw-title",
+					"value": "مراجعة التاريخ"
+				},
+				{
+					"id": "location",
+					"value": "جدة"
+				},
+				{
+					"id": "education-end",
+					"value": "2018"
+				},
+				{
+					"id": "basic-website",
+					"value": "example.test/h2/H2-MIXED-20"
+				}
+			],
+			"associations": [
+				{
+					"id": "current-employer",
+					"fields": [
+						"company",
+						"job-start",
+						"job-end",
+						"role",
+						"promotion",
+						"senior-end",
+						"junior-role",
+						"junior-start",
+						"junior-end"
+					]
+				},
+				{
+					"id": "prior-employer",
+					"fields": ["old-company", "old-role", "old-start", "old-end"]
+				},
+				{
+					"id": "education",
+					"fields": ["school", "education-start", "school-degree", "education-end"]
+				},
+				{
+					"id": "hijri-raw-entry",
+					"fields": ["hijri-raw-title", "hijri-raw"]
+				},
+				{
+					"id": "gregorian-raw-entry",
+					"fields": ["gregorian-raw-title", "gregorian-raw"]
+				}
+			],
+			"order": [
+				["name", "company"],
+				["company", "old-company"],
+				["old-company", "school"],
+				["company", "role"],
+				["role", "promotion"],
+				["promotion", "senior-end"],
+				["senior-end", "junior-role"],
+				["junior-role", "junior-start"],
+				["junior-start", "junior-end"],
+				["junior-end", "old-company"],
+				["job-start", "job-end"],
+				["old-start", "old-end"],
+				["education-start", "education-end"]
+			],
+			"forbidden": ["HIDDEN-FACT"]
+		}
+	}
+]

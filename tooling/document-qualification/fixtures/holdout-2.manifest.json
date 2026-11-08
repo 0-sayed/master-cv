@@ -1,0 +1,14 @@
+{
+	"suite": "holdout-2",
+	"date": "2026-11-07",
+	"total": 20,
+	"languages": {
+		"ar": 8,
+		"en": 6,
+		"mixed": 6
+	},
+	"sha256": "9c106e14a8c7dd94e4d97b9443435e6ae3db3c8183e778679b0fe82241b3bb3a",
+	"review": "draft; synthetic authored facts, no human approval",
+	"evaluation": "Reserved for final evaluation. Not rendered or extracted in Round 5.",
+	"factory": "qualificationFixtures() cloned as schema/layout seeds; new names, contacts, employers, nested roles and gold authored before any rendering."
+}

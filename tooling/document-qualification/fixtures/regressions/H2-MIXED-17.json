@@ -1,0 +1,148 @@
+{
+	"readers": [
+		{
+			"reader": "pdfjs",
+			"text": "جُود الطَّائِفِي\nData Specialist\nالملخّص\nوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات.\nexample.test/h2/H2-MIXED-17 جدة +966 50 700 1592 holdout2.17@example.test\nالخبرة  المهارات\nتحليل البيانات / Python  شركة حروف جدة\nSQL, API  2019-2022\nData Specialist 2021-2022\nاجعت 17 مسار وثائق.\nمهندس مساعد 2019-2020\nمؤسسة السَّرْد 17 جدة\nمطور وثائق 2016-2018\nالتعليم\nكلية السِّدْر التقنية نظم البرمجيات\n2014-2015\nالمشاريع\nنقل الأرشيف الهجري  1442 هـ - 1443 هـ\nمراجعة التاريخ  من 2021 إلى 2024",
+			"comparisons": {
+				"strict v1": {
+					"policy": "strict v1",
+					"observed": "جُود الطَّائِفِي\nData Specialist\nالملخّص\nوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات.\nexample.test/h2/H2-MIXED-17 جدة +966 50 700 1592 holdout2.17@example.test\nالخبرة  المهارات\nتحليل البيانات / Python  شركة حروف جدة\nSQL, API  2019-2022\nData Specialist 2021-2022\nاجعت 17 مسار وثائق.\nمهندس مساعد 2019-2020\nمؤسسة السَّرْد 17 جدة\nمطور وثائق 2016-2018\nالتعليم\nكلية السِّدْر التقنية نظم البرمجيات\n2014-2015\nالمشاريع\nنقل الأرشيف الهجري  1442 هـ - 1443 هـ\nمراجعة التاريخ  من 2021 إلى 2024",
+					"passed": false,
+					"acceptance": "failed",
+					"exact": {
+						"recall": 0.9259259259259259
+					},
+					"normalized": {
+						"recall": 0.9629629629629629
+					},
+					"missing": ["skill"],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.46436285097192226,
+					"wordErrorRate": 0.5844155844155844
+				},
+				"fact-level v2": {
+					"policy": "fact-level v2",
+					"observed": "جُود الطَّائِفِي\nData Specialist\nالملخّص\nوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات.\nexample.test/h2/H2-MIXED-17 جدة +966 50 700 1592 holdout2.17@example.test\nالخبرة  المهارات\nتحليل البيانات / Python  شركة حروف جدة\nSQL, API  2019-2022\nData Specialist 2021-2022\nاجعت 17 مسار وثائق.\nمهندس مساعد 2019-2020\nمؤسسة السَّرْد 17 جدة\nمطور وثائق 2016-2018\nالتعليم\nكلية السِّدْر التقنية نظم البرمجيات\n2014-2015\nالمشاريع\nنقل الأرشيف الهجري  1442 هـ - 1443 هـ\nمراجعة التاريخ  من 2021 إلى 2024",
+					"passed": true,
+					"acceptance": "pending-review",
+					"exact": {
+						"recall": 0.9259259259259259
+					},
+					"normalized": {
+						"recall": 1
+					},
+					"missing": [],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.46436285097192226,
+					"wordErrorRate": 0.5844155844155844
+				}
+			}
+		},
+		{
+			"reader": "poppler",
+			"text": "‫جُود الطَّائِفِي‬\n‫‪Data Specialist‬‬\n\n‫الملخّص‬\n\n‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n‫‪ +966 50 700 1592 holdout2.17@example.test‬جدة ‪example.test/h2/H2-MIXED-17‬‬\n\n‫المهارات‬\n\n‫الخبرة‬\n\n‫‪ / Python‬تحليل البيانات‬\n\n‫شركة حروف جدة‬\n\n‫‪2019-2022‬‬\n\n‫‪SQL, API‬‬\n\n‫‪Data Specialist 2021-2022‬‬\n‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n\n‫مهندس مساعد ‪2019-2020‬‬\n‫مؤسسة السَّرْد ‪ 17‬جدة‬\n\n‫مطور وثائق ‪2016-2018‬‬\n\n‫التعليم‬\n\n‫كلية السِّدْر التقنية نظم البرمجيات‬\n‫‪2014-2015‬‬\n\n‫المشاريع‬\n\n‫نقل الأرشيف الهجري‬\n‫مراجعة التاريخ‬\n\n‫‪ 1442‬هـ ‪ 1443 -‬هـ‬\n\n‫من ‪ 2021‬إلى ‪2024‬‬\n\n\f",
+			"comparisons": {
+				"strict v1": {
+					"policy": "strict v1",
+					"observed": "‫جُود الطَّائِفِي‬\n‫‪Data Specialist‬‬\n\n‫الملخّص‬\n\n‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n‫‪ +966 50 700 1592 holdout2.17@example.test‬جدة ‪example.test/h2/H2-MIXED-17‬‬\n\n‫المهارات‬\n\n‫الخبرة‬\n\n‫‪ / Python‬تحليل البيانات‬\n\n‫شركة حروف جدة‬\n\n‫‪2019-2022‬‬\n\n‫‪SQL, API‬‬\n\n‫‪Data Specialist 2021-2022‬‬\n‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n\n‫مهندس مساعد ‪2019-2020‬‬\n‫مؤسسة السَّرْد ‪ 17‬جدة‬\n\n‫مطور وثائق ‪2016-2018‬‬\n\n‫التعليم‬\n\n‫كلية السِّدْر التقنية نظم البرمجيات‬\n‫‪2014-2015‬‬\n\n‫المشاريع‬\n\n‫نقل الأرشيف الهجري‬\n‫مراجعة التاريخ‬\n\n‫‪ 1442‬هـ ‪ 1443 -‬هـ‬\n\n‫من ‪ 2021‬إلى ‪2024‬‬\n\n\f",
+					"passed": false,
+					"acceptance": "failed",
+					"exact": {
+						"recall": 0.8148148148148148
+					},
+					"normalized": {
+						"recall": 0.8888888888888888
+					},
+					"missing": ["skill", "hijri-raw", "gregorian-raw"],
+					"orderFailures": [],
+					"associationFailures": [
+						"current-employer",
+						"prior-employer",
+						"education",
+						"hijri-raw-entry",
+						"gregorian-raw-entry"
+					],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.5377969762419006,
+					"wordErrorRate": 0.6883116883116883
+				},
+				"fact-level v2": {
+					"policy": "fact-level v2",
+					"observed": "‫جُود الطَّائِفِي‬\n‫‪Data Specialist‬‬\n\n‫الملخّص‬\n\n‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n‫‪ +966 50 700 1592 holdout2.17@example.test‬جدة ‪example.test/h2/H2-MIXED-17‬‬\n\n‫المهارات‬\n\n‫الخبرة‬\n\n‫‪ / Python‬تحليل البيانات‬\n\n‫شركة حروف جدة‬\n\n‫‪2019-2022‬‬\n\n‫‪SQL, API‬‬\n\n‫‪Data Specialist 2021-2022‬‬\n‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n\n‫مهندس مساعد ‪2019-2020‬‬\n‫مؤسسة السَّرْد ‪ 17‬جدة‬\n\n‫مطور وثائق ‪2016-2018‬‬\n\n‫التعليم‬\n\n‫كلية السِّدْر التقنية نظم البرمجيات‬\n‫‪2014-2015‬‬\n\n‫المشاريع‬\n\n‫نقل الأرشيف الهجري‬\n‫مراجعة التاريخ‬\n\n‫‪ 1442‬هـ ‪ 1443 -‬هـ‬\n\n‫من ‪ 2021‬إلى ‪2024‬‬\n\n\f",
+					"passed": false,
+					"acceptance": "failed",
+					"exact": {
+						"recall": 0.8148148148148148
+					},
+					"normalized": {
+						"recall": 0.9259259259259259
+					},
+					"missing": ["skill", "hijri-raw"],
+					"orderFailures": [],
+					"associationFailures": ["current-employer", "prior-employer", "education", "hijri-raw-entry"],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.5377969762419006,
+					"wordErrorRate": 0.6883116883116883
+				}
+			}
+		},
+		{
+			"reader": "poppler-layout",
+			"text": "                                                                                 ‫جُود الطَّائِفِي‬\n                                                                                         ‫‪Data Specialist‬‬\n\n                                                                                              ‫الملخّص‬\n                                          ‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n\n\n                     ‫‪ +966 50 700 1592 holdout2.17@example.test‬جدة ‪example.test/h2/H2-MIXED-17‬‬\n\n\n\n           ‫المهارات‬                                                                               ‫الخبرة‬\n‫‪ / Python‬تحليل البيانات‬                                                                 ‫شركة حروف جدة‬\n               ‫‪SQL, API‬‬                                                                       ‫‪2019-2022‬‬\n                                                                            ‫‪Data Specialist 2021-2022‬‬\n                                                                                    ‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n                                                                                ‫مهندس مساعد ‪2019-2020‬‬\n\n                                                                                  ‫مؤسسة السَّرْد ‪ 17‬جدة‬\n                                                                                  ‫مطور وثائق ‪2016-2018‬‬\n\n\n                                                                                                 ‫التعليم‬\n                                                                        ‫كلية السِّدْر التقنية نظم البرمجيات‬\n                                                                                              ‫‪2014-2015‬‬\n\n\n                                                                                              ‫المشاريع‬\n                                                            ‫‪ 1442‬هـ ‪ 1443 -‬هـ‬       ‫نقل الأرشيف الهجري‬\n\n                                                                  ‫من ‪ 2021‬إلى ‪2024‬‬         ‫مراجعة التاريخ‬\n\f",
+			"comparisons": {
+				"strict v1": {
+					"policy": "strict v1",
+					"observed": "                                                                                 ‫جُود الطَّائِفِي‬\n                                                                                         ‫‪Data Specialist‬‬\n\n                                                                                              ‫الملخّص‬\n                                          ‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n\n\n                     ‫‪ +966 50 700 1592 holdout2.17@example.test‬جدة ‪example.test/h2/H2-MIXED-17‬‬\n\n\n\n           ‫المهارات‬                                                                               ‫الخبرة‬\n‫‪ / Python‬تحليل البيانات‬                                                                 ‫شركة حروف جدة‬\n               ‫‪SQL, API‬‬                                                                       ‫‪2019-2022‬‬\n                                                                            ‫‪Data Specialist 2021-2022‬‬\n                                                                                    ‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n                                                                                ‫مهندس مساعد ‪2019-2020‬‬\n\n                                                                                  ‫مؤسسة السَّرْد ‪ 17‬جدة‬\n                                                                                  ‫مطور وثائق ‪2016-2018‬‬\n\n\n                                                                                                 ‫التعليم‬\n                                                                        ‫كلية السِّدْر التقنية نظم البرمجيات‬\n                                                                                              ‫‪2014-2015‬‬\n\n\n                                                                                              ‫المشاريع‬\n                                                            ‫‪ 1442‬هـ ‪ 1443 -‬هـ‬       ‫نقل الأرشيف الهجري‬\n\n                                                                  ‫من ‪ 2021‬إلى ‪2024‬‬         ‫مراجعة التاريخ‬\n\f",
+					"passed": false,
+					"acceptance": "failed",
+					"exact": {
+						"recall": 0.8148148148148148
+					},
+					"normalized": {
+						"recall": 0.8888888888888888
+					},
+					"missing": ["skill", "hijri-raw", "gregorian-raw"],
+					"orderFailures": [],
+					"associationFailures": [
+						"current-employer",
+						"prior-employer",
+						"education",
+						"hijri-raw-entry",
+						"gregorian-raw-entry"
+					],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.5140388768898488,
+					"wordErrorRate": 0.7272727272727273
+				},
+				"fact-level v2": {
+					"policy": "fact-level v2",
+					"observed": "                                                                                 ‫جُود الطَّائِفِي‬\n                                                                                         ‫‪Data Specialist‬‬\n\n                                                                                              ‫الملخّص‬\n                                          ‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n\n\n                     ‫‪ +966 50 700 1592 holdout2.17@example.test‬جدة ‪example.test/h2/H2-MIXED-17‬‬\n\n\n\n           ‫المهارات‬                                                                               ‫الخبرة‬\n‫‪ / Python‬تحليل البيانات‬                                                                 ‫شركة حروف جدة‬\n               ‫‪SQL, API‬‬                                                                       ‫‪2019-2022‬‬\n                                                                            ‫‪Data Specialist 2021-2022‬‬\n                                                                                    ‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n                                                                                ‫مهندس مساعد ‪2019-2020‬‬\n\n                                                                                  ‫مؤسسة السَّرْد ‪ 17‬جدة‬\n                                                                                  ‫مطور وثائق ‪2016-2018‬‬\n\n\n                                                                                                 ‫التعليم‬\n                                                                        ‫كلية السِّدْر التقنية نظم البرمجيات‬\n                                                                                              ‫‪2014-2015‬‬\n\n\n                                                                                              ‫المشاريع‬\n                                                            ‫‪ 1442‬هـ ‪ 1443 -‬هـ‬       ‫نقل الأرشيف الهجري‬\n\n                                                                  ‫من ‪ 2021‬إلى ‪2024‬‬         ‫مراجعة التاريخ‬\n\f",
+					"passed": false,
+					"acceptance": "failed",
+					"exact": {
+						"recall": 0.8148148148148148
+					},
+					"normalized": {
+						"recall": 0.9259259259259259
+					},
+					"missing": ["skill", "hijri-raw"],
+					"orderFailures": [],
+					"associationFailures": ["current-employer", "prior-employer", "education", "hijri-raw-entry"],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.5140388768898488,
+					"wordErrorRate": 0.7272727272727273
+				}
+			}
+		}
+	]
+}

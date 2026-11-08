@@ -1,0 +1,27 @@
+{
+	"node": "24.22.1",
+	"pnpm": "12.14.0",
+	"forme": "0.31.0",
+	"pdfjs": "6.4.299",
+	"poppler": {
+		"upstream": "22.02.0",
+		"distribution": "Ubuntu 22.04 amd64",
+		"revision": "22.02.0-2ubuntu0.15",
+		"artifacts": {
+			"binary": "fff04ebf19ba8453f72356f49e01944a9d4c30cdf6e6421ee93f7893bf17dfb9",
+			"library": "015125a910dfa6f3c40a25d350fa70b59500eb594f56b1a16bb06ee36c0ef9bc"
+		},
+		"packages": [
+			{
+				"name": "libpoppler118",
+				"url": "https://archive.ubuntu.com/ubuntu/pool/main/p/poppler/libpoppler118_22.02.0-2ubuntu0.15_amd64.deb",
+				"sha256": "7d33df0c6e529931997b4fcd1f23a1a4ff2a4790d37dc6255089e128f7da5e0c"
+			},
+			{
+				"name": "poppler-utils",
+				"url": "https://archive.ubuntu.com/ubuntu/pool/main/p/poppler/poppler-utils_22.02.0-2ubuntu0.15_amd64.deb",
+				"sha256": "2a51ac8e1fa1db1754509ecd26dda45b11783030dab4f7fc88dc2027536b2cd0"
+			}
+		]
+	}
+}

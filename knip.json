@@ -1,7 +1,7 @@
 {
 	"$schema": "https://unpkg.com/knip@6/schema.json",
 	"tags": ["-lintignore"],
-	"ignoreBinaries": ["pdftotext", "gitleaks"],
+	"ignoreBinaries": ["pdftotext", "gitleaks", "dpkg-deb"],
 	"workspaces": {
 		"apps/mobile": {
 			"ignoreExportsUsedInFile": true,
@@ -87,7 +87,7 @@
 			]
 		},
 		"tooling": {
-			"entry": ["**/*.mjs", "mcp/seed.ts"],
+			"entry": ["**/*.mjs", "mcp/seed.ts", "vitest.documents.config.ts", "document-qualification/run.qualification.ts"],
 			"ignoreDependencies": ["@formepdf/core", "@orpc/client", "css-tree"]
 		},
 		"packages/api": {
