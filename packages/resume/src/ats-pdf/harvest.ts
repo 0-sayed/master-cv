@@ -304,6 +304,7 @@ export async function harvestPdfDocument(document: PdfDocumentLike, options: Har
 		try {
 			page = await document.getPage(pageNumber);
 		} catch {
+			throwIfAborted();
 			coverage.push({ pageNumber, text: "failed", annotations: "failed", operators: "failed" });
 			reasons.push(`page-${pageNumber}-failed`);
 			continue;

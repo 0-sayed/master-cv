@@ -13444,3 +13444,7 @@ msgstr "تعذّر إكمال التحليل. لا تتوفر درجة إجما�
 #: src/features/ats-checker/report/analysis-status.tsx
 msgid "Analysis is incomplete. No overall score is available."
 msgstr "التحليل غير مكتمل. لا تتوفر درجة إجمالية."
+
+#: src/features/ats-checker/report/report-view.tsx
+msgid "No overall score is available."
+msgstr "لا تتوفر درجة إجمالية."

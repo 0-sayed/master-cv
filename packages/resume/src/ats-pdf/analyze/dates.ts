@@ -13,7 +13,7 @@ const ENDPOINT = String.raw`(?:${MONTH_WORD}\s*'?\d{2,4}|\d{1,2}[/.\-]\d{2,4}|\d
 const ONGOING = String.raw`(?:present|current|currently|now|ongoing|to\s?date|today|حتى\s+الآن|الآن|الحاضر)`;
 const SEPARATOR = String.raw`\s*(?:[-–—~]|to|through|until)\s*`;
 
-const RANGE_PATTERN = new RegExp(`${ENDPOINT}${SEPARATOR}(?:${ENDPOINT}|${ONGOING})`, "giu");
+const RANGE_PATTERN = new RegExp(`(?=(${ENDPOINT}${SEPARATOR}(?:${ENDPOINT}|${ONGOING})))`, "giu");
 const SINGLE_PATTERN = new RegExp(String.raw`(?:${MONTH_WORD}\s+\d{4}|\d{1,2}/\d{4})\b`, "giu");
 
 /** A numeric date whose first two components could each be a month or a day. */
@@ -120,9 +120,16 @@ export function analyzeDates(document: ExtractedDocument, locale: string, now: D
 	document.lines.forEach((line, lineIndex) => {
 		// Digit conversion is length preserving; candidate offsets still point into the raw evidence.
 		const numeric = normalizeNumericDigits(line.text);
-		const ranges = [...numeric.matchAll(RANGE_PATTERN)]
-			.map((match) => line.text.slice(match.index, match.index + match[0].length))
-			.filter((raw) => looksLikeDateWords(raw, locale));
+		const ranges: string[] = [];
+		let rangeEnd = 0;
+		// Overlapping candidates let a rejected non-month word expose the numeric range after it.
+		for (const match of numeric.matchAll(RANGE_PATTERN)) {
+			if (match.index < rangeEnd || !match[1]) continue;
+			const raw = line.text.slice(match.index, match.index + match[1].length);
+			if (!looksLikeDateWords(raw, locale)) continue;
+			ranges.push(raw);
+			rangeEnd = match.index + raw.length;
+		}
 		for (const raw of ranges) {
 			const token = toToken(raw.trim(), "range", line.page, lineIndex, locale, now);
 			tokens.push(token);

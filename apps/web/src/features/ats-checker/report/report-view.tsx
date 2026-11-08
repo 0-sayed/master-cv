@@ -110,7 +110,7 @@ function CategorySection({ category, findings, complete }: CategorySectionProps)
 
 				{findings.length === 0 && !complete ? (
 					<p className="text-xs text-ink-3">
-						<Trans>Analysis is incomplete. No overall score is available.</Trans>
+						<Trans>No overall score is available.</Trans>
 					</p>
 				) : findings.length === 0 ? (
 					<div className="flex items-center gap-2 rounded-md border border-dashed p-2.5">

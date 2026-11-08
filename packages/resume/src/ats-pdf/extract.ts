@@ -136,11 +136,14 @@ export function orderTextSpans(spans: readonly TextSpan[], direction?: "ltr" | "
 	const groups: TextSpan[][] = [];
 	for (const span of ordered) {
 		const previous = groups.at(-1);
-		if (previous && (span.dir === "rtl") === (previous[0]?.dir === "rtl")) previous.push(span);
+		if (previous && span.dir === previous[0]?.dir) previous.push(span);
 		else groups.push([span]);
 	}
-	if (direction === "rtl" || (!direction && isRtlText(spans))) groups.reverse();
-	return groups.flatMap((group) => (group[0]?.dir === "rtl" ? group.reverse() : group));
+	const rtl = direction === "rtl" || (!direction && isRtlText(spans));
+	if (rtl) groups.reverse();
+	return groups.flatMap((group) =>
+		group[0]?.dir === "rtl" || (rtl && group.every((span) => span.dir === undefined)) ? group.reverse() : group,
+	);
 }
 
 function toLine(group: readonly TextSpan[], pageNumber: number): TextLine {

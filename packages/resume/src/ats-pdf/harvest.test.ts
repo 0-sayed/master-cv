@@ -166,3 +166,15 @@ describe("harvestPdfDocument", () => {
 		expect(raw.fonts).toEqual([]);
 	});
 });
+
+it("propagates cancellation when the last getPage rejects", async () => {
+	const controller = new AbortController();
+	const document = makeDocument([makePage(1)]);
+	document.getPage = async () => {
+		controller.abort();
+		throw new Error("page destroyed");
+	};
+	await expect(harvestPdfDocument(document, { file: FILE, signal: controller.signal })).rejects.toMatchObject({
+		name: "HarvestAbortedError",
+	});
+});

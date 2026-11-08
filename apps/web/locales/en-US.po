@@ -13439,3 +13439,7 @@ msgstr "Analysis could not be completed. No overall score is available."
 #: src/features/ats-checker/report/analysis-status.tsx
 msgid "Analysis is incomplete. No overall score is available."
 msgstr "Analysis is incomplete. No overall score is available."
+
+#: src/features/ats-checker/report/report-view.tsx
+msgid "No overall score is available."
+msgstr "No overall score is available."
