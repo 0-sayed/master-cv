@@ -16,6 +16,7 @@ import { cn } from "@reactive-resume/utils/style";
 import { PdfPasswordRequiredError, PdfTooLargeError, PdfUnreadableError } from "./extract-client";
 import { getPdfCategoryDescription, getPdfCategoryLabel, getPdfFindingMessage } from "./messages";
 import { savePendingImport, takePendingImport } from "./pending-import";
+import { AnalysisStatus } from "./report/analysis-status";
 import { runAtsCheck } from "./run-ats-check";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { ENTER_CLASS, POP_CLASS, stagger } from "@/libs/motion";
@@ -377,38 +378,47 @@ function Result({ result, file, onFix, onReset }: ResultProps) {
 	const [open, setOpen] = useState<string | null>(rows[0]?.key ?? null);
 	const [lens, setLens] = useState<"page" | "text">("page");
 	const issues = report.findings.length;
+	const complete = report.analysis?.status === "complete";
 
 	return (
 		<div className="grid min-h-[calc(100svh-5rem)] lg:grid-cols-[440px_minmax(0,1fr)]">
 			<aside className="grid content-start gap-4.5 border-line bg-surface p-6 max-lg:pb-28 lg:border-e">
-				<div className="flex items-center gap-4">
-					<div
-						role="img"
-						aria-label={t`Readability score: ${report.score} out of 100`}
-						className="score-ring score-ring-reveal grid size-[84px] shrink-0 place-items-center rounded-full"
-						style={
-							{
-								"--ring-value": `${report.score}%`,
-								"--ring-color": report.score >= 80 ? "var(--accent)" : "var(--warn)",
-							} as CSSProperties
-						}
-					>
-						<span className="grid size-[70px] place-items-center rounded-full bg-surface font-display text-[26px] font-medium">
-							{report.score}
-						</span>
+				{complete ? (
+					<div className="flex items-center gap-4">
+						<div
+							role="img"
+							aria-label={t`Readability score: ${report.score} out of 100`}
+							className="score-ring score-ring-reveal grid size-[84px] shrink-0 place-items-center rounded-full"
+							style={
+								{
+									"--ring-value": `${report.score}%`,
+									"--ring-color": report.score >= 80 ? "var(--accent)" : "var(--warn)",
+								} as CSSProperties
+							}
+						>
+							<span className="grid size-[70px] place-items-center rounded-full bg-surface font-display text-[26px] font-medium">
+								{report.score}
+							</span>
+						</div>
+						<div className="grid gap-1">
+							<b className="text-base font-semibold">{verdict(report.score)}</b>
+							<span className="text-[13px] leading-[19px] text-ink-2">
+								{issues > 0 ? (
+									<Plural
+										value={issues}
+										one="# issue could cost you a match."
+										other="# issues could cost you a match."
+									/>
+								) : (
+									<Trans>Nothing here should cost you a match.</Trans>
+								)}{" "}
+								<Trans>The score reflects how reliably text is extracted, not your chances.</Trans>
+							</span>
+						</div>
 					</div>
-					<div className="grid gap-1">
-						<b className="text-base font-semibold">{verdict(report.score)}</b>
-						<span className="text-[13px] leading-[19px] text-ink-2">
-							{issues > 0 ? (
-								<Plural value={issues} one="# issue could cost you a match." other="# issues could cost you a match." />
-							) : (
-								<Trans>Nothing here should cost you a match.</Trans>
-							)}{" "}
-							<Trans>The score reflects how reliably text is extracted, not your chances.</Trans>
-						</span>
-					</div>
-				</div>
+				) : (
+					<AnalysisStatus report={report} />
+				)}
 
 				{report.document.truncated && (
 					<p className="text-xs text-ink-3">

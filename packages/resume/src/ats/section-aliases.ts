@@ -1,7 +1,20 @@
 import type { CustomSectionType } from "@reactive-resume/schema/resume/data";
+import { normalizeArabicPresentationForms } from "@reactive-resume/utils/string";
+
+/** Comparison key only; never apply to stored CV content. */
+export function normalizeSectionHeading(value: string): string {
+	return normalizeArabicPresentationForms(value)
+		.normalize("NFC")
+		.toLowerCase()
+		.replace(/[\u0640\u064b-\u065f\u0670]/gu, "")
+		.replaceAll("&", " and ")
+		.replace(/[^\p{L}\p{N}\s]+/gu, " ")
+		.replace(/\s+/g, " ")
+		.trim();
+}
 
 /**
- * Conventional English headings the live builder lint accepts without complaint.
+ * Conventional English and curated Arabic headings accepted by the live builder lint.
  * Kept deliberately narrow: this set decides whether NON_STANDARD_SECTION_TITLE fires.
  */
 export const SECTION_TITLE_ALIASES: Partial<Record<CustomSectionType, ReadonlySet<string>>> = {
@@ -35,6 +48,28 @@ export const SECTION_TITLE_ALIASES: Partial<Record<CustomSectionType, ReadonlySe
 	references: new Set(["references"]),
 	profiles: new Set(["profiles", "links", "social profiles"]),
 };
+
+const arabicAliases: Partial<Record<CustomSectionType, readonly string[]>> = {
+	summary: ["الملخص", "الملخص المهني", "نبذة", "نبذة عني"],
+	experience: ["الخبرة", "الخبرات", "الخبرة العملية", "الخبرات العملية", "الخبرة المهنية", "الخبرات المهنية"],
+	education: ["التعليم", "المؤهلات العلمية"],
+	skills: ["المهارات", "المهارات التقنية"],
+	projects: ["المشاريع"],
+	languages: ["اللغات"],
+	certifications: ["الشهادات", "الدورات والشهادات"],
+	awards: ["الجوائز"],
+	volunteer: ["التطوع"],
+	publications: ["المنشورات"],
+	interests: ["الاهتمامات"],
+	references: ["المراجع"],
+	profiles: ["الروابط"],
+};
+for (const [type, aliases] of Object.entries(arabicAliases)) {
+	const key = type as CustomSectionType;
+	SECTION_TITLE_ALIASES[key] = new Set(
+		[...(SECTION_TITLE_ALIASES[key] ?? []), ...aliases].map(normalizeSectionHeading),
+	);
+}
 
 /**
  * Additional headings seen in the wild that the PDF checker must still recognise as a section.

@@ -2,6 +2,8 @@ import type { Style } from "../../forme/style-types";
 import type { StyleInput } from "./styles";
 import type { ComponentProps, ReactNode } from "react";
 import { Children, isValidElement } from "react";
+import { isRTL } from "@reactive-resume/utils/locale";
+import { normalizeNumericDigits, removeArabicDiacritics } from "@reactive-resume/utils/string";
 import { Image, View } from "#react-pdf-renderer";
 import { useRender } from "../../context";
 import { PhosphorIcon } from "../../forme/icons";
@@ -18,6 +20,7 @@ import {
 import { semanticNodeKeys } from "../../semantic/node-keys";
 import { Link as PdfLink, Text as PdfText } from "../../text";
 import { useTemplateIconSlot, useTemplatePageNodeKey, useTemplateStyle } from "./context";
+import { dateDisplay } from "./date-display";
 import { resolveIconSize } from "./icon-size";
 import { getPictureShadow } from "./picture-shadow";
 import { safeTextStyle } from "./safe-text-style";
@@ -137,6 +140,31 @@ export const Text = ({
 	...props
 }: SemanticTextProps) => {
 	const textStyle = useTemplateStyle("text");
+	const { metadata } = useRender();
+	const value = getChildren(props);
+	const parts = Children.toArray(value);
+	const displayText = parts.every((child) => typeof child === "string")
+		? normalizeNumericDigits(parts.join(""))
+		: undefined;
+	const date =
+		(semanticField === "period" || semanticField === "date") && displayText !== undefined
+			? dateDisplay(displayText, metadata.page.locale)
+			: undefined;
+	const rtlDateRange =
+		date &&
+		isRTL(metadata.page.locale) &&
+		/^[\d/]+ - (?:[\d/]+|حتى الآن|حاليا|الآن|الحاضر)$/u.test(removeArabicDiacritics(date.text));
+	// D33: all numeric/ongoing Arabic ranges read start-to-end from right to left.
+	const numericDateStyle: Style | undefined = rtlDateRange
+		? { direction: "rtl" }
+		: date && /^[\d\s.,/–—-]+(?:حتى الآن|حالياً)?$/u.test(date.text)
+			? { direction: "ltr" }
+			: undefined;
+	// Isolate the range from Latin roles, and each numeric endpoint from the RTL separator.
+	const dateText =
+		numericDateStyle?.direction === "rtl"
+			? `\u2067${date?.text.replace(/^([\d/]+) - ([\d/]+)$/u, "\u2066$1\u2069 - \u2066$2\u2069")}\u2069`
+			: date?.text;
 	const resolvedNodeKey = usePrimitiveNodeKey({
 		nodeKey,
 		semanticField,
@@ -151,8 +179,10 @@ export const Text = ({
 		<PdfText
 			{...props}
 			{...resolvedPdfTextProps(resolved)}
-			style={composeStyles(textStyle, asStyleInput(style), resolved.style, safeTextStyle)}
-		/>
+			style={composeStyles(textStyle, asStyleInput(style), resolved.style, safeTextStyle, numericDateStyle)}
+		>
+			{dateText ?? value}
+		</PdfText>
 	);
 };
 
@@ -375,17 +405,27 @@ export function semanticTemplatePartNodeKey(ownerNodeKey: string | undefined, ..
 export const SemanticTemplatePartView = ({
 	ownerNodeKey,
 	partKeys,
+	inline = false,
 	style,
 	...props
-}: ComponentProps<typeof View> & { ownerNodeKey?: string | undefined; partKeys: readonly string[] }) => {
+}: ComponentProps<typeof View> & {
+	ownerNodeKey?: string | undefined;
+	partKeys: readonly string[];
+	inline?: boolean;
+}) => {
 	const contextualOwnerNodeKey = useSemanticNodeKey();
 	const nodeKey = semanticTemplatePartNodeKey(ownerNodeKey ?? contextualOwnerNodeKey, ...partKeys);
 	const resolved = useResolvedNode(nodeKey);
 	const visible = useSemanticNodeVisible(nodeKey);
 	if (!visible) return null;
+	const Component = inline ? PdfText : View;
 
 	return (
-		<View {...props} {...resolvedPdfFlowProps(resolved)} style={composeStyles(asStyleInput(style), resolved.style)} />
+		<Component
+			{...props}
+			{...resolvedPdfFlowProps(resolved)}
+			style={composeStyles(asStyleInput(style), resolved.style)}
+		/>
 	);
 };
 

@@ -26,8 +26,8 @@
 		"test:agent": "vp test run --reporter=agent --reporter=json --outputFile.json=reports/vitest-results.json --passWithNoTests"
 	},
 	"dependencies": {
-		"@formepdf/core": "0.28.0",
-		"@formepdf/react": "0.28.0",
+		"@formepdf/core": "0.31.0",
+		"@formepdf/react": "0.31.0",
 		"@reactive-resume/fonts": "workspace:*",
 		"@reactive-resume/resume": "workspace:*",
 		"@reactive-resume/schema": "workspace:*",

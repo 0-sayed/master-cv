@@ -1,0 +1,328 @@
+{
+	"cases": [
+		{
+			"id": "AR01-azurill",
+			"language": "ar",
+			"template": "azurill",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-azurill",
+			"language": "en",
+			"template": "azurill",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-azurill",
+			"language": "mixed",
+			"template": "azurill",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-bronzor",
+			"language": "ar",
+			"template": "bronzor",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-bronzor",
+			"language": "en",
+			"template": "bronzor",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-bronzor",
+			"language": "mixed",
+			"template": "bronzor",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-chikorita",
+			"language": "ar",
+			"template": "chikorita",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-chikorita",
+			"language": "en",
+			"template": "chikorita",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-chikorita",
+			"language": "mixed",
+			"template": "chikorita",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-ditgar",
+			"language": "ar",
+			"template": "ditgar",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-ditgar",
+			"language": "en",
+			"template": "ditgar",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-ditgar",
+			"language": "mixed",
+			"template": "ditgar",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-ditto",
+			"language": "ar",
+			"template": "ditto",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-ditto",
+			"language": "en",
+			"template": "ditto",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-ditto",
+			"language": "mixed",
+			"template": "ditto",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-gengar",
+			"language": "ar",
+			"template": "gengar",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-gengar",
+			"language": "en",
+			"template": "gengar",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-gengar",
+			"language": "mixed",
+			"template": "gengar",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-glalie",
+			"language": "ar",
+			"template": "glalie",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-glalie",
+			"language": "en",
+			"template": "glalie",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-glalie",
+			"language": "mixed",
+			"template": "glalie",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-kakuna",
+			"language": "ar",
+			"template": "kakuna",
+			"automatedPass": false
+		},
+		{
+			"id": "EN01-kakuna",
+			"language": "en",
+			"template": "kakuna",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-kakuna",
+			"language": "mixed",
+			"template": "kakuna",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-lapras",
+			"language": "ar",
+			"template": "lapras",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-lapras",
+			"language": "en",
+			"template": "lapras",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-lapras",
+			"language": "mixed",
+			"template": "lapras",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-leafish",
+			"language": "ar",
+			"template": "leafish",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-leafish",
+			"language": "en",
+			"template": "leafish",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-leafish",
+			"language": "mixed",
+			"template": "leafish",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-meowth",
+			"language": "ar",
+			"template": "meowth",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-meowth",
+			"language": "en",
+			"template": "meowth",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-meowth",
+			"language": "mixed",
+			"template": "meowth",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-onyx",
+			"language": "ar",
+			"template": "onyx",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-onyx",
+			"language": "en",
+			"template": "onyx",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-onyx",
+			"language": "mixed",
+			"template": "onyx",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-persian",
+			"language": "ar",
+			"template": "persian",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-persian",
+			"language": "en",
+			"template": "persian",
+			"automatedPass": false
+		},
+		{
+			"id": "MX01-persian",
+			"language": "mixed",
+			"template": "persian",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-pikachu",
+			"language": "ar",
+			"template": "pikachu",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-pikachu",
+			"language": "en",
+			"template": "pikachu",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-pikachu",
+			"language": "mixed",
+			"template": "pikachu",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-porygon",
+			"language": "ar",
+			"template": "porygon",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-porygon",
+			"language": "en",
+			"template": "porygon",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-porygon",
+			"language": "mixed",
+			"template": "porygon",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-rhyhorn",
+			"language": "ar",
+			"template": "rhyhorn",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-rhyhorn",
+			"language": "en",
+			"template": "rhyhorn",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-rhyhorn",
+			"language": "mixed",
+			"template": "rhyhorn",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-scizor",
+			"language": "ar",
+			"template": "scizor",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-scizor",
+			"language": "en",
+			"template": "scizor",
+			"automatedPass": true
+		},
+		{
+			"id": "MX01-scizor",
+			"language": "mixed",
+			"template": "scizor",
+			"automatedPass": true
+		},
+		{
+			"id": "AR01-smeargle",
+			"language": "ar",
+			"template": "smeargle",
+			"automatedPass": true
+		},
+		{
+			"id": "EN01-smeargle",
+			"language": "en",
+			"template": "smeargle",
+			"automatedPass": false
+		},
+		{
+			"id": "MX01-smeargle",
+			"language": "mixed",
+			"template": "smeargle",
+			"automatedPass": false
+		}
+	]
+}

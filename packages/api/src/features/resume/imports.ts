@@ -26,18 +26,15 @@ export const importResumeFile = protectedProcedure
 		let data;
 		try {
 			if (input.format === "PDF") {
-				const [{ extractPdf }, { documentToLines }, { buildExtractedDocument }, { parseResumeText }] =
-					await Promise.all([
-						import("./pdf-analysis"),
-						import("@reactive-resume/import/pdf-lines"),
-						import("@reactive-resume/resume/ats-pdf"),
-						import("@reactive-resume/import/plain-text"),
-					]);
+				const [{ extractPdf }, { pdfImportText }, { parseResumeText }] = await Promise.all([
+					import("./pdf-analysis"),
+					import("@reactive-resume/import/pdf-lines"),
+					import("@reactive-resume/import/plain-text"),
+				]);
 				const raw = await extractPdf(input.file, signal, 0);
-				if (raw.truncated) throw new Error("The PDF has too many pages to import completely.");
-				const lines = documentToLines(buildExtractedDocument(raw));
+				const { lines, locale } = pdfImportText(raw);
 				if (lines.length === 0) throw new Error("The PDF has no readable text layer.");
-				data = parseResumeText(lines.join("\n"));
+				data = parseResumeText(lines.join("\n"), locale ? { locale } : {});
 			} else if (input.format === "LINKEDIN") {
 				const { parseLinkedInExport } = await import("@reactive-resume/import/linkedin");
 				data = parseLinkedInExport(new Uint8Array(await input.file.arrayBuffer()));

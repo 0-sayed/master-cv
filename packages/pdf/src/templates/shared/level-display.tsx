@@ -61,7 +61,7 @@ export const LevelDisplay = ({ level }: LevelDisplayProps) => {
 		<View
 			{...resolvedPdfFlowProps(resolved)}
 			style={composeStyles(
-				{ flexDirection: "row", alignItems: "center", marginTop: 2, columnGap: gap },
+				{ flexDirection: data.rtl ? "row-reverse" : "row", alignItems: "center", marginTop: 2, columnGap: gap },
 				levelContainerStyle,
 				resolved.style,
 			)}

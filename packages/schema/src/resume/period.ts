@@ -1,3 +1,5 @@
+import { normalizeNumericDigits } from "@reactive-resume/utils/string";
+
 export type PeriodEndpoint = { year: number; month?: number };
 
 export type ParsedPeriod = {
@@ -98,7 +100,7 @@ const monthLookupCache = new Map<string, ReadonlyMap<string, MonthName>>();
 
 const normalizeToken = (value: string) => value.trim().toLowerCase().replace(/\.$/, "");
 
-const normalizeWhitespace = (value: string) => value.replace(/\s+/g, " ").trim().toLowerCase();
+const normalizeWhitespace = (value: string) => normalizeNumericDigits(value).replace(/\s+/g, " ").trim().toLowerCase();
 
 function buildMonthLookup(locale: string): ReadonlyMap<string, MonthName> {
 	const lookup = new Map<string, MonthName>();
@@ -108,7 +110,7 @@ function buildMonthLookup(locale: string): ReadonlyMap<string, MonthName> {
 			let format: Intl.DateTimeFormat;
 
 			try {
-				format = new Intl.DateTimeFormat(tag, { month: style, timeZone: "UTC" });
+				format = new Intl.DateTimeFormat(tag, { month: style, timeZone: "UTC", calendar: "gregory" });
 			} catch {
 				continue;
 			}

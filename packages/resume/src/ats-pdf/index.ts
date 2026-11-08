@@ -10,6 +10,7 @@ import type {
 } from "./types";
 import { buildResumeSemantics } from "./analyze/semantics";
 import { pdfRuleCategory, pdfRuleSeverity } from "./catalog";
+import { summarizePdfCoverage } from "./coverage";
 import { buildExtractedDocument } from "./extract";
 import { matchJobDescription } from "./jd/match";
 import { locateEvidence } from "./locate";
@@ -55,7 +56,7 @@ function runCheck(check: PdfCheck, context: PdfCheckContext): PdfCheckResult {
 	try {
 		outcome = check.run(context);
 	} catch {
-		return { ...base, status: "skip", skipReason: "insufficient-data", findings: [] };
+		return { ...base, status: "skip", skipReason: "execution-failed", findings: [] };
 	}
 
 	if (outcome.status === "pass") return { ...base, status: "pass", findings: [] };
@@ -109,6 +110,7 @@ export function analyzePdfResume(raw: RawExtraction, options: AnalyzePdfOptions 
 
 	return {
 		version: 1,
+		analysis: summarizePdfCoverage(raw, checks),
 		score: breakdown.score,
 		cappedBy: breakdown.cappedBy,
 		categories: breakdown.categories,
@@ -161,8 +163,9 @@ export type {
 export type { PdfRuleCode };
 export { buildResumeSemantics } from "./analyze/semantics";
 export { PDF_ATS_RULE_CODES } from "./catalog";
-export { buildExtractedDocument } from "./extract";
+export { buildExtractedDocument, orderTextSpans, isRtlText } from "./extract";
 export { HARVEST_DEFAULTS, harvestPdfDocument } from "./harvest";
+export { summarizePdfCoverage } from "./coverage";
 export { surfaceFormsOf } from "./jd/aliases";
 export { matchJobDescription } from "./jd/match";
 export { PDF_OPS } from "./pdf-ops";

@@ -126,9 +126,11 @@ const Header = ({ styles }: DittoHeaderProps) => {
 	return (
 		<SemanticHeaderView style={styles.header}>
 			<SemanticTemplatePartView partKeys={["header-band"]} style={styles.headerBand}>
-				<SemanticTemplatePartView partKeys={["header-band", "picture-anchor"]} style={styles.pictureAnchor}>
-					{hasPicture && <SemanticHeaderPicture src={picture.url} style={styles.picture} />}
-				</SemanticTemplatePartView>
+				{hasPicture && (
+					<SemanticTemplatePartView partKeys={["header-band", "picture-anchor"]} style={styles.pictureAnchor}>
+						<SemanticHeaderPicture src={picture.url} style={styles.picture} />
+					</SemanticTemplatePartView>
+				)}
 
 				<View style={styles.headerTitle}>
 					<View style={styles.headerIdentity}>
@@ -139,7 +141,7 @@ const Header = ({ styles }: DittoHeaderProps) => {
 			</SemanticTemplatePartView>
 
 			<View style={styles.contactRow}>
-				<SemanticTemplatePartView partKeys={["contact-offset"]} style={styles.contactOffset} />
+				{hasPicture && <SemanticTemplatePartView partKeys={["contact-offset"]} style={styles.contactOffset} />}
 
 				<SemanticContactListView style={styles.contactList}>
 					<EmailContactItem email={basics.email} style={styles.contactItem} />

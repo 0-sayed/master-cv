@@ -7,6 +7,7 @@ import { getDocument, OPS } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { act } from "react";
 import { sampleResumeData } from "@reactive-resume/schema/resume/sample";
 import { renderResume } from "../../forme/render";
+import { dateDisplay } from "../shared/date-display";
 
 // Layout fixtures use Forme's built-in Times faces; no network font download is needed.
 vi.mock("../../forme/fonts", () => ({ loadFonts: async () => ({ fonts: [], warnings: [], missing: [] }) }));
@@ -102,11 +103,18 @@ describe("Persian Wall Street template (#3520)", () => {
 			expect(name.transform[4] + name.width / 2).toBeCloseTo(page.width / 2, 0);
 			const position = find(experience.position);
 			expect(page.styles[position.fontName]?.fontFamily).toBe("serif");
-			const period = find(experience.period);
+			const displayPeriod = dateDisplay(experience.period, data.metadata.page.locale).text;
+			const period = find(displayPeriod);
 			expect(position.transform[5]).toBeCloseTo(period.transform[5], 1);
-			expect(period.transform[4] + period.width).toBeCloseTo(page.width - 30, 0);
+			// The export header is now one logical paragraph; PDF.js may return both fields in one item.
+			if (period === position)
+				expect(period.str.indexOf(displayPeriod)).toBeGreaterThan(period.str.indexOf(experience.position));
+			else expect(period.transform[4]).toBeGreaterThan(position.transform[4] + position.width);
 			expect(find(experience.company).transform[5]).toBeGreaterThan(position.transform[5] ?? 0);
-			expect(find(education.area).transform[5]).toBeCloseTo(find(education.period).transform[5], 1);
+			expect(find(education.area).transform[5]).toBeCloseTo(
+				find(dateDisplay(education.period, data.metadata.page.locale).text).transform[5],
+				1,
+			);
 			for (const expected of [
 				education.degree,
 				education.grade,

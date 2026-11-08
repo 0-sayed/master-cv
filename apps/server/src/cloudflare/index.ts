@@ -20,6 +20,7 @@ import { initializeAuth } from "@reactive-resume/auth/config";
 import { withDatabasePool } from "@reactive-resume/db/client";
 import { configureCoordination } from "@reactive-resume/db/coordination";
 import { env } from "@reactive-resume/env/server";
+import { configureFontReader, downloadFont } from "@reactive-resume/pdf/native";
 import { configureOwnPictureReader } from "@reactive-resume/pdf/server";
 import { TRUSTED_IP_HEADERS } from "@reactive-resume/utils/rate-limit";
 import { createApp } from "../http/app";
@@ -37,6 +38,13 @@ export type CloudflareBindings = {
 /** `background` holds work that outlives the response, such as assistant runs, and still needs the pool. */
 type RequestStore = { bindings: CloudflareBindings; ctx: ExecutionContext; background: Promise<unknown>[] };
 const requests = new AsyncLocalStorage<RequestStore>();
+configureFontReader(async (source) => {
+	if (!source.startsWith("/fonts/")) return downloadFont(source);
+	const response = await requests.getStore()?.bindings.ASSETS.fetch(new URL(source, env.APP_URL).href);
+	if (!response?.ok) throw new Error(`Bundled font unavailable: ${source}`);
+	return new Uint8Array(await response.arrayBuffer());
+});
+
 configureAgentStreamLifetime((promise) => {
 	const store = requests.getStore();
 	store?.background.push(promise);

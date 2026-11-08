@@ -69,7 +69,7 @@ export const ATS_RULE_CATALOG_V1 = {
 		category: "writing",
 	},
 	NON_STANDARD_SECTION_TITLE: {
-		severity: "info",
+		severity: "warning",
 		category: "headings",
 	},
 

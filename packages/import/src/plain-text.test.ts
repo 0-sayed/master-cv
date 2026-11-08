@@ -249,3 +249,80 @@ describe("parseResumeText keeps content the layout hides", () => {
 		expect(data.sections.certifications.items).toHaveLength(0);
 	});
 });
+
+it.each(["٢٠٢٠ - ٢٠٢٢", "۲۰۲۰ - ۲۰۲۲", "2020 - حتى الآن"])(
+	"imports Arabic facts and period %s with Western-digit import normalization",
+	(period) => {
+		const data = parseResumeText(
+			`أحمد العتيبي\n+٩٦٦ ٥٠ ١٢٣ ٤٥٦٧\n\nالخِبْـرَة العَمَلِيَّة\nشركة الأفق | مهندس برمجيات | الرياض\n${period}\n• طورت نظام المدفوعات\nالتعليم\nجامعة الملك سعود | علوم الحاسب\n2016 - 2020\nالمهارات\nTypeScript`,
+			{ locale: "ar-SA" },
+		);
+		expect(data.basics.name).toBe("أحمد العتيبي");
+		expect(data.basics.phone).toBe("+966 50 123 4567");
+		expect(data.basics.headline).not.toContain("٩٦٦");
+		expect(data.sections.experience.items).toHaveLength(1);
+		expect(data.sections.experience.items[0]).toMatchObject({
+			company: "شركة الأفق",
+			position: "مهندس برمجيات",
+			dates: { start: "2020", end: period.includes("الآن") ? null : "2022", present: period.includes("الآن") },
+		});
+		expect(data.sections.education.items[0]?.school).toBe("جامعة الملك سعود");
+		expect(data.sections.skills.items[0]?.name).toBe("TypeScript");
+	},
+);
+it("recognizes Arabic aliases with omitted source locale and Persian contact digits", () => {
+	const data = parseResumeText("ليلى\n+۹۶۶ ۵۰ ۱۲۳ ۴۵۶۷\nالخبرة العملية\nشركة ألف | مديرة\n2020 - 2022");
+	expect(data.basics.phone).toBe("+966 50 123 4567");
+	expect(data.sections.experience.items[0]?.company).toBe("شركة ألف");
+});
+it("decodes Arabic presentation forms without folding hamza", () => {
+	const data = parseResumeText(
+		"أﺣﻤﺪ اﻟﻌﺘﻴﺒﻲ\nsynthetic@example.test\nاﻟﺨﺒﺮة اﻟﻌﻤﻠﻴﺔ\nﺷﺮﻛﺔ اﻷﻓﻖ | ﻣﻬﻨﺪس ﺑﺮﻣﺠﻴﺎت\n2020 - 2022",
+		{ locale: "ar-SA" },
+	);
+	expect(data.basics.name).toBe("أحمد العتيبي");
+	expect(data.sections.experience.items[0]).toMatchObject({ company: "شركة الأفق", position: "مهندس برمجيات" });
+});
+it.each([
+	["١٤٤٥ هـ - ١٤٤٦ هـ", "1445 هـ - 1446 هـ"],
+	["٠١/٠٢/٢٠٢٤", "01/02/2024"],
+])("keeps explicitly uncertain date evidence in editable raw dates: %s", (period, normalized) => {
+	const data = parseResumeText(`أحمد\na@example.test\nالخبرة العملية\nشركة ألف | مهندس\n${period}`, {
+		locale: "ar-SA",
+	});
+	expect(data.sections.experience.items[0]?.dates?.raw).toBe(normalized);
+	expect(resumeDataSchema.parse(data).basics.name).toBe("أحمد");
+});
+
+it("D33 normalizes extracted PDF/plain text digits and marks before recognizing fields", () => {
+	const source = "أَحْمَدُ\na@example.test\n+٩٦٦ ۵۰ ١٢٣ ۴۵۶۷\n\nالمُلَخَّص\nحَقَّقْتُ ١٢ و۳۴ ـٰ\n\nالخبرة\nشَرِكَةٌ | مُهَنْدِسٌ\n٢٠١٥ - ۲۰۱۷";
+	const data = parseResumeText(source, { locale: "ar-SA" });
+	expect(data.basics.name).toBe("أحمد");
+	expect(data.basics.phone).toBe("+966 50 123 4567");
+	expect(data.summary.content).toContain("حققت 12 و34 ـ");
+	expect(data.sections.experience.items[0]).toMatchObject({
+		company: "شركة",
+		position: "مهندس",
+		period: "2015 – 2017",
+	});
+	expect(JSON.stringify(data)).not.toMatch(/[٠-٩۰-۹\u064B-\u0652\u0670]/u);
+});
+
+it("maps the Arabic links heading into profiles", () => {
+	const data = parseResumeText("أحمد\na@example.test\nالروابط\nGitHub | https://github.com/example\nالمهارات\nPython", {
+		locale: "ar-SA",
+	});
+	expect(data.sections.profiles.items).toMatchObject([
+		{ network: "GitHub", website: { url: "https://github.com/example" } },
+	]);
+});
+it("keeps uppercase employers in experience when entry lookahead has Arabic month dates", () => {
+	const data = parseResumeText(
+		"أحمد\na@example.test\nالخبرة\nACME\nمهندس برمجيات\nيناير ٢٠٢٠ - مارس ٢٠٢٢\n• تطوير الأنظمة",
+		{ locale: "ar-SA" },
+	);
+	expect(data.sections.experience.items).toMatchObject([
+		{ company: "ACME", position: "مهندس برمجيات", dates: { start: "2020-01", end: "2022-03" } },
+	]);
+	expect(data.customSections).toHaveLength(0);
+});

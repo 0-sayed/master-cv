@@ -43,3 +43,26 @@ describe("buildExtractedDocument", () => {
 		);
 	});
 });
+
+it("reads wholly untagged Arabic spans from right to left", () => {
+	const raw = makeRawExtraction({
+		lines: [
+			{ text: "العتيبي", x: 200, y: 60 },
+			{ text: "أحمد", x: 300, y: 60 },
+		],
+	});
+	expect(buildExtractedDocument(raw).lines[0]?.text).toBe("أحمد العتيبي");
+});
+it("preserves explicitly LTR numeric islands on an untagged Arabic line", () => {
+	const raw = makeRawExtraction({
+		lines: [
+			{ text: "123", x: 50, y: 60 },
+			{ text: "456", x: 90, y: 60 },
+			{ text: "الهاتف", x: 200, y: 60 },
+		],
+	});
+	const items = raw.pages[0]?.items;
+	if (!items) throw new Error("missing fixture");
+	for (const item of items.slice(0, 2)) item.dir = "ltr";
+	expect(buildExtractedDocument(raw).lines[0]?.text).toBe("الهاتف 123 456");
+});

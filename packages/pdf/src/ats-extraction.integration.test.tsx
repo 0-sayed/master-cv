@@ -71,16 +71,16 @@ describe("PDF operator numbers", () => {
 
 describe("a resume rendered by this app", () => {
 	/**
-	 * The regression guard for this whole feature: the app's own default single-column export has
-	 * to come out clean. Anything the checker reports here, it reports to every user of this app,
-	 * so a false positive shows up as a failing assertion rather than as lost trust.
+	 * The sample mixes year-only education/projects with month-year employment. Recognizing the
+	 * numeric ranges after entry names exposes that real inconsistency; export defects must not
+	 * add any other findings.
 	 */
-	it("reports nothing that would cost a single-column export points", { timeout: 60_000 }, async () => {
+	it("reports only the sample's mixed date granularity in a single-column export", { timeout: 60_000 }, async () => {
 		const { raw, report } = await analyze(await renderResume(sampleResumeData, "onyx"));
 
 		expect(raw.pages.length).toBeGreaterThan(0);
 		expect(raw.operatorsAvailable).toBe(true);
-		expect(report.findings.map((finding) => finding.code)).toEqual([]);
+		expect(report.findings.map((finding) => finding.code)).toEqual(["MIXED_DATE_FORMATS"]);
 		expect(report.score).toBe(100);
 	});
 });

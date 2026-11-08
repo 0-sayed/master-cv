@@ -326,12 +326,21 @@ const useDitgarTemplate = (): DitgarTemplate => {
 					rowGap: 0,
 					...(context.placement === "main"
 						? {
-								borderLeftWidth: ditgarItemHeaderBorderWidth,
-								borderLeftColor: accentFor(context),
-								paddingLeft: metrics.gapX(0.5),
+								...(r.rtl
+									? {
+											borderRightWidth: ditgarItemHeaderBorderWidth,
+											borderRightColor: accentFor(context),
+											paddingRight: metrics.gapX(0.5),
+											marginRight: -(ditgarItemHeaderBorderWidth + metrics.gapX(0.5)),
+										}
+									: {
+											borderLeftWidth: ditgarItemHeaderBorderWidth,
+											borderLeftColor: accentFor(context),
+											paddingLeft: metrics.gapX(0.5),
+											marginLeft: -(ditgarItemHeaderBorderWidth + metrics.gapX(0.5)),
+										}),
 								paddingVertical: metrics.gapY(0.125),
 								// Keep header text aligned with the body after its border and padding.
-								marginLeft: -(ditgarItemHeaderBorderWidth + metrics.gapX(0.5)),
 							}
 						: {}),
 				}),

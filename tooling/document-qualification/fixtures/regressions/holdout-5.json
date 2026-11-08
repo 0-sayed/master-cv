@@ -1,0 +1,4016 @@
+[
+	{
+		"id": "H5-AR-06",
+		"language": "ar",
+		"split": "held-out",
+		"paths": ["export"],
+		"data": {
+			"picture": {
+				"hidden": true,
+				"fit": "cover",
+				"url": "",
+				"size": 80,
+				"rotation": 0,
+				"aspectRatio": 1,
+				"borderRadius": 0,
+				"borderColor": "rgba(0, 0, 0, 0.5)",
+				"borderWidth": 0,
+				"shadowColor": "rgba(0, 0, 0, 0.5)",
+				"shadowWidth": 0
+			},
+			"basics": {
+				"name": "دِيمَة الجُهَنِي",
+				"headline": "مهندسة اختبار",
+				"email": "trial5.106@example.test",
+				"phone": "+966 53 950 4145",
+				"location": "الدمام",
+				"website": {
+					"url": "https://example.test/portfolio-h5/H5-AR-06",
+					"label": "example.test/portfolio-h5/H5-AR-06"
+				},
+				"customFields": []
+			},
+			"summary": {
+				"title": "",
+				"icon": "article",
+				"columns": 1,
+				"hidden": false,
+				"showHeading": true,
+				"keepTogether": false,
+				"startOnNewPage": false,
+				"content": "<p>راجعت 36 حزمة أرشيف عبر 6 خدمات منتجات.</p>"
+			},
+			"sections": {
+				"profiles": {
+					"title": "",
+					"icon": "messenger-logo",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"experience": {
+					"title": "",
+					"icon": "briefcase",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-AR-06-current",
+							"hidden": false,
+							"company": "تقنية المَرْسَى",
+							"position": "",
+							"location": "الدمام",
+							"period": "2015-01 – 2028-05",
+							"dates": {
+								"start": "2015-01",
+								"end": "2028-05",
+								"present": false
+							},
+							"website": {
+								"url": "https://example.test/firm/66",
+								"label": "Team 66",
+								"inlineLink": false
+							},
+							"description": "<p>قدت 16 مراجعة تسليم.</p>",
+							"roles": [
+								{
+									"id": "H5-AR-06-lead",
+									"position": "مهندسة اختبار",
+									"period": "2025-03 – 2028-05",
+									"dates": {
+										"start": "2025-03",
+										"end": "2028-05",
+										"present": false
+									},
+									"description": "<p>اختبرت 56 سيناريو و9 مسارات وثائق.</p>"
+								},
+								{
+									"id": "H5-AR-06-associate",
+									"position": "مطور مشارك",
+									"period": "2020-02 – 2024-11",
+									"dates": {
+										"start": "2020-02",
+										"end": "2024-11",
+										"present": false
+									},
+									"description": "<p>اختبرت 56 سيناريو و9 مسارات وثائق.</p>"
+								}
+							]
+						},
+						{
+							"id": "H5-AR-06-prior",
+							"hidden": false,
+							"company": "مركز البَيَان 86",
+							"position": "مطور أرشيف",
+							"location": "الدمام",
+							"period": "2007-07 – 2010-09",
+							"dates": {
+								"start": "2007-07",
+								"end": "2010-09",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": []
+						}
+					]
+				},
+				"education": {
+					"title": "",
+					"icon": "graduation-cap",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-AR-06-school",
+							"hidden": false,
+							"school": "كلية المَعْرِفَة التقنية",
+							"degree": "نظم المعلومات",
+							"area": "",
+							"grade": "",
+							"location": "",
+							"period": "2001-08 – 2005-12",
+							"dates": {
+								"start": "2001-08",
+								"end": "2005-12",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"projects": {
+					"title": "",
+					"icon": "code-simple",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-AR-06-hijri",
+							"hidden": false,
+							"name": "تدقيق الأرشيف الهجري",
+							"period": "1443 هـ",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "1443 هـ"
+							},
+							"website": {
+								"url": "https://example.test/project/96",
+								"label": "Archive 96",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 96 سجلات مصدر.</p>"
+						},
+						{
+							"id": "H5-AR-06-gregorian",
+							"hidden": false,
+							"name": "تدقيق السجلات",
+							"period": "2015 - 2017",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "2015 - 2017"
+							},
+							"website": {
+								"url": "https://example.test/project/126",
+								"label": "Archive 126",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 126 سجلات مصدر.</p>"
+						},
+						{
+							"id": "H5-AR-06-hidden",
+							"hidden": true,
+							"name": "HIDDEN-FACT 999999",
+							"period": "888888",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "888888"
+							},
+							"website": {
+								"url": "https://example.test/project/777777",
+								"label": "Archive 777777",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 777777 سجلات مصدر.</p>"
+						}
+					]
+				},
+				"skills": {
+					"title": "",
+					"icon": "compass-tool",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-AR-06-skill",
+							"hidden": false,
+							"icon": "",
+							"iconColor": "",
+							"name": "إدارة الإصدارات",
+							"proficiency": "",
+							"level": 0,
+							"keywords": ["SQL", "API"]
+						}
+					],
+					"keywordLayout": "inline",
+					"layout": "default"
+				},
+				"languages": {
+					"title": "",
+					"icon": "translate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"interests": {
+					"title": "",
+					"icon": "football",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"awards": {
+					"title": "",
+					"icon": "trophy",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"certifications": {
+					"title": "",
+					"icon": "certificate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"publications": {
+					"title": "",
+					"icon": "books",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"volunteer": {
+					"title": "",
+					"icon": "hand-heart",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"references": {
+					"title": "",
+					"icon": "phone",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				}
+			},
+			"customSections": [],
+			"metadata": {
+				"template": "lapras",
+				"layout": {
+					"sidebarWidth": 35,
+					"pages": [
+						{
+							"fullWidth": false,
+							"main": ["summary", "experience", "education", "projects"],
+							"sidebar": ["skills"]
+						}
+					]
+				},
+				"page": {
+					"gapX": 4,
+					"gapY": 6,
+					"marginX": 14,
+					"marginY": 12,
+					"format": "a4",
+					"locale": "ar-SA",
+					"dateFormat": "iso",
+					"hideLinkUnderline": false,
+					"hideIcons": true,
+					"hideSectionIcons": true
+				},
+				"design": {
+					"level": {
+						"icon": "star",
+						"type": "circle"
+					},
+					"colors": {
+						"primary": "rgba(220, 38, 38, 1)",
+						"text": "rgba(0, 0, 0, 1)",
+						"background": "rgba(255, 255, 255, 1)"
+					}
+				},
+				"typography": {
+					"body": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["400", "500"],
+						"fontSize": 10,
+						"lineHeight": 1.5
+					},
+					"heading": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["600"],
+						"fontSize": 14,
+						"lineHeight": 1.5
+					}
+				},
+				"notes": "",
+				"styleRules": []
+			}
+		},
+		"gold": {
+			"review": {
+				"status": "draft"
+			},
+			"text": "دِيمَة الجُهَنِي مهندسة اختبار trial5.106@example.test +966 53 950 4145 الدمام example.test/portfolio-h5/H5-AR-06 راجعت 36 حزمة أرشيف عبر 6 خدمات منتجات. تقنية المَرْسَى الدمام 2015-01 – 2028-05 قدت 16 مراجعة تسليم. Team 66 مهندسة اختبار 2025-03 – 2028-05 اختبرت 56 سيناريو و9 مسارات وثائق. مطور مشارك 2020-02 – 2024-11 اختبرت 56 سيناريو و9 مسارات وثائق. مركز البَيَان 86 مطور أرشيف الدمام 2007-07 – 2010-09 كلية المَعْرِفَة التقنية نظم المعلومات 2001-08 – 2005-12 تدقيق الأرشيف الهجري 1443 هـ دققت 96 سجلات مصدر. Archive 96 تدقيق السجلات 2015 - 2017 دققت 126 سجلات مصدر. Archive 126 إدارة الإصدارات SQL API",
+			"fields": [
+				{
+					"id": "name",
+					"value": "دِيمَة الجُهَنِي"
+				},
+				{
+					"id": "email",
+					"value": "trial5.106@example.test"
+				},
+				{
+					"id": "location",
+					"value": "الدمام"
+				},
+				{
+					"id": "phone",
+					"value": "+966 53 950 4145"
+				},
+				{
+					"id": "website",
+					"value": "example.test/portfolio-h5/H5-AR-06"
+				},
+				{
+					"id": "company",
+					"value": "تقنية المَرْسَى"
+				},
+				{
+					"id": "job-start",
+					"value": "2015-01"
+				},
+				{
+					"id": "job-end",
+					"value": "2028-05"
+				},
+				{
+					"id": "role-0",
+					"value": "مهندسة اختبار",
+					"occurrence": 1
+				},
+				{
+					"id": "start-0",
+					"value": "2025-03"
+				},
+				{
+					"id": "end-0",
+					"value": "2028-05",
+					"occurrence": 1
+				},
+				{
+					"id": "role-1",
+					"value": "مطور مشارك"
+				},
+				{
+					"id": "start-1",
+					"value": "2020-02"
+				},
+				{
+					"id": "end-1",
+					"value": "2024-11"
+				},
+				{
+					"id": "old-company",
+					"value": "مركز البَيَان 86"
+				},
+				{
+					"id": "old-role",
+					"value": "مطور أرشيف"
+				},
+				{
+					"id": "old-start",
+					"value": "2007-07"
+				},
+				{
+					"id": "old-end",
+					"value": "2010-09"
+				},
+				{
+					"id": "school",
+					"value": "كلية المَعْرِفَة التقنية"
+				},
+				{
+					"id": "school-start",
+					"value": "2001-08"
+				},
+				{
+					"id": "school-end",
+					"value": "2005-12"
+				},
+				{
+					"id": "school-degree",
+					"value": "نظم المعلومات"
+				},
+				{
+					"id": "skill",
+					"value": "إدارة الإصدارات",
+					"match": "mixed-free-text"
+				},
+				{
+					"id": "hijri-raw",
+					"value": "1443 هـ",
+					"match": "date"
+				},
+				{
+					"id": "gregorian-raw",
+					"value": "2015 - 2017",
+					"match": "date"
+				},
+				{
+					"id": "company-website",
+					"value": "Team 66"
+				},
+				{
+					"id": "project-0",
+					"value": "تدقيق الأرشيف الهجري"
+				},
+				{
+					"id": "project-web-0",
+					"value": "Archive 96"
+				},
+				{
+					"id": "project-1",
+					"value": "تدقيق السجلات"
+				},
+				{
+					"id": "project-web-1",
+					"value": "Archive 126"
+				},
+				{
+					"id": "keyword-0",
+					"value": "SQL"
+				},
+				{
+					"id": "keyword-1",
+					"value": "API"
+				}
+			],
+			"associations": [
+				{
+					"id": "current-employer",
+					"fields": [
+						"company",
+						"job-start",
+						"job-end",
+						"role-0",
+						"start-0",
+						"end-0",
+						"role-1",
+						"start-1",
+						"end-1",
+						"company-website"
+					]
+				},
+				{
+					"id": "prior-employer",
+					"fields": ["old-company", "old-role", "old-start", "old-end"]
+				},
+				{
+					"id": "education",
+					"fields": ["school", "school-start", "school-end", "school-degree"]
+				},
+				{
+					"id": "project-entry-0",
+					"fields": ["project-0", "hijri-raw", "project-web-0"]
+				},
+				{
+					"id": "project-entry-1",
+					"fields": ["project-1", "gregorian-raw", "project-web-1"]
+				}
+			],
+			"order": [
+				["name", "company"],
+				["company", "role-0"],
+				["old-company", "school"],
+				["job-start", "job-end"],
+				["old-start", "old-end"],
+				["school-start", "school-end"],
+				["role-0", "start-0"],
+				["start-0", "end-0"],
+				["end-0", "role-1"],
+				["role-1", "start-1"],
+				["start-1", "end-1"],
+				["end-1", "old-company"]
+			],
+			"forbidden": ["HIDDEN-FACT", "999999", "888888", "777777"]
+		}
+	},
+	{
+		"id": "H5-EN-10",
+		"language": "en",
+		"split": "held-out",
+		"paths": ["export"],
+		"data": {
+			"picture": {
+				"hidden": true,
+				"fit": "cover",
+				"url": "",
+				"size": 80,
+				"rotation": 0,
+				"aspectRatio": 1,
+				"borderRadius": 0,
+				"borderColor": "rgba(0, 0, 0, 0.5)",
+				"borderWidth": 0,
+				"shadowColor": "rgba(0, 0, 0, 0.5)",
+				"shadowWidth": 0
+			},
+			"basics": {
+				"name": "Jonah Clearbrook",
+				"headline": "Quality Architect",
+				"email": "trial5.110@example.test",
+				"phone": "+٩٦٦ ٥٣ ٩٥٠ ٤٢٦١",
+				"location": "Dammam",
+				"website": {
+					"url": "https://example.test/portfolio-h5/H5-EN-10",
+					"label": "example.test/portfolio-h5/H5-EN-10"
+				},
+				"customFields": []
+			},
+			"summary": {
+				"title": "",
+				"icon": "article",
+				"columns": 1,
+				"hidden": false,
+				"showHeading": true,
+				"keepTogether": false,
+				"startOnNewPage": false,
+				"content": "<p>Validated 40 archive batches across 4 product services.</p>"
+			},
+			"sections": {
+				"profiles": {
+					"title": "",
+					"icon": "messenger-logo",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"experience": {
+					"title": "",
+					"icon": "briefcase",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-10-current",
+							"hidden": false,
+							"company": "Alder Release Studio",
+							"position": "",
+							"location": "Dammam",
+							"period": "2015 – 2028",
+							"dates": {
+								"start": "2015",
+								"end": "2028",
+								"present": false
+							},
+							"website": {
+								"url": "https://example.test/firm/70",
+								"label": "Team 70",
+								"inlineLink": false
+							},
+							"description": "<p>Led 20 delivery reviews.</p>",
+							"roles": [
+								{
+									"id": "H5-EN-10-lead",
+									"position": "Quality Architect",
+									"period": "2025 – 2028",
+									"dates": {
+										"start": "2025",
+										"end": "2028",
+										"present": false
+									},
+									"description": "<p>Checked 60 scenarios and 7 workflows.</p>"
+								},
+								{
+									"id": "H5-EN-10-associate",
+									"position": "Associate Developer",
+									"period": "2020 – 2024",
+									"dates": {
+										"start": "2020",
+										"end": "2024",
+										"present": false
+									},
+									"description": "<p>Checked 60 scenarios and 7 workflows.</p>"
+								}
+							]
+						},
+						{
+							"id": "H5-EN-10-prior",
+							"hidden": false,
+							"company": "Aspen Archive Unit 90",
+							"position": "Archive Developer",
+							"location": "Dammam",
+							"period": "2007 – 2010",
+							"dates": {
+								"start": "2007",
+								"end": "2010",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": []
+						}
+					]
+				},
+				"education": {
+					"title": "",
+					"icon": "graduation-cap",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-10-school",
+							"hidden": false,
+							"school": "Evergreen Technical College",
+							"degree": "Information Systems",
+							"area": "",
+							"grade": "",
+							"location": "",
+							"period": "2001 – 2005",
+							"dates": {
+								"start": "2001",
+								"end": "2005",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"projects": {
+					"title": "",
+					"icon": "code-simple",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-10-hijri",
+							"hidden": false,
+							"name": "Hijri archive audit",
+							"period": "1447 هـ",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "1447 هـ"
+							},
+							"website": {
+								"url": "https://example.test/project/100",
+								"label": "Archive 100",
+								"inlineLink": false
+							},
+							"description": "<p>Audited 100 source records.</p>"
+						},
+						{
+							"id": "H5-EN-10-gregorian",
+							"hidden": false,
+							"name": "Gregorian record audit",
+							"period": "من 2011 إلى 2013",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "من 2011 إلى 2013"
+							},
+							"website": {
+								"url": "https://example.test/project/130",
+								"label": "Archive 130",
+								"inlineLink": false
+							},
+							"description": "<p>Audited 130 source records.</p>"
+						},
+						{
+							"id": "H5-EN-10-hidden",
+							"hidden": true,
+							"name": "HIDDEN-FACT 999999",
+							"period": "888888",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "888888"
+							},
+							"website": {
+								"url": "https://example.test/project/777777",
+								"label": "Archive 777777",
+								"inlineLink": false
+							},
+							"description": "<p>Audited 777777 source records.</p>"
+						}
+					]
+				},
+				"skills": {
+					"title": "",
+					"icon": "compass-tool",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-10-skill",
+							"hidden": false,
+							"icon": "",
+							"iconColor": "",
+							"name": "TypeScript / SQLite",
+							"proficiency": "",
+							"level": 0,
+							"keywords": ["SQL", "API"]
+						}
+					],
+					"keywordLayout": "inline",
+					"layout": "default"
+				},
+				"languages": {
+					"title": "",
+					"icon": "translate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"interests": {
+					"title": "",
+					"icon": "football",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"awards": {
+					"title": "",
+					"icon": "trophy",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"certifications": {
+					"title": "",
+					"icon": "certificate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"publications": {
+					"title": "",
+					"icon": "books",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"volunteer": {
+					"title": "",
+					"icon": "hand-heart",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"references": {
+					"title": "",
+					"icon": "phone",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				}
+			},
+			"customSections": [],
+			"metadata": {
+				"template": "lapras",
+				"layout": {
+					"sidebarWidth": 35,
+					"pages": [
+						{
+							"fullWidth": true,
+							"main": ["summary", "experience", "education", "projects", "skills"],
+							"sidebar": []
+						}
+					]
+				},
+				"page": {
+					"gapX": 4,
+					"gapY": 6,
+					"marginX": 14,
+					"marginY": 12,
+					"format": "a4",
+					"locale": "en-US",
+					"dateFormat": "short",
+					"hideLinkUnderline": false,
+					"hideIcons": true,
+					"hideSectionIcons": true
+				},
+				"design": {
+					"level": {
+						"icon": "star",
+						"type": "circle"
+					},
+					"colors": {
+						"primary": "rgba(220, 38, 38, 1)",
+						"text": "rgba(0, 0, 0, 1)",
+						"background": "rgba(255, 255, 255, 1)"
+					}
+				},
+				"typography": {
+					"body": {
+						"fontFamily": "Noto Sans",
+						"fontWeights": ["400", "500"],
+						"fontSize": 10,
+						"lineHeight": 1.5
+					},
+					"heading": {
+						"fontFamily": "Noto Sans",
+						"fontWeights": ["600"],
+						"fontSize": 14,
+						"lineHeight": 1.5
+					}
+				},
+				"notes": "",
+				"styleRules": []
+			}
+		},
+		"gold": {
+			"review": {
+				"status": "draft"
+			},
+			"text": "Jonah Clearbrook Quality Architect trial5.110@example.test +٩٦٦ ٥٣ ٩٥٠ ٤٢٦١ Dammam example.test/portfolio-h5/H5-EN-10 Validated 40 archive batches across 4 product services. Alder Release Studio Dammam 2015 – 2028 Led 20 delivery reviews. Team 70 Quality Architect 2025 – 2028 Checked 60 scenarios and 7 workflows. Associate Developer 2020 – 2024 Checked 60 scenarios and 7 workflows. Aspen Archive Unit 90 Archive Developer Dammam 2007 – 2010 Evergreen Technical College Information Systems 2001 – 2005 Hijri archive audit 1447 هـ Audited 100 source records. Archive 100 Gregorian record audit من 2011 إلى 2013 Audited 130 source records. Archive 130 TypeScript / SQLite SQL API",
+			"fields": [
+				{
+					"id": "name",
+					"value": "Jonah Clearbrook"
+				},
+				{
+					"id": "email",
+					"value": "trial5.110@example.test"
+				},
+				{
+					"id": "location",
+					"value": "Dammam"
+				},
+				{
+					"id": "phone",
+					"value": "+٩٦٦ ٥٣ ٩٥٠ ٤٢٦١"
+				},
+				{
+					"id": "website",
+					"value": "example.test/portfolio-h5/H5-EN-10"
+				},
+				{
+					"id": "company",
+					"value": "Alder Release Studio"
+				},
+				{
+					"id": "job-start",
+					"value": "2015"
+				},
+				{
+					"id": "job-end",
+					"value": "2028"
+				},
+				{
+					"id": "role-0",
+					"value": "Quality Architect",
+					"occurrence": 1
+				},
+				{
+					"id": "start-0",
+					"value": "2025"
+				},
+				{
+					"id": "end-0",
+					"value": "2028",
+					"occurrence": 1
+				},
+				{
+					"id": "role-1",
+					"value": "Associate Developer"
+				},
+				{
+					"id": "start-1",
+					"value": "2020"
+				},
+				{
+					"id": "end-1",
+					"value": "2024"
+				},
+				{
+					"id": "old-company",
+					"value": "Aspen Archive Unit 90"
+				},
+				{
+					"id": "old-role",
+					"value": "Archive Developer"
+				},
+				{
+					"id": "old-start",
+					"value": "2007"
+				},
+				{
+					"id": "old-end",
+					"value": "2010"
+				},
+				{
+					"id": "school",
+					"value": "Evergreen Technical College"
+				},
+				{
+					"id": "school-start",
+					"value": "2001"
+				},
+				{
+					"id": "school-end",
+					"value": "2005"
+				},
+				{
+					"id": "school-degree",
+					"value": "Information Systems"
+				},
+				{
+					"id": "skill",
+					"value": "TypeScript / SQLite",
+					"match": "mixed-free-text"
+				},
+				{
+					"id": "hijri-raw",
+					"value": "1447 هـ",
+					"match": "date"
+				},
+				{
+					"id": "gregorian-raw",
+					"value": "من 2011 إلى 2013",
+					"match": "date"
+				},
+				{
+					"id": "company-website",
+					"value": "Team 70"
+				},
+				{
+					"id": "project-0",
+					"value": "Hijri archive audit"
+				},
+				{
+					"id": "project-web-0",
+					"value": "Archive 100"
+				},
+				{
+					"id": "project-1",
+					"value": "Gregorian record audit"
+				},
+				{
+					"id": "project-web-1",
+					"value": "Archive 130"
+				},
+				{
+					"id": "keyword-0",
+					"value": "SQL"
+				},
+				{
+					"id": "keyword-1",
+					"value": "API"
+				}
+			],
+			"associations": [
+				{
+					"id": "current-employer",
+					"fields": [
+						"company",
+						"job-start",
+						"job-end",
+						"role-0",
+						"start-0",
+						"end-0",
+						"role-1",
+						"start-1",
+						"end-1",
+						"company-website"
+					]
+				},
+				{
+					"id": "prior-employer",
+					"fields": ["old-company", "old-role", "old-start", "old-end"]
+				},
+				{
+					"id": "education",
+					"fields": ["school", "school-start", "school-end", "school-degree"]
+				},
+				{
+					"id": "project-entry-0",
+					"fields": ["project-0", "hijri-raw", "project-web-0"]
+				},
+				{
+					"id": "project-entry-1",
+					"fields": ["project-1", "gregorian-raw", "project-web-1"]
+				}
+			],
+			"order": [
+				["name", "company"],
+				["company", "role-0"],
+				["old-company", "school"],
+				["job-start", "job-end"],
+				["old-start", "old-end"],
+				["school-start", "school-end"],
+				["role-0", "start-0"],
+				["start-0", "end-0"],
+				["end-0", "role-1"],
+				["role-1", "start-1"],
+				["start-1", "end-1"],
+				["end-1", "old-company"]
+			],
+			"forbidden": ["HIDDEN-FACT", "999999", "888888", "777777"]
+		}
+	},
+	{
+		"id": "H5-EN-11",
+		"language": "en",
+		"split": "held-out",
+		"paths": ["export"],
+		"data": {
+			"picture": {
+				"hidden": true,
+				"fit": "cover",
+				"url": "",
+				"size": 80,
+				"rotation": 0,
+				"aspectRatio": 1,
+				"borderRadius": 0,
+				"borderColor": "rgba(0, 0, 0, 0.5)",
+				"borderWidth": 0,
+				"shadowColor": "rgba(0, 0, 0, 0.5)",
+				"shadowWidth": 0
+			},
+			"basics": {
+				"name": "Kira Bellgrove",
+				"headline": "Systems Specialist",
+				"email": "trial5.111@example.test",
+				"phone": "+۹۶۶ ۵۳ ۹۵۰ ۴۲۹۰",
+				"location": "Dammam",
+				"website": {
+					"url": "https://example.test/portfolio-h5/H5-EN-11",
+					"label": "example.test/portfolio-h5/H5-EN-11"
+				},
+				"customFields": []
+			},
+			"summary": {
+				"title": "",
+				"icon": "article",
+				"columns": 1,
+				"hidden": false,
+				"showHeading": true,
+				"keepTogether": false,
+				"startOnNewPage": false,
+				"content": "<p>Validated 41 archive batches across 5 product services.</p>"
+			},
+			"sections": {
+				"profiles": {
+					"title": "",
+					"icon": "messenger-logo",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"experience": {
+					"title": "",
+					"icon": "briefcase",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-11-current",
+							"hidden": false,
+							"company": "Linden Platform Works",
+							"position": "",
+							"location": "Dammam",
+							"period": "01/2016 – 05/2029",
+							"dates": {
+								"start": "2016-01",
+								"end": "2029-05",
+								"present": false
+							},
+							"website": {
+								"url": "https://example.test/firm/71",
+								"label": "Team 71",
+								"inlineLink": false
+							},
+							"description": "<p>Led 21 delivery reviews.</p>",
+							"roles": [
+								{
+									"id": "H5-EN-11-lead",
+									"position": "Systems Specialist",
+									"period": "03/2026 – 05/2029",
+									"dates": {
+										"start": "2026-03",
+										"end": "2029-05",
+										"present": false
+									},
+									"description": "<p>Checked 61 scenarios and 8 workflows.</p>"
+								},
+								{
+									"id": "H5-EN-11-associate",
+									"position": "Associate Developer",
+									"period": "02/2021 – 11/2025",
+									"dates": {
+										"start": "2021-02",
+										"end": "2025-11",
+										"present": false
+									},
+									"description": "<p>Checked 61 scenarios and 8 workflows.</p>"
+								},
+								{
+									"id": "H5-EN-11-trainee",
+									"position": "Junior Analyst",
+									"period": "04/2017 – 06/2020",
+									"dates": {
+										"start": "2017-04",
+										"end": "2020-06",
+										"present": false
+									},
+									"description": "<p>Checked 61 scenarios and 8 workflows.</p>"
+								}
+							]
+						},
+						{
+							"id": "H5-EN-11-prior",
+							"hidden": false,
+							"company": "Aspen Archive Unit 91",
+							"position": "Archive Developer",
+							"location": "Dammam",
+							"period": "07/2008 – 09/2011",
+							"dates": {
+								"start": "2008-07",
+								"end": "2011-09",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": []
+						}
+					]
+				},
+				"education": {
+					"title": "",
+					"icon": "graduation-cap",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-11-school",
+							"hidden": false,
+							"school": "Evergreen Technical College",
+							"degree": "Information Systems",
+							"area": "",
+							"grade": "",
+							"location": "",
+							"period": "08/2002 – 12/2006",
+							"dates": {
+								"start": "2002-08",
+								"end": "2006-12",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"projects": {
+					"title": "",
+					"icon": "code-simple",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-11-hijri",
+							"hidden": false,
+							"name": "Hijri archive audit",
+							"period": "1443 هـ - 1444 هـ",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "1443 هـ - 1444 هـ"
+							},
+							"website": {
+								"url": "https://example.test/project/101",
+								"label": "Archive 101",
+								"inlineLink": false
+							},
+							"description": "<p>Audited 101 source records.</p>"
+						},
+						{
+							"id": "H5-EN-11-gregorian",
+							"hidden": false,
+							"name": "Gregorian record audit",
+							"period": "١٢/٠٩/٢٠٣٢",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "١٢/٠٩/٢٠٣٢"
+							},
+							"website": {
+								"url": "https://example.test/project/131",
+								"label": "Archive 131",
+								"inlineLink": false
+							},
+							"description": "<p>Audited 131 source records.</p>"
+						},
+						{
+							"id": "H5-EN-11-hidden",
+							"hidden": true,
+							"name": "HIDDEN-FACT 999999",
+							"period": "888888",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "888888"
+							},
+							"website": {
+								"url": "https://example.test/project/777777",
+								"label": "Archive 777777",
+								"inlineLink": false
+							},
+							"description": "<p>Audited 777777 source records.</p>"
+						}
+					]
+				},
+				"skills": {
+					"title": "",
+					"icon": "compass-tool",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-11-skill",
+							"hidden": false,
+							"icon": "",
+							"iconColor": "",
+							"name": "TypeScript / SQLite",
+							"proficiency": "",
+							"level": 0,
+							"keywords": ["SQL", "API"]
+						}
+					],
+					"keywordLayout": "inline",
+					"layout": "default"
+				},
+				"languages": {
+					"title": "",
+					"icon": "translate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"interests": {
+					"title": "",
+					"icon": "football",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"awards": {
+					"title": "",
+					"icon": "trophy",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"certifications": {
+					"title": "",
+					"icon": "certificate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"publications": {
+					"title": "",
+					"icon": "books",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"volunteer": {
+					"title": "",
+					"icon": "hand-heart",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"references": {
+					"title": "",
+					"icon": "phone",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				}
+			},
+			"customSections": [],
+			"metadata": {
+				"template": "leafish",
+				"layout": {
+					"sidebarWidth": 35,
+					"pages": [
+						{
+							"fullWidth": true,
+							"main": ["summary", "experience", "education", "projects", "skills"],
+							"sidebar": []
+						}
+					]
+				},
+				"page": {
+					"gapX": 4,
+					"gapY": 6,
+					"marginX": 14,
+					"marginY": 12,
+					"format": "a4",
+					"locale": "en-US",
+					"dateFormat": "numeric",
+					"hideLinkUnderline": false,
+					"hideIcons": true,
+					"hideSectionIcons": true
+				},
+				"design": {
+					"level": {
+						"icon": "star",
+						"type": "circle"
+					},
+					"colors": {
+						"primary": "rgba(220, 38, 38, 1)",
+						"text": "rgba(0, 0, 0, 1)",
+						"background": "rgba(255, 255, 255, 1)"
+					}
+				},
+				"typography": {
+					"body": {
+						"fontFamily": "Noto Sans",
+						"fontWeights": ["400", "500"],
+						"fontSize": 10,
+						"lineHeight": 1.5
+					},
+					"heading": {
+						"fontFamily": "Noto Sans",
+						"fontWeights": ["600"],
+						"fontSize": 14,
+						"lineHeight": 1.5
+					}
+				},
+				"notes": "",
+				"styleRules": []
+			}
+		},
+		"gold": {
+			"review": {
+				"status": "draft"
+			},
+			"text": "Kira Bellgrove Systems Specialist trial5.111@example.test +۹۶۶ ۵۳ ۹۵۰ ۴۲۹۰ Dammam example.test/portfolio-h5/H5-EN-11 Validated 41 archive batches across 5 product services. Linden Platform Works Dammam 01/2016 – 05/2029 Led 21 delivery reviews. Team 71 Systems Specialist 03/2026 – 05/2029 Checked 61 scenarios and 8 workflows. Associate Developer 02/2021 – 11/2025 Checked 61 scenarios and 8 workflows. Junior Analyst 04/2017 – 06/2020 Checked 61 scenarios and 8 workflows. Aspen Archive Unit 91 Archive Developer Dammam 07/2008 – 09/2011 Evergreen Technical College Information Systems 08/2002 – 12/2006 Hijri archive audit 1443 هـ - 1444 هـ Audited 101 source records. Archive 101 Gregorian record audit ١٢/٠٩/٢٠٣٢ Audited 131 source records. Archive 131 TypeScript / SQLite SQL API",
+			"fields": [
+				{
+					"id": "name",
+					"value": "Kira Bellgrove"
+				},
+				{
+					"id": "email",
+					"value": "trial5.111@example.test"
+				},
+				{
+					"id": "location",
+					"value": "Dammam"
+				},
+				{
+					"id": "phone",
+					"value": "+۹۶۶ ۵۳ ۹۵۰ ۴۲۹۰"
+				},
+				{
+					"id": "website",
+					"value": "example.test/portfolio-h5/H5-EN-11"
+				},
+				{
+					"id": "company",
+					"value": "Linden Platform Works"
+				},
+				{
+					"id": "job-start",
+					"value": "01/2016"
+				},
+				{
+					"id": "job-end",
+					"value": "05/2029"
+				},
+				{
+					"id": "role-0",
+					"value": "Systems Specialist",
+					"occurrence": 1
+				},
+				{
+					"id": "start-0",
+					"value": "03/2026"
+				},
+				{
+					"id": "end-0",
+					"value": "05/2029",
+					"occurrence": 1
+				},
+				{
+					"id": "role-1",
+					"value": "Associate Developer"
+				},
+				{
+					"id": "start-1",
+					"value": "02/2021"
+				},
+				{
+					"id": "end-1",
+					"value": "11/2025"
+				},
+				{
+					"id": "role-2",
+					"value": "Junior Analyst"
+				},
+				{
+					"id": "start-2",
+					"value": "04/2017"
+				},
+				{
+					"id": "end-2",
+					"value": "06/2020"
+				},
+				{
+					"id": "old-company",
+					"value": "Aspen Archive Unit 91"
+				},
+				{
+					"id": "old-role",
+					"value": "Archive Developer"
+				},
+				{
+					"id": "old-start",
+					"value": "07/2008"
+				},
+				{
+					"id": "old-end",
+					"value": "09/2011"
+				},
+				{
+					"id": "school",
+					"value": "Evergreen Technical College"
+				},
+				{
+					"id": "school-start",
+					"value": "08/2002"
+				},
+				{
+					"id": "school-end",
+					"value": "12/2006"
+				},
+				{
+					"id": "school-degree",
+					"value": "Information Systems"
+				},
+				{
+					"id": "skill",
+					"value": "TypeScript / SQLite",
+					"match": "mixed-free-text"
+				},
+				{
+					"id": "hijri-raw",
+					"value": "1443 هـ - 1444 هـ",
+					"match": "date"
+				},
+				{
+					"id": "gregorian-raw",
+					"value": "١٢/٠٩/٢٠٣٢",
+					"match": "date"
+				},
+				{
+					"id": "company-website",
+					"value": "Team 71"
+				},
+				{
+					"id": "project-0",
+					"value": "Hijri archive audit"
+				},
+				{
+					"id": "project-web-0",
+					"value": "Archive 101"
+				},
+				{
+					"id": "project-1",
+					"value": "Gregorian record audit"
+				},
+				{
+					"id": "project-web-1",
+					"value": "Archive 131"
+				},
+				{
+					"id": "keyword-0",
+					"value": "SQL"
+				},
+				{
+					"id": "keyword-1",
+					"value": "API"
+				}
+			],
+			"associations": [
+				{
+					"id": "current-employer",
+					"fields": [
+						"company",
+						"job-start",
+						"job-end",
+						"role-0",
+						"start-0",
+						"end-0",
+						"role-1",
+						"start-1",
+						"end-1",
+						"role-2",
+						"start-2",
+						"end-2",
+						"company-website"
+					]
+				},
+				{
+					"id": "prior-employer",
+					"fields": ["old-company", "old-role", "old-start", "old-end"]
+				},
+				{
+					"id": "education",
+					"fields": ["school", "school-start", "school-end", "school-degree"]
+				},
+				{
+					"id": "project-entry-0",
+					"fields": ["project-0", "hijri-raw", "project-web-0"]
+				},
+				{
+					"id": "project-entry-1",
+					"fields": ["project-1", "gregorian-raw", "project-web-1"]
+				}
+			],
+			"order": [
+				["name", "company"],
+				["company", "role-0"],
+				["old-company", "school"],
+				["job-start", "job-end"],
+				["old-start", "old-end"],
+				["school-start", "school-end"],
+				["role-0", "start-0"],
+				["start-0", "end-0"],
+				["end-0", "role-1"],
+				["role-1", "start-1"],
+				["start-1", "end-1"],
+				["end-1", "role-2"],
+				["role-2", "start-2"],
+				["start-2", "end-2"],
+				["end-2", "old-company"]
+			],
+			"forbidden": ["HIDDEN-FACT", "999999", "888888", "777777"]
+		}
+	},
+	{
+		"id": "H5-EN-14",
+		"language": "en",
+		"split": "held-out",
+		"paths": ["export"],
+		"data": {
+			"picture": {
+				"hidden": true,
+				"fit": "cover",
+				"url": "",
+				"size": 80,
+				"rotation": 0,
+				"aspectRatio": 1,
+				"borderRadius": 0,
+				"borderColor": "rgba(0, 0, 0, 0.5)",
+				"borderWidth": 0,
+				"shadowColor": "rgba(0, 0, 0, 0.5)",
+				"shadowWidth": 0
+			},
+			"basics": {
+				"name": "Nolan Reedvale",
+				"headline": "Integration Engineer",
+				"email": "trial5.114@example.test",
+				"phone": "+۹۶۶ ۵۳ ۹۵۰ ۴۳۷۷",
+				"location": "Dammam",
+				"website": {
+					"url": "https://example.test/portfolio-h5/H5-EN-14",
+					"label": "example.test/portfolio-h5/H5-EN-14"
+				},
+				"customFields": []
+			},
+			"summary": {
+				"title": "",
+				"icon": "article",
+				"columns": 1,
+				"hidden": false,
+				"showHeading": true,
+				"keepTogether": false,
+				"startOnNewPage": false,
+				"content": "<p>Validated 44 archive batches across 5 product services.</p>"
+			},
+			"sections": {
+				"profiles": {
+					"title": "",
+					"icon": "messenger-logo",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"experience": {
+					"title": "",
+					"icon": "briefcase",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-14-current",
+							"hidden": false,
+							"company": "Hawthorn Record Lab",
+							"position": "",
+							"location": "Dammam",
+							"period": "01/2015 – 05/2028",
+							"dates": {
+								"start": "2015-01",
+								"end": "2028-05",
+								"present": false
+							},
+							"website": {
+								"url": "https://example.test/firm/74",
+								"label": "Team 74",
+								"inlineLink": false
+							},
+							"description": "<p>Led 24 delivery reviews.</p>",
+							"roles": [
+								{
+									"id": "H5-EN-14-lead",
+									"position": "Integration Engineer",
+									"period": "03/2025 – 05/2028",
+									"dates": {
+										"start": "2025-03",
+										"end": "2028-05",
+										"present": false
+									},
+									"description": "<p>Checked 64 scenarios and 8 workflows.</p>"
+								},
+								{
+									"id": "H5-EN-14-associate",
+									"position": "Associate Developer",
+									"period": "02/2020 – 11/2024",
+									"dates": {
+										"start": "2020-02",
+										"end": "2024-11",
+										"present": false
+									},
+									"description": "<p>Checked 64 scenarios and 8 workflows.</p>"
+								}
+							]
+						},
+						{
+							"id": "H5-EN-14-prior",
+							"hidden": false,
+							"company": "Aspen Archive Unit 94",
+							"position": "Archive Developer",
+							"location": "Dammam",
+							"period": "07/2007 – 09/2010",
+							"dates": {
+								"start": "2007-07",
+								"end": "2010-09",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": []
+						}
+					]
+				},
+				"education": {
+					"title": "",
+					"icon": "graduation-cap",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-14-school",
+							"hidden": false,
+							"school": "Evergreen Technical College",
+							"degree": "Information Systems",
+							"area": "",
+							"grade": "",
+							"location": "",
+							"period": "08/2001 – 12/2005",
+							"dates": {
+								"start": "2001-08",
+								"end": "2005-12",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"projects": {
+					"title": "",
+					"icon": "code-simple",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-14-hijri",
+							"hidden": false,
+							"name": "Hijri archive audit",
+							"period": "1446 هـ",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "1446 هـ"
+							},
+							"website": {
+								"url": "https://example.test/project/104",
+								"label": "Archive 104",
+								"inlineLink": false
+							},
+							"description": "<p>Audited 104 source records.</p>"
+						},
+						{
+							"id": "H5-EN-14-gregorian",
+							"hidden": false,
+							"name": "Gregorian record audit",
+							"period": "١٢/٠٩/٢٠٣٢",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "١٢/٠٩/٢٠٣٢"
+							},
+							"website": {
+								"url": "https://example.test/project/134",
+								"label": "Archive 134",
+								"inlineLink": false
+							},
+							"description": "<p>Audited 134 source records.</p>"
+						},
+						{
+							"id": "H5-EN-14-hidden",
+							"hidden": true,
+							"name": "HIDDEN-FACT 999999",
+							"period": "888888",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "888888"
+							},
+							"website": {
+								"url": "https://example.test/project/777777",
+								"label": "Archive 777777",
+								"inlineLink": false
+							},
+							"description": "<p>Audited 777777 source records.</p>"
+						}
+					]
+				},
+				"skills": {
+					"title": "",
+					"icon": "compass-tool",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-EN-14-skill",
+							"hidden": false,
+							"icon": "",
+							"iconColor": "",
+							"name": "TypeScript / SQLite",
+							"proficiency": "",
+							"level": 0,
+							"keywords": ["SQL", "API"]
+						}
+					],
+					"keywordLayout": "inline",
+					"layout": "default"
+				},
+				"languages": {
+					"title": "",
+					"icon": "translate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"interests": {
+					"title": "",
+					"icon": "football",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"awards": {
+					"title": "",
+					"icon": "trophy",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"certifications": {
+					"title": "",
+					"icon": "certificate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"publications": {
+					"title": "",
+					"icon": "books",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"volunteer": {
+					"title": "",
+					"icon": "hand-heart",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"references": {
+					"title": "",
+					"icon": "phone",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				}
+			},
+			"customSections": [],
+			"metadata": {
+				"template": "rhyhorn",
+				"layout": {
+					"sidebarWidth": 35,
+					"pages": [
+						{
+							"fullWidth": true,
+							"main": ["summary", "experience", "education", "projects", "skills"],
+							"sidebar": []
+						}
+					]
+				},
+				"page": {
+					"gapX": 4,
+					"gapY": 6,
+					"marginX": 14,
+					"marginY": 12,
+					"format": "a4",
+					"locale": "en-US",
+					"dateFormat": "numeric",
+					"hideLinkUnderline": false,
+					"hideIcons": true,
+					"hideSectionIcons": true
+				},
+				"design": {
+					"level": {
+						"icon": "star",
+						"type": "circle"
+					},
+					"colors": {
+						"primary": "rgba(220, 38, 38, 1)",
+						"text": "rgba(0, 0, 0, 1)",
+						"background": "rgba(255, 255, 255, 1)"
+					}
+				},
+				"typography": {
+					"body": {
+						"fontFamily": "Noto Sans",
+						"fontWeights": ["400", "500"],
+						"fontSize": 10,
+						"lineHeight": 1.5
+					},
+					"heading": {
+						"fontFamily": "Noto Sans",
+						"fontWeights": ["600"],
+						"fontSize": 14,
+						"lineHeight": 1.5
+					}
+				},
+				"notes": "",
+				"styleRules": []
+			}
+		},
+		"gold": {
+			"review": {
+				"status": "draft"
+			},
+			"text": "Nolan Reedvale Integration Engineer trial5.114@example.test +۹۶۶ ۵۳ ۹۵۰ ۴۳۷۷ Dammam example.test/portfolio-h5/H5-EN-14 Validated 44 archive batches across 5 product services. Hawthorn Record Lab Dammam 01/2015 – 05/2028 Led 24 delivery reviews. Team 74 Integration Engineer 03/2025 – 05/2028 Checked 64 scenarios and 8 workflows. Associate Developer 02/2020 – 11/2024 Checked 64 scenarios and 8 workflows. Aspen Archive Unit 94 Archive Developer Dammam 07/2007 – 09/2010 Evergreen Technical College Information Systems 08/2001 – 12/2005 Hijri archive audit 1446 هـ Audited 104 source records. Archive 104 Gregorian record audit ١٢/٠٩/٢٠٣٢ Audited 134 source records. Archive 134 TypeScript / SQLite SQL API",
+			"fields": [
+				{
+					"id": "name",
+					"value": "Nolan Reedvale"
+				},
+				{
+					"id": "email",
+					"value": "trial5.114@example.test"
+				},
+				{
+					"id": "location",
+					"value": "Dammam"
+				},
+				{
+					"id": "phone",
+					"value": "+۹۶۶ ۵۳ ۹۵۰ ۴۳۷۷"
+				},
+				{
+					"id": "website",
+					"value": "example.test/portfolio-h5/H5-EN-14"
+				},
+				{
+					"id": "company",
+					"value": "Hawthorn Record Lab"
+				},
+				{
+					"id": "job-start",
+					"value": "01/2015"
+				},
+				{
+					"id": "job-end",
+					"value": "05/2028"
+				},
+				{
+					"id": "role-0",
+					"value": "Integration Engineer",
+					"occurrence": 1
+				},
+				{
+					"id": "start-0",
+					"value": "03/2025"
+				},
+				{
+					"id": "end-0",
+					"value": "05/2028",
+					"occurrence": 1
+				},
+				{
+					"id": "role-1",
+					"value": "Associate Developer"
+				},
+				{
+					"id": "start-1",
+					"value": "02/2020"
+				},
+				{
+					"id": "end-1",
+					"value": "11/2024"
+				},
+				{
+					"id": "old-company",
+					"value": "Aspen Archive Unit 94"
+				},
+				{
+					"id": "old-role",
+					"value": "Archive Developer"
+				},
+				{
+					"id": "old-start",
+					"value": "07/2007"
+				},
+				{
+					"id": "old-end",
+					"value": "09/2010"
+				},
+				{
+					"id": "school",
+					"value": "Evergreen Technical College"
+				},
+				{
+					"id": "school-start",
+					"value": "08/2001"
+				},
+				{
+					"id": "school-end",
+					"value": "12/2005"
+				},
+				{
+					"id": "school-degree",
+					"value": "Information Systems"
+				},
+				{
+					"id": "skill",
+					"value": "TypeScript / SQLite",
+					"match": "mixed-free-text"
+				},
+				{
+					"id": "hijri-raw",
+					"value": "1446 هـ",
+					"match": "date"
+				},
+				{
+					"id": "gregorian-raw",
+					"value": "١٢/٠٩/٢٠٣٢",
+					"match": "date"
+				},
+				{
+					"id": "company-website",
+					"value": "Team 74"
+				},
+				{
+					"id": "project-0",
+					"value": "Hijri archive audit"
+				},
+				{
+					"id": "project-web-0",
+					"value": "Archive 104"
+				},
+				{
+					"id": "project-1",
+					"value": "Gregorian record audit"
+				},
+				{
+					"id": "project-web-1",
+					"value": "Archive 134"
+				},
+				{
+					"id": "keyword-0",
+					"value": "SQL"
+				},
+				{
+					"id": "keyword-1",
+					"value": "API"
+				}
+			],
+			"associations": [
+				{
+					"id": "current-employer",
+					"fields": [
+						"company",
+						"job-start",
+						"job-end",
+						"role-0",
+						"start-0",
+						"end-0",
+						"role-1",
+						"start-1",
+						"end-1",
+						"company-website"
+					]
+				},
+				{
+					"id": "prior-employer",
+					"fields": ["old-company", "old-role", "old-start", "old-end"]
+				},
+				{
+					"id": "education",
+					"fields": ["school", "school-start", "school-end", "school-degree"]
+				},
+				{
+					"id": "project-entry-0",
+					"fields": ["project-0", "hijri-raw", "project-web-0"]
+				},
+				{
+					"id": "project-entry-1",
+					"fields": ["project-1", "gregorian-raw", "project-web-1"]
+				}
+			],
+			"order": [
+				["name", "company"],
+				["company", "role-0"],
+				["old-company", "school"],
+				["job-start", "job-end"],
+				["old-start", "old-end"],
+				["school-start", "school-end"],
+				["role-0", "start-0"],
+				["start-0", "end-0"],
+				["end-0", "role-1"],
+				["role-1", "start-1"],
+				["start-1", "end-1"],
+				["end-1", "old-company"]
+			],
+			"forbidden": ["HIDDEN-FACT", "999999", "888888", "777777"]
+		}
+	},
+	{
+		"id": "H5-MIXED-15",
+		"language": "mixed",
+		"split": "held-out",
+		"paths": ["export"],
+		"data": {
+			"picture": {
+				"hidden": true,
+				"fit": "cover",
+				"url": "",
+				"size": 80,
+				"rotation": 0,
+				"aspectRatio": 1,
+				"borderRadius": 0,
+				"borderColor": "rgba(0, 0, 0, 0.5)",
+				"borderWidth": 0,
+				"shadowColor": "rgba(0, 0, 0, 0.5)",
+				"shadowWidth": 0
+			},
+			"basics": {
+				"name": "زَاهِر الرُوَيْلِي",
+				"headline": "Archive Engineer",
+				"email": "trial5.115@example.test",
+				"phone": "+966 53 950 4406",
+				"location": "الدمام",
+				"website": {
+					"url": "https://example.test/portfolio-h5/H5-MIXED-15",
+					"label": "example.test/portfolio-h5/H5-MIXED-15"
+				},
+				"customFields": []
+			},
+			"summary": {
+				"title": "",
+				"icon": "article",
+				"columns": 1,
+				"hidden": false,
+				"showHeading": true,
+				"keepTogether": false,
+				"startOnNewPage": false,
+				"content": "<p>راجعت 45 حزمة أرشيف عبر 6 خدمات منتجات.</p>"
+			},
+			"sections": {
+				"profiles": {
+					"title": "",
+					"icon": "messenger-logo",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"experience": {
+					"title": "",
+					"icon": "briefcase",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-15-current",
+							"hidden": false,
+							"company": "مختبر الوَفَاء",
+							"position": "",
+							"location": "الدمام",
+							"period": "2016-01 – 2029-05",
+							"dates": {
+								"start": "2016-01",
+								"end": "2029-05",
+								"present": false
+							},
+							"website": {
+								"url": "https://example.test/firm/75",
+								"label": "Team 75",
+								"inlineLink": false
+							},
+							"description": "<p>قدت 25 مراجعة تسليم.</p>",
+							"roles": [
+								{
+									"id": "H5-MIXED-15-lead",
+									"position": "Archive Engineer",
+									"period": "2026-03 – 2029-05",
+									"dates": {
+										"start": "2026-03",
+										"end": "2029-05",
+										"present": false
+									},
+									"description": "<p>اختبرت 65 سيناريو و9 مسارات وثائق.</p>"
+								},
+								{
+									"id": "H5-MIXED-15-associate",
+									"position": "مطور مشارك",
+									"period": "2021-02 – 2025-11",
+									"dates": {
+										"start": "2021-02",
+										"end": "2025-11",
+										"present": false
+									},
+									"description": "<p>اختبرت 65 سيناريو و9 مسارات وثائق.</p>"
+								},
+								{
+									"id": "H5-MIXED-15-trainee",
+									"position": "محلل مبتدئ",
+									"period": "2017-04 – 2020-06",
+									"dates": {
+										"start": "2017-04",
+										"end": "2020-06",
+										"present": false
+									},
+									"description": "<p>اختبرت 65 سيناريو و9 مسارات وثائق.</p>"
+								}
+							]
+						},
+						{
+							"id": "H5-MIXED-15-prior",
+							"hidden": false,
+							"company": "مركز البَيَان 95",
+							"position": "مطور أرشيف",
+							"location": "الدمام",
+							"period": "2008-07 – 2011-09",
+							"dates": {
+								"start": "2008-07",
+								"end": "2011-09",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": []
+						}
+					]
+				},
+				"education": {
+					"title": "",
+					"icon": "graduation-cap",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-15-school",
+							"hidden": false,
+							"school": "كلية المَعْرِفَة التقنية",
+							"degree": "نظم المعلومات",
+							"area": "",
+							"grade": "",
+							"location": "",
+							"period": "2002-08 – 2006-12",
+							"dates": {
+								"start": "2002-08",
+								"end": "2006-12",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"projects": {
+					"title": "",
+					"icon": "code-simple",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-15-hijri",
+							"hidden": false,
+							"name": "تدقيق الأرشيف الهجري",
+							"period": "1447 هـ - 1448 هـ",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "1447 هـ - 1448 هـ"
+							},
+							"website": {
+								"url": "https://example.test/project/105",
+								"label": "Archive 105",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 105 سجلات مصدر.</p>"
+						},
+						{
+							"id": "H5-MIXED-15-gregorian",
+							"hidden": false,
+							"name": "تدقيق السجلات",
+							"period": "2015 - 2017",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "2015 - 2017"
+							},
+							"website": {
+								"url": "https://example.test/project/135",
+								"label": "Archive 135",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 135 سجلات مصدر.</p>"
+						},
+						{
+							"id": "H5-MIXED-15-hidden",
+							"hidden": true,
+							"name": "HIDDEN-FACT 999999",
+							"period": "888888",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "888888"
+							},
+							"website": {
+								"url": "https://example.test/project/777777",
+								"label": "Archive 777777",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 777777 سجلات مصدر.</p>"
+						}
+					]
+				},
+				"skills": {
+					"title": "",
+					"icon": "compass-tool",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-15-skill",
+							"hidden": false,
+							"icon": "",
+							"iconColor": "",
+							"name": "Python / تحليل البيانات",
+							"proficiency": "",
+							"level": 0,
+							"keywords": ["SQL", "API"]
+						}
+					],
+					"keywordLayout": "inline",
+					"layout": "default"
+				},
+				"languages": {
+					"title": "",
+					"icon": "translate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"interests": {
+					"title": "",
+					"icon": "football",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"awards": {
+					"title": "",
+					"icon": "trophy",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"certifications": {
+					"title": "",
+					"icon": "certificate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"publications": {
+					"title": "",
+					"icon": "books",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"volunteer": {
+					"title": "",
+					"icon": "hand-heart",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"references": {
+					"title": "",
+					"icon": "phone",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				}
+			},
+			"customSections": [],
+			"metadata": {
+				"template": "scizor",
+				"layout": {
+					"sidebarWidth": 35,
+					"pages": [
+						{
+							"fullWidth": false,
+							"main": ["summary", "experience", "education", "projects"],
+							"sidebar": ["skills"]
+						}
+					]
+				},
+				"page": {
+					"gapX": 4,
+					"gapY": 6,
+					"marginX": 14,
+					"marginY": 12,
+					"format": "a4",
+					"locale": "ar-SA",
+					"dateFormat": "iso",
+					"hideLinkUnderline": false,
+					"hideIcons": true,
+					"hideSectionIcons": true
+				},
+				"design": {
+					"level": {
+						"icon": "star",
+						"type": "circle"
+					},
+					"colors": {
+						"primary": "rgba(220, 38, 38, 1)",
+						"text": "rgba(0, 0, 0, 1)",
+						"background": "rgba(255, 255, 255, 1)"
+					}
+				},
+				"typography": {
+					"body": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["400", "500"],
+						"fontSize": 10,
+						"lineHeight": 1.5
+					},
+					"heading": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["600"],
+						"fontSize": 14,
+						"lineHeight": 1.5
+					}
+				},
+				"notes": "",
+				"styleRules": []
+			}
+		},
+		"gold": {
+			"review": {
+				"status": "draft"
+			},
+			"text": "زَاهِر الرُوَيْلِي Archive Engineer trial5.115@example.test +966 53 950 4406 الدمام example.test/portfolio-h5/H5-MIXED-15 راجعت 45 حزمة أرشيف عبر 6 خدمات منتجات. مختبر الوَفَاء الدمام 2016-01 – 2029-05 قدت 25 مراجعة تسليم. Team 75 Archive Engineer 2026-03 – 2029-05 اختبرت 65 سيناريو و9 مسارات وثائق. مطور مشارك 2021-02 – 2025-11 اختبرت 65 سيناريو و9 مسارات وثائق. محلل مبتدئ 2017-04 – 2020-06 اختبرت 65 سيناريو و9 مسارات وثائق. مركز البَيَان 95 مطور أرشيف الدمام 2008-07 – 2011-09 كلية المَعْرِفَة التقنية نظم المعلومات 2002-08 – 2006-12 تدقيق الأرشيف الهجري 1447 هـ - 1448 هـ دققت 105 سجلات مصدر. Archive 105 تدقيق السجلات 2015 - 2017 دققت 135 سجلات مصدر. Archive 135 Python / تحليل البيانات SQL API",
+			"fields": [
+				{
+					"id": "name",
+					"value": "زَاهِر الرُوَيْلِي"
+				},
+				{
+					"id": "email",
+					"value": "trial5.115@example.test"
+				},
+				{
+					"id": "location",
+					"value": "الدمام"
+				},
+				{
+					"id": "phone",
+					"value": "+966 53 950 4406"
+				},
+				{
+					"id": "website",
+					"value": "example.test/portfolio-h5/H5-MIXED-15"
+				},
+				{
+					"id": "company",
+					"value": "مختبر الوَفَاء"
+				},
+				{
+					"id": "job-start",
+					"value": "2016-01"
+				},
+				{
+					"id": "job-end",
+					"value": "2029-05"
+				},
+				{
+					"id": "role-0",
+					"value": "Archive Engineer",
+					"occurrence": 1
+				},
+				{
+					"id": "start-0",
+					"value": "2026-03"
+				},
+				{
+					"id": "end-0",
+					"value": "2029-05",
+					"occurrence": 1
+				},
+				{
+					"id": "role-1",
+					"value": "مطور مشارك"
+				},
+				{
+					"id": "start-1",
+					"value": "2021-02"
+				},
+				{
+					"id": "end-1",
+					"value": "2025-11"
+				},
+				{
+					"id": "role-2",
+					"value": "محلل مبتدئ"
+				},
+				{
+					"id": "start-2",
+					"value": "2017-04"
+				},
+				{
+					"id": "end-2",
+					"value": "2020-06"
+				},
+				{
+					"id": "old-company",
+					"value": "مركز البَيَان 95"
+				},
+				{
+					"id": "old-role",
+					"value": "مطور أرشيف"
+				},
+				{
+					"id": "old-start",
+					"value": "2008-07"
+				},
+				{
+					"id": "old-end",
+					"value": "2011-09"
+				},
+				{
+					"id": "school",
+					"value": "كلية المَعْرِفَة التقنية"
+				},
+				{
+					"id": "school-start",
+					"value": "2002-08"
+				},
+				{
+					"id": "school-end",
+					"value": "2006-12"
+				},
+				{
+					"id": "school-degree",
+					"value": "نظم المعلومات"
+				},
+				{
+					"id": "skill",
+					"value": "Python / تحليل البيانات",
+					"match": "mixed-free-text"
+				},
+				{
+					"id": "hijri-raw",
+					"value": "1447 هـ - 1448 هـ",
+					"match": "date"
+				},
+				{
+					"id": "gregorian-raw",
+					"value": "2015 - 2017",
+					"match": "date"
+				},
+				{
+					"id": "company-website",
+					"value": "Team 75"
+				},
+				{
+					"id": "project-0",
+					"value": "تدقيق الأرشيف الهجري"
+				},
+				{
+					"id": "project-web-0",
+					"value": "Archive 105"
+				},
+				{
+					"id": "project-1",
+					"value": "تدقيق السجلات"
+				},
+				{
+					"id": "project-web-1",
+					"value": "Archive 135"
+				},
+				{
+					"id": "keyword-0",
+					"value": "SQL"
+				},
+				{
+					"id": "keyword-1",
+					"value": "API"
+				}
+			],
+			"associations": [
+				{
+					"id": "current-employer",
+					"fields": [
+						"company",
+						"job-start",
+						"job-end",
+						"role-0",
+						"start-0",
+						"end-0",
+						"role-1",
+						"start-1",
+						"end-1",
+						"role-2",
+						"start-2",
+						"end-2",
+						"company-website"
+					]
+				},
+				{
+					"id": "prior-employer",
+					"fields": ["old-company", "old-role", "old-start", "old-end"]
+				},
+				{
+					"id": "education",
+					"fields": ["school", "school-start", "school-end", "school-degree"]
+				},
+				{
+					"id": "project-entry-0",
+					"fields": ["project-0", "hijri-raw", "project-web-0"]
+				},
+				{
+					"id": "project-entry-1",
+					"fields": ["project-1", "gregorian-raw", "project-web-1"]
+				}
+			],
+			"order": [
+				["name", "company"],
+				["company", "role-0"],
+				["old-company", "school"],
+				["job-start", "job-end"],
+				["old-start", "old-end"],
+				["school-start", "school-end"],
+				["role-0", "start-0"],
+				["start-0", "end-0"],
+				["end-0", "role-1"],
+				["role-1", "start-1"],
+				["start-1", "end-1"],
+				["end-1", "role-2"],
+				["role-2", "start-2"],
+				["start-2", "end-2"],
+				["end-2", "old-company"]
+			],
+			"forbidden": ["HIDDEN-FACT", "999999", "888888", "777777"]
+		}
+	},
+	{
+		"id": "H5-MIXED-18",
+		"language": "mixed",
+		"split": "held-out",
+		"paths": ["export"],
+		"data": {
+			"picture": {
+				"hidden": true,
+				"fit": "cover",
+				"url": "",
+				"size": 80,
+				"rotation": 0,
+				"aspectRatio": 1,
+				"borderRadius": 0,
+				"borderColor": "rgba(0, 0, 0, 0.5)",
+				"borderWidth": 0,
+				"shadowColor": "rgba(0, 0, 0, 0.5)",
+				"shadowWidth": 0
+			},
+			"basics": {
+				"name": "جَنَى المَحَلِي",
+				"headline": "قائدة منصات",
+				"email": "trial5.118@example.test",
+				"phone": "+966 53 950 4493",
+				"location": "الدمام",
+				"website": {
+					"url": "https://example.test/portfolio-h5/H5-MIXED-18",
+					"label": "example.test/portfolio-h5/H5-MIXED-18"
+				},
+				"customFields": []
+			},
+			"summary": {
+				"title": "",
+				"icon": "article",
+				"columns": 1,
+				"hidden": false,
+				"showHeading": true,
+				"keepTogether": false,
+				"startOnNewPage": false,
+				"content": "<p>راجعت 48 حزمة أرشيف عبر 6 خدمات منتجات.</p>"
+			},
+			"sections": {
+				"profiles": {
+					"title": "",
+					"icon": "messenger-logo",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"experience": {
+					"title": "",
+					"icon": "briefcase",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-18-current",
+							"hidden": false,
+							"company": "Cypress Delivery Lab",
+							"position": "",
+							"location": "الدمام",
+							"period": "2015-01 – 2028-05",
+							"dates": {
+								"start": "2015-01",
+								"end": "2028-05",
+								"present": false
+							},
+							"website": {
+								"url": "https://example.test/firm/78",
+								"label": "Team 78",
+								"inlineLink": false
+							},
+							"description": "<p>قدت 28 مراجعة تسليم.</p>",
+							"roles": [
+								{
+									"id": "H5-MIXED-18-lead",
+									"position": "قائدة منصات",
+									"period": "2025-03 – 2028-05",
+									"dates": {
+										"start": "2025-03",
+										"end": "2028-05",
+										"present": false
+									},
+									"description": "<p>اختبرت 68 سيناريو و9 مسارات وثائق.</p>"
+								},
+								{
+									"id": "H5-MIXED-18-associate",
+									"position": "مطور مشارك",
+									"period": "2020-02 – 2024-11",
+									"dates": {
+										"start": "2020-02",
+										"end": "2024-11",
+										"present": false
+									},
+									"description": "<p>اختبرت 68 سيناريو و9 مسارات وثائق.</p>"
+								}
+							]
+						},
+						{
+							"id": "H5-MIXED-18-prior",
+							"hidden": false,
+							"company": "مركز البَيَان 98",
+							"position": "مطور أرشيف",
+							"location": "الدمام",
+							"period": "2007-07 – 2010-09",
+							"dates": {
+								"start": "2007-07",
+								"end": "2010-09",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": []
+						}
+					]
+				},
+				"education": {
+					"title": "",
+					"icon": "graduation-cap",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-18-school",
+							"hidden": false,
+							"school": "كلية المَعْرِفَة التقنية",
+							"degree": "نظم المعلومات",
+							"area": "",
+							"grade": "",
+							"location": "",
+							"period": "2001-08 – 2005-12",
+							"dates": {
+								"start": "2001-08",
+								"end": "2005-12",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"projects": {
+					"title": "",
+					"icon": "code-simple",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-18-hijri",
+							"hidden": false,
+							"name": "تدقيق الأرشيف الهجري",
+							"period": "1445 هـ",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "1445 هـ"
+							},
+							"website": {
+								"url": "https://example.test/project/108",
+								"label": "Archive 108",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 108 سجلات مصدر.</p>"
+						},
+						{
+							"id": "H5-MIXED-18-gregorian",
+							"hidden": false,
+							"name": "تدقيق السجلات",
+							"period": "2015 - 2017",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "2015 - 2017"
+							},
+							"website": {
+								"url": "https://example.test/project/138",
+								"label": "Archive 138",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 138 سجلات مصدر.</p>"
+						},
+						{
+							"id": "H5-MIXED-18-hidden",
+							"hidden": true,
+							"name": "HIDDEN-FACT 999999",
+							"period": "888888",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "888888"
+							},
+							"website": {
+								"url": "https://example.test/project/777777",
+								"label": "Archive 777777",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 777777 سجلات مصدر.</p>"
+						}
+					]
+				},
+				"skills": {
+					"title": "",
+					"icon": "compass-tool",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-18-skill",
+							"hidden": false,
+							"icon": "",
+							"iconColor": "",
+							"name": "تحليل البيانات / Python",
+							"proficiency": "",
+							"level": 0,
+							"keywords": ["SQL", "API"]
+						}
+					],
+					"keywordLayout": "inline",
+					"layout": "default"
+				},
+				"languages": {
+					"title": "",
+					"icon": "translate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"interests": {
+					"title": "",
+					"icon": "football",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"awards": {
+					"title": "",
+					"icon": "trophy",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"certifications": {
+					"title": "",
+					"icon": "certificate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"publications": {
+					"title": "",
+					"icon": "books",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"volunteer": {
+					"title": "",
+					"icon": "hand-heart",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"references": {
+					"title": "",
+					"icon": "phone",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				}
+			},
+			"customSections": [],
+			"metadata": {
+				"template": "scizor",
+				"layout": {
+					"sidebarWidth": 35,
+					"pages": [
+						{
+							"fullWidth": false,
+							"main": ["summary", "experience", "education", "projects"],
+							"sidebar": ["skills"]
+						}
+					]
+				},
+				"page": {
+					"gapX": 4,
+					"gapY": 6,
+					"marginX": 14,
+					"marginY": 12,
+					"format": "a4",
+					"locale": "ar-SA",
+					"dateFormat": "iso",
+					"hideLinkUnderline": false,
+					"hideIcons": true,
+					"hideSectionIcons": true
+				},
+				"design": {
+					"level": {
+						"icon": "star",
+						"type": "circle"
+					},
+					"colors": {
+						"primary": "rgba(220, 38, 38, 1)",
+						"text": "rgba(0, 0, 0, 1)",
+						"background": "rgba(255, 255, 255, 1)"
+					}
+				},
+				"typography": {
+					"body": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["400", "500"],
+						"fontSize": 10,
+						"lineHeight": 1.5
+					},
+					"heading": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["600"],
+						"fontSize": 14,
+						"lineHeight": 1.5
+					}
+				},
+				"notes": "",
+				"styleRules": []
+			}
+		},
+		"gold": {
+			"review": {
+				"status": "draft"
+			},
+			"text": "جَنَى المَحَلِي قائدة منصات trial5.118@example.test +966 53 950 4493 الدمام example.test/portfolio-h5/H5-MIXED-18 راجعت 48 حزمة أرشيف عبر 6 خدمات منتجات. Cypress Delivery Lab الدمام 2015-01 – 2028-05 قدت 28 مراجعة تسليم. Team 78 قائدة منصات 2025-03 – 2028-05 اختبرت 68 سيناريو و9 مسارات وثائق. مطور مشارك 2020-02 – 2024-11 اختبرت 68 سيناريو و9 مسارات وثائق. مركز البَيَان 98 مطور أرشيف الدمام 2007-07 – 2010-09 كلية المَعْرِفَة التقنية نظم المعلومات 2001-08 – 2005-12 تدقيق الأرشيف الهجري 1445 هـ دققت 108 سجلات مصدر. Archive 108 تدقيق السجلات 2015 - 2017 دققت 138 سجلات مصدر. Archive 138 تحليل البيانات / Python SQL API",
+			"fields": [
+				{
+					"id": "name",
+					"value": "جَنَى المَحَلِي"
+				},
+				{
+					"id": "email",
+					"value": "trial5.118@example.test"
+				},
+				{
+					"id": "location",
+					"value": "الدمام"
+				},
+				{
+					"id": "phone",
+					"value": "+966 53 950 4493"
+				},
+				{
+					"id": "website",
+					"value": "example.test/portfolio-h5/H5-MIXED-18"
+				},
+				{
+					"id": "company",
+					"value": "Cypress Delivery Lab"
+				},
+				{
+					"id": "job-start",
+					"value": "2015-01"
+				},
+				{
+					"id": "job-end",
+					"value": "2028-05"
+				},
+				{
+					"id": "role-0",
+					"value": "قائدة منصات",
+					"occurrence": 1
+				},
+				{
+					"id": "start-0",
+					"value": "2025-03"
+				},
+				{
+					"id": "end-0",
+					"value": "2028-05",
+					"occurrence": 1
+				},
+				{
+					"id": "role-1",
+					"value": "مطور مشارك"
+				},
+				{
+					"id": "start-1",
+					"value": "2020-02"
+				},
+				{
+					"id": "end-1",
+					"value": "2024-11"
+				},
+				{
+					"id": "old-company",
+					"value": "مركز البَيَان 98"
+				},
+				{
+					"id": "old-role",
+					"value": "مطور أرشيف"
+				},
+				{
+					"id": "old-start",
+					"value": "2007-07"
+				},
+				{
+					"id": "old-end",
+					"value": "2010-09"
+				},
+				{
+					"id": "school",
+					"value": "كلية المَعْرِفَة التقنية"
+				},
+				{
+					"id": "school-start",
+					"value": "2001-08"
+				},
+				{
+					"id": "school-end",
+					"value": "2005-12"
+				},
+				{
+					"id": "school-degree",
+					"value": "نظم المعلومات"
+				},
+				{
+					"id": "skill",
+					"value": "تحليل البيانات / Python",
+					"match": "mixed-free-text"
+				},
+				{
+					"id": "hijri-raw",
+					"value": "1445 هـ",
+					"match": "date"
+				},
+				{
+					"id": "gregorian-raw",
+					"value": "2015 - 2017",
+					"match": "date"
+				},
+				{
+					"id": "company-website",
+					"value": "Team 78"
+				},
+				{
+					"id": "project-0",
+					"value": "تدقيق الأرشيف الهجري"
+				},
+				{
+					"id": "project-web-0",
+					"value": "Archive 108"
+				},
+				{
+					"id": "project-1",
+					"value": "تدقيق السجلات"
+				},
+				{
+					"id": "project-web-1",
+					"value": "Archive 138"
+				},
+				{
+					"id": "keyword-0",
+					"value": "SQL"
+				},
+				{
+					"id": "keyword-1",
+					"value": "API"
+				}
+			],
+			"associations": [
+				{
+					"id": "current-employer",
+					"fields": [
+						"company",
+						"job-start",
+						"job-end",
+						"role-0",
+						"start-0",
+						"end-0",
+						"role-1",
+						"start-1",
+						"end-1",
+						"company-website"
+					]
+				},
+				{
+					"id": "prior-employer",
+					"fields": ["old-company", "old-role", "old-start", "old-end"]
+				},
+				{
+					"id": "education",
+					"fields": ["school", "school-start", "school-end", "school-degree"]
+				},
+				{
+					"id": "project-entry-0",
+					"fields": ["project-0", "hijri-raw", "project-web-0"]
+				},
+				{
+					"id": "project-entry-1",
+					"fields": ["project-1", "gregorian-raw", "project-web-1"]
+				}
+			],
+			"order": [
+				["name", "company"],
+				["company", "role-0"],
+				["old-company", "school"],
+				["job-start", "job-end"],
+				["old-start", "old-end"],
+				["school-start", "school-end"],
+				["role-0", "start-0"],
+				["start-0", "end-0"],
+				["end-0", "role-1"],
+				["role-1", "start-1"],
+				["start-1", "end-1"],
+				["end-1", "old-company"]
+			],
+			"forbidden": ["HIDDEN-FACT", "999999", "888888", "777777"]
+		}
+	},
+	{
+		"id": "H5-MIXED-19",
+		"language": "mixed",
+		"split": "held-out",
+		"paths": ["export"],
+		"data": {
+			"picture": {
+				"hidden": true,
+				"fit": "cover",
+				"url": "",
+				"size": 80,
+				"rotation": 0,
+				"aspectRatio": 1,
+				"borderRadius": 0,
+				"borderColor": "rgba(0, 0, 0, 0.5)",
+				"borderWidth": 0,
+				"shadowColor": "rgba(0, 0, 0, 0.5)",
+				"shadowWidth": 0
+			},
+			"basics": {
+				"name": "نَائِل العَامِرِي",
+				"headline": "Document Architect",
+				"email": "trial5.119@example.test",
+				"phone": "+٩٦٦ ٥٣ ٩٥٠ ٤٥٢٢",
+				"location": "الدمام",
+				"website": {
+					"url": "https://example.test/portfolio-h5/H5-MIXED-19",
+					"label": "example.test/portfolio-h5/H5-MIXED-19"
+				},
+				"customFields": []
+			},
+			"summary": {
+				"title": "",
+				"icon": "article",
+				"columns": 1,
+				"hidden": false,
+				"showHeading": true,
+				"keepTogether": false,
+				"startOnNewPage": false,
+				"content": "<p>راجعت 49 حزمة أرشيف عبر 4 خدمات منتجات.</p>"
+			},
+			"sections": {
+				"profiles": {
+					"title": "",
+					"icon": "messenger-logo",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"experience": {
+					"title": "",
+					"icon": "briefcase",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-19-current",
+							"hidden": false,
+							"company": "تقنية الوُجُوه",
+							"position": "",
+							"location": "الدمام",
+							"period": "2016 – 2029",
+							"dates": {
+								"start": "2016",
+								"end": "2029",
+								"present": false
+							},
+							"website": {
+								"url": "https://example.test/firm/79",
+								"label": "Team 79",
+								"inlineLink": false
+							},
+							"description": "<p>قدت 29 مراجعة تسليم.</p>",
+							"roles": [
+								{
+									"id": "H5-MIXED-19-lead",
+									"position": "Document Architect",
+									"period": "2026 – 2029",
+									"dates": {
+										"start": "2026",
+										"end": "2029",
+										"present": false
+									},
+									"description": "<p>اختبرت 69 سيناريو و7 مسارات وثائق.</p>"
+								},
+								{
+									"id": "H5-MIXED-19-associate",
+									"position": "مطور مشارك",
+									"period": "2021 – 2025",
+									"dates": {
+										"start": "2021",
+										"end": "2025",
+										"present": false
+									},
+									"description": "<p>اختبرت 69 سيناريو و7 مسارات وثائق.</p>"
+								},
+								{
+									"id": "H5-MIXED-19-trainee",
+									"position": "محلل مبتدئ",
+									"period": "2017 – 2020",
+									"dates": {
+										"start": "2017",
+										"end": "2020",
+										"present": false
+									},
+									"description": "<p>اختبرت 69 سيناريو و7 مسارات وثائق.</p>"
+								}
+							]
+						},
+						{
+							"id": "H5-MIXED-19-prior",
+							"hidden": false,
+							"company": "مركز البَيَان 99",
+							"position": "مطور أرشيف",
+							"location": "الدمام",
+							"period": "2008 – 2011",
+							"dates": {
+								"start": "2008",
+								"end": "2011",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": []
+						}
+					]
+				},
+				"education": {
+					"title": "",
+					"icon": "graduation-cap",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-19-school",
+							"hidden": false,
+							"school": "كلية المَعْرِفَة التقنية",
+							"degree": "نظم المعلومات",
+							"area": "",
+							"grade": "",
+							"location": "",
+							"period": "2002 – 2006",
+							"dates": {
+								"start": "2002",
+								"end": "2006",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"projects": {
+					"title": "",
+					"icon": "code-simple",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-19-hijri",
+							"hidden": false,
+							"name": "تدقيق الأرشيف الهجري",
+							"period": "1446 هـ - 1447 هـ",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "1446 هـ - 1447 هـ"
+							},
+							"website": {
+								"url": "https://example.test/project/109",
+								"label": "Archive 109",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 109 سجلات مصدر.</p>"
+						},
+						{
+							"id": "H5-MIXED-19-gregorian",
+							"hidden": false,
+							"name": "تدقيق السجلات",
+							"period": "من 2011 إلى 2013",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "من 2011 إلى 2013"
+							},
+							"website": {
+								"url": "https://example.test/project/139",
+								"label": "Archive 139",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 139 سجلات مصدر.</p>"
+						},
+						{
+							"id": "H5-MIXED-19-hidden",
+							"hidden": true,
+							"name": "HIDDEN-FACT 999999",
+							"period": "888888",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "888888"
+							},
+							"website": {
+								"url": "https://example.test/project/777777",
+								"label": "Archive 777777",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 777777 سجلات مصدر.</p>"
+						}
+					]
+				},
+				"skills": {
+					"title": "",
+					"icon": "compass-tool",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H5-MIXED-19-skill",
+							"hidden": false,
+							"icon": "",
+							"iconColor": "",
+							"name": "Python / تحليل البيانات",
+							"proficiency": "",
+							"level": 0,
+							"keywords": ["SQL", "API"]
+						}
+					],
+					"keywordLayout": "inline",
+					"layout": "default"
+				},
+				"languages": {
+					"title": "",
+					"icon": "translate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"interests": {
+					"title": "",
+					"icon": "football",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"awards": {
+					"title": "",
+					"icon": "trophy",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"certifications": {
+					"title": "",
+					"icon": "certificate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"publications": {
+					"title": "",
+					"icon": "books",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"volunteer": {
+					"title": "",
+					"icon": "hand-heart",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"references": {
+					"title": "",
+					"icon": "phone",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				}
+			},
+			"customSections": [],
+			"metadata": {
+				"template": "bronzor",
+				"layout": {
+					"sidebarWidth": 35,
+					"pages": [
+						{
+							"fullWidth": true,
+							"main": ["summary", "experience", "education", "projects", "skills"],
+							"sidebar": []
+						}
+					]
+				},
+				"page": {
+					"gapX": 4,
+					"gapY": 6,
+					"marginX": 14,
+					"marginY": 12,
+					"format": "a4",
+					"locale": "ar-SA",
+					"dateFormat": "short",
+					"hideLinkUnderline": false,
+					"hideIcons": true,
+					"hideSectionIcons": true
+				},
+				"design": {
+					"level": {
+						"icon": "star",
+						"type": "circle"
+					},
+					"colors": {
+						"primary": "rgba(220, 38, 38, 1)",
+						"text": "rgba(0, 0, 0, 1)",
+						"background": "rgba(255, 255, 255, 1)"
+					}
+				},
+				"typography": {
+					"body": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["400", "500"],
+						"fontSize": 10,
+						"lineHeight": 1.5
+					},
+					"heading": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["600"],
+						"fontSize": 14,
+						"lineHeight": 1.5
+					}
+				},
+				"notes": "",
+				"styleRules": []
+			}
+		},
+		"gold": {
+			"review": {
+				"status": "draft"
+			},
+			"text": "نَائِل العَامِرِي Document Architect trial5.119@example.test +٩٦٦ ٥٣ ٩٥٠ ٤٥٢٢ الدمام example.test/portfolio-h5/H5-MIXED-19 راجعت 49 حزمة أرشيف عبر 4 خدمات منتجات. تقنية الوُجُوه الدمام 2016 – 2029 قدت 29 مراجعة تسليم. Team 79 Document Architect 2026 – 2029 اختبرت 69 سيناريو و7 مسارات وثائق. مطور مشارك 2021 – 2025 اختبرت 69 سيناريو و7 مسارات وثائق. محلل مبتدئ 2017 – 2020 اختبرت 69 سيناريو و7 مسارات وثائق. مركز البَيَان 99 مطور أرشيف الدمام 2008 – 2011 كلية المَعْرِفَة التقنية نظم المعلومات 2002 – 2006 تدقيق الأرشيف الهجري 1446 هـ - 1447 هـ دققت 109 سجلات مصدر. Archive 109 تدقيق السجلات من 2011 إلى 2013 دققت 139 سجلات مصدر. Archive 139 Python / تحليل البيانات SQL API",
+			"fields": [
+				{
+					"id": "name",
+					"value": "نَائِل العَامِرِي"
+				},
+				{
+					"id": "email",
+					"value": "trial5.119@example.test"
+				},
+				{
+					"id": "location",
+					"value": "الدمام"
+				},
+				{
+					"id": "phone",
+					"value": "+٩٦٦ ٥٣ ٩٥٠ ٤٥٢٢"
+				},
+				{
+					"id": "website",
+					"value": "example.test/portfolio-h5/H5-MIXED-19"
+				},
+				{
+					"id": "company",
+					"value": "تقنية الوُجُوه"
+				},
+				{
+					"id": "job-start",
+					"value": "2016"
+				},
+				{
+					"id": "job-end",
+					"value": "2029"
+				},
+				{
+					"id": "role-0",
+					"value": "Document Architect",
+					"occurrence": 1
+				},
+				{
+					"id": "start-0",
+					"value": "2026"
+				},
+				{
+					"id": "end-0",
+					"value": "2029",
+					"occurrence": 1
+				},
+				{
+					"id": "role-1",
+					"value": "مطور مشارك"
+				},
+				{
+					"id": "start-1",
+					"value": "2021"
+				},
+				{
+					"id": "end-1",
+					"value": "2025"
+				},
+				{
+					"id": "role-2",
+					"value": "محلل مبتدئ"
+				},
+				{
+					"id": "start-2",
+					"value": "2017"
+				},
+				{
+					"id": "end-2",
+					"value": "2020"
+				},
+				{
+					"id": "old-company",
+					"value": "مركز البَيَان 99"
+				},
+				{
+					"id": "old-role",
+					"value": "مطور أرشيف"
+				},
+				{
+					"id": "old-start",
+					"value": "2008"
+				},
+				{
+					"id": "old-end",
+					"value": "2011"
+				},
+				{
+					"id": "school",
+					"value": "كلية المَعْرِفَة التقنية"
+				},
+				{
+					"id": "school-start",
+					"value": "2002"
+				},
+				{
+					"id": "school-end",
+					"value": "2006"
+				},
+				{
+					"id": "school-degree",
+					"value": "نظم المعلومات"
+				},
+				{
+					"id": "skill",
+					"value": "Python / تحليل البيانات",
+					"match": "mixed-free-text"
+				},
+				{
+					"id": "hijri-raw",
+					"value": "1446 هـ - 1447 هـ",
+					"match": "date"
+				},
+				{
+					"id": "gregorian-raw",
+					"value": "من 2011 إلى 2013",
+					"match": "date"
+				},
+				{
+					"id": "company-website",
+					"value": "Team 79"
+				},
+				{
+					"id": "project-0",
+					"value": "تدقيق الأرشيف الهجري"
+				},
+				{
+					"id": "project-web-0",
+					"value": "Archive 109"
+				},
+				{
+					"id": "project-1",
+					"value": "تدقيق السجلات"
+				},
+				{
+					"id": "project-web-1",
+					"value": "Archive 139"
+				},
+				{
+					"id": "keyword-0",
+					"value": "SQL"
+				},
+				{
+					"id": "keyword-1",
+					"value": "API"
+				}
+			],
+			"associations": [
+				{
+					"id": "current-employer",
+					"fields": [
+						"company",
+						"job-start",
+						"job-end",
+						"role-0",
+						"start-0",
+						"end-0",
+						"role-1",
+						"start-1",
+						"end-1",
+						"role-2",
+						"start-2",
+						"end-2",
+						"company-website"
+					]
+				},
+				{
+					"id": "prior-employer",
+					"fields": ["old-company", "old-role", "old-start", "old-end"]
+				},
+				{
+					"id": "education",
+					"fields": ["school", "school-start", "school-end", "school-degree"]
+				},
+				{
+					"id": "project-entry-0",
+					"fields": ["project-0", "hijri-raw", "project-web-0"]
+				},
+				{
+					"id": "project-entry-1",
+					"fields": ["project-1", "gregorian-raw", "project-web-1"]
+				}
+			],
+			"order": [
+				["name", "company"],
+				["company", "role-0"],
+				["old-company", "school"],
+				["job-start", "job-end"],
+				["old-start", "old-end"],
+				["school-start", "school-end"],
+				["role-0", "start-0"],
+				["start-0", "end-0"],
+				["end-0", "role-1"],
+				["role-1", "start-1"],
+				["start-1", "end-1"],
+				["end-1", "role-2"],
+				["role-2", "start-2"],
+				["start-2", "end-2"],
+				["end-2", "old-company"]
+			],
+			"forbidden": ["HIDDEN-FACT", "999999", "888888", "777777"]
+		}
+	}
+]

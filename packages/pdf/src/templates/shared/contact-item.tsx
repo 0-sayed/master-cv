@@ -1,7 +1,9 @@
 import type { IconName } from "../../forme/icons";
 import type { Style } from "../../forme/style-types";
 import type { CustomField } from "@reactive-resume/schema/resume/data";
+import { normalizeNumericDigits } from "@reactive-resume/utils/string";
 import { View } from "#react-pdf-renderer";
+import { useRender } from "../../context";
 import { resolvedPdfFlowProps } from "../../semantic/adapter";
 import { useResolvedNode, useSemanticNodeKey, useSemanticNodeVisible } from "../../semantic/context";
 import { semanticNodeKeys } from "../../semantic/node-keys";
@@ -10,6 +12,10 @@ import { Icon, Link, Text } from "./primitives";
 import { composeStyles } from "./styles";
 
 type ContactStyle = Style | Style[];
+
+// Upstream f2b62a232bf3: LTR values preserve the surrounding icon row.
+const LTR_VALUE: Style = { direction: "ltr" };
+const ltrText = (textStyle: ContactStyle | undefined) => composeStyles(textStyle, LTR_VALUE);
 
 type WebsiteDisplay = {
 	url: string;
@@ -52,14 +58,15 @@ export const WebsiteContactItem = ({
 	iconColor,
 	primitiveNodeKey,
 }: WebsiteContactItemProps) => {
+	const { rtl } = useRender();
 	const keys = useContactNodeKeys("website", undefined, primitiveNodeKey);
 	const visible = useSemanticNodeVisible(keys.primitiveNodeKey);
 	if (!website.url || !visible) return null;
 
 	return (
-		<Link nodeKey={keys.primitiveNodeKey} src={website.url} {...(style ? { style } : {})}>
+		<Link data-export-no-wrap={rtl} nodeKey={keys.primitiveNodeKey} src={website.url} {...(style ? { style } : {})}>
 			<Icon nodeKey={keys.iconNodeKey} name="globe" {...(iconColor ? { color: iconColor } : {})} />
-			<Text nodeKey={keys.fieldNodeKey} {...(textStyle ? { style: textStyle } : {})}>
+			<Text data-export-no-wrap={rtl} nodeKey={keys.fieldNodeKey} style={ltrText(textStyle)}>
 				{getWebsiteDisplayText(website)}
 			</Text>
 		</Link>
@@ -126,7 +133,7 @@ export const EmailContactItem = ({
 	return (
 		<Link nodeKey={keys.primitiveNodeKey} src={`mailto:${email}`} {...(style ? { style } : {})}>
 			<Icon nodeKey={keys.iconNodeKey} name={iconName} {...(iconColor ? { color: iconColor } : {})} />
-			<Text nodeKey={keys.fieldNodeKey} {...(textStyle ? { style: textStyle } : {})}>
+			<Text nodeKey={keys.fieldNodeKey} style={ltrText(textStyle)}>
 				{email}
 			</Text>
 		</Link>
@@ -142,14 +149,24 @@ type PhoneContactItemProps = {
 };
 
 export const PhoneContactItem = ({ phone, style, textStyle, iconColor, primitiveNodeKey }: PhoneContactItemProps) => {
+	const { rtl } = useRender();
 	const keys = useContactNodeKeys("phone", undefined, primitiveNodeKey);
 	const visible = useSemanticNodeVisible(keys.primitiveNodeKey);
 	if (!phone || !visible) return null;
+	// Phone numbers use an LTR numeric presentation; keep the saved value untouched.
+	const displayPhone = normalizeNumericDigits(phone);
+	// With hidden icons the Link itself is the paragraph. LTR only on its child creates
+	// an inline isolate in an RTL root: Poppler detaches the leading + from the digits.
+	// Set paragraph direction too; the existing flex direction still positions the icon.
 	return (
-		<Link nodeKey={keys.primitiveNodeKey} src={`tel:${phone}`} {...(style ? { style } : {})}>
+		<Link
+			nodeKey={keys.primitiveNodeKey}
+			src={`tel:${displayPhone}`}
+			style={composeStyles(style, rtl ? LTR_VALUE : undefined)}
+		>
 			<Icon nodeKey={keys.iconNodeKey} name="phone" {...(iconColor ? { color: iconColor } : {})} />
-			<Text nodeKey={keys.fieldNodeKey} {...(textStyle ? { style: textStyle } : {})}>
-				{phone}
+			<Text nodeKey={keys.fieldNodeKey} style={ltrText(textStyle)}>
+				{displayPhone}
 			</Text>
 		</Link>
 	);

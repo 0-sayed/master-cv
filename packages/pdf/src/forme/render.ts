@@ -21,7 +21,7 @@ import { loadFonts } from "./fonts";
 import { loadIcons } from "./icons";
 import { imageSources, loadImages } from "./images";
 import { renderHostTree } from "./reconciler";
-import { FIXED_SOURCE, FREE_FORM_MEASURE_HEIGHT, LIST_ROLE, toFormeDocument } from "./to-forme";
+import { FIXED_SOURCE, FREE_FORM_MEASURE_HEIGHT, LIST_ROLE, NO_WRAP_SOURCE, toFormeDocument } from "./to-forme";
 
 /** The Forme entry point for this runtime: `@formepdf/core` in Node, `@formepdf/core/worker` in browsers. */
 export type FormeEngine = {
@@ -240,6 +240,7 @@ export async function renderResumeElement(
 
 	const breakBeforeListItems = new Set<number>();
 	const breakBeforeNodes = new Set<string>();
+	const noWrapFontSizes = new Map<number, number>();
 	// Every pass draws the same text, so the fonts are prepared once, from the first pass's document.
 	let formeFonts: typeof fonts | undefined;
 	const layOutOnce = async (keepNestedRowsWhole: boolean) => {
@@ -250,6 +251,7 @@ export async function renderResumeElement(
 				breakBeforeListItems,
 				breakBeforeNodes,
 				freeFormHeights,
+				noWrapFontSizes,
 			});
 		// Forme rewrites the font entries it's given (bytes to base64), so each render gets its own.
 		const render = async ({ document }: ConvertedDocument) => {
@@ -266,6 +268,29 @@ export async function renderResumeElement(
 		};
 		let converted = convert();
 		let result = await render(converted);
+		// Measure the actual font and existing box. URL punctuation cannot be replaced with no-break characters.
+		for (let pass = 0; pass < 2; pass++) {
+			let changed = false;
+			const fit = (node: ElementInfo) => {
+				if (node.sourceLocation?.file === NO_WRAP_SOURCE && node.nodeType !== "TextLine") {
+					const lines = node.children.filter((child) => child.nodeType === "TextLine");
+					const width = lines.reduce((sum, line) => sum + line.width, 0);
+					const available = node.width - node.style.padding.left - node.style.padding.right;
+					if (lines.length > 1 && available > 0 && width > available) {
+						const size = ((node.style.fontSize * available) / width) * 0.97;
+						if (size < 7)
+							throw new Error("The website label cannot fit legibly; shorten its display label and retry export.");
+						noWrapFontSizes.set(node.sourceLocation.line, size);
+						changed = true;
+					}
+				}
+				node.children.forEach(fit);
+			};
+			for (const page of result.layout.pages) page.elements.forEach(fit);
+			if (!changed) break;
+			converted = convert();
+			result = await render(converted);
+		}
 
 		// Free-form pages grow with their content: measure it, then convert and render once more at that height, so
 		// what spans the page (repeated backgrounds, percentages of it) spans the measured one.

@@ -1,9 +1,11 @@
 import type { ResumeData, SectionType } from "@reactive-resume/schema/resume/data";
+import { normalizeSectionHeading } from "@reactive-resume/resume/ats";
 import { parseResumeData } from "@reactive-resume/schema/resume/data";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { parsePeriod, parseSingleDate } from "@reactive-resume/schema/resume/period";
-import { generateId } from "@reactive-resume/utils/string";
+import { generateId, normalizeNumericDigits } from "@reactive-resume/utils/string";
 import { BULLET_PATTERN, toHtml } from "./html";
+import { normalizeImportedText } from "./normalize";
 
 type SectionKey = SectionType | "summary";
 
@@ -27,6 +29,30 @@ const MIN_PHONE_DIGITS = 7;
 const MAX_PHONE_DIGITS = 15;
 
 const SECTION_ALIASES: Readonly<Record<string, SectionKey>> = {
+	الملخص: "summary",
+	"الملخص المهني": "summary",
+	نبذة: "summary",
+	"نبذة عني": "summary",
+	الخبرة: "experience",
+	"الخبرة العملية": "experience",
+	"الخبرات العملية": "experience",
+	"الخبرة المهنية": "experience",
+	"الخبرات المهنية": "experience",
+	الخبرات: "experience",
+	التعليم: "education",
+	"المؤهلات العلمية": "education",
+	المهارات: "skills",
+	"المهارات التقنية": "skills",
+	المشاريع: "projects",
+	اللغات: "languages",
+	الشهادات: "certifications",
+	"الدورات والشهادات": "certifications",
+	الجوائز: "awards",
+	المنشورات: "publications",
+	التطوع: "volunteer",
+	الاهتمامات: "interests",
+	المراجع: "references",
+	الروابط: "profiles",
 	summary: "summary",
 	"professional summary": "summary",
 	"career summary": "summary",
@@ -85,24 +111,17 @@ const SECTION_ALIASES: Readonly<Record<string, SectionKey>> = {
 
 const EMAIL_PATTERN = /[\w.+-]+@[\w-]+\.[\w.-]*\w/;
 const URL_PATTERN = /\b(?:https?:\/\/|www\.)[^\s,;|•·]+/gi;
-const PHONE_CANDIDATE = /[+(]?\d[\d\s().+-]{5,}\d/g;
+const PHONE_CANDIDATE = /[+(]?\p{Nd}[\p{Nd}\s().+-]{5,}\p{Nd}/gu;
 const URL_TEST = /\b(?:https?:\/\/|www\.)\S+/i;
 const HEADER_SCAN_LINES = 6;
 const ENTRY_PREAMBLE_LOOKAHEAD = 4;
 const PERIOD_CANDIDATE =
-	/(?:\p{L}{3,}\.?\s+)?(?:\d{1,2}[/.])?\d{4}\s*(?:[-–—~]|to|until|through)\s*(?:(?:\p{L}{3,}\.?\s+)?(?:\d{1,2}[/.])?\d{4}|\p{L}+)/giu;
+	/(?:\p{L}{3,}\.?\s+)?(?:\p{Nd}{1,2}[/.])?\p{Nd}{4}\s*(?:[-–—~]|to|until|through)\s*(?:(?:\p{L}{3,}\.?\s+)?(?:\p{Nd}{1,2}[/.])?\p{Nd}{4}|حتى\s+الآن|\p{L}+)/giu;
 const STRONG_SEPARATOR = /\s*[|•·]\s*|\s{2,}|\s+[–—]\s+/;
 const SENTENCE_END = /[.!?]$/;
 const TRAILING_DATES = [/(?:\p{L}{3,}\.?\s+)?(?:\d{1,2}[/.])?(?:19|20)\d{2}$/u, /(?:\d{1,2}[/.])?(?:19|20)\d{2}$/];
 
-const normalizeHeading = (line: string) =>
-	line
-		.replace(/[:：]\s*$/, "")
-		.replace(/&/g, " and ")
-		.replace(/[^\p{L}\p{N}\s]/gu, " ")
-		.replace(/\s+/g, " ")
-		.trim()
-		.toLowerCase();
+const normalizeHeading = normalizeSectionHeading;
 
 function knownHeading(line: string): SectionKey | null {
 	const normalized = normalizeHeading(line);
@@ -150,22 +169,29 @@ function looksLikeEntryHeader(line: string): boolean {
 	return trimmed.split(/\s+/).length <= MAX_ENTRY_HEADER_WORDS;
 }
 
-function findPeriod(line: string): string {
+function findPeriod(line: string, locale = "en-US"): string {
+	// Explicit calendar labels and day-level numeric dates require review, not silent omission.
+	if (
+		/^\s*\p{Nd}{4}\s*(?:هـ?|هجري)(?:\s*[-–—]\s*\p{Nd}{4}\s*(?:هـ?|هجري))?\s*$/u.test(line) ||
+		/^\s*\p{Nd}{1,2}[/.-]\p{Nd}{1,2}[/.-]\p{Nd}{4}\s*$/u.test(line)
+	)
+		return line.trim();
 	PERIOD_CANDIDATE.lastIndex = 0;
 
 	for (const match of line.match(PERIOD_CANDIDATE) ?? []) {
-		if (parsePeriod(match)) return match.trim();
+		if (parsePeriod(match, locale)) return match.trim();
 	}
 
 	return "";
 }
 
-function findSingleDate(text: string): string {
+function findSingleDate(text: string, locale = "en-US"): string {
 	const trimmed = text.trim();
+	if (parseSingleDate(trimmed, locale)) return trimmed;
 
 	for (const pattern of TRAILING_DATES) {
 		const value = pattern.exec(trimmed)?.[0]?.trim();
-		if (value && parseSingleDate(value)) return value;
+		if (value && parseSingleDate(value, locale)) return value;
 	}
 
 	return "";
@@ -173,7 +199,7 @@ function findSingleDate(text: string): string {
 
 function extractPhone(text: string): string {
 	for (const candidate of text.match(PHONE_CANDIDATE) ?? []) {
-		const digits = candidate.replace(/\D/g, "");
+		const digits = normalizeNumericDigits(candidate).replace(/\D/g, "");
 		if (digits.length < MIN_PHONE_DIGITS || digits.length > MAX_PHONE_DIGITS) continue;
 		if (parsePeriod(candidate)) continue;
 
@@ -183,21 +209,21 @@ function extractPhone(text: string): string {
 	return "";
 }
 
-function isDateLine(line: string, allowSingleDate = true): boolean {
-	if (findPeriod(line)) return true;
+function isDateLine(line: string, allowSingleDate = true, locale = "en-US"): boolean {
+	if (findPeriod(line, locale)) return true;
 	// A section grouped without single dates reads a bare "2022" as text, so the lookahead has to
 	// agree with it: otherwise that line closes an entry that groupEntries then never reopens.
 	if (!allowSingleDate) return false;
 
 	const bare = line.replace(BULLET_PATTERN, "").trim();
-	return bare !== "" && parseSingleDate(bare) !== null;
+	return bare !== "" && parseSingleDate(bare, locale) !== null;
 }
 
-function introducesEntry(lines: readonly string[], index: number, allowSingleDate = true): boolean {
+function introducesEntry(lines: readonly string[], index: number, allowSingleDate = true, locale = "en-US"): boolean {
 	for (let offset = 1; offset <= ENTRY_PREAMBLE_LOOKAHEAD; offset++) {
 		const line = lines[index + offset];
 		if (line === undefined || BULLET_PATTERN.test(line)) return false;
-		if (isDateLine(line, allowSingleDate)) return true;
+		if (isDateLine(line, allowSingleDate, locale)) return true;
 	}
 
 	return false;
@@ -246,7 +272,7 @@ function withHeaderText(entry: RawEntry): RawEntry {
 	return { ...entry, headerParts: splitHeaderParts(first ?? ""), body: rest };
 }
 
-function groupEntries(lines: string[], allowSingleDate = false): RawEntry[] {
+function groupEntries(lines: string[], allowSingleDate = false, locale = "en-US"): RawEntry[] {
 	const cleaned = lines.map((line) => line.trim()).filter(Boolean);
 	const entries: RawEntry[] = [];
 	let current: RawEntry | null = null;
@@ -254,10 +280,10 @@ function groupEntries(lines: string[], allowSingleDate = false): RawEntry[] {
 	const dateOf = (line: string) => {
 		if (BULLET_PATTERN.test(line)) return "";
 
-		const period = findPeriod(line);
+		const period = findPeriod(line, locale);
 		if (period) return period;
 
-		return allowSingleDate ? findSingleDate(line) : "";
+		return allowSingleDate ? findSingleDate(line, locale) : "";
 	};
 
 	for (const [index, line] of cleaned.entries()) {
@@ -283,7 +309,8 @@ function groupEntries(lines: string[], allowSingleDate = false): RawEntry[] {
 		}
 
 		const isBullet = BULLET_PATTERN.test(line);
-		const leadsToDate = !isBullet && looksLikeEntryHeader(line) && introducesEntry(cleaned, index, allowSingleDate);
+		const leadsToDate =
+			!isBullet && looksLikeEntryHeader(line) && introducesEntry(cleaned, index, allowSingleDate, locale);
 
 		if (leadsToDate && !current.period && current.body.length === 0) {
 			current.headerParts.push(...splitHeaderParts(line));
@@ -313,7 +340,7 @@ const baseItem = () => ({ id: generateId(), hidden: false });
 
 const emptyWebsite = { url: "", label: "", inlineLink: false };
 
-function buildSectionItems(key: SectionKey, lines: string[]): unknown[] {
+function buildSectionItems(key: SectionKey, lines: string[], locale: string): unknown[] {
 	if (key === "skills" || key === "interests") {
 		return splitList(lines).map((name) => ({
 			...baseItem(),
@@ -358,7 +385,7 @@ function buildSectionItems(key: SectionKey, lines: string[]): unknown[] {
 	}
 
 	const dated = key === "awards" || key === "certifications" || key === "publications";
-	const entries = groupEntries(lines, dated);
+	const entries = groupEntries(lines, dated, locale);
 
 	if (key === "experience") {
 		return entries.map((entry) => ({
@@ -451,7 +478,7 @@ function buildSectionItems(key: SectionKey, lines: string[]): unknown[] {
 	}));
 }
 
-function segment(lines: string[]): { header: string[]; segments: Segment[] } {
+function segment(lines: string[], locale: string): { header: string[]; segments: Segment[] } {
 	const records = lines
 		.map((line, index) => ({ line: line.trim(), precededByBlank: index > 0 && !lines[index - 1]?.trim() }))
 		.filter((record) => record.line);
@@ -470,7 +497,7 @@ function segment(lines: string[]): { header: string[]; segments: Segment[] } {
 			key === null &&
 			index > boundary &&
 			(looksLikeHeading(line) || isolatedTitleCase) &&
-			(current === null || isolatedTitleCase || !introducesEntry(cleaned, index));
+			(current === null || isolatedTitleCase || !introducesEntry(cleaned, index, true, locale));
 
 		if (key !== null || unknown) {
 			if (current) segments.push(current);
@@ -516,14 +543,19 @@ function parseHeader(lines: string[]) {
 	};
 }
 
-export function parseResumeText(text: string): ResumeData {
-	const lines = text.replace(/\r\n?/g, "\n").split("\n");
-	const { header, segments } = segment(lines);
+export function parseResumeText(text: string, options: { locale?: string } = {}): ResumeData {
+	// Some native PDFs map shaped glyphs to Arabic presentation forms. Decode only those
+	// compatibility glyphs; retain the raw extraction separately and never fold Arabic letters.
+	const editableText = normalizeImportedText(text);
+	const lines = editableText.replace(/\r\n?/g, "\n").split("\n");
+	const locale = options.locale ?? defaultResumeData.metadata.page.locale;
+	const { header, segments } = segment(lines, locale);
 	const contact = parseHeader(header);
 
 	const data: ResumeData = structuredClone(defaultResumeData);
 	const order: string[] = [];
 
+	data.metadata.page.locale = locale;
 	data.basics.name = contact.name;
 	data.basics.headline = contact.headline;
 	data.basics.email = contact.email;
@@ -558,7 +590,7 @@ export function parseResumeText(text: string): ResumeData {
 			continue;
 		}
 
-		const items = buildSectionItems(item.key, item.lines);
+		const items = buildSectionItems(item.key, item.lines, data.metadata.page.locale);
 		if (items.length === 0) continue;
 
 		const section = data.sections[item.key];

@@ -695,11 +695,11 @@ importers:
         specifier: ^2.4.3
         version: 2.4.3
       '@formepdf/core':
-        specifier: 0.28.0
-        version: 0.28.0(react@19.3.1)
+        specifier: 0.31.0
+        version: 0.31.0(react@19.3.1)
       '@formepdf/react':
-        specifier: 0.28.0
-        version: 0.28.0(react@19.3.1)
+        specifier: 0.31.0
+        version: 0.31.0(react@19.3.1)
       '@hono/node-server':
         specifier: ^2.1.5
         version: 2.1.5(hono@4.13.13)
@@ -1501,6 +1501,9 @@ importers:
         specifier: ^9.0.5
         version: 9.0.5
     devDependencies:
+      fflate:
+        specifier: 'catalog:'
+        version: 0.8.3
       '@reactive-resume/config':
         specifier: workspace:*
         version: link:../config
@@ -1647,8 +1650,8 @@ importers:
         version: 0.88.0(@babel/core@7.29.7(supports-color@7.2.0))(@react-native/metro-config@0.88.0(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0))(@types/react@19.3.0)(react@19.3.1)(supports-color@7.2.0)
     devDependencies:
       '@formepdf/core':
-        specifier: 0.28.0
-        version: 0.28.0(react@19.3.1)
+        specifier: 0.31.0
+        version: 0.31.0(react@19.3.1)
       '@reactive-resume/config':
         specifier: workspace:*
         version: link:../config
@@ -1758,11 +1761,11 @@ importers:
   packages/pdf:
     dependencies:
       '@formepdf/core':
-        specifier: 0.28.0
-        version: 0.28.0(react@19.3.1)
+        specifier: 0.31.0
+        version: 0.31.0(react@19.3.1)
       '@formepdf/react':
-        specifier: 0.28.0
-        version: 0.28.0(react@19.3.1)
+        specifier: 0.31.0
+        version: 0.31.0(react@19.3.1)
       '@reactive-resume/fonts':
         specifier: workspace:*
         version: link:../fonts
@@ -2000,6 +2003,12 @@ importers:
         specifier: workspace:*
         version: link:../packages/schema
     devDependencies:
+      node-html-parser:
+        specifier: 9.0.5
+        version: 9.0.5
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
       '@lingui/format-po':
         specifier: ^6.10.0
         version: 6.10.0
@@ -2012,6 +2021,12 @@ importers:
       '@reactive-resume/env':
         specifier: workspace:*
         version: link:../packages/env
+      '@reactive-resume/import':
+        specifier: workspace:*
+        version: link:../packages/import
+      '@reactive-resume/pdf':
+        specifier: workspace:*
+        version: link:../packages/pdf
       '@reactive-resume/resume':
         specifier: workspace:*
         version: link:../packages/resume
@@ -2030,6 +2045,9 @@ importers:
       esbuild:
         specifier: 'catalog:'
         version: 0.28.2
+      pdfjs-dist:
+        specifier: 6.4.299
+        version: 6.4.299
       pg:
         specifier: 'catalog:'
         version: 8.23.1
@@ -3648,18 +3666,18 @@ packages:
   '@formatjs/intl-supportedvaluesof@2.3.11':
     resolution: {integrity: sha512-oRzzAbJA08psr6AO0jgXAdx4HZ2vGNeja1fgaio2R2ne8DLtGPV+fa3gxI/t8J2dNPOndrwVAZVVfbH6GDFDwA==}
 
-  '@formepdf/core@0.28.0':
-    resolution: {integrity: sha512-0wJKPpCq15jPTNv82OG6zZeE6S2b2B5beIbkIrWQ5T8kOVNq5lAAsiO/+/42vunejgqPLA8H5pA4AQ+pcqLwLQ==}
+  '@formepdf/core@0.31.0':
+    resolution: {integrity: sha512-U2uWSEi8KRipgJ8kuQpwRKlEFsdtJcO+G5oqVXJ8VpNngmx0EJhZdVaQQNtCJ6EjHM6cK4F24o/IcrDKZ9rgsA==}
     peerDependencies:
       react: ^18 || ^19
 
-  '@formepdf/react@0.28.0':
-    resolution: {integrity: sha512-mytvkfkMQ83h2rBm/f0HrQ3EBU675CvazOun+XWhBHxd54GTHE/XKDqiYZ3GgmHjNGYhjRqQClFPDoRXmaVS7w==}
+  '@formepdf/react@0.31.0':
+    resolution: {integrity: sha512-F1N7ZdTagvaQY8w35tTz8MwTob0moQ8t4FrAVUMlewiUueSLPWxjvbMVT/SnhZPGW/VRV6HCUUqpb0Qc/ux/Og==}
     peerDependencies:
       react: ^18 || ^19
 
-  '@formepdf/shared@0.28.0':
-    resolution: {integrity: sha512-i9XsJFM07U3pMcdQRM5xHa98WamYf9U+S1UOeBxKWWPCGBpHWx94dAkzFsglGekHAXDiFDkDEFHSgvHHL91Q2w==}
+  '@formepdf/shared@0.31.0':
+    resolution: {integrity: sha512-+OkQmSBtaiP4UtbrW8k8aIMr/etLK1RjiJ3Lnh+qo42GoJhwOEcCfRQIr4eexkoC0ShrzqZZxp208PimEhAaZA==}
 
   '@hexagon/base64@1.1.28':
     resolution: {integrity: sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==}
@@ -14033,17 +14051,17 @@ snapshots:
     dependencies:
       '@formatjs/fast-memoize': 3.1.7
 
-  '@formepdf/core@0.28.0(react@19.3.1)':
+  '@formepdf/core@0.31.0(react@19.3.1)':
     dependencies:
-      '@formepdf/react': 0.28.0(react@19.3.1)
+      '@formepdf/react': 0.31.0(react@19.3.1)
       react: 19.3.1
 
-  '@formepdf/react@0.28.0(react@19.3.1)':
+  '@formepdf/react@0.31.0(react@19.3.1)':
     dependencies:
-      '@formepdf/shared': 0.28.0
+      '@formepdf/shared': 0.31.0
       react: 19.3.1
 
-  '@formepdf/shared@0.28.0':
+  '@formepdf/shared@0.31.0':
     dependencies:
       parse5: 7.3.0
 

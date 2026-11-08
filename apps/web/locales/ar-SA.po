@@ -13436,3 +13436,15 @@ msgstr "تصغير"
 #: src/libs/locale.ts
 msgid "Zulu"
 msgstr "الزولو"
+
+#: src/features/ats-checker/report/analysis-status.tsx
+msgid "Analysis could not be completed. No overall score is available."
+msgstr "تعذّر إكمال التحليل. لا تتوفر درجة إجمالية."
+
+#: src/features/ats-checker/report/analysis-status.tsx
+msgid "Analysis is incomplete. No overall score is available."
+msgstr "التحليل غير مكتمل. لا تتوفر درجة إجمالية."
+
+#: src/features/ats-checker/report/report-view.tsx
+msgid "No overall score is available."
+msgstr "لا تتوفر درجة إجمالية."

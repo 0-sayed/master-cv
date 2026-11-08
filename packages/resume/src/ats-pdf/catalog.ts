@@ -154,14 +154,14 @@ const PDF_ATS_RULE_CATALOG_V1 = {
 	// Layout — does the geometry preserve reading order?
 	// -------------------------------------------------------------------------
 	MULTI_COLUMN_LAYOUT: {
-		severity: "blocker",
+		severity: "warning",
 		category: "layout",
-		cap: 55,
+		deduction: 15,
 	},
 	READING_ORDER_INVERSION: {
-		severity: "blocker",
+		severity: "warning",
 		category: "layout",
-		cap: 55,
+		deduction: 15,
 	},
 	READING_ORDER_RISK: {
 		severity: "warning",
@@ -226,9 +226,9 @@ const PDF_ATS_RULE_CATALOG_V1 = {
 	// Sections — is the resume segmented the way a parser expects?
 	// -------------------------------------------------------------------------
 	NO_EXPERIENCE_SECTION: {
-		severity: "blocker",
+		severity: "warning",
 		category: "sections",
-		cap: 60,
+		deduction: 15,
 	},
 	NO_RECOGNIZED_HEADINGS: {
 		severity: "warning",
@@ -329,9 +329,9 @@ const PDF_ATS_RULE_CATALOG_V1 = {
 	// Dates — can your timeline be reconstructed?
 	// -------------------------------------------------------------------------
 	NO_DATES_FOUND: {
-		severity: "blocker",
+		severity: "warning",
 		category: "dates",
-		cap: 60,
+		deduction: 15,
 	},
 	FEW_DATES: {
 		severity: "warning",

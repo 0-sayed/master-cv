@@ -55,6 +55,7 @@ export function AtsPdfReportView({ report, className }: ReportViewProps) {
 					<CategorySection
 						key={category.category}
 						category={category}
+						complete={report.analysis?.status === "complete"}
 						findings={findingsByCategory.get(category.category) ?? []}
 					/>
 				))}
@@ -75,19 +76,22 @@ export function AtsPdfReportView({ report, className }: ReportViewProps) {
 }
 
 type CategorySectionProps = {
+	complete: boolean;
 	category: PdfCategoryScore;
 	findings: PdfAtsReport["findings"];
 };
 
-function CategorySection({ category, findings }: CategorySectionProps) {
+function CategorySection({ category, findings, complete }: CategorySectionProps) {
 	return (
 		<AccordionItem value={category.category}>
 			<AccordionTrigger>
 				<span className="flex min-w-0 flex-1 items-center gap-2 pe-2">
 					<span className="min-w-0 truncate">{getPdfCategoryLabel(category.category)}</span>
-					<Badge variant="neutral" className="shrink-0 tabular-nums">
-						<span className={categoryTone(category.score)}>{category.score}</span>
-					</Badge>
+					{complete && (
+						<Badge variant="neutral" className="shrink-0 tabular-nums">
+							<span className={categoryTone(category.score)}>{category.score}</span>
+						</Badge>
+					)}
 					{findings.length > 0 && (
 						<span className="shrink-0 text-xs font-normal text-ink-3">
 							<Trans>{findings.length} to fix</Trans>
@@ -104,7 +108,11 @@ function CategorySection({ category, findings }: CategorySectionProps) {
 					</Trans>
 				</p>
 
-				{findings.length === 0 ? (
+				{findings.length === 0 && !complete ? (
+					<p className="text-xs text-ink-3">
+						<Trans>No overall score is available.</Trans>
+					</p>
+				) : findings.length === 0 ? (
 					<div className="flex items-center gap-2 rounded-md border border-dashed p-2.5">
 						<Icon name="check-circle" size={16} className="shrink-0 text-accent-text" />
 						<span className="text-xs leading-normal text-ink-3">

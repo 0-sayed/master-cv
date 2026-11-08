@@ -20,13 +20,15 @@ it.each([
 				symlinkSync(join(source, entry), join(root, entry));
 		}
 		const table = join(root, "Planning/roadmap/tasks.md");
-		if (tableDone) {
-			writeFileSync(table, readFileSync(table, "utf8").replace(/\| \[ \](\s*\|[^\n]*`T000`)/, "| [x]$1"));
-		}
+		writeFileSync(
+			table,
+			readFileSync(table, "utf8").replace(/\| \[[ x]\](\s*\|[^\n]*`T000`)/, `| [${tableDone ? "x" : " "}]$1`),
+		);
 		const graph = join(root, "Planning/roadmap/dependencies.mmd");
-		if (graphDone) {
-			writeFileSync(graph, readFileSync(graph, "utf8").replace(/class T000,/, "class T000 done;\n    class "));
-		}
+		const graphText = readFileSync(graph, "utf8")
+			.replace(/class T000 done;\s*/u, "")
+			.replace(/class T000,/u, "class ");
+		writeFileSync(graph, graphText + `\n    class T000 ${graphDone ? "done" : "pending"};\n`);
 		const result = spawnSync("python3", [join(root, "Planning/roadmap/check.py")], { encoding: "utf8" });
 		expect(result.status, result.stdout + result.stderr).toBe(status);
 		if (status === 1) expect(result.stdout + result.stderr).toContain("completion");

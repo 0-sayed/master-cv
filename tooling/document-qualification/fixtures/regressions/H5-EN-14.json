@@ -1,0 +1,136 @@
+{
+	"readers": [
+		{
+			"reader": "pdfjs",
+			"text": "Nolan Reedvale\nIntegration Engineer\ntrial5.114@example.test +966 53 950 4377 Dammam example.test/portfolio-h5/H5-EN-14\nSummary\nValidated 44 archive batches across 5 product services.\nExperience\nHawthorn Record Lab Dammam\n01/2015-05/2028\nIntegration Engineer 03/2025-05/2028\nChecked 64 scenarios and 8 workflows.\nAssociate Developer 02/2020-11/2024\nChecked 64 scenarios and 8 workflows.\nLed 24 delivery reviews.\nTeam 74\nAspen Archive Unit 94 Dammam\nArchive Developer 07/2007-09/2010\nEducation\nEvergreen Technical College Information Systems\n08/2001-12/2005\nProjects\nHijri archive audit  1446 هـ\nAudited 104 source records.\nArchive 104\nGregorian record audit  12/09/2032\nAudited 134 source records.\nArchive 134\nSkills\nTypeScript / SQLite\nSQL, API",
+			"comparisons": {
+				"strict v1": {
+					"policy": "strict v1",
+					"observed": "Nolan Reedvale\nIntegration Engineer\ntrial5.114@example.test +966 53 950 4377 Dammam example.test/portfolio-h5/H5-EN-14\nSummary\nValidated 44 archive batches across 5 product services.\nExperience\nHawthorn Record Lab Dammam\n01/2015-05/2028\nIntegration Engineer 03/2025-05/2028\nChecked 64 scenarios and 8 workflows.\nAssociate Developer 02/2020-11/2024\nChecked 64 scenarios and 8 workflows.\nLed 24 delivery reviews.\nTeam 74\nAspen Archive Unit 94 Dammam\nArchive Developer 07/2007-09/2010\nEducation\nEvergreen Technical College Information Systems\n08/2001-12/2005\nProjects\nHijri archive audit  1446 هـ\nAudited 104 source records.\nArchive 104\nGregorian record audit  12/09/2032\nAudited 134 source records.\nArchive 134\nSkills\nTypeScript / SQLite\nSQL, API",
+					"passed": true,
+					"acceptance": "pending-review",
+					"exact": {
+						"recall": 0.9375
+					},
+					"normalized": {
+						"recall": 1
+					},
+					"missing": [],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.19971671388101983,
+					"wordErrorRate": 0.336734693877551
+				},
+				"fact-level v2": {
+					"policy": "fact-level v2",
+					"observed": "Nolan Reedvale\nIntegration Engineer\ntrial5.114@example.test +966 53 950 4377 Dammam example.test/portfolio-h5/H5-EN-14\nSummary\nValidated 44 archive batches across 5 product services.\nExperience\nHawthorn Record Lab Dammam\n01/2015-05/2028\nIntegration Engineer 03/2025-05/2028\nChecked 64 scenarios and 8 workflows.\nAssociate Developer 02/2020-11/2024\nChecked 64 scenarios and 8 workflows.\nLed 24 delivery reviews.\nTeam 74\nAspen Archive Unit 94 Dammam\nArchive Developer 07/2007-09/2010\nEducation\nEvergreen Technical College Information Systems\n08/2001-12/2005\nProjects\nHijri archive audit  1446 هـ\nAudited 104 source records.\nArchive 104\nGregorian record audit  12/09/2032\nAudited 134 source records.\nArchive 134\nSkills\nTypeScript / SQLite\nSQL, API",
+					"passed": true,
+					"acceptance": "pending-review",
+					"exact": {
+						"recall": 0.9375
+					},
+					"normalized": {
+						"recall": 1
+					},
+					"missing": [],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.19971671388101983,
+					"wordErrorRate": 0.336734693877551
+				}
+			}
+		},
+		{
+			"reader": "poppler",
+			"text": "Nolan Reedvale\nIntegration Engineer\ntrial5.114@example.test +966 53 950 4377 Dammam example.test/portfolio-h5/H5-EN-14\n\nSummary\nValidated 44 archive batches across 5 product services.\n\nExperience\nHawthorn Record Lab Dammam\n01/2015-05/2028\nIntegration Engineer 03/2025-05/2028\nChecked 64 scenarios and 8 workflows.\nAssociate Developer 02/2020-11/2024\nChecked 64 scenarios and 8 workflows.\nLed 24 delivery reviews.\nTeam 74\nAspen Archive Unit 94 Dammam\nArchive Developer 07/2007-09/2010\n\nEducation\nEvergreen Technical College Information Systems\n08/2001-12/2005\n\nProjects\nHijri archive audit\nAudited 104 source records.\n\n1446 ‫هـ‬\n\nArchive 104\nGregorian record audit\nAudited 134 source records.\nArchive 134\n\nSkills\nTypeScript / SQLite\nSQL, API\n\n12/09/2032\n\n\f",
+			"comparisons": {
+				"strict v1": {
+					"policy": "strict v1",
+					"observed": "Nolan Reedvale\nIntegration Engineer\ntrial5.114@example.test +966 53 950 4377 Dammam example.test/portfolio-h5/H5-EN-14\n\nSummary\nValidated 44 archive batches across 5 product services.\n\nExperience\nHawthorn Record Lab Dammam\n01/2015-05/2028\nIntegration Engineer 03/2025-05/2028\nChecked 64 scenarios and 8 workflows.\nAssociate Developer 02/2020-11/2024\nChecked 64 scenarios and 8 workflows.\nLed 24 delivery reviews.\nTeam 74\nAspen Archive Unit 94 Dammam\nArchive Developer 07/2007-09/2010\n\nEducation\nEvergreen Technical College Information Systems\n08/2001-12/2005\n\nProjects\nHijri archive audit\nAudited 104 source records.\n\n1446 ‫هـ‬\n\nArchive 104\nGregorian record audit\nAudited 134 source records.\nArchive 134\n\nSkills\nTypeScript / SQLite\nSQL, API\n\n12/09/2032\n\n\f",
+					"passed": true,
+					"acceptance": "pending-review",
+					"exact": {
+						"recall": 0.90625
+					},
+					"normalized": {
+						"recall": 1
+					},
+					"missing": [],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.2535410764872521,
+					"wordErrorRate": 0.3979591836734694
+				},
+				"fact-level v2": {
+					"policy": "fact-level v2",
+					"observed": "Nolan Reedvale\nIntegration Engineer\ntrial5.114@example.test +966 53 950 4377 Dammam example.test/portfolio-h5/H5-EN-14\n\nSummary\nValidated 44 archive batches across 5 product services.\n\nExperience\nHawthorn Record Lab Dammam\n01/2015-05/2028\nIntegration Engineer 03/2025-05/2028\nChecked 64 scenarios and 8 workflows.\nAssociate Developer 02/2020-11/2024\nChecked 64 scenarios and 8 workflows.\nLed 24 delivery reviews.\nTeam 74\nAspen Archive Unit 94 Dammam\nArchive Developer 07/2007-09/2010\n\nEducation\nEvergreen Technical College Information Systems\n08/2001-12/2005\n\nProjects\nHijri archive audit\nAudited 104 source records.\n\n1446 ‫هـ‬\n\nArchive 104\nGregorian record audit\nAudited 134 source records.\nArchive 134\n\nSkills\nTypeScript / SQLite\nSQL, API\n\n12/09/2032\n\n\f",
+					"passed": true,
+					"acceptance": "pending-review",
+					"exact": {
+						"recall": 0.90625
+					},
+					"normalized": {
+						"recall": 1
+					},
+					"missing": [],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.2535410764872521,
+					"wordErrorRate": 0.3979591836734694
+				}
+			}
+		},
+		{
+			"reader": "poppler-layout",
+			"text": "Nolan Reedvale\nIntegration Engineer\ntrial5.114@example.test +966 53 950 4377 Dammam example.test/portfolio-h5/H5-EN-14\n\n\nSummary\nValidated 44 archive batches across 5 product services.\n\n\nExperience\nHawthorn Record Lab Dammam\n01/2015-05/2028\nIntegration Engineer 03/2025-05/2028\nChecked 64 scenarios and 8 workflows.\nAssociate Developer 02/2020-11/2024\nChecked 64 scenarios and 8 workflows.\nLed 24 delivery reviews.\nTeam 74\n\nAspen Archive Unit 94 Dammam\nArchive Developer 07/2007-09/2010\n\n\nEducation\nEvergreen Technical College Information Systems\n                                                                                     08/2001-12/2005\n\n\nProjects\nHijri archive audit                                                                          1446 ‫هـ‬\nAudited 104 source records.\nArchive 104\n\nGregorian record audit                                                                   12/09/2032\nAudited 134 source records.\nArchive 134\n\n\nSkills\nTypeScript / SQLite\nSQL, API\n\f",
+			"comparisons": {
+				"strict v1": {
+					"policy": "strict v1",
+					"observed": "Nolan Reedvale\nIntegration Engineer\ntrial5.114@example.test +966 53 950 4377 Dammam example.test/portfolio-h5/H5-EN-14\n\n\nSummary\nValidated 44 archive batches across 5 product services.\n\n\nExperience\nHawthorn Record Lab Dammam\n01/2015-05/2028\nIntegration Engineer 03/2025-05/2028\nChecked 64 scenarios and 8 workflows.\nAssociate Developer 02/2020-11/2024\nChecked 64 scenarios and 8 workflows.\nLed 24 delivery reviews.\nTeam 74\n\nAspen Archive Unit 94 Dammam\nArchive Developer 07/2007-09/2010\n\n\nEducation\nEvergreen Technical College Information Systems\n                                                                                     08/2001-12/2005\n\n\nProjects\nHijri archive audit                                                                          1446 ‫هـ‬\nAudited 104 source records.\nArchive 104\n\nGregorian record audit                                                                   12/09/2032\nAudited 134 source records.\nArchive 134\n\n\nSkills\nTypeScript / SQLite\nSQL, API\n\f",
+					"passed": true,
+					"acceptance": "pending-review",
+					"exact": {
+						"recall": 0.90625
+					},
+					"normalized": {
+						"recall": 1
+					},
+					"missing": [],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.19971671388101983,
+					"wordErrorRate": 0.336734693877551
+				},
+				"fact-level v2": {
+					"policy": "fact-level v2",
+					"observed": "Nolan Reedvale\nIntegration Engineer\ntrial5.114@example.test +966 53 950 4377 Dammam example.test/portfolio-h5/H5-EN-14\n\n\nSummary\nValidated 44 archive batches across 5 product services.\n\n\nExperience\nHawthorn Record Lab Dammam\n01/2015-05/2028\nIntegration Engineer 03/2025-05/2028\nChecked 64 scenarios and 8 workflows.\nAssociate Developer 02/2020-11/2024\nChecked 64 scenarios and 8 workflows.\nLed 24 delivery reviews.\nTeam 74\n\nAspen Archive Unit 94 Dammam\nArchive Developer 07/2007-09/2010\n\n\nEducation\nEvergreen Technical College Information Systems\n                                                                                     08/2001-12/2005\n\n\nProjects\nHijri archive audit                                                                          1446 ‫هـ‬\nAudited 104 source records.\nArchive 104\n\nGregorian record audit                                                                   12/09/2032\nAudited 134 source records.\nArchive 134\n\n\nSkills\nTypeScript / SQLite\nSQL, API\n\f",
+					"passed": true,
+					"acceptance": "pending-review",
+					"exact": {
+						"recall": 0.90625
+					},
+					"normalized": {
+						"recall": 1
+					},
+					"missing": [],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.19971671388101983,
+					"wordErrorRate": 0.336734693877551
+				}
+			}
+		}
+	]
+}

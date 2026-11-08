@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
 		throw new Error("Agent lifetime handler was not configured");
 	}) as (promise: Promise<unknown>) => void,
 	coordination: undefined as CoordinationService | undefined,
+	fontReader: undefined as ((source: string) => Promise<Uint8Array>) | undefined,
 }));
 
 vi.mock("pg", () => ({
@@ -57,6 +58,12 @@ vi.mock("@reactive-resume/db/coordination", () => ({
 vi.mock("@reactive-resume/api/features/storage", () => ({
 	configureStorageService: vi.fn(),
 	getStorageService: vi.fn(),
+}));
+vi.mock("@reactive-resume/pdf/native", () => ({
+	configureFontReader: (reader: typeof mocks.fontReader) => {
+		mocks.fontReader = reader;
+	},
+	downloadFont: vi.fn().mockRejectedValue(new Error("Unexpected external font")),
 }));
 vi.mock("@reactive-resume/pdf/server", () => ({ configureOwnPictureReader: vi.fn() }));
 vi.mock("@reactive-resume/utils/rate-limit", () => ({ TRUSTED_IP_HEADERS: ["x-real-ip", "x-forwarded-for"] }));
@@ -203,4 +210,19 @@ describe("Cloudflare invocation lifetime", () => {
 		await Promise.all(fixture.pending);
 		expect(pool.end).toHaveBeenCalledOnce();
 	});
+});
+
+it("reads bundled PDF fonts through the current invocation ASSETS binding", async () => {
+	const fixture = invocation();
+	const bytes = new Uint8Array([0, 1, 0, 0]);
+	const assets = vi.fn().mockResolvedValue(new Response(bytes));
+	fixture.bindings.ASSETS = { fetch: assets } as unknown as CloudflareBindings["ASSETS"];
+	mocks.fetch.mockImplementationOnce(async () => {
+		expect(mocks.fontReader).toBeTypeOf("function");
+		if (!mocks.fontReader) throw new Error("Font reader not configured");
+		expect(await mocks.fontReader("/fonts/noto-sans-arabic/2.009/NotoSansArabic-Regular.ttf")).toEqual(bytes);
+		return new Response("ok");
+	});
+	await worker.fetch(new Request("https://resume.example/"), fixture.bindings, fixture.ctx);
+	expect(assets).toHaveBeenCalledWith("https://resume.example/fonts/noto-sans-arabic/2.009/NotoSansArabic-Regular.ttf");
 });

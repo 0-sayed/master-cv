@@ -43,6 +43,8 @@ export const DEFAULT_DATE_FORMAT: DateFormat = "short";
 export const EMPTY_RESUME_DATES: ResumeDates = { start: null, end: null, present: false };
 
 const labels: Record<string, string> = presentLabels;
+/** Exact localized labels used by date-display qualification; no parser synonyms. */
+export const localizedPresentLabels: readonly string[] = Object.values(labels);
 
 /**
  * "Present" in a resume's locale, as dates print it. Locales without a translation yet fall back to the
@@ -194,9 +196,21 @@ function formatMonth(year: number, month: number, locale: string, style: "short"
 	let formatter = monthFormatters.get(key);
 	if (!formatter) {
 		try {
-			formatter = new Intl.DateTimeFormat(locale, { year: "numeric", month: style, timeZone: "UTC" });
+			formatter = new Intl.DateTimeFormat(locale, {
+				year: "numeric",
+				month: style,
+				timeZone: "UTC",
+				calendar: "gregory",
+				numberingSystem: "latn",
+			});
 		} catch {
-			formatter = new Intl.DateTimeFormat("en-US", { year: "numeric", month: style, timeZone: "UTC" });
+			formatter = new Intl.DateTimeFormat("en-US", {
+				year: "numeric",
+				month: style,
+				timeZone: "UTC",
+				calendar: "gregory",
+				numberingSystem: "latn",
+			});
 		}
 		monthFormatters.set(key, formatter);
 	}

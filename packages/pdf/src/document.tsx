@@ -13,6 +13,7 @@ import { SemanticRenderProvider } from "./semantic/context";
 import { resolveResumeRuntime } from "./semantic/resolve";
 import { getTemplatePage } from "./templates";
 import { shouldShowResumeHeader } from "./templates/shared/cover-letter";
+import { pdfDateDisplayData } from "./templates/shared/date-display";
 import { getTemplatePageMinHeightStyle, getTemplatePageSize } from "./templates/shared/page-size";
 
 export type TemplatePageProps = {
@@ -44,6 +45,7 @@ export const ResumeDocument = ({
 	semanticRuntime,
 }: ResumeDocumentProps) => {
 	const TemplatePageComponent = getTemplatePage(template);
+	const displayData = useMemo(() => pdfDateDisplayData(data), [data]);
 	const hasCjkContent = useMemo(() => resumeContentContainsCJK(data), [data]);
 	const scripts = useMemo(() => resumeContentScripts(data), [data]);
 	const typography = useMemo(
@@ -56,7 +58,10 @@ export const ResumeDocument = ({
 	// `resolvePdfFonts` widens `fontFamily` to `string | string[]` for CJK
 	// fallback (#2986); the cast carries that wider runtime value through
 	// `ResumeData` without changing the public schema.
-	const resumeData = useMemo(() => ({ ...data, metadata: { ...data.metadata, typography } }), [data, typography]);
+	const resumeData = useMemo(
+		() => ({ ...displayData, metadata: { ...displayData.metadata, typography } }),
+		[displayData, typography],
+	);
 	const pageSize = getTemplatePageSize(resumeData.metadata.page.format);
 	const pageMinHeightStyle = getTemplatePageMinHeightStyle(resumeData.metadata.page.format);
 	const headerResumeData = useMemo(

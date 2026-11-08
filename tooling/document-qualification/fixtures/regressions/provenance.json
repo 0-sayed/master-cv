@@ -1,0 +1,42 @@
+[
+	{
+		"file": "holdout-3.json",
+		"originalArtifactSha256": "cb1d9e1b348f8d78a6da8e3520f832c7d61655a7e20e6ec55946ae0df201373e",
+		"committedSubsetSha256": "d165f5ffca2152a62c7ac1fae98eb7ead2f8bcb5f3362e8ead547564039eee51"
+	},
+	{
+		"file": "holdout-4.json",
+		"originalArtifactSha256": "5011af1542e8b5cf04ebf1865c921bdb03e24ae11fb3a6c0325f939c422dbf03",
+		"committedSubsetSha256": "0846dc338251eaa1d40d10f1a4c8dc0d1ac834ae1c24d8fd4ce32d607bdd8287"
+	},
+	{
+		"file": "H5-EN-14.json",
+		"originalArtifactSha256": "6aa1dcaa7d35dd91a357ea0e443e589e01abdd29b8aa7e770221bff7850b570e",
+		"committedSubsetSha256": "3048f93c17815387bb78a4e9bf5f78e801c18463e612055490f9ba7e0c1cf476"
+	},
+	{
+		"file": "dev-holdout-2.json",
+		"originalArtifactSha256": "cec0617aa62cba87854be55f1b6f2b6b6030f3dc8c2b9db559860c2d043773eb",
+		"committedSubsetSha256": "abe5827350425664475c8735b1a0677d2f32c9e92abe2821b54579d56a504256"
+	},
+	{
+		"file": "H2-MIXED-17.json",
+		"originalArtifactSha256": "d18adc7e6e3e1e186e3e385947f09a7cd2117e0bc296089af3c5ab6a50413b7e",
+		"committedSubsetSha256": "c0876cd619060e36f5f70d85d1569cdde76fb9d095f1e27e93199e4a38b72041"
+	},
+	{
+		"file": "H2-MIXED-20.json",
+		"originalArtifactSha256": "62ebdb114b7d38f4695ad1fd11b298c268c3a70a8944d32de2c213cced5de41f",
+		"committedSubsetSha256": "04184700107021e9a7ab001078fdeac16f3c0c040faca2a1ec8b9e6386ddcf72"
+	},
+	{
+		"file": "holdout-5.json",
+		"originalArtifactSha256": "6909c522c6f2dae911566acef23b042cd77229c0d0579d2f3cd50a80b821e0f4",
+		"committedSubsetSha256": "62e110fb0a8cd61142c3dc4b4cdfcef62ee79ad5e1986e349494f93f06f1b825"
+	},
+	{
+		"file": "round5-template-support.json",
+		"originalArtifactSha256": "1b52b616c7627f27ebb302ae0976d2748ad743b86be412ccb69d5524f133d8d4",
+		"committedSubsetSha256": "d4e7376a4f5e0fff8e9a567c9c4c0dc6a39d62a4e8a9ebd737cfbe780dbd1850"
+	}
+]

@@ -2398,17 +2398,17 @@
 		"category": "sans-serif",
 		"family": "Noto Sans Arabic",
 		"weights": ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-		"preview": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyGyfunqF.ttf",
+		"preview": "/fonts/noto-sans-arabic/2.009/NotoSansArabic-Regular.ttf",
 		"files": {
-			"100": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyG2vu3CBFQLaig.ttf",
-			"200": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfSGyvu3CBFQLaig.ttf",
-			"300": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCflmyvu3CBFQLaig.ttf",
-			"400": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyGyvu3CBFQLaig.ttf",
-			"500": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCf-myvu3CBFQLaig.ttf",
-			"600": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfFmuvu3CBFQLaig.ttf",
-			"700": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfL2uvu3CBFQLaig.ttf",
-			"800": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfSGuvu3CBFQLaig.ttf",
-			"900": "https://fonts.gstatic.com/s/notosansarabic/v33/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfYWuvu3CBFQLaig.ttf"
+			"100": "/fonts/noto-sans-arabic/2.009/NotoSansArabic-Thin.ttf",
+			"200": "/fonts/noto-sans-arabic/2.009/NotoSansArabic-ExtraLight.ttf",
+			"300": "/fonts/noto-sans-arabic/2.009/NotoSansArabic-Light.ttf",
+			"400": "/fonts/noto-sans-arabic/2.009/NotoSansArabic-Regular.ttf",
+			"500": "/fonts/noto-sans-arabic/2.009/NotoSansArabic-Medium.ttf",
+			"600": "/fonts/noto-sans-arabic/2.009/NotoSansArabic-SemiBold.ttf",
+			"700": "/fonts/noto-sans-arabic/2.009/NotoSansArabic-Bold.ttf",
+			"800": "/fonts/noto-sans-arabic/2.009/NotoSansArabic-ExtraBold.ttf",
+			"900": "/fonts/noto-sans-arabic/2.009/NotoSansArabic-Black.ttf"
 		}
 	},
 	{

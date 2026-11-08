@@ -5,6 +5,7 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { cn } from "@reactive-resume/utils/style";
 import { getPdfFindingMessage } from "../messages";
+import { AnalysisStatus } from "./analysis-status";
 
 function scoreTone(score: number) {
 	if (score >= 80) return { text: "text-accent-text", bar: "bg-accent" };
@@ -17,6 +18,7 @@ type ScoreHeaderProps = {
 };
 
 export function ScoreHeader({ report }: ScoreHeaderProps) {
+	if (report.analysis?.status !== "complete") return <AnalysisStatus report={report} />;
 	const tone = scoreTone(report.score);
 	const [cap] = report.cappedBy;
 

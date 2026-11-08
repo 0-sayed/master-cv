@@ -1,0 +1,502 @@
+[
+	{
+		"id": "H3-MIXED-16",
+		"language": "mixed",
+		"split": "held-out",
+		"paths": ["export"],
+		"data": {
+			"picture": {
+				"hidden": true,
+				"fit": "cover",
+				"url": "",
+				"size": 80,
+				"rotation": 0,
+				"aspectRatio": 1,
+				"borderRadius": 0,
+				"borderColor": "rgba(0, 0, 0, 0.5)",
+				"borderWidth": 0,
+				"shadowColor": "rgba(0, 0, 0, 0.5)",
+				"shadowWidth": 0
+			},
+			"basics": {
+				"name": "دَانِيَة المَازِنِي",
+				"headline": "مهندسة خدمات",
+				"email": "trial3.46@example.test",
+				"phone": "+٩٦٦ ٥٥ ٨٣٠ ٢٤٣٥",
+				"location": "الدمام",
+				"website": {
+					"url": "https://example.test/portfolio-h3/H3-MIXED-16",
+					"label": "example.test/portfolio-h3/H3-MIXED-16"
+				},
+				"customFields": []
+			},
+			"summary": {
+				"title": "",
+				"icon": "article",
+				"columns": 1,
+				"hidden": false,
+				"showHeading": true,
+				"keepTogether": false,
+				"startOnNewPage": false,
+				"content": "<p>راجعت 46 حزمة أرشيف عبر 4 خدمات منتجات.</p>"
+			},
+			"sections": {
+				"profiles": {
+					"title": "",
+					"icon": "messenger-logo",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"experience": {
+					"title": "",
+					"icon": "briefcase",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H3-MIXED-16-current",
+							"hidden": false,
+							"company": "Orchid Document Works",
+							"position": "",
+							"location": "الدمام",
+							"period": "2016 – 2029",
+							"dates": {
+								"start": "2016",
+								"end": "2029",
+								"present": false
+							},
+							"website": {
+								"url": "https://example.test/firm/76",
+								"label": "Team 76",
+								"inlineLink": false
+							},
+							"description": "<p>قدت 26 مراجعة تسليم.</p>",
+							"roles": [
+								{
+									"id": "H3-MIXED-16-lead",
+									"position": "مهندسة خدمات",
+									"period": "2026 – 2029",
+									"dates": {
+										"start": "2026",
+										"end": "2029",
+										"present": false
+									},
+									"description": "<p>اختبرت 66 سيناريو و7 مسارات وثائق.</p>"
+								},
+								{
+									"id": "H3-MIXED-16-associate",
+									"position": "مطور مشارك",
+									"period": "2021 – 2025",
+									"dates": {
+										"start": "2021",
+										"end": "2025",
+										"present": false
+									},
+									"description": "<p>اختبرت 66 سيناريو و7 مسارات وثائق.</p>"
+								}
+							]
+						},
+						{
+							"id": "H3-MIXED-16-prior",
+							"hidden": false,
+							"company": "مركز السِّيَاق 96",
+							"position": "مطور أرشيف",
+							"location": "الدمام",
+							"period": "2008 – 2011",
+							"dates": {
+								"start": "2008",
+								"end": "2011",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": "",
+							"roles": []
+						}
+					]
+				},
+				"education": {
+					"title": "",
+					"icon": "graduation-cap",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H3-MIXED-16-school",
+							"hidden": false,
+							"school": "كلية المَعْرِفَة التقنية",
+							"degree": "نظم المعلومات",
+							"area": "",
+							"grade": "",
+							"location": "",
+							"period": "2002 – 2006",
+							"dates": {
+								"start": "2002",
+								"end": "2006",
+								"present": false
+							},
+							"website": {
+								"url": "",
+								"label": "",
+								"inlineLink": false
+							},
+							"description": ""
+						}
+					]
+				},
+				"projects": {
+					"title": "",
+					"icon": "code-simple",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H3-MIXED-16-hijri",
+							"hidden": false,
+							"name": "تدقيق الأرشيف الهجري",
+							"period": "1442 هـ",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "1442 هـ"
+							},
+							"website": {
+								"url": "https://example.test/project/106",
+								"label": "Archive 106",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 106 سجلات مصدر.</p>"
+						},
+						{
+							"id": "H3-MIXED-16-gregorian",
+							"hidden": false,
+							"name": "تدقيق السجلات",
+							"period": "من 2010 إلى 2012",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "من 2010 إلى 2012"
+							},
+							"website": {
+								"url": "https://example.test/project/136",
+								"label": "Archive 136",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 136 سجلات مصدر.</p>"
+						},
+						{
+							"id": "H3-MIXED-16-hidden",
+							"hidden": true,
+							"name": "HIDDEN-FACT 999999",
+							"period": "888888",
+							"dates": {
+								"start": null,
+								"end": null,
+								"present": false,
+								"raw": "888888"
+							},
+							"website": {
+								"url": "https://example.test/project/777777",
+								"label": "Archive 777777",
+								"inlineLink": false
+							},
+							"description": "<p>دققت 777777 سجلات مصدر.</p>"
+						}
+					]
+				},
+				"skills": {
+					"title": "",
+					"icon": "compass-tool",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": [
+						{
+							"id": "H3-MIXED-16-skill",
+							"hidden": false,
+							"icon": "",
+							"iconColor": "",
+							"name": "تحليل البيانات / Python",
+							"proficiency": "",
+							"level": 0,
+							"keywords": ["SQL", "API"]
+						}
+					],
+					"keywordLayout": "inline",
+					"layout": "default"
+				},
+				"languages": {
+					"title": "",
+					"icon": "translate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"interests": {
+					"title": "",
+					"icon": "football",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"awards": {
+					"title": "",
+					"icon": "trophy",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"certifications": {
+					"title": "",
+					"icon": "certificate",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"publications": {
+					"title": "",
+					"icon": "books",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"volunteer": {
+					"title": "",
+					"icon": "hand-heart",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				},
+				"references": {
+					"title": "",
+					"icon": "phone",
+					"columns": 1,
+					"hidden": false,
+					"showHeading": true,
+					"keepTogether": false,
+					"startOnNewPage": false,
+					"items": []
+				}
+			},
+			"customSections": [],
+			"metadata": {
+				"template": "ditgar",
+				"layout": {
+					"sidebarWidth": 35,
+					"pages": [
+						{
+							"fullWidth": true,
+							"main": ["summary", "experience", "education", "projects", "skills"],
+							"sidebar": []
+						}
+					]
+				},
+				"page": {
+					"gapX": 4,
+					"gapY": 6,
+					"marginX": 14,
+					"marginY": 12,
+					"format": "a4",
+					"locale": "ar-SA",
+					"dateFormat": "short",
+					"hideLinkUnderline": false,
+					"hideIcons": true,
+					"hideSectionIcons": true
+				},
+				"design": {
+					"level": {
+						"icon": "star",
+						"type": "circle"
+					},
+					"colors": {
+						"primary": "rgba(220, 38, 38, 1)",
+						"text": "rgba(0, 0, 0, 1)",
+						"background": "rgba(255, 255, 255, 1)"
+					}
+				},
+				"typography": {
+					"body": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["400", "500"],
+						"fontSize": 10,
+						"lineHeight": 1.5
+					},
+					"heading": {
+						"fontFamily": "Noto Sans Arabic",
+						"fontWeights": ["600"],
+						"fontSize": 14,
+						"lineHeight": 1.5
+					}
+				},
+				"notes": "",
+				"styleRules": []
+			}
+		},
+		"gold": {
+			"review": {
+				"status": "draft"
+			},
+			"text": "دَانِيَة المَازِنِي مهندسة خدمات trial3.46@example.test +٩٦٦ ٥٥ ٨٣٠ ٢٤٣٥ الدمام example.test/portfolio-h3/H3-MIXED-16 راجعت 46 حزمة أرشيف عبر 4 خدمات منتجات. Orchid Document Works الدمام 2016 – 2029 قدت 26 مراجعة تسليم. Team 76 مهندسة خدمات 2026 – 2029 اختبرت 66 سيناريو و7 مسارات وثائق. مطور مشارك 2021 – 2025 اختبرت 66 سيناريو و7 مسارات وثائق. مركز السِّيَاق 96 مطور أرشيف الدمام 2008 – 2011 كلية المَعْرِفَة التقنية نظم المعلومات 2002 – 2006 تدقيق الأرشيف الهجري 1442 هـ دققت 106 سجلات مصدر. Archive 106 تدقيق السجلات من 2010 إلى 2012 دققت 136 سجلات مصدر. Archive 136 تحليل البيانات / Python SQL API",
+			"fields": [
+				{
+					"id": "name",
+					"value": "دَانِيَة المَازِنِي"
+				},
+				{
+					"id": "email",
+					"value": "trial3.46@example.test"
+				},
+				{
+					"id": "phone",
+					"value": "+٩٦٦ ٥٥ ٨٣٠ ٢٤٣٥"
+				},
+				{
+					"id": "website",
+					"value": "example.test/portfolio-h3/H3-MIXED-16"
+				},
+				{
+					"id": "company",
+					"value": "Orchid Document Works"
+				},
+				{
+					"id": "job-start",
+					"value": "2016"
+				},
+				{
+					"id": "job-end",
+					"value": "2029"
+				},
+				{
+					"id": "role-0",
+					"value": "مهندسة خدمات",
+					"occurrence": 1
+				},
+				{
+					"id": "start-0",
+					"value": "2026"
+				},
+				{
+					"id": "end-0",
+					"value": "2029",
+					"occurrence": 1
+				},
+				{
+					"id": "role-1",
+					"value": "مطور مشارك"
+				},
+				{
+					"id": "start-1",
+					"value": "2021"
+				},
+				{
+					"id": "end-1",
+					"value": "2025"
+				},
+				{
+					"id": "old-company",
+					"value": "مركز السِّيَاق 96"
+				},
+				{
+					"id": "old-role",
+					"value": "مطور أرشيف"
+				},
+				{
+					"id": "old-start",
+					"value": "2008"
+				},
+				{
+					"id": "old-end",
+					"value": "2011"
+				},
+				{
+					"id": "school",
+					"value": "كلية المَعْرِفَة التقنية"
+				},
+				{
+					"id": "school-start",
+					"value": "2002"
+				},
+				{
+					"id": "school-end",
+					"value": "2006"
+				},
+				{
+					"id": "skill",
+					"value": "تحليل البيانات / Python"
+				},
+				{
+					"id": "hijri-raw",
+					"value": "1442 هـ"
+				},
+				{
+					"id": "gregorian-raw",
+					"value": "من 2010 إلى 2012"
+				}
+			],
+			"associations": [
+				{
+					"id": "current-employer",
+					"fields": ["company", "job-start", "job-end", "role-0", "start-0", "end-0", "role-1", "start-1", "end-1"]
+				},
+				{
+					"id": "prior-employer",
+					"fields": ["old-company", "old-role", "old-start", "old-end"]
+				},
+				{
+					"id": "education",
+					"fields": ["school", "school-start", "school-end"]
+				}
+			],
+			"order": [
+				["name", "company"],
+				["company", "role-0"],
+				["old-company", "school"],
+				["role-0", "start-0"],
+				["start-0", "end-0"],
+				["end-0", "role-1"],
+				["role-1", "start-1"],
+				["start-1", "end-1"],
+				["end-1", "old-company"]
+			],
+			"forbidden": ["HIDDEN-FACT", "999999", "888888", "777777"]
+		}
+	}
+]

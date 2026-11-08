@@ -1,0 +1,136 @@
+{
+	"readers": [
+		{
+			"reader": "pdfjs",
+			"text": "سُلَيْمَان عِزَّت  المهارات\nتحليل البيانات / Python\nمهندس خدمات\nSQL, API\nجدة +966 50 700 1703 holdout2.20@example.test\nexample.test/h2/H2-MIXED-20\nالملخّص\nوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات.\nالخبرة\nجدة Maple Platform Lab\n2022-2025\nمهندس خدمات 2024-2025\nاجعت 17 مسار وثائق.\nمهندس مساعد 2022-2023\nمؤسسة السَّرْد 20 جدة\nمطور وثائق 2019-2021\nالتعليم\nكلية السِّدْر التقنية نظم البرمجيات\n2017-2018\nالمشاريع\nنقل الأرشيف الهجري  1445 هـ\nمراجعة التاريخ\n04/04/2025",
+			"comparisons": {
+				"strict v1": {
+					"policy": "strict v1",
+					"observed": "سُلَيْمَان عِزَّت  المهارات\nتحليل البيانات / Python\nمهندس خدمات\nSQL, API\nجدة +966 50 700 1703 holdout2.20@example.test\nexample.test/h2/H2-MIXED-20\nالملخّص\nوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات.\nالخبرة\nجدة Maple Platform Lab\n2022-2025\nمهندس خدمات 2024-2025\nاجعت 17 مسار وثائق.\nمهندس مساعد 2022-2023\nمؤسسة السَّرْد 20 جدة\nمطور وثائق 2019-2021\nالتعليم\nكلية السِّدْر التقنية نظم البرمجيات\n2017-2018\nالمشاريع\nنقل الأرشيف الهجري  1445 هـ\nمراجعة التاريخ\n04/04/2025",
+					"passed": false,
+					"acceptance": "failed",
+					"exact": {
+						"recall": 0.9259259259259259
+					},
+					"normalized": {
+						"recall": 0.9629629629629629
+					},
+					"missing": ["skill"],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.3741648106904232,
+					"wordErrorRate": 0.5277777777777778
+				},
+				"fact-level v2": {
+					"policy": "fact-level v2",
+					"observed": "سُلَيْمَان عِزَّت  المهارات\nتحليل البيانات / Python\nمهندس خدمات\nSQL, API\nجدة +966 50 700 1703 holdout2.20@example.test\nexample.test/h2/H2-MIXED-20\nالملخّص\nوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات.\nالخبرة\nجدة Maple Platform Lab\n2022-2025\nمهندس خدمات 2024-2025\nاجعت 17 مسار وثائق.\nمهندس مساعد 2022-2023\nمؤسسة السَّرْد 20 جدة\nمطور وثائق 2019-2021\nالتعليم\nكلية السِّدْر التقنية نظم البرمجيات\n2017-2018\nالمشاريع\nنقل الأرشيف الهجري  1445 هـ\nمراجعة التاريخ\n04/04/2025",
+					"passed": true,
+					"acceptance": "pending-review",
+					"exact": {
+						"recall": 0.9259259259259259
+					},
+					"normalized": {
+						"recall": 1
+					},
+					"missing": [],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.3741648106904232,
+					"wordErrorRate": 0.5277777777777778
+				}
+			}
+		},
+		{
+			"reader": "poppler",
+			"text": "‫سُلَيْمَان عِزَّت‬\n\n‫المهارات‬\n\n‫‪ / Python‬تحليل البيانات‬\n\n‫مهندس خدمات‬\n\n‫‪ +966 50 700 1703 holdout2.20@example.test‬جدة‬\n\n‫‪example.test/h2/H2-MIXED-20‬‬\n\n‫الملخّص‬\n\n‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n\n‫الخبرة‬\n\n‫‪ Maple Platform Lab‬جدة‬\n‫‪2022-2025‬‬\n\n‫مهندس خدمات ‪2024-2025‬‬\n‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n\n‫مهندس مساعد ‪2022-2023‬‬\n‫مؤسسة السَّرْد ‪ 20‬جدة‬\n\n‫مطور وثائق ‪2019-2021‬‬\n\n‫التعليم‬\n\n‫كلية السِّدْر التقنية نظم البرمجيات‬\n‫‪2017-2018‬‬\n\n‫المشاريع‬\n\n‫نقل الأرشيف الهجري‬\n‫مراجعة التاريخ‬\n\n‫‪ 1445‬هـ‬\n\n‫‪04/04/2025‬‬\n\n‫‪SQL, API‬‬\n\n\f",
+			"comparisons": {
+				"strict v1": {
+					"policy": "strict v1",
+					"observed": "‫سُلَيْمَان عِزَّت‬\n\n‫المهارات‬\n\n‫‪ / Python‬تحليل البيانات‬\n\n‫مهندس خدمات‬\n\n‫‪ +966 50 700 1703 holdout2.20@example.test‬جدة‬\n\n‫‪example.test/h2/H2-MIXED-20‬‬\n\n‫الملخّص‬\n\n‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n\n‫الخبرة‬\n\n‫‪ Maple Platform Lab‬جدة‬\n‫‪2022-2025‬‬\n\n‫مهندس خدمات ‪2024-2025‬‬\n‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n\n‫مهندس مساعد ‪2022-2023‬‬\n‫مؤسسة السَّرْد ‪ 20‬جدة‬\n\n‫مطور وثائق ‪2019-2021‬‬\n\n‫التعليم‬\n\n‫كلية السِّدْر التقنية نظم البرمجيات‬\n‫‪2017-2018‬‬\n\n‫المشاريع‬\n\n‫نقل الأرشيف الهجري‬\n‫مراجعة التاريخ‬\n\n‫‪ 1445‬هـ‬\n\n‫‪04/04/2025‬‬\n\n‫‪SQL, API‬‬\n\n\f",
+					"passed": false,
+					"acceptance": "failed",
+					"exact": {
+						"recall": 0.8518518518518519
+					},
+					"normalized": {
+						"recall": 0.9259259259259259
+					},
+					"missing": ["skill", "hijri-raw"],
+					"orderFailures": [],
+					"associationFailures": ["current-employer", "prior-employer", "education", "hijri-raw-entry"],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.35412026726057905,
+					"wordErrorRate": 0.5416666666666666
+				},
+				"fact-level v2": {
+					"policy": "fact-level v2",
+					"observed": "‫سُلَيْمَان عِزَّت‬\n\n‫المهارات‬\n\n‫‪ / Python‬تحليل البيانات‬\n\n‫مهندس خدمات‬\n\n‫‪ +966 50 700 1703 holdout2.20@example.test‬جدة‬\n\n‫‪example.test/h2/H2-MIXED-20‬‬\n\n‫الملخّص‬\n\n‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n\n‫الخبرة‬\n\n‫‪ Maple Platform Lab‬جدة‬\n‫‪2022-2025‬‬\n\n‫مهندس خدمات ‪2024-2025‬‬\n‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n\n‫مهندس مساعد ‪2022-2023‬‬\n‫مؤسسة السَّرْد ‪ 20‬جدة‬\n\n‫مطور وثائق ‪2019-2021‬‬\n\n‫التعليم‬\n\n‫كلية السِّدْر التقنية نظم البرمجيات‬\n‫‪2017-2018‬‬\n\n‫المشاريع‬\n\n‫نقل الأرشيف الهجري‬\n‫مراجعة التاريخ‬\n\n‫‪ 1445‬هـ‬\n\n‫‪04/04/2025‬‬\n\n‫‪SQL, API‬‬\n\n\f",
+					"passed": false,
+					"acceptance": "failed",
+					"exact": {
+						"recall": 0.8518518518518519
+					},
+					"normalized": {
+						"recall": 0.9629629629629629
+					},
+					"missing": ["skill"],
+					"orderFailures": [],
+					"associationFailures": ["hijri-raw-entry", "gregorian-raw-entry"],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.35412026726057905,
+					"wordErrorRate": 0.5416666666666666
+				}
+			}
+		},
+		{
+			"reader": "poppler-layout",
+			"text": "             ‫المهارات‬\n                                                               ‫سُلَيْمَان عِزَّت‬\n‫‪ / Python‬تحليل البيانات‬\n                                                                           ‫مهندس خدمات‬\n               ‫‪SQL, API‬‬\n                                   ‫‪ +966 50 700 1703 holdout2.20@example.test‬جدة‬\n                                                        ‫‪example.test/h2/H2-MIXED-20‬‬\n\n                                                                                ‫الملخّص‬\n                          ‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n\n                                                                                   ‫الخبرة‬\n                                                             ‫‪ Maple Platform Lab‬جدة‬\n                                                                              ‫‪2022-2025‬‬\n                                                               ‫مهندس خدمات ‪2024-2025‬‬\n                                                                    ‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n                                                               ‫مهندس مساعد ‪2022-2023‬‬\n\n                                                                  ‫مؤسسة السَّرْد ‪ 20‬جدة‬\n                                                                  ‫مطور وثائق ‪2019-2021‬‬\n\n                                                                                  ‫التعليم‬\n                                                        ‫كلية السِّدْر التقنية نظم البرمجيات‬\n                                                                              ‫‪2017-2018‬‬\n\n                                                                                ‫المشاريع‬\n                                                     ‫‪ 1445‬هـ‬        ‫نقل الأرشيف الهجري‬\n\n                                                                           ‫مراجعة التاريخ‬\n                                                         ‫‪04/04/2025‬‬\n\f",
+			"comparisons": {
+				"strict v1": {
+					"policy": "strict v1",
+					"observed": "             ‫المهارات‬\n                                                               ‫سُلَيْمَان عِزَّت‬\n‫‪ / Python‬تحليل البيانات‬\n                                                                           ‫مهندس خدمات‬\n               ‫‪SQL, API‬‬\n                                   ‫‪ +966 50 700 1703 holdout2.20@example.test‬جدة‬\n                                                        ‫‪example.test/h2/H2-MIXED-20‬‬\n\n                                                                                ‫الملخّص‬\n                          ‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n\n                                                                                   ‫الخبرة‬\n                                                             ‫‪ Maple Platform Lab‬جدة‬\n                                                                              ‫‪2022-2025‬‬\n                                                               ‫مهندس خدمات ‪2024-2025‬‬\n                                                                    ‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n                                                               ‫مهندس مساعد ‪2022-2023‬‬\n\n                                                                  ‫مؤسسة السَّرْد ‪ 20‬جدة‬\n                                                                  ‫مطور وثائق ‪2019-2021‬‬\n\n                                                                                  ‫التعليم‬\n                                                        ‫كلية السِّدْر التقنية نظم البرمجيات‬\n                                                                              ‫‪2017-2018‬‬\n\n                                                                                ‫المشاريع‬\n                                                     ‫‪ 1445‬هـ‬        ‫نقل الأرشيف الهجري‬\n\n                                                                           ‫مراجعة التاريخ‬\n                                                         ‫‪04/04/2025‬‬\n\f",
+					"passed": false,
+					"acceptance": "failed",
+					"exact": {
+						"recall": 0.8518518518518519
+					},
+					"normalized": {
+						"recall": 0.9259259259259259
+					},
+					"missing": ["skill", "hijri-raw"],
+					"orderFailures": [],
+					"associationFailures": ["current-employer", "prior-employer", "education", "hijri-raw-entry"],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.3986636971046771,
+					"wordErrorRate": 0.5555555555555556
+				},
+				"fact-level v2": {
+					"policy": "fact-level v2",
+					"observed": "             ‫المهارات‬\n                                                               ‫سُلَيْمَان عِزَّت‬\n‫‪ / Python‬تحليل البيانات‬\n                                                                           ‫مهندس خدمات‬\n               ‫‪SQL, API‬‬\n                                   ‫‪ +966 50 700 1703 holdout2.20@example.test‬جدة‬\n                                                        ‫‪example.test/h2/H2-MIXED-20‬‬\n\n                                                                                ‫الملخّص‬\n                          ‫‏طوّرت مسارات وثائق قابلة للمراجعة واختبرت التصدير متعدد اللغات‪.‬‬\n\n                                                                                   ‫الخبرة‬\n                                                             ‫‪ Maple Platform Lab‬جدة‬\n                                                                              ‫‪2022-2025‬‬\n                                                               ‫مهندس خدمات ‪2024-2025‬‬\n                                                                    ‫‏راجعت ‪ 17‬مسار وثائق‪.‬‬\n                                                               ‫مهندس مساعد ‪2022-2023‬‬\n\n                                                                  ‫مؤسسة السَّرْد ‪ 20‬جدة‬\n                                                                  ‫مطور وثائق ‪2019-2021‬‬\n\n                                                                                  ‫التعليم‬\n                                                        ‫كلية السِّدْر التقنية نظم البرمجيات‬\n                                                                              ‫‪2017-2018‬‬\n\n                                                                                ‫المشاريع‬\n                                                     ‫‪ 1445‬هـ‬        ‫نقل الأرشيف الهجري‬\n\n                                                                           ‫مراجعة التاريخ‬\n                                                         ‫‪04/04/2025‬‬\n\f",
+					"passed": false,
+					"acceptance": "failed",
+					"exact": {
+						"recall": 0.8518518518518519
+					},
+					"normalized": {
+						"recall": 0.9629629629629629
+					},
+					"missing": ["skill"],
+					"orderFailures": [],
+					"associationFailures": [],
+					"forbidden": [],
+					"unexpectedNumbers": [],
+					"characterErrorRate": 0.3986636971046771,
+					"wordErrorRate": 0.5555555555555556
+				}
+			}
+		}
+	]
+}
