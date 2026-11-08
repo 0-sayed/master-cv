@@ -47,6 +47,18 @@ const skillItem = () => ({
 const lint = (data: ResumeData) => lintResumeForAts(data, { now: NOW });
 const codesOf = (data: ResumeData) => lint(data).findings.map((item) => item.code);
 
+it("accepts conventional Arabic headings and warns on unknown ones", () => {
+	const data = makeResume((data) => {
+		data.metadata.page.locale = "ar-SA";
+		data.sections.experience.title = "الخِبْـرَة العَمَلِيَّة";
+	});
+	expect(codesOf(data)).not.toContain("NON_STANDARD_SECTION_TITLE");
+	data.sections.experience.title = "حكايات العمل";
+	expect(lint(data).findings.find((finding) => finding.code === "NON_STANDARD_SECTION_TITLE")).toMatchObject({
+		severity: "warning",
+	});
+});
+
 describe("lintResumeForAts", () => {
 	it("reports nothing on a well-formed resume", () => {
 		expect(lint(makeResume()).findings).toEqual([]);

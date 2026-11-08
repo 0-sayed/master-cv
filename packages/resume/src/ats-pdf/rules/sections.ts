@@ -14,9 +14,10 @@ function requiresEnglish(context: PdfCheckContext): boolean {
 
 const hasSection = (context: PdfCheckContext, type: CustomSectionType) => context.semantics.sectionTypes.includes(type);
 
-function guard(context: PdfCheckContext) {
+function guard(context: PdfCheckContext, englishOnly = false) {
 	if (hasNoText(context)) return skip("no-text");
-	if (!requiresEnglish(context)) return skip("not-english");
+	if (!requiresEnglish(context) && (englishOnly || !/^ar(?:-|$)/i.test(context.semantics.locale ?? "")))
+		return skip("not-english");
 	return null;
 }
 
@@ -93,7 +94,7 @@ export const sectionChecks: readonly PdfCheck[] = [
 	}),
 
 	check("NO_ROLE_LINES", (context) => {
-		const blocked = guard(context);
+		const blocked = guard(context, true);
 		if (blocked) return blocked;
 
 		return failIf(context.semantics.roleLikeLineCount === 0, "NO_ROLE_LINES");

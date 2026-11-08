@@ -12,6 +12,7 @@ import type { CustomSectionType } from "@reactive-resume/schema/resume/data";
 type TextTransform = readonly [number, number, number, number, number, number];
 
 export type RawTextItem = {
+	dir?: "ltr" | "rtl" | "ttb";
 	/** The string exactly as the reader produced it (normalization disabled). */
 	str: string;
 	transform: TextTransform;
@@ -78,6 +79,7 @@ type RawMetadata = {
 };
 
 export type RawExtraction = {
+	coverage?: { pages: readonly PageCoverage[]; reasons: readonly string[] };
 	version: 1;
 	file: {
 		name: string;
@@ -113,6 +115,7 @@ export type RawPage = {
 type BoundingBox = { x: number; y: number; width: number; height: number };
 
 export type TextSpan = BoundingBox & {
+	dir?: "ltr" | "rtl" | "ttb";
 	text: string;
 	fontRef: string;
 	fontSize: number;
@@ -163,6 +166,8 @@ export type PageGeometry = {
 };
 
 export type ExtractedDocument = {
+	/** Declared source language direction; never the interface language. */
+	direction?: "ltr" | "rtl";
 	pages: readonly PageGeometry[];
 	/** All lines across all pages, in geometric reading order. */
 	lines: readonly TextLine[];
@@ -246,6 +251,7 @@ export type TextQuality = {
 };
 
 export type ResumeSemantics = {
+	locale?: string;
 	headings: readonly DetectedHeading[];
 	/** Section types the headings identified, deduplicated. */
 	sectionTypes: readonly CustomSectionType[];
@@ -313,6 +319,7 @@ export type PdfSkipReason =
 	| "not-english"
 	| "not-applicable"
 	| "encrypted"
+	| "execution-failed"
 	| "insufficient-data";
 
 export type PdfCheckContext = {
@@ -378,6 +385,7 @@ export type JdMatchReport = {
 };
 
 export type PdfAtsReport = {
+	analysis?: PdfAnalysisCoverage;
 	version: 1;
 	/** 0–100 integer. Blockers cap it; nothing rounds up past a cap. */
 	score: number;
@@ -401,3 +409,12 @@ export type PdfAtsReport = {
 		operatorsAvailable: boolean;
 	};
 };
+
+type CoverageState = "complete" | "skipped" | "failed";
+export type PageCoverage = {
+	pageNumber: number;
+	text: CoverageState;
+	annotations: CoverageState;
+	operators: CoverageState;
+};
+export type PdfAnalysisCoverage = { status: "complete" | "partial" | "failed"; reasons: readonly string[] };

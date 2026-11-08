@@ -1,5 +1,13 @@
 import type { OperatorListLike } from "./analyze/operators";
-import type { PageOperatorSummary, RawExtraction, RawFont, RawLinkAnnotation, RawPage, RawTextItem } from "./types";
+import type {
+	PageCoverage,
+	PageOperatorSummary,
+	RawExtraction,
+	RawFont,
+	RawLinkAnnotation,
+	RawPage,
+	RawTextItem,
+} from "./types";
 import { summarizePageOperators } from "./analyze/operators";
 
 // ---------------------------------------------------------------------------
@@ -11,6 +19,7 @@ import { summarizePageOperators } from "./analyze/operators";
 // ---------------------------------------------------------------------------
 
 type PdfTextItemLike = {
+	dir?: unknown;
 	str?: unknown;
 	transform?: unknown;
 	width?: unknown;
@@ -110,6 +119,7 @@ function toRawTextItem(value: unknown): RawTextItem | null {
 
 	return {
 		str: item.str,
+		...(item.dir === "rtl" || item.dir === "ltr" || item.dir === "ttb" ? { dir: item.dir } : {}),
 		transform,
 		width: typeof item.width === "number" ? item.width : 0,
 		height: typeof item.height === "number" ? item.height : 0,
@@ -261,9 +271,14 @@ export async function harvestPdfDocument(document: PdfDocumentLike, options: Har
 	const throwIfAborted = () => {
 		if (options.signal?.aborted) throw new HarvestAbortedError();
 	};
+	const reasons: string[] = [];
+	const coverage: PageCoverage[] = [];
 
 	const [metadataRaw, markInfoRaw] = await Promise.all([
-		document.getMetadata().catch(() => null),
+		document.getMetadata().catch(() => {
+			reasons.push("metadata-failed");
+			return null;
+		}),
 		document.getMarkInfo?.().catch(() => null) ?? Promise.resolve(null),
 	]);
 
@@ -285,68 +300,103 @@ export async function harvestPdfDocument(document: PdfDocumentLike, options: Har
 		throwIfAborted();
 		options.onProgress?.({ phase: "text", page: pageNumber, pageCount: harvestedPageCount });
 
-		const page = await document.getPage(pageNumber);
-		const box = pageBox(page);
+		let page: PdfPageLike;
+		try {
+			page = await document.getPage(pageNumber);
+		} catch {
+			coverage.push({ pageNumber, text: "failed", annotations: "failed", operators: "failed" });
+			reasons.push(`page-${pageNumber}-failed`);
+			continue;
+		}
+		const state: PageCoverage = { pageNumber, text: "complete", annotations: "complete", operators: "skipped" };
+		coverage.push(state);
+		try {
+			const box = pageBox(page);
 
-		const [textContent, annotations] = await Promise.all([
-			page.getTextContent({ disableNormalization: true, includeMarkedContent: false }).catch(() => null),
-			page.getAnnotations({ intent: "display" }).catch(() => null),
-		]);
+			const [textContent, annotations] = await Promise.all([
+				page.getTextContent({ disableNormalization: true, includeMarkedContent: false }).catch(() => {
+					state.text = "failed";
+					reasons.push(`page-${pageNumber}-text-failed`);
+					return null;
+				}),
+				page.getAnnotations({ intent: "display" }).catch(() => {
+					state.annotations = "failed";
+					reasons.push(`page-${pageNumber}-annotations-failed`);
+					return null;
+				}),
+			]);
 
-		const rawItems = (textContent as PdfTextContentLike | null)?.items;
-		const items: RawTextItem[] = [];
-
-		if (Array.isArray(rawItems)) {
-			for (const entry of rawItems) {
-				const item = toRawTextItem(entry);
-				if (!item) continue;
-				items.push(item);
-				if (item.fontRef) fontRefs.add(item.fontRef);
+			const rawItems = (textContent as PdfTextContentLike | null)?.items;
+			if (!Array.isArray(annotations) && state.annotations !== "failed") {
+				state.annotations = "failed";
+				reasons.push(`page-${pageNumber}-annotations-invalid`);
 			}
-		}
-
-		links.push(...toLinkAnnotations(annotations, pageNumber));
-
-		let operators: PageOperatorSummary | null = null;
-		const elapsed = Date.now() - operatorStartedAt;
-		const remaining = Math.min(perPageBudgetMs, totalBudgetMs - elapsed);
-
-		if (remaining > 0) {
-			operatorsAttempted = true;
-			options.onProgress?.({ phase: "operators", page: pageNumber, pageCount: harvestedPageCount });
-
-			const operatorList = await withTimeout(
-				page.getOperatorList().catch(() => null),
-				remaining,
-			);
-			const parsed = toOperatorList(operatorList);
-			if (parsed) {
-				operators = summarizePageOperators(parsed, box);
-				operatorsSucceeded = true;
+			if (!Array.isArray(rawItems) && state.text !== "failed") {
+				state.text = "failed";
+				reasons.push(`page-${pageNumber}-text-invalid`);
 			}
+			const items: RawTextItem[] = [];
+
+			if (Array.isArray(rawItems)) {
+				for (const entry of rawItems) {
+					const item = toRawTextItem(entry);
+					if (!item) continue;
+					items.push(item);
+					if (item.fontRef) fontRefs.add(item.fontRef);
+				}
+			}
+
+			links.push(...toLinkAnnotations(annotations, pageNumber));
+
+			let operators: PageOperatorSummary | null = null;
+			const elapsed = Date.now() - operatorStartedAt;
+			const remaining = Math.min(perPageBudgetMs, totalBudgetMs - elapsed);
+
+			if (remaining > 0) {
+				operatorsAttempted = true;
+				options.onProgress?.({ phase: "operators", page: pageNumber, pageCount: harvestedPageCount });
+
+				const operatorList = await withTimeout(
+					page.getOperatorList().catch(() => null),
+					remaining,
+				);
+				const parsed = toOperatorList(operatorList);
+				if (parsed) {
+					state.operators = "complete";
+					operators = summarizePageOperators(parsed, box);
+					operatorsSucceeded = true;
+				} else {
+					state.operators = "failed";
+					reasons.push(`page-${pageNumber}-operators-failed`);
+				}
+			} else {
+				reasons.push(`page-${pageNumber}-operators-skipped`);
+			}
+
+			// commonObjs is only populated once the page's operator list has been built, so fonts are
+			// read here rather than up front, and only for refs this page actually used.
+			for (const ref of fontRefs) {
+				if (fonts.has(ref)) continue;
+				const resolved = readCommonObject(page.commonObjs, ref);
+				if (resolved !== undefined) fonts.set(ref, toRawFont(ref, resolved));
+			}
+
+			pages.push({
+				pageNumber,
+				width: box.width,
+				height: box.height,
+				rotation: typeof page.rotate === "number" ? page.rotate : 0,
+				items,
+				operators,
+			});
+		} finally {
+			page.cleanup?.();
 		}
-
-		// commonObjs is only populated once the page's operator list has been built, so fonts are
-		// read here rather than up front, and only for refs this page actually used.
-		for (const ref of fontRefs) {
-			if (fonts.has(ref)) continue;
-			const resolved = readCommonObject(page.commonObjs, ref);
-			if (resolved !== undefined) fonts.set(ref, toRawFont(ref, resolved));
-		}
-
-		pages.push({
-			pageNumber,
-			width: box.width,
-			height: box.height,
-			rotation: typeof page.rotate === "number" ? page.rotate : 0,
-			items,
-			operators,
-		});
-
-		page.cleanup?.();
+		throwIfAborted();
 	}
 
 	return {
+		coverage: { pages: coverage, reasons },
 		version: 1,
 		file: options.file,
 		pageCount,

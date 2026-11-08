@@ -50,6 +50,7 @@ function buildSpans(page: RawPage): TextSpan[] {
 		const y = page.height - f - fontSize;
 
 		spans.push({
+			...(item.dir ? { dir: item.dir } : {}),
 			text: item.str,
 			x: e,
 			y,
@@ -118,15 +119,39 @@ function clusterLines(spans: readonly TextSpan[], pageNumber: number, tolerance:
 	return groups.map((group) => toLine(group, pageNumber));
 }
 
+export function isRtlText(spans: readonly TextSpan[]): boolean {
+	// Numeric/contact islands do not establish a paragraph base. With competing lexical scripts,
+	// geometry alone cannot establish that base: preserve the existing LTR field order. Such mixed
+	// layouts still require qualification; document language is not paragraph direction.
+	const lexical = spans.map((span) => span.text.replace(/\S+@\S+|(?:https?:\/\/|www\.)\S+/gu, "")).join(" ");
+	return (
+		/[\p{Script=Arabic}\p{Script=Hebrew}]/u.test(lexical.replace(/[^\p{L}]/gu, "")) &&
+		!/\p{Script=Latin}/u.test(lexical)
+	);
+}
+
+/** Logical runs inferred from reader direction and geometry; LTR islands stay intact. */
+export function orderTextSpans(spans: readonly TextSpan[], direction?: "ltr" | "rtl"): TextSpan[] {
+	const ordered = [...spans].sort((a, b) => a.x - b.x);
+	const groups: TextSpan[][] = [];
+	for (const span of ordered) {
+		const previous = groups.at(-1);
+		if (previous && (span.dir === "rtl") === (previous[0]?.dir === "rtl")) previous.push(span);
+		else groups.push([span]);
+	}
+	if (direction === "rtl" || (!direction && isRtlText(spans))) groups.reverse();
+	return groups.flatMap((group) => (group[0]?.dir === "rtl" ? group.reverse() : group));
+}
+
 function toLine(group: readonly TextSpan[], pageNumber: number): TextLine {
 	const ordered = [...group].sort((a, b) => a.x - b.x || (a.text < b.text ? -1 : a.text > b.text ? 1 : 0));
 
 	let text = "";
 	let previous: TextSpan | null = null;
 
-	for (const span of ordered) {
+	for (const span of orderTextSpans(ordered)) {
 		if (previous) {
-			const gap = span.x - (previous.x + previous.width);
+			const gap = Math.max(span.x - (previous.x + previous.width), previous.x - (span.x + span.width));
 			const threshold = SPACE_GAP_RATIO * Math.max(previous.fontSize, span.fontSize, 1);
 			const needsSpace = gap > threshold && !/\s$/.test(text) && !/^\s/.test(span.text);
 			if (needsSpace) text += " ";
@@ -384,6 +409,13 @@ export function buildExtractedDocument(raw: RawExtraction): ExtractedDocument {
 	const modalFontSize = modalOf(allFontSizes.filter((size) => size > 0));
 	const tolerance = Math.max(MIN_LINE_TOLERANCE_PT, LINE_TOLERANCE_RATIO * (modalFontSize ?? MIN_LINE_TOLERANCE_PT));
 
+	const language = raw.metadata.language?.split(/[-_]/)[0]?.toLowerCase();
+	const direction =
+		language === "ar" || language === "he" || language === "fa" || language === "ur"
+			? "rtl"
+			: language === "en"
+				? "ltr"
+				: undefined;
 	const pages = raw.pages.map((page) => buildPage(page, tolerance));
 	const lines = pages.flatMap((page) => page.lines);
 
@@ -405,6 +437,7 @@ export function buildExtractedDocument(raw: RawExtraction): ExtractedDocument {
 		[...fontWeights.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? null;
 
 	return {
+		...(direction ? { direction } : {}),
 		pages,
 		lines,
 		fullText,

@@ -1,6 +1,6 @@
 import type { DetectedHeading, ExtractedDocument, TextLine } from "../types";
 import type { CustomSectionType } from "@reactive-resume/schema/resume/data";
-import { PDF_SECTION_HEADING_LOOKUP } from "../../ats/section-aliases";
+import { normalizeSectionHeading, PDF_SECTION_HEADING_LOOKUP } from "../../ats/section-aliases";
 import { columnSegments } from "../extract";
 
 /** Headings are short. Past this many words a line is a sentence, not a section title. */
@@ -17,12 +17,7 @@ const HEADING_UPPERCASE_RATIO = 0.8;
  * between resumes and none of them change which section a heading names.
  */
 function normalizeHeading(value: string): string {
-	const collapsed = value
-		.toLowerCase()
-		.replaceAll("&", " and ")
-		.replace(/[^\p{L}\p{N}\s]+/gu, " ")
-		.replace(/\s+/g, " ")
-		.trim();
+	const collapsed = normalizeSectionHeading(value);
 
 	// "E D U C A T I O N" is one word set in letter-spaced capitals, not nine words.
 	const parts = collapsed.split(" ");

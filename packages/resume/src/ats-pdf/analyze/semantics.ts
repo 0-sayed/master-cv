@@ -143,14 +143,17 @@ export function buildResumeSemantics(
 
 	const quality = analyzeTextQuality({
 		fullText: document.fullText,
-		languageTag: raw.metadata.language,
+		languageTag: locale,
 		singleCharItemRatio: singleCharItemRatio(raw),
 	});
+	// The source document locale is explicit evidence, not an interface preference.
+	if (/^ar(?:-|$)/i.test(locale)) quality.isEnglish = false;
 
 	const bulletLines = document.lines.filter(isBullet);
 	const bullets = bulletLines.map(bulletBody);
 
 	return {
+		locale,
 		headings,
 		sectionTypes: sectionTypesOf(headings),
 		contact,

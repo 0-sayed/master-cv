@@ -53,6 +53,45 @@ function makeDocument(pages: PdfPageLike[]): PdfDocumentLike {
 }
 
 describe("harvestPdfDocument", () => {
+	it.each([null, {}, "invalid"])("does not mark malformed annotation evidence complete: %s", async (annotations) => {
+		const page = makePage(1);
+		page.getAnnotations = async () => annotations;
+		const raw = await harvestPdfDocument(makeDocument([page]), { file: FILE });
+		expect(raw.coverage?.pages[0]?.annotations).toBe("failed");
+		expect(raw.coverage?.reasons).toContain("page-1-annotations-invalid");
+	});
+	it("preserves per-page text, annotation and operator failures", async () => {
+		const first = makePage(1);
+		const second = makePage(2);
+		second.getTextContent = async () => {
+			throw new Error("text unavailable");
+		};
+		second.getAnnotations = async () => {
+			throw new Error("annotations unavailable");
+		};
+		second.getOperatorList = async () => {
+			throw new Error("operators unavailable");
+		};
+		const raw = await harvestPdfDocument(makeDocument([first, second]), { file: FILE });
+		expect(raw.coverage?.pages).toEqual([
+			{ pageNumber: 1, text: "complete", annotations: "complete", operators: "complete" },
+			{ pageNumber: 2, text: "failed", annotations: "failed", operators: "failed" },
+		]);
+		expect(raw.coverage?.reasons).toContain("page-2-text-failed");
+	});
+	it("preserves RTL direction evidence without modifying the string", async () => {
+		const raw = await harvestPdfDocument(
+			makeDocument([
+				makePage(1, {
+					items: [
+						{ str: "أحمد", dir: "rtl", transform: [10, 0, 0, 10, 56, 780], width: 40, height: 10, fontName: "arabic" },
+					],
+				}),
+			]),
+			{ file: FILE },
+		);
+		expect(raw.pages[0]?.items[0]).toMatchObject({ str: "أحمد", dir: "rtl" });
+	});
 	it("harvests text, metadata and fonts into plain JSON", async () => {
 		const raw = await harvestPdfDocument(
 			makeDocument([makePage(1, { fontObject: { name: "AAAAAA+Inter", isType3Font: false } })]),

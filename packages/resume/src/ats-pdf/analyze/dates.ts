@@ -4,15 +4,17 @@ import {
 	isReversedPeriod,
 	parsePeriod,
 	parseSingleDate,
+	ONGOING_TOKENS_BY_LANGUAGE,
 } from "@reactive-resume/schema/resume/period";
+import { normalizeNumericDigits } from "@reactive-resume/utils/string";
 
-const MONTH_WORD = String.raw`[A-Za-z]{3,9}\.?`;
+const MONTH_WORD = String.raw`[\p{L}\p{M}]{3,12}\.?`;
 const ENDPOINT = String.raw`(?:${MONTH_WORD}\s*'?\d{2,4}|\d{1,2}[/.\-]\d{2,4}|\d{4})`;
-const ONGOING = String.raw`(?:present|current|currently|now|ongoing|to\s?date|today)`;
+const ONGOING = String.raw`(?:present|current|currently|now|ongoing|to\s?date|today|حتى\s+الآن|الآن|الحاضر)`;
 const SEPARATOR = String.raw`\s*(?:[-–—~]|to|through|until)\s*`;
 
-const RANGE_PATTERN = new RegExp(`${ENDPOINT}${SEPARATOR}(?:${ENDPOINT}|${ONGOING})`, "gi");
-const SINGLE_PATTERN = new RegExp(String.raw`\b(?:${MONTH_WORD}\s+\d{4}|\d{1,2}/\d{4})\b`, "gi");
+const RANGE_PATTERN = new RegExp(`${ENDPOINT}${SEPARATOR}(?:${ENDPOINT}|${ONGOING})`, "giu");
+const SINGLE_PATTERN = new RegExp(String.raw`(?:${MONTH_WORD}\s+\d{4}|\d{1,2}/\d{4})\b`, "giu");
 
 /** A numeric date whose first two components could each be a month or a day. */
 const AMBIGUOUS_NUMERIC_PATTERN = /\b(0?[1-9]|1[0-2])[/.-](0?[1-9]|[12]\d|3[01])[/.-](\d{2}|\d{4})\b/g;
@@ -26,7 +28,7 @@ const AMBIGUOUS_NUMERIC_PATTERN = /\b(0?[1-9]|1[0-2])[/.-](0?[1-9]|[12]\d|3[01])
  * Claiming a date is malformed when it is not a date is the worse error.
  */
 function looksLikeDateWords(raw: string, locale: string): boolean {
-	const words = raw.match(/[A-Za-z]+/g) ?? [];
+	const words = raw.match(/[\p{L}\p{M}]+/gu) ?? [];
 
 	return words.every((word) => {
 		const lower = word.toLowerCase();
@@ -36,6 +38,7 @@ function looksLikeDateWords(raw: string, locale: string): boolean {
 }
 
 const ONGOING_WORDS = new Set([
+	...(ONGOING_TOKENS_BY_LANGUAGE.ar ?? []).flatMap((token) => token.split(/\s+/)),
 	"present",
 	"current",
 	"currently",
@@ -49,8 +52,8 @@ const ONGOING_WORDS = new Set([
 ]);
 
 function shapeOf(raw: string): DateToken["shape"] {
-	if (/[A-Za-z]/.test(raw)) return "mon-year";
-	if (/\d{1,2}[/.-]\d/.test(raw)) return "numeric";
+	if (/\p{L}/u.test(raw)) return "mon-year";
+	if (/\d{1,2}[/.-]\d/.test(normalizeNumericDigits(raw))) return "numeric";
 	return "year";
 }
 
@@ -115,7 +118,11 @@ export function analyzeDates(document: ExtractedDocument, locale: string, now: D
 	const ambiguousNumericDates: string[] = [];
 
 	document.lines.forEach((line, lineIndex) => {
-		const ranges = (line.text.match(RANGE_PATTERN) ?? []).filter((raw) => looksLikeDateWords(raw, locale));
+		// Digit conversion is length preserving; candidate offsets still point into the raw evidence.
+		const numeric = normalizeNumericDigits(line.text);
+		const ranges = [...numeric.matchAll(RANGE_PATTERN)]
+			.map((match) => line.text.slice(match.index, match.index + match[0].length))
+			.filter((raw) => looksLikeDateWords(raw, locale));
 		for (const raw of ranges) {
 			const token = toToken(raw.trim(), "range", line.page, lineIndex, locale, now);
 			tokens.push(token);
@@ -124,12 +131,14 @@ export function analyzeDates(document: ExtractedDocument, locale: string, now: D
 
 		// A lone date inside a range we already captured would double-count it.
 		const withoutRanges = ranges.reduce((text, range) => text.replace(range, " "), line.text);
-		for (const raw of withoutRanges.match(SINGLE_PATTERN) ?? []) {
+		for (const match of normalizeNumericDigits(withoutRanges).matchAll(SINGLE_PATTERN)) {
+			const raw = withoutRanges.slice(match.index, match.index + match[0].length);
 			if (!looksLikeDateWords(raw, locale)) continue;
 			tokens.push(toToken(raw.trim(), "single", line.page, lineIndex, locale, now));
 		}
 
-		for (const raw of line.text.match(AMBIGUOUS_NUMERIC_PATTERN) ?? []) ambiguousNumericDates.push(raw);
+		for (const match of numeric.matchAll(AMBIGUOUS_NUMERIC_PATTERN))
+			ambiguousNumericDates.push(line.text.slice(match.index, match.index + match[0].length));
 	});
 
 	return {

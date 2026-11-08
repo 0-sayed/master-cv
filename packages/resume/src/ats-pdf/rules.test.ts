@@ -82,12 +82,12 @@ describe("parseability checks", () => {
 });
 
 describe("layout checks", () => {
-	it("caps a genuine two-column layout that also threads out of order", () => {
+	it("warns about geometric ordering risk without claiming proven factual loss", () => {
 		const result = report(twoColumnResume());
 
 		expect(statusOf(result, "MULTI_COLUMN_LAYOUT")).toBe("fail");
-		expect(result.score).toBeLessThanOrEqual(55);
-		expect(result.cappedBy).toContain("MULTI_COLUMN_LAYOUT");
+		expect(result.findings.find((finding) => finding.code === "MULTI_COLUMN_LAYOUT")?.severity).toBe("warning");
+		expect(result.cappedBy).not.toContain("MULTI_COLUMN_LAYOUT");
 	});
 
 	it("warns instead of capping when only the gutter signal is strong", () => {
@@ -150,7 +150,7 @@ describe("layout checks", () => {
 });
 
 describe("section checks", () => {
-	it("caps a resume with no employment history of any kind", () => {
+	it("warns about unrecognized employment history without proving it is absent", () => {
 		const withoutWork = healthyResumeLines.filter(
 			(line) => !(typeof line === "object" && ["EXPERIENCE", "PROJECTS"].includes(line.text)),
 		);
@@ -158,7 +158,8 @@ describe("section checks", () => {
 		const result = report(makeRawExtraction({ lines: withoutWork }));
 
 		expect(statusOf(result, "NO_EXPERIENCE_SECTION")).toBe("fail");
-		expect(result.score).toBeLessThanOrEqual(60);
+		expect(result.findings.find((finding) => finding.code === "NO_EXPERIENCE_SECTION")?.severity).toBe("warning");
+		expect(result.cappedBy).not.toContain("NO_EXPERIENCE_SECTION");
 	});
 
 	it("accepts projects or volunteering as equivalent history", () => {
@@ -286,12 +287,13 @@ describe("contact checks", () => {
 });
 
 describe("date checks", () => {
-	it("caps a resume with no dates at all", () => {
+	it("warns about unrecognized dates without treating a pattern miss as proven loss", () => {
 		const undated = healthyResumeLines.filter((line) => typeof line !== "string" || !/\d{4}/.test(line));
 		const result = report(makeRawExtraction({ lines: undated }));
 
 		expect(statusOf(result, "NO_DATES_FOUND")).toBe("fail");
-		expect(result.score).toBeLessThanOrEqual(60);
+		expect(result.findings.find((finding) => finding.code === "NO_DATES_FOUND")?.severity).toBe("warning");
+		expect(result.cappedBy).not.toContain("NO_DATES_FOUND");
 	});
 
 	it("flags a reversed range", () => {

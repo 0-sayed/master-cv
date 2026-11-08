@@ -11,7 +11,7 @@ import {
 } from "@reactive-resume/schema/resume/period";
 import { templateLayouts } from "@reactive-resume/schema/templates";
 import { atsRuleSeverity } from "./catalog";
-import { SECTION_TITLE_ALIASES } from "./section-aliases";
+import { normalizeSectionHeading, SECTION_TITLE_ALIASES } from "./section-aliases";
 import { isRenderedSection } from "./walk";
 
 export type RuleContext = {
@@ -216,7 +216,7 @@ const structureRules: AtsRule = (context) => {
 };
 
 /** The heading rule knows English headings only, so it applies to English resumes alone. */
-export const checksSectionTitles = (locale: string) => locale.toLowerCase().startsWith("en");
+export const checksSectionTitles = (locale: string) => /^(?:en|ar)(?:-|$)/i.test(locale);
 
 const titleRules: AtsRule = (context) => {
 	if (!checksSectionTitles(context.locale)) return [];
@@ -230,7 +230,8 @@ const titleRules: AtsRule = (context) => {
 		if (!title) continue;
 
 		const aliases = SECTION_TITLE_ALIASES[section.type];
-		if (!aliases || aliases.has(title.toLowerCase())) continue;
+		if (!aliases || [...aliases].some((alias) => normalizeSectionHeading(alias) === normalizeSectionHeading(title)))
+			continue;
 
 		findings.push(finding("NON_STANDARD_SECTION_TITLE", `${section.pointer}/title`, { section: section.id, title }));
 	}
