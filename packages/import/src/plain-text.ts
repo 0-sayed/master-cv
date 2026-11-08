@@ -52,6 +52,7 @@ const SECTION_ALIASES: Readonly<Record<string, SectionKey>> = {
 	التطوع: "volunteer",
 	الاهتمامات: "interests",
 	المراجع: "references",
+	الروابط: "profiles",
 	summary: "summary",
 	"professional summary": "summary",
 	"career summary": "summary",
@@ -477,7 +478,7 @@ function buildSectionItems(key: SectionKey, lines: string[], locale: string): un
 	}));
 }
 
-function segment(lines: string[]): { header: string[]; segments: Segment[] } {
+function segment(lines: string[], locale: string): { header: string[]; segments: Segment[] } {
 	const records = lines
 		.map((line, index) => ({ line: line.trim(), precededByBlank: index > 0 && !lines[index - 1]?.trim() }))
 		.filter((record) => record.line);
@@ -496,7 +497,7 @@ function segment(lines: string[]): { header: string[]; segments: Segment[] } {
 			key === null &&
 			index > boundary &&
 			(looksLikeHeading(line) || isolatedTitleCase) &&
-			(current === null || isolatedTitleCase || !introducesEntry(cleaned, index));
+			(current === null || isolatedTitleCase || !introducesEntry(cleaned, index, true, locale));
 
 		if (key !== null || unknown) {
 			if (current) segments.push(current);
@@ -547,13 +548,14 @@ export function parseResumeText(text: string, options: { locale?: string } = {})
 	// compatibility glyphs; retain the raw extraction separately and never fold Arabic letters.
 	const editableText = normalizeImportedText(text);
 	const lines = editableText.replace(/\r\n?/g, "\n").split("\n");
-	const { header, segments } = segment(lines);
+	const locale = options.locale ?? defaultResumeData.metadata.page.locale;
+	const { header, segments } = segment(lines, locale);
 	const contact = parseHeader(header);
 
 	const data: ResumeData = structuredClone(defaultResumeData);
 	const order: string[] = [];
 
-	data.metadata.page.locale = options.locale ?? data.metadata.page.locale;
+	data.metadata.page.locale = locale;
 	data.basics.name = contact.name;
 	data.basics.headline = contact.headline;
 	data.basics.email = contact.email;

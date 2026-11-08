@@ -307,3 +307,22 @@ it("D33 normalizes extracted PDF/plain text digits and marks before recognizing 
 	});
 	expect(JSON.stringify(data)).not.toMatch(/[٠-٩۰-۹\u064B-\u0652\u0670]/u);
 });
+
+it("maps the Arabic links heading into profiles", () => {
+	const data = parseResumeText("أحمد\na@example.test\nالروابط\nGitHub | https://github.com/example\nالمهارات\nPython", {
+		locale: "ar-SA",
+	});
+	expect(data.sections.profiles.items).toMatchObject([
+		{ network: "GitHub", website: { url: "https://github.com/example" } },
+	]);
+});
+it("keeps uppercase employers in experience when entry lookahead has Arabic month dates", () => {
+	const data = parseResumeText(
+		"أحمد\na@example.test\nالخبرة\nACME\nمهندس برمجيات\nيناير ٢٠٢٠ - مارس ٢٠٢٢\n• تطوير الأنظمة",
+		{ locale: "ar-SA" },
+	);
+	expect(data.sections.experience.items).toMatchObject([
+		{ company: "ACME", position: "مهندس برمجيات", dates: { start: "2020-01", end: "2022-03" } },
+	]);
+	expect(data.customSections).toHaveLength(0);
+});
