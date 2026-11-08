@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
@@ -5,7 +6,10 @@ const mocks = vi.hoisted(() => ({
 	env: { APP_URL: "https://rxresu.me", ROOT_RESUME_ID: undefined as string | undefined },
 	serveStatic: vi.fn(() => vi.fn()),
 	getPublicResumeSocialMeta: vi.fn(),
+	getSession: vi.fn(),
 }));
+
+vi.mock("@reactive-resume/auth/config", () => ({ auth: { api: { getSession: mocks.getSession } } }));
 
 vi.mock("@reactive-resume/api/features/resume/social-meta", () => ({
 	getPublicResumeSocialMeta: mocks.getPublicResumeSocialMeta,
@@ -37,6 +41,34 @@ describe("web app fallback classification", () => {
 		mocks.env.ROOT_RESUME_ID = undefined;
 		vi.mocked(fs.readFile).mockResolvedValue("<html>app</html>");
 		mocks.getPublicResumeSocialMeta.mockResolvedValue(null);
+		mocks.getSession.mockResolvedValue(null);
+	});
+
+	it.each([
+		["en-US", "ar-SA"],
+		["ar-SA", "en-US"],
+	])("prerenders the saved %s account preference ahead of a %s cookie", async (saved, cookie) => {
+		mocks.getSession.mockResolvedValue({ user: { uiLocale: saved } });
+		vi.mocked(fs.readFile).mockImplementation((path) => {
+			const locale = String(path).match(/dist-prerender\/home\/(.+)\.html$/)?.[1];
+			return Promise.resolve(`<html><head></head><body>${locale ?? "shell"}</body></html>`);
+		});
+		const response = await handleWebApp(
+			new Request("https://example.com/", {
+				headers: {
+					cookie: `session_token=synthetic; locale=${cookie}`,
+					"x-api-key": "synthetic",
+					authorization: "Bearer synthetic",
+				},
+			}),
+		);
+		expect(await response.text()).toContain(`<body>${saved}</body>`);
+		expect(response.headers.get("cache-control")).toBe("private, no-store");
+		const call = mocks.getSession.mock.calls[0];
+		assert.ok(call);
+		const sessionHeaders = call[0].headers as Headers;
+		expect(sessionHeaders.get("x-api-key")).toBeNull();
+		expect(sessionHeaders.get("authorization")).toBeNull();
 	});
 
 	it("injects canonical metadata and structured data into tracking-parameter root requests only", async () => {
@@ -76,12 +108,12 @@ describe("web app fallback classification", () => {
 			return Promise.resolve(`<html><head></head><body><div id="app">${locale ?? "shell"}</div></body></html>`);
 		});
 
-		const german = await handleWebApp(new Request("https://example.com/?locale=de-DE"));
-		const html = await german.text();
-		expect(html).toContain('<div id="app">de-DE</div>');
-		expect(html).toContain('<link rel="canonical" href="https://rxresu.me/?locale=de-DE">');
+		const english = await handleWebApp(new Request("https://example.com/?locale=en-US"));
+		const html = await english.text();
+		expect(html).toContain('<div id="app">en-US</div>');
+		expect(html).toContain('<link rel="canonical" href="https://rxresu.me/?locale=en-US">');
 		expect(html).toContain('<link rel="alternate" hreflang="x-default" href="https://rxresu.me/">');
-		expect(german.headers.get("Vary")).toBe("Cookie");
+		expect(english.headers.get("Vary")).toBe("Cookie");
 
 		const saved = new Request("https://example.com/", { headers: { cookie: "theme=dark; locale=ar-SA" } });
 		const savedHtml = await (await handleWebApp(saved)).text();
@@ -90,7 +122,7 @@ describe("web app fallback classification", () => {
 
 		// Only known locales name a file, so the parameter can't point anywhere else.
 		const unknown = await handleWebApp(new Request("https://example.com/?locale=../../index"));
-		expect(await unknown.text()).toContain('<div id="app">en-US</div>');
+		expect(await unknown.text()).toContain('<div id="app">ar-SA</div>');
 	});
 
 	describe("the ATS checker page", () => {
@@ -115,12 +147,12 @@ describe("web app fallback classification", () => {
 				);
 			});
 
-			const html = await (await handleWebApp(new Request("https://example.com/ats-checker?locale=de-DE"))).text();
+			const html = await (await handleWebApp(new Request("https://example.com/ats-checker?locale=en-US"))).text();
 
-			expect(html).toContain('<div id="app">de-DE</div>');
-			expect(html).toContain('<link rel="canonical" href="https://rxresu.me/ats-checker?locale=de-DE">');
+			expect(html).toContain('<div id="app">en-US</div>');
+			expect(html).toContain('<link rel="canonical" href="https://rxresu.me/ats-checker?locale=en-US">');
 			expect(html).toContain('<meta property="og:title" content="ATS-Prüfung &amp; mehr">');
-			expect(html).toContain('<meta property="og:locale" content="de_DE">');
+			expect(html).toContain('<meta property="og:locale" content="en_US">');
 		});
 	});
 

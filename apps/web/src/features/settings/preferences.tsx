@@ -32,23 +32,25 @@ export function PreferencesSettings() {
 
 	return (
 		<>
-			<PageHeader title={<Trans>Preferences</Trans>} />
-			<SettingsSection title={<Trans>Appearance</Trans>}>
+			<PageHeader title={<Trans context="account.preferences.title">Preferences</Trans>} />
+			<SettingsSection title={<Trans context="account.theme.label">Appearance</Trans>}>
 				<ThemeTiles />
 				<p className="text-xs text-ink-3">
 					<Trans>Resumes always render on white paper, whatever the theme.</Trans>
 				</p>
 			</SettingsSection>
 
-			<SettingsSection title={<Trans>Language</Trans>}>
+			<SettingsSection title={<Trans context="language.interface.label">Interface language</Trans>}>
 				<div className="grid max-w-80 gap-1.5">
 					<label htmlFor={languageId} className="sr-only">
-						<Trans>Interface language</Trans>
+						<Trans context="language.interface.label">Interface language</Trans>
 					</label>
 					<LocaleCombobox id={languageId} />
 				</div>
 				<p className="text-xs text-ink-3">
-					<Trans>Interface only. Each resume sets its own language in Design.</Trans>{" "}
+					<Trans context="language.interface.independenceHint">
+						Changing the interface language never translates or changes your CVs.
+					</Trans>{" "}
 					<a
 						href="https://crowdin.com/project/reactive-resume"
 						target="_blank"
@@ -133,7 +135,7 @@ function ThemeTiles() {
 					<label
 						key={option.value}
 						className={cn(
-							"flex h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-line-2 bg-surface text-sm font-medium transition-[background-color,border-color,box-shadow,scale] duration-quick ease-enter hover:bg-hover active:scale-[0.97] has-focus-visible:outline-2 has-focus-visible:outline-accent",
+							"flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-line-2 bg-surface px-1 py-2 text-center text-sm font-medium transition-[background-color,border-color,box-shadow,scale] duration-quick ease-enter hover:bg-hover active:scale-[0.97] has-focus-visible:outline-2 has-focus-visible:outline-accent",
 							checked && "border-accent shadow-[0_0_0_3px_var(--accent-soft)]",
 						)}
 					>

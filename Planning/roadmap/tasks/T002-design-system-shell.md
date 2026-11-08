@@ -2,7 +2,7 @@
 
 **Task:** T002 · **PR size:** L · **Branch:** `feat/t002-design-system-shell`
 **Depends on:** T000 · **Priority:** 20
-**Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
+**Status:** Delivery scope agreed 2026-11-08: shared theme/language foundation; screen wording follows its existing feature task (D34). No release approval is asserted.
 **Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
 
 ## Goal
@@ -15,9 +15,9 @@ journey.
 - Map current semantic tokens, Base UI components and Phosphor icons to the design system; preserve APIs and
   light/dark behavior.
 - Implement root interface locale/direction/persistence using the existing locale and Lingui setup; every enabled
-  route needs full Arabic and English UI.
-- Own Planning/context/design/copy-deck.json as the English UI copy contract. Reconcile parallel delivery; each
-  feature task adds its keys there and in existing runtime catalogs.
+  route uses the shared locale provider. Complete screen wording is delivered by its existing feature owner.
+- Maintain Planning/context/design/copy-deck.json as the shared copy contract and validate the bindings delivered
+  by this task. Each feature task reconciles its screen wording, keys and runtime catalogs before release.
 - Provide navigation, forms, alerts, status/loading/empty/error patterns, dialogs/sheets and accessible locale
   switching.
 - Provide shared phone/OTP fields and result-severity/status primitives; auth policy belongs to T003/T009 and ATS
@@ -28,6 +28,8 @@ journey.
 
 - No new editor, auth protocol, AI executor, billing service or parallel UI library.
 - No mass component replacement or invented English copy where the deck is incomplete.
+- No requirement to finish wording across the entire inherited app in T002. This delivery boundary does not
+  approve retained exposure or waive the complete bilingual release contract.
 
 ## Requirement IDs
 
@@ -88,13 +90,15 @@ deferred.
 
 ## Acceptance evidence
 
-- Test locale switching on representative public/account/editor/billing/privacy routes without changing any CV
-  content.
+- Test shared locale/theme behavior on existing public/account/editor consumers without changing CV content,
+  pending saves, editor undo/redo or an open form. Billing/privacy and other complete journeys are qualified by their
+  existing feature owners; no simulated completion is accepted.
 - Verify keyboard order, focus restoration, labels/errors, contrast, zoom/reflow, reduced motion, dialogs/sheets and
   touch targets against the WCAG 2.2 AA project target.
 - Check actual font faces, mixed-direction text, long labels and responsive light/dark navigation.
-- A07 is the owning interaction/accessibility gate; feature owners contribute real journeys. A13 independently gates
-  inherited feature exposure.
+- A07 remains the owning full-product interaction/accessibility gate; T002 supplies foundation evidence.
+  Manual assistive-technology/device and complete-journey qualification remain release work with feature owners.
+  A13 independently gates inherited feature exposure.
 - ALWAYS check Arabic RTL and English LTR at desktop 1440 and mobile 390, with the correct loaded fonts and direction.
   For non-UI work, exercise the affected consumer journey; document any unavailable browser/visual evidence as
   blocked.
@@ -107,8 +111,9 @@ deferred.
 
 - D11: visual/font direction needs owner review and licensed assets; unavailable authorized Figma access blocks visual
   verification.
-- The parallel copy deck must exist with reconciled keys before release of English UI; missing entries remain explicit
-  integration blockers.
+- The parallel copy deck must have reconciled keys before release of English UI. Full-app copy diagnostics remain
+  explicit release integration blockers with named feature owners; they do not block delivery of the agreed T002
+  foundation. Use `copy:check:bindings` for delivered bindings and retain `copy:check` for the full release audit.
 
 ## Done definition
 

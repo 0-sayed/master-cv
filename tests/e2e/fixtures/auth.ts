@@ -63,8 +63,10 @@ export async function createAuthenticatedContext(
 ): Promise<BrowserContext> {
 	await registerViaApi(request, account, baseURL);
 
-	return browser.newContext({
+	const context = await browser.newContext({
 		baseURL,
 		storageState: await request.storageState(),
 	});
+	await context.addCookies([{ name: "locale", value: "en-US", url: baseURL }]);
+	return context;
 }

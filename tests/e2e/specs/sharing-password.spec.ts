@@ -19,6 +19,8 @@ test("password-protects a public resume and unlocks it as a visitor", async ({ b
 
 	const anonymous = await browser.newPage();
 	try {
+		// This scenario asserts English controls; a fresh visitor otherwise defaults to Arabic.
+		await anonymous.context().addCookies([{ name: "locale", value: "en-US", url: publicUrl }]);
 		// Anonymous visitors hit the password gate first
 		await anonymous.goto(publicUrl);
 		await anonymous.waitForURL(/\/auth\/resume-password/);

@@ -6,6 +6,7 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { cn } from "@reactive-resume/utils/style";
 import { goToScene, prefersReducedMotion, SCENE, useLanding } from "./scroll";
 import { CtaLink } from "./ui";
+import { LocaleSwitch } from "@/features/locale/switch";
 import { useTheme } from "@/features/theme/provider";
 import { orpc } from "@/libs/orpc/client";
 
@@ -30,7 +31,7 @@ export function LandingHeader() {
 		<header
 			className={cn(
 				// The ink fades to light with Share's sky (--nt), so it never jumps against a half-dark background.
-				"night-ink fixed inset-x-0 top-0 z-70 flex h-16 items-center gap-7 ps-(--gutter) pe-[calc(var(--gutter)+30px)] whitespace-nowrap",
+				"night-ink fixed inset-x-0 top-0 z-70 flex min-h-16 items-center gap-2 ps-(--gutter) pe-[calc(var(--gutter)+30px)] sm:gap-7",
 			)}
 		>
 			<div
@@ -85,6 +86,7 @@ export function LandingHeader() {
 			</nav>
 
 			<div className="ms-auto flex items-center gap-2">
+				<LocaleSwitch compact />
 				<GithubLink />
 				<CtaLink size="header" />
 			</div>

@@ -3,7 +3,7 @@ import type { Locale } from "@reactive-resume/utils/locale";
 import { i18n } from "@lingui/core";
 import { msg } from "@lingui/core/macro";
 import Cookies from "js-cookie";
-import { defaultLocale, isLocale } from "@reactive-resume/utils/locale";
+import { defaultLocale, isLocale, resolveUiLocale } from "@reactive-resume/utils/locale";
 
 const storageKey = "locale";
 const messageLoaders = import.meta.glob<{ messages: Messages }>("../../locales/*.po");
@@ -78,13 +78,13 @@ export const resolveLocale = (locale: string): Locale => {
 	return isLocale(locale) ? locale : defaultLocale;
 };
 
-// Changing the locale reloads the page (`changeLocale`), so one formatter per locale is enough.
+// Formatter instances are cached by locale, independently of interface switches.
 const relativeTimeFormatters = new Map<string, Intl.RelativeTimeFormat>();
 
 function getRelativeTimeFormatter(locale: string) {
 	let formatter = relativeTimeFormatters.get(locale);
 	if (!formatter) {
-		formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+		formatter = new Intl.RelativeTimeFormat(new Intl.Locale(locale, { numberingSystem: "latn" }), { numeric: "auto" });
 		relativeTimeFormatters.set(locale, formatter);
 	}
 	return formatter;
@@ -103,18 +103,12 @@ export function formatRelativeTime(value: Date | string, locale: string) {
 		: formatter.format(0, "second");
 }
 
-export const getLocale = () => {
-	// A `?locale=` address (the homepage's hreflang alternates) picks the language and keeps it, like the switcher.
-	const requested = new URLSearchParams(window.location.search).get(storageKey);
-	if (isLocale(requested)) {
-		Cookies.set(storageKey, requested);
-		return requested;
-	}
-
-	const locale = Cookies.get(storageKey);
-	if (!locale || !isLocale(locale)) return defaultLocale;
-	return locale;
-};
+export const getLocale = (saved?: unknown) =>
+	resolveUiLocale({
+		requested: new URLSearchParams(window.location.search).get(storageKey),
+		saved,
+		cookie: Cookies.get(storageKey),
+	});
 
 const loadMessages = async (locale: Locale) => {
 	const load = messageLoaders[`../../locales/${locale}.po`];
@@ -124,6 +118,16 @@ const loadMessages = async (locale: Locale) => {
 	const { messages } = await load();
 	return messages;
 };
+
+/** UI loads fail visibly; English fallback remains available for inherited document translations only. */
+export async function getUiLocaleMessages(locale: import("@reactive-resume/utils/locale").UiLocale) {
+	return { locale, locales: locale === "ar-SA" ? "ar-SA-u-nu-latn" : "en-US", messages: await loadMessages(locale) };
+}
+
+export async function loadUiLocale(locale: import("@reactive-resume/utils/locale").UiLocale) {
+	if (i18n.locale === locale) return;
+	i18n.loadAndActivate(await getUiLocaleMessages(locale));
+}
 
 export const getLocaleMessages = async (locale: string) => {
 	const resolvedLocale = resolveLocale(locale);
@@ -136,17 +140,4 @@ export const getLocaleMessages = async (locale: string) => {
 		messages = await loadMessages(defaultLocale);
 		return { locale: defaultLocale, messages };
 	}
-};
-
-export const loadLocale = async (locale: string) => {
-	// Re-activating the active locale emits "change" and re-renders every translated component.
-	if (i18n.locale === locale) return;
-	const { locale: resolvedLocale, messages } = await getLocaleMessages(locale);
-	i18n.loadAndActivate({ locale: resolvedLocale, messages });
-};
-
-export const changeLocale = (value: string | null) => {
-	if (!value || !isLocale(value)) return;
-	Cookies.set(storageKey, value);
-	window.location.reload();
 };

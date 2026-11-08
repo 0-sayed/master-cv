@@ -13,6 +13,7 @@
 		"./string": "./src/string.ts",
 		"./style": "./src/style.ts",
 		"./timezone": "./src/timezone.ts",
+		"./ui-format": "./src/ui-format.ts",
 		"./url-security.node": "./src/url-security.node.ts"
 	},
 	"scripts": {

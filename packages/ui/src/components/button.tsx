@@ -5,7 +5,7 @@ import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { cn } from "@reactive-resume/utils/style";
 
 const buttonVariants = cva(
-	"group/button touch-target relative inline-flex shrink-0 items-center justify-center gap-2 border border-transparent text-sm font-medium whitespace-nowrap transition-[background-color,border-color,color,filter,scale] duration-quick ease-enter select-none disabled:pointer-events-none aria-busy:cursor-progress [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+	"group/button touch-target relative inline-flex max-w-full shrink-0 items-center justify-center gap-2 border border-transparent text-sm leading-[22px] font-medium whitespace-normal transition-[background-color,border-color,color,filter,scale] duration-quick ease-enter select-none disabled:pointer-events-none aria-busy:cursor-progress pointer-coarse:min-h-12 pointer-coarse:min-w-12 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 	{
 		variants: {
 			variant: {
@@ -14,13 +14,13 @@ const buttonVariants = cva(
 					"border-line-2 bg-surface text-ink hover:bg-sunken active:bg-press disabled:border-line disabled:text-ink-3 aria-expanded:bg-sunken",
 				ghost: "text-ink hover:bg-hover active:bg-press disabled:text-ink-3 aria-expanded:bg-hover",
 				danger:
-					"bg-danger text-white hover:brightness-[0.92] focus-visible:outline-danger disabled:bg-sunken disabled:text-ink-3",
+					"bg-danger text-on-danger hover:brightness-[0.92] focus-visible:outline-danger disabled:bg-sunken disabled:text-ink-3",
 				link: "h-auto! border-0 px-0! text-accent-text underline-offset-4 hover:underline",
 			},
 			size: {
-				default: "h-9 rounded-md px-3.5",
+				default: "min-h-11 rounded-md px-3.5 py-2.5",
 				sm: "h-7 gap-1.5 rounded-sm px-2.5 text-[13px]",
-				lg: "h-11 rounded-lg px-4 text-base",
+				lg: "min-h-12 rounded-lg px-4 py-3 text-base",
 				icon: "size-9 rounded-md",
 				"icon-sm": "size-8 rounded-md",
 				"icon-xs": "size-7 rounded-sm",
@@ -28,6 +28,7 @@ const buttonVariants = cva(
 			},
 		},
 		compoundVariants: [
+			{ variant: "link", className: "min-h-0 py-0 pointer-coarse:min-h-0" },
 			{ variant: "ghost", size: "default", className: "px-3" },
 			// Press feedback; a text link doesn't press, and a loading button blocks activation.
 			{ variant: ["primary", "secondary", "ghost", "danger"], className: "not-aria-busy:active:scale-[0.97]" },

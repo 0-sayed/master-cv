@@ -28,12 +28,16 @@ export function NavigationCommandGroup() {
 
 				<CommandItem
 					disabled={!session}
-					keywords={[t`Documents`, t`Resumes`, t`Cover letters`]}
+					keywords={[
+						t({ message: "Documents", context: "editor.mobileNav.documents" }),
+						t`Resumes`,
+						t({ message: "Cover letters", context: "editor.navigation.letters" }),
+					]}
 					value="navigation.documents"
 					onSelect={() => onNavigate("/dashboard")}
 				>
 					<Icon name="file-text" size={16} />
-					<Trans>Documents</Trans>
+					<Trans context="editor.mobileNav.documents">Documents</Trans>
 				</CommandItem>
 
 				<CommandItem
@@ -70,12 +74,12 @@ export function NavigationCommandGroup() {
 
 				<CommandItem
 					disabled={!session}
-					keywords={[t`Applications`, t`Jobs`]}
+					keywords={[t({ message: "Applications", context: "editor.navigation.applications" }), t`Jobs`]}
 					value="navigation.applications"
 					onSelect={() => onNavigate("/dashboard/applications")}
 				>
 					<Icon name="briefcase" size={16} />
-					<Trans>Applications</Trans>
+					<Trans context="editor.navigation.applications">Applications</Trans>
 				</CommandItem>
 
 				<CommandItem
@@ -93,19 +97,19 @@ export function NavigationCommandGroup() {
 
 				<CommandItem
 					disabled={!session}
-					keywords={[t`Settings`]}
+					keywords={[t({ message: "Settings", context: "account.navigation.settings" })]}
 					value="navigation.settings"
 					onSelect={() => pushPage("settings")}
 				>
 					<Icon name="gear-six" size={16} />
-					<Trans>Settings</Trans>
+					<Trans context="account.navigation.settings">Settings</Trans>
 				</CommandItem>
 			</BaseCommandGroup>
 
-			<BaseCommandGroup page="settings" heading={<Trans>Settings</Trans>}>
+			<BaseCommandGroup page="settings" heading={<Trans context="account.navigation.settings">Settings</Trans>}>
 				<CommandItem
 					keywords={[
-						t`Account`,
+						t({ message: "Account", context: "account.settings.accountTab" }),
 						t`Profile`,
 						t`Password`,
 						t`Two-step verification`,
@@ -117,16 +121,16 @@ export function NavigationCommandGroup() {
 					onSelect={() => onNavigate("/dashboard/settings/account")}
 				>
 					<Icon name="user-circle" size={16} />
-					<Trans>Account</Trans>
+					<Trans context="account.settings.accountTab">Account</Trans>
 				</CommandItem>
 
 				<CommandItem
-					keywords={[t`Preferences`, t`Theme`, t`Language`]}
+					keywords={[t({ message: "Preferences", context: "account.preferences.title" }), t`Theme`, t`Language`]}
 					value="navigation.settings.preferences"
 					onSelect={() => onNavigate("/dashboard/settings/preferences")}
 				>
 					<Icon name="gear-six" size={16} />
-					<Trans>Preferences</Trans>
+					<Trans context="account.preferences.title">Preferences</Trans>
 				</CommandItem>
 
 				<CommandItem

@@ -22,6 +22,7 @@ import * as schema from "@reactive-resume/db/schema";
 import { ResetPasswordEmail, VerifyEmail, VerifyEmailChange } from "@reactive-resume/email/templates/auth";
 import { sendEmail } from "@reactive-resume/email/transport";
 import { env } from "@reactive-resume/env/server";
+import { uiLocaleSchema } from "@reactive-resume/utils/locale";
 import { rateLimitConfig } from "@reactive-resume/utils/rate-limit";
 import { generateId, toUsername } from "@reactive-resume/utils/string";
 import { timezoneSchema } from "@reactive-resume/utils/timezone";
@@ -349,6 +350,7 @@ const getAuthConfig = () => {
 				},
 			},
 			additionalFields: {
+				uiLocale: { type: "string", required: false, validator: { input: uiLocaleSchema } },
 				username: {
 					type: "string",
 					required: true,

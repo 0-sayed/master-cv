@@ -1038,11 +1038,7 @@ msgstr "Accessibility"
 msgid "Accomplishment"
 msgstr "Accomplishment"
 
-#: src/features/command-palette/pages/navigation.tsx
 #: src/features/settings/account/page.tsx
-#: src/features/settings/root.tsx
-#: src/routes/dashboard/-components/app-shell.tsx
-#: src/routes/dashboard/settings/route.tsx
 msgid "Account"
 msgstr "Account"
 
@@ -1708,10 +1704,6 @@ msgstr "App"
 msgid "App navigation"
 msgstr "App navigation"
 
-#: src/features/settings/preferences.tsx
-msgid "Appearance"
-msgstr "Appearance"
-
 #: src/features/resume/editor/write/entry-card.tsx
 msgid "Appears on the page once it has a company."
 msgstr "Appears on the page once it has a company."
@@ -1818,9 +1810,7 @@ msgstr "Application updated."
 #: src/features/career/coach-thread.tsx
 #: src/features/career/coach.tsx
 #: src/features/career/workspace/shell.tsx
-#: src/features/command-palette/pages/navigation.tsx
 #: src/features/command-palette/pages/resumes.tsx
-#: src/routes/dashboard/-components/app-shell.tsx
 #: src/routes/dashboard/applications/index.tsx
 msgid "Applications"
 msgstr "Applications"
@@ -2382,10 +2372,6 @@ msgstr "Change connection"
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "Change it in Design."
 msgstr "Change it in Design."
-
-#: src/routes/_home/-sections/header.tsx
-msgid "Change language"
-msgstr "Change language"
 
 #: src/features/command-palette/pages/preferences/index.tsx
 msgid "Change language to…"
@@ -3553,7 +3539,6 @@ msgstr "Cover letter imported"
 msgid "Cover letter submitted (optional)"
 msgstr "Cover letter submitted (optional)"
 
-#: src/features/command-palette/pages/navigation.tsx
 #: src/features/homepage/sections.tsx
 msgid "Cover letters"
 msgstr "Cover letters"
@@ -3689,12 +3674,6 @@ msgstr "Daily views over 30 days, peak {0}"
 #: src/libs/locale.ts
 msgid "Danish"
 msgstr "Danish"
-
-#. Appearance theme option for dark mode
-#: src/features/user/dropdown-menu.tsx
-#: src/libs/theme.ts
-msgid "Dark"
-msgstr "Dark"
 
 #: src/features/command-palette/pages/preferences/theme.tsx
 msgid "Dark theme"
@@ -4049,9 +4028,7 @@ msgstr "Document type"
 msgid "Documentation"
 msgstr "Documentation"
 
-#: src/features/command-palette/pages/navigation.tsx
 #: src/features/documents/documents-page.tsx
-#: src/routes/dashboard/-components/app-shell.tsx
 msgid "Documents"
 msgstr "Documents"
 
@@ -5713,14 +5690,6 @@ msgstr "Integrations"
 msgid "Interests"
 msgstr "Interests"
 
-#: src/features/settings/preferences.tsx
-msgid "Interface language"
-msgstr "Interface language"
-
-#: src/features/settings/preferences.tsx
-msgid "Interface only. Each resume sets its own language in Design."
-msgstr "Interface only. Each resume sets its own language in Design."
-
 #: src/features/applications/stages.ts
 #: src/features/career/schedule-sheet.tsx
 #: src/features/homepage/prepare.tsx
@@ -6153,7 +6122,6 @@ msgstr "Landscape"
 #: src/features/command-palette/pages/preferences/language.tsx
 #: src/features/resume/editor/design/style-groups.tsx
 #: src/features/resume/editor/write/entries.tsx
-#: src/features/settings/preferences.tsx
 #: src/features/user/dropdown-menu.tsx
 #: src/routes/builder/$resumeId/-components/document-details.tsx
 msgid "Language"
@@ -6349,12 +6317,6 @@ msgstr "Licensed under <0>MIT</0>"
 #: src/features/ats-checker/messages.ts
 msgid "Ligatures can drop letters out of words such as \"workflow\"."
 msgstr "Ligatures can drop letters out of words such as \"workflow\"."
-
-#. Appearance theme option for light mode
-#: src/features/user/dropdown-menu.tsx
-#: src/libs/theme.ts
-msgid "Light"
-msgstr "Light"
 
 #: src/features/command-palette/pages/preferences/theme.tsx
 msgid "Light theme"
@@ -8433,11 +8395,7 @@ msgstr "Prefer a single column, or keep the side column to short, self-contained
 msgid "Preference"
 msgstr "Preference"
 
-#: src/features/command-palette/pages/navigation.tsx
 #: src/features/command-palette/pages/preferences/index.tsx
-#: src/features/settings/preferences.tsx
-#: src/features/settings/root.tsx
-#: src/routes/dashboard/settings/route.tsx
 msgid "Preferences"
 msgstr "Preferences"
 
@@ -10136,10 +10094,6 @@ msgid "Set up web search in Settings"
 msgstr "Set up web search in Settings"
 
 #: src/features/command-palette/pages/navigation.tsx
-#: src/features/settings/root.tsx
-#: src/features/user/dropdown-menu.tsx
-#: src/routes/dashboard/-components/app-shell.tsx
-#: src/routes/dashboard/settings/route.tsx
 msgid "Settings"
 msgstr "Settings"
 
@@ -10350,7 +10304,6 @@ msgstr "Sign in with your fingerprint, face or device PIN"
 
 #. User menu action to sign out of current account
 #: src/features/settings/account/page.tsx
-#: src/features/user/dropdown-menu.tsx
 msgid "Sign out"
 msgstr "Sign out"
 
@@ -10564,8 +10517,12 @@ msgstr "Something went wrong while reading that file. Try again."
 msgid "Something went wrong while signing you in. Please try again."
 msgstr "Something went wrong while signing you in. Please try again."
 
+#: src/features/command-palette/pages/preferences/language.tsx
+#: src/features/locale/combobox.tsx
+#: src/features/locale/switch.tsx
 #: src/features/resume/builder/password-dialog.tsx
 #: src/features/resume/share/link-tab.tsx
+#: src/features/user/dropdown-menu.tsx
 msgid "Something went wrong. Please try again."
 msgstr "Something went wrong. Please try again."
 
@@ -10988,12 +10945,6 @@ msgstr "Switched to one column"
 #: src/features/resume/builder/draft.ts
 msgid "Synced changes made in another tab."
 msgstr "Synced changes made in another tab."
-
-#. Appearance theme option that follows the operating system
-#: src/features/user/dropdown-menu.tsx
-#: src/libs/theme.ts
-msgid "System"
-msgstr "System"
 
 #: src/features/resume/editor/check/issues.ts
 msgid "Systems file you under the name at the top of the page."
@@ -13443,3 +13394,104 @@ msgstr "Analysis is incomplete. No overall score is available."
 #: src/features/ats-checker/report/report-view.tsx
 msgid "No overall score is available."
 msgstr "No overall score is available."
+
+#: src/features/locale/switch.tsx
+msgctxt "language.switch.english"
+msgid "EN"
+msgstr "EN"
+
+#: src/features/locale/switch.tsx
+msgctxt "language.switch.arabic"
+msgid "عربي"
+msgstr "عربي"
+
+#: src/features/locale/switch.tsx
+msgctxt "language.switch.arabicAccessible"
+msgid "Switch interface to Arabic"
+msgstr "Switch interface to Arabic"
+
+#: src/features/locale/switch.tsx
+msgctxt "language.switch.englishAccessible"
+msgid "Switch interface to English"
+msgstr "Switch interface to English"
+
+#: src/features/command-palette/pages/navigation.tsx
+#: src/features/settings/root.tsx
+#: src/features/user/dropdown-menu.tsx
+#: src/routes/dashboard/-components/app-shell.tsx
+#: src/routes/dashboard/settings/route.tsx
+msgctxt "account.navigation.settings"
+msgid "Settings"
+msgstr "Settings"
+
+#: src/features/command-palette/pages/navigation.tsx
+#: src/features/settings/root.tsx
+#: src/routes/dashboard/-components/app-shell.tsx
+#: src/routes/dashboard/settings/route.tsx
+msgctxt "account.settings.accountTab"
+msgid "Account"
+msgstr "Account"
+
+#: src/features/command-palette/pages/navigation.tsx
+#: src/features/settings/preferences.tsx
+#: src/features/settings/root.tsx
+#: src/routes/dashboard/settings/route.tsx
+msgctxt "account.preferences.title"
+msgid "Preferences"
+msgstr "Preferences"
+
+#: src/features/settings/preferences.tsx
+msgctxt "account.theme.label"
+msgid "Appearance"
+msgstr "Appearance"
+
+#: src/features/user/dropdown-menu.tsx
+#: src/libs/theme.ts
+msgctxt "account.theme.light"
+msgid "Light"
+msgstr "Light"
+
+#: src/features/user/dropdown-menu.tsx
+#: src/libs/theme.ts
+msgctxt "account.theme.dark"
+msgid "Dark"
+msgstr "Dark"
+
+#: src/features/user/dropdown-menu.tsx
+#: src/libs/theme.ts
+msgctxt "account.theme.system"
+msgid "Match my device"
+msgstr "Match my device"
+
+#: src/features/settings/preferences.tsx
+msgctxt "language.interface.label"
+msgid "Interface language"
+msgstr "Interface language"
+
+#: src/features/settings/preferences.tsx
+msgctxt "language.interface.independenceHint"
+msgid "Changing the interface language never translates or changes your CVs."
+msgstr "Changing the interface language never translates or changes your CVs."
+
+#: src/features/command-palette/pages/navigation.tsx
+#: src/routes/dashboard/-components/app-shell.tsx
+msgctxt "editor.mobileNav.documents"
+msgid "Documents"
+msgstr "Documents"
+
+#: src/features/command-palette/pages/navigation.tsx
+#: src/routes/dashboard/-components/app-shell.tsx
+msgctxt "editor.navigation.applications"
+msgid "Applications"
+msgstr "Applications"
+
+#: src/features/command-palette/pages/navigation.tsx
+msgctxt "editor.navigation.letters"
+msgid "Cover letters"
+msgstr "Cover letters"
+
+#. User menu action to sign out of current account
+#: src/features/user/dropdown-menu.tsx
+msgctxt "account.session.signOut"
+msgid "Sign out"
+msgstr "Sign out"

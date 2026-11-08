@@ -19,10 +19,12 @@ import {
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { isUiLocale, productUiLocales } from "@reactive-resume/utils/locale";
+import { useUiLocale } from "@/features/locale/provider";
 import { useTheme } from "@/features/theme/provider";
 import { authClient } from "@/libs/auth/client";
 import { getReadableErrorMessage } from "@/libs/error-message";
-import { changeLocale, localeMap } from "@/libs/locale";
+import { localeMap } from "@/libs/locale";
 import { isTheme } from "@/libs/theme";
 
 type Props = {
@@ -34,6 +36,7 @@ export function UserDropdownMenu({ children }: Props) {
 	const queryClient = useQueryClient();
 	const { i18n } = useLingui();
 	const { theme, setTheme } = useTheme();
+	const { locale, pending, changeLocale } = useUiLocale();
 	const { data: session } = authClient.useSession();
 
 	const handleThemeChange = (value: string) => {
@@ -77,7 +80,7 @@ export function UserDropdownMenu({ children }: Props) {
 			<DropdownMenuContent align="start" side="top">
 				<DropdownMenuItem onClick={() => void router.navigate({ to: "/dashboard/settings" })}>
 					<Icon name="gear-six" />
-					<Trans>Settings</Trans>
+					<Trans context="account.navigation.settings">Settings</Trans>
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
@@ -87,10 +90,18 @@ export function UserDropdownMenu({ children }: Props) {
 							<Trans comment="Menu item that opens language selection submenu">Language</Trans>
 						</DropdownMenuSubTrigger>
 						<DropdownMenuSubContent className="max-h-[400px] overflow-y-auto">
-							<DropdownMenuRadioGroup value={i18n.locale} onValueChange={changeLocale}>
-								{Object.entries(localeMap).map(([value, label]) => (
-									<DropdownMenuRadioItem key={value} value={value}>
-										{i18n.t(label)}
+							<DropdownMenuRadioGroup
+								value={locale}
+								onValueChange={(value) => {
+									if (isUiLocale(value))
+										void changeLocale(value).catch(() =>
+											toast.add({ type: "error", description: t`Something went wrong. Please try again.` }),
+										);
+								}}
+							>
+								{productUiLocales.map((value) => (
+									<DropdownMenuRadioItem key={value} value={value} disabled={pending}>
+										{i18n.t(localeMap[value])}
 									</DropdownMenuRadioItem>
 								))}
 							</DropdownMenuRadioGroup>
@@ -105,13 +116,13 @@ export function UserDropdownMenu({ children }: Props) {
 						<DropdownMenuSubContent>
 							<DropdownMenuRadioGroup value={theme} onValueChange={handleThemeChange}>
 								<DropdownMenuRadioItem value="light">
-									<Trans comment="Appearance theme option for light mode">Light</Trans>
+									<Trans context="account.theme.light">Light</Trans>
 								</DropdownMenuRadioItem>
 								<DropdownMenuRadioItem value="dark">
-									<Trans comment="Appearance theme option for dark mode">Dark</Trans>
+									<Trans context="account.theme.dark">Dark</Trans>
 								</DropdownMenuRadioItem>
 								<DropdownMenuRadioItem value="system">
-									<Trans comment="Appearance theme option that follows the operating system">System</Trans>
+									<Trans context="account.theme.system">Match my device</Trans>
 								</DropdownMenuRadioItem>
 							</DropdownMenuRadioGroup>
 						</DropdownMenuSubContent>
@@ -122,7 +133,9 @@ export function UserDropdownMenu({ children }: Props) {
 
 				<DropdownMenuItem onClick={handleLogout}>
 					<Icon name="sign-out" size={16} />
-					<Trans comment="User menu action to sign out of current account">Sign out</Trans>
+					<Trans context="account.session.signOut" comment="User menu action to sign out of current account">
+						Sign out
+					</Trans>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

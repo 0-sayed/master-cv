@@ -425,3 +425,11 @@ Pinned implementation references and standards follow; links do not establish cu
 - **DS09** W3C: [WCAG target size minimum](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html).
 - **DS10** Noto: [Arabic font project](https://notofonts.github.io/arabic/). Font binaries are not included in this handoff.
 - **DS12** Client requirements: see [product scope](../business/product.md#product-scope) and [candidate requirements](../business/requirements.md#candidate-requirements). Arabic/English and reviewed output are inherited requirements, not additions made solely for visual styling.
+
+### Incremental foundation delivery (D34, 2026-11-08)
+
+T002 delivers the shared theme/language foundation and its integrated copy bindings. Each existing feature task
+owns its complete screen wording and recovery states. `copy:check:bindings` verifies delivered semantic identities,
+AR/EN text and source origins; it is not full-app coverage or owner copy approval. `copy:check` remains the full
+release audit and continues reporting inherited gaps. The complete bilingual, accessibility and exposure release
+contracts above remain unchanged. See [D34](../decisions.md#d34--t002-foundation-delivery-boundary--2026-11-08).

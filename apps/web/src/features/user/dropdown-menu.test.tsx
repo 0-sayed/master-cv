@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { LocaleProvider } from "@/features/locale/provider";
 
 type SignOutOptions = { fetchOptions: { onSuccess: () => void } };
 
@@ -55,7 +56,9 @@ describe("UserDropdownMenu", () => {
 		render(
 			<I18nProvider i18n={i18n}>
 				<QueryClientProvider client={queryClient}>
-					<UserDropdownMenu>{() => <button type="button" />}</UserDropdownMenu>
+					<LocaleProvider locale="en-US" session={null}>
+						<UserDropdownMenu>{() => <button type="button" />}</UserDropdownMenu>
+					</LocaleProvider>
 				</QueryClientProvider>
 			</I18nProvider>,
 		);

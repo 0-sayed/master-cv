@@ -11,6 +11,10 @@ type Fixtures = {
 };
 
 export const test = base.extend<Fixtures>({
+	context: async ({ context, baseURL }, use) => {
+		await context.addCookies([{ name: "locale", value: "en-US", url: baseURL ?? "http://localhost:3000" }]);
+		await use(context);
+	},
 	account: async ({ baseURL: _baseURL }, use, testInfo) => {
 		const account = createAccount(testInfo);
 

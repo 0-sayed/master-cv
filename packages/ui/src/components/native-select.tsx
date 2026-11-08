@@ -10,7 +10,7 @@ function NativeSelect({ className, children, ...props }: React.ComponentProps<"s
 			<select
 				className={cn(
 					inputBaseClassName,
-					"h-9 cursor-pointer appearance-none ps-3 pe-9 pointer-coarse:h-11",
+					"h-11 cursor-pointer appearance-none ps-3 pe-9 pointer-coarse:h-12",
 					className,
 				)}
 				{...props}

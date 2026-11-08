@@ -4,6 +4,8 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
+		"copy:check": "tsx locales/check-copy.ts",
+		"copy:check:bindings": "tsx locales/check-copy.ts --bindings",
 		"db:reset": "tsx database/reset.ts",
 		"docs:gen": "tsx semantic-css/generate-reference.ts",
 		"test": "vp test run --passWithNoTests",
@@ -17,17 +19,22 @@
 		"@reactive-resume/schema": "workspace:*"
 	},
 	"devDependencies": {
-		"node-html-parser": "9.0.5",
+		"@lingui/core": "catalog:",
 		"@lingui/format-po": "^6.10.0",
+		"@lingui/message-utils": "catalog:",
 		"@phosphor-icons/react": "^2.1.10",
 		"@reactive-resume/config": "workspace:*",
 		"@reactive-resume/env": "workspace:*",
+		"@reactive-resume/import": "workspace:*",
+		"@reactive-resume/pdf": "workspace:*",
 		"@reactive-resume/resume": "workspace:*",
 		"@types/pg": "catalog:",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
 		"drizzle-orm": "catalog:",
 		"esbuild": "catalog:",
+		"node-html-parser": "9.0.5",
+		"pdfjs-dist": "6.4.299",
 		"pg": "catalog:",
 		"react": "19.3.1",
 		"react-dom": "19.3.1",
@@ -35,9 +42,6 @@
 		"tsx": "^4.23.15",
 		"vite-plus": "catalog:",
 		"wrangler": "catalog:",
-		"@reactive-resume/pdf": "workspace:*",
-		"@reactive-resume/import": "workspace:*",
-		"pdfjs-dist": "6.4.299",
 		"zod": "catalog:"
 	}
 }

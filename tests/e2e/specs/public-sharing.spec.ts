@@ -16,6 +16,8 @@ test("counts a visitor's PDF download without counting the preview", async ({ br
 
 	const anonymous = await browser.newPage();
 	try {
+		// This scenario asserts English controls; a fresh visitor otherwise defaults to Arabic.
+		await anonymous.context().addCookies([{ name: "locale", value: "en-US", url: publicUrl }]);
 		await anonymous.goto(publicUrl);
 		await expect(anonymous.getByRole("button", { name: "Download PDF" }).first()).toBeVisible();
 		await expect.poll(readStatistics).toMatchObject({ views: 1, downloads: 0, lastDownloadedAt: null });

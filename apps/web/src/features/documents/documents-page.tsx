@@ -29,6 +29,7 @@ import { LibraryError } from "./library-error";
 import { useStartDocument } from "./new-document-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { useDialogStore } from "@/dialogs/store";
+import { useUiLocale } from "@/features/locale/provider";
 import { isEditableElementFocused } from "@/features/resume/builder/draft";
 import { orpc } from "@/libs/orpc/client";
 
@@ -52,6 +53,7 @@ type DocumentsPageProps = {
  * chips once tags exist. A file dropped anywhere on the page imports straight away.
  */
 export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
+	const { locale } = useUiLocale();
 	const openDialog = useDialogStore((state) => state.openDialog);
 	const searchRef = useRef<HTMLInputElement>(null);
 	const [tagsFor, setTagsFor] = useState<DocumentSummary[] | null>(null);
@@ -92,8 +94,8 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 	const all = documents ?? [];
 	const failed = isError && !documents;
 	const firstRun = !isPending && all.length === 0;
-	const shown = filterDocuments(all, search);
-	const tags = collectTags(all);
+	const shown = filterDocuments(all, search, locale);
+	const tags = collectTags(all, locale);
 	const counts = {
 		all: all.length,
 		resume: all.filter((document) => document.type === "resume").length,
@@ -127,7 +129,7 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 	});
 
 	return (
-		<div className="mx-auto grid w-full max-w-[1180px] content-start gap-5 px-8 py-8 max-sm:px-4 max-sm:py-5">
+		<div className="mx-auto grid w-full max-w-[1180px] content-start gap-5 px-7 py-8 max-sm:px-[18px] max-sm:py-5 lg:px-10">
 			<PageHeader title={<Trans>Documents</Trans>}>
 				{!failed && !firstRun && (
 					<>

@@ -1,6 +1,52 @@
 @import "@reactive-resume/ui/globals.css";
 @import "./features/homepage/landing.css";
 
+@font-face {
+	font-family: "Noto Sans Arabic";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("/fonts/noto-sans-arabic/2.009/NotoSansArabic-Regular.ttf") format("truetype");
+}
+
+@font-face {
+	font-family: "Noto Sans Arabic";
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url("/fonts/noto-sans-arabic/2.009/NotoSansArabic-Medium.ttf") format("truetype");
+}
+
+@font-face {
+	font-family: "Noto Sans Arabic";
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url("/fonts/noto-sans-arabic/2.009/NotoSansArabic-SemiBold.ttf") format("truetype");
+}
+
+@font-face {
+	font-family: "Noto Sans";
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url("/fonts/noto-sans-ui/86aced91de05/NotoSans-Variable.woff2") format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+		U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+	font-family: "Noto Serif";
+	font-style: normal;
+	font-weight: 100 900;
+	font-display: swap;
+	src: url("/fonts/noto-serif-ui/86aced91de05/NotoSerif-Variable.woff2") format("woff2");
+	unicode-range:
+		U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+		U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* Check's score ring: the arc eases to a new score, so a fix visibly counts. */
 @property --ring-value {
 	syntax: "<percentage>";
