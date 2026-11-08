@@ -64,9 +64,9 @@ test("switches the real builder without remounting or adding a save while an edi
 		basics: { ...originalData.basics, name: "سيرة Synthetic Draft 123" },
 	});
 	// Switching must retain the editor's own undo/redo history, not just the displayed input value.
-	await page.keyboard.press("Control+z");
+	await page.keyboard.press("ControlOrMeta+z");
 	await expect(input).toHaveValue(originalData.basics.name);
-	await page.keyboard.press("Control+Shift+z");
+	await page.keyboard.press("ControlOrMeta+Shift+z");
 	await expect(input).toHaveValue("سيرة Synthetic Draft 123");
 	await expect(page.getByRole("status").filter({ hasText: "Saved" })).toBeVisible();
 	await page.reload();
