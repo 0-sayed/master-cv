@@ -4,11 +4,11 @@ import { isRTL } from "@reactive-resume/utils/locale";
 import { normalizeNumericDigits } from "@reactive-resume/utils/string";
 
 // Numeric endpoints only: never infer calendars or rewrite a labelled/raw date.
-const endpoint = String.raw`(?:\d{4}(?:-\d{2})?|\d{1,2}/\d{4}|\d{1,2}/\d{1,2}/\d{4})`;
+const endpoint = String.raw`(?:\d{4}(?:-(?:0[1-9]|1[0-2]))?|\d{1,2}/\d{4}|\d{1,2}/\d{1,2}/\d{4})`;
 const range = new RegExp(`^(${endpoint})\\s*[–—-]\\s*(${endpoint})$`, "u");
 const ongoing = new RegExp(`^(${endpoint})\\s*[–—-]\\s*(.+)$`, "u");
 
-const displayEndpoint = (value: string): string => value.replace(/^(\d{4})-(\d{2})$/u, "$2/$1");
+const displayEndpoint = (value: string): string => value.replace(/^(\d{4})-(0[1-9]|1[0-2])$/u, "$2/$1");
 
 type DateDisplay = { text: string };
 

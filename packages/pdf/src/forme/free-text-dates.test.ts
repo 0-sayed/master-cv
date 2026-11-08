@@ -18,6 +18,9 @@ it.each([
 	"https://example.test/2010-2012",
 	"x2010 - 2012",
 	"2010 - 2012x",
+	"2010 - 2012.5555",
+	"2010 - 2012,5555",
+	"2010 - 2012.test",
 	"2010-15 – 2012-16",
 	"1440 هـ - 2021 م",
 	"2000 - 2500",
@@ -52,5 +55,23 @@ it("keeps both Hijri abbreviations beside their natural RTL endpoints", () => {
 		{ text: " هـ - " },
 		{ text: "1446", numeric: true },
 		{ text: " هـ" },
+	]);
+});
+
+it("isolates a prose date range beside C++ without treating plus signs as a phone", () => {
+	expect(freeTextDateRuns("C++ خبرة 2010 - 2012")).toEqual([
+		{ text: "C++ خبرة " },
+		{ text: "2010", numeric: true },
+		{ text: " - " },
+		{ text: "2012", numeric: true },
+	]);
+});
+it.each([".", ",", ";", ":", "!", "?", "،", "؛", ")"])("isolates a sentence-final range before %s", (punctuation) => {
+	expect(freeTextDateRuns(`خبرة 2010 - 2012${punctuation}`)).toEqual([
+		{ text: "خبرة " },
+		{ text: "2010", numeric: true },
+		{ text: " - " },
+		{ text: "2012", numeric: true },
+		{ text: punctuation },
 	]);
 });

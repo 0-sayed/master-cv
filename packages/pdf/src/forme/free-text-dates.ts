@@ -4,7 +4,7 @@ type DateRun = { text: string; numeric?: boolean };
 const year = String.raw`(?:1[3-9]\d{2}|20\d{2}|21\d{2})`;
 const endpoint = `${year}(?:-\\d{2}(?:-\\d{2})?)?|\\d{1,2}/(?:\\d{1,2}/)?${year}`;
 const candidate = new RegExp(
-	`(?<![^\\s\u200e\u200f])(${endpoint})(\\s+هـ)?\\s*[–—-]\\s*(${endpoint})(\\s+هـ)?(?!\\S)`,
+	`(?<![^\\s\u200e\u200f])(${endpoint})(\\s+هـ)?\\s*[–—-]\\s*(${endpoint})(\\s+هـ)?(?=$|\\s|[.,;:!?،؛)]+(?=$|\\s))`,
 	"gu",
 );
 
@@ -22,7 +22,7 @@ export function freeTextDateRuns(source: string, paragraph = source): DateRun[] 
 	const text = normalizeNumericDigits(source);
 	const guard = normalizeNumericDigits(paragraph);
 	if (
-		/[+@]|:\/\//u.test(guard) ||
+		/\+\s*\d|@|:\/\//u.test(guard) ||
 		/\b(?:phone|tel|mobile|salary|price|cost|budget|SAR|USD)\b|(?:ال)?(?:هاتف|جوال|راتب|ريال|سعر|تكلفة|ميزانية)/iu.test(
 			guard,
 		)

@@ -17,3 +17,10 @@ it("formats an Arabic year-month endpoint without inferring a calendar", () => {
 it.each(["2015 – 2017", "1999-08 - 2003-12", "2015 – Present"])("keeps English upstream display: %s", (text) => {
 	expect(dateDisplay(text, "en-US")).toEqual({ text });
 });
+
+it.each(["2020-00", "2020-13", "2020-13 - 2022-12", "2020-13 - الآن"])(
+	"preserves rejected raw month values: %s",
+	(text) => {
+		expect(dateDisplay(text, "ar-SA")).toEqual({ text });
+	},
+);

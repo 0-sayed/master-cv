@@ -1291,7 +1291,8 @@ const SkillsSection = ({ sectionId = "skills", sectionData }: ItemSectionProps<S
 							<View style={composeStyles(inlineStyle)}>
 								<Icon name={item.icon as IconName} />
 								<Bold semanticField="name" style={composeStyles(isInlineSkillsItem ? undefined : { flex: 1 })}>
-									{templateLayouts[data.metadata.template].columns === 1 &&
+									{data.rtl &&
+									templateLayouts[data.metadata.template].columns === 1 &&
 									/\p{Script=Arabic}/u.test(item.name) &&
 									/\p{Script=Latin}/u.test(item.name)
 										? `\n${item.name.replace(/\s+\/\s+/gu, " /\n")}`

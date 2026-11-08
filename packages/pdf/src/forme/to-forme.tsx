@@ -52,7 +52,7 @@ type Context = {
 	inText: boolean;
 	inLink: boolean;
 	noWrap: { count: number; sizes: ReadonlyMap<number, number> };
-	fittedFontSize?: number;
+	fittedFontSize?: number | undefined;
 	dateParagraph?: string;
 	/** Direction inherited by this paragraph before its own inline overrides. */
 	direction: "auto" | "ltr" | "rtl";
@@ -586,13 +586,14 @@ function convertNode(node: HostNode, parentContext: Context, key: number): React
 		case HOST.link: {
 			const converted = convertStyle(props.style, context, node);
 			const { style } = converted;
-			if (context.fittedFontSize !== undefined) style.fontSize = context.fittedFontSize;
+			if (context.fittedFontSize !== undefined)
+				style.fontSize = Math.min(Number(style.fontSize ?? context.fittedFontSize), context.fittedFontSize);
 			const fitIndex = props["data-export-no-wrap"] && !context.inText ? context.noWrap.count++ : undefined;
 			if (fitIndex !== undefined) {
 				style.fontSize = context.noWrap.sizes.get(fitIndex) ?? style.fontSize ?? context.fontSize;
 				style.hyphens = "none";
 				style.direction = "ltr";
-				context = { ...context, fittedFontSize: style.fontSize as number };
+				context = { ...context, fittedFontSize: context.noWrap.sizes.get(fitIndex) };
 			}
 			const markFit = (element: ReactElement) => {
 				if (fitIndex !== undefined) context.sourceMap.set(element, { file: NO_WRAP_SOURCE, line: fitIndex, column: 0 });
