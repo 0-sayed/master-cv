@@ -5,7 +5,13 @@ import { fileURLToPath } from "node:url";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { env } from "@reactive-resume/env/server";
 import { templateSchema } from "@reactive-resume/schema/templates";
-import { defaultLocale, getLocaleAlternates, isLocale, localizedUrl } from "@reactive-resume/utils/locale";
+import {
+	defaultUiLocale,
+	getLocaleAlternates,
+	isUiLocale,
+	localizedUrl,
+	productLocalePolicy,
+} from "@reactive-resume/utils/locale";
 
 function resolveWebDistPath() {
 	const candidates = [
@@ -182,8 +188,10 @@ type PageSeoOptions = {
 };
 
 function createPageSeoMarkup(options: PageSeoOptions) {
-	const pageUrl = options.requested ? localizedUrl(options.canonicalUrl, options.locale) : options.canonicalUrl;
-	const alternates = getLocaleAlternates(options.canonicalUrl)
+	const pageUrl = options.requested
+		? localizedUrl(options.canonicalUrl, options.locale, productLocalePolicy)
+		: options.canonicalUrl;
+	const alternates = getLocaleAlternates(options.canonicalUrl, productLocalePolicy)
 		.map(({ hreflang, href }) => `<link rel="alternate" hreflang="${hreflang}" href="${escapeAttribute(href)}">`)
 		.join("");
 
@@ -299,10 +307,10 @@ function getFallbackResponseHeaders(pathname: string) {
  */
 function getPageLocale(request: Request) {
 	const requested = new URL(request.url).searchParams.get("locale");
-	if (isLocale(requested)) return { locale: requested, requested: true };
+	if (isUiLocale(requested)) return { locale: requested, requested: true };
 
 	const saved = request.headers.get("cookie")?.match(/(?:^|;\s*)locale=([^;]*)/)?.[1] ?? "";
-	return { locale: isLocale(saved) ? saved : defaultLocale, requested: false };
+	return { locale: isUiLocale(saved) ? saved : defaultUiLocale, requested: false };
 }
 
 function notFoundResponse(options: { head?: boolean; noindex?: boolean } = {}) {

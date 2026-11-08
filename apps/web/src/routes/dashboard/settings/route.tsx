@@ -14,8 +14,16 @@ type Page = {
 
 // Six pages became three, each with one job (README §5.9).
 const SETTINGS_PAGES: Page[] = [
-	{ to: "/dashboard/settings/account", icon: "user-circle", label: () => t`Account` },
-	{ to: "/dashboard/settings/preferences", icon: "sliders-horizontal", label: () => t`Preferences` },
+	{
+		to: "/dashboard/settings/account",
+		icon: "user-circle",
+		label: () => t({ message: "Account", context: "account.settings.accountTab" }),
+	},
+	{
+		to: "/dashboard/settings/preferences",
+		icon: "sliders-horizontal",
+		label: () => t({ message: "Preferences", context: "account.preferences.title" }),
+	},
 	{ to: "/dashboard/settings/ai", icon: "sparkle", label: () => t`AI & developer` },
 ];
 
@@ -37,7 +45,7 @@ function RouteComponent() {
 	return (
 		<div className="grid min-h-full content-start sm:h-svh sm:min-h-0 sm:grid-rows-[auto_minmax(0,1fr)] sm:overflow-hidden lg:grid-cols-[220px_minmax(0,1fr)] lg:grid-rows-1 lg:content-stretch">
 			<nav
-				aria-label={t`Settings`}
+				aria-label={t({ message: "Settings", context: "account.navigation.settings" })}
 				className="flex flex-col gap-1 border-line [view-transition-name:settings-nav] max-lg:border-b max-sm:hidden lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:border-e lg:py-7 lg:ps-6 lg:pe-3"
 			>
 				<div className="flex gap-1 max-lg:overflow-x-auto max-lg:px-6 max-lg:py-2 lg:flex-col">
@@ -67,15 +75,15 @@ function RouteComponent() {
 				</p>
 			</nav>
 
-			<div className="min-w-0 px-12 pt-8 pb-16 max-lg:px-6 max-sm:px-4 max-sm:pt-4 sm:min-h-0 sm:overflow-y-auto sm:overscroll-contain">
+			<div className="min-w-0 px-10 pt-8 pb-16 max-lg:px-7 max-sm:px-[18px] max-sm:pt-4 sm:min-h-0 sm:overflow-y-auto sm:overscroll-contain">
 				{!isRoot && (
 					<Link
 						to="/dashboard/settings"
 						viewTransition={popTransition}
 						className="mb-4 inline-flex h-9 items-center gap-1 text-sm text-ink-2 sm:hidden"
 					>
-						<Icon name="caret-left" size={20} />
-						<Trans>Settings</Trans>
+						<Icon name="caret-left" size={20} className="rtl:rotate-180" />
+						<Trans context="account.navigation.settings">Settings</Trans>
 					</Link>
 				)}
 				<div className="grid max-w-[680px] gap-8">

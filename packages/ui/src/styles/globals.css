@@ -1,10 +1,6 @@
 @import "tailwindcss" source(none);
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/hanken-grotesk";
-@import "@fontsource-variable/hanken-grotesk/wght-italic.css";
-@import "@fontsource-variable/newsreader/opsz.css";
-@import "@fontsource-variable/newsreader/opsz-italic.css";
 /* Phosphor's web font draws the icons inside resumes (their names are stored in resume data). */
 @import "@phosphor-icons/web/regular/style.css";
 
@@ -16,37 +12,42 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Desk & Paper tokens. oklch is the source of truth; the hex values are sRGB approximations.
+ * Master CV Desk & Paper tokens; exact sRGB values from design-system.md §4 / Figma Foundations 19:2.
  * The resume page (--paper) is white in both themes and never inverts.
  */
 :root {
+	--line-1: #ecebe6;
+	--on-danger: #ffffff;
+	--paper-ink: #20231f;
+	--brand-panel: #193b24;
+	--on-brand: #f3f8f1;
 	color-scheme: light;
 
-	--bg: oklch(0.975 0.005 95); /* #F8F7F3 app desk */
-	--surface: oklch(0.995 0.002 95); /* #FEFDFC panels, cards */
-	--raised: oklch(1 0 0); /* #FFFFFF menus, dialogs, inputs */
-	--sunken: oklch(0.952 0.006 95); /* #F0EFEB wells, tracks, page canvas */
-	--line: oklch(0.9 0.006 95); /* #DFDEDA dividers */
-	--line-2: oklch(0.82 0.008 95); /* #C5C4BE input borders */
-	--ink: oklch(0.22 0.01 95); /* #1C1B15 primary text */
-	--ink-2: oklch(0.42 0.01 95); /* #4F4D47 secondary text */
-	--ink-3: oklch(0.53 0.01 95); /* #6D6C65 meta, placeholder (minimum for text) */
-	--accent: oklch(0.5 0.1 150); /* #337344 primary action, selection, focus */
-	--accent-hover: oklch(0.44 0.1 150); /* #206133 */
-	--on-accent: oklch(0.99 0.01 150); /* #F7FEF8 */
-	--accent-soft: oklch(0.94 0.035 150); /* #DCF2DF selected background, proposals */
-	--accent-text: oklch(0.42 0.1 150); /* #195C2E */
-	--danger: oklch(0.53 0.17 27); /* #BA3630 */
-	--danger-soft: oklch(0.95 0.03 27); /* #FFE7E4 */
-	--danger-text: oklch(0.48 0.17 27); /* #A92321 */
-	--warn: oklch(0.72 0.14 80); /* #D29922 check issues, stale edits */
-	--warn-soft: oklch(0.95 0.045 85); /* #FCEDCD */
-	--warn-text: oklch(0.48 0.1 70); /* #81520A */
-	--info-soft: oklch(0.95 0.03 250); /* #E0F1FF neutral guidance, assistant question */
-	--info-text: oklch(0.46 0.11 250); /* #1D5B92 */
+	--bg: #f1f0eb;
+	--surface: #faf9f6;
+	--raised: #ffffff;
+	--sunken: #e7e6e0;
+	--line: #dddcd6;
+	--line-2: #8a8982;
+	--ink: #1c1b15;
+	--ink-2: #4f4d47;
+	--ink-3: #66655e;
+	--accent: #337344;
+	--accent-hover: #206133;
+	--on-accent: #f7fef8;
+	--accent-soft: #dcf2df;
+	--accent-text: #195c2e;
+	--danger: #ba3630;
+	--danger-soft: #ffe7e4;
+	--danger-text: #a92321;
+	--warn: #d29922;
+	--warn-soft: #fcedcd;
+	--warn-text: #81520a;
+	--info-soft: #e0f1ff;
+	--info-text: #1d5b92;
 	--hover: oklch(0.22 0.01 95 / 0.05);
 	--press: oklch(0.22 0.01 95 / 0.09);
-	--scrim: oklch(0.2 0.01 95 / 0.32);
+	--scrim: #1c1b1573;
 	--scrim-sheet: oklch(0.2 0.01 95 / 0.18);
 	--paper: #ffffff;
 
@@ -72,40 +73,46 @@
 	/* Layout constants */
 	--editor-bar: 56px;
 	--editor-panel: 400px;
-	--app-sidebar: 240px;
+	--app-sidebar: 236px;
 	--sheet-share: 440px;
 	--sheet-detail: 480px;
 	--assistant: 400px;
 }
 
 .dark {
+	--line-1: #27261f;
+	--on-danger: #100f0c;
+	--paper: #ffffff;
+	--paper-ink: #20231f;
+	--brand-panel: #193b24;
+	--on-brand: #f3f8f1;
 	color-scheme: dark;
 
-	--bg: oklch(0.17 0.006 95); /* #100F0C */
-	--surface: oklch(0.2 0.006 95); /* #171613 */
-	--raised: oklch(0.235 0.007 95); /* #1F1E1A */
-	--sunken: oklch(0.145 0.006 95); /* #0B0A08 */
-	--line: oklch(0.29 0.007 95); /* #2C2B27 */
-	--line-2: oklch(0.4 0.008 95); /* #494843 */
-	--ink: oklch(0.95 0.005 95); /* #EFEEEB */
-	--ink-2: oklch(0.79 0.008 95); /* #BCBAB5 */
-	--ink-3: oklch(0.67 0.008 95); /* #979590 */
-	--accent: oklch(0.74 0.12 150); /* #6FC082 */
-	--accent-hover: oklch(0.8 0.12 150); /* #83D494 */
-	--on-accent: oklch(0.18 0.03 150); /* #07150A */
-	--accent-soft: oklch(0.3 0.05 150); /* #1A3520 */
-	--accent-text: oklch(0.82 0.11 150); /* #8FD89E */
-	--danger: oklch(0.62 0.17 27); /* #D9544B */
-	--danger-soft: oklch(0.3 0.06 27); /* #47211D */
-	--danger-text: oklch(0.8 0.11 27); /* #FDA297 */
-	--warn: oklch(0.8 0.13 85); /* #E4B750 */
-	--warn-soft: oklch(0.31 0.05 80); /* #3E2D10 */
-	--warn-text: oklch(0.86 0.1 85); /* #EFCC83 */
-	--info-soft: oklch(0.3 0.05 250); /* #192F46 */
-	--info-text: oklch(0.82 0.08 250); /* #9DC9F7 */
+	--bg: #100f0c;
+	--surface: #1a1915;
+	--raised: #24231f;
+	--sunken: #0a0907;
+	--line: #33322c;
+	--line-2: #848279;
+	--ink: #efeeeb;
+	--ink-2: #bcbab5;
+	--ink-3: #979590;
+	--accent: #6fc082;
+	--accent-hover: #83d494;
+	--on-accent: #07150a;
+	--accent-soft: #1a3520;
+	--accent-text: #8fd89e;
+	--danger: #d9544b;
+	--danger-soft: #47211d;
+	--danger-text: #fda297;
+	--warn: #e4b750;
+	--warn-soft: #3e2d10;
+	--warn-text: #efcc83;
+	--info-soft: #192f46;
+	--info-text: #9dc9f7;
 	--hover: oklch(1 0 0 / 0.06);
 	--press: oklch(1 0 0 / 0.1);
-	--scrim: oklch(0 0 0 / 0.5);
+	--scrim: #0000009e;
 	--scrim-sheet: oklch(0 0 0 / 0.5);
 
 	--shadow-1: 0 1px 2px oklch(0 0 0 / 0.4);
@@ -123,8 +130,8 @@
 }
 
 @theme {
-	--font-display: "Newsreader Variable", Georgia, serif;
-	--font-ui: "Hanken Grotesk Variable", system-ui, sans-serif;
+	--font-display: "Noto Serif", "Noto Sans Arabic", Georgia, serif;
+	--font-ui: "Noto Sans", "Noto Sans Arabic", system-ui, sans-serif;
 	--font-sans: var(--font-ui);
 	--font-mono: ui-monospace, monospace;
 
@@ -141,6 +148,11 @@
 }
 
 @theme inline {
+	--color-on-brand: var(--on-brand);
+	--color-brand-panel: var(--brand-panel);
+	--color-paper-ink: var(--paper-ink);
+	--color-on-danger: var(--on-danger);
+	--color-line-1: var(--line-1);
 	--color-bg: var(--bg);
 	--color-surface: var(--surface);
 	--color-raised: var(--raised);
@@ -270,4 +282,109 @@
 		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
 	}
+}
+
+:root:lang(ar) {
+	--font-ui: "Noto Sans Arabic", "Noto Sans", system-ui, sans-serif;
+	--font-display: "Noto Sans Arabic", "Noto Serif", serif;
+}
+
+:root {
+	--space-0: 0px;
+	--space-4: 4px;
+	--space-6: 6px;
+	--space-8: 8px;
+	--space-12: 12px;
+	--space-16: 16px;
+	--space-18: 18px;
+	--space-20: 20px;
+	--space-24: 24px;
+	--space-28: 28px;
+	--space-32: 32px;
+	--space-40: 40px;
+	--space-44: 44px;
+	--space-48: 48px;
+	--space-56: 56px;
+	--space-64: 64px;
+}
+
+@utility type-display {
+	font-family: var(--font-display);
+	font-size: 48px;
+	line-height: 70px;
+	font-weight: 500;
+}
+
+@utility type-display-s {
+	font-family: var(--font-display);
+	font-size: 32px;
+	line-height: 48px;
+	font-weight: 500;
+}
+
+@utility type-title {
+	font-family: var(--font-display);
+	font-size: 32px;
+	line-height: 48px;
+	font-weight: 600;
+}
+
+@utility type-title-s {
+	font-family: var(--font-display);
+	font-size: 24px;
+	line-height: 36px;
+	font-weight: 600;
+}
+
+@utility type-section {
+	font-family: var(--font-ui);
+	font-size: 19px;
+	line-height: 29px;
+	font-weight: 600;
+}
+
+@utility type-body {
+	font-family: var(--font-ui);
+	font-size: 14px;
+	line-height: 23px;
+	font-weight: 400;
+}
+
+@utility type-lead {
+	font-family: var(--font-ui);
+	font-size: 17px;
+	line-height: 31px;
+	font-weight: 400;
+}
+
+@utility type-label {
+	font-family: var(--font-ui);
+	font-size: 14px;
+	line-height: 22px;
+	font-weight: 600;
+}
+
+@utility type-metadata {
+	font-family: var(--font-ui);
+	font-size: 12px;
+	line-height: 20px;
+	font-weight: 400;
+}
+
+@utility type-input {
+	font-family: var(--font-ui);
+	font-size: 16px;
+	line-height: 26px;
+	font-weight: 400;
+}
+
+@utility type-mobile-nav {
+	font-family: var(--font-ui);
+	font-size: 12px;
+	line-height: 20px;
+	font-weight: 400;
+}
+
+:root:lang(en) :where(.type-title, .type-title-s) {
+	font-weight: 500;
 }

@@ -1,4 +1,6 @@
 import type { RouterOutput } from "@/libs/orpc/client";
+import type { UiLocale } from "@reactive-resume/utils/locale";
+import { normalizeSearchText } from "@reactive-resume/utils/ui-format";
 
 export type DocumentSummary = RouterOutput["documents"]["list"][number];
 export type DocumentTypeFilter = "all" | "resume" | "letter";
@@ -13,11 +15,11 @@ type DocumentFilters = {
 	public?: boolean | undefined;
 };
 
-const byName = new Intl.Collator(undefined, { sensitivity: "base", numeric: true });
-
 /** Search covers titles, tags and linked applications; every chosen tag must be on the document, and Public keeps shared resumes. */
-export function filterDocuments(documents: readonly DocumentSummary[], filters: DocumentFilters) {
-	const query = filters.q.trim().toLocaleLowerCase();
+export function filterDocuments(documents: readonly DocumentSummary[], filters: DocumentFilters, uiLocale: UiLocale) {
+	const byName = new Intl.Collator(uiLocale, { sensitivity: "variant", numeric: true });
+	const compareText = (value: string) => normalizeSearchText(value).toLocaleLowerCase(uiLocale);
+	const query = compareText(filters.q.trim());
 
 	return documents
 		.filter((document) => filters.type === "all" || document.type === filters.type)
@@ -26,18 +28,24 @@ export function filterDocuments(documents: readonly DocumentSummary[], filters: 
 		.filter((document) => {
 			if (!query) return true;
 			const haystack = [document.name, ...document.tags, document.application?.company, document.application?.role];
-			return haystack.some((text) => text?.toLocaleLowerCase().includes(query));
+			return haystack.some((text) => text !== undefined && compareText(text).includes(query));
 		})
 		.sort((a, b) => {
-			if (filters.sort === "name") return byName.compare(a.name, b.name);
-			if (filters.sort === "created") return b.createdAt.getTime() - a.createdAt.getTime();
-			return b.updatedAt.getTime() - a.updatedAt.getTime();
+			const primary =
+				filters.sort === "name"
+					? byName.compare(a.name, b.name)
+					: filters.sort === "created"
+						? b.createdAt.getTime() - a.createdAt.getTime()
+						: b.updatedAt.getTime() - a.updatedAt.getTime();
+			return primary || (a.id < b.id ? -1 : a.id > b.id ? 1 : a.type.localeCompare(b.type, "en-US"));
 		});
 }
 
 /** Every tag in use, alphabetically; the tag chips appear only when there are some. */
-export const collectTags = (documents: readonly DocumentSummary[]) =>
-	[...new Set(documents.flatMap((document) => document.tags))].sort(byName.compare);
+export const collectTags = (documents: readonly DocumentSummary[], uiLocale: UiLocale) =>
+	[...new Set(documents.flatMap((document) => document.tags))].sort(
+		new Intl.Collator(uiLocale, { numeric: true, sensitivity: "variant" }).compare,
+	);
 
 /** Days until a document in Trash is deleted for good (at least 0). */
 export function daysLeftInTrash(trashedAt: Date, now = Date.now()) {

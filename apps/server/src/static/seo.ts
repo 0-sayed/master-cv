@@ -1,6 +1,6 @@
 import { env } from "@reactive-resume/env/server";
 import { templateSchema } from "@reactive-resume/schema/templates";
-import { getLocaleAlternates } from "@reactive-resume/utils/locale";
+import { getLocaleAlternates, productLocalePolicy } from "@reactive-resume/utils/locale";
 
 const DOCS_URL = "https://docs.rxresu.me";
 
@@ -49,7 +49,7 @@ export function handleSitemap(options?: StaticSeoOptions) {
 	// Each page lists its languages, so every `?locale=` address is discoverable without a sitemap entry of its own.
 	const urls = sitemapPaths.map((path) => {
 		const pageUrl = `${baseUrl}${path}`;
-		const alternates = getLocaleAlternates(pageUrl).map(
+		const alternates = getLocaleAlternates(pageUrl, productLocalePolicy).map(
 			({ hreflang, href }) =>
 				`    <xhtml:link rel="alternate" hreflang="${hreflang}" href="${href.replaceAll("&", "&amp;")}"/>`,
 		);

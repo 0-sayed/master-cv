@@ -2,6 +2,17 @@ import { describe, expect, it } from "vite-plus/test";
 import { env } from "@reactive-resume/env/server";
 import { auth } from "./config";
 
+describe("interface locale preference", () => {
+	it("validates optional product locales without broadening document locale choices", () => {
+		const field = auth.options.user?.additionalFields?.uiLocale;
+		expect(field?.required).toBe(false);
+		const validator = field?.validator?.input;
+		if (!validator || !("safeParse" in validator)) throw new Error("Missing UI locale input validator");
+		for (const locale of ["ar-SA", "en-US"]) expect(validator.safeParse(locale).success).toBe(true);
+		for (const locale of ["de-DE", "en-GB", "zu-ZA", null, ""]) expect(validator.safeParse(locale).success).toBe(false);
+	});
+});
+
 describe("social provider signup policy", () => {
 	it.each(["google", "github", "linkedin"] as const)(
 		"allows implicit signup through %s while honoring the global signup restriction",

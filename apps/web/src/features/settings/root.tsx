@@ -28,7 +28,7 @@ function Row({ icon, label, value }: RowProps) {
 			<Icon name={icon} size={22} className="text-ink-2" />
 			<span className="flex-1">{label}</span>
 			{value && <span className="truncate text-sm text-ink-3">{value}</span>}
-			<Icon name="caret-right" size={22} className="text-ink-3" />
+			<Icon name="caret-right" size={22} className="text-ink-3 rtl:rotate-180" />
 		</>
 	);
 }
@@ -46,7 +46,7 @@ export function SettingsRoot() {
 
 	return (
 		<div className="grid gap-4">
-			<PageHeader title={<Trans>Settings</Trans>} />
+			<PageHeader title={<Trans context="account.navigation.settings">Settings</Trans>} />
 			<div className="flex items-center gap-3">
 				<Avatar className="size-12">
 					<AvatarImage src={session.user.image ?? undefined} alt="" />
@@ -56,19 +56,25 @@ export function SettingsRoot() {
 				</Avatar>
 				<span className="grid min-w-0">
 					<b className="truncate text-lg font-semibold">{session.user.name}</b>
-					<span className="truncate text-sm text-ink-3">{session.user.email}</span>
+					<bdi dir="ltr" className="truncate text-sm text-ink-3">
+						{session.user.email}
+					</bdi>
 				</span>
 			</div>
 
 			<nav
-				aria-label={t`Settings`}
+				aria-label={t({ message: "Settings", context: "account.navigation.settings" })}
 				className="divide-y divide-line overflow-hidden rounded-[14px] border border-line bg-surface"
 			>
 				<Link to="/dashboard/settings/account" viewTransition={pushTransition} className={rowClass}>
-					<Row icon="user-circle" label={<Trans>Account</Trans>} />
+					<Row icon="user-circle" label={<Trans context="account.settings.accountTab">Account</Trans>} />
 				</Link>
 				<Link to="/dashboard/settings/preferences" viewTransition={pushTransition} className={rowClass}>
-					<Row icon="sliders-horizontal" label={<Trans>Preferences</Trans>} value={i18n.t(themeMap[theme])} />
+					<Row
+						icon="sliders-horizontal"
+						label={<Trans context="account.preferences.title">Preferences</Trans>}
+						value={i18n.t(themeMap[theme])}
+					/>
 				</Link>
 				<Link to="/dashboard/settings/ai" viewTransition={pushTransition} className={rowClass}>
 					<Row

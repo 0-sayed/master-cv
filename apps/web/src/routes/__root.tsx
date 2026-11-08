@@ -3,9 +3,8 @@ import type { Theme } from "@/libs/theme";
 import type { IconProps } from "@phosphor-icons/react";
 import type { FeatureFlags } from "@reactive-resume/api/features/flags";
 import type { AuthSession } from "@reactive-resume/auth/types";
-import type { Locale } from "@reactive-resume/utils/locale";
+import type { UiLocale } from "@reactive-resume/utils/locale";
 import type { QueryClient } from "@tanstack/react-query";
-import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { IconContext } from "@phosphor-icons/react";
@@ -16,15 +15,15 @@ import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { createRootRouteWithContext, HeadContent, Outlet, useRouterState } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { domMax, LazyMotion, MotionConfig } from "motion/react";
-import { useEffect } from "react";
 import { Toaster } from "@reactive-resume/ui/components/toast";
 import { TooltipProvider } from "@reactive-resume/ui/components/tooltip";
-import { isRTL } from "@reactive-resume/utils/locale";
+import { isUiLocale } from "@reactive-resume/utils/locale";
 import { BreakpointIndicator } from "@/components/layout/breakpoint-indicator";
 import { DonationToast } from "@/components/ui/donation-toast";
 import { DialogManager } from "@/dialogs/manager";
 import { CommandPalette } from "@/features/command-palette";
 import { useDocumentWebMcpTools } from "@/features/documents/webmcp";
+import { LocaleProvider } from "@/features/locale/provider";
 import { ThemeProvider } from "@/features/theme/provider";
 import { ConfirmDialogProvider } from "@/hooks/use-confirm";
 import { loadRootContext } from "@/libs/root-context";
@@ -32,7 +31,7 @@ import { getHomepageMeta } from "@/libs/seo";
 
 type RouterContext = {
 	theme: Theme;
-	locale: Locale;
+	locale: UiLocale;
 	orpc: typeof orpc;
 	queryClient: QueryClient;
 	session: AuthSession | null;
@@ -43,6 +42,8 @@ const iconContextValue: IconProps = { size: 16, weight: "regular" };
 
 export const Route = createRootRouteWithContext<RouterContext>()({
 	component: RootComponent,
+	validateSearch: (search: Record<string, unknown>): { locale?: UiLocale } =>
+		isUiLocale(search.locale) ? { locale: search.locale } : {},
 	// index.html carries the tags that never change (charset, viewport, icons, manifest); the server adds each page's
 	// canonical link, social cards and structured data. The router only keeps the title and description current.
 	head: () => {
@@ -54,19 +55,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootComponent() {
 	const { theme, locale, queryClient, session } = Route.useRouteContext();
-	const dir = isRTL(locale) ? "rtl" : "ltr";
 
 	// WebMCP: browser agents can list and open the signed-in user's documents from any page.
 	useDocumentWebMcpTools(session !== null);
 
 	// Suppress the app-wide donation toast inside the builder so it doesn't cover the right-sidebar controls.
 	const isBuilder = useRouterState({ select: (s) => s.location.pathname.startsWith("/builder") });
-
-	// The theme class is owned by ThemeProvider, which also follows the system appearance.
-	useEffect(() => {
-		document.documentElement.lang = locale;
-		document.documentElement.dir = dir;
-	}, [dir, locale]);
 
 	return (
 		<>
@@ -79,7 +73,7 @@ function RootComponent() {
 							<IconContext.Provider value={iconContextValue}>
 								<ThemeProvider theme={theme}>
 									<HotkeysProvider>
-										<DirectionProvider direction={dir}>
+										<LocaleProvider locale={locale} session={session}>
 											<TooltipProvider>
 												<ConfirmDialogProvider>
 													<Outlet />
@@ -107,7 +101,7 @@ function RootComponent() {
 													)}
 												</ConfirmDialogProvider>
 											</TooltipProvider>
-										</DirectionProvider>
+										</LocaleProvider>
 									</HotkeysProvider>
 								</ThemeProvider>
 							</IconContext.Provider>

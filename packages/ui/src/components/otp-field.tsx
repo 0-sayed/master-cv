@@ -1,11 +1,26 @@
 import { OTPField as OTPFieldPrimitive } from "@base-ui/react/otp-field";
+import { normalizeNumericDigits } from "@reactive-resume/utils/string";
 import { cn } from "@reactive-resume/utils/style";
 
-function OTPField({ className, length, children, ...props }: OTPFieldPrimitive.Root.Props) {
+function OTPField({
+	className,
+	length,
+	children,
+	validationType = "numeric",
+	normalizeValue,
+	...props
+}: OTPFieldPrimitive.Root.Props) {
 	return (
 		<OTPFieldPrimitive.Root
 			data-slot="otp-field"
 			length={length}
+			dir="ltr"
+			inputMode="numeric"
+			validationType={validationType === "numeric" ? "none" : validationType}
+			normalizeValue={(value) => {
+				const normalized = validationType === "numeric" ? normalizeNumericDigits(value).replace(/\D/g, "") : value;
+				return normalizeValue ? normalizeValue(normalized) : normalized;
+			}}
 			className={cn("group flex items-center gap-1.5", className)}
 			{...props}
 		>

@@ -1043,11 +1043,7 @@ msgstr "إمكانية الوصول"
 msgid "Accomplishment"
 msgstr "إنجاز"
 
-#: src/features/command-palette/pages/navigation.tsx
 #: src/features/settings/account/page.tsx
-#: src/features/settings/root.tsx
-#: src/routes/dashboard/-components/app-shell.tsx
-#: src/routes/dashboard/settings/route.tsx
 msgid "Account"
 msgstr "الحساب"
 
@@ -1713,10 +1709,6 @@ msgstr "التطبيق"
 msgid "App navigation"
 msgstr "التنقل في التطبيق"
 
-#: src/features/settings/preferences.tsx
-msgid "Appearance"
-msgstr "مظهر"
-
 #: src/features/resume/editor/write/entry-card.tsx
 msgid "Appears on the page once it has a company."
 msgstr "يظهر على الصفحة بمجرد أن يكون لديه شركة."
@@ -1823,9 +1815,7 @@ msgstr "تم تحديث الطلب."
 #: src/features/career/coach-thread.tsx
 #: src/features/career/coach.tsx
 #: src/features/career/workspace/shell.tsx
-#: src/features/command-palette/pages/navigation.tsx
 #: src/features/command-palette/pages/resumes.tsx
-#: src/routes/dashboard/-components/app-shell.tsx
 #: src/routes/dashboard/applications/index.tsx
 msgid "Applications"
 msgstr "الطلبات"
@@ -2387,10 +2377,6 @@ msgstr "تغيير الاتصال"
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "Change it in Design."
 msgstr "تغييره في التصميم."
-
-#: src/routes/_home/-sections/header.tsx
-msgid "Change language"
-msgstr "تغيير اللغة"
 
 #: src/features/command-palette/pages/preferences/index.tsx
 msgid "Change language to…"
@@ -3558,7 +3544,6 @@ msgstr "تم استيراد خطاب الغلاف"
 msgid "Cover letter submitted (optional)"
 msgstr "تم تقديم خطاب تقديمي (اختياري)"
 
-#: src/features/command-palette/pages/navigation.tsx
 #: src/features/homepage/sections.tsx
 msgid "Cover letters"
 msgstr "خطابات التقديم"
@@ -3694,12 +3679,6 @@ msgstr "المشاهدات اليومية على مدى 30 يومًا، الذر
 #: src/libs/locale.ts
 msgid "Danish"
 msgstr "الدانماركية"
-
-#. Appearance theme option for dark mode
-#: src/features/user/dropdown-menu.tsx
-#: src/libs/theme.ts
-msgid "Dark"
-msgstr "داكن"
 
 #: src/features/command-palette/pages/preferences/theme.tsx
 msgid "Dark theme"
@@ -4054,9 +4033,7 @@ msgstr "نوع الوثيقة"
 msgid "Documentation"
 msgstr "إرشادات الاستخدام"
 
-#: src/features/command-palette/pages/navigation.tsx
 #: src/features/documents/documents-page.tsx
-#: src/routes/dashboard/-components/app-shell.tsx
 msgid "Documents"
 msgstr "وثائق"
 
@@ -5718,14 +5695,6 @@ msgstr "عمليات الدمج"
 msgid "Interests"
 msgstr "الاهتمامات"
 
-#: src/features/settings/preferences.tsx
-msgid "Interface language"
-msgstr "لغة الواجهة"
-
-#: src/features/settings/preferences.tsx
-msgid "Interface only. Each resume sets its own language in Design."
-msgstr "الواجهة فقط. تحدد كل سيرة ذاتية لغتها الخاصة في التصميم."
-
 #: src/features/applications/stages.ts
 #: src/features/career/schedule-sheet.tsx
 #: src/features/homepage/prepare.tsx
@@ -6158,7 +6127,6 @@ msgstr "أفقي"
 #: src/features/command-palette/pages/preferences/language.tsx
 #: src/features/resume/editor/design/style-groups.tsx
 #: src/features/resume/editor/write/entries.tsx
-#: src/features/settings/preferences.tsx
 #: src/features/user/dropdown-menu.tsx
 #: src/routes/builder/$resumeId/-components/document-details.tsx
 msgid "Language"
@@ -6354,12 +6322,6 @@ msgstr "مرخّص بموجب <0>MIT</0>"
 #: src/features/ats-checker/messages.ts
 msgid "Ligatures can drop letters out of words such as \"workflow\"."
 msgstr "يمكن للحروف المدمجة (Ligatures) أن تُسقط أحرفًا من كلمات مثل \"workflow\"."
-
-#. Appearance theme option for light mode
-#: src/features/user/dropdown-menu.tsx
-#: src/libs/theme.ts
-msgid "Light"
-msgstr "مضيء"
 
 #: src/features/command-palette/pages/preferences/theme.tsx
 msgid "Light theme"
@@ -8438,11 +8400,7 @@ msgstr "يُفضَّل عمود واحد، أو إبقاء العمود الجا
 msgid "Preference"
 msgstr "تفضيل"
 
-#: src/features/command-palette/pages/navigation.tsx
 #: src/features/command-palette/pages/preferences/index.tsx
-#: src/features/settings/preferences.tsx
-#: src/features/settings/root.tsx
-#: src/routes/dashboard/settings/route.tsx
 msgid "Preferences"
 msgstr "التفضيلات"
 
@@ -10141,10 +10099,6 @@ msgid "Set up web search in Settings"
 msgstr "أعدّ البحث على الويب في الإعدادات"
 
 #: src/features/command-palette/pages/navigation.tsx
-#: src/features/settings/root.tsx
-#: src/features/user/dropdown-menu.tsx
-#: src/routes/dashboard/-components/app-shell.tsx
-#: src/routes/dashboard/settings/route.tsx
 msgid "Settings"
 msgstr "إعدادات"
 
@@ -10355,7 +10309,6 @@ msgstr "قم بتسجيل الدخول باستخدام بصمة الإصبع أ
 
 #. User menu action to sign out of current account
 #: src/features/settings/account/page.tsx
-#: src/features/user/dropdown-menu.tsx
 msgid "Sign out"
 msgstr "تسجيل الخروج"
 
@@ -10569,8 +10522,12 @@ msgstr "حدث خطأ ما أثناء قراءة هذا الملف. حاول ث�
 msgid "Something went wrong while signing you in. Please try again."
 msgstr "حدث خطأ ما أثناء تسجيل دخولك. يُرجى المحاولة مرة أخرى."
 
+#: src/features/command-palette/pages/preferences/language.tsx
+#: src/features/locale/combobox.tsx
+#: src/features/locale/switch.tsx
 #: src/features/resume/builder/password-dialog.tsx
 #: src/features/resume/share/link-tab.tsx
+#: src/features/user/dropdown-menu.tsx
 msgid "Something went wrong. Please try again."
 msgstr "حدث خطأ ما. يُرجى المحاولة مرة أخرى."
 
@@ -10993,12 +10950,6 @@ msgstr "تحولت إلى عمود واحد"
 #: src/features/resume/builder/draft.ts
 msgid "Synced changes made in another tab."
 msgstr "تمت مزامنة التغييرات التي تم إجراؤها في علامة تبويب أخرى."
-
-#. Appearance theme option that follows the operating system
-#: src/features/user/dropdown-menu.tsx
-#: src/libs/theme.ts
-msgid "System"
-msgstr "نظام التشغيل"
 
 #: src/features/resume/editor/check/issues.ts
 msgid "Systems file you under the name at the top of the page."
@@ -13448,3 +13399,104 @@ msgstr "التحليل غير مكتمل. لا تتوفر درجة إجمالي�
 #: src/features/ats-checker/report/report-view.tsx
 msgid "No overall score is available."
 msgstr "لا تتوفر درجة إجمالية."
+
+#: src/features/locale/switch.tsx
+msgctxt "language.switch.english"
+msgid "EN"
+msgstr "EN"
+
+#: src/features/locale/switch.tsx
+msgctxt "language.switch.arabic"
+msgid "عربي"
+msgstr "عربي"
+
+#: src/features/locale/switch.tsx
+msgctxt "language.switch.arabicAccessible"
+msgid "Switch interface to Arabic"
+msgstr "تغيير الواجهة إلى العربية"
+
+#: src/features/locale/switch.tsx
+msgctxt "language.switch.englishAccessible"
+msgid "Switch interface to English"
+msgstr "تغيير الواجهة إلى الإنجليزية"
+
+#: src/features/command-palette/pages/navigation.tsx
+#: src/features/settings/root.tsx
+#: src/features/user/dropdown-menu.tsx
+#: src/routes/dashboard/-components/app-shell.tsx
+#: src/routes/dashboard/settings/route.tsx
+msgctxt "account.navigation.settings"
+msgid "Settings"
+msgstr "الإعدادات"
+
+#: src/features/command-palette/pages/navigation.tsx
+#: src/features/settings/root.tsx
+#: src/routes/dashboard/-components/app-shell.tsx
+#: src/routes/dashboard/settings/route.tsx
+msgctxt "account.settings.accountTab"
+msgid "Account"
+msgstr "الحساب"
+
+#: src/features/command-palette/pages/navigation.tsx
+#: src/features/settings/preferences.tsx
+#: src/features/settings/root.tsx
+#: src/routes/dashboard/settings/route.tsx
+msgctxt "account.preferences.title"
+msgid "Preferences"
+msgstr "التفضيلات"
+
+#: src/features/settings/preferences.tsx
+msgctxt "account.theme.label"
+msgid "Appearance"
+msgstr "المظهر"
+
+#: src/features/user/dropdown-menu.tsx
+#: src/libs/theme.ts
+msgctxt "account.theme.light"
+msgid "Light"
+msgstr "فاتح"
+
+#: src/features/user/dropdown-menu.tsx
+#: src/libs/theme.ts
+msgctxt "account.theme.dark"
+msgid "Dark"
+msgstr "داكن"
+
+#: src/features/user/dropdown-menu.tsx
+#: src/libs/theme.ts
+msgctxt "account.theme.system"
+msgid "Match my device"
+msgstr "حسب إعدادات الجهاز"
+
+#: src/features/settings/preferences.tsx
+msgctxt "language.interface.label"
+msgid "Interface language"
+msgstr "لغة الواجهة"
+
+#: src/features/settings/preferences.tsx
+msgctxt "language.interface.independenceHint"
+msgid "Changing the interface language never translates or changes your CVs."
+msgstr "تغيير لغة الواجهة لا يترجم سيرك ولا يغيّر محتواها."
+
+#: src/features/command-palette/pages/navigation.tsx
+#: src/routes/dashboard/-components/app-shell.tsx
+msgctxt "editor.mobileNav.documents"
+msgid "Documents"
+msgstr "المستندات"
+
+#: src/features/command-palette/pages/navigation.tsx
+#: src/routes/dashboard/-components/app-shell.tsx
+msgctxt "editor.navigation.applications"
+msgid "Applications"
+msgstr "متابعة التقديمات"
+
+#: src/features/command-palette/pages/navigation.tsx
+msgctxt "editor.navigation.letters"
+msgid "Cover letters"
+msgstr "خطابات التقديم"
+
+#. User menu action to sign out of current account
+#: src/features/user/dropdown-menu.tsx
+msgctxt "account.session.signOut"
+msgid "Sign out"
+msgstr "تسجيل الخروج"

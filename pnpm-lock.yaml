@@ -191,6 +191,12 @@ catalogs:
     '@legendapp/list':
       specifier: 3.6.0
       version: 3.6.0
+    '@lingui/core':
+      specifier: 6.10.0
+      version: 6.10.0
+    '@lingui/message-utils':
+      specifier: 6.10.0
+      version: 6.10.0
     '@lodev09/react-native-true-sheet':
       specifier: 3.11.18
       version: 3.11.18
@@ -1501,12 +1507,12 @@ importers:
         specifier: ^9.0.5
         version: 9.0.5
     devDependencies:
-      fflate:
-        specifier: 'catalog:'
-        version: 0.8.3
       '@reactive-resume/config':
         specifier: workspace:*
         version: link:../config
+      fflate:
+        specifier: 'catalog:'
+        version: 0.8.3
       tsrs:
         specifier: 'catalog:'
         version: 0.18.0-ts7.1.0-dev.20260929
@@ -1892,12 +1898,6 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      '@fontsource-variable/hanken-grotesk':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource-variable/newsreader':
-        specifier: ^5.3.0
-        version: 5.3.0
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -2003,14 +2003,14 @@ importers:
         specifier: workspace:*
         version: link:../packages/schema
     devDependencies:
-      node-html-parser:
-        specifier: 9.0.5
-        version: 9.0.5
-      zod:
+      '@lingui/core':
         specifier: 'catalog:'
-        version: 4.6.7
+        version: 6.10.0(@babel/core@7.29.7(supports-color@7.2.0))(babel-plugin-macros@3.1.0)
       '@lingui/format-po':
         specifier: ^6.10.0
+        version: 6.10.0
+      '@lingui/message-utils':
+        specifier: 'catalog:'
         version: 6.10.0
       '@phosphor-icons/react':
         specifier: ^2.1.10
@@ -2045,6 +2045,9 @@ importers:
       esbuild:
         specifier: 'catalog:'
         version: 0.28.2
+      node-html-parser:
+        specifier: 9.0.5
+        version: 9.0.5
       pdfjs-dist:
         specifier: 6.4.299
         version: 6.4.299
@@ -2069,6 +2072,9 @@ importers:
       wrangler:
         specifier: 'catalog:'
         version: 4.151.3(@cloudflare/workers-types@5.20261021.1)(@types/node@26.6.5)
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
 
 packages:
 
@@ -3638,12 +3644,6 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
-
-  '@fontsource-variable/hanken-grotesk@5.3.0':
-    resolution: {integrity: sha512-DOd0FqL+3cH2dfNy0JtSq9tUfxBz5mLmHMjTU0DOr3E9Zo6wxuatCl53DIPNrSPgCsnuKyM739BTIG5glCLirw==}
-
-  '@fontsource-variable/newsreader@5.3.0':
-    resolution: {integrity: sha512-rrzYi43qMpbzwuFtf9OkWH8sxAPVPcQQQEwXpPtwaKYeJ8yVg5aLs5kawmo1f2Q1t1M38TLmEKCkGVDsYwgdFw==}
 
   '@formatjs/bigdecimal@0.2.7':
     resolution: {integrity: sha512-B4+XY/e4u5v261r3a37Kq2ax91gPZSKGyVpx8X5dygAggLlUz+6MeBpmAhaBFGB8WQ4JB1qD+QtKHk9aJkEb9Q==}
@@ -14022,10 +14022,6 @@ snapshots:
       react-dom: 19.3.1(react@19.3.1)
 
   '@floating-ui/utils@0.2.12': {}
-
-  '@fontsource-variable/hanken-grotesk@5.3.0': {}
-
-  '@fontsource-variable/newsreader@5.3.0': {}
 
   '@formatjs/bigdecimal@0.2.7': {}
 

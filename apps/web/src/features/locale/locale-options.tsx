@@ -1,9 +1,11 @@
 import type { Locale } from "@reactive-resume/utils/locale";
 import { i18n } from "@lingui/core";
+import { productUiLocales } from "@reactive-resume/utils/locale";
 import { localeMap } from "@/libs/locale";
 
-export const getLocaleOptions = () => {
-	return Object.entries(localeMap).map(([value, label]) => {
+export const getLocaleOptions = (locales: readonly Locale[] = Object.keys(localeMap) as Locale[]) => {
+	return locales.map((value) => {
+		const label = localeMap[value];
 		const name = i18n.t(label);
 
 		return {
@@ -22,3 +24,5 @@ export const getLocaleOptions = () => {
 		};
 	});
 };
+
+export const getUiLocaleOptions = () => getLocaleOptions(productUiLocales);

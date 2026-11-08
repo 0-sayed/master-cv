@@ -8,6 +8,7 @@ import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DocumentsPage } from "./documents-page";
 import { TrashPage } from "./trash-page";
+import { LocaleProvider } from "@/features/locale/provider";
 
 const { loadDocuments } = vi.hoisted(() => ({ loadDocuments: vi.fn() }));
 
@@ -16,6 +17,7 @@ vi.mock("@/libs/orpc/client", () => ({
 }));
 vi.mock("@tanstack/react-router", () => ({
 	Link: ({ children }: { children: ReactNode }) => <a href="/dashboard">{children}</a>,
+	useRouter: () => ({}),
 }));
 vi.mock("@/features/resume/builder/draft", () => ({ isEditableElementFocused: () => false }));
 vi.mock("./document-actions", () => ({
@@ -35,11 +37,13 @@ it.each(["documents", "trash"])("keeps %s load failures distinct from empty stat
 	const view = render(
 		<I18nProvider i18n={i18n}>
 			<QueryClientProvider client={queryClient}>
-				{page === "documents" ? (
-					<DocumentsPage search={{ type: "all", q: "", tags: [], sort: "edited" }} onSearchChange={vi.fn()} />
-				) : (
-					<TrashPage />
-				)}
+				<LocaleProvider locale="en-US" session={null}>
+					{page === "documents" ? (
+						<DocumentsPage search={{ type: "all", q: "", tags: [], sort: "edited" }} onSearchChange={vi.fn()} />
+					) : (
+						<TrashPage />
+					)}
+				</LocaleProvider>
 			</QueryClientProvider>
 		</I18nProvider>,
 	);

@@ -10,6 +10,7 @@ import { TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { DocumentMenu } from "./document-menu";
 import { AssistantButton } from "@/features/assistant/assistant-button";
+import { LocaleSwitch } from "@/features/locale/switch";
 import { useCurrentBuilderResumeSelector, useCurrentResume, useResumeStore } from "@/features/resume/builder/draft";
 import { useOpenIssueCount } from "@/features/resume/editor/check/use-check";
 import { BackLink, DrawerControls } from "@/features/resume/editor/chrome";
@@ -44,6 +45,7 @@ export function EditorBar({ layout, pinnable }: EditorBarProps) {
 			{layout === "mobile" ? <span /> : <ModeTabs />}
 
 			<div className="flex items-center justify-end gap-1">
+				<LocaleSwitch compact={layout !== "desktop"} />
 				{layout === "desktop" && <HistoryButton />}
 				{/* Every layout opens the assistant from the ✦: a column, a drawer, or full screen on phones. */}
 				<span className={layout === "desktop" ? "me-1.5" : undefined}>

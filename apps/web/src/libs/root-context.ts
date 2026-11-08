@@ -1,7 +1,7 @@
 import type { AuthSession } from "@reactive-resume/auth/types";
 import type { QueryClient } from "@tanstack/react-query";
 import { getSession } from "./auth/session";
-import { getLocale, loadLocale } from "./locale";
+import { getLocale, loadUiLocale } from "./locale";
 import { client } from "./orpc/client";
 import { getTheme } from "./theme";
 
@@ -14,7 +14,6 @@ const flagsQueryKey = ["flags"] as const;
 // calling `router.invalidate()`. Flags come from server env and only change on a restart.
 export async function loadRootContext(queryClient: QueryClient) {
 	const theme = getTheme();
-	const locale = getLocale();
 
 	const sessionPromise = queryClient
 		.query({
@@ -34,8 +33,9 @@ export async function loadRootContext(queryClient: QueryClient) {
 	const [session, flags] = await Promise.all([
 		sessionPromise,
 		queryClient.query({ queryKey: flagsQueryKey, queryFn: () => client.flags.get(), staleTime: 5 * 60_000 }),
-		loadLocale(locale),
 	]);
+	const locale = getLocale(session?.user.uiLocale);
+	await loadUiLocale(locale);
 
 	return { theme, locale, session, flags };
 }

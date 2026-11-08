@@ -76,12 +76,12 @@ describe("web app fallback classification", () => {
 			return Promise.resolve(`<html><head></head><body><div id="app">${locale ?? "shell"}</div></body></html>`);
 		});
 
-		const german = await handleWebApp(new Request("https://example.com/?locale=de-DE"));
-		const html = await german.text();
-		expect(html).toContain('<div id="app">de-DE</div>');
-		expect(html).toContain('<link rel="canonical" href="https://rxresu.me/?locale=de-DE">');
+		const english = await handleWebApp(new Request("https://example.com/?locale=en-US"));
+		const html = await english.text();
+		expect(html).toContain('<div id="app">en-US</div>');
+		expect(html).toContain('<link rel="canonical" href="https://rxresu.me/?locale=en-US">');
 		expect(html).toContain('<link rel="alternate" hreflang="x-default" href="https://rxresu.me/">');
-		expect(german.headers.get("Vary")).toBe("Cookie");
+		expect(english.headers.get("Vary")).toBe("Cookie");
 
 		const saved = new Request("https://example.com/", { headers: { cookie: "theme=dark; locale=ar-SA" } });
 		const savedHtml = await (await handleWebApp(saved)).text();
@@ -90,7 +90,7 @@ describe("web app fallback classification", () => {
 
 		// Only known locales name a file, so the parameter can't point anywhere else.
 		const unknown = await handleWebApp(new Request("https://example.com/?locale=../../index"));
-		expect(await unknown.text()).toContain('<div id="app">en-US</div>');
+		expect(await unknown.text()).toContain('<div id="app">ar-SA</div>');
 	});
 
 	describe("the ATS checker page", () => {
@@ -115,12 +115,12 @@ describe("web app fallback classification", () => {
 				);
 			});
 
-			const html = await (await handleWebApp(new Request("https://example.com/ats-checker?locale=de-DE"))).text();
+			const html = await (await handleWebApp(new Request("https://example.com/ats-checker?locale=en-US"))).text();
 
-			expect(html).toContain('<div id="app">de-DE</div>');
-			expect(html).toContain('<link rel="canonical" href="https://rxresu.me/ats-checker?locale=de-DE">');
+			expect(html).toContain('<div id="app">en-US</div>');
+			expect(html).toContain('<link rel="canonical" href="https://rxresu.me/ats-checker?locale=en-US">');
 			expect(html).toContain('<meta property="og:title" content="ATS-Prüfung &amp; mehr">');
-			expect(html).toContain('<meta property="og:locale" content="de_DE">');
+			expect(html).toContain('<meta property="og:locale" content="en_US">');
 		});
 	});
 

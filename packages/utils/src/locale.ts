@@ -63,6 +63,27 @@ export type Locale = z.infer<typeof localeSchema>;
 
 export const defaultLocale: Locale = "en-US";
 
+/** Interface policy only. Document/native catalogs retain the full inherited locale schema. */
+export const productUiLocales = ["ar-SA", "en-US"] as const;
+export const uiLocaleSchema = z.enum(productUiLocales);
+export type UiLocale = (typeof productUiLocales)[number];
+export const defaultUiLocale: UiLocale = "ar-SA";
+export function isUiLocale(value: unknown): value is UiLocale {
+	return value === "ar-SA" || value === "en-US";
+}
+export function resolveUiLocale({
+	requested,
+	saved,
+	cookie,
+}: {
+	requested?: unknown;
+	saved?: unknown;
+	cookie?: unknown;
+}): UiLocale {
+	for (const candidate of [requested, saved, cookie]) if (isUiLocale(candidate)) return candidate;
+	return defaultUiLocale;
+}
+
 export function isLocale(value: unknown): value is Locale {
 	return localeSchema.safeParse(value).success;
 }
@@ -72,9 +93,14 @@ export function isLocale(value: unknown): value is Locale {
  * is the plain one. The server and the app both read the parameter, so each language has a URL search engines can
  * index.
  */
-export function localizedUrl(pageUrl: string, locale?: Locale) {
+export type LocaleUrlPolicy = { defaultLocale: Locale; locales: readonly Locale[] };
+export const productLocalePolicy: LocaleUrlPolicy = { defaultLocale: defaultUiLocale, locales: productUiLocales };
+const inheritedLocalePolicy: LocaleUrlPolicy = { defaultLocale, locales: localeSchema.options };
+
+export function localizedUrl(pageUrl: string, locale?: Locale, policy: LocaleUrlPolicy = inheritedLocalePolicy) {
 	const url = new URL(pageUrl);
-	if (locale && locale !== defaultLocale) url.searchParams.set("locale", locale);
+	if (locale && policy.locales.includes(locale) && locale !== policy.defaultLocale)
+		url.searchParams.set("locale", locale);
 	else url.searchParams.delete("locale");
 	return url.href;
 }
@@ -83,11 +109,11 @@ export function localizedUrl(pageUrl: string, locale?: Locale) {
 const pseudoLocale: Locale = "zu-ZA";
 
 /** hreflang alternates for a page: every real locale plus x-default. "sr-SP" isn't a valid region, so it's "sr". */
-export function getLocaleAlternates(pageUrl: string) {
-	const alternates = localeSchema.options
+export function getLocaleAlternates(pageUrl: string, policy: LocaleUrlPolicy = inheritedLocalePolicy) {
+	const alternates = policy.locales
 		.filter((locale) => locale !== pseudoLocale)
-		.map((locale) => ({ hreflang: locale === "sr-SP" ? "sr" : locale, href: localizedUrl(pageUrl, locale) }));
-	return [...alternates, { hreflang: "x-default", href: localizedUrl(pageUrl) }];
+		.map((locale) => ({ hreflang: locale === "sr-SP" ? "sr" : locale, href: localizedUrl(pageUrl, locale, policy) }));
+	return [...alternates, { hreflang: "x-default", href: localizedUrl(pageUrl, policy.defaultLocale, policy) }];
 }
 
 // A writing system that needs a dedicated fallback font in the PDF renderer,

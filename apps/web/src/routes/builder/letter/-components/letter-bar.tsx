@@ -23,6 +23,7 @@ import { cn } from "@reactive-resume/utils/style";
 import { AssistantButton } from "@/features/assistant/assistant-button";
 import { createLetterFile, letterFileName } from "@/features/letters/export";
 import { useLetterEditorStore } from "@/features/letters/store";
+import { LocaleSwitch } from "@/features/locale/switch";
 import { BackLink, DocumentMenuTrigger, DrawerControls } from "@/features/resume/editor/chrome";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { usePrompt } from "@/hooks/use-confirm";
@@ -71,6 +72,7 @@ export function LetterBar({ layout, pinnable }: LetterBarProps) {
 			)}
 
 			<div className="flex items-center justify-end gap-1">
+				<LocaleSwitch compact={layout !== "desktop"} />
 				{layout === "desktop" && (
 					<IconButton
 						icon="clock-counter-clockwise"

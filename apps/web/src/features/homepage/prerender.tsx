@@ -5,24 +5,24 @@
  * its place once the route has loaded.
  */
 import type { IconProps } from "@phosphor-icons/react";
-import type { Locale } from "@reactive-resume/utils/locale";
+import type { UiLocale } from "@reactive-resume/utils/locale";
 import type { ReactNode } from "react";
-import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { IconContext } from "@phosphor-icons/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createMemoryHistory, createRootRoute, createRouter, RouterContextProvider } from "@tanstack/react-router";
 import { renderToString } from "react-dom/server";
-import { isRTL, localeSchema } from "@reactive-resume/utils/locale";
+import { isRTL, productUiLocales } from "@reactive-resume/utils/locale";
 import { Homepage } from "./page";
 import { AtsCheckerPage } from "@/features/ats-checker/page";
+import { LocaleProvider } from "@/features/locale/provider";
 import { ThemeProvider } from "@/features/theme/provider";
-import { getLocaleMessages } from "@/libs/locale";
+import { getUiLocaleMessages } from "@/libs/locale";
 import { getAtsCheckerMeta, getHomepageMeta } from "@/libs/seo";
 import { Header } from "@/routes/_home/-sections/header";
 
-export const locales = localeSchema.options;
+export const locales = productUiLocales;
 
 // Matches the root route's icon defaults (routes/__root.tsx), which the marketing header's icons inherit.
 const iconContextValue: IconProps = { size: 16, weight: "regular" };
@@ -48,10 +48,9 @@ const pages = {
 type PrerenderedPage = keyof typeof pages;
 export const prerenderedPages = Object.keys(pages) as PrerenderedPage[];
 
-export async function renderPage(name: PrerenderedPage, locale: Locale) {
+export async function renderPage(name: PrerenderedPage, locale: UiLocale) {
 	const page = pages[name];
-	const { messages } = await getLocaleMessages(locale);
-	i18n.loadAndActivate({ locale, messages });
+	i18n.loadAndActivate(await getUiLocaleMessages(locale));
 
 	// Links only need a router to build their hrefs; nothing is loaded or navigated.
 	const router = createRouter({
@@ -66,7 +65,9 @@ export async function renderPage(name: PrerenderedPage, locale: Locale) {
 				<I18nProvider i18n={i18n}>
 					<IconContext.Provider value={iconContextValue}>
 						<ThemeProvider theme="system">
-							<DirectionProvider direction={dir}>{page.render()}</DirectionProvider>
+							<LocaleProvider locale={locale} session={null}>
+								{page.render()}
+							</LocaleProvider>
 						</ThemeProvider>
 					</IconContext.Provider>
 				</I18nProvider>

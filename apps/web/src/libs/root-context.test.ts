@@ -4,14 +4,16 @@ import { loadRootContext, sessionQueryKey } from "./root-context";
 
 const getSessionMock = vi.hoisted(() => vi.fn());
 const flagsGetMock = vi.hoisted(() => vi.fn().mockResolvedValue({ disableSignups: false, disableEmailAuth: false }));
+const getLocaleMock = vi.hoisted(() => vi.fn((saved?: string) => saved ?? "ar-SA"));
 
 vi.mock("./auth/session", () => ({
 	getSession: getSessionMock,
 }));
 
 vi.mock("./locale", () => ({
-	getLocale: () => "en-US",
+	getLocale: getLocaleMock,
 	loadLocale: vi.fn().mockResolvedValue(undefined),
+	loadUiLocale: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("./orpc/client", () => ({
@@ -27,6 +29,19 @@ vi.mock("./theme", () => ({
 }));
 
 describe("loadRootContext", () => {
+	it("resolves interface locale from the fetched session and reuses the cached session for hover loads", async () => {
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		getSessionMock.mockResolvedValueOnce({
+			user: { id: "locale-user", uiLocale: "en-US" },
+			session: { id: "locale-session" },
+		});
+		const context = await loadRootContext(queryClient);
+		expect(context.locale).toBe("en-US");
+		expect(getLocaleMock).toHaveBeenLastCalledWith("en-US");
+		getSessionMock.mockClear();
+		await loadRootContext(queryClient);
+		expect(getSessionMock).not.toHaveBeenCalled();
+	});
 	it("loads root context with freshly fetched session", async () => {
 		const queryClient = new QueryClient({
 			defaultOptions: { queries: { retry: false } },
