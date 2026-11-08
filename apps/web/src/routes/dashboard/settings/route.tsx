@@ -82,7 +82,7 @@ function RouteComponent() {
 						viewTransition={popTransition}
 						className="mb-4 inline-flex h-9 items-center gap-1 text-sm text-ink-2 sm:hidden"
 					>
-						<Icon name="caret-left" size={20} className="rtl:rotate-180" />
+						<Icon name="caret-left" size={20} />
 						<Trans context="account.navigation.settings">Settings</Trans>
 					</Link>
 				)}

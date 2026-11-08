@@ -112,7 +112,7 @@ export function BackLink() {
 					/>
 				}
 			>
-				<Icon name="arrow-left" className="rtl:rotate-180" />
+				<Icon name="arrow-left" />
 			</TooltipTrigger>
 			<TooltipContent side="bottom">{label}</TooltipContent>
 		</Tooltip>

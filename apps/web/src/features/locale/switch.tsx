@@ -4,8 +4,10 @@ import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { useUiLocale } from "./provider";
 
+type LocaleSwitchProps = { compact?: boolean };
+
 /** Target language is explicit; switching never changes document content. */
-export function LocaleSwitch({ compact = false }: { compact?: boolean }) {
+export function LocaleSwitch({ compact = false }: LocaleSwitchProps) {
 	const { locale, pending, changeLocale } = useUiLocale();
 	const [failed, setFailed] = useState(false);
 	const arabic = locale === "ar-SA";

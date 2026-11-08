@@ -83,8 +83,10 @@ export function AppShell({ children }: AppShellProps) {
 	const breakpoint = useBreakpoint();
 	const openDialog = useDialogStore((state) => state.openDialog);
 	const matchRoute = useMatchRoute();
-	const tabs =
-		breakpoint === "mobile" && !matchRoute({ to: "/dashboard/applications/$applicationId/{-$tab}", fuzzy: true });
+	const mobileWorkspace =
+		breakpoint === "mobile" &&
+		Boolean(matchRoute({ to: "/dashboard/applications/$applicationId/{-$tab}", fuzzy: true }));
+	const tabs = breakpoint === "mobile" && !mobileWorkspace;
 
 	useHotkey("N", () => {
 		if (isEditableElementFocused() || useDialogStore.getState().open) return;
@@ -112,16 +114,18 @@ export function AppShell({ children }: AppShellProps) {
 			</a>
 			{breakpoint !== "mobile" && (breakpoint === "tablet" ? <Rail /> : <Sidebar />)}
 			<main id="main-content" className="min-w-0">
-				<header className="flex min-h-[72px] flex-wrap items-center justify-end gap-2 border-b border-line bg-surface px-[18px] sm:px-7 lg:px-10">
-					{breakpoint === "mobile" && (
-						<Button className="me-auto" aria-keyshortcuts="N" onClick={() => openDialog("document.new", undefined)}>
-							<Icon name="plus" />
-							<Trans>New</Trans>
-						</Button>
-					)}
-					<LocaleSwitch />
-					<ThemeToggleButton />
-				</header>
+				{!mobileWorkspace && (
+					<header className="flex min-h-[72px] flex-wrap items-center justify-end gap-2 border-b border-line bg-surface px-[18px] sm:px-7 lg:px-10">
+						{breakpoint === "mobile" && (
+							<Button className="me-auto" aria-keyshortcuts="N" onClick={() => openDialog("document.new", undefined)}>
+								<Icon name="plus" />
+								<Trans>New</Trans>
+							</Button>
+						)}
+						<LocaleSwitch />
+						<ThemeToggleButton />
+					</header>
+				)}
 				<GuestBanner />
 				{children}
 			</main>
@@ -236,7 +240,7 @@ function Rail() {
 			aria-label={t`App navigation`}
 			className="sticky top-0 flex h-svh flex-col items-center gap-2 border-e border-line bg-surface py-3 [view-transition-name:app-nav]"
 		>
-			<Link to="/" aria-label="Reactive Resume" className="mb-1 grid size-8 place-items-center rounded-md">
+			<Link to="/" aria-label="Master CV" className="mb-1 grid size-8 place-items-center rounded-md">
 				<BrandIcon variant="icon" alt="" className="size-6" />
 			</Link>
 			<RailTip label={t`Search`} icon="magnifying-glass">
