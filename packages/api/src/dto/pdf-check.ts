@@ -34,6 +34,9 @@ const jd = z.object({
 });
 export const pdfCheckSchema = z.object({
 	version: z.literal(1),
+	analysis: z
+		.object({ status: z.enum(["complete", "partial", "failed"]), reasons: z.array(z.string()).readonly() })
+		.optional(),
 	score: z.number(),
 	cappedBy: z.array(code).readonly(),
 	categories: z
@@ -56,7 +59,15 @@ export const pdfCheckSchema = z.object({
 				severity,
 				status: z.enum(["pass", "skip", "fail"]),
 				skipReason: z
-					.enum(["no-text", "no-operators", "not-english", "not-applicable", "encrypted", "insufficient-data"])
+					.enum([
+						"no-text",
+						"no-operators",
+						"not-english",
+						"not-applicable",
+						"encrypted",
+						"insufficient-data",
+						"execution-failed",
+					])
 					.optional(),
 				findings: z.array(finding).readonly(),
 			}),
