@@ -22,6 +22,13 @@ describe("transactional auth mail", () => {
 				messages["en-US"].match(/\{\w+\}/g)?.sort() ?? [],
 			);
 	});
+	it.each(["ar-SA", "en-US"] as const)("renders complete verification copy in %s", async (locale) => {
+		const element = createElement(VerifyEmail, { url: "https://master.example.test/verify", locale });
+		for (const message of await Promise.all([render(element), render(element, { plainText: true })])) {
+			expect(message).toContain(authMessages["email.verification.intro"][locale]);
+			expect(message).not.toMatch(/\{\w+\}/);
+		}
+	});
 	it.each(["ar-SA", "en-US"] as const)("renders %s without external assets and escapes addresses", async (locale) => {
 		for (const template of [VerifyEmail, ResetPasswordEmail, VerifyEmailChange]) {
 			const html = await render(

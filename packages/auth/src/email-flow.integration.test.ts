@@ -83,12 +83,35 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("verified email acc
 			user: { emailVerified: true, uiLocale: "ar-SA" },
 		});
 	});
+	it.each(["SMTP not configured", "SMTP rejected delivery"])(
+		"keeps reset responses indistinguishable: %s",
+		async (failure) => {
+			const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			mail.send.mockRejectedValueOnce(new Error(failure));
+			try {
+				const known = await request("request-password-reset", {
+					email: "alice@example.test",
+					redirectTo: `${env.APP_URL}/auth/reset-password`,
+				});
+				const unknown = await request("request-password-reset", {
+					email: "unknown@example.test",
+					redirectTo: `${env.APP_URL}/auth/reset-password`,
+				});
+				expect(known.status).toBe(200);
+				expect(unknown.status).toBe(known.status);
+				expect(await known.json()).toEqual(await unknown.json());
+			} finally {
+				errorSpy.mockRestore();
+			}
+		},
+	);
 	it("resets once, revokes sessions and retains enrolled MFA", async () => {
 		const login = await request("sign-in/email", { email: "alice@example.test", password: fixturePassword });
 		let cookie = cookieOf(login);
 		const enroll = await request("two-factor/enable", { password: fixturePassword }, cookie);
 		expect(enroll.status, await enroll.clone().text()).toBe(200);
 		const { totpURI } = await enroll.json();
+		expect(new URL(totpURI).searchParams.get("issuer")).toBe("Master CV");
 		const encoded = new URL(totpURI).searchParams.get("secret");
 		const bits = [...(encoded ?? "")]
 			.map((char) => "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".indexOf(char).toString(2).padStart(5, "0"))

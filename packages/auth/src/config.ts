@@ -454,7 +454,7 @@ const getAuthConfig = () => {
 			admin(),
 			passkey(),
 			genericOAuth({ config: authConfigs }),
-			twoFactor({ issuer: "Reactive Resume" }),
+			twoFactor({ issuer: "Master CV" }),
 			apiKey({
 				enableSessionForAPIKeys: false,
 				rateLimit: {
