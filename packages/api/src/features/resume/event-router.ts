@@ -28,21 +28,24 @@ export const updatesRouter = {
 				}),
 			),
 		)
-		.handler(async function* ({ context, input, signal }) {
+		.handler(async ({ context, input, signal }) => {
+			// Authorize while protectedProcedure's owner scope is active, before the lazy stream is read.
 			const resume = await resumeService.getById({ id: input.id, userId: context.user.id });
 
-			yield {
-				type: "resume.updated" as const,
-				resumeId: input.id,
-				userId: context.user.id,
-				updatedAt: resume.updatedAt.toISOString(),
-				mutation: "sync" as const,
-			};
+			return (async function* () {
+				yield {
+					type: "resume.updated" as const,
+					resumeId: input.id,
+					userId: context.user.id,
+					updatedAt: resume.updatedAt.toISOString(),
+					mutation: "sync" as const,
+				};
 
-			yield* subscribeResumeUpdated({
-				resumeId: input.id,
-				userId: context.user.id,
-				...(signal ? { signal } : {}),
-			});
+				yield* subscribeResumeUpdated({
+					resumeId: input.id,
+					userId: context.user.id,
+					...(signal ? { signal } : {}),
+				});
+			})();
 		}),
 };
