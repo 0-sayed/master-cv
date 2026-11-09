@@ -3,7 +3,7 @@ import { getQueryClient } from "./client";
 
 describe("getQueryClient mutationCache", () => {
 	afterEach(() => vi.unstubAllGlobals());
-	it("clears private queries on an unauthorized response before notifying sign-in recovery", async () => {
+	it("clears private queries on an unauthorized response", async () => {
 		vi.stubGlobal("window", new EventTarget());
 		const queryClient = getQueryClient();
 		queryClient.setQueryData(["auth", "session"], { user: { id: "alice" } });

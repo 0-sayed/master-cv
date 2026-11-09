@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { AuthErrorSummary } from "../components/auth-error-summary";
@@ -11,6 +12,8 @@ import { authClient } from "@/libs/auth/client";
 export function ResetPasswordPage({ token }: { token: string }) {
 	const copy = useAuthCopy();
 	const navigate = useNavigate();
+	const router = useRouter();
+	const queryClient = useQueryClient();
 	const [password, setPassword] = useState("");
 	const [confirmation, setConfirmation] = useState("");
 	const [pending, setPending] = useState(false);
@@ -31,6 +34,8 @@ export function ResetPasswordPage({ token }: { token: string }) {
 				if (result.error.code === "INVALID_TOKEN" || result.error.code === "TOKEN_EXPIRED") setInvalid(true);
 				return;
 			}
+			queryClient.clear();
+			await router.invalidate();
 			await navigate({ to: "/auth/login", search: { reason: "passwordChanged" }, replace: true });
 		} catch {
 			setError(authErrorMessage(undefined));

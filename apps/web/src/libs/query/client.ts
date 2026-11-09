@@ -8,7 +8,6 @@ export const getQueryClient = () => {
 		if (!error || typeof error !== "object" || !("code" in error) || error.code !== "UNAUTHORIZED") return;
 		queryClient.clear();
 		queryClient.setQueryData(["auth", "session"], null);
-		window.dispatchEvent(new Event("master-cv:session-expired"));
 	};
 	const queryClient = new QueryClient({
 		queryCache: new QueryCache({ onError: recoverSession }),
