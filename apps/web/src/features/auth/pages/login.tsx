@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import z from "zod";
 import { Button } from "@reactive-resume/ui/components/button";
 import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
+import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { AuthErrorSummary } from "../components/auth-error-summary";
@@ -185,9 +186,16 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 
 	return (
 		<>
+			<div className="space-y-1 text-start">
+				<h1 className="type-title-s lg:type-title">{copy("common.navigation.signIn")}</h1>
+				<p className="text-sm leading-[23px] text-ink-2">{copy("editor.documents.subtitle")}</p>
+			</div>
 			{reason && (
 				<div role="status" className="rounded-xl border border-line bg-bg p-4">
-					<h2 className="font-semibold">
+					<h2 className="flex items-center gap-2 font-semibold">
+						<Icon
+							name={reason === "passwordChanged" ? "check-circle" : reason === "sessionExpired" ? "warning" : "clock"}
+						/>
 						{copy(
 							reason === "passwordChanged"
 								? "auth.password.changedTitle"
@@ -208,10 +216,6 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 				</div>
 			)}
 			<AuthErrorSummary message={error} field="login-password" />
-			<div className="space-y-1 text-start">
-				<h1 className="type-title-s lg:type-title">{copy("common.navigation.signIn")}</h1>
-				<p className="text-sm leading-[23px] text-ink-2">{copy("editor.documents.subtitle")}</p>
-			</div>
 
 			{!disableEmailAuth && (
 				<form

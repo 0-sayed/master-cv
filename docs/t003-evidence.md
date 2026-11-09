@@ -241,3 +241,35 @@ The 19 app captures were refreshed after fonts, animations and loading skeletons
 horizontal overflow. Existing fresh Figma targets and all 15 documented intentional differences remain;
 no visual baselines or dark-theme parity claims were added. GitHub's final results are tracked separately
 in the ship report, not inferred from the local run.
+
+## D35 owner decision and follow-up
+
+D35 (owner decided 2026-11-09) makes existing shared components the visual-detail target.
+Figma still governs screen/state/dialog inventory, elements, exact icons, indexed copy, flows and
+order. Fresh comparisons check those contracts, layout/RTL and brand geometry; pixel spacing is
+not an acceptance gate. The roadmap checker now recognizes D35 without marking T003 complete.
+
+Fixed invented career-dialog language controls, first/last Arabic and Latin avatar initials,
+the indexed certification helper, opposite-edge language levels and full-width draft notices.
+Desktop fact dialogs include their indexed entry/approval guidance. Reset-sent now offers a real
+resend with pending/error recovery; failed resends do not link to the removed email field.
+Recovery-state notices follow the heading with the exact check-circle/warning/clock icons.
+Career edit labels now react to locale changes while preserving authored drafts.
+
+Failed-first evidence in the external `t003/d35/` archive: 5 initials failures, 12 original browser
+contract failures, 6 missing dialog/resend failures, 4 failed-resend error-link failures,
+2 draft-notice placement failures and 6 recovery-state order/icon failures. Harness setup failures
+are excluded. The corrected regressions pass on the rebuilt isolated Chrome runtime.
+
+Focused results: web 403 passed; utils 123 passed; tooling 262 passed with 32 prerequisite skips.
+The affected 14-spec browser run passed 132 tests, with 1 gated unsafe-AI capability test skipped,
+0 failures and 0 flaky cases. Lint, 22 workspace typechecks, Knip, boundaries, scoped formatting,
+copy bindings, roadmap validation and production builds pass.
+
+Fresh Arabic captures cover 28 desktop/mobile screen and dialog targets after font loading,
+with zero horizontal overflow. Fresh English S17 captures also have zero horizontal overflow;
+the real empty library is explicitly distinguished from the populated English Figma fixture.
+References, captures and comparisons are in external `t003/d35/`; the D35 differences record
+classifies retained capabilities, data integrity and gates. No dark-theme visual equivalence or
+unmapped dialog parity is claimed. S17's indexed empty-title wording conflicts with the live
+override; the deck remains unchanged for owner copy review (A13). PR checks are reported separately.

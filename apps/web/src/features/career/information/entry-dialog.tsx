@@ -20,7 +20,6 @@ import { useCareerCopy } from "../copy.generated";
 import { useSessionDraft } from "../hooks";
 import { draftSchema, entryInputs, formatFactValue, initialDraft, mergeLatestDraft, sectionFields } from "./model";
 import { AuthErrorSummary } from "@/features/auth/components/auth-error-summary";
-import { LocaleSwitch } from "@/features/locale/switch";
 import { client, orpc } from "@/libs/orpc/client";
 
 export function fieldLabel(field: string): string {
@@ -190,9 +189,6 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 				closeLabel={t`Close`}
 				className="max-sm:top-auto max-sm:bottom-0 max-sm:max-h-[90svh] max-sm:translate-y-0 max-sm:rounded-b-none"
 			>
-				<div className="flex justify-end pe-6">
-					<LocaleSwitch compact />
-				</div>
 				<DialogHeader>
 					<DialogTitle>
 						{copy(
@@ -203,7 +199,10 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 									: `editor.${section}.add`,
 						)}
 					</DialogTitle>
-					<DialogDescription>{copy("editor.experience.accuracyHint")}</DialogDescription>
+					<DialogDescription>
+						<span className="sm:hidden">{copy("editor.experience.accuracyHint")}</span>
+						<span className="hidden sm:inline">{copy("review.fact.entryHint")}</span>
+					</DialogDescription>
 				</DialogHeader>
 				<AuthErrorSummary
 					message={error}
@@ -373,6 +372,7 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 						</fieldset>
 					</form>
 				)}
+				<p className="hidden text-xs text-ink-3 sm:block">{copy("review.fact.approvalHint")}</p>
 				<p role="status" className="text-xs text-ink-3">
 					{pending ? copy("editor.save.status.saving") : copy("editor.career.ownershipHint")}
 				</p>

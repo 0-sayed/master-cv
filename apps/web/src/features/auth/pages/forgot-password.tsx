@@ -14,8 +14,7 @@ export function ForgotPasswordPage() {
 	const [submitted, setSubmitted] = useState(false);
 	const [pending, setPending] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	async function submit(event: React.FormEvent<HTMLFormElement>) {
-		event.preventDefault();
+	async function requestReset() {
 		setError(null);
 		setPending(true);
 		try {
@@ -31,6 +30,10 @@ export function ForgotPasswordPage() {
 			setPending(false);
 		}
 	}
+	async function submit(event: React.FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		await requestReset();
+	}
 	return (
 		<>
 			<div className="space-y-1">
@@ -39,7 +42,7 @@ export function ForgotPasswordPage() {
 					{copy(submitted ? "auth.reset.sentHint" : "auth.reset.requestHint", { email })}
 				</p>
 			</div>
-			<AuthErrorSummary message={error} field="reset-email" />
+			<AuthErrorSummary message={error} field={submitted ? undefined : "reset-email"} />
 			{!submitted && (
 				<form className="grid gap-5" onSubmit={submit}>
 					<label className="grid gap-1.5 text-sm font-semibold">
@@ -60,6 +63,11 @@ export function ForgotPasswordPage() {
 						{copy("auth.reset.sendLink")}
 					</Button>
 				</form>
+			)}
+			{submitted && (
+				<Button variant="secondary" loading={pending} onClick={() => void requestReset()}>
+					{copy("auth.verifyEmail.resend")}
+				</Button>
 			)}
 			<Link
 				to="/auth/login"

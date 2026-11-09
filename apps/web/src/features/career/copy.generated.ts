@@ -48,6 +48,14 @@ const messages = {
 		message: "Enter accurate information from your experience.",
 		context: "editor.experience.accuracyHint",
 	}),
+	"review.fact.entryHint": msg({
+		message: "Write the information as you want it saved.",
+		context: "review.fact.entryHint",
+	}),
+	"review.fact.approvalHint": msg({
+		message: "No information is added without your approval.",
+		context: "review.fact.approvalHint",
+	}),
 	"editor.experience.save": msg({ message: "Save information", context: "editor.experience.save" }),
 	"editor.education.title": msg({ message: "Education", context: "editor.education.title" }),
 	"editor.education.add": msg({ message: "Add qualification", context: "editor.education.add" }),

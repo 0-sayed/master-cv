@@ -82,6 +82,8 @@ const groups = {
 		"editor.experience.add",
 		"editor.experience.editTitle",
 		"editor.experience.accuracyHint",
+		"review.fact.entryHint",
+		"review.fact.approvalHint",
 		"editor.experience.save",
 		"editor.education.title",
 		"editor.education.add",

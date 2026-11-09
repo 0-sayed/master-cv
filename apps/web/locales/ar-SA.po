@@ -7570,6 +7570,11 @@ msgctxt "editor.career.emptyTitle"
 msgid "No information added yet"
 msgstr "لم تُضف معلومات بعد"
 
+#: src/features/career/copy.generated.ts
+msgctxt "review.fact.approvalHint"
+msgid "No information is added without your approval."
+msgstr "لا تُضاف معلومة دون موافقتك."
+
 #: src/features/applications/components/calendar-view.tsx
 msgid "No interviews"
 msgstr "لا مقابلات"
@@ -13415,6 +13420,11 @@ msgstr "اكتب قصة عن شيء فعلته، في خمسة أجزاء. ات�
 #: src/features/ats-checker/messages.ts
 msgid "Write the full address so it is recognised as a link."
 msgstr "اكتب العنوان كاملاً ليتم التعرف عليه كرابط."
+
+#: src/features/career/copy.generated.ts
+msgctxt "review.fact.entryHint"
+msgid "Write the information as you want it saved."
+msgstr "اكتب المعلومة كما تريد حفظها."
 
 #: src/features/career/workspace/fit.tsx
 msgid "Write what you did."

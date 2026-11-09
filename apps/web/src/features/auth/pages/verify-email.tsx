@@ -44,7 +44,7 @@ export function VerifyEmailPage() {
 	return (
 		<>
 			<div className="grid size-14 place-items-center self-center rounded-full bg-accent-soft text-accent-text">
-				<Icon name="envelope-simple" size={24} />
+				<Icon name={tokenError ? "clock" : "envelope-simple"} size={24} />
 			</div>
 			<div className="space-y-1 text-center">
 				<h1 className="type-title-s lg:type-title">

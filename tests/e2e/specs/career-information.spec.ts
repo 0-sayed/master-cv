@@ -180,8 +180,10 @@ test("five groups review facts explicitly, survive reload and keep language chan
 	await page.screenshot({ path: testInfo.outputPath("information-en-desktop.png"), fullPage: true });
 	await page.getByRole("button", { name: "Edit entry" }).first().click();
 	await page.locator('input[name="company"]').fill("سارة مثال");
+	await page.getByRole("dialog").getByRole("button", { name: "Cancel", exact: true }).click();
 	await page.getByRole("button", { name: "Switch interface to Arabic" }).click();
 	await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+	await page.getByRole("button", { name: "تحرير الإدخال", exact: true }).first().click();
 	await expect(page.locator('input[name="company"]')).toHaveValue("سارة مثال");
 	await page.getByRole("dialog").getByRole("button", { name: "إلغاء", exact: true }).click();
 	for (const width of [1440, 390, 320, 768]) {

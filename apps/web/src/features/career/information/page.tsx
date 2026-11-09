@@ -1,8 +1,7 @@
 import type { Section } from "./model";
 import type { MasterFact } from "@reactive-resume/schema/career-master";
 import type { CareerMaster } from "@reactive-resume/schema/career-master";
-import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
@@ -126,7 +125,8 @@ export function CareerInformationPage() {
 					</div>
 				) : (
 					<div className="rounded-lg border border-dashed border-line p-5 text-sm leading-6 text-ink-3">
-						{section === "certifications" ? copy("editor.certificates.empty") : copy("editor.career.emptyTitle")}
+						<p>{section === "certifications" ? copy("editor.certificates.empty") : copy("editor.career.emptyTitle")}</p>
+						{section === "certifications" && <p>{copy("editor.certificates.hint")}</p>}
 					</div>
 				)}
 				<Button
@@ -157,6 +157,7 @@ function Entry({
 }) {
 	const copy = useCareerCopy();
 	const documents = [...new Map(links.map((link) => [link.resumeId, link])).values()];
+	const { t } = useLingui();
 	const titleField =
 		section === "experience" ? "position" : section === "education" ? "degree" : sectionFields[section][0];
 	const heading =
@@ -188,7 +189,13 @@ function Entry({
 			)}
 		>
 			<div className={cn("grid min-w-0 flex-1", section === "languages" && "grid-cols-2 items-center gap-4")}>
-				<h3 dir="auto" className="text-sm leading-[22px] font-semibold break-words">
+				<h3
+					dir="auto"
+					className={cn(
+						"min-w-0 text-sm leading-[22px] font-semibold break-words",
+						section === "languages" && "justify-self-start",
+					)}
+				>
 					{typeof headingValue === "string" ? headingValue : ""}
 				</h3>
 				{metadata.length > 0 && (
@@ -214,7 +221,14 @@ function Entry({
 				{details
 					.filter((fact) => !metadataFields.has(fact.structured?.field ?? ""))
 					.map((fact) => (
-						<p key={fact.id} dir="auto" className="text-sm break-words whitespace-pre-wrap text-ink-2">
+						<p
+							key={fact.id}
+							dir="auto"
+							className={cn(
+								"min-w-0 text-sm break-words whitespace-pre-wrap text-ink-2",
+								section === "languages" && (fact.structured?.field === "fluency" ? "justify-self-end" : "col-span-2"),
+							)}
+						>
 							{typeof fact.structured?.value === "string" ? (
 								fact.structured.value
 							) : (
@@ -229,12 +243,12 @@ function Entry({
 						</p>
 					))}
 				{facts.some((fact) => fact.proposedStructured) && (
-					<p className="text-xs text-ink-3">
+					<p className={cn("text-xs text-ink-3", section === "languages" && "col-span-2")}>
 						<Trans>Draft — review before confirming</Trans>
 					</p>
 				)}
 				{documents.length > 0 && (
-					<div className="flex flex-wrap gap-2 text-xs text-ink-3">
+					<div className={cn("flex flex-wrap gap-2 text-xs text-ink-3", section === "languages" && "col-span-2")}>
 						<span>{copy("editor.field.usedIn", { documentNames: "" })}</span>
 						{documents.map((document) => (
 							<Link
