@@ -21,6 +21,8 @@ export const client: RouterClient<typeof router> = createORPCClient(
 		interceptors: [
 			onError((error) => {
 				if (error instanceof DOMException && error.name === "AbortError") return;
+				if (error && typeof error === "object" && "code" in error && error.code === "UNAUTHORIZED")
+					window.dispatchEvent(new Event("master-cv:session-expired"));
 				console.warn("[oRPC client]", error);
 			}),
 		],

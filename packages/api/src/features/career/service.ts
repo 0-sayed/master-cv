@@ -377,6 +377,10 @@ export const careerService = {
 			await lockCareerUser(tx, userId);
 			const [row] = await tx.select().from(tables.careerFact).where(ownedFact(input.id, userId)).for("update");
 			if (!row || row.status === "forgotten") throw new ORPCError("NOT_FOUND");
+			if (row.structured || row.proposedStructured)
+				throw new ORPCError("PRECONDITION_FAILED", {
+					message: "Review structured career changes in Career information.",
+				});
 			const [updated] = await tx
 				.update(tables.careerFact)
 				.set({
@@ -400,6 +404,11 @@ export const careerService = {
 	forgetFact: async (userId: string, id: string) => {
 		await db.transaction(async (tx) => {
 			await lockCareerUser(tx, userId);
+			const [fact] = await tx.select().from(tables.careerFact).where(ownedFact(id, userId)).for("update");
+			if (fact?.structured || fact?.proposedStructured)
+				throw new ORPCError("PRECONDITION_FAILED", {
+					message: "Review structured career changes in Career information.",
+				});
 			const [row] = await tx
 				.update(tables.careerFact)
 				.set({

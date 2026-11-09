@@ -6,11 +6,14 @@ import type {
 	CareerWorkspace,
 	SavedItemData,
 } from "@reactive-resume/schema/career";
+import type { MasterFactInput, MasterSection } from "@reactive-resume/schema/career-master";
+import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { generateId } from "@reactive-resume/utils/string";
 import { aiProvider } from "./agent";
 import { application } from "./applications";
 import { user } from "./auth";
+import { discoveryPolicy, ownerPolicy } from "./ownership";
 
 const owned = () => ({
 	id: pg
@@ -30,19 +33,26 @@ const owned = () => ({
 });
 const applicationId = () => pg.text("application_id").references(() => application.id, { onDelete: "cascade" });
 
-export const careerProfile = pg.pgTable("career_profile", {
-	userId: pg
-		.text("user_id")
-		.primaryKey()
-		.references(() => user.id, { onDelete: "cascade" }),
-	data: pg.jsonb("data").notNull().$type<CareerProfileData>(),
-	updatedAt: pg
-		.timestamp("updated_at", { withTimezone: true })
-		.notNull()
-		.defaultNow()
-		.$onUpdate(() => new Date()),
-});
-export const careerFact = pg.pgTable(
+export const careerProfile = pg.pgTable.withRLS(
+	"career_profile",
+	{
+		userId: pg
+			.text("user_id")
+			.primaryKey()
+			.references(() => user.id, { onDelete: "cascade" }),
+		data: pg.jsonb("data").notNull().$type<CareerProfileData>(),
+		profileRevision: pg.integer("profile_revision").notNull().default(0),
+		sectionOrder: pg.jsonb("section_order").notNull().$type<MasterSection[]>().default([]),
+		welcomeCompletedAt: pg.timestamp("welcome_completed_at", { withTimezone: true }),
+		updatedAt: pg
+			.timestamp("updated_at", { withTimezone: true })
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(t) => [ownerPolicy(t.userId)],
+);
+export const careerFact = pg.pgTable.withRLS(
 	"career_fact",
 	{
 		...owned(),
@@ -52,20 +62,60 @@ export const careerFact = pg.pgTable(
 		source: pg.jsonb("source").notNull().$type<CareerSource>(),
 		sourceKey: pg.text("source_key").notNull(),
 		status: pg.text("status").notNull().default("active"),
+		structured: pg.jsonb("structured").$type<MasterFactInput>(),
+		proposedStructured: pg.jsonb("proposed_structured").$type<MasterFactInput>(),
+		confirmation: pg
+			.text("confirmation", { enum: ["pending", "confirmed"] })
+			.notNull()
+			.default("pending"),
+		revision: pg.integer("revision").notNull().default(1),
+		draftRevision: pg.integer("draft_revision").notNull().default(0),
 		revisions: pg.jsonb("revisions").notNull().$type<Array<{ text: string; at: string }>>().default([]),
 	},
-	(t) => [pg.index().on(t.userId, t.applicationId, t.status), pg.uniqueIndex().on(t.userId, t.sourceKey)],
+	(t) => [
+		ownerPolicy(t.userId),
+		pg.index().on(t.userId, t.applicationId, t.status),
+		pg.uniqueIndex().on(t.userId, t.sourceKey),
+		pg.unique("career_fact_owner_id").on(t.userId, t.id),
+		pg.check("career_fact_revision_positive", sql`${t.revision} > 0`),
+		pg.check("career_fact_draft_revision_nonnegative", sql`${t.draftRevision} >= 0`),
+		pg.check(
+			"career_fact_confirmation_valid",
+			sql`${t.confirmation} IN ('pending', 'confirmed') AND (${t.confirmation} <> 'confirmed' OR ${t.structured} IS NOT NULL)`,
+		),
+	],
 );
-export const careerStory = pg.pgTable(
+
+/** Accepted snapshots survive subsequent edits/removal. Never overwrite an existing revision. */
+export const careerFactRevision = pg.pgTable.withRLS(
+	"career_fact_revision",
+	{
+		userId: pg.text("user_id").notNull(),
+		factId: pg.text("fact_id").notNull(),
+		revision: pg.integer("revision").notNull(),
+		structured: pg.jsonb("structured").notNull().$type<MasterFactInput>(),
+		removed: pg.boolean("removed").notNull().default(false),
+		createdAt: pg.timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	},
+	(t) => [
+		ownerPolicy(t.userId),
+		pg.primaryKey({ columns: [t.userId, t.factId, t.revision] }),
+		pg
+			.foreignKey({ columns: [t.userId, t.factId], foreignColumns: [careerFact.userId, careerFact.id] })
+			.onDelete("cascade"),
+		pg.check("career_fact_snapshot_revision_positive", sql`${t.revision} > 0`),
+	],
+);
+export const careerStory = pg.pgTable.withRLS(
 	"career_story",
 	{
 		...owned(),
 		applicationId: applicationId(),
 		data: pg.jsonb("data").notNull().$type<CareerStoryData>(),
 	},
-	(t) => [pg.index().on(t.userId, t.applicationId)],
+	(t) => [ownerPolicy(t.userId), pg.index().on(t.userId, t.applicationId)],
 );
-export const careerArtifact = pg.pgTable(
+export const careerArtifact = pg.pgTable.withRLS(
 	"career_artifact",
 	{
 		...owned(),
@@ -78,9 +128,9 @@ export const careerArtifact = pg.pgTable(
 		jobId: pg.text("job_id").references(() => careerJob.id, { onDelete: "set null" }),
 		inputVersion: pg.text("input_version").notNull(),
 	},
-	(t) => [pg.index().on(t.userId, t.applicationId, t.createdAt), pg.uniqueIndex().on(t.jobId)],
+	(t) => [ownerPolicy(t.userId), pg.index().on(t.userId, t.applicationId, t.createdAt), pg.uniqueIndex().on(t.jobId)],
 );
-export const careerSchedule = pg.pgTable(
+export const careerSchedule = pg.pgTable.withRLS(
 	"career_schedule",
 	{
 		...owned(),
@@ -100,9 +150,9 @@ export const careerSchedule = pg.pgTable(
 		intervalDays: pg.integer("interval_days"),
 		aiProviderId: pg.text("ai_provider_id").references(() => aiProvider.id, { onDelete: "set null" }),
 	},
-	(t) => [pg.index().on(t.enabled, t.nextRunAt)],
+	(t) => [ownerPolicy(t.userId), discoveryPolicy(), pg.index().on(t.enabled, t.nextRunAt)],
 );
-export const careerJob = pg.pgTable(
+export const careerJob = pg.pgTable.withRLS(
 	"career_job",
 	{
 		...owned(),
@@ -117,9 +167,14 @@ export const careerJob = pg.pgTable(
 		leaseUntil: pg.timestamp("lease_until", { withTimezone: true }),
 		error: pg.text("error"),
 	},
-	(t) => [pg.uniqueIndex().on(t.scheduleId, t.dueAt), pg.index().on(t.status, t.leaseUntil)],
+	(t) => [
+		ownerPolicy(t.userId),
+		discoveryPolicy(),
+		pg.uniqueIndex().on(t.scheduleId, t.dueAt),
+		pg.index().on(t.status, t.leaseUntil),
+	],
 );
-export const careerNotification = pg.pgTable(
+export const careerNotification = pg.pgTable.withRLS(
 	"career_notification",
 	{
 		...owned(),
@@ -132,10 +187,15 @@ export const careerNotification = pg.pgTable(
 		emailedAt: pg.timestamp("emailed_at", { withTimezone: true }),
 		emailAttemptedAt: pg.timestamp("email_attempted_at", { withTimezone: true }),
 	},
-	(t) => [pg.uniqueIndex().on(t.userId, t.key), pg.index().on(t.userId, t.createdAt)],
+	(t) => [
+		ownerPolicy(t.userId),
+		discoveryPolicy(),
+		pg.uniqueIndex().on(t.userId, t.key),
+		pg.index().on(t.userId, t.createdAt),
+	],
 );
 
-export const careerOpportunity = pg.pgTable(
+export const careerOpportunity = pg.pgTable.withRLS(
 	"career_opportunity",
 	{
 		...owned(),
@@ -153,28 +213,32 @@ export const careerOpportunity = pg.pgTable(
 		/** Set when tracked in Applications; a tracked role never returns in later runs. */
 		trackedApplicationId: pg.text("tracked_application_id").references(() => application.id, { onDelete: "set null" }),
 	},
-	(t) => [pg.uniqueIndex().on(t.userId, t.url)],
+	(t) => [ownerPolicy(t.userId), pg.uniqueIndex().on(t.userId, t.url)],
 );
 
 /** One application's live workspace state: answers, checklist ticks, questions to ask. */
-export const careerWorkspace = pg.pgTable("career_workspace", {
-	applicationId: pg
-		.text("application_id")
-		.primaryKey()
-		.references(() => application.id, { onDelete: "cascade" }),
-	userId: pg
-		.text("user_id")
-		.notNull()
-		.references(() => user.id, { onDelete: "cascade" }),
-	data: pg.jsonb("data").notNull().$type<CareerWorkspace>(),
-	updatedAt: pg
-		.timestamp("updated_at", { withTimezone: true })
-		.notNull()
-		.defaultNow()
-		.$onUpdate(() => new Date()),
-});
+export const careerWorkspace = pg.pgTable.withRLS(
+	"career_workspace",
+	{
+		applicationId: pg
+			.text("application_id")
+			.primaryKey()
+			.references(() => application.id, { onDelete: "cascade" }),
+		userId: pg
+			.text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		data: pg.jsonb("data").notNull().$type<CareerWorkspace>(),
+		updatedAt: pg
+			.timestamp("updated_at", { withTimezone: true })
+			.notNull()
+			.defaultNow()
+			.$onUpdate(() => new Date()),
+	},
+	(t) => [ownerPolicy(t.userId)],
+);
 
-export const careerTranscript = pg.pgTable(
+export const careerTranscript = pg.pgTable.withRLS(
 	"career_transcript",
 	{
 		...owned(),
@@ -183,5 +247,5 @@ export const careerTranscript = pg.pgTable(
 		edited: pg.text("edited").notNull(),
 		model: pg.text("model").notNull(),
 	},
-	(t) => [pg.index().on(t.userId, t.applicationId)],
+	(t) => [ownerPolicy(t.userId), pg.index().on(t.userId, t.applicationId)],
 );

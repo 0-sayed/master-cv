@@ -3,6 +3,7 @@ import type z from "zod";
 import { ORPCError } from "@orpc/client";
 import { and, asc, desc, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { db } from "@reactive-resume/db/client";
+import { withDatabaseOwner } from "@reactive-resume/db/owner-scope";
 import * as tables from "@reactive-resume/db/schema";
 import { sendCareerNotification } from "@reactive-resume/email/transport";
 import { env } from "@reactive-resume/env/server";
@@ -508,7 +509,7 @@ async function sendPendingEmail() {
 }
 
 /** One bounded scheduler tick. No work continues after this promise resolves. */
-export async function runCareerJobs() {
+async function runCareerJobsForOwner(maxJobs: number) {
 	const exhausted = await db
 		.update(tables.careerJob)
 		.set({
@@ -537,7 +538,7 @@ export async function runCareerJobs() {
 			.onConflictDoNothing();
 	await enqueue();
 	let processed = 0;
-	for (let i = 0; i < 2; i++) {
+	for (let i = 0; i < maxJobs; i++) {
 		const job = await claim();
 		if (!job) break;
 		try {
@@ -573,5 +574,15 @@ export async function runCareerJobs() {
 		processed++;
 	}
 	await sendPendingEmail();
+	return { processed };
+}
+
+export async function runCareerJobs() {
+	const owners = await db.execute<{ userId: string }>(sql`SELECT user_id AS "userId" FROM master_cv_queue_owners()`);
+	let processed = 0;
+	for (const owner of owners.rows) {
+		const result = await withDatabaseOwner(owner.userId, () => runCareerJobsForOwner(Math.max(0, 2 - processed)));
+		processed += result.processed;
+	}
 	return { processed };
 }

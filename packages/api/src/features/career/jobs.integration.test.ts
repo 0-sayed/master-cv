@@ -17,6 +17,8 @@ const fixture = vi.hoisted(() => ({
 	env: { CRON_SECRET: undefined as string | undefined },
 }));
 vi.mock("@reactive-resume/db/client", () => ({
+	// This suite isolates queue behavior; the restricted-role suite exercises real RLS.
+	withDatabaseOwner: (_owner: string, work: () => unknown) => work(),
 	get db() {
 		return fixture.db;
 	},

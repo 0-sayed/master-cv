@@ -14,9 +14,10 @@ env:
   APP_URL: http://localhost:3000
   PORT: "3000"
   DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+  DATABASE_MIGRATION_URL: postgresql://postgres:postgres@localhost:5432/postgres
   FLAG_DISABLE_SIGNUPS: "false"
   FLAG_DISABLE_EMAIL_AUTH: "false"
-  FLAG_ENABLE_GUEST_LOGIN: "true"
+  FLAG_ENABLE_GUEST_LOGIN: "false"
   FLAG_DISABLE_API_RATE_LIMIT: "true"
   STORAGE_BACKEND: local
   LOCAL_STORAGE_PATH: /tmp/reactive-resume-e2e-storage
@@ -117,7 +118,12 @@ jobs:
       - name: Prepare OAuth Test Database
         run: |
           psql "$DATABASE_URL" -c "CREATE DATABASE oauth_test"
-          DATABASE_URL="$OAUTH_TEST_DATABASE_URL" pnpm db:migrate
+          DATABASE_URL="$OAUTH_TEST_DATABASE_URL" DATABASE_MIGRATION_URL="$OAUTH_TEST_DATABASE_URL" pnpm db:migrate
+
+      - name: Prepare restricted synthetic runtime role
+        run: |
+          node tooling/local/database-roles.mjs
+          node --input-type=module -e 'import {readFileSync,appendFileSync} from "node:fs"; const line=readFileSync(".env.runtime.local","utf8").split("\n").find(value=>value.startsWith("DATABASE_URL=")); appendFileSync(process.env.GITHUB_ENV,`${line}\n`);'
 
       # Runs every workspace that declares test:ci. Mobile has no such script;
       # its inherited Hermes/native prerequisite is recorded in docs/development.md.

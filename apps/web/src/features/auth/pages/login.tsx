@@ -4,15 +4,23 @@ import { Trans } from "@lingui/react/macro";
 import { useSelector } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import z from "zod";
 import { Button } from "@reactive-resume/ui/components/button";
 import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
-import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { AuthErrorSummary } from "../components/auth-error-summary";
 import { SocialAuth } from "../components/social-auth";
-import { getAuthRedirectOptions, getOAuthPasskeyOptions, getOAuthSignInOptions, isOAuthRedirect } from "../redirect";
+import { useAuthCopy } from "../copy.generated";
+import { authErrorMessage } from "../errors";
+import {
+	getAuthRedirectOptions,
+	getOAuthCreationOptions,
+	getOAuthPasskeyOptions,
+	getOAuthSignInOptions,
+	isOAuthRedirect,
+} from "../redirect";
 import { PasswordInput } from "@/components/input/password-input";
 import { authClient } from "@/libs/auth/client";
 import { orpc } from "@/libs/orpc/client";
@@ -31,6 +39,7 @@ type Props = {
 };
 
 type SubmitLoginOptions = {
+	onError: (code: string | undefined) => void;
 	value: z.infer<typeof formSchema>;
 	callbackURL: string | undefined;
 	reauthenticate: boolean | undefined;
@@ -39,35 +48,40 @@ type SubmitLoginOptions = {
 	router: ReturnType<typeof useRouter>;
 };
 
-async function submitLogin({ value, callbackURL, reauthenticate, navigate, queryClient, router }: SubmitLoginOptions) {
+async function submitLogin({
+	value,
+	callbackURL,
+	reauthenticate,
+	navigate,
+	queryClient,
+	router,
+	onError,
+}: SubmitLoginOptions) {
 	const toastId = toast.add({ type: "loading", description: t`Signing in...` });
 
 	try {
 		const isEmail = value.identifier.includes("@");
+		const creation = getOAuthCreationOptions(callbackURL);
 
 		const result = isEmail
 			? await authClient.signIn.email({
 					email: value.identifier,
 					password: value.password,
-					...getOAuthSignInOptions(callbackURL),
+					...(creation ? {} : getOAuthSignInOptions(callbackURL)),
 				})
 			: await authClient.signIn.username({
 					username: value.identifier,
 					password: value.password,
-					...getOAuthSignInOptions(callbackURL),
+					...(creation ? {} : getOAuthSignInOptions(callbackURL)),
 				});
 
 		if (result.error) {
-			toast.add({
-				type: "error",
-				description:
-					result.error.message ||
-					t({
-						comment: "Fallback toast when sign-in fails and no server error message is available",
-						message: "Failed to sign in. Please try again.",
-					}),
-				id: toastId,
-			});
+			toast.close(toastId);
+			if (result.error.code === "EMAIL_NOT_VERIFIED" && isEmail) {
+				await navigate({ to: "/auth/verify-email", search: { email: value.identifier, callbackURL }, replace: true });
+				return;
+			}
+			onError(result.error.code);
 			return;
 		}
 
@@ -85,17 +99,29 @@ async function submitLogin({ value, callbackURL, reauthenticate, navigate, query
 
 		toast.close(toastId);
 		if (isOAuthRedirect(result.data)) return;
+		if (creation) {
+			const continuation = await authClient.oauth2.continue(creation);
+			if (continuation.error) {
+				onError(continuation.error.code);
+				return;
+			}
+			if (isOAuthRedirect(continuation.data)) return;
+		}
+		queryClient.clear();
 		await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
 		await router.invalidate();
 		void navigate(getAuthRedirectOptions(callbackURL));
 	} catch {
-		toast.add({ type: "error", description: t`Failed to sign in. Please try again.`, id: toastId });
+		toast.close(toastId);
+		onError(undefined);
 	}
 }
 
 export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }: Props) {
 	const router = useRouter();
-	const { callbackURL, reauthenticate } = useSearch({ from: "/auth" });
+	const { callbackURL, reauthenticate, reason } = useSearch({ from: "/auth" });
+	const copy = useAuthCopy();
+	const [error, setError] = useState<string | null>(null);
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
@@ -107,7 +133,16 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 		defaultValues: { identifier: "", password: "" },
 		validators: { onSubmit: formSchema },
 		onSubmit: async ({ value }) => {
-			await submitLogin({ value, callbackURL, reauthenticate, navigate, queryClient, router });
+			setError(null);
+			await submitLogin({
+				value,
+				callbackURL,
+				reauthenticate,
+				navigate,
+				queryClient,
+				router,
+				onError: (code) => setError(authErrorMessage(code)),
+			});
 		},
 	});
 
@@ -150,36 +185,37 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 
 	return (
 		<>
-			<div className="space-y-1 text-center">
-				<h1 className="text-2xl font-semibold tracking-tight">
-					<Trans comment="Title on the login page">Sign in to your account</Trans>
-				</h1>
-
-				{!disableSignups && (
-					<div className="text-ink-3">
-						<Trans>
-							Don't have an account?{" "}
-							<Button
-								variant="link"
-								nativeButton={false}
-								className="h-auto gap-1.5 px-1! py-0"
-								render={
-									<Link to="/auth/register" search={{ callbackURL, reauthenticate }}>
-										<Trans comment="Call-to-action link from login page to account registration page">
-											Create one now
-										</Trans>{" "}
-										<Icon name="arrow-right" size={16} />
-									</Link>
-								}
-							/>
-						</Trans>
-					</div>
-				)}
+			{reason && (
+				<div role="status" className="rounded-xl border border-line bg-bg p-4">
+					<h2 className="font-semibold">
+						{copy(
+							reason === "passwordChanged"
+								? "auth.password.changedTitle"
+								: reason === "sessionExpired"
+									? "auth.session.expiredTitle"
+									: "auth.verifyEmail.error.expiredTitle",
+						)}
+					</h2>
+					<p className="text-sm text-ink-2">
+						{copy(
+							reason === "passwordChanged"
+								? "auth.password.changedHint"
+								: reason === "sessionExpired"
+									? "auth.session.expiredHint"
+									: "auth.verifyEmail.expiryHint",
+						)}
+					</p>
+				</div>
+			)}
+			<AuthErrorSummary message={error} field="login-password" />
+			<div className="space-y-1 text-start">
+				<h1 className="type-title-s lg:type-title">{copy("common.navigation.signIn")}</h1>
+				<p className="text-sm leading-[23px] text-ink-2">{copy("editor.documents.subtitle")}</p>
 			</div>
 
 			{!disableEmailAuth && (
 				<form
-					className="space-y-6"
+					className="space-y-[18px] lg:space-y-5"
 					onSubmit={(event) => {
 						event.preventDefault();
 						event.stopPropagation();
@@ -188,16 +224,17 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 				>
 					<form.Field name="identifier">
 						{(field) => (
-							<FormItem hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
-								<FormLabel>
-									<Trans comment="Label for login identifier input that accepts email or username">Email Address</Trans>
+							<FormItem className="gap-1.5" hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
+								<FormLabel className="text-sm leading-[22px] font-semibold text-ink">
+									{copy("auth.email.label")}
 								</FormLabel>
 								<FormControl
 									render={
 										<Input
 											autoComplete="section-login username webauthn"
 											placeholder="john.doe@example.com"
-											className="lowercase"
+											className="h-12 px-4 lowercase"
+											dir="ltr"
 											name={field.name}
 											value={field.state.value}
 											onBlur={field.handleBlur}
@@ -215,27 +252,22 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 
 					<form.Field name="password">
 						{(field) => (
-							<FormItem hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
+							<FormItem className="gap-1.5" hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
 								<div className="flex items-center justify-between">
-									<FormLabel>
+									<FormLabel
+										htmlFor="login-password"
+										id="login-password-label"
+										className="text-sm leading-[22px] font-semibold text-ink"
+									>
 										<Trans comment="Label for password input on login form">Password</Trans>
 									</FormLabel>
-
-									<Button
-										tabIndex={-1}
-										variant="link"
-										nativeButton={false}
-										className="h-auto p-0 text-xs leading-none"
-										render={
-											<Link to="/auth/forgot-password">
-												<Trans comment="Link label to password reset page from login form">Forgot Password?</Trans>
-											</Link>
-										}
-									/>
 								</div>
 								<FormControl
 									render={
 										<PasswordInput
+											embedded
+											id="login-password"
+											aria-labelledby="login-password-label"
 											minLength={6}
 											maxLength={64}
 											autoComplete="section-login current-password"
@@ -251,13 +283,33 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 						)}
 					</form.Field>
 
-					<Button type="submit" className="w-full" disabled={isSubmitting}>
-						<Trans comment="Primary action button label on login form">Sign in</Trans>
+					<div className="flex justify-start">
+						<Button
+							variant="link"
+							nativeButton={false}
+							className="min-h-12 px-1 py-0 text-sm font-semibold"
+							render={<Link to="/auth/forgot-password">{copy("auth.signIn.forgotPassword")}</Link>}
+						/>
+					</div>
+					<Button type="submit" className="h-12 w-full" disabled={isSubmitting}>
+						{copy("common.navigation.signIn")}
 					</Button>
 				</form>
 			)}
 
 			<SocialAuth />
+			{!disableSignups && (
+				<div className="flex min-h-12 items-center gap-1 text-sm text-ink-2">
+					{copy("auth.signIn.createAccountHint")}
+					<Link
+						to="/auth/register"
+						search={{ callbackURL, reauthenticate }}
+						className="inline-flex min-h-12 items-center px-1 font-semibold text-accent-text"
+					>
+						{copy("auth.signUp.title")}
+					</Link>
+				</div>
+			)}
 
 			{allowGuestLogin && (
 				<Button

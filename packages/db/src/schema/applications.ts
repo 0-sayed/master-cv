@@ -11,11 +11,12 @@ import * as pg from "drizzle-orm/pg-core";
 import { generateId } from "@reactive-resume/utils/string";
 import { user } from "./auth";
 import { coverLetter, coverLetterVersion } from "./cover-letter";
+import { ownerPolicy } from "./ownership";
 import { resume, resumeVersion } from "./resume";
 
 // A tracked job application. Points at the live Reactive Resume that was sent (resumeId),
 // which is the reason this lives inside the product rather than a generic tracker.
-export const application = pg.pgTable(
+export const application = pg.pgTable.withRLS(
 	"application",
 	{
 		id: pg
@@ -79,5 +80,5 @@ export const application = pg.pgTable(
 			.defaultNow()
 			.$onUpdate(() => /* @__PURE__ */ new Date()),
 	},
-	(t) => [pg.index().on(t.userId), pg.index().on(t.userId, t.updatedAt.desc())],
+	(t) => [ownerPolicy(t.userId), pg.index().on(t.userId), pg.index().on(t.userId, t.updatedAt.desc())],
 );

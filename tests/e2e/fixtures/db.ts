@@ -2,7 +2,7 @@ import type { E2EAccount } from "./data";
 import { Pool } from "pg";
 
 function getDatabaseUrl() {
-	const databaseUrl = process.env.DATABASE_URL;
+	const databaseUrl = process.env.DATABASE_MIGRATION_URL ?? process.env.DATABASE_URL;
 	if (!databaseUrl) throw new Error("DATABASE_URL is required for E2E cleanup.");
 
 	return databaseUrl;

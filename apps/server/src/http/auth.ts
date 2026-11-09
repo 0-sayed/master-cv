@@ -162,10 +162,10 @@ export async function handleOAuth(request: Request) {
 }
 
 async function resumeOAuth(request: Request) {
-	const session = await auth.api.getSession({ headers: request.headers });
+	const session = await auth.api.getSession({ headers: request.headers, query: { disableCookieCache: true } });
 	const url = new URL(request.url);
 
-	if (session?.user) {
+	if (session?.user.emailVerified) {
 		// Resume authorization without granting consent. The provider decides whether
 		// the user must sign in, explicitly approve a client, or reuse an existing grant.
 		// Its signed query must survive the login round trip byte-for-byte.

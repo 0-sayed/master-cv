@@ -4,12 +4,14 @@ import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { buttonVariants } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { ContextMenu, ContextMenuTrigger } from "@reactive-resume/ui/components/context-menu";
 import { DropdownMenu, DropdownMenuTrigger } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { cn } from "@reactive-resume/utils/style";
+import { useDocumentsCopy } from "./copy.generated";
 import { DocumentMenuContent, useDocumentActions } from "./document-actions";
 import { daysLeftInTrash } from "./filter";
 import { useNewDocumentsStore } from "./new-documents";
@@ -19,6 +21,7 @@ import { formatRelativeTime } from "@/libs/locale";
 import { ENTER_CLASS, stagger } from "@/libs/motion";
 
 export type DocumentItemProps = {
+	library?: boolean;
 	document: DocumentSummary;
 	onTags: (document: DocumentSummary) => void;
 	onLink: (document: DocumentSummary) => void;
@@ -87,6 +90,7 @@ function RenameInput({ document, onDone }: { document: DocumentSummary; onDone: 
 			// oxlint-disable-next-line jsx-a11y/no-autofocus -- renaming starts from the menu, so focus goes straight to the field.
 			autoFocus
 			value={value}
+			dir="auto"
 			maxLength={100}
 			aria-label={t`Name`}
 			onChange={(event) => setValue(event.target.value)}
@@ -133,6 +137,7 @@ function PaperBadge({ icon, label }: { icon: "globe" | "lock"; label: string }) 
 
 /** A 204px card: the real first page, title with ⋯, "Resume · Edited 2h ago" and the linked application. */
 export function DocumentCard({
+	library = false,
 	document,
 	onTags,
 	onLink,
@@ -141,6 +146,7 @@ export function DocumentCard({
 	onSelectedChange,
 	selecting = false,
 }: DocumentItemProps) {
+	const copy = useDocumentsCopy();
 	const openDocument = useOpenDocument();
 	const [renaming, setRenaming] = useState(false);
 	const isNew = useNewDocumentsStore((state) => state.ids.includes(document.id)) && !document.trashedAt;
@@ -162,6 +168,8 @@ export function DocumentCard({
 						style={introIndex === undefined ? undefined : stagger(introIndex)}
 						className={cn(
 							"group/card grid gap-2",
+							library &&
+								"overflow-hidden rounded-xl border border-line bg-surface max-sm:grid-cols-[56px_minmax(0,1fr)] max-sm:items-center max-sm:gap-3 max-sm:p-3",
 							introIndex !== undefined && ENTER_CLASS,
 							isNew && "animate-arrive",
 							document.trashedAt && "opacity-70",
@@ -169,13 +177,14 @@ export function DocumentCard({
 					/>
 				}
 			>
-				<div className="relative">
+				<div className={cn("relative", library && "sm:h-[188px] sm:overflow-hidden sm:bg-sunken sm:pt-5")}>
 					<OpenLink
 						document={document}
 						label={document.name}
 						onSelect={selecting && onSelectedChange ? () => onSelectedChange(!selected) : undefined}
 						className={cn(
 							"relative block aspect-page overflow-hidden rounded-[6px] shadow-[0_0_0_1px_var(--line),var(--shadow-1)] transition-[translate,scale,box-shadow] duration-quick ease-enter hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--line),var(--shadow-2)] active:scale-[0.98]",
+							library && "max-sm:h-[72px] max-sm:w-14 sm:mx-auto sm:w-[178.5px]",
 							(isNew || selected) &&
 								"shadow-[0_0_0_2px_var(--accent),var(--shadow-1)] hover:shadow-[0_0_0_2px_var(--accent),var(--shadow-2)] starting:shadow-[0_0_0_2px_transparent,var(--shadow-1)]",
 							document.trashedAt && "pointer-events-none",
@@ -209,12 +218,14 @@ export function DocumentCard({
 					)}
 				</div>
 
-				<div className="flex items-start gap-1">
+				<div className={cn("flex items-start gap-1", library && "sm:px-4 sm:pt-2")}>
 					<div className="grid min-w-0 flex-1 gap-0.5">
 						{renaming ? (
 							<RenameInput document={document} onDone={() => setRenaming(false)} />
 						) : (
-							<h3 className="truncate text-sm leading-5 font-semibold">{document.name}</h3>
+							<h3 dir="auto" className="truncate text-start text-sm leading-5 font-semibold">
+								{document.name}
+							</h3>
 						)}
 						<span className="truncate text-xs text-ink-3">{meta}</span>
 						{document.application && (
@@ -238,6 +249,15 @@ export function DocumentCard({
 						<DocumentMenuContent {...menuProps} />
 					</DropdownMenu>
 				</div>
+				{library && (
+					<OpenLink
+						document={document}
+						className={cn(buttonVariants({ variant: "secondary" }), "mx-4 mb-4 hidden sm:flex")}
+						onSelect={selecting && onSelectedChange ? () => onSelectedChange(!selected) : undefined}
+					>
+						{copy("editor.document.open")}
+					</OpenLink>
+				)}
 			</ContextMenuTrigger>
 			<DocumentMenuContent {...menuProps} variant="context" />
 		</ContextMenu>

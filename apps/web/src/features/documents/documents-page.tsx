@@ -22,6 +22,7 @@ import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/comp
 import { Skeleton } from "@reactive-resume/ui/components/skeleton";
 import { Tabs, TabsCount, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { cn } from "@reactive-resume/utils/style";
+import { useDocumentsCopy } from "./copy.generated";
 import { LinkApplicationDialog, TagsDialog, useBatchActions } from "./document-actions";
 import { DocumentCard, DocumentRow } from "./document-card";
 import { collectTags, filterDocuments } from "./filter";
@@ -53,6 +54,7 @@ type DocumentsPageProps = {
  * chips once tags exist. A file dropped anywhere on the page imports straight away.
  */
 export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
+	const copy = useDocumentsCopy();
 	const { locale } = useUiLocale();
 	const openDialog = useDialogStore((state) => state.openDialog);
 	const searchRef = useRef<HTMLInputElement>(null);
@@ -129,22 +131,36 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 	});
 
 	return (
-		<div className="mx-auto grid w-full max-w-[1180px] content-start gap-5 px-7 py-8 max-sm:px-[18px] max-sm:py-5 lg:px-10">
-			<PageHeader title={<Trans>Documents</Trans>}>
+		<div className="mx-auto grid w-full content-start gap-4 px-7 py-8 max-sm:px-[18px] max-sm:py-5 lg:gap-6 lg:px-10">
+			<PageHeader
+				mobileTitleInShell
+				title={copy("editor.navigation.documentsTitle")}
+				description={copy("editor.documents.subtitle")}
+				actions={
+					<Button
+						aria-keyshortcuts="N"
+						className="max-sm:h-12 max-sm:w-full"
+						onClick={() => openDialog("document.new", undefined)}
+					>
+						<Icon name="plus" />
+						<Trans>New</Trans>
+					</Button>
+				}
+			>
 				{!failed && !firstRun && (
 					<>
 						<Tabs value={search.type} onValueChange={(type) => onSearchChange({ type: type as DocumentTypeFilter })}>
 							<TabsList variant="line" aria-label={t`Document type`}>
 								<TabsTrigger value="all">
-									<Trans>All</Trans>
+									{copy("editor.documents.all")}
 									<TabsCount>{counts.all}</TabsCount>
 								</TabsTrigger>
 								<TabsTrigger value="resume">
-									<Trans>Resumes</Trans>
+									{copy("editor.documents.cvsTab")}
 									<TabsCount>{counts.resume}</TabsCount>
 								</TabsTrigger>
 								<TabsTrigger value="letter">
-									<Trans>Letters</Trans>
+									{copy("editor.navigation.letters")}
 									<TabsCount>{counts.letter}</TabsCount>
 								</TabsTrigger>
 							</TabsList>
@@ -159,8 +175,8 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 									ref={searchRef}
 									type="search"
 									value={search.q}
-									aria-label={t`Search documents`}
-									placeholder={t`Search`}
+									aria-label={copy("editor.documents.search")}
+									placeholder={copy("editor.documents.search")}
 									onChange={(event) => onSearchChange({ q: event.target.value })}
 								/>
 								<InputGroupAddon align="inline-end" className="max-sm:hidden pointer-coarse:hidden">
@@ -283,14 +299,10 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 							</tbody>
 						</table>
 					) : (
-						<div
-							className={cn(
-								"grid grid-cols-[repeat(auto-fill,minmax(180px,204px))] gap-x-7 gap-y-[22px] max-sm:grid-cols-2 max-sm:gap-4",
-								viewEnter,
-							)}
-						>
+						<div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4", viewEnter)}>
 							{shown.map((document, index) => (
 								<DocumentCard
+									library
 									key={documentKey(document)}
 									document={document}
 									introIndex={intro ? index : undefined}
@@ -341,13 +353,12 @@ function storeView(view: "grid" | "list") {
 
 /** The first visit: import is the filled button here, and only here. */
 function FirstRun({ onChooseFile }: { onChooseFile: () => void }) {
+	const copy = useDocumentsCopy();
 	const { startBlank, trySample, creating } = useStartDocument();
 
 	return (
 		<section className="grid max-w-xl gap-4 pt-4 transition-[opacity,translate] duration-emphasized ease-enter starting:translate-y-2 starting:opacity-0">
-			<h2 className="font-display text-[26px] leading-8 font-medium">
-				<Trans>Let's start with what you have</Trans>
-			</h2>
+			<h2 className="font-display text-[26px] leading-8 font-medium">{copy("editor.documents.empty.title")}</h2>
 			<p className="leading-6 text-ink-2">
 				<Trans>
 					Import your current resume and we'll lay out every section for you to refine. Or start fresh. Start with your

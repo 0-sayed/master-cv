@@ -14,6 +14,7 @@ const flagsQueryKey = ["flags"] as const;
 // calling `router.invalidate()`. Flags come from server env and only change on a restart.
 export async function loadRootContext(queryClient: QueryClient) {
 	const theme = getTheme();
+	const previous = queryClient.getQueryData<AuthSession | null>(sessionQueryKey);
 
 	const sessionPromise = queryClient
 		.query({
@@ -35,6 +36,11 @@ export async function loadRootContext(queryClient: QueryClient) {
 		queryClient.query({ queryKey: flagsQueryKey, queryFn: () => client.flags.get(), staleTime: 5 * 60_000 }),
 	]);
 	const locale = getLocale(session?.user.uiLocale);
+	if (previous?.user.id && previous.user.id !== session?.user.id) {
+		queryClient.clear();
+		queryClient.setQueryData(sessionQueryKey, session);
+		queryClient.setQueryData(flagsQueryKey, flags);
+	}
 	await loadUiLocale(locale);
 
 	return { theme, locale, session, flags };

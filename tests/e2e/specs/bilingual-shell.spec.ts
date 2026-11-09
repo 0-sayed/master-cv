@@ -15,7 +15,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				await expect(authPage.locator("html")).toHaveClass(theme === "dark" ? /dark/ : /^(?!.*\bdark\b)/);
 				expect(await authPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 				if (width < 640) {
-					const nav = authPage.locator('nav:has(a[href="/dashboard/career"])');
+					const nav = authPage.locator('nav:has(a[href="/dashboard/career/information"])');
 					await expect(nav.locator("a")).toHaveCount(4);
 					await expect(nav.locator("button")).toHaveCount(0);
 					await expect(authPage.locator('button[aria-keyshortcuts="N"]')).toBeVisible();

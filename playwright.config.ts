@@ -29,18 +29,31 @@ export default defineConfig({
 			use: { ...devices["Desktop Chrome"], channel: process.env.PLAYWRIGHT_CHANNEL },
 		},
 	],
-	webServer: {
-		// Run node directly: pnpm >=12.6 moves script children into their own process group,
-		// so Playwright's group kill misses the server and the job hangs after the tests finish.
-		command: "node apps/server/dist/index.mjs",
-		url: `${baseURL}/api/health`,
-		reuseExistingServer: !isCI,
-		timeout: 120_000,
-		env: {
-			...process.env,
-			APP_URL: baseURL,
-			NODE_ENV: "production",
-			PORT: String(port),
+	webServer: [
+		{
+			command: "node tests/e2e/mail-capture.mjs",
+			port: Number(process.env.E2E_SMTP_PORT ?? 2526),
+			reuseExistingServer: !isCI,
 		},
-	},
+		{
+			// Run node directly: pnpm >=12.6 moves script children into their own process group,
+			// so Playwright's group kill misses the server and the job hangs after the tests finish.
+			command: "node apps/server/dist/index.mjs",
+			url: `${baseURL}/api/health`,
+			reuseExistingServer: !isCI,
+			timeout: 120_000,
+			env: {
+				...process.env,
+				APP_URL: baseURL,
+				NODE_ENV: "production",
+				PORT: String(port),
+				SMTP_HOST: "127.0.0.1",
+				SMTP_PORT: process.env.E2E_SMTP_PORT ?? "2526",
+				SMTP_SECURE: "false",
+				SMTP_USER: "synthetic",
+				SMTP_PASS: "synthetic",
+				SMTP_FROM: "Master CV <mail@example.test>",
+			},
+		},
+	],
 });

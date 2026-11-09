@@ -4,6 +4,7 @@ import { createPublicResumePdf } from "./public-pdf";
 
 // The default lookup runs its real query against a stand-in `pg` client that records the SQL and finds nothing.
 const queries = vi.hoisted(() => [] as string[]);
+vi.mock("../../context", () => ({ resolveAuthenticationFromRequestHeaders: async () => null }));
 vi.mock("@reactive-resume/db/client", async () => {
 	const { drizzle } = await import("drizzle-orm/node-postgres");
 	const client = {
@@ -12,7 +13,10 @@ vi.mock("@reactive-resume/db/client", async () => {
 			return Promise.resolve({ rows: [] });
 		},
 	};
-	return { db: drizzle({ client: client as never }) };
+	return {
+		db: drizzle({ client: client as never }),
+		withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+	};
 });
 
 const requestHeaders = new Headers({ "x-forwarded-for": "203.0.113.7" });
@@ -56,6 +60,14 @@ describe("createPublicResumePdf", () => {
 	it("does not look in Trash, so a trashed resume's link stops serving its PDF", async () => {
 		await expect(createPublicResumePdf(input)).rejects.toMatchObject({ code: "NOT_FOUND" });
 		expect(queries.at(-1)).toContain('"resume"."trashed_at" is null');
+	});
+
+	it("lets the owner render a private password-protected CV without a visitor unlock cookie", async () => {
+		const ownerDependencies = dependencies(buildResume({ isPublic: false, passwordHash: "hash" }));
+		ownerDependencies.resolveCurrentUserId.mockResolvedValue("owner-1");
+		ownerDependencies.hasPasswordAccess.mockReturnValue(false);
+		const result = await createPublicResumePdf(input, ownerDependencies);
+		expect(result.body.type).toBe("application/pdf");
 	});
 
 	it("renders on demand with canonical public stylesheet source", async () => {

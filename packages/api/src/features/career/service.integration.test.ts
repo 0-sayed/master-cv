@@ -1,3 +1,6 @@
+vi.mock("@reactive-resume/db/owner-scope", () => ({
+	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+}));
 import type { CareerSource } from "@reactive-resume/schema/career";
 import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";

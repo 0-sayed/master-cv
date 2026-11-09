@@ -36,6 +36,14 @@ test("counts a visitor's PDF download without counting the preview", async ({ br
 		const days = (await daily.json()) as { views: number; downloads: number }[];
 		expect(days.reduce((sum, day) => sum + day.views, 0)).toBe(1);
 		expect(days.reduce((sum, day) => sum + day.downloads, 0)).toBe(1);
+
+		const sharedEndpoint = `/api/openapi/resumes${new URL(publicUrl).pathname}`;
+		expect((await anonymous.request.get(`/api/openapi/resumes/${resumeId}`)).status()).toBe(401);
+		expect((await anonymous.request.get(statisticsUrl)).status()).toBe(401);
+		await page.getByRole("switch", { name: "Public link" }).click();
+		await expect(page.getByRole("switch", { name: "Public link" })).not.toBeChecked();
+		expect((await anonymous.request.get(sharedEndpoint)).status()).toBe(404);
+		expect((await anonymous.request.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(404);
 	} finally {
 		await anonymous.close();
 	}

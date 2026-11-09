@@ -18,7 +18,14 @@ vi.mock("@reactive-resume/auth/config", () => ({
 	auth: authMock,
 	verifyOAuthToken: verifyOAuthTokenMock,
 }));
-vi.mock("@reactive-resume/db/client", () => ({ db: dbMock }));
+vi.mock("@reactive-resume/db/client", () => ({
+	db: dbMock,
+	// SQL ownership is covered by the real-PostgreSQL owner-scope suite.
+	withDatabaseOwner: (_owner: string, work: () => unknown) => work(),
+}));
+vi.mock("@reactive-resume/db/owner-scope", () => ({
+	withDatabaseOwner: (_owner: string, work: () => unknown) => work(),
+}));
 vi.mock("@reactive-resume/db/schema", () => ({ user: { __table: "user" } }));
 vi.mock("drizzle-orm", () => ({ eq: () => "EQ" }));
 
@@ -29,7 +36,7 @@ const setupDbResolves = (userResult: unknown) => {
 	dbMock.select.mockReturnValueOnce({
 		from: () => ({
 			where: () => ({
-				limit: () => Promise.resolve(userResult ? [userResult] : []),
+				limit: () => Promise.resolve(userResult ? [{ emailVerified: true, ...Object(userResult) }] : []),
 			}),
 		}),
 	});
@@ -167,5 +174,23 @@ describe("credential authorization", () => {
 		);
 		await expect(operation(undefined)).rejects.toMatchObject({ code: "FORBIDDEN" });
 		expect(authMock.api.getSession).not.toHaveBeenCalled();
+	});
+});
+
+describe("verified private identity", () => {
+	it.each(["session", "apiKey", "bearer"])("denies an unverified fresh %s identity", async (method) => {
+		reset();
+		authMock.api.getSession.mockResolvedValue({ user: { id: "owner", emailVerified: true } });
+		authMock.api.verifyApiKey.mockResolvedValue({ valid: true, key: { referenceId: "owner" } });
+		verifyOAuthTokenMock.mockResolvedValue({ sub: "owner" });
+		setupDbResolves({ id: "owner", emailVerified: false });
+		const headers = new Headers(
+			method === "apiKey"
+				? { "x-api-key": "key" }
+				: method === "bearer"
+					? { authorization: "Bearer token" }
+					: { cookie: "session=valid" },
+		);
+		expect(await resolveUserFromRequestHeaders(headers)).toBeNull();
 	});
 });

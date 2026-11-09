@@ -20,6 +20,7 @@ import {
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
 import { generateCareer } from "./generate";
 import { careerJobs } from "./jobs";
+import { masterRouter, personalWorkspaceRouter } from "./master-router";
 import { careerService } from "./service";
 import { careerVoiceRouter } from "./voice";
 
@@ -31,6 +32,8 @@ const savedItemOutput = savedItemSchema.extend({
 });
 
 export const careerRouter = {
+	master: masterRouter,
+	personalWorkspace: personalWorkspaceRouter,
 	voice: careerVoiceRouter,
 	schedules: protectedProcedure
 		.route({

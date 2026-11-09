@@ -177,7 +177,7 @@ describe("handleOAuth", () => {
 	});
 	it("continues signed authorization without approving consent on GET", async () => {
 		const { handleOAuth } = await import("./auth");
-		mocks.getSession.mockResolvedValueOnce({ user: { id: "owner" } });
+		mocks.getSession.mockResolvedValueOnce({ user: { id: "owner", emailVerified: true } });
 		mocks.continueOAuth.mockResolvedValueOnce(
 			Response.json({ redirect: true, url: "/auth/consent?client_id=client&sig=signed" }),
 		);
@@ -193,7 +193,7 @@ describe("handleOAuth", () => {
 
 	it("preserves provider cookies and cache headers on forced reauthentication", async () => {
 		const { handleOAuth } = await import("./auth");
-		mocks.getSession.mockResolvedValueOnce({ user: { id: "owner" } });
+		mocks.getSession.mockResolvedValueOnce({ user: { id: "owner", emailVerified: true } });
 		const headers = new Headers({ "cache-control": "no-store", "content-length": "123" });
 		headers.append("set-cookie", "oauth_state=state; Path=/; HttpOnly");
 		headers.append("set-cookie", "session=refreshed; Path=/; HttpOnly");
@@ -215,7 +215,7 @@ describe("OAuth provider response validation", () => {
 		"fails closed for malformed provider response %j",
 		async (body) => {
 			const { handleOAuth } = await import("./auth");
-			mocks.getSession.mockResolvedValueOnce({ user: { id: "owner" } });
+			mocks.getSession.mockResolvedValueOnce({ user: { id: "owner", emailVerified: true } });
 			mocks.continueOAuth.mockResolvedValueOnce(Response.json(body));
 			const response = await handleOAuth(new Request("http://localhost:3000/api/auth/oauth?sig=signed"));
 			expect(response.status).toBe(502);

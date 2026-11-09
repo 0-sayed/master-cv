@@ -50,7 +50,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				expect(metrics.cssZoom).toBe("1");
 				expect(metrics.pinchScale).toBe(1);
 				expect(metrics.overflows).toBe(false);
-				const navigation = page.locator('nav:has(a[href="/dashboard/career"])');
+				const navigation = page.locator('nav:has(a[href="/dashboard/career/information"])');
 				await expect(navigation.locator("a")).toHaveCount(4);
 				if (windowWidth === 780) {
 					const labelsFit = await navigation.locator("a").evaluateAll((links) =>

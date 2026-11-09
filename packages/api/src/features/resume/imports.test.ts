@@ -1,3 +1,6 @@
+vi.mock("@reactive-resume/db/owner-scope", () => ({
+	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+}));
 import { expect, it, vi } from "vite-plus/test";
 import { call } from "@orpc/server";
 const create = vi.hoisted(() => vi.fn());
@@ -7,7 +10,11 @@ vi.mock("@reactive-resume/auth/config", () => ({
 	verifyOAuthToken: vi.fn(),
 }));
 vi.mock("@reactive-resume/db/client", () => ({
-	db: { select: () => ({ from: () => ({ where: () => ({ limit: async () => [{ id: "owner", banned: false }] }) }) }) },
+	db: {
+		select: () => ({
+			from: () => ({ where: () => ({ limit: async () => [{ id: "owner", banned: false, emailVerified: true }] }) }),
+		}),
+	},
 }));
 const { importResumeFile } = await import("./imports");
 

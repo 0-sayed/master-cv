@@ -12,9 +12,10 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { HotkeysProvider } from "@tanstack/react-hotkeys";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
-import { createRootRouteWithContext, HeadContent, Outlet, useRouterState } from "@tanstack/react-router";
+import { createRootRouteWithContext, HeadContent, Outlet, useRouter, useRouterState } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { domMax, LazyMotion, MotionConfig } from "motion/react";
+import { useEffect } from "react";
 import { Toaster } from "@reactive-resume/ui/components/toast";
 import { TooltipProvider } from "@reactive-resume/ui/components/tooltip";
 import { isUiLocale } from "@reactive-resume/utils/locale";
@@ -55,6 +56,18 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function RootComponent() {
 	const { theme, locale, queryClient, session } = Route.useRouteContext();
+	const router = useRouter();
+	useEffect(() => {
+		const recover = () => {
+			const callbackURL = router.state.location.href;
+			if (callbackURL.startsWith("/auth/")) return;
+			queryClient.clear();
+			queryClient.setQueryData(["auth", "session"], null);
+			void router.navigate({ to: "/auth/login", search: { reason: "sessionExpired", callbackURL }, replace: true });
+		};
+		window.addEventListener("master-cv:session-expired", recover);
+		return () => window.removeEventListener("master-cv:session-expired", recover);
+	}, [router, queryClient]);
 
 	// WebMCP: browser agents can list and open the signed-in user's documents from any page.
 	useDocumentWebMcpTools(session !== null);

@@ -1,284 +1,147 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useSelector } from "@tanstack/react-form";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
-import z from "zod";
-import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
-import { FormControl, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
-import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
-import { toast } from "@reactive-resume/ui/components/toast";
-import { cn } from "@reactive-resume/utils/style";
+import { AuthErrorSummary } from "../components/auth-error-summary";
 import { SocialAuth } from "../components/social-auth";
-import { getAuthRedirectOptions, getOAuthSignInOptions, isOAuthRedirect } from "../redirect";
+import { useAuthCopy } from "../copy.generated";
+import { authErrorMessage } from "../errors";
+import { verificationCallback } from "../redirect";
 import { PasswordInput } from "@/components/input/password-input";
+import { useUiLocale } from "@/features/locale/provider";
 import { authClient } from "@/libs/auth/client";
-import { ENTER_CLASS } from "@/libs/motion";
-import { sessionQueryKey } from "@/libs/root-context";
-import { useAppForm } from "@/libs/tanstack-form";
 
-const formSchema = z.object({
-	name: z.string().trim().min(1).max(64),
-	username: z
-		.string()
-		.min(3)
-		.max(64)
-		.trim()
-		.toLowerCase()
-		.regex(/^[a-z0-9._-]+$/, {
-			message: "Username can only contain lowercase letters, numbers, dots, hyphens and underscores.",
-		}),
-	email: z.email().toLowerCase(),
-	password: z.string().min(8).max(64),
-});
-
-type Props = {
-	disableEmailAuth: boolean;
-};
-
-export function RegisterPage({ disableEmailAuth }: Props) {
+export function RegisterPage({ disableEmailAuth }: { disableEmailAuth: boolean }) {
+	const copy = useAuthCopy();
+	const { locale } = useUiLocale();
 	const { callbackURL, reauthenticate } = useSearch({ from: "/auth" });
-	const queryClient = useQueryClient();
-	const [submitted, setSubmitted] = useState(false);
-
-	const form = useAppForm({
-		defaultValues: { name: "", username: "", email: "", password: "" },
-		validators: { onSubmit: formSchema },
-		onSubmit: async ({ value }) => {
-			const toastId = toast.add({ type: "loading", description: t`Signing up...` });
-
-			const oauthOptions = getOAuthSignInOptions(callbackURL);
-			const createPrompt = new URLSearchParams(oauthOptions.oauth_query).get("prompt")?.split(" ").includes("create");
-			const { data, error } = await authClient.signUp.email({
+	const navigate = useNavigate();
+	const [value, setValue] = useState({ name: "", username: "", email: "", password: "" });
+	const [pending, setPending] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	async function submit(event: React.FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		setError(null);
+		if (
+			!value.name.trim() ||
+			value.password.length < 8 ||
+			value.password.length > 64 ||
+			!event.currentTarget.checkValidity()
+		) {
+			setError(authErrorMessage(undefined));
+			return;
+		}
+		setPending(true);
+		try {
+			const result = await authClient.signUp.email({
+				...value,
 				name: value.name.trim(),
-				email: value.email,
-				password: value.password,
-				username: value.username,
 				displayUsername: value.username,
-				callbackURL: callbackURL ?? "/dashboard",
-				...(!createPrompt ? oauthOptions : {}),
+				uiLocale: locale,
+				callbackURL: verificationCallback(value.email, callbackURL),
 			});
-
-			if (error) {
-				toast.add({
-					type: "error",
-					description:
-						error.message ||
-						t({
-							comment: "Fallback toast when account registration fails without a server error message",
-							message: "Failed to create your account. Please try again.",
-						}),
-					id: toastId,
-				});
+			if (result.error) {
+				setError(authErrorMessage(result.error.code));
 				return;
 			}
-
-			if (isOAuthRedirect(data)) return;
-			if (createPrompt && oauthOptions.oauth_query) {
-				const continuation = await authClient.oauth2.continue({ created: true, oauth_query: oauthOptions.oauth_query });
-				if (continuation.error) {
-					toast.add({ type: "error", description: continuation.error.message, id: toastId });
-					return;
-				}
-				if (isOAuthRedirect(continuation.data)) return;
-			}
-			await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
-			setSubmitted(true);
-			toast.close(toastId);
-		},
-	});
-
-	const isSubmitting = useSelector(form.store, (state) => state.isSubmitting);
-
-	if (submitted) return <PostSignupScreen />;
-
+			await navigate({ to: "/auth/verify-email", search: { email: value.email, callbackURL }, replace: true });
+		} catch {
+			setError(authErrorMessage(undefined));
+		} finally {
+			setPending(false);
+		}
+	}
 	return (
 		<>
-			<div className="space-y-1 text-center">
-				<h1 className="text-2xl font-semibold tracking-tight">
-					<Trans>Create a new account</Trans>
-				</h1>
-
-				<div className="text-ink-3">
-					<Trans>
-						Already have an account?{" "}
-						<Button
-							variant="link"
-							nativeButton={false}
-							className="h-auto gap-1.5 px-1! py-0"
-							render={
-								<Link to="/auth/login" search={{ callbackURL, reauthenticate }}>
-									<Trans comment="Call-to-action link from registration page to login page">Sign in now</Trans>{" "}
-									<Icon name="arrow-right" size={16} />
-								</Link>
-							}
-						/>
-					</Trans>
-				</div>
+			<div className="space-y-1">
+				<h1 className="type-title-s lg:type-title">{copy("auth.signUp.title")}</h1>
+				<p className="text-sm leading-[23px] text-ink-2">{copy("auth.signUp.subtitle")}</p>
 			</div>
-
+			<AuthErrorSummary message={error} field="register-email" />
 			{!disableEmailAuth && (
-				<form
-					className="space-y-6"
-					onSubmit={(event) => {
-						event.preventDefault();
-						event.stopPropagation();
-						void form.handleSubmit();
-					}}
-				>
-					<form.Field name="name">
-						{(field) => (
-							<FormItem hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
-								<FormLabel>
-									<Trans comment="Label for full name input on registration form">Name</Trans>
-								</FormLabel>
-								<FormControl
-									render={
-										<Input
-											minLength={1}
-											maxLength={64}
-											autoComplete="section-register name"
-											placeholder={t({
-												comment: "Example full name placeholder on registration form",
-												message: "John Doe",
-											})}
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(event) => field.handleChange(event.target.value)}
-										/>
-									}
-								/>
-								<FormMessage errors={field.state.meta.errors} />
-							</FormItem>
-						)}
-					</form.Field>
-
-					<form.Field name="username">
-						{(field) => (
-							<FormItem hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
-								<FormLabel>
-									<Trans comment="Label for username input on registration form">Username</Trans>
-								</FormLabel>
-								<FormControl
-									render={
-										<Input
-											minLength={3}
-											maxLength={64}
-											autoComplete="section-register username"
-											placeholder={t({
-												comment: "Example username placeholder on registration form",
-												message: "john.doe",
-											})}
-											className="lowercase"
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(event) => field.handleChange(event.target.value)}
-										/>
-									}
-								/>
-								<FormMessage errors={field.state.meta.errors} />
-							</FormItem>
-						)}
-					</form.Field>
-
-					<form.Field name="email">
-						{(field) => (
-							<FormItem hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
-								<FormLabel>
-									<Trans comment="Label for email input on registration form">Email Address</Trans>
-								</FormLabel>
-								<FormControl
-									render={
-										<Input
-											type="email"
-											autoComplete="section-register email"
-											placeholder="john.doe@example.com"
-											className="lowercase"
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(event) => field.handleChange(event.target.value)}
-										/>
-									}
-								/>
-								<FormMessage errors={field.state.meta.errors} />
-							</FormItem>
-						)}
-					</form.Field>
-
-					<form.Field name="password">
-						{(field) => (
-							<FormItem hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
-								<FormLabel>
-									<Trans comment="Label for password input on registration form">Password</Trans>
-								</FormLabel>
-								<FormControl
-									render={
-										<PasswordInput
-											minLength={8}
-											maxLength={64}
-											autoComplete="section-register new-password"
-											name={field.name}
-											value={field.state.value}
-											onBlur={field.handleBlur}
-											onChange={(event) => field.handleChange(event.target.value)}
-										/>
-									}
-								/>
-								<FormMessage errors={field.state.meta.errors} />
-							</FormItem>
-						)}
-					</form.Field>
-
-					<Button type="submit" className="w-full" disabled={isSubmitting}>
-						<Trans comment="Primary action button label on registration form">Sign up</Trans>
-					</Button>
+				<form className="grid gap-[18px] lg:gap-5" onSubmit={submit}>
+					<label htmlFor="register-name" className="grid gap-1.5 text-sm font-semibold">
+						<Trans>Name</Trans>
+						<Input
+							className="h-12 px-4 font-normal"
+							id="register-name"
+							name="name"
+							autoComplete="name"
+							required
+							maxLength={64}
+							value={value.name}
+							onChange={(e) => setValue({ ...value, name: e.target.value })}
+						/>
+					</label>
+					<label htmlFor="register-username" className="grid gap-1.5 text-sm font-semibold">
+						<Trans>Username</Trans>
+						<Input
+							className="h-12 px-4 font-normal"
+							id="register-username"
+							name="username"
+							dir="ltr"
+							autoComplete="username"
+							required
+							minLength={3}
+							maxLength={64}
+							pattern="[a-z0-9._\-]+"
+							value={value.username}
+							onChange={(e) => setValue({ ...value, username: e.target.value.toLowerCase() })}
+						/>
+					</label>
+					<label className="grid gap-1.5 text-sm font-semibold">
+						{copy("auth.email.label")}
+						<Input
+							className="h-12 px-4 font-normal"
+							id="register-email"
+							name="email"
+							dir="ltr"
+							type="email"
+							autoComplete="email"
+							required
+							value={value.email}
+							onChange={(e) => setValue({ ...value, email: e.target.value })}
+						/>
+					</label>
+					<label className="grid gap-1.5 text-sm font-semibold">
+						<span id="register-password-label">{copy("common.fields.password")}</span>
+						<PasswordInput
+							embedded
+							id="register-password"
+							aria-labelledby="register-password-label"
+							aria-describedby="register-password-hint"
+							name="password"
+							autoComplete="new-password"
+							required
+							minLength={8}
+							maxLength={64}
+							value={value.password}
+							onChange={(e) => setValue({ ...value, password: e.target.value })}
+						/>
+						<span id="register-password-hint" className="text-xs font-normal text-ink-3">
+							{copy("auth.signUp.passwordHint")}
+						</span>
+					</label>
+					<label className="flex min-h-11 items-center gap-2 text-sm text-ink-2">
+						<input type="checkbox" required className="size-4 accent-accent" />
+						{copy("auth.signUp.consent")}
+					</label>
+					<Button type="submit" loading={pending} className="h-12 w-full">{t`Sign up`}</Button>
 				</form>
 			)}
-
 			<SocialAuth />
+			<p className="text-sm text-ink-2">
+				<Trans>Already have an account?</Trans>{" "}
+				<Link
+					className="font-semibold text-accent-text underline"
+					to="/auth/login"
+					search={{ callbackURL, reauthenticate }}
+				>
+					<Trans>Sign in</Trans>
+				</Link>
+			</p>
 		</>
-	);
-}
-
-function PostSignupScreen() {
-	const { callbackURL } = useSearch({ from: "/auth" });
-	const redirectOptions = getAuthRedirectOptions(callbackURL);
-	return (
-		// Replaces the form in place: fades up into the auth column, with the layout's 24px gap.
-		<div className={cn(ENTER_CLASS, "grid gap-y-6")}>
-			<div className="space-y-1 text-center">
-				<h1 className="text-2xl font-semibold tracking-tight">
-					<Trans>You've got mail!</Trans>
-				</h1>
-				<p className="text-ink-3">
-					<Trans>Check your email for a link to verify your account.</Trans>
-				</p>
-			</div>
-
-			<Alert>
-				<AlertTitle>
-					<Trans>This step is optional, but recommended.</Trans>
-				</AlertTitle>
-				<AlertDescription>
-					<Trans>Verifying your email confirms that you own this address.</Trans>
-				</AlertDescription>
-			</Alert>
-
-			<Button
-				nativeButton={false}
-				render={
-					<Link to={redirectOptions.href} reloadDocument={redirectOptions.reloadDocument} replace>
-						<Trans comment="Button label to continue to dashboard after successful registration">Continue</Trans>{" "}
-						<Icon name="arrow-right" size={16} />
-					</Link>
-				}
-			/>
-		</div>
 	);
 }

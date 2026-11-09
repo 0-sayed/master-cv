@@ -23,7 +23,9 @@ export const resumeStatisticsRouter = {
 			resumeService.statistics.recordDownload({
 				...input,
 				requestHeaders: context.reqHeaders,
-				...(context.user?.id ? { currentUserId: context.user.id } : {}),
+				...(context.user?.id && context.authentication?.permissions.includes("read")
+					? { currentUserId: context.user.id }
+					: {}),
 			}),
 		),
 

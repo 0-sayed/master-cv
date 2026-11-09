@@ -1,3 +1,6 @@
+vi.mock("@reactive-resume/db/owner-scope", () => ({
+	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+}));
 import { describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("@reactive-resume/db/client", () => ({ db: {} }));

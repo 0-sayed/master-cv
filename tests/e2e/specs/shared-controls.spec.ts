@@ -15,7 +15,7 @@ test("form controls keep long labels visible at 320px and use mobile-sized targe
 	);
 	expect(labelFits).toBe(true);
 	expect(
-		await page.getByLabel("Email Address", { exact: true }).evaluate((element) => getComputedStyle(element).fontSize),
+		await page.getByLabel("Email address", { exact: true }).evaluate((element) => getComputedStyle(element).fontSize),
 	).toBe("16px");
 	expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });

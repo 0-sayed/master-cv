@@ -23,6 +23,7 @@ it("uses WTC allocated ports for host URLs and keeps state inside this checkout"
 	const env = parseEnv(readFileSync(join(root, ".env.local"), "utf8"));
 	expect(env.APP_URL).toBe("http://localhost:23100");
 	expect(env.DATABASE_URL).toBe("postgresql://master_cv:fixture-password@127.0.0.1:25532/master_cv");
+	expect(env.DATABASE_MIGRATION_URL).toBe(env.DATABASE_URL);
 	expect(env.LOCAL_STORAGE_PATH).toBe(join(root, "data"));
 	expect(env.EMAIL_PORT).toBe("23102");
 	expect(statSync(join(root, ".env.local")).mode & 0o777).toBe(0o600);

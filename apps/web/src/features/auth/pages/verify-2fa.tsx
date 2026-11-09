@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { useSelector } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
+import { useState } from "react";
 import z from "zod";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
@@ -11,7 +12,9 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { OTPField } from "@reactive-resume/ui/components/otp-field";
 import { toast } from "@reactive-resume/ui/components/toast";
-import { getAuthRedirectOptions, getOAuthSignInOptions, isOAuthRedirect } from "../redirect";
+import { AuthErrorSummary } from "../components/auth-error-summary";
+import { authErrorMessage } from "../errors";
+import { getAuthRedirectOptions, getOAuthCreationOptions, getOAuthSignInOptions, isOAuthRedirect } from "../redirect";
 import { authClient } from "@/libs/auth/client";
 import { sessionQueryKey } from "@/libs/root-context";
 import { useAppForm } from "@/libs/tanstack-form";
@@ -31,6 +34,7 @@ type TwoFactorVerificationPageProps = {
 };
 
 function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerificationPageProps) {
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const { callbackURL, reauthenticate } = useSearch({ from: "/auth" });
@@ -40,41 +44,48 @@ function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerification
 		defaultValues: { code: "", trustDevice: false },
 		validators: { onSubmit: backupCode ? backupCodeSchema : totpSchema },
 		onSubmit: async ({ value }) => {
+			setErrorMessage(null);
 			const toastId = toast.add({
 				type: "loading",
 				description: backupCode ? t`Verifying backup code...` : t`Verifying code...`,
 			});
-			const rawCode = value.code.trim().replaceAll("-", "");
-			const code = backupCode ? `${rawCode.slice(0, 5)}-${rawCode.slice(5)}` : value.code;
-			const options = { code, trustDevice: value.trustDevice, ...getOAuthSignInOptions(callbackURL) };
-			const { data, error } = backupCode
-				? await authClient.twoFactor.verifyBackupCode(options)
-				: await authClient.twoFactor.verifyTotp(options);
+			try {
+				const rawCode = value.code.trim().replaceAll("-", "");
+				const code = backupCode ? `${rawCode.slice(0, 5)}-${rawCode.slice(5)}` : value.code;
+				const creation = getOAuthCreationOptions(callbackURL);
+				const options = {
+					code,
+					trustDevice: value.trustDevice,
+					...(creation ? {} : getOAuthSignInOptions(callbackURL)),
+				};
+				const { data, error } = backupCode
+					? await authClient.twoFactor.verifyBackupCode(options)
+					: await authClient.twoFactor.verifyTotp(options);
 
-			if (error) {
-				toast.add({
-					type: "error",
-					description:
-						error.message ||
-						(backupCode
-							? t({
-									comment: "Fallback toast when verifying a backup two-factor authentication code fails",
-									message: "Failed to verify your backup code. Please try again.",
-								})
-							: t({
-									comment: "Fallback toast when verifying a two-factor authentication code fails",
-									message: "Failed to verify your code. Please try again.",
-								})),
-					id: toastId,
-				});
-				return;
+				if (error) {
+					toast.close(toastId);
+					setErrorMessage(authErrorMessage(error.code));
+					return;
+				}
+
+				toast.close(toastId);
+				if (isOAuthRedirect(data)) return;
+				if (creation) {
+					const continuation = await authClient.oauth2.continue(creation);
+					if (continuation.error) {
+						setErrorMessage(authErrorMessage(continuation.error.code));
+						return;
+					}
+					if (isOAuthRedirect(continuation.data)) return;
+				}
+				queryClient.clear();
+				await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
+				await router.invalidate();
+				void navigate(getAuthRedirectOptions(callbackURL));
+			} catch {
+				toast.close(toastId);
+				setErrorMessage(authErrorMessage(undefined));
 			}
-
-			toast.close(toastId);
-			if (isOAuthRedirect(data)) return;
-			await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
-			await router.invalidate();
-			void navigate(getAuthRedirectOptions(callbackURL));
 		},
 	});
 
@@ -82,6 +93,7 @@ function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerification
 
 	return (
 		<>
+			<AuthErrorSummary message={errorMessage} />
 			<div className="space-y-1 text-center">
 				<h1 className="text-2xl font-semibold tracking-tight">
 					{backupCode ? <Trans>Verify with a Backup Code</Trans> : <Trans>Two-Factor Authentication</Trans>}

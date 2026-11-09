@@ -4,6 +4,7 @@ import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/
 import { ORPCError } from "@orpc/server";
 import { consumeMcpRequestLimit, consumeMcpUserLimit } from "@reactive-resume/api/features/mcp/transport";
 import { getTrustedOrigins } from "@reactive-resume/auth/trusted-origins";
+import { withDatabaseOwner } from "@reactive-resume/db/owner-scope";
 import { env } from "@reactive-resume/env/server";
 import { AuthError, authenticateRequest } from "./auth";
 import { createMcpServer } from "./server";
@@ -43,7 +44,8 @@ export async function handleMcp(request: Request, trustedClient = "unknown") {
 			maxRequestBodySize: 4 * 1024 * 1024,
 		});
 		await server.connect(transport);
-		const response = await transport.handleRequest(request);
+		const activeTransport = transport;
+		const response = await withDatabaseOwner(authentication.user.id, () => activeTransport.handleRequest(request));
 		const headers = new Headers(response.headers);
 		for (const [key, value] of resHeaders) headers.set(key, value);
 		return new Response(response.body, { status: response.status, statusText: response.statusText, headers });

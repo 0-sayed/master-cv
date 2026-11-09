@@ -14,6 +14,7 @@ import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { generateRandomName } from "@reactive-resume/utils/string";
 import { cn } from "@reactive-resume/utils/style";
+import { isBaseCvLimit } from "./creation-error";
 import { useNewDocumentsStore } from "./new-documents";
 import { useDialogStore } from "@/dialogs/store";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
@@ -192,12 +193,24 @@ export function NewDocumentDialog({ data }: { data?: NewDocumentDialogData | und
 		void importFile(file);
 	});
 
-	const { startBlank, trySample, newLetter, creating } = useStartDocument(data?.applicationId);
+	const { startBlank, trySample, newLetter, creating, baseCvLimit } = useStartDocument(data?.applicationId);
 
 	const chooseFile = () => inputRef.current?.click();
 
 	return (
 		<DialogContent className="sm:max-w-[640px]">
+			{baseCvLimit && (
+				<div role="alert" className="grid gap-3 rounded-xl border border-line bg-bg p-4">
+					<p>
+						<Trans>
+							You have reached the limit for base CVs. Your existing documents remain available to edit and download.
+						</Trans>
+					</p>
+					<Button variant="secondary" onClick={closeDialog}>
+						<Trans>Back to documents</Trans>
+					</Button>
+				</div>
+			)}
 			<AiProviderLoadState state={providerState} />
 			<input
 				ref={inputRef}
@@ -418,6 +431,7 @@ function ImportStep({ step, creating, onCancel, onStartBlank, onChooseFile, onCl
 
 /** Start blank, try a sample, or a new letter: each creates the document at once and opens it. */
 export function useStartDocument(applicationId?: string) {
+	const [baseCvLimit, setBaseCvLimit] = useState(false);
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const closeDialog = useDialogStore((state) => state.closeDialog);
@@ -432,13 +446,23 @@ export function useStartDocument(applicationId?: string) {
 		if (applicationId) void queryClient.invalidateQueries({ queryKey: orpc.applications.key() });
 		closeDialog();
 	};
-	const failed = (error: unknown) =>
+	const failed = (error: unknown) => {
+		if (isBaseCvLimit(error)) {
+			setBaseCvLimit(true);
+			toast.add({
+				type: "error",
+				description: t`You have reached the limit for base CVs. Your existing documents remain available to edit and download.`,
+			});
+			return;
+		}
 		toast.add({
 			type: "error",
 			description: getOrpcErrorMessage(error, { fallback: t`Couldn't create the document.` }),
 		});
+	};
 
 	return {
+		baseCvLimit,
 		creating,
 		startBlank: async () => {
 			try {

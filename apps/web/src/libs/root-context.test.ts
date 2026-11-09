@@ -29,6 +29,18 @@ vi.mock("./theme", () => ({
 }));
 
 describe("loadRootContext", () => {
+	it.each([null, { user: { id: "bob" }, session: { id: "bob-session" } }])(
+		"removes private caches when the authenticated account changes to %j",
+		async (next) => {
+			const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+			queryClient.setQueryData(sessionQueryKey, { user: { id: "alice" }, session: { id: "alice-session" } });
+			queryClient.setQueryData(["documents"], [{ id: "private-alice" }]);
+			await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
+			getSessionMock.mockResolvedValueOnce(next);
+			expect((await loadRootContext(queryClient)).session).toEqual(next);
+			expect(queryClient.getQueryData(["documents"])).toBeUndefined();
+		},
+	);
 	it("resolves interface locale from the fetched session and reuses the cached session for hover loads", async () => {
 		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 		getSessionMock.mockResolvedValueOnce({

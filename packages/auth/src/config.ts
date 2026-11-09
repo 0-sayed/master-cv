@@ -19,10 +19,15 @@ import { createLocalJWKSet, jwtVerify } from "jose";
 import { createElement } from "react";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
-import { ResetPasswordEmail, VerifyEmail, VerifyEmailChange } from "@reactive-resume/email/templates/auth";
+import {
+	authMailMessage,
+	ResetPasswordEmail,
+	VerifyEmail,
+	VerifyEmailChange,
+} from "@reactive-resume/email/templates/auth";
 import { sendEmail } from "@reactive-resume/email/transport";
 import { env } from "@reactive-resume/env/server";
-import { uiLocaleSchema } from "@reactive-resume/utils/locale";
+import { resolveUiLocale, uiLocaleSchema } from "@reactive-resume/utils/locale";
 import { rateLimitConfig } from "@reactive-resume/utils/rate-limit";
 import { generateId, toUsername } from "@reactive-resume/utils/string";
 import { timezoneSchema } from "@reactive-resume/utils/timezone";
@@ -176,7 +181,7 @@ const getAuthConfig = () => {
 	}
 
 	return betterAuth({
-		appName: "Reactive Resume",
+		appName: "Master CV",
 		baseURL: authBaseUrl,
 		secret: env.AUTH_SECRET,
 
@@ -308,16 +313,23 @@ const getAuthConfig = () => {
 
 		emailAndPassword: {
 			enabled: !env.FLAG_DISABLE_EMAIL_AUTH,
-			autoSignIn: true,
+			autoSignIn: false,
 			minPasswordLength: 8,
 			maxPasswordLength: 64,
-			requireEmailVerification: false,
+			requireEmailVerification: true,
+			revokeSessionsOnPasswordReset: true,
 			disableSignUp: env.FLAG_DISABLE_SIGNUPS || env.FLAG_DISABLE_EMAIL_AUTH,
 			sendResetPassword: async ({ user, url }) => {
 				await sendEmail({
 					to: user.email,
-					subject: "Reset your password",
-					react: createElement(ResetPasswordEmail, { url }),
+					subject: authMailMessage(
+						"email.reset.subject",
+						resolveUiLocale({ saved: "uiLocale" in user ? user.uiLocale : undefined }),
+					),
+					react: createElement(ResetPasswordEmail, {
+						url,
+						locale: resolveUiLocale({ saved: "uiLocale" in user ? user.uiLocale : undefined }),
+					}),
 				});
 			},
 			password: {
@@ -328,12 +340,18 @@ const getAuthConfig = () => {
 
 		emailVerification: {
 			sendOnSignUp: true,
-			autoSignInAfterVerification: true,
+			autoSignInAfterVerification: false,
 			sendVerificationEmail: async ({ user, url }) => {
 				await sendEmail({
 					to: user.email,
-					subject: "Verify your email",
-					react: createElement(VerifyEmail, { url }),
+					subject: authMailMessage(
+						"email.verification.previewSubject",
+						resolveUiLocale({ saved: "uiLocale" in user ? user.uiLocale : undefined }),
+					),
+					react: createElement(VerifyEmail, {
+						url,
+						locale: resolveUiLocale({ saved: "uiLocale" in user ? user.uiLocale : undefined }),
+					}),
 				});
 			},
 		},
@@ -344,8 +362,16 @@ const getAuthConfig = () => {
 				sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
 					await sendEmail({
 						to: newEmail,
-						subject: "Verify your new email",
-						react: createElement(VerifyEmailChange, { url, previousEmail: user.email, newEmail }),
+						subject: authMailMessage(
+							"email.emailChange.subject",
+							resolveUiLocale({ saved: "uiLocale" in user ? user.uiLocale : undefined }),
+						),
+						react: createElement(VerifyEmailChange, {
+							url,
+							previousEmail: user.email,
+							newEmail,
+							locale: resolveUiLocale({ saved: "uiLocale" in user ? user.uiLocale : undefined }),
+						}),
 					});
 				},
 			},

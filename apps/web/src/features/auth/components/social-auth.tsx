@@ -17,6 +17,7 @@ import { sessionQueryKey } from "@/libs/root-context";
 
 export function SocialAuth() {
 	const { data: providers = {}, isLoading } = useQuery(orpc.auth.providers.list.queryOptions());
+	if (!isLoading && Object.keys(providers).length === 0) return null;
 
 	return (
 		<>
@@ -82,7 +83,7 @@ function SocialAuthButtons({ providers }: SocialAuthButtonsProps) {
 	};
 
 	return (
-		<div className={cn(ENTER_CLASS, "grid grid-cols-2 gap-4")}>
+		<div className={cn(ENTER_CLASS, "grid grid-cols-1 gap-4 [&_button]:h-12")}>
 			<Button
 				onClick={() =>
 					runSignIn(() =>

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
-import { authSearchSchema, getAuthRedirectOptions, getOAuthPasskeyOptions, getOAuthSignInOptions } from "./redirect";
+import {
+	authSearchSchema,
+	verificationSearchSchema,
+	getAuthRedirectOptions,
+	getOAuthPasskeyOptions,
+	getOAuthSignInOptions,
+} from "./redirect";
 
 describe("authentication callback", () => {
 	it.each([{}, { reauthenticate: true }])("accepts auth routes without a callback query: %j", (search) => {
@@ -67,4 +73,10 @@ describe("passkey OAuth context", () => {
 			oauth_query: "prompt=login&sig=signed",
 		});
 	});
+});
+
+it("accepts router-decoded verification markers without accepting arbitrary values", () => {
+	expect(verificationSearchSchema.parse({ done: true }).done).toBe(true);
+	expect(verificationSearchSchema.parse({ done: "true" }).done).toBe(true);
+	expect(verificationSearchSchema.parse({ done: "unexpected" }).done).toBeUndefined();
 });

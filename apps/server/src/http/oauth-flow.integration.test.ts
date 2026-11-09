@@ -1,7 +1,21 @@
 import { createHash, randomBytes } from "node:crypto";
-import { describe, expect, it, vi } from "vite-plus/test";
+import { describe, expect, it } from "vite-plus/test";
 
-vi.mock("@reactive-resume/email/transport", () => ({ sendEmail: vi.fn() }));
+const verificationLinks = new Map<string, string>();
+async function captureVerification() {
+	const { auth } = await import("@reactive-resume/auth/config");
+	const context = await auth.$context;
+	if (!context.options.emailVerification) throw new Error("Email verification must be configured");
+	context.options.emailVerification.sendVerificationEmail = async ({ user, url }) => {
+		verificationLinks.set(user.email, url);
+	};
+}
+async function verifyEmail(email: string, handleAuth: (request: Request) => Promise<Response>) {
+	const link = verificationLinks.get(email);
+	if (!link) throw new Error("Missing verification message");
+	const response = await handleAuth(new Request(link));
+	expect(response.status).toBeLessThan(400);
+}
 
 // Run only against an explicitly supplied disposable database, after applying migrations.
 const databaseURL = process.env.OAUTH_TEST_DATABASE_URL;
@@ -11,8 +25,9 @@ describe.skipIf(!databaseURL)("MCP OAuth flow with PostgreSQL", () => {
 		if (!databaseURL) return;
 		process.env.DATABASE_URL = databaseURL;
 		process.env.APP_URL = "http://localhost:33920";
-		process.env.AUTH_SECRET = "oauth-integration-test-secret-only";
+		process.env.AUTH_SECRET ??= "oauth-integration-test-secret-only";
 		const { handleAuth, handleOAuth } = await import("./auth");
+		await captureVerification();
 		// Better Auth disables origin checks by default in test mode; exercise production behavior.
 		const { auth } = await import("@reactive-resume/auth/config");
 		(await auth.$context).skipOriginCheck = false;
@@ -72,7 +87,12 @@ describe.skipIf(!databaseURL)("MCP OAuth flow with PostgreSQL", () => {
 			}),
 		);
 		expect(signup.status, await signup.clone().text()).toBe(200);
-		const cookie = signup.headers
+		await verifyEmail(`oauth-${unique}@example.com`, handleAuth);
+		const signedIn = await handleAuth(
+			request("sign-in/email", { email: `oauth-${unique}@example.com`, password: "password123" }),
+		);
+		expect(signedIn.status).toBe(200);
+		const cookie = signedIn.headers
 			.getSetCookie()
 			.map((value) => value.split(";", 1)[0])
 			.join("; ");
@@ -162,8 +182,9 @@ describe.skipIf(!databaseURL)("MCP OAuth flow with PostgreSQL", () => {
 			if (!databaseURL) return;
 			process.env.DATABASE_URL = databaseURL;
 			process.env.APP_URL = "http://localhost:33920";
-			process.env.AUTH_SECRET = "oauth-integration-test-secret-only";
+			process.env.AUTH_SECRET ??= "oauth-integration-test-secret-only";
 			const { handleAuth, handleOAuth } = await import("./auth");
+			await captureVerification();
 			const origin = process.env.APP_URL;
 			const cookieOf = (response: Response) =>
 				response.headers
@@ -187,7 +208,10 @@ describe.skipIf(!databaseURL)("MCP OAuth flow with PostgreSQL", () => {
 			};
 			const existingSignup = await post("sign-up/email", credentials);
 			expect(existingSignup.status).toBe(200);
-			const oldCookie = cookieOf(existingSignup);
+			await verifyEmail(credentials.email, handleAuth);
+			const existingLogin = await post("sign-in/email", { email: credentials.email, password: credentials.password });
+			expect(existingLogin.status).toBe(200);
+			const oldCookie = cookieOf(existingLogin);
 			const registration = await post("oauth2/register", {
 				client_name: "Reauth integration",
 				redirect_uris: ["http://127.0.0.1:33921/callback"],
@@ -230,7 +254,16 @@ describe.skipIf(!databaseURL)("MCP OAuth flow with PostgreSQL", () => {
 							oldCookie,
 						);
 			expect(authenticated.status, await authenticated.clone().text()).toBe(200);
-			const newCookie = cookieOf(authenticated);
+			let newCookie = cookieOf(authenticated);
+			if (mode === "create") {
+				await verifyEmail(`new-${unique}@example.com`, handleAuth);
+				const verifiedLogin = await post("sign-in/email", {
+					email: `new-${unique}@example.com`,
+					password: credentials.password,
+				});
+				expect(verifiedLogin.status).toBe(200);
+				newCookie = cookieOf(verifiedLogin);
+			}
 			expect(newCookie).not.toBe(oldCookie);
 			const continuation =
 				mode === "create" ? await post("oauth2/continue", { created: true, oauth_query }, newCookie) : authenticated;

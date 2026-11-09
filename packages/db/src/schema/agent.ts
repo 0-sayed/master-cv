@@ -5,6 +5,7 @@ import { generateId } from "@reactive-resume/utils/string";
 import { application } from "./applications";
 import { user } from "./auth";
 import { coverLetter } from "./cover-letter";
+import { discoveryPolicy, ownerPolicy } from "./ownership";
 import { resume } from "./resume";
 
 type AgentUiMessage = Record<string, unknown>;
@@ -16,7 +17,7 @@ type StoredJsonPatchOperation =
 	| { op: "copy"; path: string; from: string }
 	| { op: "test"; path: string; value: unknown };
 
-export const aiProvider = pg.pgTable(
+export const aiProvider = pg.pgTable.withRLS(
 	"ai_providers",
 	{
 		id: pg
@@ -51,6 +52,7 @@ export const aiProvider = pg.pgTable(
 			.$onUpdate(() => /* @__PURE__ */ new Date()),
 	},
 	(t) => [
+		ownerPolicy(t.userId),
 		pg.index().on(t.userId, t.enabled),
 		pg.index().on(t.userId, t.lastUsedAt.desc()),
 		pg.index().on(t.userId, t.createdAt.asc()),
@@ -61,7 +63,7 @@ export const aiProvider = pg.pgTable(
 	],
 );
 
-export const agentThread = pg.pgTable(
+export const agentThread = pg.pgTable.withRLS(
 	"agent_threads",
 	{
 		id: pg
@@ -101,14 +103,16 @@ export const agentThread = pg.pgTable(
 			.$onUpdate(() => /* @__PURE__ */ new Date()),
 	},
 	(t) => [
+		ownerPolicy(t.userId),
 		pg.index().on(t.userId, t.status, t.lastMessageAt.desc()),
+		discoveryPolicy(),
 		pg.index().on(t.workingResumeId),
 		pg.index().on(t.coverLetterId),
 		pg.index().on(t.aiProviderId),
 	],
 );
 
-export const agentMessage = pg.pgTable(
+export const agentMessage = pg.pgTable.withRLS(
 	"agent_messages",
 	{
 		id: pg
@@ -136,10 +140,14 @@ export const agentMessage = pg.pgTable(
 			.defaultNow()
 			.$onUpdate(() => /* @__PURE__ */ new Date()),
 	},
-	(t) => [pg.uniqueIndex().on(t.threadId, t.sequence), pg.index().on(t.userId, t.createdAt.desc())],
+	(t) => [
+		ownerPolicy(t.userId),
+		pg.uniqueIndex().on(t.threadId, t.sequence),
+		pg.index().on(t.userId, t.createdAt.desc()),
+	],
 );
 
-export const agentAttachment = pg.pgTable(
+export const agentAttachment = pg.pgTable.withRLS(
 	"agent_attachments",
 	{
 		id: pg
@@ -162,10 +170,10 @@ export const agentAttachment = pg.pgTable(
 		size: pg.integer("size").notNull(),
 		createdAt: pg.timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 	},
-	(t) => [pg.index().on(t.threadId), pg.index().on(t.messageId), pg.index().on(t.userId)],
+	(t) => [ownerPolicy(t.userId), pg.index().on(t.threadId), pg.index().on(t.messageId), pg.index().on(t.userId)],
 );
 
-export const agentAction = pg.pgTable(
+export const agentAction = pg.pgTable.withRLS(
 	"agent_actions",
 	{
 		id: pg
@@ -200,5 +208,10 @@ export const agentAction = pg.pgTable(
 			.defaultNow()
 			.$onUpdate(() => /* @__PURE__ */ new Date()),
 	},
-	(t) => [pg.index().on(t.threadId, t.createdAt.desc()), pg.index().on(t.resumeId), pg.index().on(t.messageId)],
+	(t) => [
+		ownerPolicy(t.userId),
+		pg.index().on(t.threadId, t.createdAt.desc()),
+		pg.index().on(t.resumeId),
+		pg.index().on(t.messageId),
+	],
 );

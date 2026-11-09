@@ -40,6 +40,7 @@ function CareerLayout() {
 		},
 		{ to: "/dashboard/career/offers", match: "/dashboard/career/offers", icon: "scales", label: t`Offers` },
 	];
+	if (matchRoute({ to: "/dashboard/career/information", fuzzy: true })) return <Outlet />;
 	const current = places.find((place) => matchRoute({ to: place.match, fuzzy: place.match !== "/dashboard/career/" }));
 
 	return (
