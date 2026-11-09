@@ -160,18 +160,22 @@ describe("OAuth callback after sign-in", () => {
 		);
 	});
 
-	it("carries the callback into two-factor verification", async () => {
-		mocks.email.mockResolvedValueOnce({ data: { twoFactorRedirect: true }, error: null });
-		const { container } = renderLogin();
-		submitLogin(container, "john@example.com");
-		await waitFor(() =>
-			expect(mocks.navigate).toHaveBeenCalledWith({
-				to: "/auth/verify-2fa",
-				search: { callbackURL: mocks.callbackURL },
-				replace: true,
-			}),
-		);
-	});
+	it.each(["john@example.com", "john"])(
+		"leaves MFA navigation to the auth client without a competing route change (%s)",
+		async (identifier) => {
+			const signIn = identifier.includes("@") ? mocks.email : mocks.username;
+			signIn.mockResolvedValueOnce({ data: { twoFactorRedirect: true }, error: null });
+			const { container } = renderLogin();
+			submitLogin(container, identifier);
+			await waitFor(() => expect(signIn).toHaveBeenCalledOnce());
+			await waitFor(() =>
+				expect(screen.getByRole<HTMLButtonElement>("button", { name: "Sign in" }).disabled).toBe(false),
+			);
+			expect(mocks.navigate).not.toHaveBeenCalled();
+			expect(mocks.continueOAuth).not.toHaveBeenCalled();
+			expect(mocks.queryClient.clear).not.toHaveBeenCalled();
+		},
+	);
 
 	it("lets the provider finish its validated redirect after fresh authentication", async () => {
 		mocks.email.mockResolvedValueOnce({

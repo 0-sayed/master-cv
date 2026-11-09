@@ -43,21 +43,12 @@ type SubmitLoginOptions = {
 	onError: (code: string | undefined) => void;
 	value: z.infer<typeof formSchema>;
 	callbackURL: string | undefined;
-	reauthenticate: boolean | undefined;
 	navigate: ReturnType<typeof useNavigate>;
 	queryClient: QueryClient;
 	router: ReturnType<typeof useRouter>;
 };
 
-async function submitLogin({
-	value,
-	callbackURL,
-	reauthenticate,
-	navigate,
-	queryClient,
-	router,
-	onError,
-}: SubmitLoginOptions) {
+async function submitLogin({ value, callbackURL, navigate, queryClient, router, onError }: SubmitLoginOptions) {
 	const toastId = toast.add({ type: "loading", description: t`Signing in...` });
 
 	try {
@@ -94,7 +85,7 @@ async function submitLogin({
 
 		if (requiresTwoFactor) {
 			toast.close(toastId);
-			void navigate({ to: "/auth/verify-2fa", search: { callbackURL, reauthenticate }, replace: true });
+			// The auth client's two-factor hook already started the document redirect.
 			return;
 		}
 
@@ -138,7 +129,6 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 			await submitLogin({
 				value,
 				callbackURL,
-				reauthenticate,
 				navigate,
 				queryClient,
 				router,

@@ -261,7 +261,7 @@ contract failures, 6 missing dialog/resend failures, 4 failed-resend error-link 
 2 draft-notice placement failures and 6 recovery-state order/icon failures. Harness setup failures
 are excluded. The corrected regressions pass on the rebuilt isolated Chrome runtime.
 
-Focused results: web 403 passed; utils 123 passed; tooling 262 passed with 32 prerequisite skips.
+Focused results: web 409 passed; utils 123 passed; tooling 262 passed with 32 prerequisite skips.
 The affected 14-spec browser run passed 132 tests, with 1 gated unsafe-AI capability test skipped,
 0 failures and 0 flaky cases. Lint, 22 workspace typechecks, Knip, boundaries, scoped formatting,
 copy bindings, roadmap validation and production builds pass.
@@ -273,3 +273,13 @@ References, captures and comparisons are in external `t003/d35/`; the D35 differ
 classifies retained capabilities, data integrity and gates. No dark-theme visual equivalence or
 unmapped dialog parity is claimed. S17's indexed empty-title wording conflicts with the live
 override; the deck remains unchanged for owner copy review (A13). PR checks are reported separately.
+
+The first D35 CI browser run passed 183 tests but failed one MFA continuation (one gated skip).
+The login page changed the SPA route while the auth client's MFA hook started a document redirect,
+destroying the capture's execution context. The hook now owns that redirect; its validated callback
+and standalone reauthentication flag remain intact. Two competing-route regressions and two missing
+reauthentication-parameter cases failed before the fix; all 25 focused auth tests now pass.
+The browser flow also requires a visible OTP control before capturing, retaining every existing
+authentication, session-isolation and post-verification access assertion.
+The rebuilt affected browser set remains 132 passed / 1 gated skip. All four MFA locale/width
+cases passed five repeats each (20/20); an independent read-only review approved the redirect fix.

@@ -229,6 +229,7 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await page.locator('input[name="password"]').fill(account.password);
 			await page.locator('button[type="submit"]').click();
 			await expect(page).toHaveURL(/verify-2fa/);
+			await expect(page.locator('[data-slot="otp-field-input"]').first()).toBeVisible();
 			expect(await (await page.request.get("/api/auth/get-session")).json()).toBeNull();
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("mfa.png"), fullPage: true });
