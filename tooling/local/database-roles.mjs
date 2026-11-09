@@ -7,7 +7,8 @@ const { Pool } = createRequire(new URL("../../packages/db/package.json", import.
 /** Provision only an explicitly selected local synthetic database. Never grants ownership or migration membership. */
 export async function provisionRuntimeRole(migrationUrl, role = "master_cv_runtime") {
 	const url = new URL(migrationUrl);
-	if (!["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)) throw new Error("Local database required");
+	if (!["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) || url.searchParams.has("host"))
+		throw new Error("Local database required");
 	if (!/^[a-z][a-z0-9_]{0,62}$/.test(role)) throw new Error("Invalid runtime role name");
 	const pool = new Pool({ connectionString: url.toString(), max: 1 });
 	const password = randomBytes(32).toString("hex");

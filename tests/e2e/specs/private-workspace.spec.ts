@@ -47,6 +47,17 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await page.getByRole("button", { name: locale === "en-US" ? "Sign up" : "إنشاء حساب", exact: true }).click();
 			await expect(page).toHaveURL(/\/auth\/verify-email/);
 			await expect(page.locator("html")).toHaveAttribute("dir", locale === "en-US" ? "ltr" : "rtl");
+			const loadedFonts = await page.evaluate(async () => {
+				const faces = await Promise.all([
+					document.fonts.load('400 16px "Noto Sans Arabic"', "العربية"),
+					document.fonts.load('400 16px "Noto Sans"', "Master CV"),
+				]);
+				return faces.map((group) => group.map((face) => face.status));
+			});
+			for (const statuses of loadedFonts) {
+				expect(statuses.length).toBeGreaterThan(0);
+				expect(statuses.every((status) => status === "loaded")).toBe(true);
+			}
 			await page.evaluate(() => document.fonts.ready);
 			expect(await page.evaluate(() => document.fonts.check('16px "Noto Sans Arabic"'))).toBe(true);
 			expect(await page.evaluate(() => document.fonts.check('16px "Noto Sans"'))).toBe(true);

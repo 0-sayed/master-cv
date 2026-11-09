@@ -1,9 +1,10 @@
 vi.mock("@reactive-resume/db/owner-scope", () => ({
-	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+	withOwnerDatabase: (_userId: string, work: () => unknown) => work(),
 }));
 import { describe, expect, it, vi } from "vite-plus/test";
 
-vi.mock("@reactive-resume/db/client", () => ({ db: {} }));
+const bootDb = vi.hoisted(() => ({ execute: vi.fn(), select: vi.fn() }));
+vi.mock("@reactive-resume/db/client", () => ({ db: bootDb }));
 vi.mock("@reactive-resume/db/schema", () => ({
 	agentThread: {
 		id: "agent_threads.id",
@@ -20,11 +21,24 @@ vi.mock("drizzle-orm", () => ({
 	and: (...conditions: unknown[]) => ({ type: "and", conditions }),
 	eq: (left: unknown, right: unknown) => ({ type: "eq", left, right }),
 	isNull: (value: unknown) => ({ type: "isNull", value }),
+	isNotNull: (value: unknown) => ({ type: "isNotNull", value }),
 	sql: () => ({}),
 }));
 
-const { claimActiveAgentRun, clearActiveAgentRunIfCurrent, isStaleAgentRun, reapStaleAgentRun } =
-	await import("./runs");
+const {
+	claimActiveAgentRun,
+	clearActiveAgentRunIfCurrent,
+	isStaleAgentRun,
+	reapStaleAgentRun,
+	reapStaleAgentRunsWithOwners,
+} = await import("./runs");
+
+it("reaps discovered owners through the scoped boot helper", async () => {
+	bootDb.execute.mockResolvedValueOnce({ rows: [{ userId: "owner-1" }, { userId: "owner-2" }] });
+	bootDb.select.mockReturnValue({ from: () => ({ where: async () => [] }) });
+	await expect(reapStaleAgentRunsWithOwners()).resolves.toBeUndefined();
+	expect(bootDb.select).toHaveBeenCalledTimes(2);
+});
 
 const NOW = new Date("2026-08-20T12:00:00.000Z");
 

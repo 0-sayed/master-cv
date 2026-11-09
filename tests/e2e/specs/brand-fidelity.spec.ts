@@ -52,9 +52,16 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					"/auth/verify-email",
 					"/auth/forgot-password",
 					"/auth/reset-password?token=synthetic-geometry",
-					"/auth/missing-fidelity-route",
+					"/auth/missing-fidelity-route/root-page",
 				]) {
 					await page.goto(path);
+					if (path === "/auth/missing-fidelity-route/root-page") {
+						const notFoundTitle = page.locator('[data-slot="alert-title"]');
+						await expect(notFoundTitle).toHaveText(
+							locale === "en-US" ? "We couldn't find that page" : "لم نتمكن من العثور على تلك الصفحة",
+						);
+						await expect(notFoundTitle).toBeVisible();
+					}
 					await settleScreen(page);
 					for (const dark of [false, true]) {
 						await page.evaluate((value) => document.documentElement.classList.toggle("dark", value), dark);

@@ -20,7 +20,8 @@ export async function assertRuntimeDatabaseRole(pool: Pool): Promise<void> {
 		) OR EXISTS (
 			SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
 			WHERE n.nspname='public' AND c.relkind='r' AND c.relname = ANY($1::text[])
-			AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity OR pg_has_role(current_user,c.relowner,'MEMBER'))
+			AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity OR pg_has_role(current_user,c.relowner,'MEMBER')
+				OR has_table_privilege(current_user,c.oid,'TRUNCATE'))
 		) OR (
 			SELECT count(*) FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
 			WHERE n.nspname='public' AND c.relkind='r' AND c.relname = ANY($1::text[])

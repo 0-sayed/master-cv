@@ -18,6 +18,7 @@ test("real HTTP and restricted PostgreSQL deny foreign master, CV and file acces
 	const context = await createAuthenticatedContext(browser, bootstrap.request, bob, baseURL ?? "http://localhost:3000");
 	const other = context.request;
 	let folder: string | undefined;
+	let foreignFolder: string | undefined;
 	try {
 		const created = await alice.request.post("/api/openapi/resumes", {
 			headers: { origin: baseURL ?? "http://localhost:3000" },
@@ -107,9 +108,25 @@ test("real HTTP and restricted PostgreSQL deny foreign master, CV and file acces
 			await anonymous.close();
 		}
 		expect((await alice.request.get(`/uploads/${session.user.id}/agent/thread/private`)).status()).toBe(404);
-		expect(
-			(await alice.request.get(`/uploads/${session.user.id}/t003-proof/%2e%2e/%2e%2e/private`)).status(),
-		).toBeGreaterThanOrEqual(400);
+		const foreignSession = await (await other.get("/api/auth/get-session")).json();
+		foreignFolder = join(storage, "uploads", foreignSession.user.id, "t003-proof");
+		await mkdir(foreignFolder, { recursive: true });
+		const foreignBytes = "synthetic foreign-owner traversal target";
+		await writeFile(join(foreignFolder, "foreign.txt"), foreignBytes);
+		const foreignPath = `/uploads/${foreignSession.user.id}/t003-proof/foreign.txt`;
+		const foreignOwnerRead = await other.get(foreignPath);
+		expect(foreignOwnerRead.status()).toBe(200);
+		expect(await foreignOwnerRead.text()).toBe(foreignBytes);
+		// Cover URL-normalized dots and encoded separators against the same existing foreign file.
+		for (const traversal of [
+			`%2e%2e/%2e%2e/${foreignSession.user.id}/t003-proof/foreign.txt`,
+			`%2e%2e%2f%2e%2e%2f${foreignSession.user.id}%2ft003-proof%2fforeign.txt`,
+		]) {
+			const denied = await alice.request.get(`/uploads/${session.user.id}/t003-proof/${traversal}`);
+			expect([400, 403, 404]).toContain(denied.status());
+			expect(await denied.text()).not.toContain(foreignBytes);
+		}
+		expect(await (await other.get(foreignPath)).text()).toBe(foreignBytes);
 		// An authenticated foreign viewer gets public access, never the owner's private scope.
 		expect((await alice.request.put(`/api/openapi/resumes/${resumeId}`, { data: { isPublic: true } })).ok()).toBe(true);
 		expect((await other.get(sharedEndpoint)).status()).toBe(200);
@@ -130,6 +147,7 @@ test("real HTTP and restricted PostgreSQL deny foreign master, CV and file acces
 		expect((await alice.request.get(pdfEndpoint)).status()).toBe(200);
 	} finally {
 		if (folder) await rm(folder, { recursive: true, force: true });
+		if (foreignFolder) await rm(foreignFolder, { recursive: true, force: true });
 		await context.close();
 		await bootstrap.close();
 		await deleteE2EUser(bob);

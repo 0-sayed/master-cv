@@ -54,8 +54,9 @@ Docker build/watch inputs exclude Planning, credentials, local state and browser
 ## Private workspace database roles
 
 T003 requires two connections. `DATABASE_MIGRATION_URL` owns schema changes; `DATABASE_URL`
-must be a non-owner login without superuser, BYPASSRLS, migration-role membership or mutation
-privileges on `career_fact_revision`. Startup verifies forced RLS and refuses unsafe runtime credentials.
+must be a non-owner login without superuser, BYPASSRLS, migration-role membership, TRUNCATE
+privileges on protected tables or UPDATE/DELETE privileges on `career_fact_revision`. INSERT remains
+required to append revision snapshots. Startup verifies forced RLS and refuses unsafe runtime credentials.
 The 27 protected tables deny private queries without an authenticated owner scope. Identity/session
 lookups stay outside that scope; they do not use the migration connection.
 
@@ -175,3 +176,14 @@ under `test-results/mail/`. The browser server runs with synthetic SMTP settings
 messages, traces or local environment files; links are authentication secrets. The production transport
 requires configured SMTP and surfaces delivery failures as retryable errors. Mail delivery/domain and
 legal wording approval remain release gates.
+
+Playwright starts its own application and SMTP capture by default and refuses occupied ports, including
+locally, so an unrelated development server or worktree cannot silently receive test mail. The capture
+port defaults to the web `PORT` plus 3; `E2E_SMTP_PORT` overrides it for both the capture and application.
+`E2E_MAIL_DIRECTORY` selects the capture directory and must match the directory read by the fixtures.
+
+To use an already provisioned isolated browser runtime, set `E2E_REUSE_SERVER=true` together with explicit
+`E2E_SMTP_PORT` and `E2E_MAIL_DIRECTORY`. This opts into reusing both services; the existing application
+must already send to that loopback capture port and the sink must already write to that directory.
+Playwright cannot retrofit SMTP settings into an existing process. Keep `APP_URL`, `PORT`, storage and
+database settings pointed at that same synthetic runtime. `PLAYWRIGHT_CHANNEL=chrome` remains supported.

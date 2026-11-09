@@ -210,3 +210,34 @@ same zero-overflow condition after resize, rather than measuring an intermediate
 Final rebuilt-runtime headless Chrome run: 156 passed, 0 failed, 3 gated skips, 0 flaky across
 all 30 specs (247.2 seconds). The skipped cases require disabled AI/provider or guest capabilities.
 The ship report records the PR and subsequent review results.
+
+## PR #13 review round 1
+
+Review reproduced and corrected 27 findings: runtime TRUNCATE privileges and migration credentials;
+legacy owner-reference validation under forced RLS; fair bounded job/mail processing; mixed-precision
+dates, raw-date preservation and conflict merging; fact categories; surviving CV variants and download
+authorization; lazy stream initialization inside owner scope; reset/session recovery, MFA branding and
+catalog coverage; audited icon aliases; isolated SMTP setup and a real cross-owner storage traversal probe.
+Focused regressions failed before their production fixes and passed afterward. Evidence and raw bot
+threads are preserved in the external fidelity archive; no credentials or authentication links are included here.
+
+Eight comments were declined or retained behind existing gates with concrete evidence: cover-letter
+parent ownership is already enforced; SMTP failures do not enumerate accounts; verification templates
+have no unresolved name placeholder; successful verification already redirects; guest access remains
+disabled; welcome copy and sidebar composition follow the working masters. Approved legal destinations
+remain an existing prelaunch requirement: S02 currently matches the master's plain consent copy, and no
+unapproved policy text or invented links were added.
+
+Post-review unit/integration: schema 101, DB 21, auth 41, mail 8, API 498, server 163, web 403,
+UI 33, tooling 262 passed with 32 prerequisite skips: **1,530 passed** in total. All API/server integration
+prerequisites were supplied. Lint, 22 workspace typechecks, Knip, boundaries (1,642 files/23 packages),
+copy bindings, roadmap validation, scoped formatting and both production builds pass.
+The rebuilt isolated runtime passed all 30 browser specs: **156 passed, 0 failed, 3 gated skips,
+0 flaky**. The first-head CI failure exposed six test setup failures: an ambiguous two-segment public
+route and unused font faces not loaded by `document.fonts.ready`. Tests now assert the actual root-404
+surface and explicitly load the required fonts; all geometry and font assertions remain.
+The corrected two-spec browser run passed **47/47**, with no skips, failures or flaky cases.
+The 19 app captures were refreshed after fonts, animations and loading skeletons settled, with no
+horizontal overflow. Existing fresh Figma targets and all 15 documented intentional differences remain;
+no visual baselines or dark-theme parity claims were added. GitHub's final results are tracked separately
+in the ship report, not inferred from the local run.

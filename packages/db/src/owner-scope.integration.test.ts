@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { readFile, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
 import { sql } from "drizzle-orm";
@@ -151,6 +152,64 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 		await fixture.query(`REVOKE UPDATE ON career_fact_revision FROM "${role}"`);
 	});
 
+	it("rejects TRUNCATE privileges on every protected table, including inherited grants", async () => {
+		const tables = await fixture.query<{ name: string }>(
+			`SELECT c.relname AS name FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
+			WHERE n.nspname='public' AND c.relkind='r' AND c.relrowsecurity`,
+		);
+		expect(tables.rows.length).toBeGreaterThan(0);
+		for (const { name } of tables.rows) {
+			for (const grantee of [`"${role}"`, "PUBLIC"]) {
+				await fixture.query(`GRANT TRUNCATE ON "${name}" TO ${grantee}`);
+				try {
+					await expect(assertRuntimeDatabaseRole(runtime)).rejects.toThrow("runtime");
+				} finally {
+					await fixture.query(`REVOKE TRUNCATE ON "${name}" FROM ${grantee}`);
+				}
+			}
+		}
+	});
+
+	it("rejects legacy foreign-owner references during migrations by a non-bypass schema owner", async () => {
+		const connection = await fixture.connect();
+		await connection.query("BEGIN");
+		try {
+			await connection.query("ALTER TABLE cover_letter_version DISABLE TRIGGER USER");
+			await connection.query(
+				`INSERT INTO cover_letter(id,user_id,name,style)VALUES('legacy-letter','bob','Private','{}')`,
+			);
+			await connection.query(
+				`INSERT INTO cover_letter_version(id,user_id,cover_letter_id,data)VALUES('legacy-foreign-version','alice','legacy-letter','{}')`,
+			);
+			await connection.query("ALTER TABLE cover_letter_version ENABLE TRIGGER USER");
+			const triggers = await connection.query<{ name: string; table: string }>(
+				`SELECT tgname AS name, tgrelid::regclass::text AS table FROM pg_trigger WHERE tgname LIKE 'owner_fk_%'`,
+			);
+			for (const trigger of triggers.rows)
+				await connection.query(`DROP TRIGGER "${trigger.name}" ON "${trigger.table}"`);
+			await connection.query(`SET LOCAL ROLE "${schemaOwner}"`);
+			const folder = new URL("../../../migrations/", import.meta.url);
+			const scans: string[] = [];
+			for (const directory of (await readdir(folder)).sort()) {
+				const migration = await readFile(new URL(`${directory}/migration.sql`, folder), "utf8");
+				scans.push(
+					...migration
+						.split("--> statement-breakpoint")
+						.filter((statement) => statement.includes("Existing foreign-owner reference requires review")),
+				);
+			}
+			await expect(
+				(async () => {
+					for (const scan of scans) await connection.query(scan);
+				})(),
+			).rejects.toThrow("Existing foreign-owner reference requires review");
+		} finally {
+			await connection.query("ROLLBACK");
+			connection.release();
+		}
+		await expect(assertRuntimeDatabaseRole(runtime)).resolves.toBeUndefined();
+	});
+
 	it("rejects foreign parent references even when the child claims the current owner", async () => {
 		await fixture.query(
 			`INSERT INTO career_schedule (id,user_id,kind,next_run_at) VALUES ('bob-schedule','bob','discovery',now())`,
@@ -255,6 +314,13 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 			await expect(
 				withOwnerDatabase("alice", (tx) => tx.execute(sql`DELETE FROM career_fact_revision WHERE user_id='alice'`)),
 			).rejects.toThrow();
+			await expect(
+				withOwnerDatabase("alice", (tx) =>
+					tx.execute(
+						sql`INSERT INTO cover_letter_version(id,user_id,cover_letter_id,data)VALUES('foreign-letter-version','alice','bob-letter','{}')`,
+					),
+				),
+			).rejects.toMatchObject({ cause: { code: "23503", message: "Referenced record is unavailable to this owner" } });
 			await expect(
 				withOwnerDatabase("alice", (tx) =>
 					tx.execute(
