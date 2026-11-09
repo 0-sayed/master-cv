@@ -65,7 +65,8 @@ its current AGENTS.md; do not blindly overwrite existing project guidance.
 - Reuse current components, tokens, schemas and services; no new Next.js/Nest
   rewrite, separate editor app or parallel UI library without an explicit decision.
 - Requirements/security/decisions govern behavior and release. Figma governs
-  visual composition and interaction intent within those constraints.
+  screens, elements, content, flows and states; existing shared code components
+  govern visual details per D35. Pixel parity is not required.
 - Figma state frames are not a one-to-one list of application routes or tables.
   Review launchers and error-simulation controls are not public product features.
 - Prototype values and Start/Focus prices are fixtures, not approved production

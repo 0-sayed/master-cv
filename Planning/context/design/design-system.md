@@ -6,6 +6,8 @@
 **Companions:** [Coding-agent handoff](figma-handoff.md) · [Verified Figma map](figma-map.json) · [Requirements](../business/requirements.md) · [Architecture](../technical/architecture.md) · [Security](../technical/security.md) · [Decisions](../decisions.md) · [Index](../README.md)
 **Launch contract (owner decided 2026-11-04):** In Arabic and English, launch uses email + password sign-up, email verification and email password recovery. Mobile sign-up, SMS verification/reset, password-recovery codes and S37-S39 are a later T014 increment, off at launch until company registration, sender approval and A14-A16. D20/D21 retain that increment's Phase 1/Phase 2 contracts; no implementation or gate approval is implied.
 
+**MVP visual authority:** [D35 (owner decided 2026-11-09)](../decisions.md) makes existing shared code components with T002 brand tokens authoritative for visual details. Figma governs screens, states, dialogs, elements, content, flows and order; pixel parity is not required. Do not tune per-screen sizes to imitate a mock. Shared-component brand polish is post-MVP.
+
 ## 1. Decision in plain language
 
 **Use the saved native design, not the old HTML or an unexecuted importer:** [Master CV: Design (v1)](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=0-1). Start with the [coding-agent handoff](figma-handoff.md), then use the exact frame ID from [figma-map.json](figma-map.json). This document owns visual rules; business requirements and security/release decisions retain authority over behavior and availability.
