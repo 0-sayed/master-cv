@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { cn } from "@reactive-resume/utils/style";
 import { useUiLocale } from "./provider";
 
 type LocaleSwitchProps = { compact?: boolean };
@@ -14,8 +15,12 @@ export function LocaleSwitch({ compact = false }: LocaleSwitchProps) {
 	return (
 		<div className="relative">
 			<Button
-				variant="ghost"
-				className={compact ? "px-2" : undefined}
+				dir="ltr"
+				variant="secondary"
+				className={cn(
+					"h-12 min-h-12 w-[52px] shrink-0 gap-1.5 rounded-md border-line bg-raised px-0 py-0 text-sm font-semibold",
+					!compact && "lg:h-11 lg:min-h-11 lg:w-auto lg:px-3",
+				)}
 				disabled={pending}
 				loading={pending}
 				aria-label={
@@ -28,7 +33,7 @@ export function LocaleSwitch({ compact = false }: LocaleSwitchProps) {
 					void changeLocale(arabic ? "en-US" : "ar-SA").catch(() => setFailed(true));
 				}}
 			>
-				{!compact && <Icon name="globe" />}
+				{!compact && <Icon name="globe" size={18} className="hidden lg:inline-block" />}
 				<span lang={arabic ? "en-US" : "ar-SA"}>
 					{arabic
 						? t({ message: "EN", context: "language.switch.english" })
