@@ -187,6 +187,7 @@ const statistics = {
 		slug: string;
 		requestHeaders: Headers;
 		currentUserId?: string;
+		requirePublic?: boolean;
 	}): Promise<boolean> => {
 		const lookup = () =>
 			db
@@ -207,7 +208,7 @@ const statistics = {
 				);
 		const [resume] = await (input.currentUserId ? withDatabaseOwner(input.currentUserId, lookup) : lookup());
 
-		if (!resume) throw new ORPCError("NOT_FOUND");
+		if (!resume || (input.requirePublic && !resume.isPublic)) throw new ORPCError("NOT_FOUND");
 		const viewer = input.currentUserId ? { id: input.currentUserId } : null;
 		assertCanView(resume, viewer);
 		if (
@@ -831,6 +832,12 @@ export const resumeService = {
 
 			if (!resume) throw new ORPCError("NOT_FOUND");
 			if (resume.isLocked) throw new ORPCError("RESUME_LOCKED", { status: 403 });
+
+			// Copies keep their own content/history when their original base is purged.
+			await tx
+				.update(schema.resume)
+				.set({ baseResumeId: null, variantKind: "base" })
+				.where(and(eq(schema.resume.userId, input.userId), eq(schema.resume.baseResumeId, input.id)));
 
 			await tx.delete(schema.resume).where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)));
 		});

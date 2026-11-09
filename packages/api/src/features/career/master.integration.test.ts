@@ -193,4 +193,68 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("reviewed career ma
 			});
 			await expect(service.resumeLinkState("alice", "job")).rejects.toMatchObject({ code: "PRECONDITION_FAILED" });
 		}));
+	it.each([
+		["experience", "company", "experience"],
+		["education", "school", "experience"],
+		["skills", "name", "skill"],
+		["languages", "language", "skill"],
+		["certifications", "title", "accomplishment"],
+	] as const)("preserves %s facts in the matching Knowledge category", async (section, field, category) =>
+		withDatabasePool(pool, async () => {
+			const fact = await service.savePending("bob", {
+				...input("Reviewed fact"),
+				section,
+				field,
+				entityId: `category-${section}`,
+			} as MasterFactInput);
+			const master = await service.read("bob");
+			await service.confirm("bob", {
+				expectedProfileRevision: master.profileRevision,
+				facts: [{ id: fact.id, expectedRevision: fact.revision, expectedDraftRevision: fact.draftRevision }],
+			});
+			expect((await pool.query("SELECT category FROM career_fact WHERE id=$1", [fact.id])).rows[0].category).toBe(
+				category,
+			);
+		}),
+	);
+	it("purges a base CV while preserving its variants as independent documents", async () =>
+		withDatabasePool(pool, async () => {
+			const { resumeService } = await import("../resume/service");
+			await pool.query(
+				`INSERT INTO resume (id,user_id,name,slug,data,variant_kind,base_resume_id,is_locked,trashed_at)
+				VALUES ('delete-base','alice','Base','delete-base','{"facts":"base"}','base',null,false,now()),
+				('keep-language','alice','English copy','keep-language','{"facts":"Sarah Example"}','language','delete-base',true,null),
+				('keep-job','alice','Job copy','keep-job','{"facts":"سارة مثال"}','job','delete-base',false,now())`,
+			);
+			await pool.query(
+				`INSERT INTO resume_version (id,resume_id,user_id,data,kind,name)
+				VALUES ('keep-version','keep-language','alice','{"facts":"Saved wording"}','named','Saved copy')`,
+			);
+			const versions = (await pool.query("SELECT * FROM resume_version WHERE id='keep-version'")).rows;
+			const before = (
+				await pool.query(
+					"SELECT id,name,data,is_locked,trashed_at FROM resume WHERE base_resume_id='delete-base' ORDER BY id",
+				)
+			).rows;
+			await expect(resumeService.delete({ id: "delete-base", userId: "bob" })).rejects.toMatchObject({
+				code: "NOT_FOUND",
+			});
+			await resumeService.delete({ id: "delete-base", userId: "alice" });
+			expect((await pool.query("SELECT id FROM resume WHERE id='delete-base'")).rows).toEqual([]);
+			expect((await pool.query("SELECT * FROM resume_version WHERE id='keep-version'")).rows).toEqual(versions);
+			expect(
+				(
+					await pool.query(
+						"SELECT id,name,data,is_locked,trashed_at FROM resume WHERE id IN ('keep-language','keep-job') ORDER BY id",
+					)
+				).rows,
+			).toEqual(before);
+			expect(
+				(await pool.query("SELECT base_resume_id,variant_kind FROM resume WHERE id IN ('keep-language','keep-job')"))
+					.rows,
+			).toEqual([
+				{ base_resume_id: null, variant_kind: "base" },
+				{ base_resume_id: null, variant_kind: "base" },
+			]);
+		}));
 });

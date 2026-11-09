@@ -1,16 +1,23 @@
 import z from "zod";
 import { normalizeNumericDigits } from "@reactive-resume/utils/string";
 import { careerSourceSchema } from "./career";
-import { resumeDatesSchema, yearMonthSchema } from "./resume/dates";
+import { resumeDatesSchema, resumeDatesToPeriod, yearMonthSchema } from "./resume/dates";
+import { isReversedPeriod } from "./resume/period";
 const reviewedDatesSchema = resumeDatesSchema
 	.extend({
 		start: z.string().transform(normalizeNumericDigits).pipe(yearMonthSchema).nullable(),
 		end: z.string().transform(normalizeNumericDigits).pipe(yearMonthSchema).nullable(),
 		present: z.boolean(),
 	})
-	.refine((value) => !value.start || !value.end || value.start <= value.end, {
-		message: "End date must follow start date",
-	});
+	.refine(
+		(value) => {
+			const period = resumeDatesToPeriod(value);
+			return !period?.start || !period.end || !isReversedPeriod(period.start, period.end);
+		},
+		{
+			message: "End date must follow start date",
+		},
+	);
 import {
 	certificationItemSchema,
 	educationItemSchema,

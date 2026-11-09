@@ -12,6 +12,7 @@ export const sectionFields = {
 export type Section = MasterFactInput["section"];
 export const draftSchema = z.object({
 	values: z.record(z.string(), z.string()),
+	baseValues: z.record(z.string(), z.string()).optional(),
 	profileRevision: z.number().int().nonnegative(),
 	versions: z.array(
 		z.object({
@@ -25,6 +26,16 @@ export const draftSchema = z.object({
 });
 export type EntryDraft = z.infer<typeof draftSchema>;
 
+export function formatFactValue(value: MasterFactInput["value"], presentLabel: string): string {
+	return typeof value === "string"
+		? value
+		: (value.raw ?? [value.start, value.present ? presentLabel : value.end].filter(Boolean).join(" – "));
+}
+
+function dateFieldsKey(values: Record<string, string>): string {
+	return JSON.stringify([values.start ?? "", values.end ?? "", values.present === "true"]);
+}
+
 export function initialDraft(facts: MasterFact[], profileRevision: number): EntryDraft {
 	const values: Record<string, string> = {};
 	for (const fact of facts) {
@@ -34,10 +45,15 @@ export function initialDraft(facts: MasterFact[], profileRevision: number): Entr
 			values.start = data.value.start ?? "";
 			values.end = data.value.end ?? "";
 			values.present = String(data.value.present);
+			if (data.value.raw !== undefined) {
+				values.rawDates = data.value.raw;
+				values.originalDateFields = dateFieldsKey(values);
+			}
 		} else values[data.field] = data.value;
 	}
 	return {
 		values,
+		baseValues: { ...values },
 		profileRevision,
 		review: false,
 		versions: facts.flatMap((fact) => {
@@ -55,6 +71,27 @@ export function initialDraft(facts: MasterFact[], profileRevision: number): Entr
 		}),
 	};
 }
+
+export function mergeLatestDraft(previous: EntryDraft, facts: MasterFact[], profileRevision: number): EntryDraft {
+	const latest = initialDraft(facts, profileRevision);
+	const values = { ...latest.values };
+	const dateFields = ["start", "end", "present", "rawDates", "originalDateFields"];
+	for (const [field, value] of Object.entries(previous.values)) {
+		if (!dateFields.includes(field) && (!previous.baseValues || value !== previous.baseValues[field]))
+			values[field] = value;
+	}
+	// Keep dates and their raw source together when the user corrected or cleared them.
+	const datesEdited = previous.baseValues
+		? dateFieldsKey(previous.values) !== dateFieldsKey(previous.baseValues)
+		: dateFields.some((field) => field in previous.values);
+	if (datesEdited)
+		for (const field of dateFields) {
+			delete values[field];
+			if (previous.values[field] !== undefined) values[field] = previous.values[field];
+		}
+	return { ...latest, values };
+}
+
 export function entryInputs(
 	section: Section,
 	entityId: string,
@@ -72,13 +109,23 @@ export function entryInputs(
 			value: values[field] ?? "",
 			source: { kind: "manual", id: entityId, quote: (values[field] ?? "").slice(0, 4000) },
 		}));
-	if (values.start || values.end || values.present === "true" || existingFields.includes("dates"))
+	const raw = values.originalDateFields === dateFieldsKey(values) ? values.rawDates : undefined;
+	if (values.start || values.end || values.present === "true" || raw !== undefined || existingFields.includes("dates"))
 		inputs.push({
 			section,
 			entityId,
 			field: "dates",
-			value: { start: values.start || null, end: values.end || null, present: values.present === "true" },
-			source: { kind: "manual", id: entityId, quote: [values.start, values.end].filter(Boolean).join(" – ") || "" },
+			value: {
+				start: values.start || null,
+				end: values.end || null,
+				present: values.present === "true",
+				...(raw !== undefined ? { raw } : {}),
+			},
+			source: {
+				kind: "manual",
+				id: entityId,
+				quote: (raw ?? [values.start, values.end].filter(Boolean).join(" – ")).slice(0, 4000),
+			},
 		});
 	return inputs.map((input) => masterFactInputSchema.parse(input));
 }

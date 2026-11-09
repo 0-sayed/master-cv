@@ -3,10 +3,12 @@ import { expect, it, vi } from "vite-plus/test";
 import { createProcedureClient } from "@orpc/server";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 
-const fixture = vi.hoisted(() => ({ resume: {} as Record<string, unknown> }));
+const fixture = vi.hoisted(() => ({ resume: {} as Record<string, unknown>, counterWrite: vi.fn() }));
 vi.mock("@reactive-resume/auth/config", () => ({ auth: {}, verifyOAuthToken: vi.fn() }));
 vi.mock("@reactive-resume/db/client", () => ({
 	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+	withOwnerDatabase: (_userId: string, work: (tx: unknown) => unknown) =>
+		work({ insert: () => ({ values: fixture.counterWrite }) }),
 	db: {
 		select: () => ({
 			from: () => ({
@@ -24,6 +26,38 @@ vi.mock("@reactive-resume/db/client", () => ({
 }));
 const { sharingRouter } = await import("./sharing");
 const { resumeStatisticsRouter } = await import("./statistics");
+
+it.each([
+	["owner", 0],
+	["visitor", 2],
+	[null, 2],
+] as const)("counts only visitor statistics for public downloads by %s", async (viewerId, counterWrites) => {
+	fixture.counterWrite.mockReturnValue({ onConflictDoUpdate: async () => undefined });
+	fixture.counterWrite.mockClear();
+	fixture.resume = { id: "public-resume", userId: "owner", isPublic: true, passwordHash: null };
+	const download = createProcedureClient(resumeStatisticsRouter.recordDownload, {
+		context: {
+			locale: "en-US",
+			reqHeaders: new Headers(),
+			authentication: viewerId
+				? {
+						user: {
+							id: viewerId,
+							name: "Owner",
+							email: "owner@example.test",
+							emailVerified: true,
+							createdAt: new Date(),
+							updatedAt: new Date(),
+						},
+						method: "apiKey",
+						permissions: ["write"],
+					}
+				: null,
+		},
+	});
+	await expect(download({ username: "owner", slug: "public-resume" })).resolves.toBe(true);
+	expect(fixture.counterWrite).toHaveBeenCalledTimes(counterWrites);
+});
 
 it.each(["write", "read"] as RequestPermission[])(
 	"requires read permission for private resumes through the public route: %s",

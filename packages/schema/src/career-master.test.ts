@@ -4,6 +4,24 @@ import { masterFactInputSchema } from "./career-master";
 const source = { kind: "manual", id: "entry-1", quote: "أدير فريق المنتج" };
 
 describe("master career facts", () => {
+	it.each([
+		["2020-03", "2020", true],
+		["2020", "2020-03", true],
+		["2020-12", "2020", true],
+		["2021", "2020-12", false],
+		["2020-04", "2020-03", false],
+		["٢٠٢٠-٠٣", "٢٠٢٠", true],
+	])("validates mixed date precision %s to %s", (start, end, valid) => {
+		expect(
+			masterFactInputSchema.safeParse({
+				section: "experience",
+				entityId: "entry",
+				field: "dates",
+				value: { start, end, present: false },
+				source,
+			}).success,
+		).toBe(valid);
+	});
 	it("rejects malformed reviewed dates without coercing them to missing facts", () => {
 		expect(
 			masterFactInputSchema.safeParse({

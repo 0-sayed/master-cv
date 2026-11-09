@@ -117,7 +117,15 @@ export const careerMasterService = {
 				.values({
 					userId,
 					text: "",
-					category: "experience",
+					category: (
+						{
+							experience: "experience",
+							education: "experience",
+							skills: "skill",
+							languages: "skill",
+							certifications: "accomplishment",
+						} as const
+					)[proposed.section],
 					source: proposed.source,
 					sourceKey: `master:${generateId()}`,
 					proposedStructured: proposed,

@@ -1,5 +1,5 @@
 import type { Section } from "./model";
-import type { MasterFact, MasterFactInput } from "@reactive-resume/schema/career-master";
+import type { MasterFact } from "@reactive-resume/schema/career-master";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQueryClient } from "@tanstack/react-query";
@@ -18,16 +18,10 @@ import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { normalizeNumericDigits } from "@reactive-resume/utils/string";
 import { useCareerCopy } from "../copy.generated";
 import { useSessionDraft } from "../hooks";
-import { draftSchema, entryInputs, initialDraft, sectionFields } from "./model";
+import { draftSchema, entryInputs, formatFactValue, initialDraft, mergeLatestDraft, sectionFields } from "./model";
 import { AuthErrorSummary } from "@/features/auth/components/auth-error-summary";
 import { LocaleSwitch } from "@/features/locale/switch";
 import { client, orpc } from "@/libs/orpc/client";
-
-function formatFactValue(value: MasterFactInput["value"]): string {
-	return typeof value === "string"
-		? value
-		: [value.start, value.present ? t`Present` : value.end].filter(Boolean).join(" – ");
-}
 
 export function fieldLabel(field: string): string {
 	const labels: Record<string, string> = {
@@ -164,13 +158,7 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 			const remote = master.facts.filter((fact) => (fact.proposedStructured ?? fact.structured)?.entityId === entityId);
 			setLatest(remote);
 			setError(null);
-			// The local values are retained. Only the concurrency base is refreshed; the user reviews them again.
-			draft.setValue((previous) => ({
-				...previous,
-				profileRevision: master.profileRevision,
-				versions: initialDraft(remote, master.profileRevision).versions,
-				review: false,
-			}));
+			draft.setValue((previous) => mergeLatestDraft(previous, remote, master.profileRevision));
 			setConflict(false);
 		} catch (cause) {
 			fail(cause);
@@ -241,8 +229,14 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 								<p key={fact.id} dir="auto" className="text-sm break-words">
 									{fact.structured && fieldLabel(fact.structured.field)}:{" "}
 									{fact.structured && (
-										<bdi dir={typeof fact.structured.value === "string" ? "auto" : "ltr"}>
-											{formatFactValue(fact.structured.value)}
+										<bdi
+											dir={
+												typeof fact.structured.value === "string" || fact.structured.value.raw !== undefined
+													? "auto"
+													: "ltr"
+											}
+										>
+											{formatFactValue(fact.structured.value, t`Present`)}
 										</bdi>
 									)}
 								</p>
@@ -279,7 +273,7 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 								<div key={fact.field}>
 									<span className="text-xs text-ink-3">{fieldLabel(fact.field)}</span>
 									<p dir="auto" className="break-words whitespace-pre-wrap">
-										{formatFactValue(fact.value)}
+										{formatFactValue(fact.value, t`Present`)}
 									</p>
 								</div>
 							))}
