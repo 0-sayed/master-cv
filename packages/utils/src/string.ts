@@ -27,12 +27,12 @@ export function slugify(value: string) {
  * @returns The initials.
  */
 export function getInitials(name: string) {
-	return name
-		.split(" ")
-		.map((n) => n[0])
-		.slice(0, 2)
-		.join("")
-		.toUpperCase();
+	const words = name.trim().split(/\s+/u).filter(Boolean);
+	if (!words.length) return "";
+	const first = words[0]?.charAt(0) ?? "";
+	if (words.length === 1) return first.toUpperCase();
+	const last = words[words.length - 1]?.replace(/^ال(?=\p{Script=Arabic})/u, "").charAt(0) ?? "";
+	return [first, last].join(/\p{Script=Arabic}/u.test(first + last) ? " " : "").toUpperCase();
 }
 
 /**

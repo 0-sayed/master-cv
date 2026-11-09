@@ -1,5 +1,21 @@
 import { describe, expect, it } from "vite-plus/test";
-import { slugify, toUsername } from "./string";
+import { getInitials, slugify, toUsername } from "./string";
+
+describe("getInitials", () => {
+	it.each([
+		["سارة العتيبي", "س ع"],
+		["سارة محمد العتيبي", "س ع"],
+		["  سارة   العتيبي  ", "س ع"],
+		["Jane Mary Doe", "JD"],
+		["  jane   doe  ", "JD"],
+		["سارة", "س"],
+		["Alice", "A"],
+		["", ""],
+		["  ", ""],
+	])("uses the first and last name in %j", (name, initials) => {
+		expect(getInitials(name)).toBe(initials);
+	});
+});
 
 describe("slugify", () => {
 	it("falls back to a non-empty slug for CJK input", () => {
