@@ -11,16 +11,13 @@ test("every live Figma icon resolves to its exact Phosphor registry export", asy
 	expect(manifest.icons).toHaveLength(80);
 	expect(new Set(manifest.icons.map((icon) => icon.name)).size).toBe(80);
 	expect(new Set(manifest.icons.map((icon) => icon.nodeId)).size).toBe(80);
-	const names = new Set(
-		manifest.icons.flatMap(({ name, phosphorName }) => (phosphorName ? [name, phosphorName] : [name])),
-	);
-	const missing = [...names].filter((name) => {
+	const missing = manifest.icons.filter(({ name, phosphorName }) => {
 		const exported =
-			name
+			(phosphorName ?? name)
 				.split("-")
 				.map((part) => part[0]?.toUpperCase() + part.slice(1))
 				.join("") + "Icon";
 		return !new RegExp(`\\n\\t(?:"${name}"|${name}): ${exported},`).test(source);
 	});
-	expect(missing).toEqual([]);
+	expect(missing.map(({ name, phosphorName }) => ({ name, glyph: phosphorName ?? name }))).toEqual([]);
 });
