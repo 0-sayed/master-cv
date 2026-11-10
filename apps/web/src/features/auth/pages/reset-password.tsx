@@ -4,6 +4,7 @@ import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { AuthErrorSummary } from "../components/auth-error-summary";
+import { AuthHeading } from "../components/auth-heading";
 import { useAuthCopy } from "../copy.generated";
 import { authErrorMessage } from "../errors";
 import { PasswordInput } from "@/components/input/password-input";
@@ -46,8 +47,8 @@ export function ResetPasswordPage({ token }: { token: string }) {
 	return (
 		<>
 			<div className="space-y-1">
-				<h1 className="type-title-s lg:type-title">{copy("auth.password.newLabel")}</h1>
-				<p className="text-sm leading-[23px] text-ink-2">{copy("auth.password.newHint")}</p>
+				<AuthHeading>{copy("auth.password.newLabel")}</AuthHeading>
+				<p className="type-body text-ink-2">{copy("auth.password.newHint")}</p>
 			</div>
 			<AuthErrorSummary message={error} field={invalid ? undefined : "confirm-password"} />
 			{invalid ? (
@@ -56,7 +57,7 @@ export function ResetPasswordPage({ token }: { token: string }) {
 				</Link>
 			) : (
 				<form className="grid gap-5" onSubmit={submit}>
-					<label className="grid gap-1.5 text-sm font-semibold">
+					<label className="grid gap-1.5 type-label">
 						{copy("auth.password.newLabel")}
 						<PasswordInput
 							embedded
@@ -68,9 +69,9 @@ export function ResetPasswordPage({ token }: { token: string }) {
 							value={password}
 							onChange={(e) => setPassword(e.target.value)}
 						/>
-						<span className="text-xs font-normal text-ink-3">{copy("auth.password.requirementsHint")}</span>
+						<span className="type-metadata font-normal text-ink-3">{copy("auth.password.requirementsHint")}</span>
 					</label>
-					<label className="grid gap-1.5 text-sm font-semibold">
+					<label className="grid gap-1.5 type-label">
 						{copy("auth.password.confirmLabel")}
 						<PasswordInput
 							embedded
@@ -84,7 +85,7 @@ export function ResetPasswordPage({ token }: { token: string }) {
 							onChange={(e) => setConfirmation(e.target.value)}
 						/>
 					</label>
-					<Button type="submit" loading={pending} className="h-12">
+					<Button type="submit" loading={pending} size="lg">
 						{copy("auth.password.save")}
 					</Button>
 				</form>

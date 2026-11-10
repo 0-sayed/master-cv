@@ -1,7 +1,18 @@
+import type { ResumeData } from "@reactive-resume/schema/resume/data";
+import { buildMarkdown } from "@reactive-resume/resume/markdown";
+
 export type ResumeThumbnailSize = {
 	height: number;
 	width: number;
 };
+
+/** A new CV inherits the account name; that alone is still an empty draft, not a completed document. */
+export function hasResumePreviewContent(data: ResumeData) {
+	return Boolean(
+		buildMarkdown({ ...data, basics: { ...data.basics, name: "" } }).trim() ||
+		(!data.picture.hidden && data.picture.url),
+	);
+}
 
 // A single-column Grid card is at most 608 CSS px before the sm breakpoint.
 // Its A4 container at DPR 3 needs 1824 x 2580 px. This budget accommodates it

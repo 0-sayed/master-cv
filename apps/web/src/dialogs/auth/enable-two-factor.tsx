@@ -66,7 +66,7 @@ export function EnableTwoFactorDialog(_: DialogProps<"auth.two-factor.enable">) 
 
 			const { data, error } = await authClient.twoFactor.enable({
 				password: value.password,
-				issuer: "Reactive Resume",
+				issuer: "Master CV",
 			});
 
 			if (error) {
@@ -167,7 +167,7 @@ export function EnableTwoFactorDialog(_: DialogProps<"auth.two-factor.enable">) 
 
 	const handleDownloadBackupCodes = () => {
 		if (!backupCodes) return;
-		downloadWithAnchor(new Blob([backupCodes.join("\n")], { type: "text/plain" }), "reactive-resume_backup-codes.txt");
+		downloadWithAnchor(new Blob([backupCodes.join("\n")], { type: "text/plain" }), "master-cv_backup-codes.txt");
 	};
 
 	return (
@@ -229,8 +229,8 @@ export function EnableTwoFactorDialog(_: DialogProps<"auth.two-factor.enable">) 
 							{totpUri && secret && (
 								<>
 									<div className="flex items-center gap-x-2">
-										<Input readOnly value={secret} className="font-mono text-sm" />
-										<Button size="icon" variant="ghost" type="button" onClick={handleCopySecret}>
+										<Input readOnly dir="ltr" value={secret} className="type-body font-mono" />
+										<Button size="toolbar-icon" variant="ghost" type="button" onClick={handleCopySecret}>
 											<span className="sr-only">
 												{t({
 													comment: "Accessible label for the button that copies the two-factor secret key",
@@ -298,7 +298,7 @@ export function EnableTwoFactorDialog(_: DialogProps<"auth.two-factor.enable">) 
 							<div className="space-y-4">
 								<div className="grid grid-cols-2 gap-2">
 									{backupCodes.map((code) => (
-										<div key={code} className="rounded-md border border-line p-2 text-center font-mono text-sm">
+										<div key={code} className="rounded-md border border-line p-2 text-center type-body font-mono">
 											{code}
 										</div>
 									))}

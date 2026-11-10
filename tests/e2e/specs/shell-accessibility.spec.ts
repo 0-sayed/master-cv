@@ -51,7 +51,13 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				expect(metrics.pinchScale).toBe(1);
 				expect(metrics.overflows).toBe(false);
 				const navigation = page.locator('nav:has(a[href="/dashboard/career/information"])');
-				await expect(navigation.locator("a")).toHaveCount(4);
+				// Phones keep Settings in the tab bar; the tablet rail puts it below the main nav.
+				await expect(navigation.locator("a")).toHaveCount(metrics.width < 640 ? 4 : 3);
+				const settings = page.locator(
+					`${metrics.width < 640 ? '[data-slot="app-bottom-nav"]' : "aside"} a[href="/dashboard/settings"]`,
+				);
+				await expect(settings).toHaveCount(1);
+				await expect(settings).toBeVisible();
 				if (windowWidth === 780) {
 					const labelsFit = await navigation.locator("a").evaluateAll((links) =>
 						links.every((link) => {

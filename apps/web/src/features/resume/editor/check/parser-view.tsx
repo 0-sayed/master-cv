@@ -4,10 +4,11 @@ import type { ExtractedDocument, ResumeSemantics } from "@reactive-resume/resume
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
-import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { cn } from "@reactive-resume/utils/style";
 import { useEditorStore } from "../store";
 import { useCheck } from "./use-check";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { extractPdf } from "@/features/ats-checker/extract-client";
 import { blobToPdfFile } from "@/features/ats-checker/run-ats-check";
 import { useCurrentBuilderResumeSelector } from "@/features/resume/builder/draft";
@@ -76,17 +77,15 @@ export function ParserView() {
 		retry: false,
 	});
 
+	const skeletonWait1 = useSkeletonLoading(!data);
 	return (
 		<div className="mx-auto grid min-h-[792px] w-[612px] max-w-full content-start gap-[18px] rounded-lg border border-line bg-surface px-8 py-7 font-mono text-[12px] leading-[19px] text-ink max-sm:px-4">
 			{isError ? (
 				<p className="font-sans text-sm text-danger-text">
 					<Trans>The page's PDF couldn't be read. Edit anything to render it again.</Trans>
 				</p>
-			) : !data ? (
-				<p className="flex items-center gap-2 font-sans text-sm text-ink-2">
-					<Spinner />
-					<Trans>Reading the PDF…</Trans>
-				</p>
+			) : skeletonWait1.pending || !data ? (
+				<QuerySkeleton shape="preview" label={<Trans>Reading the PDF…</Trans>} />
 			) : (
 				<ParsedText parsed={data} issues={issues} />
 			)}

@@ -7,9 +7,10 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
-import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { cn } from "@reactive-resume/utils/style";
 import { useHasUsableAiProvider } from "../integrations/hooks/use-has-usable-ai-provider";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { orpc } from "@/libs/orpc/client";
@@ -56,13 +57,14 @@ export function WebAccessSection() {
 		setEditing(true);
 	};
 
+	const skeletonWait1 = useSkeletonLoading(isLoading);
 	return (
 		<section aria-labelledby={`${id}-title`} className="overflow-hidden rounded-xl border border-line bg-surface">
 			<header className="grid gap-1 border-b border-line px-5 py-4 max-sm:px-4">
-				<h2 id={`${id}-title`} className="text-[17px] font-semibold">
+				<h2 id={`${id}-title`} className="type-section">
 					<Trans>Web access</Trans>
 				</h2>
-				<p className="max-w-[60ch] text-[13px] leading-5 text-ink-3">
+				<p className="max-w-[60ch] type-body text-ink-3">
 					<Trans>Read the job links you save. Saving and preparing jobs works without a connection.</Trans>
 				</p>
 			</header>
@@ -71,15 +73,15 @@ export function WebAccessSection() {
 				<Icon name="file-text" size={20} className="mt-0.5 shrink-0 text-ink-2" />
 				<div className="grid flex-1 gap-1">
 					<div className="flex flex-wrap items-center justify-between gap-2">
-						<h3 className="text-sm font-medium">
+						<h3 className="type-body font-medium">
 							<Trans>Built-in reader</Trans>
 						</h3>
-						<span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-text">
+						<span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 type-metadata font-medium text-accent-text">
 							<Icon name="check" size={14} />
 							<Trans>Active</Trans>
 						</span>
 					</div>
-					<p className="text-[13px] leading-5 text-ink-3">
+					<p className="type-body text-ink-3">
 						{connectedProvider ? (
 							<Trans>Used when {connectedProvider} can't read a page. No account needed.</Trans>
 						) : (
@@ -94,13 +96,13 @@ export function WebAccessSection() {
 					<Icon name="magnifying-glass" size={20} className="mt-0.5 shrink-0 text-ink-2" />
 					<div className="grid flex-1 gap-1.5">
 						<div className="flex flex-wrap items-center justify-between gap-2">
-							<h3 className="text-sm font-medium">
+							<h3 className="type-body font-medium">
 								<Trans>Search and enhanced reading</Trans>
 							</h3>
 							{status && (
 								<span
 									className={cn(
-										"rounded-full px-2 py-0.5 text-xs font-medium",
+										"rounded-full px-2 py-0.5 type-metadata font-medium",
 										status.configured ? "bg-accent-soft text-accent-text" : "bg-sunken text-ink-2",
 									)}
 								>
@@ -114,7 +116,7 @@ export function WebAccessSection() {
 								</span>
 							)}
 						</div>
-						<p className="max-w-[58ch] text-[13px] leading-5 text-ink-3">
+						<p className="max-w-[58ch] type-body text-ink-3">
 							<Trans>
 								Search from Applications and the assistant, and read pages the built-in reader can't. One service covers
 								both.
@@ -126,17 +128,14 @@ export function WebAccessSection() {
 				{failure && (
 					<p
 						role="alert"
-						className="flex items-start gap-2 rounded-lg bg-danger-soft px-3 py-2.5 text-[13px] leading-5 text-danger-text"
+						className="flex items-start gap-2 rounded-lg bg-danger-soft px-3 py-2.5 type-body text-danger-text"
 					>
 						<Icon name="warning-circle" size={18} className="mt-0.5 shrink-0" />
 						{getOrpcErrorMessage(failure, { fallback: t`Web access settings couldn't be saved or loaded.` })}
 					</p>
 				)}
-				{isLoading ? (
-					<p role="status" className="flex min-h-10 items-center gap-2 text-sm text-ink-3">
-						<Spinner decorative className="size-3.5" />
-						<Trans>Loading connection…</Trans>
-					</p>
+				{skeletonWait1.pending || isLoading ? (
+					<QuerySkeleton shape="settings" count={1} label={<Trans>Loading connection…</Trans>} />
 				) : !status ? (
 					<Button variant="secondary" className="w-fit" onClick={() => void refetch()}>
 						<Trans>Try again</Trans>
@@ -144,7 +143,7 @@ export function WebAccessSection() {
 				) : (
 					<>
 						{status.managed && (
-							<div className="grid gap-2 rounded-lg bg-info-soft p-3 text-[13px] leading-5 text-info-text">
+							<div className="grid gap-2 rounded-lg bg-info-soft p-3 type-body text-info-text">
 								<p className="font-medium">
 									<Trans>Provided by your server: {connectedProvider}.</Trans>
 								</p>
@@ -167,13 +166,13 @@ export function WebAccessSection() {
 							<div className="flex flex-wrap items-center gap-3 rounded-lg border border-line px-3 py-3">
 								<span
 									aria-hidden="true"
-									className="grid size-9 shrink-0 place-items-center rounded-md bg-sunken text-sm font-semibold text-ink-2"
+									className="grid size-9 shrink-0 place-items-center rounded-md bg-sunken type-body font-semibold text-ink-2"
 								>
 									{connectedProvider?.slice(0, 1)}
 								</span>
 								<div className="grid flex-1 gap-0.5">
-									<p className="text-sm font-medium">{connectedProvider}</p>
-									<p className="flex items-center gap-1 text-xs text-ink-3">
+									<p className="type-body font-medium">{connectedProvider}</p>
+									<p className="flex items-center gap-1 type-metadata text-ink-3">
 										<Icon name="lock" size={13} />
 										<Trans>Key stored encrypted</Trans>
 									</p>
@@ -209,12 +208,12 @@ export function WebAccessSection() {
 							</div>
 						)}
 						{test.isPending && (
-							<p role="status" className="text-[13px] text-ink-2">
+							<p role="status" className="type-body text-ink-2">
 								<Trans>Testing search and reading with {connectedProvider}…</Trans>
 							</p>
 						)}
 						{test.data && (
-							<div role="status" className="grid gap-2 text-[13px] leading-5">
+							<div role="status" className="grid gap-2 type-body">
 								{[
 									{ result: test.data.search, label: test.data.search.success ? t`Search works` : t`Search failed` },
 									{
@@ -238,13 +237,13 @@ export function WebAccessSection() {
 										<Trans>The built-in reader remains active.</Trans>
 									</p>
 								)}
-								<p className="text-xs text-ink-3">
+								<p className="type-metadata text-ink-3">
 									<Trans>Tested with {connectedProvider}. Only this service was tested.</Trans>
 								</p>
 							</div>
 						)}
 						{!status.managed && !status.canSave && (
-							<p className="rounded-lg bg-info-soft p-3 text-[13px] leading-5 text-info-text">
+							<p className="rounded-lg bg-info-soft p-3 type-body text-info-text">
 								<Trans>
 									Ask your server administrator to enable credential encryption or configure a shared web connection.
 								</Trans>
@@ -265,14 +264,14 @@ export function WebAccessSection() {
 								}}
 							>
 								<div className="grid gap-1.5">
-									<span id={`${id}-provider`} className="text-xs font-medium text-ink-2">
+									<span id={`${id}-provider`} className="type-metadata font-medium text-ink-2">
 										<Trans>Provider</Trans>
 									</span>
 									<SegmentedControl
 										aria-labelledby={`${id}-provider`}
 										value={provider}
 										disabled={pending}
-										className="h-10 w-fit max-w-full"
+										className="w-fit max-w-full"
 										onValueChange={(value) => {
 											setProvider(value as Provider);
 											setApiKey("");
@@ -280,11 +279,7 @@ export function WebAccessSection() {
 										}}
 									>
 										{Object.entries(PROVIDERS).map(([value, label]) => (
-											<SegmentedControlItem
-												key={value}
-												value={value}
-												className="touch-target relative flex-auto max-sm:px-2"
-											>
+											<SegmentedControlItem key={value} value={value} className="relative flex-auto">
 												{label}
 											</SegmentedControlItem>
 										))}
@@ -309,7 +304,7 @@ export function WebAccessSection() {
 										disabled={pending}
 										onChange={(event) => setApiKey(event.target.value)}
 									/>
-									<p className="text-xs leading-5 text-ink-3">
+									<p className="type-metadata text-ink-3">
 										<Trans>
 											Get a key at{" "}
 											<a
@@ -325,7 +320,7 @@ export function WebAccessSection() {
 									</p>
 								</div>
 								<div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
-									<p className="max-w-[34ch] text-xs leading-5 text-ink-3">
+									<p className="max-w-[34ch] type-metadata text-ink-3">
 										<Trans>Save first, then test search and reading. No test runs automatically.</Trans>
 									</p>
 									<div className="ms-auto flex gap-1">
@@ -352,7 +347,7 @@ export function WebAccessSection() {
 				)}
 			</div>
 
-			<footer className="flex items-start gap-2 border-t border-line bg-bg px-5 py-3 text-xs leading-5 text-ink-2 max-sm:px-4">
+			<footer className="flex items-start gap-2 border-t border-line bg-bg px-5 py-3 type-metadata text-ink-2 max-sm:px-4">
 				<Icon name="sparkle" size={16} className="mt-0.5 shrink-0 text-ink-3" />
 				<div>
 					<span className="font-medium">

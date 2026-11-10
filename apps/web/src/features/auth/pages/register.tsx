@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { AuthErrorSummary } from "../components/auth-error-summary";
+import { AuthHeading } from "../components/auth-heading";
 import { SocialAuth } from "../components/social-auth";
 import { useAuthCopy } from "../copy.generated";
 import { authErrorMessage } from "../errors";
@@ -56,16 +57,17 @@ export function RegisterPage({ disableEmailAuth }: { disableEmailAuth: boolean }
 	return (
 		<>
 			<div className="space-y-1">
-				<h1 className="type-title-s lg:type-title">{copy("auth.signUp.title")}</h1>
-				<p className="text-sm leading-[23px] text-ink-2">{copy("auth.signUp.subtitle")}</p>
+				<AuthHeading>{copy("auth.signUp.title")}</AuthHeading>
+				<p className="type-body text-ink-2">{copy("auth.signUp.subtitle")}</p>
 			</div>
 			<AuthErrorSummary message={error} field="register-email" />
 			{!disableEmailAuth && (
-				<form className="grid gap-[18px] lg:gap-5" onSubmit={submit}>
-					<label htmlFor="register-name" className="grid gap-1.5 text-sm font-semibold">
+				<form className="grid gap-(--space-18) lg:gap-5" onSubmit={submit}>
+					<label htmlFor="register-name" className="grid gap-1.5 type-label">
 						<Trans>Name</Trans>
 						<Input
-							className="h-12 px-4 font-normal"
+							size="lg"
+							className="font-normal"
 							id="register-name"
 							name="name"
 							autoComplete="name"
@@ -75,10 +77,11 @@ export function RegisterPage({ disableEmailAuth }: { disableEmailAuth: boolean }
 							onChange={(e) => setValue({ ...value, name: e.target.value })}
 						/>
 					</label>
-					<label htmlFor="register-username" className="grid gap-1.5 text-sm font-semibold">
+					<label htmlFor="register-username" className="grid gap-1.5 type-label">
 						<Trans>Username</Trans>
 						<Input
-							className="h-12 px-4 font-normal"
+							size="lg"
+							className="font-normal"
 							id="register-username"
 							name="username"
 							dir="ltr"
@@ -91,10 +94,11 @@ export function RegisterPage({ disableEmailAuth }: { disableEmailAuth: boolean }
 							onChange={(e) => setValue({ ...value, username: e.target.value.toLowerCase() })}
 						/>
 					</label>
-					<label className="grid gap-1.5 text-sm font-semibold">
+					<label className="grid gap-1.5 type-label">
 						{copy("auth.email.label")}
 						<Input
-							className="h-12 px-4 font-normal"
+							size="lg"
+							className="font-normal"
 							id="register-email"
 							name="email"
 							dir="ltr"
@@ -105,7 +109,7 @@ export function RegisterPage({ disableEmailAuth }: { disableEmailAuth: boolean }
 							onChange={(e) => setValue({ ...value, email: e.target.value })}
 						/>
 					</label>
-					<label className="grid gap-1.5 text-sm font-semibold">
+					<label className="grid gap-1.5 type-label">
 						<span id="register-password-label">{copy("common.fields.password")}</span>
 						<PasswordInput
 							embedded
@@ -120,19 +124,19 @@ export function RegisterPage({ disableEmailAuth }: { disableEmailAuth: boolean }
 							value={value.password}
 							onChange={(e) => setValue({ ...value, password: e.target.value })}
 						/>
-						<span id="register-password-hint" className="text-xs font-normal text-ink-3">
+						<span id="register-password-hint" className="type-metadata font-normal text-ink-3">
 							{copy("auth.signUp.passwordHint")}
 						</span>
 					</label>
-					<label className="flex min-h-11 items-center gap-2 text-sm text-ink-2">
+					<label className="flex min-h-11 items-center gap-2 type-body text-ink-2">
 						<input type="checkbox" required className="size-4 accent-accent" />
 						{copy("auth.signUp.consent")}
 					</label>
-					<Button type="submit" loading={pending} className="h-12 w-full">{t`Sign up`}</Button>
+					<Button type="submit" loading={pending} size="lg" className="w-full">{t`Sign up`}</Button>
 				</form>
 			)}
 			<SocialAuth />
-			<p className="text-sm text-ink-2">
+			<p className="type-body text-ink-2">
 				<Trans>Already have an account?</Trans>{" "}
 				<Link
 					className="font-semibold text-accent-text underline"

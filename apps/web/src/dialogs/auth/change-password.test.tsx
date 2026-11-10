@@ -17,6 +17,7 @@ vi.mock("../store", () => ({
 }));
 
 import { ChangePasswordDialog } from "./change-password";
+import { getUiLocaleMessages } from "@/libs/locale";
 
 beforeEach(() => {
 	vi.clearAllMocks();
@@ -70,4 +71,24 @@ it("preserves a legacy current password and keeps other sessions by default", as
 		});
 	});
 	expect(mocks.close).toHaveBeenCalled();
+});
+
+it("localizes the same-password validation after switching the interface to Arabic", async () => {
+	i18n.loadAndActivate(await getUiLocaleMessages("ar-SA"));
+	const { container } = render(
+		<I18nProvider i18n={i18n}>
+			<Dialog open>
+				<ChangePasswordDialog />
+			</Dialog>
+		</I18nProvider>,
+	);
+	const inputs = document.querySelectorAll<HTMLInputElement>('input[type="password"]');
+	for (const input of inputs) fireEvent.change(input, { target: { value: "samePassword123" } });
+	const form = container.ownerDocument.querySelector("form");
+	if (!form) throw new Error("Password form must be present");
+	fireEvent.submit(form);
+	await waitFor(() =>
+		expect(screen.getByText("يجب أن تختلف كلمة المرور الجديدة عن كلمة المرور الحالية.")).toBeDefined(),
+	);
+	expect(mocks.changePassword).not.toHaveBeenCalled();
 });

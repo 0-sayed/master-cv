@@ -24,7 +24,7 @@ test("a portalled document sheet traps focus, closes on Escape and restores its 
 	authPage: page,
 }) => {
 	await page.goto("/dashboard");
-	const trigger = page.getByRole("button", { name: "New", exact: true }).first();
+	const trigger = page.getByRole("button", { name: "Choose a file", exact: true }).first();
 	await trigger.click();
 	const dialog = page.getByRole("dialog");
 	await expect(dialog).toBeVisible();

@@ -2,14 +2,21 @@ import type { ResumeThumbnailSize } from "@/features/resume/preview/resume-thumb
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { QueryClient } from "@tanstack/react-query";
 import type { RefObject } from "react";
+import { t } from "@lingui/core/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Icon } from "@reactive-resume/ui/components/icon";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { PreviewPlaceholder } from "@reactive-resume/ui/components/preview-placeholder";
+import { Skeleton, useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
+import { cn } from "@reactive-resume/utils/style";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { createResumePdfBlob } from "@/features/resume/export/pdf-document";
 import { createPdfFirstPageImageUrl, releaseThumbnailUrls } from "@/features/resume/preview/pdf-thumbnail";
-import { getResumeThumbnailCacheKey, getResumeThumbnailSize } from "@/features/resume/preview/resume-thumbnail.shared";
+import {
+	getResumeThumbnailCacheKey,
+	getResumeThumbnailSize,
+	hasResumePreviewContent,
+} from "@/features/resume/preview/resume-thumbnail.shared";
 import { orpc } from "@/libs/orpc/client";
 
 type ThumbnailState = { status: "error" | "idle" | "loading" } | { status: "ready"; url: string };
@@ -168,35 +175,54 @@ function useResumeThumbnail(
 /** The resume's first page, rendered once it scrolls near view and cached until it changes. */
 export function ResumeThumbnail({ resume }: ResumeThumbnailProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
+	const [image, setImage] = useState<{ url: string; status: "ready" | "error" } | null>(null);
 	const isInView = useInView(containerRef, { amount: 0.1, margin: "240px" });
 	const size = useThumbnailSize(containerRef, isInView);
+	const resumeQuery = orpc.resume.getById.queryOptions({ input: { id: resume.id } });
 	const { data: resumeData, isError: resumeIsError } = useQuery({
-		...orpc.resume.getById.queryOptions({ input: { id: resume.id } }),
+		...resumeQuery,
+		// A summary revision must fetch its own data: a still-fresh editor/cache entry may belong to an older edit.
+		queryKey: [...resumeQuery.queryKey, { previewRevision: resume.updatedAt.toISOString() }],
 		enabled: isInView,
 	});
-	const thumbnail = useResumeThumbnail(
-		resumeData?.data,
-		getResumeThumbnailCacheKey(resume.id, resume.updatedAt),
-		size,
-		isInView,
-	);
-	const hasFailed = resumeIsError || thumbnail.status === "error";
+	const isEmpty = Boolean(resumeData && !hasResumePreviewContent(resumeData.data));
+	const cacheKey = getResumeThumbnailCacheKey(resume.id, resumeData?.updatedAt ?? resume.updatedAt);
+	const thumbnail = useResumeThumbnail(isEmpty ? undefined : resumeData?.data, cacheKey, size, isInView);
+	const imageState = thumbnail.status === "ready" && image?.url === thumbnail.url ? image.status : "loading";
+	const hasFailed = resumeIsError || thumbnail.status === "error" || imageState === "error";
+	const status = isEmpty ? "empty" : hasFailed ? "error" : imageState === "ready" ? "ready" : "loading";
+	const loading = useSkeletonLoading(status === "loading");
 
 	return (
-		<div ref={containerRef} className="relative size-full overflow-hidden bg-white">
-			{thumbnail.status === "ready" ? (
-				<div
-					aria-hidden
-					className="absolute inset-0 bg-white bg-contain bg-center bg-no-repeat transition-opacity duration-standard ease-enter starting:opacity-0"
-					style={{ backgroundImage: `url(${thumbnail.url})` }}
-				/>
-			) : hasFailed ? (
-				<div className="absolute inset-0 flex items-center justify-center text-ink-3">
-					<Icon name="file-text" size={24} />
-				</div>
+		<div
+			ref={containerRef}
+			data-slot="resume-thumbnail"
+			data-state={status}
+			className="@container/thumbnail relative size-full overflow-hidden bg-white"
+		>
+			{status === "empty" ? (
+				<PreviewPlaceholder variant="thumbnail" label={t`Empty CV`} />
+			) : status === "error" ? (
+				<PreviewPlaceholder variant="thumbnail" label={t`Preview unavailable`} />
 			) : (
-				// Loading: a sunken placeholder at the page's real size, so nothing jumps.
-				<Skeleton className="absolute inset-0 rounded-none" />
+				<>
+					{thumbnail.status === "ready" && (
+						<img
+							alt=""
+							data-slot="resume-preview-image"
+							src={thumbnail.url}
+							className={cn("absolute inset-0 size-full object-contain", status !== "ready" && "opacity-0")}
+							onLoad={() => setImage({ url: thumbnail.url, status: "ready" })}
+							onError={() => setImage({ url: thumbnail.url, status: "error" })}
+						/>
+					)}
+					{loading.pending && (
+						<QuerySkeleton
+							className="absolute inset-0"
+							fallback={<Skeleton className="aspect-page size-full rounded-none" />}
+						/>
+					)}
+				</>
 			)}
 		</div>
 	);

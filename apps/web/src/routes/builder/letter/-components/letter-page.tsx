@@ -7,8 +7,10 @@ import { useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { coverLetterTextToHtml } from "@reactive-resume/resume/cover-letter";
 import { getStateIn } from "@reactive-resume/resume/proposals";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { cn } from "@reactive-resume/utils/style";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { templates } from "@/dialogs/resume/template/data";
 import { letterPageData, useLetterWords } from "@/features/letters/compose";
 import { useLetterEditorStore } from "@/features/letters/store";
@@ -93,7 +95,9 @@ export function LetterPage() {
 		return previewTemplate ? { ...page, metadata: { ...page.metadata, template: previewTemplate } } : page;
 	}, [letter, viewing, shownDraft, previewTemplate, words, assistantProposals]);
 
-	if (!letter || !data) return null;
+	const skeletonWait1 = useSkeletonLoading(!letter || !data || (historyVersionId !== null && !version));
+	if (skeletonWait1.pending || !letter || !data || (historyVersionId !== null && !version))
+		return <QuerySkeleton shape="preview" />;
 
 	const isPhone = breakpoint === "mobile";
 	const format = data.metadata.page.format;
@@ -116,6 +120,7 @@ export function LetterPage() {
 				className={cn("absolute inset-0 overflow-auto pt-7 pb-24 outline-none", isPhone ? "px-4" : "px-10")}
 			>
 				<ResumePreview
+					highlightEdits={!viewing && !previewTemplate && !shownDraft}
 					data={data}
 					includeCoverLetterHeader
 					pageLayout="vertical"

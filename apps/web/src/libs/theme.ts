@@ -21,7 +21,7 @@ export const themeMap = {
 	system: msg({ message: "Match my device", context: "account.theme.system" }),
 } satisfies Record<Theme, MessageDescriptor>;
 
-export function isTheme(theme: string): theme is Theme {
+function isTheme(theme: string): theme is Theme {
 	return themeSchema.safeParse(theme).success;
 }
 

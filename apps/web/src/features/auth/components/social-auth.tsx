@@ -6,10 +6,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { Skeleton, useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { getAuthRedirectOptions, getOAuthPasskeyOptions, getOAuthSignInOptions, isOAuthRedirect } from "../redirect";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { authClient } from "@/libs/auth/client";
 import { ENTER_CLASS } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
@@ -17,13 +18,14 @@ import { sessionQueryKey } from "@/libs/root-context";
 
 export function SocialAuth() {
 	const { data: providers = {}, isLoading } = useQuery(orpc.auth.providers.list.queryOptions());
-	if (!isLoading && Object.keys(providers).length === 0) return null;
+	const loading = useSkeletonLoading(isLoading);
+	if (!loading.pending && Object.keys(providers).length === 0) return null;
 
 	return (
 		<>
 			<div className="flex items-center gap-x-2">
 				<hr className="flex-1" />
-				<span className="text-xs font-medium tracking-wide">
+				<span className="type-metadata font-medium">
 					<Trans context="Choose to authenticate with a social provider (Google, GitHub, etc.) instead of email and password">
 						or continue with
 					</Trans>
@@ -31,18 +33,19 @@ export function SocialAuth() {
 				<hr className="flex-1" />
 			</div>
 
-			{isLoading ? <SocialAuthSkeleton /> : <SocialAuthButtons providers={providers} />}
+			{loading.pending ? (
+				<QuerySkeleton fallback={<SocialAuthSkeleton />} />
+			) : (
+				<SocialAuthButtons providers={providers} />
+			)}
 		</>
 	);
 }
 
 function SocialAuthSkeleton() {
 	return (
-		<div className="grid grid-cols-2 gap-4">
-			<Skeleton className="h-9 w-full" />
-			<Skeleton className="h-9 w-full" />
-			<Skeleton className="h-9 w-full" />
-			<Skeleton className="h-9 w-full" />
+		<div className="grid grid-cols-1 gap-4">
+			<Skeleton className="h-11 w-full" />
 		</div>
 	);
 }
@@ -83,8 +86,9 @@ function SocialAuthButtons({ providers }: SocialAuthButtonsProps) {
 	};
 
 	return (
-		<div className={cn(ENTER_CLASS, "grid grid-cols-1 gap-4 [&_button]:h-12")}>
+		<div className={cn(ENTER_CLASS, "grid grid-cols-1 gap-4")}>
 			<Button
+				size="lg"
 				onClick={() =>
 					runSignIn(() =>
 						authClient.signIn.social({
@@ -101,6 +105,7 @@ function SocialAuthButtons({ providers }: SocialAuthButtonsProps) {
 			</Button>
 
 			<Button
+				size="lg"
 				variant="secondary"
 				onClick={() =>
 					runSignIn(() =>
@@ -118,6 +123,7 @@ function SocialAuthButtons({ providers }: SocialAuthButtonsProps) {
 			</Button>
 
 			<Button
+				size="lg"
 				variant="secondary"
 				onClick={() =>
 					runSignIn(() => authClient.signIn.passkey({ autoFill: false, ...getOAuthPasskeyOptions(callbackURL) }), true)
@@ -129,6 +135,7 @@ function SocialAuthButtons({ providers }: SocialAuthButtonsProps) {
 			</Button>
 
 			<Button
+				size="lg"
 				onClick={() =>
 					runSignIn(() =>
 						authClient.signIn.social({
@@ -148,6 +155,7 @@ function SocialAuthButtons({ providers }: SocialAuthButtonsProps) {
 			</Button>
 
 			<Button
+				size="lg"
 				onClick={() =>
 					runSignIn(() =>
 						authClient.signIn.social({
@@ -167,6 +175,7 @@ function SocialAuthButtons({ providers }: SocialAuthButtonsProps) {
 			</Button>
 
 			<Button
+				size="lg"
 				onClick={() =>
 					runSignIn(() =>
 						authClient.signIn.social({

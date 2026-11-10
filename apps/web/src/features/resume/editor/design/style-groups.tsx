@@ -215,6 +215,7 @@ export function ColorGroup() {
 			<div className="flex items-center gap-2">
 				<span className="size-9 shrink-0 rounded-lg border border-line-2" style={{ backgroundColor: normalized }} />
 				<Input
+					dir="ltr"
 					aria-label={t`Custom colour (hex)`}
 					value={hex}
 					spellCheck={false}

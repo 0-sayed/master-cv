@@ -8,13 +8,20 @@ import { useState } from "react";
 import z from "zod";
 import { masterSectionSchema } from "@reactive-resume/schema/career-master";
 import { Button } from "@reactive-resume/ui/components/button";
+import { SectionCollection } from "@reactive-resume/ui/components/collection-grid";
+import { FactChip } from "@reactive-resume/ui/components/fact-chip";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { SectionCard, SectionCardHeader, SectionCardRow } from "@reactive-resume/ui/components/section-card";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
+import { SuccessTick } from "@reactive-resume/ui/components/success-tick";
 import { cn } from "@reactive-resume/utils/style";
 import { useCareerCopy } from "../copy.generated";
 import { useSessionDraft } from "../hooks";
-import { CareerLoadError, CareerLoading } from "../load-state";
+import { CareerLoadError } from "../load-state";
 import { CareerEntryDialog, fieldLabel } from "./entry-dialog";
 import { sectionFields } from "./model";
+import { PageHeader } from "@/components/layout/page-header";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { orpc } from "@/libs/orpc/client";
 
 const sections = ["experience", "education", "skills", "languages", "certifications"] as const;
@@ -36,30 +43,29 @@ export function CareerInformationPage() {
 	const dialog = openEntry.value;
 	const setDialog = openEntry.setValue;
 	const [saved, setSaved] = useState(false);
+	const loading = useSkeletonLoading(query.isPending);
 	const data = query.data;
 	return (
-		<div className="mx-auto grid max-w-[1280px] gap-4 px-[18px] pt-5 pb-[104px] sm:px-7 lg:gap-6 lg:px-10 lg:pt-8 lg:pb-10">
-			<header className="grid gap-1 max-sm:sr-only">
-				<h1 className="text-2xl leading-9 font-semibold lg:text-[32px] lg:leading-[48px]">
-					{copy("editor.navigation.career")}
-				</h1>
-				<p className="max-w-[740px] text-sm leading-[23px] text-ink-2">{copy("editor.career.subtitle")}</p>
-			</header>
-			{query.isPending ? (
-				<CareerLoading />
+		<div className="contents">
+			<PageHeader
+				mobileTitleInShell
+				title={copy("editor.navigation.career")}
+				description={copy("editor.career.subtitle")}
+			/>
+			{loading.pending ? (
+				<QuerySkeleton shape="profile-sections" />
 			) : query.isError && !data ? (
-				<CareerLoadError onRetry={() => void query.refetch()} />
+				<CareerLoadError retrying={query.isFetching} onRetry={() => void query.refetch()} />
 			) : data ? (
 				<>
-					{query.isError && <CareerLoadError onRetry={() => void query.refetch()} />}
-					<p className="text-xs leading-5 text-ink-3 sm:hidden">{copy("editor.career.ownershipHint")}</p>
-					<div className="grid items-start gap-4 lg:grid-cols-2 lg:gap-6">
-						<div className="grid gap-4 lg:gap-6">{sections.slice(0, 2).map((section) => group(section))}</div>
-						<div className="grid gap-4 lg:gap-6">{sections.slice(2).map((section) => group(section))}</div>
-					</div>
-					<p role="status" className="text-sm text-ink-3">
-						{saved ? copy("editor.save.status.saved") : copy("editor.career.ownershipHint")}
-					</p>
+					{query.isError && <CareerLoadError retrying={query.isFetching} onRetry={() => void query.refetch()} />}
+					<SectionCollection>{sections.map((section) => group(section))}</SectionCollection>
+					{saved && (
+						<p role="status" className="flex items-center gap-1.5 type-body text-ink-3">
+							<SuccessTick />
+							{copy("editor.save.status.saved")}
+						</p>
+					)}
 					{dialog && (
 						<CareerEntryDialog
 							key={dialog.entityId}
@@ -98,17 +104,34 @@ export function CareerInformationPage() {
 		const titleKey = section === "certifications" ? "editor.certificates.title" : (`editor.${section}.title` as const);
 		const addKey = section === "certifications" ? "editor.certificates.add" : (`editor.${section}.add` as const);
 		return (
-			<section key={section} className="grid gap-3 rounded-xl border border-line bg-surface p-4 sm:p-5">
-				<header className="flex items-center gap-3">
+			<SectionCard
+				key={section}
+				capacity={
+					section === "experience"
+						? "entries"
+						: section === "education"
+							? "entry"
+							: section === "certifications"
+								? "notice"
+								: "chips"
+				}
+			>
+				<SectionCardHeader>
 					<Icon
 						name={icons[section]}
 						size={18}
-						className="box-content rounded-md bg-accent-soft p-[7px] text-accent-text"
+						className="box-content rounded-md bg-accent-soft p-2 text-accent-text"
 					/>
-					<h2 className="text-[19px] leading-7 font-semibold">{copy(titleKey)}</h2>
-				</header>
+					<h2 className="type-section">{copy(titleKey)}</h2>
+				</SectionCardHeader>
 				{ids.length ? (
-					<div className={section === "skills" ? "flex flex-wrap gap-1.5" : "grid gap-3"}>
+					<div
+						className={
+							section === "skills" || section === "languages"
+								? "flex flex-wrap items-start gap-x-2 gap-y-4"
+								: "grid gap-2"
+						}
+					>
 						{ids.map((id) => (
 							<Entry
 								key={id}
@@ -124,14 +147,15 @@ export function CareerInformationPage() {
 						))}
 					</div>
 				) : (
-					<div className="rounded-lg border border-dashed border-line p-5 text-sm leading-6 text-ink-3">
+					<div className="rounded-lg border border-dashed border-line p-3 type-body text-ink-3">
 						<p>{section === "certifications" ? copy("editor.certificates.empty") : copy("editor.career.emptyTitle")}</p>
 						{section === "certifications" && <p>{copy("editor.certificates.hint")}</p>}
 					</div>
 				)}
 				<Button
 					variant="link"
-					className="min-h-12 justify-start px-1 font-semibold"
+					size="link-compact"
+					className="justify-start"
 					onClick={() => {
 						setSaved(false);
 						setDialog({ section, entityId: crypto.randomUUID() });
@@ -140,7 +164,7 @@ export function CareerInformationPage() {
 					<Icon name="plus" />
 					{copy(addKey)}
 				</Button>
-			</section>
+			</SectionCard>
 		);
 	}
 }
@@ -170,36 +194,34 @@ function Entry({
 	const details = facts.filter((fact) => fact.id !== heading?.id && fact.structured);
 	const metadataFields = new Set(["company", "school", "dates"]);
 	const metadata = details.filter((fact) => metadataFields.has(fact.structured?.field ?? ""));
-	if (section === "skills" && !hasDraft && documents.length === 0)
+	if ((section === "skills" || section === "languages") && !hasDraft && documents.length === 0)
 		return (
-			<button
-				type="button"
+			<FactChip
 				onClick={onEdit}
 				aria-label={t`Edit entry`}
-				className="min-h-11 rounded-full bg-sunken px-3 text-sm font-semibold text-ink-2"
+				detail={
+					section === "languages"
+						? details
+								.map((fact) => (typeof fact.structured?.value === "string" ? fact.structured.value : ""))
+								.filter(Boolean)
+								.join(" · ")
+						: undefined
+				}
 			>
-				<bdi>{typeof headingValue === "string" ? headingValue : ""}</bdi>
-			</button>
+				{typeof headingValue === "string" ? headingValue : ""}
+			</FactChip>
 		);
 	return (
-		<article
-			className={cn(
-				"group/entry flex items-center gap-2 p-3",
-				section === "languages" ? "border-b border-line last:border-0" : "rounded-md border border-line bg-raised",
-			)}
+		<SectionCardRow
+			variant={section === "languages" ? "plain" : "outlined"}
+			className={section === "languages" ? "w-full" : undefined}
 		>
-			<div className={cn("grid min-w-0 flex-1", section === "languages" && "grid-cols-2 items-center gap-4")}>
-				<h3
-					dir="auto"
-					className={cn(
-						"min-w-0 text-sm leading-[22px] font-semibold break-words",
-						section === "languages" && "justify-self-start",
-					)}
-				>
+			<div className={cn("grid min-w-0 flex-1", section === "languages" && "flex flex-wrap items-baseline gap-x-3")}>
+				<h3 dir="auto" className={cn("min-w-0 type-label break-words", section === "languages" && "text-start")}>
 					{typeof headingValue === "string" ? headingValue : ""}
 				</h3>
 				{metadata.length > 0 && (
-					<p className="text-xs leading-5 text-ink-3">
+					<p className="type-metadata text-ink-3">
 						{metadata.map((fact, index) => (
 							<span key={fact.id}>
 								{index > 0 && " · "}
@@ -225,8 +247,8 @@ function Entry({
 							key={fact.id}
 							dir="auto"
 							className={cn(
-								"min-w-0 text-sm break-words whitespace-pre-wrap text-ink-2",
-								section === "languages" && (fact.structured?.field === "fluency" ? "justify-self-end" : "col-span-2"),
+								"min-w-0 type-body break-words whitespace-pre-wrap text-ink-2",
+								section === "languages" && "max-w-full text-start",
 							)}
 						>
 							{typeof fact.structured?.value === "string" ? (
@@ -243,12 +265,12 @@ function Entry({
 						</p>
 					))}
 				{facts.some((fact) => fact.proposedStructured) && (
-					<p className={cn("text-xs text-ink-3", section === "languages" && "col-span-2")}>
+					<p className={cn("type-metadata text-ink-3", section === "languages" && "w-full")}>
 						<Trans>Draft — review before confirming</Trans>
 					</p>
 				)}
 				{documents.length > 0 && (
-					<div className={cn("flex flex-wrap gap-2 text-xs text-ink-3", section === "languages" && "col-span-2")}>
+					<div className={cn("flex flex-wrap gap-2 type-metadata text-ink-3", section === "languages" && "w-full")}>
 						<span>{copy("editor.field.usedIn", { documentNames: "" })}</span>
 						{documents.map((document) => (
 							<Link
@@ -265,15 +287,13 @@ function Entry({
 			</div>
 			<Button
 				variant="ghost"
-				size="icon"
-				className={
-					section === "languages" ? "opacity-0 group-hover/entry:opacity-100 focus-visible:opacity-100" : undefined
-				}
+				size="icon-compact"
+				disclosure={section === "languages" ? "hover" : undefined}
 				aria-label={t`Edit entry`}
 				onClick={onEdit}
 			>
 				<Icon name="pencil-simple" />
 			</Button>
-		</article>
+		</SectionCardRow>
 	);
 }

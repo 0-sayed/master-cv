@@ -61,6 +61,9 @@ temp
 .migration
 /plans
 
+# Lingui CLI compilation outputs; Vite compiles tracked PO sources directly.
+/apps/web/locales/*.js
+
 # Local Storage Data
 /data
 /apps/web/data

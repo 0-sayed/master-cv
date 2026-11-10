@@ -19,12 +19,13 @@ import {
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
-import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { useConversationConnection } from "./chat";
 import { Composer, Conversation } from "./conversation";
 import { ProviderSetup } from "./provider-setup";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { formatVersionTime } from "@/features/resume/share/format";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
@@ -144,6 +145,7 @@ export function AssistantPanel({ document, onClose }: AssistantPanelProps) {
 
 	const notSetUp = threads.error instanceof ORPCError && threads.error.code === "PRECONDITION_FAILED";
 
+	const skeletonWait1 = useSkeletonLoading(providers.isLoading || threads.isPending);
 	return (
 		<section aria-label={t`Assistant`} className="flex h-full min-h-0 flex-col bg-surface">
 			<header className="flex h-[52px] shrink-0 items-center gap-1 border-b border-line ps-4 pe-2">
@@ -184,7 +186,7 @@ export function AssistantPanel({ document, onClose }: AssistantPanelProps) {
 					className={cn("text-ink-2", view === "history" && "bg-accent-soft text-accent-text")}
 					onClick={() => setView(view === "history" ? "thread" : "history")}
 				/>
-				<IconButton icon="x" label={t`Close the assistant`} shortcut="⌘J" className="text-ink-2" onClick={onClose} />
+				<IconButton icon="x" label={t`Close the assistant`} shortcut="Mod+J" className="text-ink-2" onClick={onClose} />
 			</header>
 
 			{notSetUp ? (
@@ -204,10 +206,8 @@ export function AssistantPanel({ document, onClose }: AssistantPanelProps) {
 						},
 					}}
 				/>
-			) : providers.isLoading || threads.isPending ? (
-				<div className="grid flex-1 place-items-center">
-					<Spinner />
-				</div>
+			) : skeletonWait1.pending || providers.isLoading || threads.isPending ? (
+				<QuerySkeleton shape="conversation" />
 			) : !providers.hasUsableProvider ? (
 				<div className="min-h-0 flex-1 overflow-y-auto">
 					<ProviderSetup />
@@ -278,19 +278,14 @@ function ConversationLoader({ threadId, document, ...props }: ConversationLoader
 		refetchOnWindowFocus: false,
 	});
 
+	const loading = useSkeletonLoading(!thread.data || !thread.isFetchedAfterMount);
 	if (thread.error)
 		return (
 			<Notice>
 				<Trans>This conversation couldn't be opened.</Trans>
 			</Notice>
 		);
-	if (!thread.data || !thread.isFetchedAfterMount)
-		return (
-			// Hidden for the first 150ms, so a quick refetch never flashes a spinner.
-			<div className="grid flex-1 place-items-center transition-opacity delay-150 duration-standard ease-enter starting:opacity-0">
-				<Spinner />
-			</div>
-		);
+	if (loading.pending || !thread.data || !thread.isFetchedAfterMount) return <QuerySkeleton shape="conversation" />;
 
 	return (
 		<Conversation

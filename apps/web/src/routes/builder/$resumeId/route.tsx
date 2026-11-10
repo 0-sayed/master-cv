@@ -2,10 +2,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect } from "react";
 import z from "zod";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { EditorShell } from "./-components/editor-shell";
+import { QuerySkeleton, RouteSkeleton } from "@/components/query-skeleton";
 import { useBuilderResumeUpdateSubscription, useResumeCleanup, useResumeStore } from "@/features/resume/builder/draft";
 import { EDITOR_MODES } from "@/features/resume/editor/store";
 import { orpc } from "@/libs/orpc/client";
+import { formatPageTitle } from "@/libs/route-titles";
 import { createNoindexFollowMeta } from "@/libs/seo";
 
 const searchSchema = z.object({
@@ -24,6 +27,7 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/builder/$resumeId")({
 	component: RouteComponent,
+	pendingComponent: () => <RouteSkeleton shape="editor" />,
 	validateSearch: searchSchema,
 	beforeLoad: ({ context, location }) => {
 		if (!context.session) throw redirect({ to: "/auth/login", search: { callbackURL: location.href }, replace: true });
@@ -38,7 +42,7 @@ export const Route = createFileRoute("/builder/$resumeId")({
 	},
 	head: ({ loaderData }) => ({
 		meta: loaderData
-			? [{ title: `${loaderData.name} - Reactive Resume` }, createNoindexFollowMeta()]
+			? [{ title: formatPageTitle(loaderData.name) }, createNoindexFollowMeta()]
 			: [createNoindexFollowMeta()],
 	}),
 });
@@ -76,7 +80,8 @@ function RouteComponent() {
 		resume,
 	]);
 
-	if (!isInitialized) return null;
+	const skeletonWait1 = useSkeletonLoading(!isInitialized);
+	if (skeletonWait1.pending || !isInitialized) return <QuerySkeleton shape="editor" />;
 
 	return <EditorShell />;
 }

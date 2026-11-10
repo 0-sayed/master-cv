@@ -98,7 +98,7 @@ export function Write() {
 									{t`2021 – Present`}
 								</span>
 							</div>
-							<span className="text-[oklch(0.45_0.01_95)]">{t`Northwind Labs · Lisbon`}</span>
+							<span className="text-[oklch(0.45_0.01_95)]">{t`Afaq Design (example) · Riyadh`}</span>
 						</div>
 
 						{/* Each line draws its own bullet, so the rewrite keeps one when the original collapses away. */}
@@ -191,7 +191,7 @@ export function Write() {
 								<b className="font-display text-[1.55em] leading-[1.1] font-medium">{t`Product Designer`}</b>
 								<span className="font-martian text-[.72em] whitespace-nowrap text-[oklch(0.5_0.01_95)]">{t`2017 – 2021`}</span>
 							</div>
-							<span className="text-[oklch(0.45_0.01_95)]">{t`Parcel & Co. · Porto`}</span>
+							<span className="text-[oklch(0.45_0.01_95)]">{t`Madarat Design (example) · Jeddah`}</span>
 							<ul className="mt-[.3em] list-disc ps-[1.1em]">
 								<li>
 									<AccessibilityBullet />

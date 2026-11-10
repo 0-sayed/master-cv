@@ -3,7 +3,7 @@ import type { WorkspaceTabProps } from "./shell";
 import type { Application } from "@/features/applications/types";
 import type { InterviewTimelineEntry } from "@reactive-resume/schema/applications/data";
 import type { ReactNode } from "react";
-import { plural, t } from "@lingui/core/macro";
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useRouteContext } from "@tanstack/react-router";
@@ -12,16 +12,18 @@ import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@reactive-resume/ui/components/dialog";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { SwitchRow } from "@reactive-resume/ui/components/switch";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { cn } from "@reactive-resume/utils/style";
 import { latest, useDefaultProvider, useGenerate, useSavedItems, useTicks, useWorkspace } from "../hooks";
 import { Eyebrow, flash, minutesUntil, PrivacyLine, useCareerTime, Working, workingSteps } from "../shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { interviewTypeLabel } from "@/features/applications/components/interview-dialog";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { getOrpcErrorMessage } from "@/libs/error-message";
+import { formatRelativeTimeUnit } from "@/libs/locale";
 import { orpc } from "@/libs/orpc/client";
 
 type Briefing = SavedItem & { data: SavedData<"briefing"> };
@@ -32,6 +34,7 @@ const isBriefing = (item: SavedItem | undefined): item is Briefing => item?.data
 export function PrepareTab({ application, version, interview, now, go }: WorkspaceTabProps) {
 	const saved = useSavedItems(application.id);
 
+	const skeletonWait1 = useSkeletonLoading(saved.isPending);
 	if (!interview && !isBriefing(version))
 		return (
 			<Notice title={t`Add an interview to plan for it`}>
@@ -68,7 +71,7 @@ export function PrepareTab({ application, version, interview, now, go }: Workspa
 	}
 
 	if (!briefing) {
-		if (saved.isPending) return <Skeleton className="h-64 rounded-xl" />;
+		if (skeletonWait1.pending || saved.isPending) return <QuerySkeleton shape="card" />;
 		return interview ? <PlanEmpty application={application} interview={interview} /> : null;
 	}
 
@@ -519,12 +522,8 @@ function Soon({ application, interview, briefing, now, go }: SoonProps) {
 	const minutes = minutesUntil(new Date(interview.at), now);
 	const list = (names: string[]) => new Intl.ListFormat(locale, { type: "conjunction" }).format(names);
 	const names = interview.participants.map((person) => person.name);
-	const heading =
-		minutes > 0
-			? plural(minutes, { one: "Starts in # minute", other: "Starts in # minutes" })
-			: minutes === 0
-				? t`Starts now`
-				: plural(-minutes, { one: "Started # minute ago", other: "Started # minutes ago" });
+	const relativeTime = formatRelativeTimeUnit(minutes, "minute", locale);
+	const heading = minutes > 0 ? t`Starts ${relativeTime}` : minutes === 0 ? t`Starts now` : t`Started ${relativeTime}`;
 	const rehearse = () => go("practise", { speak: true });
 	const rows = steps();
 	const id = useId();

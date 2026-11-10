@@ -3,9 +3,9 @@ import type { PDFDocumentLoadingTask, PDFDocumentProxy } from "pdfjs-dist/legacy
 import { AnnotationMode, GlobalWorkerOptions, getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { EventBus, LinkTarget, PDFLinkService, PDFViewer } from "pdfjs-dist/legacy/web/pdf_viewer.mjs";
 import { useEffect, useReducer, useRef } from "react";
-import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { cn } from "@reactive-resume/utils/style";
 import { resolvePublicResumePdfBlob } from "./public-pdf";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { createResumePdfBlob } from "@/features/resume/export/pdf-document";
 import "pdfjs-dist/legacy/web/pdf_viewer.css";
 import "./pdf-viewer.css";
@@ -262,7 +262,7 @@ export function PdfViewer({
 						isReady ? "invisible opacity-0 duration-[calc(var(--d2)*0.7)]" : "duration-standard",
 					)}
 				>
-					<Spinner className="size-6" />
+					<QuerySkeleton shape="preview" loading={!isReady} className="h-full w-full" />
 				</div>
 			)}
 		</div>

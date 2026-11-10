@@ -2,7 +2,6 @@ import { t } from "@lingui/core/macro";
 import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { cn } from "@reactive-resume/utils/style";
 import { useUiLocale } from "./provider";
 
 type LocaleSwitchProps = { compact?: boolean };
@@ -16,11 +15,9 @@ export function LocaleSwitch({ compact = false }: LocaleSwitchProps) {
 		<div className="relative">
 			<Button
 				dir="ltr"
-				variant="secondary"
-				className={cn(
-					"h-12 min-h-12 w-[52px] shrink-0 gap-1.5 rounded-md border-line bg-raised px-0 py-0 text-sm font-semibold",
-					!compact && "lg:h-11 lg:min-h-11 lg:w-auto lg:px-3",
-				)}
+				variant="control"
+				size={compact ? "language-compact" : "language"}
+				className="gap-1.5"
 				disabled={pending}
 				loading={pending}
 				aria-label={

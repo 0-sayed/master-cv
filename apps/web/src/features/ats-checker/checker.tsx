@@ -9,6 +9,7 @@ import { lazy, Suspense, useEffect, useId, useRef, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Collapsible, CollapsibleContent } from "@reactive-resume/ui/components/collapsible";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { loadSkeletonModule } from "@reactive-resume/ui/components/skeleton";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { Tabs, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
@@ -18,13 +19,16 @@ import { getPdfCategoryDescription, getPdfCategoryLabel, getPdfFindingMessage } 
 import { savePendingImport, takePendingImport } from "./pending-import";
 import { AnalysisStatus } from "./report/analysis-status";
 import { runAtsCheck } from "./run-ats-check";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { ENTER_CLASS, POP_CLASS, stagger } from "@/libs/motion";
 import { client } from "@/libs/orpc/client";
 
 // PDF.js and the importers load only once there is a file, so the page's first screen stays light and prerenderable.
 const PdfViewer = lazy(() =>
-	import("@/features/resume/public/pdf-viewer").then((module) => ({ default: module.PdfViewer })),
+	loadSkeletonModule(() =>
+		import("@/features/resume/public/pdf-viewer").then((module) => ({ default: module.PdfViewer })),
+	),
 );
 const loadReadFile = () => import("@/features/resume/import/read-file");
 
@@ -486,7 +490,7 @@ function Result({ result, file, onFix, onReset }: ResultProps) {
 						<Trans>Fix these in a few minutes</Trans>
 					</b>
 					<span className="text-[13px] leading-[19px] text-ink-2 max-lg:hidden">
-						<Trans>Import this file into a free Reactive Resume. Every issue is waiting for you in Check.</Trans>
+						<Trans>Import this file into a free Master CV. Every issue is waiting for you in Check.</Trans>
 					</span>
 					<Button className="h-10" onClick={onFix}>
 						<Trans>Fix these in the editor</Trans>
@@ -522,7 +526,7 @@ function Result({ result, file, onFix, onReset }: ResultProps) {
 							lens !== "page" && "h-0 overflow-hidden opacity-0 shadow-none",
 						)}
 					>
-						<Suspense fallback={<Spinner className="mx-auto my-24 size-5" />}>
+						<Suspense fallback={<QuerySkeleton shape="preview" />}>
 							<PdfViewer file={file} className="block w-full" />
 						</Suspense>
 					</div>

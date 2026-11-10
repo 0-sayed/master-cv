@@ -6,12 +6,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import z from "zod";
-import { Button } from "@reactive-resume/ui/components/button";
+import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { AuthErrorSummary } from "../components/auth-error-summary";
+import { AuthHeading } from "../components/auth-heading";
 import { SocialAuth } from "../components/social-auth";
 import { useAuthCopy } from "../copy.generated";
 import { authErrorMessage } from "../errors";
@@ -177,8 +178,8 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 	return (
 		<>
 			<div className="space-y-1 text-start">
-				<h1 className="type-title-s lg:type-title">{copy("common.navigation.signIn")}</h1>
-				<p className="text-sm leading-[23px] text-ink-2">{copy("editor.documents.subtitle")}</p>
+				<AuthHeading>{copy("common.navigation.signIn")}</AuthHeading>
+				<p className="type-body text-ink-2">{copy("editor.documents.subtitle")}</p>
 			</div>
 			{reason && (
 				<div role="status" className="rounded-xl border border-line bg-bg p-4">
@@ -194,7 +195,7 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 									: "auth.verifyEmail.error.expiredTitle",
 						)}
 					</h2>
-					<p className="text-sm text-ink-2">
+					<p className="type-body text-ink-2">
 						{copy(
 							reason === "passwordChanged"
 								? "auth.password.changedHint"
@@ -209,7 +210,7 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 
 			{!disableEmailAuth && (
 				<form
-					className="space-y-[18px] lg:space-y-5"
+					className="space-y-(--space-18) lg:space-y-5"
 					onSubmit={(event) => {
 						event.preventDefault();
 						event.stopPropagation();
@@ -219,15 +220,14 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 					<form.Field name="identifier">
 						{(field) => (
 							<FormItem className="gap-1.5" hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
-								<FormLabel className="text-sm leading-[22px] font-semibold text-ink">
-									{copy("auth.email.label")}
-								</FormLabel>
+								<FormLabel className="type-label text-ink">{copy("auth.email.label")}</FormLabel>
 								<FormControl
 									render={
 										<Input
 											autoComplete="section-login username webauthn"
 											placeholder="john.doe@example.com"
-											className="h-12 px-4 lowercase"
+											size="lg"
+											className="lowercase"
 											dir="ltr"
 											name={field.name}
 											value={field.state.value}
@@ -248,11 +248,7 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 						{(field) => (
 							<FormItem className="gap-1.5" hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
 								<div className="flex items-center justify-between">
-									<FormLabel
-										htmlFor="login-password"
-										id="login-password-label"
-										className="text-sm leading-[22px] font-semibold text-ink"
-									>
+									<FormLabel htmlFor="login-password" id="login-password-label" className="type-label text-ink">
 										<Trans comment="Label for password input on login form">Password</Trans>
 									</FormLabel>
 								</div>
@@ -281,11 +277,11 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 						<Button
 							variant="link"
 							nativeButton={false}
-							className="min-h-12 px-1 py-0 text-sm font-semibold"
+							size="link-touch"
 							render={<Link to="/auth/forgot-password">{copy("auth.signIn.forgotPassword")}</Link>}
 						/>
 					</div>
-					<Button type="submit" className="h-12 w-full" disabled={isSubmitting}>
+					<Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
 						{copy("common.navigation.signIn")}
 					</Button>
 				</form>
@@ -293,12 +289,12 @@ export function LoginPage({ disableEmailAuth, disableSignups, allowGuestLogin }:
 
 			<SocialAuth />
 			{!disableSignups && (
-				<div className="flex min-h-12 items-center gap-1 text-sm text-ink-2">
+				<div className="flex min-h-12 items-center gap-1 type-body text-ink-2">
 					{copy("auth.signIn.createAccountHint")}
 					<Link
 						to="/auth/register"
 						search={{ callbackURL, reauthenticate }}
-						className="inline-flex min-h-12 items-center px-1 font-semibold text-accent-text"
+						className={buttonVariants({ variant: "link", size: "link-touch" })}
 					>
 						{copy("auth.signUp.title")}
 					</Link>

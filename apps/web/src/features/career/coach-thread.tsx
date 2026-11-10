@@ -18,14 +18,17 @@ import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Popover, PopoverContent, PopoverTrigger } from "@reactive-resume/ui/components/popover";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { cn } from "@reactive-resume/utils/style";
 import { useSessionDraft } from "./hooks";
-import { Eyebrow, MemoryProposal, useCareerTime, useNow, withUndo, Working, workingSteps } from "./shared";
+import { Eyebrow, MemoryProposal, useCareerTime, useNow, confirmAction, Working, workingSteps } from "./shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { attachmentPart, fileToBase64, useAssistantChat } from "@/features/assistant/chat";
 import { AssistantMarkdown } from "@/features/assistant/markdown";
+import { storageKey as registeredStorageKey, browserStorage } from "@/libs/browser-storage";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { isImeComposing } from "@/libs/keyboard";
 import { ENTER_CLASS } from "@/libs/motion";
@@ -147,12 +150,10 @@ export function useConversationDate() {
 }
 
 /**
- * Deletes a conversation when its Undo toast closes. `hide` runs at once; `restore` brings it back on Undo, or when
- * the delete fails.
+ * Deletes a conversation only after confirmation and acknowledgment; failures leave it visible.
  */
 export function deleteConversation(queryClient: QueryClient, id: string, hide: () => void, restore: () => void) {
-	hide();
-	withUndo({
+	confirmAction({
 		description: t`Conversation deleted`,
 		commit: async () => {
 			try {
@@ -163,11 +164,12 @@ export function deleteConversation(queryClient: QueryClient, id: string, hide: (
 					type: "error",
 					description: getOrpcErrorMessage(error, { fallback: t`Couldn't delete this conversation.` }),
 				});
+				throw error;
 			} finally {
 				void queryClient.invalidateQueries({ queryKey: orpc.agent.threads.list.key() });
 			}
 		},
-		onUndo: restore,
+		onCommitted: hide,
 	});
 }
 
@@ -324,8 +326,7 @@ function ThreadSession(props: SessionProps) {
 						<Trans>This conversation couldn't be opened.</Trans>
 					</p>
 				) : (
-					// Hidden for the first 150ms, so a quick read never flashes a spinner.
-					<Spinner className="transition-opacity delay-150 duration-standard ease-enter starting:opacity-0" />
+					<QuerySkeleton shape="conversation" />
 				)}
 			</div>
 		</div>
@@ -752,10 +753,11 @@ function UsedChip({ label, title, children }: UsedChipProps) {
 
 function PreferencesList() {
 	const { data: profile } = useQuery(orpc.career.profile.queryOptions());
-	if (!profile)
+	const skeletonWait1 = useSkeletonLoading(!profile);
+	if (skeletonWait1.pending || !profile)
 		return (
 			<li>
-				<Spinner />
+				<QuerySkeleton count={1} />
 			</li>
 		);
 	const rows = [
@@ -785,10 +787,11 @@ function PreferencesList() {
 
 function OffersList({ ids, className }: { ids: string[]; className: string }) {
 	const { data } = useQuery(orpc.career.savedItems.queryOptions({ input: { kind: "offer" } }));
-	if (!data)
+	const skeletonWait1 = useSkeletonLoading(!data);
+	if (skeletonWait1.pending || !data)
 		return (
 			<li>
-				<Spinner />
+				<QuerySkeleton count={1} />
 			</li>
 		);
 	return (
@@ -809,10 +812,10 @@ function OffersList({ ids, className }: { ids: string[]; className: string }) {
 
 // ---- Memory: one proposal per answer; automatic saves can be undone ----
 
-const dismissedKey = (toolCallId: string) => `career-memory-dismissed:${toolCallId}`;
+const dismissedKey = (toolCallId: string) => registeredStorageKey("memoryDismissed", toolCallId);
 const isDismissed = (toolCallId: string) => {
 	try {
-		return localStorage.getItem(dismissedKey(toolCallId)) === "1";
+		return browserStorage.local.getItem(dismissedKey(toolCallId)) === "1";
 	} catch {
 		return false;
 	}
@@ -889,7 +892,7 @@ function Proposal({ items, knowledge, company }: ProposalProps) {
 
 	const dismiss = () => {
 		try {
-			for (const item of items) localStorage.setItem(dismissedKey(item.toolCallId), "1");
+			for (const item of items) browserStorage.local.setItem(dismissedKey(item.toolCallId), "1");
 		} catch {
 			// Not now still applies until the page reloads.
 		}
@@ -1056,6 +1059,7 @@ function Composer(props: ComposerProps) {
 						<Trans>Message the coach</Trans>
 					</label>
 					<textarea
+						dir="auto"
 						id={id}
 						value={text}
 						disabled={props.disabled}

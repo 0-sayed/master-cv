@@ -1,12 +1,15 @@
 import type { PageMap } from "@reactive-resume/pdf/page-map";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { CSSProperties, ReactNode } from "react";
-import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { SkeletonContent } from "@reactive-resume/ui/components/skeleton-content";
 import { cn } from "@reactive-resume/utils/style";
 import { DEFAULT_PDF_PAGE_SIZE, getResumePreviewGapValue, getScaledPreviewPageSize } from "./preview.shared.utils";
+import { QuerySkeleton } from "@/components/query-skeleton";
 
 export type ResumePreviewProps = {
 	className?: string;
+	/** Editor-only feedback, excluded from exports and public previews. */
+	highlightEdits?: boolean;
 	data?: ResumeData | undefined;
 	pageGap?: CSSProperties["gap"];
 	pageLayout?: "horizontal" | "vertical";
@@ -53,7 +56,7 @@ export function ResumePreviewLoader({
 	const pageSize = getScaledPreviewPageSize(DEFAULT_PDF_PAGE_SIZE, pageScale);
 	const resolvedPageGap = getResumePreviewGapValue(pageGap);
 
-	return (
+	const frame = (
 		<div
 			// Chrome-only placeholder: anchor pages left-to-right so page 1 stays on-screen regardless of UI direction.
 			dir="ltr"
@@ -75,19 +78,18 @@ export function ResumePreviewLoader({
 						) : null}
 
 						<div
-							role={failure ? undefined : "img"}
-							aria-label={failure ? undefined : `Loading resume page ${pageNumber} of ${pageCount}`}
 							style={pageSize}
 							className={cn(
 								"flex aspect-page items-center justify-center overflow-hidden rounded-md bg-white text-ink-3",
 								pageClassName,
 							)}
 						>
-							{failure ? pageNumber === 1 && failure : <Spinner className="size-10" />}
+							{failure ? pageNumber === 1 && failure : <SkeletonContent shape="preview" />}
 						</div>
 					</figure>
 				);
 			})}
 		</div>
 	);
+	return failure ? frame : <QuerySkeleton fallback={frame} />;
 }

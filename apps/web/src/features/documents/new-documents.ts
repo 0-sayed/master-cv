@@ -1,5 +1,10 @@
 import { createJSONStorage, persist } from "zustand/middleware";
 import { create } from "zustand/react";
+import {
+	storageKey as registeredStorageKey,
+	registeredPersistStorage,
+	onPersonalStorageCleared,
+} from "@/libs/browser-storage";
 
 type NewDocumentsStore = {
 	/** Documents made on this device that haven't been opened yet; their cards show "New". */
@@ -21,11 +26,11 @@ export const useNewDocumentsStore = create<NewDocumentsStore>()(
 				set((state) => (state.ids.includes(id) ? { ids: state.ids.filter((known) => known !== id) } : state)),
 		}),
 		{
-			name: "new-documents",
+			name: registeredStorageKey("newDocuments"),
 			// Storage can be unavailable (private windows, blocked site data); the badge is cosmetic, so go without.
 			storage: createJSONStorage(() => {
 				try {
-					return window.localStorage;
+					return registeredPersistStorage;
 				} catch {
 					return { getItem: () => null, setItem: () => undefined, removeItem: () => undefined };
 				}
@@ -33,3 +38,8 @@ export const useNewDocumentsStore = create<NewDocumentsStore>()(
 		},
 	),
 );
+
+onPersonalStorageCleared(() => {
+	useNewDocumentsStore.setState({ ids: [] });
+	useNewDocumentsStore.persist.clearStorage();
+});

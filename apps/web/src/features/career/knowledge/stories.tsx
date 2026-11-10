@@ -10,13 +10,15 @@ import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { cn } from "@reactive-resume/utils/style";
 import { useSessionDraft } from "../hooks";
-import { CareerLoadError, CareerLoading } from "../load-state";
-import { CollapseRow, Eyebrow, Swap, useNow, withUndo } from "../shared";
+import { CareerLoadError } from "../load-state";
+import { CollapseRow, Eyebrow, Swap, useNow, confirmAction } from "../shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { collectInterviews, upcomingInterviews } from "@/features/applications/interviews";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
 import { getOrpcErrorMessage } from "@/libs/error-message";
@@ -59,6 +61,7 @@ export function StoriesPage({ storyId, edit }: StoriesPageProps) {
 	const facts = factQuery.data;
 	const [hidden, setHidden] = useState<string[]>([]);
 
+	const skeletonWait1 = useSkeletonLoading(!stories || !facts);
 	if ((!stories && storyQuery.isError) || (!facts && factQuery.isError))
 		return (
 			<CareerLoadError
@@ -68,7 +71,7 @@ export function StoriesPage({ storyId, edit }: StoriesPageProps) {
 				}}
 			/>
 		);
-	if (!stories || !facts) return <CareerLoading />;
+	if (skeletonWait1.pending || !stories || !facts) return <QuerySkeleton shape="rows" />;
 
 	const factsById = new Map((facts ?? []).map((fact) => [fact.id, fact]));
 	const list = stories.filter((story) => !hidden.includes(story.id));
@@ -83,11 +86,10 @@ export function StoriesPage({ storyId, edit }: StoriesPageProps) {
 		});
 
 	const remove = (story: Story) => {
-		setHidden((current) => [...current, story.id]);
 		open(undefined);
-		withUndo({
+		confirmAction({
 			description: t`Story deleted`,
-			onUndo: () => setHidden((current) => current.filter((id) => id !== story.id)),
+			onCommitted: () => setHidden((current) => [...current, story.id]),
 			commit: () =>
 				client.career
 					.deleteStory({ id: story.id })
@@ -97,6 +99,7 @@ export function StoriesPage({ storyId, edit }: StoriesPageProps) {
 							type: "error",
 							description: getOrpcErrorMessage(error, { fallback: t`Couldn't delete that story.` }),
 						});
+						throw error;
 					})
 					.finally(() => {
 						void queryClient.invalidateQueries({ queryKey: orpc.career.stories.key() });
@@ -324,6 +327,7 @@ function PractiseButton({ storyId }: PractiseButtonProps) {
 			<Trans>Practise</Trans>
 		</>
 	);
+	const skeletonWait1 = useSkeletonLoading(isPending);
 	if (isError)
 		return (
 			<div role="alert">
@@ -332,12 +336,7 @@ function PractiseButton({ storyId }: PractiseButtonProps) {
 				</Button>
 			</div>
 		);
-	if (isPending)
-		return (
-			<Button variant="ghost" size="sm" disabled>
-				<Trans>Loading interviews…</Trans>
-			</Button>
-		);
+	if (skeletonWait1.pending || isPending) return <QuerySkeleton count={1} label={<Trans>Loading interviews…</Trans>} />;
 
 	if (!next)
 		return (

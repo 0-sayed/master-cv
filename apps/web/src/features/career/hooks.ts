@@ -10,6 +10,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { EMPTY_WORKSPACE } from "@reactive-resume/schema/career";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
+import { storageKey as registeredStorageKey, browserStorage, personalStorageGeneration } from "@/libs/browser-storage";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { orpc } from "@/libs/orpc/client";
 
@@ -23,11 +24,12 @@ const workspaceWrites = new WeakMap<QueryClient, Map<string, Set<Promise<unknown
 /** Text drafts survive navigation and reloads in this tab, without crossing signed-in accounts. */
 export function useSessionDraft<T>(key: string | null, initial: T, parse: (value: unknown) => T | undefined) {
 	const { session } = useRouteContext({ strict: false });
-	const storageKey = key === null ? null : `career-draft:${session?.user.id ?? "anonymous"}:${key}`;
+	const storageKey =
+		key === null || !session?.user.id ? null : registeredStorageKey("careerDraft", session.user.id, key);
 	const read = () => {
 		if (storageKey === null) return initial;
 		try {
-			const stored = sessionStorage.getItem(storageKey);
+			const stored = browserStorage.session.getItem(storageKey);
 			return stored === null ? initial : (parse(JSON.parse(stored)) ?? initial);
 		} catch {
 			return initial;
@@ -46,7 +48,7 @@ export function useSessionDraft<T>(key: string | null, initial: T, parse: (value
 		setState(current.current);
 		if (storageKey === null) return;
 		try {
-			sessionStorage.setItem(storageKey, JSON.stringify(value));
+			browserStorage.session.setItem(storageKey, JSON.stringify(value));
 		} catch {
 			// Blocked/full browser storage still leaves the draft usable in this view.
 		}
@@ -54,7 +56,7 @@ export function useSessionDraft<T>(key: string | null, initial: T, parse: (value
 	const clear = () => {
 		if (storageKey === null) return;
 		try {
-			sessionStorage.removeItem(storageKey);
+			browserStorage.session.removeItem(storageKey);
 		} catch {
 			// Nothing can be cleared when storage is unavailable.
 		}
@@ -108,11 +110,12 @@ export function useWorkspace(applicationId: string) {
 				void Promise.allSettled(pending).then(() => queryClient.invalidateQueries({ queryKey }));
 			})
 			.finally(() => pending.delete(write));
+		return write;
 	};
 	return {
 		data: query.data ?? EMPTY_WORKSPACE,
 		isPending: query.isPending,
-		/** The latest copy, including saves still in flight, for a change that commits later (after an Undo toast). */
+		/** The latest copy, including saves still in flight, for an explicitly confirmed change. */
 		current: () => queryClient.getQueryData<CareerWorkspace>(queryKey) ?? EMPTY_WORKSPACE,
 		save,
 		/** Finish queued writes before an action that reads the authoritative workspace. */
@@ -201,25 +204,72 @@ export function useGenerate(applicationId: string) {
 /**
  * Saves text a moment after typing stops (2s) and when the field loses focus or unmounts. Returns `flush` for blur.
  */
-export function useDebouncedSave(value: string, saved: string, save: (value: string) => void, delay = 2000) {
+type SaveState =
+	| { status: "idle" }
+	| { status: "pending"; value: string; promise: Promise<void> }
+	| { status: "acknowledged"; value: string }
+	| { status: "failed"; value: string };
+
+export function useDebouncedSave(
+	value: string,
+	saved: string,
+	save: (value: string) => Promise<unknown>,
+	delay = 2000,
+) {
 	const latest = useRef({ value, saved, save });
-	const attempted = useRef<string | undefined>(undefined);
+	const state = useRef<SaveState>({ status: "idle" });
+	const retry = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+	const mounted = useRef(true);
+	const generation = useRef(personalStorageGeneration());
 	useLayoutEffect(() => {
 		latest.current = { value, saved, save };
 	});
-	const flush = useCallback((force?: unknown) => {
-		const current = latest.current;
-		if (current.value !== current.saved && (force === true || current.value !== attempted.current)) {
-			attempted.current = current.value;
-			current.save(current.value);
-		}
-	}, []);
+	const flush = useCallback(
+		function flush(force?: unknown): void {
+			if (generation.current !== personalStorageGeneration()) return;
+			const current = latest.current;
+			if (state.current.status === "pending") {
+				const pending = state.current;
+				void pending.promise.then(() => {
+					if (latest.current.value !== pending.value) flush();
+				});
+				return;
+			}
+			if (
+				force !== true &&
+				((state.current.status === "acknowledged" && state.current.value === current.value) ||
+					(state.current.status !== "failed" && current.value === current.saved))
+			)
+				return;
+			clearTimeout(retry.current);
+			const promise = Promise.resolve()
+				.then(() => current.save(current.value))
+				.then(
+					() => {
+						state.current = { status: "acknowledged", value: current.value };
+					},
+					() => {
+						state.current = { status: "failed", value: current.value };
+						if (mounted.current) retry.current = setTimeout(flush, delay);
+					},
+				);
+			state.current = { status: "pending", value: current.value, promise };
+		},
+		[delay],
+	);
 	useEffect(() => {
 		if (value === saved) return;
-		const id = window.setTimeout(flush, delay);
-		return () => window.clearTimeout(id);
+		const id = setTimeout(flush, delay);
+		return () => clearTimeout(id);
 	}, [value, saved, delay, flush]);
-	useEffect(() => flush, [flush]);
+	useEffect(() => {
+		mounted.current = true;
+		return () => {
+			mounted.current = false;
+			clearTimeout(retry.current);
+			flush();
+		};
+	}, [flush]);
 	return flush;
 }
 

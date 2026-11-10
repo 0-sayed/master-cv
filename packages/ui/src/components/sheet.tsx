@@ -2,6 +2,7 @@ import type * as React from "react";
 import { Drawer as SheetPrimitive } from "@base-ui/react/drawer";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { useUiLabels } from "@reactive-resume/ui/components/ui-labels";
 import { cn } from "@reactive-resume/utils/style";
 
 function Sheet({ ...props }: SheetPrimitive.Root.Props) {
@@ -50,18 +51,18 @@ function SheetContent({
 	children,
 	side = "right",
 	showCloseButton = true,
-	closeLabel = "Close",
+	closeLabel,
 	...props
 }: SheetContentProps) {
+	const labels = useUiLabels();
 	const popup = (
 		<SheetPrimitive.Popup
 			data-slot="sheet-content"
 			data-side={side}
 			className={cn(
-				"pointer-events-auto fixed z-50 flex flex-col gap-4 bg-raised text-sm text-ink shadow-e3 transition-[translate] duration-emphasized ease-enter outline-none data-ending-style:duration-[calc(var(--d3)*0.7)]",
+				"pointer-events-auto fixed z-50 flex flex-col gap-4 bg-raised type-body text-ink shadow-e3 transition-[translate] duration-emphasized ease-enter outline-none data-ending-style:duration-[calc(var(--d3)*0.7)]",
 				"data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-full data-[side=left]:data-ending-style:-translate-x-full data-[side=left]:data-starting-style:-translate-x-full data-[side=left]:sm:max-w-[440px]",
 				"data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-full data-[side=right]:data-ending-style:translate-x-full data-[side=right]:data-starting-style:translate-x-full data-[side=right]:sm:max-w-[440px]",
-				"rtl:data-[side=left]:data-ending-style:translate-x-full rtl:data-[side=left]:data-starting-style:translate-x-full rtl:data-[side=right]:data-ending-style:-translate-x-full rtl:data-[side=right]:data-starting-style:-translate-x-full",
 				"data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:data-ending-style:-translate-y-full data-[side=top]:data-starting-style:-translate-y-full",
 				"data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:max-h-[calc(100svh-2rem)] data-[side=bottom]:rounded-t-3xl data-[side=bottom]:pt-3 data-[side=bottom]:data-ending-style:translate-y-full data-[side=bottom]:data-starting-style:translate-y-full",
 				// Swipe: Base UI moves the popup inline while dragging; on release it rests at the swipe offset and
@@ -72,14 +73,14 @@ function SheetContent({
 			{...props}
 		>
 			{side === "bottom" && (
-				<span aria-hidden="true" className="mx-auto block h-[5px] w-9 shrink-0 rounded-full bg-line-2" />
+				<span aria-hidden="true" className="mx-auto block h-1 w-9 shrink-0 rounded-full bg-line-2" />
 			)}
 			{/* Content is where a mouse press clicks rather than starts a swipe; `contents` keeps it out of the layout. */}
 			<SheetPrimitive.Content className="contents">{children}</SheetPrimitive.Content>
 			{showCloseButton && (
 				<SheetPrimitive.Close
 					data-slot="sheet-close"
-					aria-label={closeLabel}
+					aria-label={closeLabel ?? labels.close}
 					render={<Button variant="ghost" className="absolute inset-e-3 top-3 text-ink-2" size="icon" />}
 				>
 					<Icon name="x" />
@@ -104,24 +105,24 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
-	return <div data-slot="sheet-footer" className={cn("mt-auto flex flex-col gap-2 p-6", className)} {...props} />;
-}
-
-function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
 	return (
-		<SheetPrimitive.Title
-			data-slot="sheet-title"
-			className={cn("font-display text-[22px] leading-7 font-medium text-ink", className)}
+		<div
+			data-slot="sheet-footer"
+			className={cn("mt-auto flex flex-col gap-2 p-6 pb-[max(var(--space-24),env(safe-area-inset-bottom))]", className)}
 			{...props}
 		/>
 	);
+}
+
+function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
+	return <SheetPrimitive.Title data-slot="sheet-title" className={cn("type-title-s text-ink", className)} {...props} />;
 }
 
 function SheetDescription({ className, ...props }: SheetPrimitive.Description.Props) {
 	return (
 		<SheetPrimitive.Description
 			data-slot="sheet-description"
-			className={cn("text-sm text-ink-2", className)}
+			className={cn("type-body text-ink-2", className)}
 			{...props}
 		/>
 	);

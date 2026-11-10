@@ -84,8 +84,8 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 
 			test("embedded password eye stays on the left and preserves its value", async ({ page }) => {
 				const label = page.locator('label[for="login-password"]');
-				await expect(label).toHaveCSS("font-size", "14px");
-				await expect(label).toHaveCSS("line-height", "22px");
+				await expect(label).toHaveCSS("font-size", locale === "ar-SA" ? "16px" : "14px");
+				await expect(label).toHaveCSS("line-height", locale === "ar-SA" ? "26px" : "22px");
 				await expect(label).toHaveCSS("font-weight", "600");
 				const input = page.locator('input[name="password"]');
 				const toggle = page.getByRole("button", { name: /(?:Show|Hide) password|(?:إظهار|إخفاء) كلمة المرور/ });

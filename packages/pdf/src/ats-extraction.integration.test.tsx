@@ -8,9 +8,12 @@ import { describe, expect, it } from "vite-plus/test";
 import { getDocument, OPS } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { createElement } from "react";
 import { analyzePdfResume, harvestPdfDocument, PDF_OPS } from "@reactive-resume/resume/ats-pdf";
-import { sampleResumeData } from "@reactive-resume/schema/resume/sample";
+import { createSampleResumeData } from "@reactive-resume/schema/resume/sample";
 import { ResumeDocument } from "./document";
 import { renderToBuffer } from "./forme/testing";
+
+// English extraction/geometry fixtures must not inherit the product sample's Arabic default.
+const sampleResumeData = createSampleResumeData(undefined, "en-US");
 
 const NOW = new Date("2024-06-15T00:00:00Z");
 
@@ -76,7 +79,16 @@ describe("a resume rendered by this app", () => {
 	 * add any other findings.
 	 */
 	it("reports only the sample's mixed date granularity in a single-column export", { timeout: 60_000 }, async () => {
-		const { raw, report } = await analyze(await renderResume(sampleResumeData, "onyx"));
+		const data = structuredClone(sampleResumeData);
+		// One continuous column, retaining every section without the preview sample's explicit page breaks.
+		data.metadata.layout.pages = [
+			{
+				fullWidth: true,
+				main: data.metadata.layout.pages.flatMap((page) => [...page.main, ...page.sidebar]),
+				sidebar: [],
+			},
+		];
+		const { raw, report } = await analyze(await renderResume(data, "onyx"));
 
 		expect(raw.pages.length).toBeGreaterThan(0);
 		expect(raw.operatorsAvailable).toBe(true);

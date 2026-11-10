@@ -3,12 +3,12 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
-import { CommandLoading } from "cmdk";
-import { CommandItem, CommandShortcut } from "@reactive-resume/ui/components/command";
+import { CommandGroup, CommandItem, CommandShortcut } from "@reactive-resume/ui/components/command";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Kbd } from "@reactive-resume/ui/components/kbd";
 import { useCommandPaletteStore } from "../store";
 import { BaseCommandGroup } from "./base";
+import { QueryListState } from "@/components/query-list-state";
 import { useDialogStore } from "@/dialogs/store";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
 import { orpc } from "@/libs/orpc/client";
@@ -16,7 +16,6 @@ import { orpc } from "@/libs/orpc/client";
 type Application = RouterOutput["applications"]["list"][number];
 type Thread = RouterOutput["agent"]["threads"]["list"][number];
 type SearchPage = "resumes" | "applications" | "threads";
-type SearchPageProps = { page: SearchPage };
 
 const isSearchPage = (page: string | undefined): page is SearchPage =>
 	page === "resumes" || page === "applications" || page === "threads";
@@ -59,22 +58,20 @@ export function ResumesCommandGroup() {
 				</CommandItem>
 			</BaseCommandGroup>
 
-			{searchPage === "resumes" ? <ResumesPage page={searchPage} /> : null}
-			{searchPage === "applications" ? <ApplicationsPage page={searchPage} /> : null}
-			{searchPage === "threads" ? <ThreadsPage page={searchPage} /> : null}
+			{searchPage === "resumes" ? <ResumesPage /> : null}
+			{searchPage === "applications" ? <ApplicationsPage /> : null}
+			{searchPage === "threads" ? <ThreadsPage /> : null}
 		</>
 	);
 }
 
-function ResumesPage({ page }: SearchPageProps) {
+function ResumesPage() {
 	const navigate = useNavigate();
 	const { openDialog } = useDialogStore();
 	const reset = useCommandPaletteStore((state) => state.reset);
 	const search = useCommandPaletteStore((state) => state.search);
-	const { data: resumes, isLoading } = useQuery(
-		orpc.resume.list.queryOptions({ input: { sort: "lastUpdatedAt", tags: [] } }),
-	);
-	const filteredResumes = (resumes ?? []).filter((resume) => matchesSearch(search, [resume.name, resume.slug]));
+	const query = useQuery(orpc.resume.list.queryOptions({ input: { sort: "lastUpdatedAt", tags: [] } }));
+	const filteredResumes = (query.data ?? []).filter((resume) => matchesSearch(search, [resume.name, resume.slug]));
 
 	const onCreate = () => {
 		reset();
@@ -87,18 +84,20 @@ function ResumesPage({ page }: SearchPageProps) {
 	};
 
 	return (
-		<BaseCommandGroup page={page} heading={<Trans>Resumes</Trans>}>
+		<CommandGroup forceMount heading={<Trans>Resumes</Trans>}>
 			<CommandItem value="resumes.create" onSelect={onCreate}>
 				<Icon name="plus" size={16} />
 				<Trans>Create a new resume</Trans>
 			</CommandItem>
 
-			{isLoading ? (
-				<CommandLoading>
-					<Trans>Loading resumes…</Trans>
-				</CommandLoading>
-			) : (
-				filteredResumes.map((resume) => (
+			<QueryListState
+				query={query}
+				empty={filteredResumes.length === 0}
+				loadingMessage={<Trans>Loading resumes…</Trans>}
+				errorMessage={<Trans>Couldn't load this. Your saved data hasn't changed.</Trans>}
+				emptyMessage={<Trans>No results found.</Trans>}
+			>
+				{filteredResumes.map((resume) => (
 					<CommandItem
 						key={resume.id}
 						value={`resume.${resume.id}`}
@@ -110,22 +109,22 @@ function ResumesPage({ page }: SearchPageProps) {
 
 						<CommandShortcut className="opacity-0 group-data-[selected=true]/command-item:opacity-100">
 							<Trans comment="Command palette hint that pressing Enter opens the selected resume">
-								Press <Kbd>Enter</Kbd> to open
+								Press <Kbd keys="Enter" /> to open
 							</Trans>
 						</CommandShortcut>
 					</CommandItem>
-				))
-			)}
-		</BaseCommandGroup>
+				))}
+			</QueryListState>
+		</CommandGroup>
 	);
 }
 
-function ApplicationsPage({ page }: SearchPageProps) {
+function ApplicationsPage() {
 	const navigate = useNavigate();
 	const reset = useCommandPaletteStore((state) => state.reset);
 	const search = useCommandPaletteStore((state) => state.search);
-	const { data: applications, isLoading } = useQuery(applicationsListQueryOptions());
-	const filteredApplications = (applications ?? []).filter((application) =>
+	const query = useQuery(applicationsListQueryOptions());
+	const filteredApplications = (query.data ?? []).filter((application) =>
 		matchesSearch(search, [application.company, application.role]),
 	);
 
@@ -143,18 +142,20 @@ function ApplicationsPage({ page }: SearchPageProps) {
 	};
 
 	return (
-		<BaseCommandGroup page={page} heading={<Trans>Applications</Trans>}>
+		<CommandGroup forceMount heading={<Trans>Applications</Trans>}>
 			<CommandItem value="applications.create" onSelect={onCreateApplication}>
 				<Icon name="plus" size={16} />
 				<Trans>New Application</Trans>
 			</CommandItem>
 
-			{isLoading ? (
-				<CommandLoading>
-					<Trans>Loading applications…</Trans>
-				</CommandLoading>
-			) : (
-				filteredApplications.map((application) => (
+			<QueryListState
+				query={query}
+				empty={filteredApplications.length === 0}
+				loadingMessage={<Trans>Loading applications…</Trans>}
+				errorMessage={<Trans>Couldn't load this. Your saved data hasn't changed.</Trans>}
+				emptyMessage={<Trans>No results found.</Trans>}
+			>
+				{filteredApplications.map((application) => (
 					<CommandItem
 						key={application.id}
 						value={`application.${application.id}`}
@@ -163,20 +164,20 @@ function ApplicationsPage({ page }: SearchPageProps) {
 					>
 						<Icon name="briefcase" size={16} />
 						<span className="min-w-0 truncate">{application.company}</span>
-						<span className="truncate text-xs text-ink-3">{application.role}</span>
+						<span className="truncate type-metadata text-ink-3">{application.role}</span>
 					</CommandItem>
-				))
-			)}
-		</BaseCommandGroup>
+				))}
+			</QueryListState>
+		</CommandGroup>
 	);
 }
 
-function ThreadsPage({ page }: SearchPageProps) {
+function ThreadsPage() {
 	const navigate = useNavigate();
 	const reset = useCommandPaletteStore((state) => state.reset);
 	const search = useCommandPaletteStore((state) => state.search);
-	const { data: threads, isLoading } = useQuery(orpc.agent.threads.list.queryOptions());
-	const filteredThreads = (threads ?? [])
+	const query = useQuery(orpc.agent.threads.list.queryOptions());
+	const filteredThreads = (query.data ?? [])
 		.filter((thread) => thread.scope === "document")
 		.filter((thread) => matchesSearch(search, [thread.title, thread.resumeName, thread.coverLetterName]));
 
@@ -198,13 +199,15 @@ function ThreadsPage({ page }: SearchPageProps) {
 	};
 
 	return (
-		<BaseCommandGroup page={page} heading={<Trans>Assistant conversations</Trans>}>
-			{isLoading ? (
-				<CommandLoading>
-					<Trans>Loading conversations…</Trans>
-				</CommandLoading>
-			) : (
-				filteredThreads.map((thread) => {
+		<CommandGroup forceMount heading={<Trans>Assistant conversations</Trans>}>
+			<QueryListState
+				query={query}
+				empty={filteredThreads.length === 0}
+				loadingMessage={<Trans>Loading conversations…</Trans>}
+				errorMessage={<Trans>Couldn't load this. Your saved data hasn't changed.</Trans>}
+				emptyMessage={<Trans>No results found.</Trans>}
+			>
+				{filteredThreads.map((thread) => {
 					const documentName = thread.coverLetterName ?? thread.resumeName ?? "";
 
 					return (
@@ -216,11 +219,11 @@ function ThreadsPage({ page }: SearchPageProps) {
 						>
 							<Icon name="chat-text" size={16} />
 							<span className="min-w-0 truncate">{thread.title}</span>
-							<span className="truncate text-xs text-ink-3">{documentName}</span>
+							<span className="truncate type-metadata text-ink-3">{documentName}</span>
 						</CommandItem>
 					);
-				})
-			)}
-		</BaseCommandGroup>
+				})}
+			</QueryListState>
+		</CommandGroup>
 	);
 }

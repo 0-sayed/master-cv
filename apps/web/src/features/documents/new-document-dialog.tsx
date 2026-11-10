@@ -6,6 +6,7 @@ import { Trans } from "@lingui/react/macro";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useId, useRef, useState } from "react";
+import { ActionChoice } from "@reactive-resume/ui/components/action-choice";
 import { Button } from "@reactive-resume/ui/components/button";
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@reactive-resume/ui/components/dialog";
 import { Icon } from "@reactive-resume/ui/components/icon";
@@ -54,7 +55,7 @@ const formatSize = (bytes: number) =>
 function requireImportKind(kind: ImportKind | null): ImportKind {
 	if (!kind) {
 		throw new ImportError(
-			t`This file type can't be imported. Use a PDF, Word, Reactive Resume or JSON Resume file, or a LinkedIn export (.zip).`,
+			t`This file type can't be imported. Use a PDF, Word, Master CV or JSON Resume file, or a LinkedIn export (.zip).`,
 		);
 	}
 	return kind;
@@ -198,7 +199,7 @@ export function NewDocumentDialog({ data }: { data?: NewDocumentDialogData | und
 	const chooseFile = () => inputRef.current?.click();
 
 	return (
-		<DialogContent className="sm:max-w-[640px]">
+		<DialogContent size="wide">
 			{baseCvLimit && (
 				<div role="alert" className="grid gap-3 rounded-xl border border-line bg-bg p-4">
 					<p>
@@ -252,7 +253,7 @@ export function NewDocumentDialog({ data }: { data?: NewDocumentDialogData | und
 			) : (
 				<div key="choose" className={cn(ENTER_CLASS, "grid gap-4")}>
 					<DialogHeader>
-						<DialogTitle className="font-display text-[22px] font-medium">
+						<DialogTitle className="type-title-s">
 							<Trans>New document</Trans>
 						</DialogTitle>
 						<DialogDescription className="sr-only">
@@ -260,8 +261,11 @@ export function NewDocumentDialog({ data }: { data?: NewDocumentDialogData | und
 						</DialogDescription>
 					</DialogHeader>
 
-					<button
-						type="button"
+					<ActionChoice
+						dropzone
+						icon={<Icon name="file-arrow-up" size={24} />}
+						title={t`Import a resume`}
+						description={t`Drop a PDF, Word or JSON file, or browse.`}
 						onClick={chooseFile}
 						onDragOver={(event) => event.preventDefault()}
 						onDrop={(event) => {
@@ -269,56 +273,40 @@ export function NewDocumentDialog({ data }: { data?: NewDocumentDialogData | und
 							const file = event.dataTransfer.files[0];
 							if (file) void importFile(file);
 						}}
-						className="flex items-start gap-4 rounded-xl border-[1.5px] border-dashed border-line-2 p-5 text-start transition-[background-color,border-color,scale] duration-quick ease-enter hover:border-accent hover:bg-accent-soft active:scale-[0.98]"
-					>
-						<span className="grid size-11 shrink-0 place-items-center rounded-[10px] bg-sunken text-ink-2">
-							<Icon name="file-arrow-up" size={24} />
-						</span>
-						<span className="grid gap-1">
-							<span className="text-[15px] font-semibold">
-								<Trans>Import a resume</Trans>
-							</span>
-							<span className="text-[13px] leading-[19px] text-ink-2">
-								<Trans>
-									Drop a file here or browse. PDF, Word, Reactive Resume or JSON Resume. We fill in every section and
-									flag anything we're unsure of.
-								</Trans>
-							</span>
-						</span>
-					</button>
+					/>
 
 					<div className="grid gap-3 sm:grid-cols-2">
-						<ChoiceTile
-							icon="copy"
-							title={t`Copy a resume for a job`}
-							description={t`Start from one you have and link the application.`}
+						<ActionChoice
+							icon={<Icon name="copy" size={22} />}
+							title={t`Copy for a job`}
+							description={t`Copy a saved CV.`}
 							onClick={() => setStep({ name: "copy" })}
 						/>
-						<ChoiceTile
-							icon="file-plus"
+						<ActionChoice
+							icon={<Icon name="file-plus" size={22} />}
 							title={t`Start blank`}
-							description={t`Opens the editor on your name. Nothing else to fill in first.`}
+							description={t`Add details in the editor.`}
 							disabled={creating}
 							onClick={() => void startBlank()}
 						/>
 					</div>
 
-					<div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 text-[13px]">
+					<div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 type-body">
 						<button
 							type="button"
-							className="flex items-center gap-1.5 text-ink-2 hover:text-ink"
+							className="touch-target flex min-h-11 items-center gap-1.5 text-ink-2 hover:text-ink"
 							onClick={() => void newLetter()}
 						>
-							<Icon name="envelope-simple" size={18} />
-							<Trans>New cover letter instead</Trans>
+							<Icon name="envelope" size={18} />
+							<Trans>Or create a cover letter</Trans>
 						</button>
 						<button
 							type="button"
-							className="text-ink-2 underline underline-offset-2 hover:text-ink"
+							className="touch-target min-h-11 text-ink-2 underline underline-offset-2 hover:text-ink"
 							disabled={creating}
 							onClick={() => void trySample()}
 						>
-							<Trans>Try with a sample resume</Trans>
+							<Trans>Try a sample CV</Trans>
 						</button>
 					</div>
 				</div>
@@ -342,7 +330,7 @@ function ImportStep({ step, creating, onCancel, onStartBlank, onChooseFile, onCl
 	return (
 		<div className={cn(ENTER_CLASS, "grid gap-4")}>
 			<DialogHeader>
-				<DialogTitle className="font-display text-[22px] font-medium">
+				<DialogTitle className="type-title-s">
 					{step.name === "failed" ? (
 						<Trans>Couldn't import</Trans>
 					) : step.name === "imported" ? (
@@ -352,11 +340,11 @@ function ImportStep({ step, creating, onCancel, onStartBlank, onChooseFile, onCl
 					)}
 				</DialogTitle>
 			</DialogHeader>
-			<div className="flex items-center gap-3 rounded-[10px] border border-line p-3">
+			<div className="flex items-center gap-3 rounded-lg border border-line p-3">
 				<Icon name={step.file.name.toLowerCase().endsWith(".pdf") ? "file-pdf" : "file-text"} className="text-ink-2" />
 				<span className="grid min-w-0 flex-1">
-					<span className="truncate text-sm font-medium">{step.file.name}</span>
-					<span className="text-xs text-ink-3">{formatSize(step.file.size)}</span>
+					<span className="truncate type-body font-medium">{step.file.name}</span>
+					<span className="type-metadata text-ink-3">{formatSize(step.file.size)}</span>
 				</span>
 				{step.name === "importing" && (
 					<Button variant="ghost" size="sm" onClick={onCancel}>
@@ -381,10 +369,7 @@ function ImportStep({ step, creating, onCancel, onStartBlank, onChooseFile, onCl
 				<>
 					<div
 						role="alert"
-						className={cn(
-							ENTER_CLASS,
-							"flex gap-2.5 rounded-[10px] bg-danger-soft p-3 text-[13px] leading-[19px] text-danger-text",
-						)}
+						className={cn(ENTER_CLASS, "flex gap-2.5 rounded-lg bg-danger-soft p-3 type-body text-danger-text")}
 					>
 						<Icon name="warning-circle" size={20} />
 						<span>{step.message}</span>
@@ -402,7 +387,7 @@ function ImportStep({ step, creating, onCancel, onStartBlank, onChooseFile, onCl
 
 			{step.name === "imported" && (
 				<>
-					<p role="status" className={cn(ENTER_CLASS, "flex gap-2 text-[13px] leading-[19px]")}>
+					<p role="status" className={cn(ENTER_CLASS, "flex gap-2 type-body")}>
 						<Icon
 							name="check-circle"
 							size={20}
@@ -511,31 +496,6 @@ export function useStartDocument(applicationId?: string) {
 	};
 }
 
-type ChoiceTileProps = {
-	icon: "copy" | "file-plus";
-	title: string;
-	description: string;
-	onClick: () => void;
-	disabled?: boolean;
-};
-
-function ChoiceTile({ icon, title, description, onClick, disabled }: ChoiceTileProps) {
-	return (
-		<button
-			type="button"
-			disabled={disabled}
-			onClick={onClick}
-			className="flex items-start gap-3 rounded-xl border border-line p-4 text-start transition-[background-color,border-color,scale] duration-quick ease-enter hover:border-line-2 hover:bg-hover enabled:active:scale-[0.97] disabled:opacity-60"
-		>
-			<Icon name={icon} size={22} className="mt-0.5 text-ink-2" />
-			<span className="grid gap-0.5">
-				<span className="text-sm font-semibold">{title}</span>
-				<span className="text-[13px] leading-[18px] text-ink-2">{description}</span>
-			</span>
-		</button>
-	);
-}
-
 /** Reading the file → Finding sections → Filling in entries, each with a note once done. */
 function ImportProgress({ stage, notes }: { stage: number; notes: string[] }) {
 	const steps = [t`Reading the file`, t`Finding sections`, t`Filling in entries`];
@@ -549,17 +509,17 @@ function ImportProgress({ stage, notes }: { stage: number; notes: string[] }) {
 					return (
 						<li
 							key={label}
-							className={cn("flex items-center gap-2.5 text-sm", done || current ? "text-ink" : "text-ink-3")}
+							className={cn("flex items-center gap-2.5 type-body", done || current ? "text-ink" : "text-ink-3")}
 						>
 							{done ? (
 								<Icon name="check-circle" size={18} className={cn(POP_CLASS, "text-accent-text")} />
 							) : current ? (
-								<Spinner decorative className={cn(POP_CLASS, "size-[18px]")} />
+								<Spinner decorative className={cn(POP_CLASS, "size-4.5")} />
 							) : (
-								<span className="size-[18px] rounded-full border-[1.5px] border-line-2" />
+								<span className="size-4.5 rounded-full border-2 border-line-2" />
 							)}
 							<span className="font-medium">{label}</span>
-							{done && notes[index] && <span className="text-xs text-ink-3">{notes[index]}</span>}
+							{done && notes[index] && <span className="type-metadata text-ink-3">{notes[index]}</span>}
 						</li>
 					);
 				})}
@@ -628,17 +588,17 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 	return (
 		<>
 			<DialogHeader>
-				<DialogTitle className="font-display text-[22px] font-medium">
+				<DialogTitle className="type-title-s">
 					<Trans>Copy a resume for a job</Trans>
 				</DialogTitle>
 			</DialogHeader>
 
 			<fieldset className="grid gap-1.5">
-				<legend className="mb-1.5 text-xs font-medium text-ink-2">
+				<legend className="mb-1.5 type-metadata font-medium text-ink-2">
 					<Trans>Start from</Trans>
 				</legend>
 				{documents && resumes.length === 0 && (
-					<p className="text-sm text-ink-2">
+					<p className="type-body text-ink-2">
 						<Trans>
 							You don't have a resume to copy yet. Import or create a resume first, then return to copy it for this job.
 						</Trans>
@@ -649,7 +609,7 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 						<label
 							key={resume.id}
 							className={cn(
-								"relative flex cursor-pointer items-center gap-3 rounded-[10px] border px-3 py-2.5 transition-colors duration-quick",
+								"relative flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors duration-quick",
 								resume.id === source?.id ? "border-accent bg-accent-soft" : "border-line hover:bg-hover",
 							)}
 						>
@@ -665,8 +625,8 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 							/>
 							<Icon name="file-text" className="text-ink-2" />
 							<span className="grid min-w-0 flex-1">
-								<span className="truncate text-sm font-medium">{resume.name}</span>
-								<span className="text-xs text-ink-3">{formatRelativeTime(resume.updatedAt, i18n.locale)}</span>
+								<span className="truncate type-body font-medium">{resume.name}</span>
+								<span className="type-metadata text-ink-3">{formatRelativeTime(resume.updatedAt, i18n.locale)}</span>
 							</span>
 						</label>
 					))}
@@ -674,7 +634,7 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 			</fieldset>
 
 			<fieldset className="grid gap-1.5">
-				<legend className="mb-1.5 text-xs font-medium text-ink-2">
+				<legend className="mb-1.5 type-metadata font-medium text-ink-2">
 					<Trans>For which job?</Trans>
 				</legend>
 				<div className="flex flex-wrap gap-1.5">
@@ -691,7 +651,7 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 								setName(null);
 							}}
 							className={cn(
-								"flex h-8 items-center gap-1.5 rounded-full border px-3 text-[13px] transition-[background-color,border-color,color,scale] duration-quick ease-enter active:scale-[0.97]",
+								"flex h-8 items-center gap-1.5 rounded-full border px-3 type-body transition-[background-color,border-color,color,scale] duration-quick ease-enter active:scale-[0.97]",
 								jobId === option.id
 									? "border-accent bg-accent-soft text-accent-text"
 									: "border-line-2 text-ink-2 hover:bg-hover",
@@ -703,14 +663,14 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 					))}
 				</div>
 				{job && (
-					<span className="text-xs text-ink-3">
+					<span className="type-metadata text-ink-3">
 						<Trans>The copy is linked to the application, so Check and the assistant use its posting.</Trans>
 					</span>
 				)}
 			</fieldset>
 
 			<div className="grid gap-1.5">
-				<label htmlFor={nameId} className="text-xs font-medium text-ink-2">
+				<label htmlFor={nameId} className="type-metadata font-medium text-ink-2">
 					<Trans>Name</Trans>
 				</label>
 				<Input
@@ -719,7 +679,7 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 					maxLength={100}
 					onChange={(event) => setName(event.target.value)}
 				/>
-				<span className="text-xs text-ink-3">
+				<span className="type-metadata text-ink-3">
 					<Trans>Suggested from the source and the job. Change it anytime.</Trans>
 				</span>
 			</div>

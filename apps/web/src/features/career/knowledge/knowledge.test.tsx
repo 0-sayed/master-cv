@@ -64,7 +64,7 @@ vi.mock("../shared", () => ({
 		<button onClick={onClick}>{children}</button>
 	),
 	flash: () => {},
-	withUndo: () => {},
+	confirmAction: () => {},
 }));
 vi.mock("@/features/applications/queries", () => ({
 	applicationsListQueryOptions: () => ({

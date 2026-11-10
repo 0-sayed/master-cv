@@ -132,15 +132,6 @@ export function NavigationCommandGroup() {
 					<Icon name="gear-six" size={16} />
 					<Trans context="account.preferences.title">Preferences</Trans>
 				</CommandItem>
-
-				<CommandItem
-					keywords={[t`AI & developer`, t`AI providers`, t`API Keys`, t`MCP`, t`Integrations`]}
-					value="navigation.settings.ai"
-					onSelect={() => onNavigate("/dashboard/settings/ai")}
-				>
-					<Icon name="key" size={16} />
-					<Trans>AI & developer</Trans>
-				</CommandItem>
 			</BaseCommandGroup>
 		</>
 	);

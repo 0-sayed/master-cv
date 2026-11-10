@@ -8,7 +8,7 @@ for (const width of [320, 1440]) {
 		await expect(
 			navigation.getByRole("link", { name: width === 1440 ? "مستنداتي" : "المستندات", exact: true }),
 		).toBeVisible();
-		await expect(navigation.getByRole("link", { name: "متابعة التقديمات", exact: true })).toBeVisible();
+		await expect(navigation.getByRole("link", { name: "طلبات التقديم", exact: true })).toBeVisible();
 		if (width === 1440) {
 			await page
 				.getByRole("complementary")

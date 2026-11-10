@@ -381,7 +381,7 @@ function InlineFact({ label, value, onSave }: InlineFactProps) {
 						id={id}
 						autoFocus
 						value={draft}
-						className="h-8"
+						size="sm"
 						onChange={(event) => setDraft(event.target.value)}
 						onBlur={commit}
 						onKeyDown={(event) => {
@@ -441,7 +441,8 @@ function Tags({ application }: { application: Application }) {
 						aria-label={t`Add a tag`}
 						placeholder={t`Add a tag`}
 						value={tag}
-						className="h-7 w-28 text-xs"
+						size="sm"
+						className="w-28"
 						onChange={(event) => setTag(event.target.value)}
 					/>
 				</form>

@@ -12,7 +12,7 @@ export const getLocaleOptions = (locales: readonly Locale[] = Object.keys(locale
 			value: value as Locale,
 			label: (
 				<span className="flex items-center gap-x-2">
-					<span className="font-mono text-xs text-ink-3">{value}</span>
+					<span className="type-metadata font-mono text-ink-3">{value}</span>
 					{name}
 				</span>
 			),

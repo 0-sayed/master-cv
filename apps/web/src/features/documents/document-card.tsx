@@ -4,9 +4,9 @@ import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { buttonVariants } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { ContextMenu, ContextMenuTrigger } from "@reactive-resume/ui/components/context-menu";
+import { documentCardLayout } from "@reactive-resume/ui/components/document-card-layout";
 import { DropdownMenu, DropdownMenuTrigger } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
@@ -104,7 +104,7 @@ function RenameInput({ document, onDone }: { document: DocumentSummary; onDone: 
 					onDone();
 				}
 			}}
-			className="h-7 w-full min-w-0 rounded-md border border-accent bg-raised px-1.5 text-sm font-semibold ring-3 ring-accent-soft outline-none"
+			className="h-7 w-full min-w-0 rounded-md border border-accent bg-raised px-1.5 type-body font-semibold ring-3 ring-accent-soft outline-none"
 		/>
 	);
 }
@@ -167,9 +167,7 @@ export function DocumentCard({
 					<article
 						style={introIndex === undefined ? undefined : stagger(introIndex)}
 						className={cn(
-							"group/card grid gap-2",
-							library &&
-								"overflow-hidden rounded-xl border border-line bg-surface max-sm:grid-cols-[56px_minmax(0,1fr)] max-sm:items-center max-sm:gap-3 max-sm:p-3",
+							documentCardLayout.surface({ library }),
 							introIndex !== undefined && ENTER_CLASS,
 							isNew && "animate-arrive",
 							document.trashedAt && "opacity-70",
@@ -177,14 +175,14 @@ export function DocumentCard({
 					/>
 				}
 			>
-				<div className={cn("relative", library && "sm:h-[188px] sm:overflow-hidden sm:bg-sunken sm:pt-5")}>
+				<div className={documentCardLayout.preview({ library })}>
 					<OpenLink
 						document={document}
 						label={document.name}
 						onSelect={selecting && onSelectedChange ? () => onSelectedChange(!selected) : undefined}
 						className={cn(
-							"relative block aspect-page overflow-hidden rounded-[6px] shadow-[0_0_0_1px_var(--line),var(--shadow-1)] transition-[translate,scale,box-shadow] duration-quick ease-enter hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--line),var(--shadow-2)] active:scale-[0.98]",
-							library && "max-sm:h-[72px] max-sm:w-14 sm:mx-auto sm:w-[178.5px]",
+							documentCardLayout.page({ library }),
+							"shadow-[0_0_0_1px_var(--line),var(--shadow-1)] transition-[translate,scale,box-shadow] duration-quick ease-enter hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--line),var(--shadow-2)] active:scale-[0.98]",
 							(isNew || selected) &&
 								"shadow-[0_0_0_2px_var(--accent),var(--shadow-1)] hover:shadow-[0_0_0_2px_var(--accent),var(--shadow-2)] starting:shadow-[0_0_0_2px_transparent,var(--shadow-1)]",
 							document.trashedAt && "pointer-events-none",
@@ -197,7 +195,7 @@ export function DocumentCard({
 						)}
 						<span className="absolute start-2 top-2 flex gap-1">
 							{isNew && (
-								<span className="rounded bg-accent px-1.5 text-[11px] leading-[18px] font-semibold text-on-accent">
+								<span className="rounded bg-accent px-1.5 type-metadata font-semibold text-on-accent">
 									<Trans>New</Trans>
 								</span>
 							)}
@@ -218,18 +216,20 @@ export function DocumentCard({
 					)}
 				</div>
 
-				<div className={cn("flex items-start gap-1", library && "sm:px-4 sm:pt-2")}>
+				<div className={documentCardLayout.details({ library })}>
 					<div className="grid min-w-0 flex-1 gap-0.5">
 						{renaming ? (
 							<RenameInput document={document} onDone={() => setRenaming(false)} />
 						) : (
-							<h3 dir="auto" className="truncate text-start text-sm leading-5 font-semibold">
+							<h2 dir="auto" className="truncate text-start type-label">
 								{document.name}
-							</h3>
+							</h2>
 						)}
-						<span className="truncate text-xs text-ink-3">{meta}</span>
+						<span data-slot="document-meta" title={meta} className="truncate type-metadata text-ink-3">
+							{meta}
+						</span>
 						{document.application && (
-							<span className="flex min-w-0 items-center gap-1 text-xs text-ink-2">
+							<span className="flex min-w-0 items-center gap-1 type-metadata text-ink-2">
 								<Icon name="briefcase" size={14} />
 								<span className="truncate">{document.application.company}</span>
 							</span>
@@ -252,7 +252,7 @@ export function DocumentCard({
 				{library && (
 					<OpenLink
 						document={document}
-						className={cn(buttonVariants({ variant: "secondary" }), "mx-4 mb-4 hidden sm:flex")}
+						className={documentCardLayout.action}
 						onSelect={selecting && onSelectedChange ? () => onSelectedChange(!selected) : undefined}
 					>
 						{copy("editor.document.open")}
@@ -292,7 +292,8 @@ export function DocumentRow({
 					<tr
 						style={introIndex === undefined ? undefined : stagger(introIndex)}
 						className={cn(
-							"border-b border-line transition-colors duration-quick hover:bg-hover",
+							documentCardLayout.row,
+							"transition-colors duration-quick hover:bg-hover",
 							selected && "bg-accent-soft hover:bg-accent-soft",
 							introIndex !== undefined && ENTER_CLASS,
 							document.trashedAt && "opacity-70",
@@ -305,7 +306,7 @@ export function DocumentRow({
 						<Checkbox checked={selected} onCheckedChange={onSelectedChange} aria-label={t`Select ${document.name}`} />
 					</td>
 				)}
-				<td className="py-3 ps-3 pe-2">
+				<td className={documentCardLayout.cell}>
 					<span className="flex min-w-0 items-center gap-2.5">
 						<Icon name={document.type === "resume" ? "file-text" : "envelope-simple"} className="shrink-0 text-ink-2" />
 						{renaming ? (
@@ -313,13 +314,13 @@ export function DocumentRow({
 						) : (
 							<OpenLink
 								document={document}
-								className="min-w-0 truncate text-start text-sm font-semibold hover:underline"
+								className="min-w-0 truncate text-start type-body font-semibold hover:underline"
 							>
 								{document.name}
 							</OpenLink>
 						)}
 						{isNew && (
-							<span className="rounded bg-accent px-1.5 text-[11px] leading-[18px] font-semibold text-on-accent">
+							<span className="rounded bg-accent px-1.5 type-metadata font-semibold text-on-accent">
 								<Trans>New</Trans>
 							</span>
 						)}
@@ -334,11 +335,11 @@ export function DocumentRow({
 						{document.isLocked && <Icon name="lock" size={16} className="shrink-0 text-ink-3" />}
 					</span>
 				</td>
-				<td className="px-2 text-sm text-ink-2 max-sm:hidden">
+				<td className="px-2 type-body text-ink-2 max-sm:hidden">
 					{document.type === "resume" ? <Trans>Resume</Trans> : <Trans>Letter</Trans>}
 				</td>
-				<td className="truncate px-2 text-sm text-ink-2 max-sm:hidden">{document.application?.company ?? "—"}</td>
-				<td className="px-2 text-sm whitespace-nowrap text-ink-3">
+				<td className="truncate px-2 type-body text-ink-2 max-sm:hidden">{document.application?.company ?? "—"}</td>
+				<td className="px-2 type-body whitespace-nowrap text-ink-3">
 					{document.trashedAt ? (
 						<Trans>{daysLeftInTrash(document.trashedAt)} days left</Trans>
 					) : (

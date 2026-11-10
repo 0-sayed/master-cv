@@ -1,11 +1,11 @@
-import type { AuthSession } from "@reactive-resume/auth/types";
 import type { QueryClient } from "@tanstack/react-query";
+import { authIdentity, sessionQueryKey } from "./auth/identity";
 import { getSession } from "./auth/session";
 import { getLocale, loadUiLocale } from "./locale";
 import { client } from "./orpc/client";
 import { getTheme } from "./theme";
 
-export const sessionQueryKey = ["auth", "session"] as const;
+export { sessionQueryKey } from "./auth/identity";
 const flagsQueryKey = ["flags"] as const;
 
 // Root beforeLoad runs on every navigation and every hover preload, so the network reads come from the query cache.
@@ -14,7 +14,8 @@ const flagsQueryKey = ["flags"] as const;
 // calling `router.invalidate()`. Flags come from server env and only change on a restart.
 export async function loadRootContext(queryClient: QueryClient) {
 	const theme = getTheme();
-	const previous = queryClient.getQueryData<AuthSession | null>(sessionQueryKey);
+	const identity = authIdentity(queryClient);
+	const generation = identity.snapshot().generation;
 
 	const sessionPromise = queryClient
 		.query({
@@ -23,11 +24,7 @@ export async function loadRootContext(queryClient: QueryClient) {
 			staleTime: (query) => (query.state.data ? 60_000 : 0),
 		})
 		.catch((error: unknown) => {
-			const cached = queryClient.getQueryData<AuthSession | null>(sessionQueryKey);
-			if (cached) {
-				console.warn("[session] Failed to refresh session, retaining cached session:", error);
-				return cached;
-			}
+			if (identity.snapshot().generation === generation) identity.check();
 			throw error;
 		});
 
@@ -36,11 +33,9 @@ export async function loadRootContext(queryClient: QueryClient) {
 		queryClient.query({ queryKey: flagsQueryKey, queryFn: () => client.flags.get(), staleTime: 5 * 60_000 }),
 	]);
 	const locale = getLocale(session?.user.uiLocale);
-	if (previous?.user.id && previous.user.id !== session?.user.id) {
-		queryClient.clear();
-		queryClient.setQueryData(sessionQueryKey, session);
-		queryClient.setQueryData(flagsQueryKey, flags);
-	}
+	if (!identity.accept(session, generation)) throw new DOMException("Authentication identity changed", "AbortError");
+	queryClient.setQueryData(sessionQueryKey, session);
+	queryClient.setQueryData(flagsQueryKey, flags);
 	await loadUiLocale(locale);
 
 	return { theme, locale, session, flags };

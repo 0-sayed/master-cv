@@ -1,6 +1,6 @@
 import type { AuthProvider } from "@reactive-resume/auth/types";
 import { t } from "@lingui/core/macro";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { match } from "ts-pattern";
 import { toast } from "@reactive-resume/ui/components/toast";
@@ -61,12 +61,20 @@ export function getProviderName(providerId: AuthProvider): string {
 /**
  * Hook to fetch and manage authentication accounts
  */
-export function useAuthAccounts() {
-	const { data: accounts } = useQuery({
+export function authAccountsQueryOptions() {
+	return queryOptions({
 		queryKey: ["auth", "accounts"],
-		queryFn: () => authClient.listAccounts(),
+		queryFn: async () => {
+			const response = await authClient.listAccounts();
+			if (response.error) throw new Error(response.error.message);
+			return response;
+		},
 		select: ({ data }) => data ?? [],
 	});
+}
+
+export function useAuthAccounts() {
+	const { data: accounts } = useQuery(authAccountsQueryOptions());
 
 	const getAccountByProviderId = useCallback(
 		(providerId: string) => accounts?.find((account) => account.providerId === providerId),

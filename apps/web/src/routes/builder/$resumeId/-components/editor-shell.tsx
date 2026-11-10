@@ -290,7 +290,7 @@ function MobileBody({ mode, onModeChange }: MobileBodyProps) {
 								if (tab !== "page") onModeChange(tab);
 							}}
 							className={cn(
-								"relative flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 text-[11px] transition-[color,scale] duration-quick ease-enter active:scale-[0.97]",
+								"relative flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 type-mobile-nav transition-[color,scale] duration-quick ease-enter active:scale-[0.97]",
 								active ? "font-semibold text-ink" : "text-ink-2",
 							)}
 						>
@@ -314,7 +314,7 @@ function SelectionBar({ onEdit }: { onEdit: () => void }) {
 		<div className="absolute bottom-[76px] left-1/2 z-10 flex -translate-x-1/2 items-center rounded-xl bg-ink p-1 text-bg shadow-e3 transition-[opacity,translate] duration-standard ease-enter starting:translate-y-2 starting:opacity-0">
 			<button
 				type="button"
-				className="flex h-10 items-center gap-1.5 rounded-lg px-3 text-[15px] font-semibold"
+				className="flex h-10 items-center gap-1.5 rounded-lg px-3 type-label font-semibold"
 				onClick={() => {
 					onEdit();
 					revealSelectionInPanel(selection);

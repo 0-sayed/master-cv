@@ -5,15 +5,15 @@ import { Trans } from "@lingui/react/macro";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@reactive-resume/ui/components/dialog";
 import { Input } from "@reactive-resume/ui/components/input";
+import {
+	TaskOverlay,
+	TaskOverlayContent,
+	TaskOverlayDescription,
+	TaskOverlayFooter,
+	TaskOverlayHeader,
+	TaskOverlayTitle,
+} from "@reactive-resume/ui/components/task-overlay";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { normalizeNumericDigits } from "@reactive-resume/utils/string";
 import { useCareerCopy } from "../copy.generated";
@@ -179,18 +179,15 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 		}
 	}
 	return (
-		<Dialog
+		<TaskOverlay
 			open
 			onOpenChange={(open) => {
 				if (!open && !pending) onClose();
 			}}
 		>
-			<DialogContent
-				closeLabel={t`Close`}
-				className="max-sm:top-auto max-sm:bottom-0 max-sm:max-h-[90svh] max-sm:translate-y-0 max-sm:rounded-b-none"
-			>
-				<DialogHeader>
-					<DialogTitle>
+			<TaskOverlayContent closeLabel={t`Close`}>
+				<TaskOverlayHeader>
+					<TaskOverlayTitle>
 						{copy(
 							section === "experience" && facts.length
 								? "editor.experience.editTitle"
@@ -198,12 +195,12 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 									? "editor.certificates.add"
 									: `editor.${section}.add`,
 						)}
-					</DialogTitle>
-					<DialogDescription>
+					</TaskOverlayTitle>
+					<TaskOverlayDescription>
 						<span className="sm:hidden">{copy("editor.experience.accuracyHint")}</span>
 						<span className="hidden sm:inline">{copy("review.fact.entryHint")}</span>
-					</DialogDescription>
-				</DialogHeader>
+					</TaskOverlayDescription>
+				</TaskOverlayHeader>
 				<AuthErrorSummary
 					message={error}
 					field={error && values.start && values.end && values.start > values.end ? "career-end" : undefined}
@@ -225,7 +222,7 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 						{latest
 							.filter((fact) => fact.structured)
 							.map((fact) => (
-								<p key={fact.id} dir="auto" className="text-sm break-words">
+								<p key={fact.id} dir="auto" className="type-body break-words">
 									{fact.structured && fieldLabel(fact.structured.field)}:{" "}
 									{fact.structured && (
 										<bdi
@@ -240,7 +237,7 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 									)}
 								</p>
 							))}
-						<p className="mt-2 text-sm text-ink-3">{copy("editor.conflict.preservedHint")}</p>
+						<p className="mt-2 type-body text-ink-3">{copy("editor.conflict.preservedHint")}</p>
 					</section>
 				)}
 				{removing ? (
@@ -248,14 +245,14 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 						<p>
 							<Trans>Remove this entry from your career information? Your saved CVs will remain unchanged.</Trans>
 						</p>
-						<DialogFooter>
+						<TaskOverlayFooter>
 							<Button variant="secondary" disabled={pending} onClick={() => setRemoving(false)}>
 								<Trans>Cancel</Trans>
 							</Button>
 							<Button loading={pending} onClick={() => void remove()}>
 								<Trans>Remove entry</Trans>
 							</Button>
-						</DialogFooter>
+						</TaskOverlayFooter>
 					</>
 				) : draft.value.review ? (
 					<>
@@ -270,14 +267,14 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 								draft.value.versions.map((version) => version.field),
 							).map((fact) => (
 								<div key={fact.field}>
-									<span className="text-xs text-ink-3">{fieldLabel(fact.field)}</span>
+									<span className="type-metadata text-ink-3">{fieldLabel(fact.field)}</span>
 									<p dir="auto" className="break-words whitespace-pre-wrap">
 										{formatFactValue(fact.value, t`Present`)}
 									</p>
 								</div>
 							))}
 						</section>
-						<DialogFooter>
+						<TaskOverlayFooter>
 							<Button
 								variant="secondary"
 								disabled={pending}
@@ -288,7 +285,7 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 							<Button loading={pending} disabled={conflict} onClick={() => void confirm()}>
 								<Trans>Confirm changes</Trans>
 							</Button>
-						</DialogFooter>
+						</TaskOverlayFooter>
 					</>
 				) : (
 					<form onSubmit={review} className="grid gap-4">
@@ -321,7 +318,7 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 								<>
 									<div className="grid grid-cols-2 gap-3">
 										{["start", "end"].map((field) => (
-											<label key={field} className="grid gap-2 text-sm">
+											<label key={field} className="grid gap-2 type-body">
 												{fieldLabel(field)}
 												<Input
 													id={`career-${field}`}
@@ -356,7 +353,7 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 									</label>
 								</>
 							)}
-							<DialogFooter>
+							<TaskOverlayFooter>
 								{facts.length > 0 && (
 									<Button variant="ghost" disabled={pending} onClick={() => setRemoving(true)}>
 										<Trans>Remove entry</Trans>
@@ -368,15 +365,15 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 								<Button type="submit" loading={pending} disabled={conflict}>
 									<Trans>Review changes</Trans>
 								</Button>
-							</DialogFooter>
+							</TaskOverlayFooter>
 						</fieldset>
 					</form>
 				)}
-				<p className="hidden text-xs text-ink-3 sm:block">{copy("review.fact.approvalHint")}</p>
-				<p role="status" className="text-xs text-ink-3">
+				<p className="hidden type-metadata text-ink-3 sm:block">{copy("review.fact.approvalHint")}</p>
+				<p role="status" className="type-metadata text-ink-3">
 					{pending ? copy("editor.save.status.saving") : copy("editor.career.ownershipHint")}
 				</p>
-			</DialogContent>
-		</Dialog>
+			</TaskOverlayContent>
+		</TaskOverlay>
 	);
 }

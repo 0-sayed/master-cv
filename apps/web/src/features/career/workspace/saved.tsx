@@ -12,11 +12,12 @@ import { useState } from "react";
 import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { useSavedItems } from "../hooks";
 import { formatMoney } from "../offer-compare";
-import { CollapseRow, FilterChip, tabLabel, useCareerTime, withUndo } from "../shared";
+import { CollapseRow, FilterChip, tabLabel, useCareerTime, confirmAction } from "../shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { orpc } from "@/libs/orpc/client";
 
 const KINDS: { kind: SavedItemKind; icon: IconName; tab: WorkspaceTab | null }[] = [
@@ -49,13 +50,8 @@ export function SavedTab({ application, go }: WorkspaceTabProps) {
 	const [hidden, setHidden] = useState<string[]>([]);
 	const [expanded, setExpanded] = useState<string | null>(null);
 
-	if (saved.isPending)
-		return (
-			<div className="grid gap-3">
-				<Skeleton className="h-8 w-1/2" />
-				<Skeleton className="h-72 rounded-xl" />
-			</div>
-		);
+	const skeletonWait1 = useSkeletonLoading(saved.isPending);
+	if (skeletonWait1.pending || saved.isPending) return <QuerySkeleton shape="form" />;
 
 	const items = (saved.data ?? []).filter((item) => !hidden.includes(item.id));
 	const present = KINDS.filter(({ kind }) => items.some((item) => item.data.kind === kind));
@@ -78,15 +74,13 @@ export function SavedTab({ application, go }: WorkspaceTabProps) {
 
 	const onDelete = (item: SavedItem) => {
 		if (filter === item.data.kind && shown.length === 1) setFilter(null);
-		setHidden((ids) => [...ids, item.id]);
-		withUndo({
+		confirmAction({
 			description: t`Deleted from Saved`,
-			onUndo: () => setHidden((ids) => ids.filter((id) => id !== item.id)),
+			onCommitted: () => setHidden((ids) => [...ids, item.id]),
 			commit: () =>
 				remove
 					.mutateAsync({ id: item.id })
-					.then(() => queryClient.invalidateQueries({ queryKey: orpc.career.savedItems.key() }))
-					.catch(() => setHidden((ids) => ids.filter((id) => id !== item.id))),
+					.then(() => queryClient.invalidateQueries({ queryKey: orpc.career.savedItems.key() })),
 		});
 	};
 

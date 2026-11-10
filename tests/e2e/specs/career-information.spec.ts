@@ -168,7 +168,7 @@ test("five groups review facts explicitly, survive reload and keep language chan
 		).toBe(true);
 		await page.getByRole("button", { name: "Confirm changes", exact: true }).click();
 		await expect(page.getByRole("dialog")).not.toBeVisible();
-		if (field === "name")
+		if (field === "name" || field === "language")
 			await expect(
 				page.getByRole("button", { name: "Edit entry", exact: true }).filter({ hasText: value }),
 			).toBeVisible();

@@ -94,7 +94,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					).toBeVisible();
 				});
 
-			test("language name and level occupy opposite row edges", async ({ authPage: page }) => {
+			test("language name and level remain grouped in a compact row", async ({ authPage: page }) => {
 				const language = ar ? "العربية" : "English";
 				const level = ar ? "اللغة الأم" : "Advanced";
 				await page.getByRole("button", { name: ar ? "إضافة لغة" : "Add language", exact: true }).click();
@@ -103,33 +103,28 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				await page.getByRole("button", { name: ar ? "مراجعة التغييرات" : "Review changes", exact: true }).click();
 				await page.getByRole("button", { name: ar ? "تأكيد التغييرات" : "Confirm changes", exact: true }).click();
 				await expect(page.getByRole("dialog")).not.toBeVisible();
-				const row = page
-					.getByRole("article")
-					.filter({ has: page.getByRole("heading", { name: language, exact: true }) });
+				const row = page.locator('[data-slot="fact-chip"]').filter({ hasText: language });
 				await row.scrollIntoViewIfNeeded();
 				const positions = await row.evaluate(
 					(element, values) => {
-						const rowBox = element.querySelector("h3")?.parentElement?.getBoundingClientRect();
-						if (!rowBox) throw new Error("Language row content missing");
-						const textCenter = (value: string) => {
-							const node = [...element.querySelectorAll("h3,p")].find((item) => item.textContent === value);
+						const textBox = (value: string) => {
+							const node = [...element.querySelectorAll("bdi")].find((item) => item.textContent === value);
 							if (!node) throw new Error("Language row text missing");
 							const range = document.createRange();
 							range.selectNodeContents(node);
 							const box = range.getBoundingClientRect();
-							return (box.x + box.width / 2 - rowBox.x) / rowBox.width;
+							return { left: box.left, right: box.right, top: box.top, height: box.height };
 						};
-						return { name: textCenter(values.language), level: textCenter(values.level) };
+						return { name: textBox(values.language), level: textBox(values.level) };
 					},
 					{ language, level },
 				);
-				if (ar) {
-					expect(positions.name).toBeGreaterThan(0.75);
-					expect(positions.level).toBeLessThan(0.25);
-				} else {
-					expect(positions.name).toBeLessThan(0.25);
-					expect(positions.level).toBeGreaterThan(0.75);
-				}
+				const horizontalGap = Math.max(
+					0,
+					Math.max(positions.name.left, positions.level.left) - Math.min(positions.name.right, positions.level.right),
+				);
+				expect(horizontalGap).toBeLessThanOrEqual(16);
+				expect(Math.abs(positions.name.top - positions.level.top)).toBeLessThanOrEqual(positions.name.height + 4);
 			});
 
 			if (width === 390)
@@ -141,10 +136,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					await page.getByRole("button", { name: ar ? "تأكيد التغييرات" : "Confirm changes", exact: true }).click();
 					await expect(page.getByRole("dialog")).not.toBeVisible();
 					await expect(page.getByText("Advanced".repeat(8), { exact: true })).toBeVisible();
-					const row = page.getByRole("article").filter({ hasText: "Advanced".repeat(8) });
+					const row = page.locator('[data-slot="fact-chip"]').filter({ hasText: "Advanced".repeat(8) });
 					expect(await row.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
 					expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-					await row.getByRole("button", { name: ar ? "تحرير الإدخال" : "Edit entry", exact: true }).click();
+					await row.click();
 					await page.locator('input[name="fluency"]').fill("Advanced");
 					await page.getByRole("button", { name: ar ? "مراجعة التغييرات" : "Review changes", exact: true }).click();
 					await expect(

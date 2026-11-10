@@ -2,7 +2,9 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@reactive-resume/ui/components/button";
-import { SettingsSection } from "../section";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
+import { SettingsRow, SettingsSection } from "../section";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { authClient } from "@/libs/auth/client";
 
 const queryKey = ["auth", "connected-apps"];
@@ -36,36 +38,36 @@ export function ConnectedAppsSection() {
 		onSuccess: () => queryClient.invalidateQueries({ queryKey }),
 	});
 
+	const skeletonWait1 = useSkeletonLoading(isPending);
 	return (
 		<SettingsSection
 			title={<Trans>Connected applications</Trans>}
 			description={<Trans>Revoke an application's access to your account.</Trans>}
 		>
 			{error || revoke.error ? <p role="alert">{(error ?? revoke.error)?.message}</p> : null}
-			{isPending ? (
-				<p role="status">
-					<Trans>Loading connections...</Trans>
-				</p>
+			{skeletonWait1.pending || isPending ? (
+				<QuerySkeleton shape="settings" label={<Trans>Loading connections...</Trans>} />
 			) : connections.length === 0 ? (
-				<p className="text-sm text-ink-3">
+				<p className="type-body text-ink-3">
 					<Trans>No connected applications.</Trans>
 				</p>
 			) : (
 				<ul className="divide-y divide-line">
 					{connections.map((connection) => (
-						<li key={connection.id} className="flex items-center justify-between gap-3 py-3">
-							<div className="min-w-0 text-sm">
-								<p className="font-medium break-all">{connection.clientName}</p>
-								<p className="break-words text-ink-3">{connection.scopes.join(", ")}</p>
-							</div>
-							<Button
-								variant="secondary"
-								size="sm"
-								disabled={revoke.isPending}
-								onClick={() => revoke.mutate(connection.id)}
+						<li key={connection.id}>
+							<SettingsRow
+								title={<bdi className="break-all">{connection.clientName}</bdi>}
+								description={connection.scopes.join(", ")}
 							>
-								<Trans>Revoke access</Trans>
-							</Button>
+								<Button
+									variant="secondary"
+									size="sm"
+									disabled={revoke.isPending}
+									onClick={() => revoke.mutate(connection.id)}
+								>
+									<Trans>Revoke access</Trans>
+								</Button>
+							</SettingsRow>
 						</li>
 					))}
 				</ul>

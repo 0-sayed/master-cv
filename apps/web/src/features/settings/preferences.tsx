@@ -11,7 +11,6 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { SettingsSection } from "./section";
-import { PageHeader } from "@/components/layout/page-header";
 import { Combobox } from "@/components/ui/combobox";
 import { LocaleCombobox } from "@/features/locale/combobox";
 import { useTheme } from "@/features/theme/provider";
@@ -32,10 +31,9 @@ export function PreferencesSettings() {
 
 	return (
 		<>
-			<PageHeader title={<Trans context="account.preferences.title">Preferences</Trans>} />
 			<SettingsSection title={<Trans context="account.theme.label">Appearance</Trans>}>
 				<ThemeTiles />
-				<p className="text-xs text-ink-3">
+				<p className="type-metadata text-ink-3">
 					<Trans>Resumes always render on white paper, whatever the theme.</Trans>
 				</p>
 			</SettingsSection>
@@ -47,7 +45,7 @@ export function PreferencesSettings() {
 					</label>
 					<LocaleCombobox id={languageId} />
 				</div>
-				<p className="text-xs text-ink-3">
+				<p className="type-metadata text-ink-3">
 					<Trans context="language.interface.independenceHint">
 						Changing the interface language never translates or changes your CVs.
 					</Trans>{" "}
@@ -109,10 +107,10 @@ function TimezoneSetting({ id }: { id: string }) {
 					onValueChange={(zone) => zone && zone !== value && void save(zone)}
 				/>
 			</div>
-			<p className="flex flex-wrap items-center gap-x-1 text-xs text-ink-3">
+			<p className="flex flex-wrap items-center gap-x-1 type-metadata text-ink-3">
 				<Trans>Interview times, reminders and schedules in Career use it.</Trans>
 				{device && device !== value && (
-					<Button variant="link" className="h-auto p-0 text-xs text-ink-2 underline" onClick={() => void save(device)}>
+					<Button variant="link" size="sm" className="text-ink-2 underline" onClick={() => void save(device)}>
 						<Trans>Use this device's timezone ({device})</Trans>
 					</Button>
 				)}
@@ -135,7 +133,7 @@ function ThemeTiles() {
 					<label
 						key={option.value}
 						className={cn(
-							"flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-line-2 bg-surface px-1 py-2 text-center text-sm font-medium transition-[background-color,border-color,box-shadow,scale] duration-quick ease-enter hover:bg-hover active:scale-[0.97] has-focus-visible:outline-2 has-focus-visible:outline-accent",
+							"flex min-h-16 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-line-2 bg-surface px-1 py-2 text-center type-body font-medium transition-[background-color,border-color,box-shadow,scale] duration-quick ease-enter hover:bg-hover active:scale-[0.97] has-focus-visible:outline-2 has-focus-visible:outline-accent",
 							checked && "border-accent shadow-[0_0_0_3px_var(--accent-soft)]",
 						)}
 					>

@@ -17,15 +17,16 @@ import {
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { downloadWithAnchor, generateFilename } from "@reactive-resume/utils/file";
 import { cn } from "@reactive-resume/utils/style";
 import { latest, useDebouncedSave, useDefaultProvider, useGenerate, useSavedItems, useWorkspace } from "../hooks";
-import { CollapseRow, Swap, useCareerTime, withUndo, Working, workingSteps } from "../shared";
+import { CollapseRow, Swap, useCareerTime, confirmAction, Working, workingSteps } from "../shared";
 import { AiNotice } from "./fit";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { useInvalidateApplications } from "@/features/applications/use-application-actions";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { orpc } from "@/libs/orpc/client";
@@ -76,13 +77,8 @@ export function ApplyTab({ application, version }: WorkspaceTabProps) {
 		};
 	}, []);
 
-	if (workspace.isPending || saved.isPending)
-		return (
-			<div className="grid gap-4">
-				<Skeleton className="h-14 rounded-xl" />
-				<Skeleton className="h-48 rounded-xl" />
-			</div>
-		);
+	const skeletonWait1 = useSkeletonLoading(workspace.isPending || saved.isPending);
+	if (skeletonWait1.pending || workspace.isPending || saved.isPending) return <QuerySkeleton shape="form" />;
 
 	const live = workspace.data.answers;
 	// Stored answers that aren't in the workspace (a saved version, or what was sent before this tab existed).
@@ -97,11 +93,10 @@ export function ApplyTab({ application, version }: WorkspaceTabProps) {
 		});
 	const currentAnswers = () => shown.map((answer) => drafts.current.get(answer.id)?.() ?? answer);
 	const removeAnswer = (id: string) => {
-		setRemoved((ids) => [...ids, id]);
-		withUndo({
+		confirmAction({
 			description: t`Question removed`,
 			commit: () => workspace.save({ answers: workspace.current().answers.filter((answer) => answer.id !== id) }),
-			onUndo: () => setRemoved((ids) => ids.filter((item) => item !== id)),
+			onCommitted: () => setRemoved((ids) => [...ids, id]),
 		});
 	};
 
@@ -217,7 +212,7 @@ type AnswerCardProps = {
 	readOnly: boolean;
 	disabled: boolean;
 	registerDraft: (id: string, read: () => Answer) => () => void;
-	onSave: (patch: Partial<Answer>) => void;
+	onSave: (patch: Partial<Answer>) => Promise<unknown>;
 	onRemove: () => void;
 	unit: CountUnit;
 	onToggleUnit: () => void;

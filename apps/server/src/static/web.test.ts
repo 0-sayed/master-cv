@@ -76,10 +76,12 @@ describe("web app fallback classification", () => {
 			<!doctype html>
 			<html>
 				<head>
-					<title>Reactive Resume — A free and open-source resume builder</title>
+					<title>Master CV — A free and open-source resume builder</title>
+					<meta property="og:site_name" content="Master CV">
+					<meta name="twitter:title" content="Master CV">
 					<meta
 						name="description"
-						content="Reactive Resume is a free and open-source resume builder that makes it easy to create, update, and share your resume."
+						content="Master CV is a free and open-source resume builder that makes it easy to create, update, and share your resume."
 					>
 				</head>
 				<body><div id="app"></div></body>
@@ -93,9 +95,12 @@ describe("web app fallback classification", () => {
 		expect(html).toContain('<meta property="og:url" content="https://rxresu.me/">');
 		expect(html).toContain('<script type="application/ld+json">');
 		expect(html).toContain(
-			'<meta property="og:description" content="Reactive Resume is a free and open-source resume builder that makes it easy to create, update, and share your resume.">',
+			'<meta property="og:description" content="Master CV is a free and open-source resume builder that makes it easy to create, update, and share your resume.">',
 		);
-		expect(html).toContain('"contactType":"support","email":"amruth@rxresu.me"');
+		expect(html).not.toContain("amruth@rxresu.me");
+		expect(html.match(/property="og:site_name"/g)).toHaveLength(1);
+		expect(html.match(/name="twitter:title"/g)).toHaveLength(1);
+		expect(html).toContain("https://github.com/0-sayed/master-cv");
 		expect(html).not.toContain("utm_source");
 
 		const dashboardResponse = await handleWebApp(new Request("https://example.com/dashboard"));
@@ -126,7 +131,7 @@ describe("web app fallback classification", () => {
 	});
 
 	describe("the ATS checker page", () => {
-		const shell = `<html><head><title>Reactive Resume — A free and open-source resume builder</title><meta name="description" content="Marketing copy."></head><body></body></html>`;
+		const shell = `<html><head><title>Master CV — A free and open-source resume builder</title><meta name="description" content="Marketing copy."></head><body></body></html>`;
 
 		it("serves an indexable shell rather than a 404", async () => {
 			vi.mocked(fs.readFile).mockResolvedValue(shell);
@@ -157,7 +162,7 @@ describe("web app fallback classification", () => {
 	});
 
 	describe("public resume social cards", () => {
-		const shell = `<html><head><title>Reactive Resume — A free and open-source resume builder</title><meta name="description" content="Marketing copy."></head><body></body></html>`;
+		const shell = `<html><head><title>Master CV — A free and open-source resume builder</title><meta name="description" content="Marketing copy."></head><body></body></html>`;
 
 		it("escapes user-authored values so resume content cannot break out of the attribute", async () => {
 			vi.mocked(fs.readFile).mockResolvedValue(shell);
@@ -187,7 +192,7 @@ describe("web app fallback classification", () => {
 
 			const html = await (await handleWebApp(new Request("https://example.com/jane/resume"))).text();
 
-			expect(html).toContain("<title>Jane $&amp; $&#39; Doe - Reactive Resume</title>");
+			expect(html).toContain("<title>Jane $&amp; $&#39; Doe — Master CV</title>");
 			expect(html).toContain('<meta name="description" content="Costs $$ and $` nothing">');
 		});
 	});

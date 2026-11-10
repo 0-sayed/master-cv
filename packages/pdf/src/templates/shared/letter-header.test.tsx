@@ -3,8 +3,11 @@ import { describe, expect, it } from "vite-plus/test";
 import * as forme from "@formepdf/core";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { createCoverLetterResumeData } from "@reactive-resume/resume/cover-letter";
-import { sampleResumeData } from "@reactive-resume/schema/resume/sample";
+import { createSampleResumeData } from "@reactive-resume/schema/resume/sample";
 import { renderResume } from "../../forme/render";
+
+// English extraction/geometry fixtures must not inherit the product sample's Arabic default.
+const sampleResumeData = createSampleResumeData(undefined, "en-US");
 
 const letterIn = (template: Template) => {
 	const { notes: _notes, layout: _layout, ...metadata } = { ...sampleResumeData.metadata, template };

@@ -3,11 +3,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouteContext, useRouter, useSearch } from "@tanstack/react-router";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { SettingsRow, SettingsSection } from "../section";
 import { DataSection } from "./data";
 import { ProfileSection } from "./profile";
 import { SecuritySection } from "./security";
-import { PageHeader } from "@/components/layout/page-header";
 import { authClient } from "@/libs/auth/client";
+import { clearPersonalStorage } from "@/libs/browser-storage";
 
 export function AccountSettings() {
 	const { session } = useRouteContext({ from: "/dashboard" });
@@ -15,13 +16,14 @@ export function AccountSettings() {
 
 	return (
 		<>
-			<PageHeader title={<Trans>Account</Trans>} />
 			<ProfileSection session={session} />
 			<SecuritySection />
 			<DataSection openDeletion={deleteAccount ?? false} />
-			<div className="border-t border-line pt-6">
-				<SignOutButton />
-			</div>
+			<SettingsSection title={<Trans>Current session</Trans>}>
+				<SettingsRow title={<bdi dir="ltr">{session.user.email}</bdi>}>
+					<SignOutButton />
+				</SettingsRow>
+			</SettingsSection>
 		</>
 	);
 }
@@ -33,9 +35,11 @@ export function SignOutButton() {
 
 	return (
 		<Button
+			size="sm"
 			variant="secondary"
 			onClick={async () => {
 				await authClient.signOut();
+				clearPersonalStorage();
 				queryClient.clear();
 				await navigate({ to: "/" });
 				void router.invalidate();

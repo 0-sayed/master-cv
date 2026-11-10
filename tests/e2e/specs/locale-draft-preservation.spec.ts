@@ -103,7 +103,7 @@ for (const initialLocale of ["en-US", "ar-SA"] as const) {
 			await expect(dialog).toBeVisible();
 			await dialog
 				.getByRole("button", {
-					name: arabic ? "انسخ السيرة الذاتية للحصول على وظيفة" : "Copy a resume for a job",
+					name: arabic ? "نسخة لوظيفة" : "Copy for a job",
 					exact: false,
 				})
 				.click();

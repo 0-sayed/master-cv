@@ -26,7 +26,7 @@ import {
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Sheet, SheetContent, SheetTitle } from "@reactive-resume/ui/components/sheet";
-import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { cn } from "@reactive-resume/utils/style";
@@ -41,10 +41,12 @@ import {
 } from "./coach-thread";
 import { CareerLoadError } from "./load-state";
 import { ContextChip, Eyebrow, PrivacyLine } from "./shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { transcriptOf, useConversationConnection } from "@/features/assistant/chat";
 import { ProviderSetup } from "@/features/assistant/provider-setup";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
+import { storageKey as registeredStorageKey, browserStorage } from "@/libs/browser-storage";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { client, orpc } from "@/libs/orpc/client";
 
@@ -55,12 +57,12 @@ type UsableProvider = ReturnType<typeof useHasUsableAiProvider>["usableProviders
 
 type Chips = { application: boolean; memory: boolean; web: boolean; offers: boolean };
 const DEFAULT_CHIPS: Chips = { application: true, memory: true, web: false, offers: true };
-const chipsKey = (id: string) => `career-context:${id}`;
+const chipsKey = (id: string) => registeredStorageKey("coachContext", id);
 
 function readChips(id: string | null): Chips {
 	if (!id) return DEFAULT_CHIPS;
 	try {
-		const raw = localStorage.getItem(chipsKey(id));
+		const raw = browserStorage.local.getItem(chipsKey(id));
 		return raw ? { ...DEFAULT_CHIPS, ...(JSON.parse(raw) as Partial<Chips>) } : DEFAULT_CHIPS;
 	} catch {
 		return DEFAULT_CHIPS;
@@ -69,7 +71,7 @@ function readChips(id: string | null): Chips {
 
 function writeChips(id: string, chips: Chips) {
 	try {
-		localStorage.setItem(chipsKey(id), JSON.stringify(chips));
+		browserStorage.local.setItem(chipsKey(id), JSON.stringify(chips));
 	} catch {
 		// A convenience: without storage the chips reset when the conversation reopens.
 	}
@@ -78,7 +80,7 @@ function writeChips(id: string, chips: Chips) {
 function readOfferIds(id: string | null): string[] {
 	if (!id) return [];
 	try {
-		const value: unknown = JSON.parse(localStorage.getItem(`career-offers:${id}`) ?? "[]");
+		const value: unknown = JSON.parse(browserStorage.local.getItem(registeredStorageKey("coachOffers", id)) ?? "[]");
 		return Array.isArray(value)
 			? value.filter((item): item is string => typeof item === "string" && item.length > 0).slice(0, 2)
 			: [];
@@ -89,7 +91,7 @@ function readOfferIds(id: string | null): string[] {
 
 function writeOfferIds(id: string, offers: string[]) {
 	try {
-		localStorage.setItem(`career-offers:${id}`, JSON.stringify(offers));
+		browserStorage.local.setItem(registeredStorageKey("coachOffers", id), JSON.stringify(offers));
 	} catch {
 		/* Storage may be unavailable. The URL still carries this session's selection. */
 	}
@@ -119,6 +121,7 @@ export function CoachPage({ conversationId, offerIds: routeOfferIds }: CoachPage
 	// The conversation shown: the URL's, or the one just created here while the URL catches up. Arriving at the thread
 	// that was just created keeps the chat mounted, so its first answer keeps streaming.
 	const [session, setSession] = useState({ key: 0, created: null as string | null, url: conversationId });
+	const skeletonWait1 = useSkeletonLoading(providers.isLoading || threads.isPending);
 	if (session.url !== conversationId) {
 		const same = conversationId !== undefined && conversationId === session.created;
 		setSession({
@@ -401,10 +404,8 @@ export function CoachPage({ conversationId, offerIds: routeOfferIds }: CoachPage
 								},
 							}}
 						/>
-					) : providers.isLoading || threads.isPending ? (
-						<div className="grid flex-1 place-items-center">
-							<Spinner />
-						</div>
+					) : skeletonWait1.pending || providers.isLoading || threads.isPending ? (
+						<QuerySkeleton shape="conversation" />
 					) : threads.isError && !threads.data ? (
 						<CareerLoadError
 							onRetry={() => {
@@ -637,6 +638,7 @@ function RailItem({
 			<ContextMenuTrigger render={<li className="group/row relative" />}>
 				{renaming ? (
 					<input
+						dir="auto"
 						// oxlint-disable-next-line jsx-a11y/no-autofocus -- Rename was just chosen; typing goes straight into the name
 						autoFocus
 						defaultValue={title}

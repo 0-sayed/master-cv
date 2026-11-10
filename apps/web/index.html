@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="theme-color" content="#F8F7F3" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#F1F0EB" media="(prefers-color-scheme: light)" />
 		<meta name="theme-color" content="#100F0C" media="(prefers-color-scheme: dark)" />
 		<!-- Apply the saved or system theme before first paint, so nothing flashes. Mirrors libs/theme.ts. -->
 		<script>
@@ -19,31 +19,37 @@
 				}
 			})();
 		</script>
-		<meta name="application-name" content="Reactive Resume" />
+		<meta name="application-name" content="Master CV" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
-		<meta name="apple-mobile-web-app-title" content="Reactive Resume" />
+		<meta name="apple-mobile-web-app-title" content="Master CV" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<meta property="og:site_name" content="Master CV" />
+		<meta property="og:title" content="Master CV" />
+		<meta property="og:image" content="/opengraph/banner.jpg" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="Master CV" />
+		<meta name="twitter:image" content="/opengraph/banner.jpg" />
 		<!-- Keep the homepage description between 120 and 160 characters. -->
 		<meta
 			name="description"
 			content="Free, open-source resume builder. Create, update, and share a professional resume in minutes, with PDF and Word downloads — no ads, no paywall."
 		/>
 
-		<link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="128x128" />
-		<link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="256x256 any" />
+		<link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16 32x32 48x48 64x64 128x128 256x256" />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
 		<link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" type="image/png" sizes="180x180 any" />
 		<link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials" />
 
-		<title>Reactive Resume — A free and open-source resume builder</title>
+		<title>Master CV — A free and open-source resume builder</title>
 	</head>
 	<body>
 		<!-- Empty here; the server prerenders the homepage into it (apps/server/src/static/web.ts). -->
 		<div id="app"></div>
 		<!-- Branded first paint; hidden once React populates #app (higher-specificity rule below). -->
 		<div id="initial-loader">
-			<img class="initial-loader__logo-light" src="/icon/light.svg" width="48" height="48" alt="Reactive Resume" />
-			<img class="initial-loader__logo-dark" src="/icon/dark.svg" width="48" height="48" alt="" />
+			<img class="initial-loader__logo-light" src="/master-cv/light.svg" width="48" height="48" alt="Master CV" />
+			<img class="initial-loader__logo-dark" src="/master-cv/dark.svg" width="48" height="48" alt="" />
 			<div class="initial-loader__spinner"></div>
 			<span class="initial-loader__sr-only">Loading</span>
 		</div>
@@ -61,7 +67,7 @@
 				align-items: center;
 				justify-content: center;
 				gap: 24px;
-				background: #f8f7f3;
+				background: #f1f0eb;
 			}
 			html.dark #initial-loader {
 				background: #100f0c;

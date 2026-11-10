@@ -20,6 +20,8 @@ test("auth language changes preserve signup and reset inputs", async ({ page }) 
 	await page.locator('input[name="password"]').fill("Synthetic-password-123");
 	await page.getByRole("checkbox").check();
 	await page.getByRole("button", { name: "Switch interface to Arabic" }).click();
+	await expect(page.getByRole("button", { name: "تغيير الواجهة إلى الإنجليزية" })).toBeEnabled();
+	await expect(page).toHaveURL(/locale=ar-SA/);
 	await expect(page.locator('input[name="name"]')).toHaveValue("اسم Synthetic");
 	await expect(page.locator('input[name="email"]')).toHaveValue("synthetic.locale@example.test");
 	await expect(page.locator('input[name="password"]')).toHaveValue("Synthetic-password-123");
@@ -29,6 +31,7 @@ test("auth language changes preserve signup and reset inputs", async ({ page }) 
 	await page.locator('input[name="password"]').fill("Replacement-password-123");
 	await page.locator('input[name="confirmation"]').fill("Replacement-password-123");
 	await page.getByRole("button", { name: "تغيير الواجهة إلى الإنجليزية" }).click();
+	await expect(page.getByRole("button", { name: "Switch interface to Arabic" })).toBeEnabled();
 	await expect(page.locator('input[name="password"]')).toHaveValue("Replacement-password-123");
 	await expect(page.locator('input[name="confirmation"]')).toHaveValue("Replacement-password-123");
 });
@@ -81,12 +84,16 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await expect(page).toHaveURL(/\/dashboard\/welcome/);
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("welcome.png"), fullPage: true });
-			await page.getByRole("button", { name: locale === "en-US" ? "Explore first" : "أتصفّح أولًا", exact: true }).click();
+			await page
+				.getByRole("button", { name: locale === "en-US" ? "Explore first" : "التصفّح أولًا", exact: true })
+				.click();
 			await expect(page).toHaveURL(/\/dashboard(?:\?|$)/);
 			await page.reload();
 			await expect(page).not.toHaveURL(/welcome/);
 			await expect(page.locator("h1")).toBeAttached();
-			await expect(page.getByRole("button", { name: locale === "en-US" ? "New" : "جديد", exact: true })).toBeVisible();
+			await expect(
+				page.getByRole("button", { name: locale === "en-US" ? "Choose a file" : "اختر ملفًا", exact: true }),
+			).toBeVisible();
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("documents-empty.png"), fullPage: true });
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -116,7 +123,9 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await page.locator('input[name="confirmation"]').fill("Replacement-password-123");
 			await page.locator('button[type="submit"]').click();
 			await expect(page).toHaveURL(/reason=passwordChanged/);
-			await expect(page.getByRole("status")).toBeVisible();
+			await expect(
+				page.getByRole("status").filter({ hasText: locale === "en-US" ? "Password changed" : "تم تغيير كلمة المرور" }),
+			).toBeVisible();
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("password-changed.png"), fullPage: true });
 			await page.locator('input[name="identifier"]').fill(account.email);
@@ -261,17 +270,19 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			);
 			await page
 				.getByRole("dialog")
-				.getByRole("button", { name: locale === "en-US" ? "Start blank" : "ابدأ فارغًا", exact: false })
+				.getByRole("button", { name: locale === "en-US" ? "Start blank" : "البدء بسيرة فارغة", exact: false })
 				.click();
 			await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("base-cv-limit.png"), fullPage: true });
 			await page
 				.getByRole("dialog")
-				.getByRole("button", { name: locale === "en-US" ? "Back to documents" : "العودة إلى الوثائق", exact: true })
+				.getByRole("button", { name: locale === "en-US" ? "Back to documents" : "العودة إلى المستندات", exact: true })
 				.click();
 			await expect(page.locator('[data-slot="dialog-content"]')).not.toBeVisible();
 			await expect(page.locator("h1")).toBeAttached();
-			await expect(page.getByRole("button", { name: locale === "en-US" ? "New" : "جديد", exact: true })).toBeVisible();
+			await expect(
+				page.getByRole("button", { name: locale === "en-US" ? "Choose a file" : "اختر ملفًا", exact: true }),
+			).toBeVisible();
 			await expect(page).toHaveURL(/dashboard/);
 		});

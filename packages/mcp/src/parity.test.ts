@@ -70,7 +70,9 @@ it("hands account deletion to browser settings without invoking the API", async 
 
 it("discovers API-derived contracts and exchanges native files and dates through the SDK", async () => {
 	const { tools } = await client.listTools();
-	const cardTools = new Map(buildMcpServerCard("1.0.0").tools.map((tool) => [tool.name, tool]));
+	const cardTools = new Map(
+		buildMcpServerCard("1.0.0", "https://cv.example.test").tools.map((tool) => [tool.name, tool]),
+	);
 	for (const tool of tools) {
 		expect(tool.inputSchema, tool.name).toEqual(cardTools.get(tool.name)?.inputSchema);
 		expect(tool.outputSchema, tool.name).toEqual(cardTools.get(tool.name)?.outputSchema);

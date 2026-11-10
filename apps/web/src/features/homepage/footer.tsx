@@ -2,11 +2,12 @@ import type { ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
+import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { cn } from "@reactive-resume/utils/style";
 import { SCENE } from "./scroll";
 import { labelClass } from "./ui";
 
-const githubUrl = "https://github.com/reactive-resume/reactive-resume";
+const githubUrl = "https://github.com/0-sayed/master-cv";
 const licenseUrl = `${githubUrl}/blob/main/LICENSE`;
 const linkClass = "text-ink transition-colors hover:text-accent-text";
 
@@ -27,33 +28,15 @@ const getColumns = (): { id: string; title: string; links: FooterLink[] }[] => [
 		id: "resources",
 		title: t`Resources`,
 		links: [
-			{ label: t`About`, href: "https://docs.rxresu.me/getting-started" },
-			{ label: t`Documentation`, href: "https://docs.rxresu.me" },
-			{ label: t`Changelog`, href: "https://docs.rxresu.me/changelog" },
 			{ label: t`Source code`, href: githubUrl },
-			{ label: t`Self-hosting`, href: "https://docs.rxresu.me" },
-		],
-	},
-	{
-		id: "community",
-		title: t`Community`,
-		links: [
-			{ label: t`Join Discord`, href: "https://discord.gg/jSVSJyWd2k" },
-			{ label: t`Subreddit`, href: "https://reddit.com/r/reactiveresume" },
-			{ label: t`Translations`, href: "https://crowdin.com/project/reactive-resume" },
-			{ label: t`Contact`, href: "mailto:amruth@rxresu.me" },
-			{ label: "LinkedIn", href: "https://www.linkedin.com/company/reactive-resume" },
-			{ label: "Amruth Pillai · X", href: "https://x.com/KingOKings" },
 			{ label: t`Report an issue`, href: `${githubUrl}/issues` },
+			{ label: t`Upstream documentation`, href: "https://docs.rxresu.me" },
 		],
 	},
 	{
 		id: "legal",
 		title: t`Legal`,
-		links: [
-			{ label: t`Privacy policy`, href: "https://docs.rxresu.me/legal/privacy-policy" },
-			{ label: t`MIT License`, href: licenseUrl },
-		],
+		links: [{ label: t`MIT License`, href: licenseUrl }],
 	},
 ];
 
@@ -78,22 +61,7 @@ export function LandingFooter() {
 		<footer data-scene={SCENE.footer} className="relative overflow-hidden border-t border-line">
 			<div className="mx-auto grid max-w-[1440px] grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-x-8 gap-y-10 px-(--gutter) pt-16">
 				<div className="col-span-2 flex min-w-0 flex-col gap-3.5">
-					<img
-						loading="lazy"
-						src="/logo/light.svg"
-						alt="Reactive Resume"
-						width={140}
-						height={140}
-						className="-ms-[18px] -mt-[22px] -mb-[18px] size-[140px] dark:hidden"
-					/>
-					<img
-						loading="lazy"
-						src="/logo/dark.svg"
-						alt="Reactive Resume"
-						width={140}
-						height={140}
-						className="-ms-[18px] -mt-[22px] -mb-[18px] hidden size-[140px] dark:block"
-					/>
+					<BrandIcon variant="logo" />
 					<div className="flex flex-col gap-1 font-ui text-[13px] leading-normal text-ink-3">
 						<p>{t`By the community, for the community.`}</p>
 						<p>
@@ -127,6 +95,11 @@ export function LandingFooter() {
 								</li>
 							))}
 						</ul>
+						{column.id === "legal" && (
+							<p data-upstream-credit className="type-metadata text-ink-3">
+								<Trans>Built on Reactive Resume by Amruth Pillai, licensed under MIT.</Trans>
+							</p>
+						)}
 					</nav>
 				))}
 			</div>
@@ -135,8 +108,8 @@ export function LandingFooter() {
 			<div aria-hidden="true" className="@container mx-auto mt-14 max-w-[1440px] px-(--gutter)">
 				<div className="h-[27cqw] overflow-hidden [mask-image:linear-gradient(to_bottom,#000_35%,transparent_100%)]">
 					<div className="font-anybody [transform:translateY(calc((1-clamp(0,(var(--p)-.1)/.8,1))*60%))] pt-[.12em] pb-[.06em] text-[17.5cqw] leading-[.84] font-extrabold tracking-[-.035em] whitespace-nowrap text-ink font-stretch-[78%] select-none [transition:transform_.35s_var(--ease)]">
-						<span className="block">Reactive</span>
-						<span className="block text-accent-text">Resume</span>
+						<span className="block">Master</span>
+						<span className="block text-accent-text">CV</span>
 					</div>
 				</div>
 			</div>

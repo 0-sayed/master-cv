@@ -19,8 +19,10 @@ import { toast } from "@reactive-resume/ui/components/toast";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
 import { SettingsRow, SettingsSection } from "../section";
 import { buildAccountZip } from "./export";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
 import { authClient } from "@/libs/auth/client";
+import { clearPersonalStorage } from "@/libs/browser-storage";
 import { getReadableErrorMessage } from "@/libs/error-message";
 import { client, orpc } from "@/libs/orpc/client";
 
@@ -35,7 +37,7 @@ export function DataSection({ openDeletion = false }: DataSectionProps) {
 		mutationFn: async () => {
 			const zip = buildAccountZip(await client.auth.exportData());
 			const date = new Date().toISOString().slice(0, 10);
-			downloadWithAnchor(new Blob([zip as BlobPart], { type: "application/zip" }), `reactive-resume-${date}.zip`);
+			downloadWithAnchor(new Blob([zip as BlobPart], { type: "application/zip" }), `master-cv-${date}.zip`);
 		},
 		onError: (error) =>
 			toast.add({ type: "error", description: getReadableErrorMessage(error, t`Couldn't export. Try again.`) }),
@@ -77,9 +79,15 @@ function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogProps) {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const [typed, setTyped] = useState("");
-	const { data: counts } = useQuery({ ...orpc.documents.counts.queryOptions(), enabled: open });
-	const { data: applications } = useQuery({ ...applicationsListQueryOptions(), enabled: open });
-	const { data: keys } = useQuery({
+	const { data: counts, isPending: countsPending } = useQuery({
+		...orpc.documents.counts.queryOptions(),
+		enabled: open,
+	});
+	const { data: applications, isPending: applicationsPending } = useQuery({
+		...applicationsListQueryOptions(),
+		enabled: open,
+	});
+	const { data: keys, isPending: keysPending } = useQuery({
 		queryKey: ["auth", "api-keys"],
 		queryFn: () => authClient.apiKey.list(),
 		select: ({ data }) => data?.apiKeys ?? [],
@@ -90,6 +98,7 @@ function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogProps) {
 		mutationFn: () => client.auth.deleteAccount(),
 		onSuccess: async () => {
 			await authClient.signOut();
+			clearPersonalStorage();
 			queryClient.clear();
 			toast.add({ description: t`Your account was deleted.` });
 			void navigate({ to: "/" });
@@ -115,13 +124,20 @@ function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogProps) {
 						<Trans>Delete your account?</Trans>
 					</AlertDialogTitle>
 					<AlertDialogDescription>
-						<Plural value={documents} one="# document" other="# documents" />,{" "}
-						<Plural value={applicationCount} one="# application" other="# applications" />,{" "}
-						<Plural value={keyCount} one="# API key" other="# API keys" />{" "}
+						<QuerySkeleton
+							inline
+							loading={open && (countsPending || applicationsPending || keysPending)}
+							shape="badge"
+							label={<Trans>Loading the total</Trans>}
+						>
+							<Plural value={documents} one="# document" other="# documents" />,{" "}
+							<Plural value={applicationCount} one="# application" other="# applications" />,{" "}
+							<Plural value={keyCount} one="# API key" other="# API keys" />
+						</QuerySkeleton>{" "}
 						<Trans>and every public link are removed permanently. This can't be undone.</Trans>{" "}
 						<Trans>
-							If you used Sign in with Apple and Reactive Resume is still listed in your Apple Account after deletion,
-							remove its access there too.
+							If you used Sign in with Apple and Master CV is still listed in your Apple Account after deletion, remove
+							its access there too.
 						</Trans>{" "}
 						<a
 							href="https://support.apple.com/en-us/102571"
@@ -134,12 +150,13 @@ function DeleteAccountDialog({ open, onOpenChange }: DeleteAccountDialogProps) {
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<div className="grid gap-1.5">
-					<label htmlFor={id} className="text-[13px] font-medium">
+					<label htmlFor={id} className="type-label">
 						<Trans>
 							Type <b className="font-mono font-medium">{CONFIRMATION}</b> to confirm
 						</Trans>
 					</label>
 					<Input
+						dir="ltr"
 						id={id}
 						value={typed}
 						autoComplete="off"

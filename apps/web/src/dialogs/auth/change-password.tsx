@@ -1,20 +1,21 @@
 import type { DialogProps } from "../store";
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useSelector } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import z from "zod";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
-import {
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@reactive-resume/ui/components/dialog";
 import { FormControl, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import {
+	TaskOverlayContent,
+	TaskOverlayDescription,
+	TaskOverlayFooter,
+	TaskOverlayHeader,
+	TaskOverlayTitle,
+} from "@reactive-resume/ui/components/task-overlay";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useDialogStore } from "../store";
 import { PasswordInput } from "@/components/input/password-input";
@@ -23,18 +24,18 @@ import { authClient } from "@/libs/auth/client";
 import { getReadableErrorMessage } from "@/libs/error-message";
 import { useAppForm } from "@/libs/tanstack-form";
 
-const formSchema = z
-	.object({
-		currentPassword: z.string().min(6).max(64),
-		newPassword: z.string().min(8).max(64),
-		revokeOtherSessions: z.boolean(),
-	})
-	.refine((data) => data.newPassword !== data.currentPassword, {
-		message: "New password cannot be the same as the current password.",
-		path: ["newPassword"],
-	});
-
 export function ChangePasswordDialog(_: DialogProps<"auth.change-password">) {
+	useLingui();
+	const formSchema = z
+		.object({
+			currentPassword: z.string().min(6).max(64),
+			newPassword: z.string().min(8).max(64),
+			revokeOtherSessions: z.boolean(),
+		})
+		.refine((data) => data.newPassword !== data.currentPassword, {
+			message: t`New password cannot be the same as the current password.`,
+			path: ["newPassword"],
+		});
 	const queryClient = useQueryClient();
 	const closeDialog = useDialogStore((state) => state.closeDialog);
 
@@ -82,16 +83,16 @@ export function ChangePasswordDialog(_: DialogProps<"auth.change-password">) {
 	useFormBlocker(form);
 
 	return (
-		<DialogContent>
-			<DialogHeader>
-				<DialogTitle className="flex items-center gap-x-2">
+		<TaskOverlayContent closeLabel={t`Close`}>
+			<TaskOverlayHeader>
+				<TaskOverlayTitle className="flex items-center gap-x-2">
 					<Icon name="password" size={16} />
 					<Trans>Update your password</Trans>
-				</DialogTitle>
-				<DialogDescription>
+				</TaskOverlayTitle>
+				<TaskOverlayDescription>
 					<Trans>Enter your current password and a new password to update your account.</Trans>
-				</DialogDescription>
-			</DialogHeader>
+				</TaskOverlayDescription>
+			</TaskOverlayHeader>
 
 			<form
 				className="space-y-4"
@@ -162,12 +163,12 @@ export function ChangePasswordDialog(_: DialogProps<"auth.change-password">) {
 					)}
 				</form.Field>
 
-				<DialogFooter>
+				<TaskOverlayFooter>
 					<Button type="submit" disabled={isSubmitting}>
 						<Trans comment="Primary action button to submit changed password">Update Password</Trans>
 					</Button>
-				</DialogFooter>
+				</TaskOverlayFooter>
 			</form>
-		</DialogContent>
+		</TaskOverlayContent>
 	);
 }

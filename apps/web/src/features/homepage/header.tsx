@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { cn } from "@reactive-resume/utils/style";
 import { goToScene, prefersReducedMotion, SCENE, useLanding } from "./scroll";
@@ -10,7 +11,7 @@ import { LocaleSwitch } from "@/features/locale/switch";
 import { useTheme } from "@/features/theme/provider";
 import { orpc } from "@/libs/orpc/client";
 
-const githubUrl = "https://github.com/reactive-resume/reactive-resume";
+const githubUrl = "https://github.com/0-sayed/master-cv";
 
 const getStoryScenes = () => [
 	{ scene: SCENE.write, label: t`Write` },
@@ -43,22 +44,9 @@ export function LandingHeader() {
 			/>
 
 			<a href="#top" className="flex items-center gap-2.5 rounded-md">
-				<img
-					src="/icon/light.svg"
-					alt=""
-					width={30}
-					height={30}
-					className={cn("size-[30px] dark:hidden", night && "hidden")}
-				/>
-				<img
-					src="/icon/dark.svg"
-					alt=""
-					width={30}
-					height={30}
-					className={cn("hidden size-[30px] dark:block", night && "block")}
-				/>
+				<BrandIcon variant="icon" alt="" tone={night ? "dark" : undefined} approveOnMount />
 				{/* The wordmark stays in the DOM for screen readers and crawlers; the logomark is what shows. */}
-				<span className="sr-only">Reactive Resume</span>
+				<span className="sr-only">Master CV</span>
 			</a>
 
 			<nav aria-label={t`Story`} className="mx-auto hidden items-center gap-0.5 min-[1240px]:flex">
@@ -122,7 +110,7 @@ function GithubLink() {
 	}, [stars, i18n.locale]);
 
 	const count = stars == null ? null : i18n.number(stars);
-	const label = count ? t`Star Reactive Resume on GitHub, ${count} stars` : t`Star Reactive Resume on GitHub`;
+	const label = count ? t`Star Master CV on GitHub, ${count} stars` : t`Star Master CV on GitHub`;
 
 	return (
 		<a

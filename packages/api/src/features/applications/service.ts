@@ -540,12 +540,23 @@ export const applicationService = {
 				userId: string;
 				status?: ApplicationStatus | undefined;
 				stageEnteredAt?: string | undefined;
+				expectedNotesRevision?: string | undefined;
 				closedReason?: ApplicationClosedReason | null | undefined;
 			},
 	) => {
 		const existing = await requireOwned(input.id, input.userId);
 
-		const { id, userId, status, stageEnteredAt, closedReason, resumeFile, coverLetterFile, ...fields } = input;
+		const {
+			id,
+			userId,
+			status,
+			stageEnteredAt,
+			closedReason,
+			resumeFile,
+			coverLetterFile,
+			expectedNotesRevision,
+			...fields
+		} = input;
 		if (
 			(existing.sentResumeVersionId && fields.resumeId !== undefined && fields.resumeId !== existing.resumeId) ||
 			(existing.sentCoverLetterVersionId &&
@@ -584,6 +595,13 @@ export const applicationService = {
 					.where(and(eq(schema.application.id, id), eq(schema.application.userId, userId)))
 					.for("update");
 				if (!current) throw new ORPCError("NOT_FOUND");
+				if (
+					expectedNotesRevision !== undefined &&
+					new Date(current.updatedAt).toISOString() !== expectedNotesRevision
+				) {
+					throw new ORPCError("CONFLICT", { message: "The notes changed. Reload before saving your draft." });
+				}
+
 				if (
 					(current.sentResumeVersionId && fields.resumeId !== undefined && fields.resumeId !== current.resumeId) ||
 					(current.sentCoverLetterVersionId &&

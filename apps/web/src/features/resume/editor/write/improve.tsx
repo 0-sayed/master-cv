@@ -121,6 +121,7 @@ export function ImprovePanel({ editor, line, where, onClose }: ImprovePanelProps
 					}}
 				>
 					<Input
+						size="sm"
 						autoFocus
 						aria-label={t`What should change?`}
 						placeholder={t`What should change?`}

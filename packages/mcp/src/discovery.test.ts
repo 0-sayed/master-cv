@@ -43,7 +43,7 @@ it("matches the complete unmodified SDK tools/list response and server-card sche
 		registerToolDiscovery(server);
 		const optimized = JSON.parse(JSON.stringify(await client.listTools()));
 		expect(optimized).toEqual(baseline);
-		expect(buildMcpServerCard("1.0.0").tools).toEqual(
+		expect(buildMcpServerCard("1.0.0", "https://cv.example.test").tools).toEqual(
 			(await client.listTools()).tools.map(({ execution: _execution, _meta, ...tool }) => tool),
 		);
 	} finally {

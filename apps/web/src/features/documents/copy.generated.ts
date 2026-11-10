@@ -5,7 +5,7 @@ const messages = {
 	"editor.documents.subtitle": msg({ message: "Continue where you left off.", context: "editor.documents.subtitle" }),
 	"editor.document.open": msg({ message: "Open document", context: "editor.document.open" }),
 	"editor.navigation.documentsTitle": msg({ message: "My documents", context: "editor.navigation.documentsTitle" }),
-	"editor.documents.search": msg({ message: "Search your documents", context: "editor.documents.search" }),
+	"editor.documents.search": msg({ message: "Search documents", context: "editor.documents.search" }),
 	"editor.documents.all": msg({ message: "All documents", context: "editor.documents.all" }),
 	"editor.documents.cvsTab": msg({ message: "CVs", context: "editor.documents.cvsTab" }),
 	"editor.navigation.letters": msg({ message: "Cover letters", context: "editor.navigation.letters" }),

@@ -1,6 +1,7 @@
 import type * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { Kbd } from "@reactive-resume/ui/components/kbd";
 import { cn } from "@reactive-resume/utils/style";
 
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
@@ -21,15 +22,12 @@ type CommandInputProps = React.ComponentProps<typeof CommandPrimitive.Input> & {
 /** The 52px search row of the command bar. */
 function CommandInput({ className, hint, ...props }: CommandInputProps) {
 	return (
-		<div
-			data-slot="command-input-wrapper"
-			className="flex h-[52px] shrink-0 items-center gap-3 border-b border-line px-4"
-		>
+		<div data-slot="command-input-wrapper" className="flex h-13 shrink-0 items-center gap-3 border-b border-line px-4">
 			<Icon name="magnifying-glass" className="text-ink-3" />
 			<CommandPrimitive.Input
 				data-slot="command-input"
 				className={cn(
-					"h-full w-full bg-transparent text-[15px] text-ink outline-hidden placeholder:text-ink-3 focus-visible:outline-none disabled:cursor-not-allowed",
+					"h-full w-full bg-transparent type-input text-ink outline-hidden placeholder:text-ink-3 focus-visible:outline-none disabled:cursor-not-allowed",
 					className,
 				)}
 				{...props}
@@ -56,7 +54,7 @@ function CommandEmpty({ className, ...props }: React.ComponentProps<typeof Comma
 	return (
 		<CommandPrimitive.Empty
 			data-slot="command-empty"
-			className={cn("py-8 text-center text-sm text-ink-3", className)}
+			className={cn("py-8 text-center type-body text-ink-3", className)}
 			{...props}
 		/>
 	);
@@ -67,7 +65,7 @@ function CommandGroup({ className, ...props }: React.ComponentProps<typeof Comma
 		<CommandPrimitive.Group
 			data-slot="command-group"
 			className={cn(
-				"overflow-hidden text-ink **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:pt-2.5 **:[[cmdk-group-heading]]:pb-1 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-semibold **:[[cmdk-group-heading]]:text-ink-3",
+				"overflow-hidden text-ink **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:pt-2.5 **:[[cmdk-group-heading]]:pb-1 **:[[cmdk-group-heading]]:type-metadata **:[[cmdk-group-heading]]:font-semibold **:[[cmdk-group-heading]]:text-ink-3",
 				className,
 			)}
 			{...props}
@@ -91,7 +89,7 @@ function CommandItem({ className, children, ...props }: React.ComponentProps<typ
 		<CommandPrimitive.Item
 			data-slot="command-item"
 			className={cn(
-				"group/command-item relative flex h-10 cursor-default items-center gap-3 rounded-md px-3 text-sm text-ink outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:text-ink-3 data-selected:bg-sunken [&_[data-slot=icon]]:text-ink-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+				"group/command-item relative flex h-10 cursor-default items-center gap-3 rounded-md px-3 type-body text-ink outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:text-ink-3 pointer-coarse:min-h-11 data-selected:bg-sunken [&_[data-slot=icon]]:text-ink-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 				className,
 			)}
 			{...props}
@@ -103,9 +101,9 @@ function CommandItem({ className, children, ...props }: React.ComponentProps<typ
 			/>
 			<span
 				aria-hidden="true"
-				className="ms-auto hidden font-mono text-xs text-ink-3 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:hidden group-data-selected/command-item:inline"
+				className="ms-auto hidden type-metadata font-mono text-ink-3 group-has-data-[slot=command-shortcut]/command-item:hidden group-data-[checked=true]/command-item:hidden group-data-selected/command-item:inline"
 			>
-				↵
+				<Kbd keys="Enter" />
 			</span>
 		</CommandPrimitive.Item>
 	);
@@ -113,7 +111,11 @@ function CommandItem({ className, children, ...props }: React.ComponentProps<typ
 
 function CommandShortcut({ className, ...props }: React.ComponentProps<"span">) {
 	return (
-		<span data-slot="command-shortcut" className={cn("ms-auto font-mono text-xs text-ink-3", className)} {...props} />
+		<span
+			data-slot="command-shortcut"
+			className={cn("ms-auto type-metadata font-mono text-ink-3", className)}
+			{...props}
+		/>
 	);
 }
 

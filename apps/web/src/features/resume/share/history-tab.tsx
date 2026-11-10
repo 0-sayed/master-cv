@@ -18,6 +18,7 @@ import { Input } from "@reactive-resume/ui/components/input";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { formatVersionMoment, formatVersionTime, getVersionDetail, getVersionTitle } from "./format";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { savePendingChanges, useCurrentResume, useResumeStore } from "@/features/resume/builder/draft";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { useConfirm, usePrompt } from "@/hooks/use-confirm";
@@ -150,9 +151,8 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 					value={name}
 					maxLength={80}
 					aria-label={t`Name this version`}
-					placeholder={t`Name this version, e.g. Sent to Lumen`}
+					placeholder={t`Version name, e.g. Application draft`}
 					onChange={(event) => setName(event.target.value)}
-					className="h-9"
 				/>
 				<Button type="submit" variant="secondary" disabled={!name.trim() || busy}>
 					<Trans>Save</Trans>
@@ -183,28 +183,30 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 				</div>
 			)}
 
-			<ol className="grid" aria-label={t`Versions`}>
-				<TimelineItem
-					title={t`Now`}
-					detail={source.nowDetail}
-					selected={!selected}
-					current
-					last={!versions?.length}
-					onSelect={() => setVersion(null)}
-				/>
-				{versions?.map((version, index) => (
+			<QuerySkeleton loading={loading} shape="rows">
+				<ol className="grid" aria-label={t`Versions`}>
 					<TimelineItem
-						key={version.id}
-						title={getVersionTitle(version)}
-						detail={`${when(version)} · ${getVersionDetail(version)}`}
-						named={version.kind === "named"}
-						selected={version.id === selectedId}
-						last={index === versions.length - 1}
-						onSelect={() => setVersion(version.id)}
-						menu={version.kind === "named" ? <NamedVersionMenu version={version} source={source} /> : null}
+						title={t`Now`}
+						detail={source.nowDetail}
+						selected={!selected}
+						current
+						last={!versions?.length}
+						onSelect={() => setVersion(null)}
 					/>
-				))}
-			</ol>
+					{versions?.map((version, index) => (
+						<TimelineItem
+							key={version.id}
+							title={getVersionTitle(version)}
+							detail={`${when(version)} · ${getVersionDetail(version)}`}
+							named={version.kind === "named"}
+							selected={version.id === selectedId}
+							last={index === versions.length - 1}
+							onSelect={() => setVersion(version.id)}
+							menu={version.kind === "named" ? <NamedVersionMenu version={version} source={source} /> : null}
+						/>
+					))}
+				</ol>
+			</QuerySkeleton>
 
 			{!loading && (versions?.length ?? 0) <= 1 && (
 				<p className="text-[13px] leading-[19px] text-ink-2">

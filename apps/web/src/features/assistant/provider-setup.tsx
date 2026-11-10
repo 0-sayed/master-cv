@@ -131,6 +131,7 @@ function ConnectForm({ choice }: { choice: Choice }) {
 						<Trans>Base URL</Trans>
 					</Label>
 					<Input
+						type="url"
 						id={`${id}-url`}
 						value={baseURL}
 						placeholder="https://…/v1"
@@ -154,7 +155,7 @@ function ConnectForm({ choice }: { choice: Choice }) {
 				<Label htmlFor={`${id}-model`}>
 					<Trans>Model</Trans>
 				</Label>
-				<Input id={`${id}-model`} value={model} onChange={(event) => setModel(event.target.value)} />
+				<Input dir="ltr" id={`${id}-model`} value={model} onChange={(event) => setModel(event.target.value)} />
 			</div>
 			{failure && (
 				<p role="alert" className="text-xs text-danger-text">

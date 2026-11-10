@@ -1,28 +1,32 @@
 import type { AuthProvider } from "@reactive-resume/auth/types";
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Switch } from "@reactive-resume/ui/components/switch";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { resolveUiLocale } from "@reactive-resume/utils/locale";
+import { formatUiTimestamp } from "@reactive-resume/utils/ui-format";
 import { SettingsRow, SettingsSection } from "../section";
 import { getProviderName, useAuthAccounts, useAuthProviderActions, useEnabledProviders } from "./auth-hooks";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { useDialogStore } from "@/dialogs/store";
 import { useConfirm, usePrompt } from "@/hooks/use-confirm";
+import { useCurrentSession } from "@/hooks/use-current-session";
 import { authClient } from "@/libs/auth/client";
 import { getReadableErrorMessage } from "@/libs/error-message";
 
 const SOCIAL: AuthProvider[] = ["apple", "google", "github", "linkedin", "custom"];
 
-const monthYear = (date: Date) => date.toLocaleDateString(undefined, { month: "long", year: "numeric" });
-
 export function SecuritySection() {
+	const { i18n } = useLingui();
 	const openDialog = useDialogStore((state) => state.openDialog);
 	const { hasAccount, getAccountByProviderId } = useAuthAccounts();
 	const { enabledProviders } = useEnabledProviders();
 	const { link, unlink } = useAuthProviderActions();
-	const { data: session } = authClient.useSession();
+	const session = useCurrentSession();
 
 	const password = getAccountByProviderId("credential");
 	const twoFactor = session?.user.twoFactorEnabled ?? false;
@@ -34,7 +38,13 @@ export function SecuritySection() {
 				title={<Trans>Password</Trans>}
 				description={
 					password ? (
-						<Trans>Last changed in {monthYear(new Date(password.updatedAt))}</Trans>
+						<Trans>
+							Last changed in{" "}
+							{formatUiTimestamp(new Date(password.updatedAt), resolveUiLocale({ requested: i18n.locale }), {
+								month: "long",
+								year: "numeric",
+							})}
+						</Trans>
 					) : (
 						<Trans>You sign in without one</Trans>
 					)
@@ -101,7 +111,7 @@ function Passkeys() {
 	const queryClient = useQueryClient();
 	const prompt = usePrompt();
 	const confirm = useConfirm();
-	const { data: passkeys = [] } = useQuery({
+	const { data: passkeys = [], isPending: passkeysPending } = useQuery({
 		queryKey: PASSKEYS_KEY,
 		queryFn: () => authClient.passkey.listUserPasskeys(),
 		select: ({ data }) => data ?? [],
@@ -162,27 +172,30 @@ function Passkeys() {
 					<Trans>Add passkey</Trans>
 				</Button>
 			</SettingsRow>
-			{passkeys.length > 0 && (
-				<ul className="ms-4 grid border-s border-line ps-3">
-					{passkeys.map((passkey) => (
-						<li key={passkey.id} className="flex items-center gap-3 py-1.5 text-sm">
-							<span className="min-w-0 flex-1 truncate">{passkey.name || t`Unnamed passkey`}</span>
-							<Button size="sm" variant="ghost" disabled={rename.isPending} onClick={() => rename.mutate(passkey)}>
-								<Trans>Rename</Trans>
-							</Button>
-							<Button
-								size="sm"
-								variant="ghost"
-								disabled={remove.isPending}
-								aria-label={t`Remove ${passkey.name || t`Unnamed passkey`}`}
-								onClick={() => remove.mutate(passkey.id)}
-							>
-								<Trans>Remove</Trans>
-							</Button>
-						</li>
-					))}
-				</ul>
-			)}
+			<QuerySkeleton loading={passkeysPending} shape="settings" count={1}>
+				{passkeys.length > 0 && (
+					<ul className="ms-4 grid border-s border-line ps-3">
+						{passkeys.map((passkey) => (
+							<li key={passkey.id}>
+								<SettingsRow title={<bdi className="break-words">{passkey.name || t`Unnamed passkey`}</bdi>}>
+									<Button size="sm" variant="ghost" disabled={rename.isPending} onClick={() => rename.mutate(passkey)}>
+										<Trans>Rename</Trans>
+									</Button>
+									<Button
+										size="sm"
+										variant="ghost"
+										disabled={remove.isPending}
+										aria-label={t`Remove ${passkey.name || t`Unnamed passkey`}`}
+										onClick={() => remove.mutate(passkey.id)}
+									>
+										<Trans>Remove</Trans>
+									</Button>
+								</SettingsRow>
+							</li>
+						))}
+					</ul>
+				)}
+			</QuerySkeleton>
 		</div>
 	);
 }

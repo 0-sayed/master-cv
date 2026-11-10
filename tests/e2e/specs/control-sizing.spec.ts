@@ -19,7 +19,7 @@ test("native selects match the standard text field height", async ({ page: login
 	await page.goto("/dashboard");
 	const searchGroup = page
 		.locator('[data-slot="input-group"]')
-		.filter({ has: page.getByRole("searchbox", { name: "Search your documents", exact: true }) });
+		.filter({ has: page.getByRole("searchbox", { name: "Search documents", exact: true }) });
 	expect((await searchGroup.boundingBox())?.height).toBe(height);
 	await expect(page.getByRole("combobox", { name: "Sort", exact: true })).toBeVisible();
 	expect((await page.getByRole("combobox", { name: "Sort", exact: true }).boundingBox())?.height).toBe(height);

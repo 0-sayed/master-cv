@@ -68,7 +68,7 @@ describe("loadRootContext", () => {
 		expect(context.session).toEqual(mockSession);
 	});
 
-	it("retains cached session when getSession encounters a transient error on refresh", async () => {
+	it("rejects an unverifiable identity instead of retaining private cached identity", async () => {
 		const queryClient = new QueryClient({
 			defaultOptions: { queries: { retry: false } },
 		});
@@ -82,8 +82,8 @@ describe("loadRootContext", () => {
 
 		getSessionMock.mockRejectedValueOnce(new Error("Too many requests. Please try again later."));
 
-		const context = await loadRootContext(queryClient);
-		expect(context.session).toEqual(cachedSession);
+		await expect(loadRootContext(queryClient)).rejects.toThrow("Too many requests");
+		expect(queryClient.getQueryData(sessionQueryKey)).toBeUndefined();
 	});
 
 	it("re-throws error when getSession fails and there is no cached session", async () => {

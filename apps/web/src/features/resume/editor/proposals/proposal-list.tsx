@@ -7,6 +7,7 @@ import { useId, useState } from "react";
 import { getProposalState } from "@reactive-resume/resume/proposals";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { Kbd } from "@reactive-resume/ui/components/kbd";
 import { cn } from "@reactive-resume/utils/style";
 import { useEditorStore } from "../store";
 import { acceptResumeProposals } from "./proposals";
@@ -131,8 +132,11 @@ export function ChangeSet({ proposals, states, locked, onAccept, onReject, onSug
 				))}
 			</ol>
 
-			<p className="border-t border-line px-3 py-2 text-xs text-ink-3">
-				<Trans>A accepts and R rejects the focused edit. ↑ and ↓ move between edits.</Trans>
+			<p className="border-t border-line px-3 py-2 type-metadata text-ink-2">
+				<Trans>
+					<Kbd keys="A" /> accepts and <Kbd keys="R" /> rejects the focused edit. <Kbd keys="ArrowUp" /> and{" "}
+					<Kbd keys="ArrowDown" /> move between edits.
+				</Trans>
 			</p>
 		</section>
 	);

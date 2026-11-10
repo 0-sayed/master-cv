@@ -4,31 +4,26 @@ import { Plural, Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
+import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
+import { SkeletonContent } from "@reactive-resume/ui/components/skeleton-content";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { computeInsights, computeOutcomes, computeTimeline } from "../insights";
 import { getStageColor, getStageLabel } from "../stages";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { stagger } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
 
 /** The page's shape while stats load: the funnel, the two figures, then the charts. */
 export function InsightsSkeleton() {
-	return (
-		<div className="flex max-w-4xl flex-col gap-4">
-			<Skeleton className="h-56 rounded-xl" />
-			<div className="grid gap-4 sm:grid-cols-2">
-				<Skeleton className="h-[102px] rounded-xl" />
-				<Skeleton className="h-[102px] rounded-xl" />
-			</div>
-			<Skeleton className="h-80 rounded-xl" />
-		</div>
-	);
+	return <SkeletonContent shape="insights" />;
 }
 
 export function ApplicationInsights({ applications }: { applications: Application[] }) {
 	const { data } = useQuery(orpc.applications.stats.queryOptions({}));
 	const { data: documents } = useQuery(orpc.documents.list.queryOptions({ input: { trashed: false } }));
+	const loading = useSkeletonLoading(!data);
 
 	// A resume is tailored for an application when it was made for it (Copy for a job).
 	const madeFor = new Map(
@@ -42,7 +37,7 @@ export function ApplicationInsights({ applications }: { applications: Applicatio
 	const timeline = computeTimeline(applications);
 	const maxWeek = Math.max(1, ...timeline.map((bucket) => bucket.count));
 
-	if (!data) return <InsightsSkeleton />;
+	if (loading.pending || !data) return <QuerySkeleton fallback={<InsightsSkeleton />} />;
 
 	const insights = computeInsights(data.byStage);
 	const maxSource = Math.max(1, ...data.bySource.map((s) => s.count));
@@ -50,9 +45,11 @@ export function ApplicationInsights({ applications }: { applications: Applicatio
 
 	if (outcomes.sent === 0) {
 		return (
-			<p className="py-16 text-center text-sm text-ink-2">
-				<Trans>Once you've sent a few applications, this shows how far they get and how quickly people reply.</Trans>
-			</p>
+			<EmptyState>
+				<p className="type-body text-ink-2">
+					<Trans>Once you've sent a few applications, this shows how far they get and how quickly people reply.</Trans>
+				</p>
+			</EmptyState>
 		);
 	}
 
@@ -200,8 +197,6 @@ const FLOW_COLORS = ["#a5b4fc", "#818cf8", "#22d3ee", "#fbbf24", "#34d399"];
 const FLOW_BG = "#0a0a0f";
 const FLOW_REJECTED = "#fb7185";
 const FLOW_FONT = "var(--font-ui)";
-// RxR mark ~18px wide in the 256-unit icon viewBox (the mark's glyphs span y ≈ 36–220).
-const ICON_SCALE = 18 / 256;
 
 function toBase64(buffer: ArrayBuffer): string {
 	const bytes = new Uint8Array(buffer);
@@ -254,7 +249,7 @@ async function uiFontFace(): Promise<string | null> {
 
 // A funnel-flow snapshot (the shareable picture). Hand-drawn SVG with inline fills so it exports to
 // PNG without any library. Rendered dark + vibrant so the on-screen preview matches the export;
-// the "Tracked using Reactive Resume" mark is injected only when exporting.
+// the "Tracked using Master CV" mark is injected only when exporting.
 function PipelineFlow({ insights }: { insights: ReturnType<typeof computeInsights> }) {
 	const svgRef = useRef<SVGSVGElement>(null);
 	const W = 800;
@@ -281,6 +276,12 @@ function PipelineFlow({ insights }: { insights: ReturnType<typeof computeInsight
 		const clone = svg.cloneNode(true) as SVGSVGElement;
 		clone.style.fontFamily = getComputedStyle(svg).fontFamily;
 		for (const el of clone.querySelectorAll<SVGElement>("[data-export-only]")) el.style.display = "";
+		// Serialized SVG images cannot load external resources; include the canonical asset inline.
+		const mark = await fetch("/master-cv/dark.svg");
+		if (!mark.ok) throw new Error("Could not load the Master CV export mark");
+		clone
+			.querySelector("image[data-export-only]")
+			?.setAttribute("href", `data:image/svg+xml,${encodeURIComponent(await mark.text())}`);
 		// Inline the UI font so the rasterized PNG uses the same type as the app.
 		const fontFace = await uiFontFace();
 		if (fontFace) {
@@ -289,7 +290,7 @@ function PipelineFlow({ insights }: { insights: ReturnType<typeof computeInsight
 			clone.querySelector("defs")?.prepend(styleEl);
 		}
 		const xml = new XMLSerializer().serializeToString(clone);
-		const svg64 = `data:image/svg+xml;base64,${btoa(String.fromCharCode(...new TextEncoder().encode(xml)))}`;
+		const svg64 = `data:image/svg+xml;base64,${toBase64(new TextEncoder().encode(xml).buffer)}`;
 		const image = new Image();
 		image.onload = () => {
 			const scale = 3; // high-resolution output
@@ -396,19 +397,16 @@ function PipelineFlow({ insights }: { insights: ReturnType<typeof computeInsight
 					</g>
 				))}
 
-				{/* export-only watermark: the Reactive Resume mark, bottom-right, 8px from each edge.
-				    Paths are apps/web/public/icon/dark.svg verbatim (fill #FAFAFA). */}
-				<g
+				{/* Embed the approved square mark only in the downloaded chart. */}
+				<image
 					data-export-only
 					style={{ display: "none" }}
-					transform={`translate(${W - 8 - 256 * ICON_SCALE}, ${H - 8 - 220 * ICON_SCALE}) scale(${ICON_SCALE})`}
-					fill="#FAFAFA"
-					fillRule="evenodd"
-					clipRule="evenodd"
-				>
-					<path d="M173.611 166.311L132.877 219.804H173.524L193.973 191.813L213.183 219.804H256L215.673 165.707L215.15 165.046L207.461 155.332L195.329 140.004L195.258 139.915L193.813 138.089L193.923 138.001L176.286 112.861H134.061L173.611 166.311ZM199.89 133.554L214.959 112.861H254.619L219.874 158.8L199.89 133.554Z" />
-					<path d="M0 36.1959V174.314H39.0678V137.614H60.3938L60.4323 137.671C60.8436 137.653 61.2517 137.634 61.6567 137.614C75.0665 136.968 85.1471 135.549 96.385 131.385C96.7596 131.246 97.1355 131.104 97.5128 130.959L97.4591 130.881C105.816 126.86 112.331 121.344 117.006 114.331C122.005 106.702 124.504 97.6915 124.504 87.2997C124.504 76.7764 122.005 67.7 117.006 60.0706C112.007 52.3097 104.904 46.3903 95.6964 42.3125C86.62 38.2347 75.7679 36.1959 63.1399 36.1959H0ZM102.156 137.725L64.8705 144.175L85.4361 174.314H127.266L102.156 137.725ZM39.0678 107.426H60.7721C68.9277 107.426 74.9786 105.65 78.9248 102.098C83.0026 98.5465 85.0415 93.6137 85.0415 87.2997C85.0415 80.8542 83.0026 75.8556 78.9248 72.304C74.9786 68.7523 68.9277 66.9765 60.7721 66.9765H39.0678V107.426Z" />
-				</g>
+					href="/master-cv/dark.svg"
+					x={W - 26}
+					y={H - 26}
+					width={18}
+					height={18}
+				/>
 			</svg>
 		</div>
 	);

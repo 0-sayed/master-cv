@@ -18,11 +18,19 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					const nav = authPage.locator('nav:has(a[href="/dashboard/career/information"])');
 					await expect(nav.locator("a")).toHaveCount(4);
 					await expect(nav.locator("button")).toHaveCount(0);
-					await expect(authPage.locator('button[aria-keyshortcuts="N"]')).toBeVisible();
+					await expect(authPage.locator('button[aria-keyshortcuts="N"]')).toHaveCount(0);
+					// Creation stays available through the shortcut, without an unrelated settings action.
+					await authPage.keyboard.press("n");
+					await expect(authPage.getByRole("dialog")).toBeVisible();
+					await authPage.keyboard.press("Escape");
+					await expect(authPage.getByRole("dialog")).not.toBeVisible();
 				} else if (width >= 1024) {
 					const aside = await authPage.getByRole("complementary").boundingBox();
+					const canvas = await authPage.locator("main").locator("..").boundingBox();
+					if (!aside || !canvas) throw new Error("Dashboard navigation or canvas missing");
 					expect(aside?.width).toBe(236);
-					expect(aside?.x).toBe(locale === "ar-SA" ? width - 236 : 0);
+					// The root reserves a stable scrollbar gutter outside the application canvas.
+					expect(aside.x).toBe(locale === "ar-SA" ? canvas.x + canvas.width - aside.width : canvas.x);
 				}
 				const family = locale === "ar-SA" ? "Noto Sans Arabic" : "Noto Sans";
 				expect(

@@ -6,7 +6,7 @@ import { cn } from "@reactive-resume/utils/style";
 
 /** Status pills. Color always pairs with text; never use a badge as the only signal. */
 const badgeVariants = cva(
-	"group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 text-xs font-medium whitespace-nowrap [&>[data-slot=icon]]:text-[15px]! [&>svg]:pointer-events-none [&>svg]:size-3!",
+	"group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 type-metadata font-medium whitespace-nowrap [&>[data-slot=icon]]:text-[15px]! [&>svg]:pointer-events-none [&>svg]:size-3!",
 	{
 		variants: {
 			variant: {
@@ -25,6 +25,10 @@ const badgeVariants = cva(
 		},
 	},
 );
+
+function CountBadge(props: React.ComponentProps<typeof Badge>) {
+	return <Badge variant="accent" {...props} className={cn("h-6 font-semibold tabular-nums", props.className)} />;
+}
 
 function Badge({
 	className,
@@ -48,4 +52,4 @@ function Badge({
 	});
 }
 
-export { Badge, badgeVariants };
+export { Badge, CountBadge, badgeVariants };

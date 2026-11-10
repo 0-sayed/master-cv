@@ -4,21 +4,22 @@ import type { IconName } from "@reactive-resume/ui/components/icon";
 import type { Ref } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueries, useQueryClient } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { AnimatePresence } from "motion/react";
 import { useRef, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Switch } from "@reactive-resume/ui/components/switch";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { getInitials } from "@reactive-resume/utils/string";
 import { cn } from "@reactive-resume/utils/style";
 import { CareerLoadError } from "./load-state";
 import { rollForward, ScheduleSheet, scheduleKind } from "./schedule-sheet";
-import { CollapseRow, Eyebrow, flash, InfoChip, Swap, useCareerTime, useNow, withUndo } from "./shared";
+import { CollapseRow, Eyebrow, flash, InfoChip, Swap, useCareerTime, useNow, confirmAction } from "./shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import {
 	collectInterviews,
 	formatDuration,
@@ -27,6 +28,7 @@ import {
 } from "@/features/applications/interviews";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
 import { getOrpcErrorMessage } from "@/libs/error-message";
+import { formatRelativeTimeUnit } from "@/libs/locale";
 import { orpc } from "@/libs/orpc/client";
 
 type Notification = RouterOutput["career"]["notifications"][number];
@@ -39,9 +41,19 @@ type TodayPageProps = { schedule: string | undefined; onScheduleChange: (schedul
  * Below 1024px it's one column: Coming up, Needs you, New roles, Schedules.
  */
 export function TodayPage({ schedule, onScheduleChange }: TodayPageProps) {
+	// Mount dependent regions together: an absent optional interview must not displace the mobile page.
+	const reads = useQueries({
+		queries: [
+			orpc.career.notifications.queryOptions({ input: {} }),
+			orpc.career.opportunities.queryOptions({ input: {} }),
+			orpc.career.schedules.queryOptions({ input: {} }),
+			orpc.career.savedItems.queryOptions({ input: { kind: "briefing" } }),
+			applicationsListQueryOptions(),
+		],
+	});
 	const now = useNow();
 	const rolesRef = useRef<HTMLElement>(null);
-	// Deleted schedules stay hidden locally until the Undo toast closes; any mutation refetches every query.
+	// Only acknowledged deletions are hidden locally.
 	const [deleted, setDeleted] = useState<string[]>([]);
 	const remove = useMutation({
 		...orpc.career.deleteSchedule.mutationOptions(),
@@ -51,11 +63,10 @@ export function TodayPage({ schedule, onScheduleChange }: TodayPageProps) {
 		},
 	});
 	const deleteSchedule = (id: string) => {
-		setDeleted((current) => [...current, id]);
-		withUndo({
+		confirmAction({
 			description: t`Schedule deleted`,
-			commit: () => remove.mutate({ id }),
-			onUndo: () => setDeleted((current) => current.filter((item) => item !== id)),
+			commit: () => remove.mutateAsync({ id }),
+			onCommitted: () => setDeleted((current) => [...current, id]),
 		});
 	};
 
@@ -69,23 +80,25 @@ export function TodayPage({ schedule, onScheduleChange }: TodayPageProps) {
 	};
 
 	return (
-		<div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start xl:grid-cols-[minmax(0,1fr)_380px]">
-			<div className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-7">
-				<NeedsYou now={now} onReview={reviewRoles} className="order-2 lg:order-none" />
-				<NewRoles
-					ref={rolesRef}
-					now={now}
-					deleted={deleted}
-					onOpenSchedule={onScheduleChange}
-					className="order-3 scroll-mt-6 lg:order-none"
-				/>
+		<QuerySkeleton loading={reads.some((read) => read.isPending)} shape="sections" count={4}>
+			<div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start xl:grid-cols-[minmax(0,1fr)_380px]">
+				<div className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-7">
+					<NeedsYou now={now} onReview={reviewRoles} className="order-2 lg:order-none" />
+					<NewRoles
+						ref={rolesRef}
+						now={now}
+						deleted={deleted}
+						onOpenSchedule={onScheduleChange}
+						className="order-3 scroll-mt-6 lg:order-none"
+					/>
+				</div>
+				<div className="contents lg:flex lg:flex-col lg:gap-[18px]">
+					<ComingUp now={now} className="order-1 lg:order-none" />
+					<Schedules deleted={deleted} onOpenSchedule={onScheduleChange} className="order-4 lg:order-none" />
+				</div>
+				<ScheduleSheet schedule={schedule} onScheduleChange={onScheduleChange} onDelete={deleteSchedule} />
 			</div>
-			<div className="contents lg:flex lg:flex-col lg:gap-[18px]">
-				<ComingUp now={now} className="order-1 lg:order-none" />
-				<Schedules deleted={deleted} onOpenSchedule={onScheduleChange} className="order-4 lg:order-none" />
-			</div>
-			<ScheduleSheet schedule={schedule} onScheduleChange={onScheduleChange} onDelete={deleteSchedule} />
-		</div>
+		</QuerySkeleton>
 	);
 }
 
@@ -159,17 +172,14 @@ function NeedsYou({ now, onReview, className }: NeedsYouProps) {
 	const read = data?.filter((row) => !isUnread(row)) ?? [];
 	const rows = showRead ? (data ?? []) : unread;
 
-	// Hidden at once; the server hears about it when the toast closes. The cache edit drops the sidebar count too,
-	// while `pending` keeps the row hidden through any refetch.
+	// Update the local unread count only after the server acknowledges the action.
 	const dismiss = (row: Notification) => {
-		setPending((current) => [...current, row.id]);
-		setReadAt(row.id, new Date());
-		withUndo({
+		confirmAction({
 			description: t`Marked as read`,
-			commit: () => markRead.mutate({ id: row.id }),
-			onUndo: () => {
-				setPending((current) => current.filter((id) => id !== row.id));
-				setReadAt(row.id, null);
+			commit: () => markRead.mutateAsync({ id: row.id }),
+			onCommitted: () => {
+				setPending((current) => [...current, row.id]);
+				setReadAt(row.id, new Date());
 			},
 		});
 	};
@@ -185,7 +195,7 @@ function NeedsYou({ now, onReview, className }: NeedsYouProps) {
 		const stamp =
 			offset === null
 				? when(row.createdAt)
-				: `${new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(offset, "day")}, ${time(row.createdAt)}`;
+				: `${formatRelativeTimeUnit(offset, "day", locale)}, ${time(row.createdAt)}`;
 		return [source, stamp].filter(Boolean).join(" · ");
 	};
 
@@ -194,6 +204,7 @@ function NeedsYou({ now, onReview, className }: NeedsYouProps) {
 		else if (row.url) router.history.push(row.url);
 	};
 
+	const skeletonWait1 = useSkeletonLoading(!data);
 	return (
 		<section aria-labelledby="needs-you" className={cn("flex flex-col gap-2.5", className)}>
 			<SectionHeading id="needs-you" title={t`Needs you`} count={data ? unread.length : undefined} />
@@ -204,8 +215,8 @@ function NeedsYou({ now, onReview, className }: NeedsYouProps) {
 						void applicationQuery.refetch();
 					}}
 				/>
-			) : !data ? (
-				<Skeleton className="h-40 rounded-xl" />
+			) : skeletonWait1.pending || !data ? (
+				<QuerySkeleton shape="card" />
 			) : (
 				<Swap id={rows.length > 0 ? "list" : "empty"}>
 					{rows.length > 0 ? (
@@ -360,11 +371,10 @@ function NewRoles({ ref, now, deleted, onOpenSchedule, className }: NewRolesProp
 	const onUndoTrack = (applicationId: string) => untrack.mutate({ id: applicationId });
 
 	const onDismiss = (row: Opportunity) => {
-		setHidden((current) => [...current, row.id]);
-		withUndo({
+		confirmAction({
 			description: t`Hidden from New roles`,
-			commit: () => dismiss.mutate({ id: row.id }),
-			onUndo: () => setHidden((current) => current.filter((id) => id !== row.id)),
+			commit: () => dismiss.mutateAsync({ id: row.id }),
+			onCommitted: () => setHidden((current) => [...current, row.id]),
 		});
 	};
 
@@ -396,6 +406,7 @@ function NewRoles({ ref, now, deleted, onOpenSchedule, className }: NewRolesProp
 		);
 	};
 
+	const skeletonWait1 = useSkeletonLoading(!rows || !schedules);
 	return (
 		<section ref={ref} aria-labelledby="new-roles" className={cn("flex flex-col gap-2.5", className)}>
 			<SectionHeading
@@ -411,8 +422,8 @@ function NewRoles({ ref, now, deleted, onOpenSchedule, className }: NewRolesProp
 						void scheduleQuery.refetch();
 					}}
 				/>
-			) : !rows || !schedules ? (
-				<Skeleton className="h-52 rounded-xl" />
+			) : skeletonWait1.pending || !rows || !schedules ? (
+				<QuerySkeleton shape="card" />
 			) : visible.length === 0 ? (
 				active ? (
 					emptyLine()
@@ -576,6 +587,7 @@ function ComingUp({ now, className }: ComingUpProps) {
 	const applications = applicationQuery.data;
 	const briefingQuery = useQuery(orpc.career.savedItems.queryOptions({ input: { kind: "briefing" } }));
 	const briefings = briefingQuery.data;
+	const skeletonWait1 = useSkeletonLoading(applicationQuery.isPending || briefingQuery.isPending);
 	if (applicationQuery.isError || briefingQuery.isError)
 		return (
 			<CareerLoadError
@@ -585,7 +597,8 @@ function ComingUp({ now, className }: ComingUpProps) {
 				}}
 			/>
 		);
-	if (applicationQuery.isPending || briefingQuery.isPending) return <Skeleton className="h-36 rounded-xl" />;
+	if (skeletonWait1.pending || applicationQuery.isPending || briefingQuery.isPending)
+		return <QuerySkeleton shape="card" />;
 	const open = (applications ?? []).filter((application) => application.status !== "closed");
 	const next = upcomingInterviews(collectInterviews(open), now)[0];
 	if (!next) return null;
@@ -755,6 +768,7 @@ function Schedules({ deleted, onOpenSchedule, className }: SchedulesProps) {
 		});
 	};
 
+	const skeletonWait1 = useSkeletonLoading(!rows);
 	return (
 		<section
 			aria-labelledby="schedules"
@@ -780,8 +794,8 @@ function Schedules({ deleted, onOpenSchedule, className }: SchedulesProps) {
 						}}
 					/>
 				</div>
-			) : !rows ? (
-				<Skeleton className="mx-4 mb-3 h-24" />
+			) : skeletonWait1.pending || !rows ? (
+				<QuerySkeleton shape="card" />
 			) : rows.length === 0 ? (
 				<p className="border-t border-line px-4 py-3 text-[13px] text-ink-3">
 					<Trans>Nothing scheduled yet.</Trans>

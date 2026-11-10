@@ -46,10 +46,10 @@ export function DonationToast() {
 
 					<div className="min-w-0">
 						<p id={titleId} className="text-sm font-semibold text-ink">
-							{t`Enjoying Reactive Resume?`}
+							{t`Support the upstream project`}
 						</p>
 						<p className="mt-1 text-[13px] leading-relaxed text-ink-2">
-							{t`It's free and open source, kept going by donations from the people who use it. If it has helped you, consider chipping in.`}
+							{t`Your donation supports the open-source project that Master CV builds on.`}
 						</p>
 
 						<div className="mt-3 flex items-center gap-1">

@@ -3,6 +3,7 @@ import type { RequestAuthentication } from "@reactive-resume/api/context";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { onError } from "@orpc/client";
 import { createRouterClient } from "@orpc/server";
+import { env } from "@reactive-resume/env/server";
 import {
 	buildMcpServerInfo,
 	MCP_TOOL_NAME,
@@ -53,14 +54,14 @@ export function createMcpServer(
 	trustedClient: string,
 	resHeaders: Headers,
 ) {
-	const server = new McpServer(buildMcpServerInfo(appVersion), {
+	const server = new McpServer(buildMcpServerInfo(appVersion, env.APP_URL), {
 		instructions: [
-			"Reactive Resume holds the user's resumes, cover letters and job applications.",
+			"Master CV holds the user's resumes, cover letters and job applications.",
 			`Find resume IDs with \`${MCP_TOOL_NAME.listResumes}\` and read one with \`${MCP_TOOL_NAME.getResume}\`; the resume JSON Schema is the \`resume://_meta/schema\` resource.`,
 			`Edit resume content with JSON Patch through \`${MCP_TOOL_NAME.patchResume}\`, and change a resume's name, slug, tags or public visibility with \`${MCP_TOOL_NAME.updateResume}\`.`,
 			`Track job applications with the application tools, starting from \`${MCP_TOOL_NAME.listApplications}\`.`,
 			`Get a short-lived PDF link with \`${MCP_TOOL_NAME.downloadResumePdf}\`; export cover letters with \`${MCP_TOOL_NAME.exportCoverLetter}\`.`,
-			"Tools named api_* expose the rest of the Reactive Resume API. Tools that involve passwords, API keys or AI provider keys return a link to finish in the app.",
+			"Tools named api_* expose the rest of the Master CV API. Tools that involve passwords, API keys or AI provider keys return a link to finish in the app.",
 		].join(" "),
 	});
 

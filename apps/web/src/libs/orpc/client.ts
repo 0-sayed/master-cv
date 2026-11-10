@@ -5,6 +5,7 @@ import { RPCLink } from "@orpc/client/fetch";
 import { BatchLinkPlugin } from "@orpc/client/plugins";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { rpcFetch } from "./fetch";
+import { runPersonalRequest } from "@/libs/browser-storage";
 
 const getRpcUrl = () => `${window.location.origin}/api/rpc`;
 
@@ -25,7 +26,11 @@ export const client: RouterClient<typeof router> = createORPCClient(
 				groups: [{ condition: () => true, context: {} }],
 			}),
 		],
-		interceptors: [onError(handleRpcError)],
+		interceptors: [
+			({ next, signal, ...options }) =>
+				runPersonalRequest((identitySignal) => next({ ...options, signal: identitySignal }), signal),
+			onError(handleRpcError),
+		],
 	}),
 );
 
@@ -33,7 +38,11 @@ export const streamClient: RouterClient<typeof router> = createORPCClient(
 	new RPCLink({
 		url: getRpcUrl,
 		fetch: rpcFetch,
-		interceptors: [onError(handleRpcError)],
+		interceptors: [
+			({ next, signal, ...options }) =>
+				runPersonalRequest((identitySignal) => next({ ...options, signal: identitySignal }), signal),
+			onError(handleRpcError),
+		],
 	}),
 );
 

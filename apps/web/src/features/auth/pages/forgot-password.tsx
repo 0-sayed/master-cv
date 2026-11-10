@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button } from "@reactive-resume/ui/components/button";
+import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { AuthErrorSummary } from "../components/auth-error-summary";
+import { AuthHeading } from "../components/auth-heading";
 import { useAuthCopy } from "../copy.generated";
 import { authErrorMessage } from "../errors";
 import { authClient } from "@/libs/auth/client";
@@ -37,18 +38,19 @@ export function ForgotPasswordPage() {
 	return (
 		<>
 			<div className="space-y-1">
-				<h1 className="type-title-s lg:type-title">{copy(submitted ? "auth.reset.sentTitle" : "auth.reset.title")}</h1>
-				<p className="text-sm leading-[23px] text-ink-2">
+				<AuthHeading>{copy(submitted ? "auth.reset.sentTitle" : "auth.reset.title")}</AuthHeading>
+				<p className="type-body text-ink-2">
 					{copy(submitted ? "auth.reset.sentHint" : "auth.reset.requestHint", { email })}
 				</p>
 			</div>
 			<AuthErrorSummary message={error} field={submitted ? undefined : "reset-email"} />
 			{!submitted && (
 				<form className="grid gap-5" onSubmit={submit}>
-					<label className="grid gap-1.5 text-sm font-semibold">
+					<label className="grid gap-1.5 type-label">
 						{copy("auth.email.label")}
 						<Input
-							className="h-12 px-4 font-normal"
+							size="lg"
+							className="font-normal"
 							id="reset-email"
 							type="email"
 							name="email"
@@ -59,7 +61,7 @@ export function ForgotPasswordPage() {
 							onChange={(e) => setEmail(e.target.value)}
 						/>
 					</label>
-					<Button type="submit" loading={pending} className="h-12">
+					<Button type="submit" loading={pending} size="lg">
 						{copy("auth.reset.sendLink")}
 					</Button>
 				</form>
@@ -69,10 +71,7 @@ export function ForgotPasswordPage() {
 					{copy("auth.verifyEmail.resend")}
 				</Button>
 			)}
-			<Link
-				to="/auth/login"
-				className="flex min-h-12 items-center justify-center gap-2 text-sm font-semibold text-accent-text"
-			>
+			<Link to="/auth/login" className={buttonVariants({ variant: "link", size: "link-touch" })}>
 				<Icon name="arrow-left" size={18} />
 				{copy("auth.navigation.backToSignIn")}
 			</Link>

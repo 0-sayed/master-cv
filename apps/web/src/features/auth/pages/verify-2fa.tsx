@@ -1,4 +1,5 @@
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useSelector } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
@@ -13,16 +14,12 @@ import { Input } from "@reactive-resume/ui/components/input";
 import { OTPField } from "@reactive-resume/ui/components/otp-field";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { AuthErrorSummary } from "../components/auth-error-summary";
+import { AuthHeading } from "../components/auth-heading";
 import { authErrorMessage } from "../errors";
 import { getAuthRedirectOptions, getOAuthCreationOptions, getOAuthSignInOptions, isOAuthRedirect } from "../redirect";
 import { authClient } from "@/libs/auth/client";
 import { sessionQueryKey } from "@/libs/root-context";
 import { useAppForm } from "@/libs/tanstack-form";
-
-const totpSchema = z.object({
-	code: z.string().length(6, "Code must be 6 digits"),
-	trustDevice: z.boolean(),
-});
 
 const backupCodeSchema = z.object({
 	code: z.string().trim(),
@@ -34,6 +31,11 @@ type TwoFactorVerificationPageProps = {
 };
 
 function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerificationPageProps) {
+	useLingui();
+	const totpSchema = z.object({
+		code: z.string().regex(/^\d{6}$/, t`Code must be 6 digits`),
+		trustDevice: z.boolean(),
+	});
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const router = useRouter();
 	const queryClient = useQueryClient();
@@ -95,9 +97,9 @@ function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerification
 		<>
 			<AuthErrorSummary message={errorMessage} />
 			<div className="space-y-1 text-center">
-				<h1 className="text-2xl font-semibold tracking-tight">
+				<AuthHeading>
 					{backupCode ? <Trans>Verify with a Backup Code</Trans> : <Trans>Two-Factor Authentication</Trans>}
-				</h1>
+				</AuthHeading>
 				<div className="text-ink-3">
 					{backupCode ? (
 						<Trans>Enter one of your saved backup codes to access your account</Trans>
@@ -198,7 +200,7 @@ function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerification
 				<Button
 					variant="link"
 					nativeButton={false}
-					className="h-auto justify-self-center p-0 text-sm"
+					className="justify-self-center type-body"
 					render={
 						<Link to="/auth/verify-2fa-backup" search={{ callbackURL, reauthenticate }}>
 							<Trans comment="Link to backup-code verification flow when authenticator app is unavailable">

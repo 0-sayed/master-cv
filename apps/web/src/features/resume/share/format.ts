@@ -1,5 +1,6 @@
 import type { RouterOutput } from "@/libs/orpc/client";
 import { t } from "@lingui/core/macro";
+import { formatRelativeTimeUnit } from "@/libs/locale";
 
 type DailyStat = { date: string; views: number; downloads: number };
 export type VersionSummary = RouterOutput["resume"]["listVersions"][number];
@@ -27,11 +28,11 @@ const UNITS = [
 	{ unit: "year", ms: 365 * DAY_MS, below: Number.POSITIVE_INFINITY },
 ] as const;
 
-/** Time since a moment in the largest whole unit, written short: "5m", "2h", "3d", "6w", "1y". */
+/** Time since a moment in the largest whole unit, using the UI's unbreakable relative-time phrase. */
 export function formatTimeSince(date: Date, locale: string, now = Date.now()) {
 	const elapsed = Math.max(0, now - date.getTime());
 	const { unit, ms } = UNITS.find(({ ms, below }) => elapsed / ms < below) ?? UNITS[4];
-	return new Intl.NumberFormat(locale, { style: "unit", unit, unitDisplay: "narrow" }).format(Math.floor(elapsed / ms));
+	return formatRelativeTimeUnit(-Math.floor(elapsed / ms), unit, locale);
 }
 
 /** "Today 14:02", "Yesterday 09:15", "Sep 16", or "Sep 16, 2025" for another year. */

@@ -79,7 +79,7 @@ export function VerificationCodeField({
 						undefined
 					}
 					aria-hidden="true"
-					className="flex h-11 min-w-0 flex-1 items-center justify-center rounded-md border border-line-2 bg-raised text-base text-ink tabular-nums group-data-invalid:border-danger group-data-disabled:bg-sunken group-data-disabled:text-ink-3 pointer-coarse:h-12 data-active:border-accent data-active:ring-2 data-active:ring-accent-soft group-data-invalid:data-active:ring-danger-soft"
+					className="flex h-11 min-w-0 flex-1 items-center justify-center rounded-md border border-line-2 bg-raised type-input text-ink tabular-nums group-data-invalid:border-danger group-data-disabled:bg-sunken group-data-disabled:text-ink-3 pointer-coarse:h-12 data-active:border-accent data-active:ring-2 data-active:ring-accent-soft group-data-invalid:data-active:ring-danger-soft"
 				>
 					{value[index]}
 				</span>

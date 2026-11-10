@@ -4,6 +4,7 @@ import type { IconName } from "@reactive-resume/ui/components/icon";
 import { plural, t } from "@lingui/core/macro";
 import { interviewKindOf, isInterview } from "./interviews";
 import { getClosedReasonLabel } from "./stages";
+import { formatRelativeTimeUnit } from "@/libs/locale";
 
 const DAY_MS = 86_400_000;
 
@@ -101,14 +102,12 @@ export function describeNextStep(
 				sub: t`A short follow-up is usually fine now`,
 				tone: "warn",
 			};
-		case "waiting":
+		case "waiting": {
+			const relativeTime = formatRelativeTimeUnit(-step.days, "day", locale);
 			return application.status === "applied"
 				? {
 						icon: "hourglass",
-						title:
-							step.days === 0
-								? t`Applied today`
-								: plural(step.days, { one: "Applied # day ago", other: "Applied # days ago" }),
+						title: step.days === 0 ? t`Applied today` : t`Applied ${relativeTime}`,
 						sub: "",
 						tone: "normal",
 					}
@@ -118,6 +117,7 @@ export function describeNextStep(
 						sub: plural(step.days, { one: "For # day", other: "For # days" }),
 						tone: "normal",
 					};
+		}
 		case "not-applied":
 			return { icon: "bookmark-simple", title: t`Not applied yet`, sub: "", tone: "muted" };
 		case "closed":

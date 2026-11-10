@@ -350,7 +350,7 @@ const BASE_TOOL_META = {
 	[T.importResume]: {
 		title: "Import Resume",
 		description: [
-			"Create a new resume from a full ResumeData JSON object (e.g. an exported file from Reactive Resume).",
+			"Create a new resume from a full ResumeData JSON object (e.g. an exported file from Master CV).",
 			"A random name and slug are assigned automatically, like the web importer.",
 			`For small edits to an existing resume, prefer \`${T.patchResume}\` instead of re-importing.`,
 			"Large payloads may exceed MCP client message limits; in that case, use the web UI or the HTTP API.",
@@ -638,9 +638,7 @@ const BASE_TOOL_META = {
 	},
 	[T.exportCoverLetter]: {
 		title: "Export Cover Letter",
-		description: ["Export an independent library cover letter as versioned Reactive Resume cover-letter JSON."].join(
-			"\n",
-		),
+		description: ["Export an independent library cover letter as versioned Master CV cover-letter JSON."].join("\n"),
 		outputSchema: toWireObjectSchema(coverLetterDto.export.output),
 		inputSchema: wireInput(z.strictObject({ id: coverLetterIdSchema })),
 		annotations: READ_IDEMPOTENT,
@@ -648,7 +646,7 @@ const BASE_TOOL_META = {
 	[T.importCoverLetter]: {
 		title: "Import Cover Letter",
 		description: [
-			"Import a versioned Reactive Resume cover-letter JSON document as a new independent library letter.",
+			"Import a versioned Master CV cover-letter JSON document as a new independent library letter.",
 			"Use `export_cover_letter` to obtain the accepted document format.",
 		].join("\n"),
 		outputSchema: toWireObjectSchema(coverLetterDto.import.output),

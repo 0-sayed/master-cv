@@ -27,12 +27,12 @@ function ParsedText({ fixed }: { fixed: boolean }) {
 	return (
 		<>
 			<div>
-				<span className={field}>name</span> <span className="text-[2.6cqw]">{t`Alex Morgan`}</span>
+				<span className={field}>name</span> <span className="text-[2.6cqw]">{t`Sara Alotaibi`}</span>
 				<br />
 				<span className={field}>title</span> {t`Senior Product Designer`}
 				<br />
-				<span className={field}>email</span> alex@morgan.design <span className={field}>loc</span> {t`Lisbon, Portugal`}{" "}
-				<span className={field}>url</span> morgan.design
+				<span className={field}>email</span> sara.alotaibi@example.test <span className={field}>loc</span>{" "}
+				{t`Riyadh, Saudi Arabia`} <span className={field}>url</span> sara.alotaibi.example.test
 			</div>
 			<div>
 				{section(t`Profile`)}
@@ -43,11 +43,12 @@ function ParsedText({ fixed }: { fixed: boolean }) {
 				{section(t`Experience`, 2)}
 				<br />
 				<span className={field}>role</span> {t`Lead Product Designer`} <span className={field}>org</span>{" "}
-				{t`Northwind Labs`}
+				{t`Afaq Design (example)`}
 				<br />
 				<span className={field}>dates</span> {t`2021 – Present`}
 				<span className="block truncate">· {designSystemBullet()}</span>
-				<span className={field}>role</span> {t`Product Designer`} <span className={field}>org</span> {t`Parcel & Co.`}
+				<span className={field}>role</span> {t`Product Designer`} <span className={field}>org</span>{" "}
+				{t`Madarat Design (example)`}
 				<br />
 				<span className={field}>dates</span>{" "}
 				<span data-park className={fixed ? "text-[oklch(0.86_0.12_150)]" : "text-[oklch(0.85_0.13_85)]"}>
@@ -57,7 +58,7 @@ function ParsedText({ fixed }: { fixed: boolean }) {
 			<div>
 				{section(t`Education`, 1)}
 				<br />
-				{t`BA, Communication Design`} · {t`University of Porto`} · {t`2013 – 2017`}
+				{t`BA, Communication Design`} · {t`Riyadh Private University (example)`} · {t`2013 – 2017`}
 			</div>
 			<div>
 				{section(t`Skills`, 6)}

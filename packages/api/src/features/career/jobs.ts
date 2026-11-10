@@ -486,7 +486,7 @@ async function sendPendingEmail(maxEmails: number) {
 				const sent = await sendCareerNotification({
 					to: owner.email,
 					subject: noticeText(notification.notice).title,
-					text: "You have a career update in Reactive Resume.",
+					text: "You have a career update in Master CV.",
 					url: new URL(notification.url ?? CAREER_URL, env.APP_URL).toString(),
 					key: notification.key,
 				});

@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import Cropper from "react-easy-crop";
 import { pictureSchema } from "@reactive-resume/schema/resume/data";
+import { Avatar, AvatarFallback, AvatarImage } from "@reactive-resume/ui/components/avatar";
 import { Button } from "@reactive-resume/ui/components/button";
 import { ButtonGroup } from "@reactive-resume/ui/components/button-group";
 import {
@@ -71,15 +72,12 @@ function PicturePreviewControls({
 				aria-label={picture.url ? t`Delete picture` : t`Upload picture`}
 				className="group/picture relative size-18 cursor-pointer overflow-hidden rounded-md bg-sunken transition-colors hover:bg-sunken/50"
 			>
-				{normalizedPictureUrl && (
-					<img
-						alt=""
-						src={normalizedPictureUrl}
-						style={{ objectFit: picture.fit }}
-						className="relative z-10 size-full rounded-md transition-opacity group-hover/picture:opacity-20"
-					/>
-				)}
-
+				<Avatar size="preview" shape="square" className="relative z-10 group-hover/picture:opacity-20">
+					<AvatarImage src={normalizedPictureUrl || undefined} style={{ objectFit: picture.fit }} />
+					<AvatarFallback>
+						{picture.url ? <Icon name="trash" size={24} /> : <Icon name="upload-simple" size={24} />}
+					</AvatarFallback>
+				</Avatar>
 				<div className="absolute inset-0 z-0 flex size-full items-center justify-center">
 					{picture.url ? <Icon name="trash" size={24} /> : <Icon name="upload-simple" size={24} />}
 				</div>
@@ -95,6 +93,7 @@ function PicturePreviewControls({
 							<FormControl
 								render={
 									<Input
+										type="url"
 										name={field.name}
 										value={field.state.value}
 										onBlur={field.handleBlur}
@@ -107,7 +106,7 @@ function PicturePreviewControls({
 							/>
 
 							<Button
-								size="icon"
+								size="toolbar-icon"
 								variant="ghost"
 								aria-label={picture.hidden ? t`Show picture` : t`Hide picture`}
 								onClick={() => {
@@ -269,7 +268,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 
 							<ButtonGroup className="shrink-0">
 								<Button
-									size="icon"
+									size="toolbar-icon"
 									variant="secondary"
 									title={t({
 										comment: "Preset button for setting picture aspect ratio to square",
@@ -283,7 +282,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 									<div className="aspect-square min-h-3 min-w-3 border border-accent" />
 								</Button>
 								<Button
-									size="icon"
+									size="toolbar-icon"
 									variant="secondary"
 									title={t({
 										comment: "Preset button for setting picture aspect ratio to landscape orientation",
@@ -297,7 +296,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 									<div className="aspect-1.5/1 min-h-3 min-w-3 border border-accent" />
 								</Button>
 								<Button
-									size="icon"
+									size="toolbar-icon"
 									variant="secondary"
 									title={t({
 										comment: "Preset button for setting picture aspect ratio to portrait orientation",
@@ -345,7 +344,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 
 							<ButtonGroup className="shrink-0">
 								<Button
-									size="icon"
+									size="toolbar-icon"
 									variant="secondary"
 									title="0pt"
 									onClick={() => {
@@ -356,7 +355,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 									<div className="size-3 rounded-none border border-accent" />
 								</Button>
 								<Button
-									size="icon"
+									size="toolbar-icon"
 									variant="secondary"
 									title="10pt"
 									onClick={() => {
@@ -367,7 +366,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 									<div className="size-3 rounded-[10%] border border-accent" />
 								</Button>
 								<Button
-									size="icon"
+									size="toolbar-icon"
 									variant="secondary"
 									title="100pt"
 									onClick={() => {

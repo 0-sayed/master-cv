@@ -9,13 +9,15 @@ import { m } from "motion/react";
 import { useId, useRef, useState } from "react";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
+import { SuccessTick } from "@reactive-resume/ui/components/success-tick";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { useDebouncedSave } from "../hooks";
-import { CareerLoadError, CareerLoading } from "../load-state";
+import { CareerLoadError } from "../load-state";
 import { useCareerTime, useNow } from "../shared";
 import { parseAmount } from "./amount";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { D2, EASE } from "@/libs/motion";
 import { client, orpc } from "@/libs/orpc/client";
@@ -51,7 +53,11 @@ export function PreferencesPage() {
 	const profile = query.data;
 	if (query.isError && !profile) return <CareerLoadError onRetry={() => void query.refetch()} />;
 	// The form keeps its own draft once loaded, so a background refetch never overwrites what's being typed.
-	return profile ? <PreferencesForm initial={profile} /> : <CareerLoading />;
+	return (
+		<QuerySkeleton loading={!profile} shape="form">
+			{() => profile && <PreferencesForm initial={profile} />}
+		</QuerySkeleton>
+	);
 }
 
 type PreferencesFormProps = { initial: CareerProfileData };
@@ -84,7 +90,7 @@ function PreferencesForm({ initial }: PreferencesFormProps) {
 		setStatus((current) => ({ ...current, saving: true, failed: false }));
 		const operation = saves.current.then(() => client.career.saveProfile(next));
 		saves.current = operation.catch(() => undefined);
-		operation
+		return operation
 			.then(() => {
 				setSaved(next);
 				setStatus({ saving: false, failed: false, at: Date.now() });
@@ -93,6 +99,7 @@ function PreferencesForm({ initial }: PreferencesFormProps) {
 				setStatus((current) => ({ ...current, saving: false, failed: true }));
 				void queryClient.invalidateQueries({ queryKey: orpc.career.profile.queryKey() });
 				saveFailed(error);
+				throw error;
 			});
 	});
 
@@ -107,7 +114,11 @@ function PreferencesForm({ initial }: PreferencesFormProps) {
 					<Trans>What you're looking for</Trans>
 				</h2>
 				<span role="status" className="flex items-center gap-1 text-xs text-ink-3">
-					<Icon name={failed ? "cloud-slash" : dirty ? "arrows-clockwise" : "cloud-check"} size={16} />
+					{failed || dirty ? (
+						<Icon name={failed ? "cloud-slash" : "arrows-clockwise"} size={16} />
+					) : (
+						<SuccessTick animated={justNow} />
+					)}
 					{failed ? (
 						<Trans>Not saved</Trans>
 					) : dirty ? (
@@ -215,6 +226,7 @@ function PreferencesForm({ initial }: PreferencesFormProps) {
 						<span className={fieldShell}>
 							<input
 								id={`${id}-notice`}
+								dir="ltr"
 								type="number"
 								inputMode="numeric"
 								min={0}
@@ -300,6 +312,7 @@ function ChipField({ label, placeholder, value, onChange }: ChipFieldProps) {
 				))}
 				<input
 					id={id}
+					dir="auto"
 					value={input}
 					placeholder={placeholder}
 					onChange={(event) => setInput(event.target.value)}
@@ -356,6 +369,7 @@ function SalaryField({ id, locale, value, onChange }: SalaryFieldProps) {
 				</select>
 				<input
 					id={id}
+					dir="ltr"
 					inputMode="decimal"
 					value={typing ?? formatted}
 					aria-invalid={invalid || undefined}

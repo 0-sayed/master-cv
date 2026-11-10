@@ -7,8 +7,10 @@ import { Plural, Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { cn } from "@reactive-resume/utils/style";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { templates } from "@/dialogs/resume/template/data";
 import { useCurrentBuilderResumeSelector, useResumeData } from "@/features/resume/builder/draft";
 import { CheckPageLayer, PageViewToggle } from "@/features/resume/editor/check/page-layer";
@@ -84,6 +86,8 @@ export function PageCanvas() {
 		if (mode === "write" && !isPhone) revealSelectionInPanel(selection);
 	};
 
+	const skeletonWait1 = useSkeletonLoading(historyVersionId !== null && !version);
+	if (skeletonWait1.pending || (historyVersionId !== null && !version)) return <QuerySkeleton shape="preview" />;
 	return (
 		<div className="relative h-full min-h-0 bg-sunken">
 			<section
@@ -107,6 +111,7 @@ export function PageCanvas() {
 				)}
 			>
 				<ResumePreview
+					highlightEdits={!viewing && !previewTemplate}
 					data={previewData}
 					pageLayout="vertical"
 					pageGap={24}

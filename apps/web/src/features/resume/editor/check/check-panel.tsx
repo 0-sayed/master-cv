@@ -18,6 +18,7 @@ import {
 	DialogTitle,
 } from "@reactive-resume/ui/components/dialog";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { toast } from "@reactive-resume/ui/components/toast";
@@ -28,6 +29,7 @@ import { getCategoryDescription, getCategoryName } from "./issues";
 import { JobMatchTab, useJobMatch } from "./job-match";
 import { useCheck } from "./use-check";
 import { WritingTab } from "./writing-tab";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { AtsPdfReportView } from "@/features/ats-checker/report/report-view";
 import { blobToPdfFile, runAtsCheck } from "@/features/ats-checker/run-ats-check";
 import { useIsResumeLocked } from "@/features/resume/builder/draft";
@@ -43,7 +45,8 @@ export function CheckPanel() {
 	const setTab = useEditorStore((state) => state.setCheckTab);
 	const match = useJobMatch(check?.data);
 
-	if (!check) return null;
+	const skeletonWait1 = useSkeletonLoading(!check);
+	if (skeletonWait1.pending || !check) return <QuerySkeleton shape="form" />;
 
 	return (
 		<div className="grid content-start gap-3.5 p-4 pb-12">

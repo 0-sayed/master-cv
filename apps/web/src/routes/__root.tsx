@@ -12,22 +12,25 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import { HotkeysProvider } from "@tanstack/react-hotkeys";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
-import { createRootRouteWithContext, HeadContent, Outlet, useRouter, useRouterState } from "@tanstack/react-router";
+import { createRootRouteWithContext, HeadContent, Outlet, useRouter } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { domMax, LazyMotion, MotionConfig } from "motion/react";
 import { useEffect } from "react";
 import { Toaster } from "@reactive-resume/ui/components/toast";
 import { TooltipProvider } from "@reactive-resume/ui/components/tooltip";
+import { UiLabelsProvider } from "@reactive-resume/ui/components/ui-labels";
 import { isUiLocale } from "@reactive-resume/utils/locale";
 import { BreakpointIndicator } from "@/components/layout/breakpoint-indicator";
-import { DonationToast } from "@/components/ui/donation-toast";
 import { DialogManager } from "@/dialogs/manager";
+import { IdentityBoundary } from "@/features/auth/identity-boundary";
 import { CommandPalette } from "@/features/command-palette";
-import { useDocumentWebMcpTools } from "@/features/documents/webmcp";
 import { LocaleProvider } from "@/features/locale/provider";
 import { ThemeProvider } from "@/features/theme/provider";
 import { ConfirmDialogProvider } from "@/hooks/use-confirm";
+import { authIdentity } from "@/libs/auth/identity";
+import { clearPersonalStorage } from "@/libs/browser-storage";
 import { loadRootContext } from "@/libs/root-context";
+import { getRouteTitle } from "@/libs/route-titles";
 import { getHomepageMeta } from "@/libs/seo";
 
 type RouterContext = {
@@ -47,9 +50,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 		isUiLocale(search.locale) ? { locale: search.locale } : {},
 	// index.html carries the tags that never change (charset, viewport, icons, manifest); the server adds each page's
 	// canonical link, social cards and structured data. The router only keeps the title and description current.
-	head: () => {
+	head: ({ matches, match }) => {
 		const { title, description } = getHomepageMeta();
-		return { meta: [{ title }, { name: "description", content: description }] };
+		const user = match.context.session?.user;
+		const pageTitle = getRouteTitle(matches.at(-1)?.routeId ?? "__root__", user ? { name: user.name } : {});
+		return { meta: [{ title: pageTitle ?? title }, { name: "description", content: description }] };
 	},
 	beforeLoad: ({ context }) => loadRootContext(context.queryClient),
 });
@@ -61,6 +66,8 @@ function RootComponent() {
 		const recover = () => {
 			const callbackURL = router.state.location.href;
 			if (callbackURL.startsWith("/auth/")) return;
+			clearPersonalStorage();
+			authIdentity(queryClient).accept(null);
 			queryClient.clear();
 			queryClient.setQueryData(["auth", "session"], null);
 			void router.navigate({ to: "/auth/login", search: { reason: "sessionExpired", callbackURL }, replace: true });
@@ -68,12 +75,6 @@ function RootComponent() {
 		window.addEventListener("master-cv:session-expired", recover);
 		return () => window.removeEventListener("master-cv:session-expired", recover);
 	}, [router, queryClient]);
-
-	// WebMCP: browser agents can list and open the signed-in user's documents from any page.
-	useDocumentWebMcpTools(session !== null);
-
-	// Suppress the app-wide donation toast inside the builder so it doesn't cover the right-sidebar controls.
-	const isBuilder = useRouterState({ select: (s) => s.location.pathname.startsWith("/builder") });
 
 	return (
 		<>
@@ -87,33 +88,35 @@ function RootComponent() {
 								<ThemeProvider theme={theme}>
 									<HotkeysProvider>
 										<LocaleProvider locale={locale} session={session}>
-											<TooltipProvider>
-												<ConfirmDialogProvider>
-													<Outlet />
+											<UiLabelsProvider value={{ close: i18n._("Close") }}>
+												<TooltipProvider>
+													<ConfirmDialogProvider>
+														<IdentityBoundary queryClient={queryClient} session={session}>
+															<Outlet />
+															<DialogManager />
+															<CommandPalette />
+														</IdentityBoundary>
+														<Toaster />
 
-													{!isBuilder && <DonationToast />}
-													<DialogManager />
-													<CommandPalette />
-													<Toaster />
-
-													{import.meta.env.DEV && <BreakpointIndicator />}
-													{import.meta.env.DEV && (
-														<TanStackDevtools
-															config={{ position: "bottom-left" }}
-															plugins={[
-																{
-																	name: "TanStack Query",
-																	render: <ReactQueryDevtoolsPanel />,
-																},
-																{
-																	name: "TanStack Router",
-																	render: <TanStackRouterDevtoolsPanel />,
-																},
-															]}
-														/>
-													)}
-												</ConfirmDialogProvider>
-											</TooltipProvider>
+														{import.meta.env.DEV && <BreakpointIndicator />}
+														{import.meta.env.DEV && (
+															<TanStackDevtools
+																config={{ position: "bottom-left" }}
+																plugins={[
+																	{
+																		name: "TanStack Query",
+																		render: <ReactQueryDevtoolsPanel />,
+																	},
+																	{
+																		name: "TanStack Router",
+																		render: <TanStackRouterDevtoolsPanel />,
+																	},
+																]}
+															/>
+														)}
+													</ConfirmDialogProvider>
+												</TooltipProvider>
+											</UiLabelsProvider>
 										</LocaleProvider>
 									</HotkeysProvider>
 								</ThemeProvider>
