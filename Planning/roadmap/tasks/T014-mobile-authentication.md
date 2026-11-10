@@ -46,6 +46,8 @@ deferred.
   during implementation. Do not hard-code node IDs or implement Popup Simulator/Note frames.
 - Published masters do not authorize mobile activation; preserve D20/D21 and A14-A16.
 
+Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
+
 ## Source references
 
 - [OTP specification](../../context/design/specs/otp-spec.md)

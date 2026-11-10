@@ -12,6 +12,8 @@ journey.
 
 ## Scope (in)
 
+Use one shared control-size API for buttons, inputs, selects and segmented controls; use the same size within each toolbar. Keep size, line-height, padding and label-fit behavior in shared components. Never override them with call-site classes. Fit full AR/EN select labels including chevron space; preserve avatar content insets through the shared Avatar/UserDropdown composition. Verify long labels and both pointer modes.
+
 - Map current semantic tokens, Base UI components and Phosphor icons to the design system; preserve APIs and
   light/dark behavior.
 - Implement root interface locale/direction/persistence using the existing locale and Lingui setup; every enabled
@@ -47,6 +49,8 @@ deferred.
   Never hard-code node IDs in this brief. Verify target names and current renders using authorized access during
   implementation.
 - Do not implement Popup Simulator/Note frames or infer application routes from prototype navigation.
+
+Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
 
 ## Source references
 
@@ -90,6 +94,8 @@ deferred.
 
 ## Acceptance evidence
 
+Reject newly added raw UI font/color/spacing/radius values and control-size overrides outside shared definitions; require semantic roles and shared variants. Verify equal header/body start edges and invariant sidebar width across dashboard routes, matching toolbar heights, full select-label fit and avatar inset. Check AR/EN, narrow/wide layouts and every changed dialog/state; record evidence separately from functional smoke.
+
 - Test shared locale/theme behavior on existing public/account/editor consumers without changing CV content,
   pending saves, editor undo/redo or an open form. Billing/privacy and other complete journeys are qualified by their
   existing feature owners; no simulated completion is accepted.
@@ -109,8 +115,8 @@ deferred.
 
 ## Open approvals/blockers affecting the task
 
-- D11: visual/font direction needs owner review and licensed assets; unavailable authorized Figma access blocks visual
-  verification.
+- Keep D11 final brand approval open; apply D35 and delivered T002 tokens without reopening the foundation.
+  Preserve licensed assets; unavailable authorized Figma access blocks visual verification.
 - The parallel copy deck must have reconciled keys before release of English UI. Full-app copy diagnostics remain
   explicit release integration blockers with named feature owners; they do not block delivery of the agreed T002
   foundation. Use `copy:check:bindings` for delivered bindings and retain `copy:check` for the full release audit.

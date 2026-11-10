@@ -64,9 +64,12 @@ its current AGENTS.md; do not blindly overwrite existing project guidance.
   TanStack Router and Hono foundation. Inspect the actual checked-out code first.
 - Reuse current components, tokens, schemas and services; no new Next.js/Nest
   rewrite, separate editor app or parallel UI library without an explicit decision.
+- Compose UI from existing shared components and layout APIs. Fix missing shared layout behavior
+  once in its owning layer. Do not duplicate containers or override shared typography, padding,
+  radii or control heights at call sites.
 - Requirements/security/decisions govern behavior and release. Figma governs
-  screens, elements, content, flows and states; existing shared code components
-  govern visual details per D35. Pixel parity is not required.
+  screens, elements, content, icons, flows, order, dialogs and states; existing shared code components
+  and T002 CSS tokens govern visual details per D35. Pixel parity is not required.
 - Figma state frames are not a one-to-one list of application routes or tables.
   Review launchers and error-simulation controls are not public product features.
 - Prototype values and Start/Focus prices are fixtures, not approved production
@@ -88,15 +91,28 @@ its current AGENTS.md; do not blindly overwrite existing project guidance.
 ## Before completing a task
 
 1. Record requirement IDs and exact Figma frames; inspect adjacent recovery states.
+   Inventory the mapped shell, page, dialog, sheet and recovery-state elements before implementation. Render only the approved elements and exact icons/copy/order; do not retain an upstream action solely because it exists. Implement required behavior through shared components, not new lookalike controls. Record any requirement-driven exception and its decision.
 2. Implement in the actual fork using real validated state/services.
 3. Run available repository checks and browser/interaction tests appropriate to
    the task; inspect AR/EN desktop/mobile output with correct fonts and direction.
+   Reject newly added raw UI font/color/spacing/radius values and control-size overrides outside shared definitions; require semantic roles and shared variants. Verify equal header/body start edges and invariant sidebar width across dashboard routes, matching toolbar heights, full select-label fit and avatar inset. Check AR/EN, narrow/wide layouts and every changed dialog/state; record evidence separately from functional smoke.
 4. Preserve A01–A16 gates as applicable. Figma renders cannot prove Arabic PDF/
    DOCX integrity, authorization, persistence or payment correctness.
 5. Report code changes, frame links, actual tests and unresolved approvals.
    Do not claim subagents, user studies or tests that did not run.
 6. Update affected docs when an agreed decision changes. Resolve material conflicts
    explicitly instead of silently inventing scope, fees, policies or data behavior.
+
+## Validation tiers
+
+Step 3 above applies to what changed, not the whole app on every task.
+
+- **While iterating:** run only the tests for the changed files and screens (affected unit
+  tests, related browser specs, lint/typecheck on touched packages). Capture AR/EN, desktop/
+  mobile evidence for changed screens only.
+- **Before a commit:** run the full local suite once (`validate:static`, all `test:ci` units,
+  build, full browser suite).
+- **After a push:** CI is authoritative. Do not repeat the full suite locally unless CI fails.
 
 ## Existing repository guidance and reconciled scope
 

@@ -47,6 +47,10 @@ deferred.
 - Use Account details/Sign out patterns; S37-S39 and mobile-only states belong to T014.
 - Never implement Popup Simulator/Note frames or infer application routes from prototype navigation.
 
+Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
+
+Inventory the mapped shell, page, dialog, sheet and recovery-state elements before implementation. Render only the approved elements and exact icons/copy/order; do not retain an upstream action solely because it exists. Implement required behavior through shared components, not new lookalike controls. Record any requirement-driven exception and its decision.
+
 ## Source references
 
 - [business/requirements.md](../../context/business/requirements.md)
@@ -94,6 +98,8 @@ deferred.
 
 ## Acceptance evidence
 
+Reject newly added raw UI font/color/spacing/radius values and control-size overrides outside shared definitions; require semantic roles and shared variants. Verify equal header/body start edges and invariant sidebar width across dashboard routes, matching toolbar heights, full select-label fit and avatar inset. Check AR/EN, narrow/wide layouts and every changed dialog/state; record evidence separately from functional smoke.
+
 - Test persisted email signup, verification/link expiry/resend, login, recovery, wrong password, signup restrictions,
   MFA continuation, logout and expired sessions in both languages.
 - Test cross-user API/RLS/file denial and privileged-role behavior using actual data boundaries.
@@ -118,3 +124,7 @@ deferred.
 - Requirement/screen ownership, source conflicts, unsupported cases and external approvals are recorded honestly.
 - Required checks/reviews pass for the proposed merge scope; unresolved release gates remain explicit and disabled.
 - Update the single graph status and Mermaid class only after authorized merge, preserving all 16 large PRs.
+
+## Shell brand alignment: CTO decision 2026-11-10
+
+Keep the mark-left Latin lockup internally LTR in both interface directions (D11). Expanded LTR and both collapsed rails align the mark centre with nav icons; expanded RTL aligns the lockup right edge with the shared nav-item inline-start inset. All brand slots share the header-control vertical centre. See the shared brand/shell contract in `Planning/context/design/design-system.md`; browser guards retain the 0.5px tolerance.

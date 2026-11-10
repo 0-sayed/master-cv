@@ -41,6 +41,8 @@ deferred.
   access during implementation; no hard-coded node IDs or Popup Simulator/Note implementation.
 - S37-S39 are outside this qualification; disabled mobile does not block paid release.
 
+Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
+
 ## Source references
 
 - [business/product.md](../../context/business/product.md)

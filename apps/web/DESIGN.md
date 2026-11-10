@@ -118,6 +118,8 @@ marketing:
 
 ## Overview
 
+For Master CV app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling. The frontmatter palette, type, spacing and control values preserve the upstream reference; do not apply them as Master CV styling authority.
+
 Reactive Resume uses “Desk & Paper”: a warm, quiet interface around a bright resume or letter. Low-contrast surfaces, thin rules, and a moss-green accent keep attention on the document.
 
 This reference covers the current app and homepage. Implementation details live in the source files named below; [REDESIGN_PLAN.md](REDESIGN_PLAN.md) records the redesign milestones and deviations from the original handoff.
@@ -147,6 +149,8 @@ Use semantic tokens in app code. Legacy names such as `background`, `foreground`
 
 ## Typography
 
+For Master CV app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling.
+
 The front matter records the app type scale. Field labels use the separate `field-label` size.
 
 - **Newsreader:** page, dialog, and sheet titles; empty-state headlines; large statistics. Use `font-display`.
@@ -167,6 +171,8 @@ Pair icons with text. Back, close, more, undo/redo, history, assistant, and zoom
 Icons inside resumes use Phosphor names stored in resume data, drawn by the Phosphor web font; they remain separate from app icons.
 
 ## Space, shape, and elevation
+
+For Master CV app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling.
 
 - **Spacing:** use the 4px scale in the front matter. Cards typically have 16px padding, panels 16–24px, mobile pages 16px margins, and desktop pages 32–40px margins.
 - **Radius:** 6px for chips and small buttons; 8px for inputs and controls; 10px for list items; 12px for cards and menus; 16px for dialogs; 18px for mobile sheets. Use `rounded-full` for pills; `rounded-4xl` is 24px where needed.
@@ -191,6 +197,8 @@ Icons inside resumes use Phosphor names stored in resume data, drawn by the Phos
 The homepage has separate motion rules below.
 
 ## Components
+
+For Master CV app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling.
 
 Generic primitives live in `packages/ui/src/components`, using Base UI and cmdk for the command palette. Feature-specific UI belongs in its owning `apps/web` feature.
 

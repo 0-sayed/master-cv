@@ -19,6 +19,8 @@ The lockfile and existing catalogs are the baseline; do not run a blanket update
 - `pnpm build`: existing web, Hono and shared build tasks; generated build output is ignored.
 - `pnpm check`, `pnpm format` and `pnpm lint:fix` rewrite source. They are not CI validation commands.
 
+Reject newly added raw UI font/color/spacing/radius values and control-size overrides outside shared definitions; require semantic roles and shared variants. Verify equal header/body start edges and invariant sidebar width across dashboard routes, matching toolbar heights, full select-label fit and avatar inset. Check AR/EN, narrow/wide layouts and every changed dialog/state; record evidence separately from functional smoke.
+
 The web owns routes and React UI; the Hono server owns HTTP/startup/static serving. `packages/api` owns
 authenticated business procedures; `auth`, `db`, `schema`, `resume`, `pdf`, `docx`, `ui`, `fonts`, `env` and
 `email` retain their existing responsibilities. Mobile and native packages remain in the workspace.
@@ -132,7 +134,7 @@ Build before running browser tests against the production server. For a running 
 `pnpm exec dotenvx run --ignore=MISSING_ENV_FILE -f .env.local -- playwright test tests/e2e/specs/auth.spec.ts`.
 The default uses Playwright Chromium; install it with `pnpm exec playwright install --with-deps chromium`.
 An existing system Chrome can be selected with `PLAYWRIGHT_CHANNEL=chrome`; Playwright's matching ffmpeg
-must still be installed for video artifacts. Browser smoke does not certify Arabic PDF/DOCX gates.
+must still be installed for video artifacts. Browser smoke does not certify Arabic PDF/DOCX gates or D35 UI consistency. Record the separate AR/EN layout, element and dialog/state evidence required above.
 
 ## Security and CI boundaries
 

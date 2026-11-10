@@ -1,11 +1,13 @@
 # Master CV — Documentation
 
 **Documentation version:** 0.8 · **Reviewed baseline:** 2026-10-24 · **Updated:** 2026-11-04  
-**Visual baseline:** Figma file “Master CV: Design (v1)” (`K3UTevGCFBhsoSLXH7BDni`); the previous native v0.5 file stays unchanged as reference  
+**Design inventory baseline:** Figma file “Master CV: Design (v1)” (`K3UTevGCFBhsoSLXH7BDni`); existing shared components and T002 tokens govern visual details per D35. The previous native v0.5 file stays unchanged as reference\
 **Status:** Ready to begin implementation against this working reference. Not a production-release, merchant-activation or legal-approval certificate.
 **Launch contract (owner decided 2026-11-04):** In Arabic and English, launch uses email + password sign-up, email verification and email password recovery. Mobile sign-up, SMS verification/reset, password-recovery codes and S37-S39 are a later T014 increment, off at launch until company registration, sender approval and A14-A16. D20/D21 retain that increment's Phase 1/Phase 2 contracts; no implementation or gate approval is implied.
 
 ## Start here
+
+Continue on Reactive Resume. Use Figma for screen, element, content, icon, flow, order and state inventories. Use existing shared components and T002 CSS tokens for visual details. Treat Figma token snapshots as reference data; do not copy node geometry into screens.
 
 **Planning bundle v1.2 places this context under `Planning/context/`, with [fork-adapted bootstrap](../bootstrap.md), [roadmap execution guide](../roadmap/README.md) and root [AGENTS.md](../../AGENTS.md).** Extract outside the checkout first, copy/merge Planning into the **existing application**, and merge AGENTS.md without erasing useful repository guidance. Preserve the upstream `docs/` folder; it is different from Master CV's old standalone documentation. The default is one branch-first T000 PR containing planning adoption and bootstrap, followed by normal scheduling from merged main. Confirm owner/visibility before publishing client planning; see bootstrap Phase 0.
 
@@ -38,7 +40,7 @@ For visual work, open the [Cover](https://www.figma.com/design/K3UTevGCFBhsoSLXH
 | Product               | Individuals first; no employer recruitment in the first MVP                                                                | D01 confirmed; employer P3 separately authorized                                                                           |
 | Build approach        | Extend the complete Reactive Resume app as one Master CV product and login                                                 | D14/T01; inspect and pin the actual fork                                                                                   |
 | Stack                 | React/Vite/TanStack Router + Hono/Node, existing identity, PostgreSQL/Drizzle                                              | Working architecture; no new Next/Nest or separate editor app                                                              |
-| Design                | Figma “Master CV: Design (v1)” with current Markdown/token reference                                                       | D11 working; final brand approval remains open                                                                             |
+| Design                | Figma screen/state inventory; shared Reactive Resume components and T002 tokens own visual details                         | D11 working; final brand approval remains open                                                                             |
 | Payment gateway       | **Moyasar (ميسر), explicitly selected by the user on 2026-10-20**                                                          | T07; merchant activation, enabled methods, fees and recurrence still open                                                  |
 | Commercial offer      | Prices, quotas, refund/renewal policies and final availability unapproved                                                  | D05; Figma fixture values are not production approval                                                                      |
 | Infrastructure        | Owner-controlled Saudi operations; OCI Riyadh core/Jeddah backups recommended                                              | D15/T02; exact tenancy, quote and procurement unconfirmed                                                                  |
@@ -102,15 +104,15 @@ Product direction only; implementation and release remain subject to A01-A16. Th
 
 Read decisions, product, requirements and architecture before implementation. For UI work, then read design-system and figma-handoff, find the target in figma-map and inspect the live frame and adjacent states. For AI, payment, sensitive data or deployment, read the corresponding technical contract and gate before touching the feature.
 
-**Requirements/decisions/security govern behavior and release; Figma governs appearance and interaction intent within those limits.** Figma state frames are not one route or table each. The actual checked-out code is the implementation source. If a frame and the written rules conflict, record both and obtain a decision rather than silently rewriting the architecture or weakening a requirement.
+**Requirements/decisions/security govern behavior and release; Figma governs screens, elements, content, icons, flows, order, dialogs and states. Shared Reactive Resume components and T002 tokens govern visual details per D35.** Figma state frames are not one route or table each. The actual checked-out code is the implementation source. If a frame and the written rules conflict, record both and obtain a decision rather than silently rewriting the architecture or weakening a requirement.
 
 For mobile authentication, read B-C17/B-C18, D20/D21/T16, [OTP scope](design/specs/otp-spec.md) and the security/architecture/infrastructure contracts. Phase 1 includes verified-mobile SMS reset and recovery codes alongside mobile + password registration/login and settings; email remains optional. SMS-only sign-in stays Phase 2 off. Recovery preserves enrolled MFA and never allows support to reset on claims alone; A14-A16 still gate availability.
 
 ## One authoritative home per detail
 
-Business behavior and release gates belong in requirements; decision status in decisions; infrastructure prices in infrastructure; model economics in AI; privacy/processing gates in security; visual meanings and mock-commercial values in design-system. The handoff and this index link those topics rather than inventing competing values.
+Business behavior and release gates belong in requirements; decision status in decisions; infrastructure prices in infrastructure; model economics in AI; privacy/processing gates in security; visual API rules and mock-commercial values in design-system; implemented visual definitions in shared components and T002 CSS tokens. The handoff and this index link those topics rather than inventing competing values.
 
-The JSON tokens and frame IDs are a dated observation, not a second editable palette, generated CSS or live synchronization. Refresh the snapshot after agreed Figma changes. Do not copy mock prices or test state assignments into live service configuration.
+Treat JSON tokens and frame IDs as dated reference observations, not production styling authority, a second editable palette, generated CSS or live synchronization. Do not copy node geometry into screens. Refresh the snapshot after agreed Figma changes. Do not copy mock prices or test state assignments into live service configuration.
 
 ## Update rules
 

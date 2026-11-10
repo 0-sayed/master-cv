@@ -28,6 +28,16 @@ CV workspace.
   blocker/warning/tip, reason, evidence/location and safe fix/review.
 - Bind reports to exact downloaded bytes, CV revision, font/template/renderer and checker/extractor options;
   invalidate only affected results.
+- Make implicit editor state explicit (audit 2026-11-10, ui-audit/implicit-state.md #1,2,5,8,10,18,21,22,33,34,35,37):
+  autosave always sends the expected revision and shows a conflict instead of overwriting another tab/device; browser
+  recovery copies carry owner and base revision and need an explicit restore/merge decision; pending imports are
+  flow-bound, expiring and claimed atomically; preview, fit, undo and check results are bound to document + revision.
+  Prove each with a failing test first.
+- Re-run the PDF readability check automatically after editing pauses (debounced, cancellable); show stale while
+  pending. Remove the inherited single editor score badge (D22).
+- Explain results in plain AR/EN: one sentence per result (e.g. "Can a company's hiring system read your PDF?"),
+  a "what this means" explanation per result and issue, and a short first-use intro to the check panel. Never say
+  "passes ATS" or imply hiring outcomes; copy comes from the copy deck and needs owner review (A13).
 
 ## Explicit exclusions
 
@@ -53,6 +63,8 @@ deferred.
   Never hard-code node IDs in this brief. Verify target names and current renders using authorized access during
   implementation.
 - Do not implement Popup Simulator/Note frames or infer application routes from prototype navigation.
+
+Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
 
 ## Source references
 

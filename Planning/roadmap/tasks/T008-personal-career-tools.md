@@ -46,6 +46,8 @@ deferred.
   implementation.
 - Do not implement Popup Simulator/Note frames or infer application routes from prototype navigation.
 
+Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
+
 ## Source references
 
 - [business/product.md](../../context/business/product.md)

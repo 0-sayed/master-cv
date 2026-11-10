@@ -44,6 +44,8 @@ deferred.
 - Resolve current masters/states in [figma-map.json](../../context/design/figma-map.json) during implementation.
   Use authorized access, record unavailable renders honestly, never hard-code node IDs or implement Popup Simulator/Note frames.
 
+Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
+
 ## Source references
 
 - [business/product.md](../../context/business/product.md)
@@ -102,6 +104,8 @@ deferred.
 - D03 input evidence, D11 brand and D15 resources remain scoped blockers where applicable.
 - A05 DOCX, A09 paid, A10 employer and A14-A16 mobile gates are not free-beta prerequisites
   while their features remain disabled; applicable privacy/operations gates still apply.
+- Owner deferred to this release pass (2026-11-10): the owner's mobile 390 review of the T003 workspace
+  and the D25 Google sign-in wording decision.
 
 ## Done definition
 

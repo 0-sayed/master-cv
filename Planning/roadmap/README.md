@@ -57,6 +57,8 @@ their blockers; T012 becomes eligible after T009 as well. T008 and T010 wait for
 
 ## Large-PR and ownership rules
 
+Read D35 and the handoff before every UI task. Share visual APIs across task ownership boundaries; feature-local implementation does not authorize local visual standards.
+
 Use task-specific migrations and feature-local changes. Coordinate shared schemas, package exports, global routes,
 lockfiles and environment files before merge. No competing migrations, duplicate queues or credit counters.
 Update onto merged dependencies, resolve conflicts and rerun affected checks without imposing a global wave.
@@ -73,6 +75,8 @@ T002 owns the English interface copy contract at `Planning/context/design/copy-d
 there and to existing catalogs. The parallel source must be reconciled before English UI release.
 
 ## Shared definition of done
+
+Reject newly added raw UI font/color/spacing/radius values and control-size overrides outside shared definitions; require semantic roles and shared variants. Verify equal header/body start edges and invariant sidebar width across dashboard routes, matching toolbar heights, full select-label fit and avatar inset. Check AR/EN, narrow/wide layouts and every changed dialog/state; record evidence separately from functional smoke.
 
 - Record exact requirement IDs, map-resolved masters, named states/dialogs and current authorized Figma renders.
   Never hard-code node IDs in briefs or implement Popup Simulator/Note frames. Unavailable access blocks visual evidence.

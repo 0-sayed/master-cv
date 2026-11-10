@@ -7,6 +7,8 @@
 
 Read [execution rules and bootstrap applicability](README.md) before running this graph. The decomposition, priorities and dependency edges are this roadmap’s implementation proposal; existing source requirements and unresolved approvals retain their authority. All briefs require owner review; they grant no implementation or release approval. T000 is marked complete by explicit owner instruction in the 2026-11-07 T001 closing round.
 
+Read D35 and the handoff before every UI task. Share visual APIs across task ownership boundaries; feature-local implementation does not authorize local visual standards.
+
 ## Task Graph
 
 | Done | Priority | Task                                                             | Size | Branch                                       | Depends On                     | Context                                                                                                                                                    |
@@ -43,7 +45,7 @@ Read [execution rules and bootstrap applicability](README.md) before running thi
 
 ## Task briefs
 
-The `Context` column points to the complete scope, source references, Figma keys, ownership boundaries, acceptance evidence and explicit exclusions for each PR. Internal steps and clean commits stay within the large PR; they are not separately scheduled small/medium PRs.
+The `Context` column points to the complete scope, source references, Figma keys, ownership boundaries, acceptance evidence and explicit exclusions for each PR. Share visual APIs across feature/task ownership boundaries under D35. Internal steps and clean commits stay within the large PR; they are not separately scheduled small/medium PRs.
 
 - [T014: Activate mobile authentication](tasks/T014-mobile-authentication.md)
 - [T015: Qualify the paid release](tasks/T015-paid-release-qualification.md)

@@ -20,6 +20,10 @@ T012 consumes that record for backup restore and deletion replay; mobile setting
 - Persist a durable minimal deletion record for replay after backup restoration, with approved retention/access rules.
   T012 consumes it and owns restore/replay evidence; backup evidence is not a T009 merge prerequisite.
 - Keep mobile settings, SMS recovery, codes and S37-S39 disabled for T014.
+- Make implicit data state explicit (audit 2026-11-10, ui-audit/implicit-state.md #25,27,28,41): uploaded pictures get
+  explicit owner/visibility with revocable delivery (no public-by-path, no long public cache for private CVs);
+  restoring from trash keeps sharing off unless the owner turns it back on; trash purge is scheduled and recorded;
+  security settings show unknown/error instead of "not enrolled". Prove each with a failing test first.
 
 ## Explicit exclusions
 
@@ -41,6 +45,8 @@ deferred.
 - Resolve current masters and dialogs in [figma-map.json](../../context/design/figma-map.json) during implementation.
   Verify current names/renders using authorized access; do not hard-code node IDs or implement Popup Simulator/Note frames.
 - T014 later consumes these settings/proof contracts for mobile instances; they are disabled at launch.
+
+Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
 
 ## Source references
 
