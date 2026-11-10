@@ -130,7 +130,7 @@
 		{
 			"ar-SA": "سيرة ذاتية",
 			"en-US": "CV",
-			"note": "Use CV consistently in new copy."
+			"note": "Owner-approved Arabic terminology, 2026-11-10; use consistently across interface copy."
 		},
 		{
 			"ar-SA": "المعلومات المهنية",
@@ -140,7 +140,7 @@
 		{
 			"ar-SA": "نسخة مخصصة",
 			"en-US": "tailored copy",
-			"note": "Original CV remains separate."
+			"note": "Owner-approved Arabic terminology, 2026-11-10; use consistently across interface copy."
 		},
 		{
 			"ar-SA": "نسخة إنجليزية",
@@ -150,7 +150,7 @@
 		{
 			"ar-SA": "سجل النسخ",
 			"en-US": "version history",
-			"note": "Restoring adds a version and preserves history."
+			"note": "Owner-approved Arabic terminology, 2026-11-10; use consistently across interface copy."
 		},
 		{
 			"ar-SA": "مزوّد المعالجة",
@@ -171,6 +171,86 @@
 			"ar-SA": "ماستر سي في",
 			"en-US": "Master CV",
 			"note": "Product name; English logo spelling may remain in Arabic UI. Brand wording and transactional sender still require owner review."
+		},
+		{
+			"ar-SA": "خطاب تقديم",
+			"en-US": "Cover letter",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "مستند",
+			"en-US": "Document",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "طلب تقديم",
+			"en-US": "Job application",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "إعلان وظيفة",
+			"en-US": "Job posting",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "مسمى وظيفي",
+			"en-US": "Job title",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "ملخص مهني",
+			"en-US": "Professional summary",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "مسودة",
+			"en-US": "Draft",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "مسؤول توظيف",
+			"en-US": "Recruiter",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "وسم",
+			"en-US": "Tag",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "معلومة مهنية",
+			"en-US": "Career fact",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "مزوّد",
+			"en-US": "Provider",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "المظهر",
+			"en-US": "Theme",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "رفع",
+			"en-US": "Upload",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "تنزيل",
+			"en-US": "Download",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "مشاركة",
+			"en-US": "Share",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
+		},
+		{
+			"ar-SA": "حفظ",
+			"en-US": "Save",
+			"note": "Owner-approved Arabic terminology, 2026-11-10."
 		}
 	],
 	"entries": [
@@ -1367,7 +1447,7 @@
 			"key": "editor.documents.search",
 			"messages": {
 				"ar-SA": "ابحث في مستنداتك",
-				"en-US": "Search your documents"
+				"en-US": "Search documents"
 			},
 			"context": {
 				"surfaces": ["components:search.field", "screens:S17", "states:s17.my.documents.start.plan"],
@@ -1395,9 +1475,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Search your documents",
+				"msgid": "Search documents",
 				"msgctxt": "editor.documents.search",
-				"runtimeId": "3pFqL7",
+				"runtimeId": "iKUUmY",
 				"mappingStatus": "verified temporary extraction and compilation",
 				"sourceLocale": "en-US",
 				"sourcePath": "apps/web/src (planned; metadata only, not a second runtime catalog)",
@@ -7696,7 +7776,7 @@
 		{
 			"key": "editor.navigation.applications",
 			"messages": {
-				"ar-SA": "متابعة التقديمات",
+				"ar-SA": "طلبات التقديم",
 				"en-US": "Applications"
 			},
 			"context": {
@@ -26020,7 +26100,7 @@
 		{
 			"key": "auth.welcome.explore",
 			"messages": {
-				"ar-SA": "أتصفّح أولًا",
+				"ar-SA": "التصفّح أولًا",
 				"en-US": "Explore first"
 			},
 			"context": {
@@ -26813,7 +26893,7 @@
 		{
 			"key": "review.import.summary",
 			"messages": {
-				"ar-SA": "قرأنا {count, plural, zero {صفر من المعلومات} one {معلومة واحدة} two {معلومتين} few {# معلومات} many {# معلومة} other {# معلومة}} من ملفك. أكّد ما يحتاج تأكيدًا، ولن نحفظ إلا ما توافق عليه.",
+				"ar-SA": "{count, plural, zero {لم نقرأ أي معلومات من ملفك.} one {قرأنا معلومة واحدة من ملفك.} two {قرأنا معلومتين من ملفك.} few {قرأنا # معلومات من ملفك.} many {قرأنا # معلومة من ملفك.} other {قرأنا # معلومة من ملفك.}} أكّد ما يحتاج تأكيدًا، ولن نحفظ إلا ما توافق عليه.",
 				"en-US": "We read {count, plural, one {# fact} other {# facts}} from your file. Confirm what needs checking. We save only what you approve."
 			},
 			"context": {
@@ -29615,7 +29695,7 @@
 		{
 			"key": "landing.language.description",
 			"messages": {
-				"ar-SA": "واجهة عربية، وسيرة بأي لغة",
+				"ar-SA": "واجهة عربية، وسيرة بالعربية أو الإنجليزية",
 				"en-US": "An Arabic interface, with your CV in either language"
 			},
 			"context": {
@@ -29691,7 +29771,7 @@
 		{
 			"key": "billing.plan.upgradeHint",
 			"messages": {
-				"ar-SA": "ابدأ مجانًا، ورقِّ عندما تحتاج",
+				"ar-SA": "ابدأ مجانًا، وانتقل إلى خطة أعلى عند الحاجة",
 				"en-US": "Start free and upgrade when you need to"
 			},
 			"context": {
@@ -31707,7 +31787,7 @@
 		{
 			"key": "language.copies.modifiedHint",
 			"messages": {
-				"ar-SA": "آخر تعديل اليوم. هذه المصدر الذي تُبنى منه النسخ.",
+				"ar-SA": "آخر تعديل اليوم. هذه النسخة هي المصدر الذي تُبنى منه النسخ الأخرى.",
 				"en-US": "Last edited today. Other copies are built from this source."
 			},
 			"context": {
@@ -39239,7 +39319,7 @@
 		{
 			"key": "jobs.application.breadcrumb.root",
 			"messages": {
-				"ar-SA": "متابعة التقديمات",
+				"ar-SA": "طلبات التقديم",
 				"en-US": "Applications"
 			},
 			"context": {
@@ -56650,7 +56730,7 @@
 		{
 			"key": "workspace.documents.0.days.left_J6SI8_",
 			"messages": {
-				"ar-SA": "{0} أيام متبقية",
+				"ar-SA": "عدد الأيام المتبقية: {0}",
 				"en-US": "{0} days left"
 			},
 			"context": {
@@ -56693,7 +56773,7 @@
 		{
 			"key": "workspace.documents.0.entries_TbaLi1",
 			"messages": {
-				"ar-SA": "إدخالات {0}",
+				"ar-SA": "عدد البنود: {0}",
 				"en-US": "{0} entries"
 			},
 			"context": {
@@ -56736,7 +56816,7 @@
 		{
 			"key": "workspace.documents.0.fields.are.flagged.for.a.quick.look.in.the.editor_M_x4jf",
 			"messages": {
-				"ar-SA": "يتم وضع علامة على حقول {0} لإلقاء نظرة سريعة على المحرر.",
+				"ar-SA": "عدد الحقول المحددة للمراجعة السريعة في المحرر: {0}",
 				"en-US": "{0} fields are flagged for a quick look in the editor."
 			},
 			"context": {
@@ -56779,7 +56859,7 @@
 		{
 			"key": "workspace.documents.0.sections_wP8HWR",
 			"messages": {
-				"ar-SA": "أقسام {0}",
+				"ar-SA": "عدد الأقسام: {0}",
 				"en-US": "{0} sections"
 			},
 			"context": {
@@ -56822,7 +56902,7 @@
 		{
 			"key": "workspace.documents.0.sections.and.1.entries.found_im-dmC",
 			"messages": {
-				"ar-SA": "تم العثور على أقسام {0} وإدخالات {1}.",
+				"ar-SA": "عدد الأقسام التي عُثر عليها: {0}؛ وعدد البنود: {1}",
 				"en-US": "{0} sections and {1} entries found."
 			},
 			"context": {
@@ -56998,7 +57078,7 @@
 		{
 			"key": "workspace.documents.type.0.days.left_IJNh0m",
 			"messages": {
-				"ar-SA": "{type} · {0} أيام متبقية",
+				"ar-SA": "{type} · عدد الأيام المتبقية: {0}",
 				"en-US": "{type} · {0} days left"
 			},
 			"context": {
@@ -57045,13 +57125,16 @@
 		{
 			"key": "workspace.documents.type.edited.0_7mEjyK",
 			"messages": {
-				"ar-SA": "{type} · تم تحرير {0}",
+				"ar-SA": "{type} · عُدّلت {0}",
 				"en-US": "{type} · Edited {0}"
 			},
 			"context": {
 				"surfaces": ["messages:workspace"],
 				"audience": "candidate/account owner",
-				"translatorNotes": ["Retained or T003 recovery copy; product owner review pending."]
+				"translatorNotes": [
+					"Retained or T003 recovery copy; product owner review pending.",
+					"Owner-approved round 5 natural edited-time wording, 2026-11-10."
+				]
 			},
 			"nodeIds": [],
 			"source": "translated",
@@ -57092,7 +57175,7 @@
 		{
 			"key": "workspace.auth.access.your.account.through.the.api.including.reading.changing.and.deleting.your.documents.and.job.a_YRn9Il",
 			"messages": {
-				"ar-SA": "قم بالوصول إلى حسابك من خلال API، بما في ذلك قراءة المستندات وطلبات العمل وتغييرها وحذفها.",
+				"ar-SA": "الوصول إلى حسابك عبر واجهة برمجة التطبيقات، بما يشمل قراءة مستنداتك وطلبات التقديم وتعديلها وحذفها",
 				"en-US": "Access your account through the API, including reading, changing and deleting your documents and job applications."
 			},
 			"context": {
@@ -57320,7 +57403,7 @@
 		{
 			"key": "workspace.documents.back_iH8pgl",
 			"messages": {
-				"ar-SA": "خلف",
+				"ar-SA": "رجوع",
 				"en-US": "Back"
 			},
 			"context": {
@@ -57396,7 +57479,7 @@
 		{
 			"key": "workspace.documents.back.to.documents_SlWKu4",
 			"messages": {
-				"ar-SA": "العودة إلى الوثائق",
+				"ar-SA": "العودة إلى المستندات",
 				"en-US": "Back to documents"
 			},
 			"context": {
@@ -57814,7 +57897,7 @@
 		{
 			"key": "workspace.documents.clear.selection_FBIuPX",
 			"messages": {
-				"ar-SA": "كليرست",
+				"ar-SA": "إلغاء التحديد",
 				"en-US": "Clear selection"
 			},
 			"context": {
@@ -58080,7 +58163,7 @@
 		{
 			"key": "workspace.documents.copy.a.resume.for.a.job_fdaMh5",
 			"messages": {
-				"ar-SA": "انسخ السيرة الذاتية للحصول على وظيفة",
+				"ar-SA": "نسخ سيرة ذاتية لوظيفة محددة",
 				"en-US": "Copy a resume for a job"
 			},
 			"context": {
@@ -58498,7 +58581,7 @@
 		{
 			"key": "workspace.documents.couldn.t.reach.the.ai.provider.try.again.in.a.moment_3KssxT",
 			"messages": {
-				"ar-SA": "تعذر الوصول إلى موفر الذكاء الاصطناعي. حاول مرة أخرى بعد قليل.",
+				"ar-SA": "تعذر الوصول إلى مزوّد الذكاء الاصطناعي. حاول مرة أخرى بعد قليل.",
 				"en-US": "Couldn't reach the AI provider. Try again in a moment."
 			},
 			"context": {
@@ -58536,7 +58619,7 @@
 		{
 			"key": "workspace.documents.cover.letter.imported_u3lcYq",
 			"messages": {
-				"ar-SA": "تم استيراد خطاب الغلاف",
+				"ar-SA": "تم استيراد خطاب التقديم",
 				"en-US": "Cover letter imported"
 			},
 			"context": {
@@ -59045,7 +59128,7 @@
 		{
 			"key": "workspace.auth.delete.your.documents.and.account.data_PuDZxd",
 			"messages": {
-				"ar-SA": "احذف مستنداتك وبيانات حسابك.",
+				"ar-SA": "حذف مستنداتك وبيانات حسابك",
 				"en-US": "Delete your documents and account data."
 			},
 			"context": {
@@ -59126,7 +59209,7 @@
 		{
 			"key": "workspace.documents.deleted.in_qD20aY",
 			"messages": {
-				"ar-SA": "محذوفة في",
+				"ar-SA": "الحذف النهائي بعد",
 				"en-US": "Deleted in"
 			},
 			"context": {
@@ -59278,7 +59361,7 @@
 		{
 			"key": "workspace.documents.document.type_175zB-",
 			"messages": {
-				"ar-SA": "نوع الوثيقة",
+				"ar-SA": "نوع المستند",
 				"en-US": "Document type"
 			},
 			"context": {
@@ -59316,7 +59399,7 @@
 		{
 			"key": "workspace.documents.documents_E_muDO",
 			"messages": {
-				"ar-SA": "وثائق",
+				"ar-SA": "مستندات",
 				"en-US": "Documents"
 			},
 			"context": {
@@ -59430,8 +59513,8 @@
 		{
 			"key": "workspace.documents.drop.a.file.here.or.browse.pdf.word.reactive.resume.or.json.resume.we.fill.in.every.section.and.flag_RbFZ6p",
 			"messages": {
-				"ar-SA": "قم بإسقاط ملف هنا أو تصفح. PDF أو Word أو Reactive Resume أو JSON Resume. نحن نملأ كل قسم ونضع علامة على أي شيء لسنا متأكدين منه.",
-				"en-US": "Drop a file here or browse. PDF, Word, Reactive Resume or JSON Resume. We fill in every section and flag anything we're unsure of."
+				"ar-SA": "أفلت ملف PDF أو Word أو JSON، أو تصفّح.",
+				"en-US": "Drop a PDF, Word or JSON file, or browse."
 			},
 			"context": {
 				"surfaces": ["messages:workspace"],
@@ -59444,9 +59527,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Drop a file here or browse. PDF, Word, Reactive Resume or JSON Resume. We fill in every section and flag anything we're unsure of.",
+				"msgid": "Drop a PDF, Word or JSON file, or browse.",
 				"msgctxt": "",
-				"runtimeId": "RbFZ6p",
+				"runtimeId": "Oggcep",
 				"mappingStatus": "verified runtime extraction",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/documents/new-document-dialog.tsx",
@@ -59620,7 +59703,7 @@
 		{
 			"key": "workspace.career-information.edit_ePK91l",
 			"messages": {
-				"ar-SA": "يحرر",
+				"ar-SA": "تعديل",
 				"en-US": "Edit"
 			},
 			"context": {
@@ -60114,7 +60197,7 @@
 		{
 			"key": "workspace.documents.file.read_Pwy_lt",
 			"messages": {
-				"ar-SA": "قراءة الملف",
+				"ar-SA": "تمت قراءة الملف",
 				"en-US": "file read"
 			},
 			"context": {
@@ -60190,7 +60273,7 @@
 		{
 			"key": "workspace.documents.filter.by.tag_h9bq5K",
 			"messages": {
-				"ar-SA": "تصفية حسب العلامة",
+				"ar-SA": "تصفية حسب الوسم",
 				"en-US": "Filter by tag"
 			},
 			"context": {
@@ -60646,7 +60729,7 @@
 		{
 			"key": "workspace.documents.import.a.resume.copy.one.for.a.job.or.start.blank_pTKK-c",
 			"messages": {
-				"ar-SA": "قم باستيراد سيرة ذاتية، أو نسخ واحدة لوظيفة ما، أو البدء فارغًا.",
+				"ar-SA": "استورد سيرة ذاتية، أو انسخ سيرة لوظيفة محددة، أو ابدأ بسيرة فارغة",
 				"en-US": "Import a resume, copy one for a job, or start blank."
 			},
 			"context": {
@@ -60798,7 +60881,7 @@
 		{
 			"key": "workspace.documents.import.your.current.resume.and.we.ll.lay.out.every.section.for.you.to.refine.or.start.fresh.start.wi_Nqs5Wa",
 			"messages": {
-				"ar-SA": "قم باستيراد سيرتك الذاتية الحالية وسنقوم بوضع كل قسم لك لتحسينه. أو ابدأ جديدًا. ابدأ باسمك. البناء من هناك.",
+				"ar-SA": "استورد سيرتك الذاتية الحالية وسنرتّب أقسامها لتراجعها وتحسّنها. أو ابدأ من الصفر: أضف اسمك، ثم أكمل بقية المعلومات.",
 				"en-US": "Import your current resume and we'll lay out every section for you to refine. Or start fresh. Start with your name. Build from there."
 			},
 			"context": {
@@ -60874,7 +60957,7 @@
 		{
 			"key": "workspace.documents.importing_RqSvT0",
 			"messages": {
-				"ar-SA": "استيراد",
+				"ar-SA": "جارٍ الاستيراد",
 				"en-US": "Importing"
 			},
 			"context": {
@@ -60988,7 +61071,7 @@
 		{
 			"key": "workspace.documents.items.are.deleted.permanently.after.30.days_yOwG56",
 			"messages": {
-				"ar-SA": "يتم حذف الإدخالات نهائيًا بعد 30 يومًا.",
+				"ar-SA": "تُحذف المستندات نهائيًا بعد 30 يومًا.",
 				"en-US": "Items are deleted permanently after 30 days."
 			},
 			"context": {
@@ -61026,7 +61109,7 @@
 		{
 			"key": "workspace.documents.items.you.move.here.stay.for.30.days_UvkbJx",
 			"messages": {
-				"ar-SA": "الإدخالات التي تنقلها هنا تبقى لمدة 30 يومًا.",
+				"ar-SA": "تبقى المستندات التي تنقلها هنا لمدة 30 يومًا.",
 				"en-US": "Items you move here stay for 30 days."
 			},
 			"context": {
@@ -61064,7 +61147,7 @@
 		{
 			"key": "workspace.auth.keep.access.when.you.are.not.using.the.application_J2_Kmw",
 			"messages": {
-				"ar-SA": "حافظ على الوصول عندما لا تستخدم التطبيق.",
+				"ar-SA": "الاحتفاظ بإمكانية الوصول إلى حسابك حتى عندما لا تستخدم التطبيق",
 				"en-US": "Keep access when you are not using the application."
 			},
 			"context": {
@@ -61178,7 +61261,7 @@
 		{
 			"key": "workspace.documents.last.edited_acZeX2",
 			"messages": {
-				"ar-SA": "تم التعديل الأخير",
+				"ar-SA": "آخر تعديل",
 				"en-US": "Last edited"
 			},
 			"context": {
@@ -61368,7 +61451,7 @@
 		{
 			"key": "workspace.documents.link.to.application_u5Wa4J",
 			"messages": {
-				"ar-SA": "رابط لطلب الوظيفة",
+				"ar-SA": "ربط بطلب تقديم",
 				"en-US": "Link to application"
 			},
 			"context": {
@@ -61406,7 +61489,7 @@
 		{
 			"key": "workspace.documents.link.to.application_GFbKXa",
 			"messages": {
-				"ar-SA": "رابط التقديم على الوظيفة...",
+				"ar-SA": "ربط بطلب تقديم…",
 				"en-US": "Link to application…"
 			},
 			"context": {
@@ -61985,7 +62068,7 @@
 		{
 			"key": "workspace.documents.new.cover.letter.instead_nBl9Dh",
 			"messages": {
-				"ar-SA": "خطاب تغطية جديد بدلا من ذلك",
+				"ar-SA": "إنشاء خطاب تقديم جديد بدلًا من ذلك",
 				"en-US": "New cover letter instead"
 			},
 			"context": {
@@ -62023,7 +62106,7 @@
 		{
 			"key": "workspace.documents.new.document_p6y5jE",
 			"messages": {
-				"ar-SA": "وثيقة جديدة",
+				"ar-SA": "مستند جديد",
 				"en-US": "New document"
 			},
 			"context": {
@@ -62099,7 +62182,7 @@
 		{
 			"key": "workspace.documents.no.job.yet_s5M-Lu",
 			"messages": {
-				"ar-SA": "لا يوجد وظيفة بعد",
+				"ar-SA": "لا توجد وظيفة بعد",
 				"en-US": "No job yet"
 			},
 			"context": {
@@ -62332,8 +62415,8 @@
 		{
 			"key": "workspace.auth.open.the.reactive.resume.app_F7oPP8",
 			"messages": {
-				"ar-SA": "افتح تطبيق Reactive Resume",
-				"en-US": "Open the Reactive Resume app"
+				"ar-SA": "افتح تطبيق Master CV",
+				"en-US": "Open the Master CV app"
 			},
 			"context": {
 				"surfaces": ["messages:workspace"],
@@ -62346,9 +62429,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Open the Reactive Resume app",
+				"msgid": "Open the Master CV app",
 				"msgctxt": "",
-				"runtimeId": "F7oPP8",
+				"runtimeId": "rbmkxw",
 				"mappingStatus": "verified runtime extraction",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/routes/auth/native-callback.tsx",
@@ -62370,7 +62453,7 @@
 		{
 			"key": "workspace.documents.opens.the.editor.on.your.name.nothing.else.to.fill.in.first_MKGBoC",
 			"messages": {
-				"ar-SA": "يفتح المحرر باسمك. لا شيء آخر لملء أولا.",
+				"ar-SA": "يفتح المحرر عند حقل الاسم. لا تحتاج إلى تعبئة أي حقول أخرى أولًا",
 				"en-US": "Opens the editor on your name. Nothing else to fill in first."
 			},
 			"context": {
@@ -62907,7 +62990,7 @@
 		{
 			"key": "workspace.auth.read.your.email.address_7KisTd",
 			"messages": {
-				"ar-SA": "اقرأ عنوان بريدك الإلكتروني.",
+				"ar-SA": "قراءة عنوان بريدك الإلكتروني.",
 				"en-US": "Read your email address."
 			},
 			"context": {
@@ -62945,7 +63028,7 @@
 		{
 			"key": "workspace.auth.read.your.profile.information_x9rO4_",
 			"messages": {
-				"ar-SA": "اقرأ معلومات ملفك الشخصي.",
+				"ar-SA": "قراءة معلومات ملفك الشخصي.",
 				"en-US": "Read your profile information."
 			},
 			"context": {
@@ -63135,7 +63218,7 @@
 		{
 			"key": "workspace.documents.restore_yKu_3Y",
 			"messages": {
-				"ar-SA": "يعيد",
+				"ar-SA": "استعادة",
 				"en-US": "Restore"
 			},
 			"context": {
@@ -63368,7 +63451,7 @@
 		{
 			"key": "workspace.documents.sample.resume.added.delete.it.anytime_2L-ib7",
 			"messages": {
-				"ar-SA": "تمت إضافة نموذج السيرة الذاتية. حذفه في أي وقت.",
+				"ar-SA": "أُضيفت سيرة ذاتية نموذجية. يمكنك حذفها في أي وقت.",
 				"en-US": "Sample resume added. Delete it anytime."
 			},
 			"context": {
@@ -63406,7 +63489,7 @@
 		{
 			"key": "workspace.documents.save_tfDRzk",
 			"messages": {
-				"ar-SA": "الحفظ",
+				"ar-SA": "حفظ",
 				"en-US": "Save"
 			},
 			"context": {
@@ -63482,7 +63565,7 @@
 		{
 			"key": "workspace.documents.search.covers.titles.tags.and.linked.applications_7n-tAU",
 			"messages": {
-				"ar-SA": "يغطي البحث العناوين والعلامات وطلبات العمل المرتبطة.",
+				"ar-SA": "يغطي البحث العناوين والوسوم وطلبات العمل المرتبطة.",
 				"en-US": "Search covers titles, tags and linked applications."
 			},
 			"context": {
@@ -63753,7 +63836,7 @@
 		{
 			"key": "workspace.auth.sign.in_5lWFkC",
 			"messages": {
-				"ar-SA": "تسجّل الدخول",
+				"ar-SA": "تسجيل الدخول",
 				"en-US": "Sign in"
 			},
 			"context": {
@@ -63948,7 +64031,7 @@
 		{
 			"key": "workspace.auth.signing.in_XOxZT4",
 			"messages": {
-				"ar-SA": "جاري تسجيل الدخول...",
+				"ar-SA": "جارٍ تسجيل الدخول...",
 				"en-US": "Signing in..."
 			},
 			"context": {
@@ -64024,7 +64107,7 @@
 		{
 			"key": "workspace.documents.something.went.wrong.while.importing.try.again.or.start.blank_WnA8m_",
 			"messages": {
-				"ar-SA": "حدث خطأ ما أثناء الاستيراد. حاول مرة أخرى، أو ابدأ فارغًا.",
+				"ar-SA": "حدث خطأ ما أثناء الاستيراد. حاول مرة أخرى، أو ابدأ بسيرة فارغة.",
 				"en-US": "Something went wrong while importing. Try again, or start blank."
 			},
 			"context": {
@@ -64138,7 +64221,7 @@
 		{
 			"key": "workspace.documents.sort_f6Hub0",
 			"messages": {
-				"ar-SA": "نوع",
+				"ar-SA": "ترتيب",
 				"en-US": "Sort"
 			},
 			"context": {
@@ -64176,7 +64259,7 @@
 		{
 			"key": "workspace.documents.start.blank_eGgKnL",
 			"messages": {
-				"ar-SA": "ابدأ فارغًا",
+				"ar-SA": "البدء بسيرة فارغة",
 				"en-US": "Start blank"
 			},
 			"context": {
@@ -64404,7 +64487,7 @@
 		{
 			"key": "workspace.documents.suggested.from.the.source.and.the.job.change.it.anytime_w87xgh",
 			"messages": {
-				"ar-SA": "مقترح من المصدر والوظيفة . تغييره في أي وقت.",
+				"ar-SA": "اسم مقترح بناءً على السيرة الأصلية والوظيفة. يمكنك تغييره في أي وقت",
 				"en-US": "Suggested from the source and the job. Change it anytime."
 			},
 			"context": {
@@ -64523,7 +64606,7 @@
 		{
 			"key": "workspace.documents.tags.group.documents.in.the.library.pick.one.above.the.grid.to.filter.by.it_il4NFG",
 			"messages": {
-				"ar-SA": "علامات مجموعة المستندات في المكتبة؛ اختر واحدًا فوق الشبكة للتصفية به.",
+				"ar-SA": "تجمع الوسوم المستندات في المكتبة؛ اختر وسمًا فوق الشبكة لتصفية المستندات بحسبه",
 				"en-US": "Tags group documents in the library; pick one above the grid to filter by it."
 			},
 			"context": {
@@ -64561,7 +64644,7 @@
 		{
 			"key": "workspace.documents.tags_bieuO1",
 			"messages": {
-				"ar-SA": "العلامات…",
+				"ar-SA": "الوسوم…",
 				"en-US": "Tags…"
 			},
 			"context": {
@@ -64751,7 +64834,7 @@
 		{
 			"key": "workspace.documents.the.application.this.letter.is.for_whWW6C",
 			"messages": {
-				"ar-SA": "طلب الوظيفة المخصص لهذه الرسالة.",
+				"ar-SA": "طلب التقديم الذي خُصّص له هذا الخطاب",
 				"en-US": "The application this letter is for."
 			},
 			"context": {
@@ -64789,7 +64872,7 @@
 		{
 			"key": "workspace.documents.the.copy.is.linked.to.the.application.so.check.and.the.assistant.use.its.posting_GFxaod",
 			"messages": {
-				"ar-SA": "يتم ربط النسخة بطلب الوظيفة، لذا يستخدم Check والمساعد إعلان الوظيفة الخاص به.",
+				"ar-SA": "يتم ربط النسخة بطلب الوظيفة، لذا يستخدم الفحص والمساعد إعلان الوظيفة الخاص به.",
 				"en-US": "The copy is linked to the application, so Check and the assistant use its posting."
 			},
 			"context": {
@@ -65055,8 +65138,8 @@
 		{
 			"key": "workspace.documents.this.file.type.can.t.be.imported.use.a.pdf.word.reactive.resume.or.json.resume.file.or.a.linkedin.ex_YtIiPy",
 			"messages": {
-				"ar-SA": "لا يمكن استيراد نوع الملف هذا. استخدم ملف PDF، أو Word، أو Reactive Resume أو JSON Resume، أو تصدير LinkedIn (.zip).",
-				"en-US": "This file type can't be imported. Use a PDF, Word, Reactive Resume or JSON Resume file, or a LinkedIn export (.zip)."
+				"ar-SA": "لا يمكن استيراد نوع الملف هذا. استخدم ملف PDF، أو Word، أو Master CV أو JSON Resume، أو تصدير LinkedIn (.zip).",
+				"en-US": "This file type can't be imported. Use a PDF, Word, Master CV or JSON Resume file, or a LinkedIn export (.zip)."
 			},
 			"context": {
 				"surfaces": ["messages:workspace"],
@@ -65069,9 +65152,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "This file type can't be imported. Use a PDF, Word, Reactive Resume or JSON Resume file, or a LinkedIn export (.zip).",
+				"msgid": "This file type can't be imported. Use a PDF, Word, Master CV or JSON Resume file, or a LinkedIn export (.zip).",
 				"msgctxt": "",
-				"runtimeId": "YtIiPy",
+				"runtimeId": "7VoRux",
 				"mappingStatus": "verified runtime extraction",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/documents/new-document-dialog.tsx",
@@ -65853,7 +65936,7 @@
 		{
 			"key": "workspace.documents.updated.done.of.total.locked.documents.and.letters.for.public.links.were.skipped_lV12uU",
 			"messages": {
-				"ar-SA": "تم تحديث {done} من {total}. تم تخطي المستندات المقفلة، والرسائل بالنسبة للروابط العامة.",
+				"ar-SA": "تم تحديث {done} من {total}. تم تخطي المستندات المقفلة، وكذلك خطابات التقديم عند تحديث الروابط العامة.",
 				"en-US": "Updated {done} of {total}. Locked documents, and letters for public links, were skipped."
 			},
 			"context": {
@@ -66128,7 +66211,7 @@
 		{
 			"key": "workspace.auth.verifying.backup.code_SXcmcA",
 			"messages": {
-				"ar-SA": "جاري التحقق من رمز النسخ الاحتياطي...",
+				"ar-SA": "جارٍ التحقق من رمز النسخ الاحتياطي...",
 				"en-US": "Verifying backup code..."
 			},
 			"context": {
@@ -66166,7 +66249,7 @@
 		{
 			"key": "workspace.auth.verifying.code_E09rlM",
 			"messages": {
-				"ar-SA": "جاري التحقق من الرمز...",
+				"ar-SA": "جارٍ التحقق من الرمز...",
 				"en-US": "Verifying code..."
 			},
 			"context": {
@@ -66204,7 +66287,7 @@
 		{
 			"key": "workspace.auth.verifying.password_1Qc25t",
 			"messages": {
-				"ar-SA": "جاري التحقق من كلمة المرور...",
+				"ar-SA": "جارٍ التحقق من كلمة المرور...",
 				"en-US": "Verifying password..."
 			},
 			"context": {
@@ -66242,7 +66325,7 @@
 		{
 			"key": "workspace.documents.view_jpctdh",
 			"messages": {
-				"ar-SA": "منظر",
+				"ar-SA": "عرض",
 				"en-US": "View"
 			},
 			"context": {
@@ -66470,7 +66553,7 @@
 		{
 			"key": "workspace.documents.you.don.t.have.a.resume.to.copy.yet.import.or.create.a.resume.first.then.return.to.copy.it.for.this._9m1ki8",
 			"messages": {
-				"ar-SA": "ليس لديك سيرة ذاتية لنسخها بعد. قم باستيراد أو إنشاء سيرة ذاتية أولاً، ثم العودة لنسخها لهذه الوظيفة.",
+				"ar-SA": "ليس لديك سيرة ذاتية لنسخها بعد. قم باستيراد أو إنشاء سيرة ذاتية أولاً، ثم عُد لنسخها لهذه الوظيفة.",
 				"en-US": "You don't have a resume to copy yet. Import or create a resume first, then return to copy it for this job."
 			},
 			"context": {
@@ -66654,6 +66737,833 @@
 					"status": "pending owner review",
 					"owner": "product owner",
 					"version": "T003 / 2026-11-09"
+				}
+			}
+		},
+		{
+			"key": "shell.search.trigger",
+			"messages": {
+				"ar-SA": "ابحث أو انتقل إلى…",
+				"en-US": "Search or jump to…"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Owner-approved shared header search wording, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Search or jump to…",
+				"msgctxt": "shell.search.trigger",
+				"runtimeId": "rMR5gJ",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/command-palette/trigger.tsx",
+				"verification": "Owner-approved shell search; contextual Lingui identity verified against both catalogs."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "documents.new.copyTitle",
+			"messages": {
+				"ar-SA": "نسخة لوظيفة",
+				"en-US": "Copy for a job"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Owner-approved round 4 refinement, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Copy for a job",
+				"msgctxt": "",
+				"runtimeId": "sTvuub",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/documents/new-document-dialog.tsx",
+				"verification": "Owner-requested concise choices and shared settings row, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "documents.new.copyHint",
+			"messages": {
+				"ar-SA": "انسخ سيرة محفوظة.",
+				"en-US": "Copy a saved CV."
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Owner-approved round 4 refinement, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Copy a saved CV.",
+				"msgctxt": "",
+				"runtimeId": "qfXiIl",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/documents/new-document-dialog.tsx",
+				"verification": "Owner-requested concise choices and shared settings row, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "documents.new.blankHint",
+			"messages": {
+				"ar-SA": "أضف معلوماتك في المحرر.",
+				"en-US": "Add details in the editor."
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Owner-approved round 4 refinement, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Add details in the editor.",
+				"msgctxt": "",
+				"runtimeId": "RKgEpu",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/documents/new-document-dialog.tsx",
+				"verification": "Owner-requested concise choices and shared settings row, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "documents.new.importHint",
+			"messages": {
+				"ar-SA": "أفلت ملف PDF أو Word أو JSON، أو تصفّح.",
+				"en-US": "Drop a PDF, Word or JSON file, or browse."
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Owner-approved round 4 refinement, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Drop a PDF, Word or JSON file, or browse.",
+				"msgctxt": "",
+				"runtimeId": "Oggcep",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/documents/new-document-dialog.tsx",
+				"verification": "Owner-requested concise choices and shared settings row, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "documents.new.letterAction",
+			"messages": {
+				"ar-SA": "أو أنشئ خطاب تقديم",
+				"en-US": "Or create a cover letter"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Owner-approved round 4 refinement, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Or create a cover letter",
+				"msgctxt": "",
+				"runtimeId": "jLChhS",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/documents/new-document-dialog.tsx",
+				"verification": "Owner-requested concise choices and shared settings row, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "documents.new.sampleAction",
+			"messages": {
+				"ar-SA": "جرّب بسيرة نموذجية",
+				"en-US": "Try a sample CV"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Owner-approved round 4 refinement, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Try a sample CV",
+				"msgctxt": "",
+				"runtimeId": "SmdpJv",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/documents/new-document-dialog.tsx",
+				"verification": "Owner-requested concise choices and shared settings row, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "account.settings.currentSession",
+			"messages": {
+				"ar-SA": "الجلسة الحالية",
+				"en-US": "Current session"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Owner-approved round 4 refinement, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Current session",
+				"msgctxt": "",
+				"runtimeId": "YEwiAG",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/settings/account/page.tsx",
+				"verification": "Owner-requested concise choices and shared settings row, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "owner approved",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "documents.preview.empty",
+			"messages": {
+				"ar-SA": "سيرة فارغة",
+				"en-US": "Empty CV"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Round 5: explicit empty, loading and recovery states for real CV previews, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Empty CV",
+				"msgctxt": "",
+				"runtimeId": "Ip-oUv",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/documents/resume-thumbnail.tsx",
+				"verification": "Round 5 preview states, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "documents.preview.error",
+			"messages": {
+				"ar-SA": "المعاينة غير متاحة",
+				"en-US": "Preview unavailable"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Round 5: explicit empty, loading and recovery states for real CV previews, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Preview unavailable",
+				"msgctxt": "",
+				"runtimeId": "IF5r8v",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/documents/resume-thumbnail.tsx",
+				"verification": "Round 5 preview states, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "career.time.starts",
+			"messages": {
+				"ar-SA": "يبدأ {relativeTime}",
+				"en-US": "Starts {relativeTime}"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Round 5: explicit empty, loading and recovery states for real CV previews, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [
+				{
+					"name": "relativeTime",
+					"type": "string",
+					"description": "Locale-aware unbreakable relative time, Latin digits."
+				}
+			],
+			"variants": [],
+			"lingui": {
+				"msgid": "Starts {relativeTime}",
+				"msgctxt": "",
+				"runtimeId": "RtmAuP",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/career/shared.tsx",
+				"verification": "Round 5 preview states, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "career.time.started",
+			"messages": {
+				"ar-SA": "بدأ {relativeTime}",
+				"en-US": "Started {relativeTime}"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Round 5: explicit empty, loading and recovery states for real CV previews, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [
+				{
+					"name": "relativeTime",
+					"type": "string",
+					"description": "Locale-aware unbreakable relative time, Latin digits."
+				}
+			],
+			"variants": [],
+			"lingui": {
+				"msgid": "Started {relativeTime}",
+				"msgctxt": "",
+				"runtimeId": "vu1EL9",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/career/workspace/prepare.tsx",
+				"verification": "Round 5 preview states, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "applications.time.applied",
+			"messages": {
+				"ar-SA": "قُدّم الطلب {relativeTime}",
+				"en-US": "Applied {relativeTime}"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Round 5: explicit empty, loading and recovery states for real CV previews, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [
+				{
+					"name": "relativeTime",
+					"type": "string",
+					"description": "Locale-aware unbreakable relative time, Latin digits."
+				}
+			],
+			"variants": [],
+			"lingui": {
+				"msgid": "Applied {relativeTime}",
+				"msgctxt": "",
+				"runtimeId": "exyNNb",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/applications/next-step.ts",
+				"verification": "Round 5 preview states, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "applications.search.placeholder",
+			"messages": {
+				"ar-SA": "البحث في طلبات التقديم",
+				"en-US": "Search applications"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Pre-merge placeholder-fit correction, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Search applications",
+				"msgctxt": "",
+				"runtimeId": "-ZIZxC",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/routes/dashboard/applications/index.tsx",
+				"verification": "T003 scoped extraction and 1280/1440 toolbar fit checks, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "auth.code.sixDigits",
+			"messages": {
+				"ar-SA": "يجب أن يتكوّن الرمز من 6 أرقام",
+				"en-US": "Code must be 6 digits"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Pre-merge placeholder-fit correction, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Code must be 6 digits",
+				"msgctxt": "",
+				"runtimeId": "fKofBR",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/auth/pages/verify-2fa.tsx",
+				"verification": "T003 current scoped extraction, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "common.query.failedHint",
+			"messages": {
+				"ar-SA": "تعذّر تحميل هذا. لم تتغيّر بياناتك المحفوظة.",
+				"en-US": "Couldn't load this. Your saved data hasn't changed."
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Pre-merge placeholder-fit correction, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Couldn't load this. Your saved data hasn't changed.",
+				"msgctxt": "",
+				"runtimeId": "QtD-96",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/career/load-state.tsx",
+				"verification": "T003 current scoped extraction, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "documents.applications.loading",
+			"messages": {
+				"ar-SA": "جارٍ تحميل الطلبات…",
+				"en-US": "Loading applications…"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Pre-merge placeholder-fit correction, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Loading applications…",
+				"msgctxt": "",
+				"runtimeId": "GPfJvI",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/command-palette/pages/resumes.tsx",
+				"verification": "T003 current scoped extraction, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "career.facts.placeholder",
+			"messages": {
+				"ar-SA": "أضف حقيقة…",
+				"en-US": "Add a fact…"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Pre-merge placeholder-fit correction, 2026-11-10."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Add a fact…",
+				"msgctxt": "",
+				"runtimeId": "5kQfxY",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/career/knowledge/facts.tsx",
+				"verification": "T003 current scoped extraction, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "editor.shortcuts.reorder",
+			"messages": {
+				"ar-SA": "اسحب أو اضغط {keys} لإعادة الترتيب",
+				"en-US": "Drag or press {keys} to reorder"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": [
+					"Keyboard keys are shared isolated components, never translated modifier symbols. Owner keyboard-hint correction, 2026-11-10."
+				]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [
+				{
+					"name": "keys",
+					"type": "string"
+				}
+			],
+			"variants": [],
+			"lingui": {
+				"msgid": "Drag or press {keys} to reorder",
+				"msgctxt": "",
+				"runtimeId": "GNYxn8",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/resume/editor/write/write-panel.tsx",
+				"verification": "T003 current scoped extraction, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "editor.shortcuts.proposals",
+			"messages": {
+				"ar-SA": "اضغط <0/> لقبول التعديل المحدد أو <1/> لرفضه. استخدم <2/> و<3/> للتنقل بين التعديلات.",
+				"en-US": "<0/> accepts and <1/> rejects the focused edit. <2/> and <3/> move between edits."
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": [
+					"Keyboard keys are shared isolated components, never translated modifier symbols. Owner keyboard-hint correction, 2026-11-10."
+				]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "<0/> accepts and <1/> rejects the focused edit. <2/> and <3/> move between edits.",
+				"msgctxt": "",
+				"runtimeId": "EftL3t",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/resume/editor/proposals/proposal-list.tsx",
+				"verification": "T003 current scoped extraction, 2026-11-10."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				}
+			}
+		},
+		{
+			"key": "editor.export.pdfReady",
+			"messages": {
+				"ar-SA": "ملف PDF جاهز",
+				"en-US": "PDF ready"
+			},
+			"context": {
+				"surfaces": ["messages:workspace"],
+				"audience": "candidate/account owner",
+				"translatorNotes": [
+					"Announced only after PDF generation and the browser download handoff succeed. Owner-approved signature motion, 2026-11-10."
+				]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "PDF ready",
+				"msgctxt": "",
+				"mappingStatus": "verified runtime extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/routes/builder/$resumeId/-components/editor-bar.tsx",
+				"verification": "T003 current scoped extraction, 2026-11-10.",
+				"runtimeId": "ta7njj"
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "T003 / 2026-11-10"
 				}
 			}
 		}
@@ -71528,6 +72438,7 @@
 			}
 		},
 		"workspace": [
+			"shell.search.trigger",
 			"workspace.documents.0.moved.to.trash_1k9NBr",
 			"workspace.documents.0.plural.one.document.moved.to.trash.other.documents.moved.to.trash_LbTrtF",
 			"workspace.documents.0.copy_wqtZLy",
@@ -71790,7 +72701,27 @@
 			"workspace.documents.you.have.reached.the.limit.for.base.cvs.your.existing.documents.remain.available.to.edit.and.downloa_yMnl5m",
 			"workspace.auth.you.re.using.a.guest.account_SAAr0p",
 			"workspace.auth.your.email.address.isn.t.verified.with.the.provider_2-h1R_",
-			"workspace.auth.your.work.is.lost.when.you.sign.out.or.the.session.ends.create.an.account.or.sign.in.to.keep.your.re_4DiBkO"
+			"workspace.auth.your.work.is.lost.when.you.sign.out.or.the.session.ends.create.an.account.or.sign.in.to.keep.your.re_4DiBkO",
+			"documents.new.copyTitle",
+			"documents.new.copyHint",
+			"documents.new.blankHint",
+			"documents.new.importHint",
+			"documents.new.letterAction",
+			"documents.new.sampleAction",
+			"account.settings.currentSession",
+			"documents.preview.empty",
+			"documents.preview.error",
+			"career.time.starts",
+			"career.time.started",
+			"applications.time.applied",
+			"applications.search.placeholder",
+			"auth.code.sixDigits",
+			"common.query.failedHint",
+			"documents.applications.loading",
+			"career.facts.placeholder",
+			"editor.shortcuts.reorder",
+			"editor.shortcuts.proposals",
+			"editor.export.pdfReady"
 		]
 	}
 }
