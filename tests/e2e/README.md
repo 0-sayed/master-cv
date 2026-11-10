@@ -41,3 +41,20 @@ Run tests:
 
 Visual regression, PDF/DOCX rasterization parity, thumbnail resolution, and import-fixture reproduction are
 intentionally outside the PR gate to keep it fast.
+
+### CI browser reproduction (required before a browser CI parity claim)
+
+Use Node 24 and `pnpm exec playwright install chromium`. Supply a local synthetic PostgreSQL 17 admin connection as `E2E_DATABASE_ADMIN_URL` through your private environment, then run:
+
+```sh
+node tooling/local/ci-browser.mjs
+# Same partitioning as .github/workflows/e2e.yml; run sequentially on local port 3030:
+node tooling/local/ci-browser.mjs --shard=1/4
+# Repeat for 2/4, 3/4 and 4/4.
+# During iteration only, after a production build of the current source:
+node tooling/local/ci-browser.mjs --skip-build tests/e2e/specs/auth.spec.ts
+```
+
+The runner always creates and migrates a new empty database and a restricted runtime role using the workflow's role provisioner. It uses production output, `CI=true` (one worker, CI reporters, zero retries), the workflow feature flags, fresh local storage/mail, and bundled Chromium. It ignores inherited product/provider settings, `PLAYWRIGHT_CHANNEL`, and server reuse. It only starts its own 3030/3033 processes and refuses occupied ports; it never touches 3000. Install the workflow's Poppler toolchain in `.cache/document-toolchain` first (see `docs/development.md`).
+
+Each invocation, including each shard, gets a separate empty database. Its name and temporary artifact directory are printed; the synthetic database/role and artifacts remain for investigation, and are never reused. Keep the private admin connection outside tracked files. An installed-Chrome run against an already populated/reused runtime is a useful manual check, but does not reproduce CI.

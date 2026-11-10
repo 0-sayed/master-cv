@@ -2,13 +2,15 @@
 
 **Version:** 0.8 · **Updated:** 2026-11-03 · **Visual baseline:** Master CV: Design (v1)  
 **Status:** Working design-to-code reference synchronized with the redesigned Figma file (v1). Final owner/commercial approval and real application acceptance remain open.  
-**Owns:** Visual foundations, bilingual layouts, component usage, interaction/state design and design-to-code handoff.  
+**Owns:** Shared visual API rules, bilingual layouts, component usage, interaction/state design and design-to-code handoff.\
 **Companions:** [Coding-agent handoff](figma-handoff.md) · [Verified Figma map](figma-map.json) · [Requirements](../business/requirements.md) · [Architecture](../technical/architecture.md) · [Security](../technical/security.md) · [Decisions](../decisions.md) · [Index](../README.md)
 **Launch contract (owner decided 2026-11-04):** In Arabic and English, launch uses email + password sign-up, email verification and email password recovery. Mobile sign-up, SMS verification/reset, password-recovery codes and S37-S39 are a later T014 increment, off at launch until company registration, sender approval and A14-A16. D20/D21 retain that increment's Phase 1/Phase 2 contracts; no implementation or gate approval is implied.
 
+**MVP visual authority:** [D35 (owner decided 2026-11-09)](../decisions.md) makes existing shared code components with T002 brand tokens authoritative for visual details. Figma governs screens, states, dialogs, elements, content, icons, flows and order; pixel parity is not required. Do not tune per-screen sizes to imitate a mock. Shared-component brand polish is post-MVP. Differences from Figma geometry are allowed; inconsistent geometry within the app is a defect, not deferred brand polish.
+
 ## 1. Decision in plain language
 
-**Use the saved native design, not the old HTML or an unexecuted importer:** [Master CV: Design (v1)](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=0-1). Start with the [coding-agent handoff](figma-handoff.md), then use the exact frame ID from [figma-map.json](figma-map.json). This document owns visual rules; business requirements and security/release decisions retain authority over behavior and availability.
+**Use the saved native design, not the old HTML or an unexecuted importer:** [Master CV: Design (v1)](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=0-1). Start with the [coding-agent handoff](figma-handoff.md), then use the exact frame ID from [figma-map.json](figma-map.json). This document records visual API rules under D35; shared components and T002 CSS tokens own implemented visual details. Keep D11 brand approval open; apply D35 to visual implementation. Do not reopen the Reactive Resume foundation or restore Figma pixel authority. Business requirements and security/release decisions retain authority over behavior and availability.
 
 The current registry covers S01–S39 plus S08b, with Arabic RTL desktop/mobile masters, product states, form dialogs/sheets and curated English masters. Use [saved-design verification and limits](figma-handoff.md#verification-status-2026-11-04); design publication does not prove application acceptance.
 
@@ -40,12 +42,12 @@ Competitor marketing does not establish user preferences, outcomes, compliance o
 | Editorial display     | A restrained serif display role analogous to Newsreader                                                     | Noto Sans Arabic for native Arabic display; Noto Serif for English display (the earlier Naskh proposal is superseded for this reference) |
 | Controls              | Existing Button, Input, Tabs, sheets/dialogs, alerts and toasts                                             | Arabic labels, long-label wrapping, source-evidence and acceptance interactions                                                          |
 | Editor                | Write / Design / Check concept; separate document canvas                                                    | Mobile Write/Preview switching and independent UI/document language                                                                      |
-| Icons                 | Existing production Phosphor architecture                                                                   | Original simple outline glyphs used only in the design prototype; replace/map to matching existing Phosphor glyphs in production         |
+| Icons                 | Existing production Phosphor architecture                                                                   | Phosphor regular 2.1.1; exact canonical Phosphor names through the existing Icon registry; see [icons.json](icons.json)                  |
 | Templates             | Reuse existing template implementation                                                                      | Onyx/Persian shown as candidate single-column layouts; not certified or the final release list                                           |
 
 The original client mock used IBM Plex Sans Arabic. That mock was not a binding font selection. The proposed Noto families are a deliberate design adaptation, not a claim that upstream already uses them. Current upstream uses Hanken Grotesk/Newsreader for its main interface, with additional marketing typography. Do not accidentally ship both complete font stacks after adopting this proposal.
 
-The source CSS uses authoritative OKLCH values; its design guide lists approximate sRGB colors. **This synchronized reference pins the sRGB values below** for browser/Figma consistency. Preserve the semantic names and consciously replace values in code; do not mix selected hex values with unexamined upstream OKLCH approximations and call them identical.
+Consume existing semantic CSS variables and shared type/spacing/radius utilities. Treat T002 palette migration as delivered; do not paste Figma hex values, reconstruct node styles or create per-screen token aliases. Extend an owning shared definition only to fix a demonstrated shared defect. The sRGB table below records design reference values; consume implemented semantic definitions instead of copying the table into screens.
 
 ## 4. Color system
 
@@ -91,7 +93,7 @@ Use `line-1` for separators inside a card and `line` for card borders. Neither i
 
 ### Persisted design-token integrity
 
-A token reference alone is not rendering evidence. When editing Figma, retain the variable binding **and** write a matching resolved RGB paint for the consuming mode; save, reread and inspect the resulting render. In the web implementation, use the corresponding semantic CSS variables and test the actual browser output. Do not globally remove token bindings or hard-code white text as a workaround. See [saved-design verification and limits](figma-handoff.md#verification-status-2026-11-04).
+A token reference alone is not rendering evidence. When editing Figma, retain the variable binding **and** write a matching resolved RGB paint for the consuming mode; save, reread and inspect the resulting render. In the web implementation, Consume existing semantic CSS variables and shared type/spacing/radius utilities. Treat T002 palette migration as delivered; do not paste Figma hex values, reconstruct node styles or create per-screen token aliases. Extend an owning shared definition only to fix a demonstrated shared defect. Test the actual browser output. Do not globally remove token bindings or hard-code white text as a workaround. See [saved-design verification and limits](figma-handoff.md#verification-status-2026-11-04).
 
 ### Measured contrast pairs
 
@@ -126,7 +128,7 @@ Ratios were calculated from these sRGB values, not eyeballed. This table tests t
 
 **Native implementation reference:** Noto Sans Arabic for Arabic UI and headings, Noto Sans for English functional UI, and Noto Serif Medium for English editorial headings. The old Noto Naskh Arabic display choice is not the current Figma target: the native handoff records it as unavailable through that connection. This is an explicit adaptation, not an owner-approved new brand or a claim that Naskh is unsuitable in general.
 
-The v1 file has one shared style set; each style binds its family and weight to the **Type** variable collection (mode Arabic or English), so a frame switches language by mode, never by restyling. Values read from Figma on 2026-10-24. They are a base style set; the target hero and mobile composition may have deliberate instance-level sizing overrides. Inspect that node rather than forcing every heading to one size.
+The Figma Type collection records Arabic/English family and weight modes as reference data. Use the shared type roles: display 48, title/display-small 32, title-small 24, section 19, lead 17, Arabic body/label/input 16 and metadata 14px (English body/label 14, metadata 12); mobile navigation uses Arabic 14px / English 12px, with each role's shared line-height and weight. Never add arbitrary UI font sizes or line-heights, including Figma instance overrides. Keep document-paper typography separate.
 
 | Shared role       | Size / line height, px | Arabic                      | English                     |
 | ----------------- | ---------------------- | --------------------------- | --------------------------- |
@@ -135,17 +137,19 @@ The v1 file has one shared style set; each style binds its family and weight to 
 | Title             | 32 / 48                | Noto Sans Arabic SemiBold   | Noto Serif Medium           |
 | Title S           | 24 / 36                | Noto Sans Arabic SemiBold   | Noto Serif Medium           |
 | Section           | 19 / 29                | Noto Sans Arabic SemiBold   | Noto Sans SemiBold          |
-| Body              | 14 / 23                | Noto Sans Arabic Regular    | Noto Sans Regular           |
+| Body              | AR 16 / 26; EN 14 / 23 | Noto Sans Arabic Regular    | Noto Sans Regular           |
 | Lead              | 17 / 31                | Noto Sans Arabic Regular    | Noto Sans Regular           |
-| Label             | 14 / 22                | Noto Sans Arabic SemiBold   | Noto Sans SemiBold          |
-| Metadata          | 12 / 20                | Noto Sans Arabic Regular    | Noto Sans Regular           |
-| Metadata strong   | 12 / 20                | Noto Sans Arabic SemiBold   | Noto Sans SemiBold          |
+| Label             | AR 16 / 26; EN 14 / 22 | Noto Sans Arabic SemiBold   | Noto Sans SemiBold          |
+| Metadata          | AR 14 / 24; EN 12 / 20 | Noto Sans Arabic Medium     | Noto Sans Regular           |
+| Metadata strong   | AR 14 / 24; EN 12 / 20 | Noto Sans Arabic SemiBold   | Noto Sans SemiBold          |
 | Input             | 16 / 26                | Noto Sans Arabic Regular    | Noto Sans Regular           |
-| Mobile navigation | 12 / 20                | Regular / selected SemiBold | Regular / selected SemiBold |
+| Mobile navigation | AR 14 / 20; EN 12 / 20 | Regular / selected SemiBold | Regular / selected SemiBold |
 
-Navigation also has 13/22 default/selected styles. CV paper uses separate Paper AR/EN styles (22, 11, 9 px) that follow the CV language. The complete style list is in `textStyles` in [figma-map.json](figma-map.json). The earlier v0.4 CSS type scale is superseded.
+Use the shared metadata/navigation role for navigation. Treat Figma 13/22 navigation styles as historical reference values. CV paper uses separate Paper AR/EN styles (22, 11, 9 px) that follow the CV language. The complete observed style list is in `textStyles` in [figma-map.json](figma-map.json).
 
 Keep the document's fonts and script independent of the UI. A Noto Naskh document template remains an unvalidated candidate, not a promised export capability. UI translations must not translate or replace a person's CV values.
+
+Arabic body/input/label roles use 16px, metadata 14px, section titles 19px and page titles 32px. Use real self-hosted Noto Sans Arabic SemiBold 600 for headings; load required faces before showing the interface and disable synthesized heading weights. Keep English roles unchanged.
 
 Use actual available font styles. No faux condensed Arabic, negative tracking on joined text, per-letter spacing animation or hardcoded extra spaces. Preserve diacritics and names. Long labels should reflow; compact language controls must keep `AR` / `EN` on one line.
 
@@ -155,23 +159,15 @@ Font binaries are not supplied in this package. Acquire approved font assets fro
 
 ## 6. Layout, spacing and responsiveness
 
-Use the observed named spacing values: 0, 4, 6, 8, 12, 16, 18, 20, 24, 28, 32, 40, 44, 48, 56 and 64 pixels. Their Figma names are `space/{value}` and CSS names are `--space-{value}`. Do not invent extra values where these roles suffice. Default card padding is 24px desktop and 20px mobile. The earlier 14px narrow-support-card guidance is a documented layout exception, not an existing `space/14` token; inspect the current node rather than inventing a variable that is not in the snapshot. Main-page horizontal padding is 40px desktop, 28px tablet and 18px mobile.
+**Shell brand alignment (CTO decision, 2026-11-10):** Keep the Latin lockup internally LTR, mark left, in both interface directions; never mirror or reorder it (D11). In expanded LTR and either collapsed rail, align the mark centre to the navigation icon column. In expanded RTL, align the lockup’s inline-start (right) edge to the navigation items’ shared inline-start inset instead. Centre every brand slot vertically with the header controls using the shared toolbar height and navigation gutter tokens.
 
-Radii: input/button 8px, chip 999px, card/menu 12px, dialog 16px, mobile sheet 18px, large preview container 16px. Use modest elevation around paper and overlays; ordinary information hierarchy should not depend on shadows.
+Desktop navigation is 236px expanded or the existing 64px tablet rail when collapsed. Persist the choice per account and read it before first render; tablet stays a rail and mobile stays tabs. Keep one discoverable collapse/expand circle on the sidebar inline-end border, with a 24px brand-primary visual, 40px hit area at the vertical midpoint, localized tooltip and directional icon. Search/command palette belongs once at the true center of the header band, independent of the side controls: up to 640px wide on desktop, shrinking clear of controls on tablet, an icon button on mobile. Isolate the platform shortcut LTR (⌘K on macOS, Ctrl K elsewhere); align the desktop palette below the trigger and return focus on close. Group theme and target-language controls in the same raised, bordered treatment. Expanded and rail navigation share logo, row, gap and account heights; toggling must not move any item vertically. Count badges use the shared accent treatment and tabular digits. Header controls share a 44px desktop height and 48px tablet/mobile height. Keep the header 64px high in either sidebar state. Route changes across public/auth/welcome/dashboard/resume-editor/letter-editor/template/public-CV shells swap immediately; within a shell only the incoming body may fade, with no title, toolbar or tab translation/scale. Respect reduced motion. Shared enabled controls use the pointer cursor; editable text retains the text cursor.
 
-| Layout                                | Proposal                                                                                                                |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Desktop review reference              | 1440px width; sidebar 236px; top bar 80px; content fluid                                                                |
-| Focused editor                        | No full application sidebar; 76px top bar; 360px editing panel; remaining width for paper                               |
-| Tablet                                | Reduce margins and complexity; stack headings/actions and content when columns become cramped                           |
-| Mobile reference                      | Native frames use 390px width and 844px viewport; test 320px reflow in the actual application                           |
-| Mobile editor                         | One pane at a time: Write or Preview; Design and Check are explicit destinations                                        |
-| Mobile navigation                     | Document, career information, personal applications and settings; fixed navigation must not hide the final control      |
-| Browser implementation review targets | 320, 390, 768 and 1440 CSS pixels; the older HTML prototype was checked at these widths, not the unbuilt production app |
+Reuse the shared AppShell, DashboardPage and PageHeader. Center the shared DashboardPage canvas and shell header band in the main area with identical inline gutters. Use the shared route/page-type policy: collection lists, grids and boards use the wide variant (1120px below a 1600px viewport, 1360px from 1600px); workspaces and individual records retain the default 1120px canvas. Header and page canvas must use the same variant. Keep form (640px) and narrow/settings (720px) variants aligned at inline-start inside that canvas. Settings sections and dialog/sheet forms share the 640px form limit. Keep document cards bounded by adding a fifth column at wide viewports; career sections use two compact columns on desktop and three at wide viewports, preserving their reading order. Use the shared bounded, dashed EmptyState surface for otherwise floating collection empties; retain existing drop zones and section-card boundaries without extra decoration. group confirmed language names and levels in wrapping editable fact chips. Keep richer rows for drafts and linked-document facts. Use shared compact section cards and control variants, preserving 44px touch hit areas without inflating rows. Own header/body inline padding, sidebar width, responsive gaps and scroll behavior in this layer; do not hand-roll route containers. Use existing spacing/radius tokens. Treat the Figma dimensions and instance exceptions as reference geometry, not CSS requirements. Preserve the distinct editor layout and accessibility/reflow requirements.
 
-Prefer content-driven wrapping over device-name branches. Validate reflow at desktop 1440 and mobile 390; derive responsive transitions from actual content and accessibility tests.
+Bound shell controls to the same content band as the page. Align SettingsRow actions in one trailing column at the row's inline-end; on narrow screens wrap below the label while keeping that end alignment. Resolve credential-dependent settings before first paint so loading does not insert security rows later. Shared small buttons use the label role and a 36px visual height (touch hit areas remain at least 44px); form help and validation use metadata. Hover disclosure must remain visible on touch and reveal on keyboard focus.
 
-The native 390px reference uses a 52 × 48px language control and 90 × 48px bottom-navigation controls. These widths are reference geometry, not fixed widths for every device. In a narrower implemented layout, distribute the four navigation cells within the available width, retain at least a 44px clickable target, and let descriptive labels reflow without horizontal overflow; keep `AR`/`EN` unbroken. Size the actual clickable wrapper, not just its surrounding decoration, and leave scroll content clear of the persistent bottom bar.
+Keep the editor separate from the full dashboard sidebar. On mobile, show one Write/Preview pane at a time, with explicit Design and Check destinations. Let content wrap and derive responsive transitions from content and accessibility tests. Verify 320, 390, 768 and 1440 CSS pixels; keep labels readable and final controls reachable above persistent navigation. Preserve at least 44px clickable touch targets through shared component APIs; size the clickable wrapper and keep `AR`/`EN` unbroken.
 
 A document canvas can be zoomed or panned when implemented, but provide explicit keyboard/touch controls and a reset view. A screen thumbnail is not the exported CV and must never become the production PDF renderer.
 
@@ -184,6 +180,8 @@ Use logical CSS properties (`padding-inline`, `margin-inline`, `border-inline-st
 For known LTR values such as email, phone, URLs and a single technical term, isolate that token with `dir="ltr"`. For unknown user-supplied inline text, use `<bdi dir="auto">` or the appropriate directional wrapper. Do not reverse strings in JavaScript or insert visual-order text into the database. Date ranges require their own tested display policy; keep year precision and calendar ambiguity rather than guessing.
 
 Arabic copy should be clear professional Arabic, not forced dialect and not a literal translation of English layout constraints. Examples in the design are synthetic. Do not infer nationality, gender, credentials or ability from a name. A missing job requirement is “no evidence found,” not “you cannot do this.”
+
+**OWNER APPROVED 2026-11-10:** Use the [copy deck glossary](copy-deck.json) as the single Arabic terminology: سيرة ذاتية، خطاب تقديم، مستند، طلب تقديم، إعلان وظيفة، مسمى وظيفي، ملخص مهني، مسودة، نسخة مخصصة، سجل النسخ، مسؤول توظيف، وسم، معلومة مهنية، مزوّد، المظهر، رفع، تنزيل، مشاركة، حفظ. Name Applications «طلبات التقديم» everywhere. Use verbal nouns for action labels (حفظ، مشاركة، تجاهل), professional Arabic punctuation and Latin digits. Preserve ICU arguments and distinguish consent, status and explanatory prose from actions.
 
 Phone and OTP fields remain LTR inside RTL UI. Display Latin digits; accept/normalize Arabic-Indic and Eastern Arabic digits before validating on client/server. Keep country prefix and masked destination isolated without reversing characters. Interface-language switching preserves the challenge/number and never translates CV content. Use Saudi-format validation and explain errors in the selected interface language.
 
@@ -205,12 +203,14 @@ Title/name search uses a derived Unicode NFC comparison value, removing Arabic h
 
 ## 8. Component contract
 
-Keep the production Base UI/React component foundation and Phosphor integration. Extend existing component APIs rather than create a parallel UI library. The original icon drawings in the static prototype are review assets, not a requirement to replace upstream icons.
+Use one shared control-size API for buttons, inputs, selects and segmented controls; use the same size within each toolbar. Keep size, line-height, padding and label-fit behavior in shared components. Never override them with call-site classes. Fit full AR/EN select labels including chevron space; preserve avatar content insets through the shared Avatar/UserDropdown composition. Verify long labels and both pointer modes.
+
+Keep the production Base UI/React component foundation and Phosphor integration. Extend existing component APIs rather than create a parallel UI library. Figma icons are Phosphor regular 2.1.1. Use the same canonical name through the existing `Icon` registry; never substitute a "similar" glyph. [icons.json](icons.json) records all 80 live component names and node IDs. Where a live component has a legacy name alias, its `phosphorName` records the audited canonical glyph (otherwise use `name`). The audit found 11 such aliases; this mapping preserves the actual working design without editing Figma. Match the master's regular weight, including selected navigation, unless a live variant explicitly specifies fill.
 
 | Family                        | Required states and behavior                                                                                     | Implementation/design notes                                                                                                                                                                                                                                             |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Button                        | Primary, secondary, ghost/link and danger; default, hover, focus, disabled, loading                              | One obvious primary action per task. Desktop min 44px control; touch target 44px or larger, usual control height 48px. Loading has a specific progress label and prevents duplicate activation                                                                          |
-| Input / textarea / select     | Default, focus, invalid, disabled, populated                                                                     | Persistent label, helper text and actionable error. Do not use placeholder as label. Passwords permit paste and password managers; no cognitive puzzle in the proposed auth flow                                                                                        |
+| Button                        | Primary, secondary, ghost/link and danger; default, hover, focus, disabled, loading                              | Use the shared control-size API; match toolbar peers without call-site size overrides. Keep one primary action per task; label loading and prevent duplicate activation.                                                                                                |
+| Input / textarea / select     | Default, focus, invalid, disabled, populated                                                                     | Use the shared control-size API; fit complete AR/EN labels including chevron space. Keep persistent labels, actionable errors, paste and password-manager support.                                                                                                      |
 | Checkbox / consent row        | Checked, unchecked, focus, invalid if required                                                                   | Full label activates control. Do not pre-check unrelated consent. Pricing acceptance must be explicit in production. Terms (S25) and deletion confirmation (S30) are unchecked in the masters                                                                           |
 | Navigation / tabs             | Selected, unselected, focus                                                                                      | Labels remain visible; selected state is not color-only. Use Tabs for view changes, not simulated links with no destination                                                                                                                                             |
 | Document card                 | Original, tailored, language variant, review-needed                                                              | Name, language, privacy, last update and explicit open action. Overflow menu needs accessible name                                                                                                                                                                      |
@@ -371,6 +371,12 @@ For the later T014 increment, off at launch, use the [OTP contract](specs/otp-sp
 
 ## 11. Motion, accessibility and input behavior
 
+### Query loading states
+
+Use skeletons for known-layout QUERY content: lists, grids, cards, tables, settings sections, sidebar counts, editor panels and CV previews. Compose their shapes from shared collection/card/row components and tokens; preserve grid columns, row geometry and page boxes so arrivals do not displace titles, toolbars or adjacent content. Keep usable cached data visible during refetch. Keep spinners/progress for ACTIONS (saving, export, AI generation/streaming and upload), and genuinely unknown-shape boot/auth gates. Do not change error or empty states.
+
+Use the shared skeleton boundary/timing hook: reserve the content shape immediately, reveal decoration after 200ms, and hold it for at least 200ms once shown; fast reads skip it. Never add local delays. Give each region `aria-busy="true"` and one visually hidden localized Lingui status; blocks are decorative (`aria-hidden`). Use logical layout for RTL. The shared pulse changes opacity only and becomes static under `prefers-reduced-motion`. Validate slow-network skeleton→content geometry separately from functional tests; variable result counts are not evidence of an exact-height match.
+
 Retain short purposeful motion (120ms quick, 200ms standard, 320ms emphasized). Do not animate document reflow or make the editor feel like a marketing demo. Respect `prefers-reduced-motion`; transitions should disappear or become near-instant. Progress can communicate state without indefinite decorative movement.
 
 Target WCAG 2.2 AA in the implemented product. Normal active text targets 4.5:1; large text and necessary component graphics have their applicable lower thresholds. Our 44/48px touch recommendation is a design choice exceeding the 24px AA target-size baseline in many cases, not a claim that WCAG AA universally mandates 44px.
@@ -385,16 +391,18 @@ OTP uses one semantic field with autocomplete one-time-code and inputmode numeri
 
 ## 12. Design-to-code implementation map
 
-| Existing location                                  | Work implied by this proposal                                                                                                                          |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `packages/ui/src/styles/globals.css`               | Preserve semantic role names; apply approved palette overrides, script font stacks and responsive rules; do not reintroduce removed legacy token names |
-| `packages/ui/src/components`                       | Reuse buttons, inputs, tabs, dialogs/sheets, alerts, tooltips and icon wrappers; test new long/Arabic labels                                           |
-| `apps/web/src/features/resume`                     | Adapt the current editing/review surfaces; keep the actual data, undo and save services                                                                |
-| `apps/web/src/routes` and relevant feature folders | New onboarding, evidence, usage, payment and privacy pages using existing routing conventions                                                          |
-| Document packages                                  | Keep document font and language choices separate; resolve actual Arabic importer/renderer defects before availability promises                         |
-| Server/service modules                             | Enforce entitlements, ownership, approved AI route and true job/payment/save states; never trust visual gating                                         |
+| Existing location                                  | Work implied by this proposal                                                                                                                              |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/ui/src/styles/globals.css`               | Consume delivered T002 semantic palette, Noto stacks and shared type/spacing/radius utilities; fix demonstrated shared defects in their owning definition. |
+| `packages/ui/src/components`                       | Reuse buttons, inputs, tabs, dialogs/sheets, alerts, tooltips and icon wrappers; test new long/Arabic labels                                               |
+| `apps/web/src/features/resume`                     | Adapt the current editing/review surfaces; keep the actual data, undo and save services                                                                    |
+| `apps/web/src/routes` and relevant feature folders | New onboarding, evidence, usage, payment and privacy pages using existing routing conventions                                                              |
+| Document packages                                  | Keep document font and language choices separate; resolve actual Arabic importer/renderer defects before availability promises                             |
+| Server/service modules                             | Enforce entitlements, ownership, approved AI route and true job/payment/save states; never trust visual gating                                             |
 
 Do not copy the static prototype into the repository as a second application or replace the entire frontend with its vanilla JavaScript. It is a reference for composition and state behavior. Implement these changes in the maintained React fork using actual services and reusable components.
+
+Consume existing semantic CSS variables and shared type/spacing/radius utilities. Treat T002 palette migration as delivered; do not paste Figma hex values, reconstruct node styles or create per-screen token aliases. Extend an owning shared definition only to fix a demonstrated shared defect.
 
 Variable collections in v1: **Primitives**, **Color** (Light/Dark, aliases to primitives), **Spacing**, **Radius** and **Type** (Arabic/English font family and weight). Code syntax maps to `var(--token-name)`. There are no prototype-state variables; prototype outcomes use labelled simulator popups instead. Recheck the selected source paths in the actual repository before implementing; the paths above are inherited integration guidance, not a new checkout inspection.
 
@@ -402,11 +410,15 @@ Phase 1 uses existing web/auth/Hono integration, including verified-mobile SMS r
 
 ## 13. Deliverables and verification boundary
 
+Keep D11 brand approval open; apply D35 to visual implementation. Do not reopen the Reactive Resume foundation or restore Figma pixel authority.
+
 Current working references are this document, [figma-handoff.md](figma-handoff.md), [figma-map.json](figma-map.json) and the saved native Figma file. The earlier HTML preview, generator and old screenshots are superseded for visual implementation; do not regenerate the native file from those assets.
 
 See [saved-design verification and limits](figma-handoff.md#verification-status-2026-11-04). Actual application checks and release gates remain open.
 
 ## 14. Acceptance before implementation and release
+
+Reject newly added raw UI font/color/spacing/radius values and control-size overrides outside shared definitions; require semantic roles and shared variants. Verify equal header/body start edges and invariant sidebar width across dashboard routes, matching toolbar heights, full select-label fit and avatar inset. Check AR/EN, narrow/wide layouts and every changed dialog/state; record evidence separately from functional smoke.
 
 For each implementation task, record requirement IDs and the exact Arabic/English desktop/mobile frame references; fetch current design context and a render, inspect the existing React components, and implement the real stateful behavior rather than copying the mock's fake operations. Compare the actual browser output with the target and test relevant failure/recovery paths. The detailed procedure is in [the handoff](figma-handoff.md).
 

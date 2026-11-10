@@ -14,8 +14,10 @@ export function LocaleSwitch({ compact = false }: LocaleSwitchProps) {
 	return (
 		<div className="relative">
 			<Button
-				variant="ghost"
-				className={compact ? "px-2" : undefined}
+				dir="ltr"
+				variant="control"
+				size={compact ? "language-compact" : "language"}
+				className="gap-1.5"
 				disabled={pending}
 				loading={pending}
 				aria-label={
@@ -28,7 +30,7 @@ export function LocaleSwitch({ compact = false }: LocaleSwitchProps) {
 					void changeLocale(arabic ? "en-US" : "ar-SA").catch(() => setFailed(true));
 				}}
 			>
-				{!compact && <Icon name="globe" />}
+				{!compact && <Icon name="globe" size={18} className="hidden lg:inline-block" />}
 				<span lang={arabic ? "en-US" : "ar-SA"}>
 					{arabic
 						? t({ message: "EN", context: "language.switch.english" })

@@ -4,6 +4,7 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
+		"brand:assets": "node scripts/generate-brand-assets.mjs",
 		"dev": "tsx watch --tsconfig ../../tsconfig.json src/index.ts",
 		"build": "tsdown",
 		"start": "node dist/index.mjs",

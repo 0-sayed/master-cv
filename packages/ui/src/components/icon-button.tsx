@@ -9,7 +9,7 @@ type IconButtonProps = Omit<ButtonProps, "children" | "aria-label"> & {
 	icon: IconName;
 	/** Accessible name, also shown in the tooltip. */
 	label: string;
-	/** Keyboard shortcut shown in the tooltip, e.g. "⌘Z". */
+	/** Platform-independent hotkey notation shown in the tooltip, e.g. "Mod+Z". */
 	shortcut?: string;
 	iconSize?: number;
 	tooltipSide?: "top" | "bottom" | "left" | "right";
@@ -33,7 +33,7 @@ function IconButton({
 			</TooltipTrigger>
 			<TooltipContent side={tooltipSide}>
 				{label}
-				{shortcut && <Kbd>{shortcut}</Kbd>}
+				{shortcut && <Kbd keys={shortcut} />}
 			</TooltipContent>
 		</Tooltip>
 	);

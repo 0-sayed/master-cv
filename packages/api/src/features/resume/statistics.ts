@@ -24,6 +24,7 @@ export const resumeStatisticsRouter = {
 				...input,
 				requestHeaders: context.reqHeaders,
 				...(context.user?.id ? { currentUserId: context.user.id } : {}),
+				requirePublic: !context.authentication?.permissions.includes("read"),
 			}),
 		),
 

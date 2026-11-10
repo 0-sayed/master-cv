@@ -14,7 +14,10 @@ const publishResumeUpdatedMock = vi.hoisted(() => vi.fn());
 const grantResumeAccessMock = vi.hoisted(() => vi.fn());
 
 vi.mock("../cover-letters/embedded", () => ({ adoptEmbeddedLetters: vi.fn(async () => undefined) }));
-vi.mock("@reactive-resume/db/client", () => ({ db: dbMock }));
+vi.mock("@reactive-resume/db/client", () => ({
+	db: dbMock,
+	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+}));
 vi.mock("@reactive-resume/db/schema", () => ({
 	resume: {
 		id: "id",

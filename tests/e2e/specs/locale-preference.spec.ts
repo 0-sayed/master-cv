@@ -1,5 +1,6 @@
 import { createAccount } from "../fixtures/data";
 import { deleteE2EUser } from "../fixtures/db";
+import { capturedAuthLink } from "../fixtures/mail";
 import { expect, test } from "../fixtures/test";
 
 test("validates and isolates a persisted UI locale, including a fresh cookie-free visit", async ({
@@ -40,6 +41,15 @@ test("validates and isolates a persisted UI locale, including a fresh cookie-fre
 				await other.request.post("/api/auth/sign-up/email", {
 					headers,
 					data: { ...second, displayUsername: second.username },
+				})
+			).ok(),
+		).toBe(true);
+		await other.request.get(await capturedAuthLink(second.email, "verification"));
+		expect(
+			(
+				await other.request.post("/api/auth/sign-in/email", {
+					headers,
+					data: { email: second.email, password: second.password },
 				})
 			).ok(),
 		).toBe(true);

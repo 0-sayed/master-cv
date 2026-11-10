@@ -7,7 +7,7 @@ import { resolve, join } from "node:path";
 const pins = JSON.parse(await readFile(new URL("./versions.json", import.meta.url), "utf8"));
 if (process.platform !== "linux" || process.arch !== "x64")
 	throw new Error("Pinned Poppler requires Linux x64 with Ubuntu 22.04 runtime libraries");
-const root = resolve(process.env.DOCUMENT_TOOLCHAIN_DIRECTORY ?? ".superpowers/document-toolchain");
+const root = resolve(process.env.DOCUMENT_TOOLCHAIN_DIRECTORY ?? ".cache/document-toolchain");
 await mkdir(root, { recursive: true });
 for (const item of pins.poppler.packages) {
 	const response = await fetch(item.url, { signal: AbortSignal.timeout(30000) });

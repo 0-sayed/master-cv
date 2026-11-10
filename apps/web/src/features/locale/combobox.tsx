@@ -26,7 +26,7 @@ export function LocaleCombobox(props: Props) {
 					void changeLocale(value).catch(() => setFailed(true));
 				}}
 			/>
-			{failed && <p role="alert" className="text-sm text-danger">{t`Something went wrong. Please try again.`}</p>}
+			{failed && <p role="alert" className="type-body text-danger">{t`Something went wrong. Please try again.`}</p>}
 		</div>
 	);
 }

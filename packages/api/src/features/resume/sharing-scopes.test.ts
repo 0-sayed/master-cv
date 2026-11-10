@@ -3,20 +3,61 @@ import { expect, it, vi } from "vite-plus/test";
 import { createProcedureClient } from "@orpc/server";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 
-const fixture = vi.hoisted(() => ({ resume: {} as Record<string, unknown> }));
+const fixture = vi.hoisted(() => ({ resume: {} as Record<string, unknown>, counterWrite: vi.fn() }));
 vi.mock("@reactive-resume/auth/config", () => ({ auth: {}, verifyOAuthToken: vi.fn() }));
 vi.mock("@reactive-resume/db/client", () => ({
+	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+	withOwnerDatabase: (_userId: string, work: (tx: unknown) => unknown) =>
+		work({ insert: () => ({ values: fixture.counterWrite }) }),
 	db: {
 		select: () => ({
 			from: () => ({
 				// This fixture uses its current slug; the redirect subquery has no rows.
 				where: () => [],
-				innerJoin: () => ({ where: () => ({ orderBy: () => ({ limit: async () => [fixture.resume] }) }) }),
+				innerJoin: () => ({
+					where: () =>
+						Object.assign(Promise.resolve([fixture.resume]), {
+							orderBy: () => ({ limit: async () => [fixture.resume] }),
+						}),
+				}),
 			}),
 		}),
 	},
 }));
 const { sharingRouter } = await import("./sharing");
+const { resumeStatisticsRouter } = await import("./statistics");
+
+it.each([
+	["owner", 0],
+	["visitor", 2],
+	[null, 2],
+] as const)("counts only visitor statistics for public downloads by %s", async (viewerId, counterWrites) => {
+	fixture.counterWrite.mockReturnValue({ onConflictDoUpdate: async () => undefined });
+	fixture.counterWrite.mockClear();
+	fixture.resume = { id: "public-resume", userId: "owner", isPublic: true, passwordHash: null };
+	const download = createProcedureClient(resumeStatisticsRouter.recordDownload, {
+		context: {
+			locale: "en-US",
+			reqHeaders: new Headers(),
+			authentication: viewerId
+				? {
+						user: {
+							id: viewerId,
+							name: "Owner",
+							email: "owner@example.test",
+							emailVerified: true,
+							createdAt: new Date(),
+							updatedAt: new Date(),
+						},
+						method: "apiKey",
+						permissions: ["write"],
+					}
+				: null,
+		},
+	});
+	await expect(download({ username: "owner", slug: "public-resume" })).resolves.toBe(true);
+	expect(fixture.counterWrite).toHaveBeenCalledTimes(counterWrites);
+});
 
 it.each(["write", "read"] as RequestPermission[])(
 	"requires read permission for private resumes through the public route: %s",
@@ -55,5 +96,25 @@ it.each(["write", "read"] as RequestPermission[])(
 		if (permission === "read")
 			await expect(get({ username: "owner", slug: "resume" })).resolves.toMatchObject({ id: "resume" });
 		else await expect(get({ username: "owner", slug: "resume" })).rejects.toMatchObject({ code: "NOT_FOUND" });
+		const download = createProcedureClient(resumeStatisticsRouter.recordDownload, {
+			context: {
+				locale: "en-US",
+				reqHeaders: new Headers(),
+				authentication: {
+					user: {
+						id: "owner",
+						name: "Owner",
+						email: "owner@example.test",
+						emailVerified: true,
+						createdAt: new Date(),
+						updatedAt: new Date(),
+					},
+					method: "apiKey",
+					permissions: [permission],
+				},
+			},
+		});
+		if (permission === "read") await expect(download({ username: "owner", slug: "resume" })).resolves.toBe(true);
+		else await expect(download({ username: "owner", slug: "resume" })).rejects.toMatchObject({ code: "NOT_FOUND" });
 	},
 );

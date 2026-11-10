@@ -4,6 +4,7 @@
 	"type": "module",
 	"private": true,
 	"exports": {
+		"./owner-scope": "./src/owner-scope.ts",
 		"./coordination": "./src/coordination.ts",
 		"./client": {
 			"default": "./src/client.ts"

@@ -10,15 +10,18 @@ import { useEffect, useId, useRef, useState } from "react";
 import { factCategorySchema } from "@reactive-resume/schema/career";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { Input } from "@reactive-resume/ui/components/input";
 import { NativeSelect } from "@reactive-resume/ui/components/native-select";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Switch } from "@reactive-resume/ui/components/switch";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
-import { CareerLoadError, CareerLoading } from "../load-state";
-import { CollapseRow, FilterChip, flash, useCareerTime, withUndo } from "../shared";
+import { CareerLoadError } from "../load-state";
+import { CollapseRow, FilterChip, flash, useCareerTime, confirmAction } from "../shared";
 import { useProfile } from "./preferences";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { D2, EASE, EXIT } from "@/libs/motion";
 import { client, orpc } from "@/libs/orpc/client";
@@ -43,6 +46,7 @@ export function FactsPage({ highlight }: FactsPageProps) {
 	const queryClient = useQueryClient();
 	const queryKey = orpc.career.facts.queryKey({ input: FACTS_INPUT });
 	const factQuery = useQuery(orpc.career.facts.queryOptions({ input: FACTS_INPUT }));
+	const profileState = useProfile();
 	const facts = factQuery.data;
 	const [search, setSearch] = useState("");
 	const [type, setType] = useState<FactCategory | null>(null);
@@ -76,6 +80,7 @@ export function FactsPage({ highlight }: FactsPageProps) {
 	}, [highlight, facts]);
 
 	const query = search.trim().toLocaleLowerCase();
+	const factsLoading = useSkeletonLoading(!facts && !factQuery.isError);
 	const visible = (facts ?? []).filter(
 		(fact) =>
 			!hidden.includes(fact.id) &&
@@ -84,10 +89,9 @@ export function FactsPage({ highlight }: FactsPageProps) {
 	);
 
 	const forget = (fact: Fact) => {
-		setHidden((current) => [...current, fact.id]);
-		withUndo({
+		confirmAction({
 			description: t`Fact forgotten`,
-			onUndo: () => setHidden((current) => current.filter((id) => id !== fact.id)),
+			onCommitted: () => setHidden((current) => [...current, fact.id]),
 			commit: () =>
 				client.career
 					.forgetFact({ id: fact.id })
@@ -97,6 +101,7 @@ export function FactsPage({ highlight }: FactsPageProps) {
 							type: "error",
 							description: getOrpcErrorMessage(error, { fallback: t`Couldn't forget that fact.` }),
 						});
+						throw error;
 					})
 					.finally(refresh),
 		});
@@ -111,83 +116,93 @@ export function FactsPage({ highlight }: FactsPageProps) {
 	};
 
 	return (
-		<div className="grid gap-3.5">
-			<MemoryCard />
+		<QuerySkeleton loading={factQuery.isPending || (!profileState.profile && !profileState.isError)} shape="form">
+			<div className="grid gap-3.5">
+				<MemoryCard state={profileState} />
 
-			<div className="flex flex-wrap items-center gap-2">
-				<label className="flex h-[34px] w-full items-center gap-1.5 rounded-md border border-line-2 bg-raised px-2.5 transition-[border-color,box-shadow] duration-quick focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--accent-soft)] sm:w-[280px] pointer-coarse:h-11">
-					<Icon name="magnifying-glass" size={18} className="text-ink-3" />
-					<input
-						type="search"
-						value={search}
-						onChange={(event) => setSearch(event.target.value)}
-						placeholder={t`Search facts`}
-						aria-label={t`Search facts`}
-						className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-ink-3"
-					/>
-				</label>
-				<FilterChip pressed={type === null} onClick={() => setType(null)}>
-					<Trans>All</Trans>
-				</FilterChip>
-				{CATEGORIES.map((category) => (
-					<FilterChip key={category} pressed={type === category} onClick={() => setType(category)}>
-						{categoryLabel(category)}
-					</FilterChip>
-				))}
-			</div>
-
-			<AddFact onAdded={added} />
-			{!facts && (factQuery.isError ? <CareerLoadError onRetry={() => void factQuery.refetch()} /> : <CareerLoading />)}
-
-			{facts && (
-				<div ref={listRef} className="overflow-hidden rounded-xl border border-line bg-surface">
-					<AnimatePresence initial={false}>
-						{visible.map((fact) => (
-							<CollapseRow key={fact.id} className="border-b border-line last:border-b-0">
-								<FactRow
-									fact={fact}
-									onStatus={(status) => {
-										patch(fact.id, { status });
-										update.mutate({ id: fact.id, status });
-									}}
-									onCorrect={(text) => {
-										patch(fact.id, {
-											text,
-											revisions: [...fact.revisions, { text: fact.text, at: new Date().toISOString() }],
-										});
-										update.mutate({ id: fact.id, text });
-									}}
-									onShare={() => {
-										patch(fact.id, { applicationId: null, company: null });
-										update.mutate({ id: fact.id, share: true });
-									}}
-									onForget={() => forget(fact)}
-								/>
-							</CollapseRow>
+				{facts?.length !== 0 && (
+					<div className="flex flex-wrap items-center gap-2">
+						<label className="flex h-[34px] w-full items-center gap-1.5 rounded-md border border-line-2 bg-raised px-2.5 transition-[border-color,box-shadow] duration-quick focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--accent-soft)] sm:w-[280px] pointer-coarse:h-11">
+							<Icon name="magnifying-glass" size={18} className="text-ink-3" />
+							<input
+								dir="auto"
+								type="search"
+								value={search}
+								onChange={(event) => setSearch(event.target.value)}
+								placeholder={t`Search facts`}
+								aria-label={t`Search facts`}
+								className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-ink-3"
+							/>
+						</label>
+						<FilterChip pressed={type === null} onClick={() => setType(null)}>
+							<Trans>All</Trans>
+						</FilterChip>
+						{CATEGORIES.map((category) => (
+							<FilterChip key={category} pressed={type === category} onClick={() => setType(category)}>
+								{categoryLabel(category)}
+							</FilterChip>
 						))}
-					</AnimatePresence>
-					{visible.length === 0 && (
-						<div className="grid justify-items-center gap-2 p-6 text-center text-sm text-ink-3">
-							<p>
-								{facts.length === 0 ? t`No facts yet. Add one above.` : t`No facts match. Try another word or type.`}
-							</p>
-							{type !== null && (
-								<Button variant="link" size="sm" onClick={() => setType(null)}>
-									<Trans>Show all types</Trans>
-								</Button>
-							)}
-						</div>
-					)}
-				</div>
-			)}
-		</div>
+					</div>
+				)}
+
+				<AddFact onAdded={added} />
+				{(factsLoading.pending || !facts) &&
+					(factQuery.isError ? (
+						<CareerLoadError onRetry={() => void factQuery.refetch()} />
+					) : (
+						<QuerySkeleton shape="rows" />
+					))}
+
+				{facts && !factsLoading.pending && (
+					<div ref={listRef} className="overflow-hidden rounded-xl border border-line bg-surface">
+						<AnimatePresence initial={false}>
+							{visible.map((fact) => (
+								<CollapseRow key={fact.id} className="border-b border-line last:border-b-0">
+									<FactRow
+										fact={fact}
+										onStatus={(status) => {
+											patch(fact.id, { status });
+											update.mutate({ id: fact.id, status });
+										}}
+										onCorrect={(text) => {
+											patch(fact.id, {
+												text,
+												revisions: [...fact.revisions, { text: fact.text, at: new Date().toISOString() }],
+											});
+											update.mutate({ id: fact.id, text });
+										}}
+										onShare={() => {
+											patch(fact.id, { applicationId: null, company: null });
+											update.mutate({ id: fact.id, share: true });
+										}}
+										onForget={() => forget(fact)}
+									/>
+								</CollapseRow>
+							))}
+						</AnimatePresence>
+						{visible.length === 0 && (
+							<div className="grid justify-items-center gap-2 p-6 text-center text-sm text-ink-3">
+								<p>
+									{facts.length === 0 ? t`No facts yet. Add one above.` : t`No facts match. Try another word or type.`}
+								</p>
+								{type !== null && (
+									<Button variant="link" size="sm" onClick={() => setType(null)}>
+										<Trans>Show all types</Trans>
+									</Button>
+								)}
+							</div>
+						)}
+					</div>
+				)}
+			</div>
+		</QuerySkeleton>
 	);
 }
 
 // ---- Memory mode ----
 
-function MemoryCard() {
-	const { profile, save, isError, retry } = useProfile();
+function MemoryCard({ state }: { state: ReturnType<typeof useProfile> }) {
+	const { profile, save, isError, retry } = state;
 	const labelId = useId();
 	const mode = profile?.memoryMode;
 	const hints: Record<MemoryMode, string> = {
@@ -200,7 +215,9 @@ function MemoryCard() {
 		["auto", t`Automatically`],
 		["off", t`Never`],
 	];
-	if (!profile) return isError ? <CareerLoadError onRetry={retry} /> : <CareerLoading />;
+	const profileLoading = useSkeletonLoading(!profile && !isError);
+	if (profileLoading.pending || !profile)
+		return isError ? <CareerLoadError onRetry={retry} /> : <QuerySkeleton shape="rows" />;
 
 	return (
 		<div className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-surface px-3.5 py-3">
@@ -271,24 +288,26 @@ function AddFact({ onAdded }: AddFactProps) {
 	return (
 		<div className="flex flex-wrap items-center gap-2 rounded-xl border border-dashed border-line-2 py-1.5 ps-3.5 pe-1.5">
 			<Icon name="plus" size={20} className="text-ink-3" />
-			<input
+			<Input
+				size="sm"
+				dir="auto"
 				value={text}
 				onChange={(event) => setText(event.target.value)}
 				onKeyDown={(event: KeyboardEvent<HTMLInputElement>) => {
 					if (event.key === "Enter" && !event.nativeEvent.isComposing) add();
 				}}
 				maxLength={2000}
-				placeholder={t`Add a fact, for example “I mentored two associate PMs in 2025”`}
+				placeholder={t`Add a fact…`}
 				aria-label={t`New fact`}
-				className="h-[34px] min-w-0 flex-1 basis-60 bg-transparent text-sm outline-none placeholder:text-ink-3"
+				className="min-w-0 flex-1 basis-60 border-0 bg-transparent"
 			/>
 			<div className="flex gap-2">
 				<div className="w-auto">
 					<NativeSelect
+						size="sm"
 						aria-label={t`Fact type`}
 						value={category}
 						onChange={(event) => setCategory(event.target.value as FactCategory)}
-						className="h-8 text-[13px] font-medium"
 					>
 						{CATEGORIES.map((option) => (
 							<option key={option} value={option}>
@@ -303,7 +322,7 @@ function AddFact({ onAdded }: AddFactProps) {
 					onClick={add}
 					loading={save.isPending}
 					aria-disabled={!ready}
-					className={cn("h-8 px-3", !ready && "text-ink-3")}
+					className={cn(!ready && "text-ink-3")}
 				>
 					<Trans>Add</Trans>
 				</Button>

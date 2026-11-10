@@ -18,8 +18,10 @@ const mocks = vi.hoisted(() => ({
 	verifyBackupCode: vi.fn(),
 	signup: vi.fn(),
 	continueOAuth: vi.fn(),
-	queryClient: { invalidateQueries: vi.fn(async () => {}) },
+	queryClient: { clear: vi.fn(), invalidateQueries: vi.fn(async () => {}) },
 }));
+
+vi.mock("@/features/locale/provider", () => ({ useUiLocale: () => ({ locale: "en-US" }) }));
 
 vi.mock("@tanstack/react-query", () => ({
 	useQuery: () => ({
@@ -90,6 +92,18 @@ function submitLogin(container: HTMLElement, identifier: string, passwordValue =
 }
 
 describe("OAuth callback after sign-in", () => {
+	it("continues account creation only after verified password sign-in", async () => {
+		mocks.callbackURL += "&prompt=create";
+		mocks.continueOAuth.mockResolvedValue({ data: { redirect: true, url: "/auth/consent" }, error: null });
+		const { container } = renderLogin();
+		submitLogin(container, "john@example.com");
+		await waitFor(() =>
+			expect(mocks.continueOAuth).toHaveBeenCalledWith({ created: true, oauth_query: mocks.callbackURL.split("?")[1] }),
+		);
+		expect(mocks.email.mock.calls[0]?.[0]).not.toHaveProperty("oauth_query");
+		expect(mocks.navigate).not.toHaveBeenCalled();
+	});
+
 	it("accepts a legacy password and prevents duplicate sign-in until a failed request finishes", async () => {
 		let finish: (() => void) | undefined;
 		mocks.email.mockReturnValue(
@@ -146,18 +160,22 @@ describe("OAuth callback after sign-in", () => {
 		);
 	});
 
-	it("carries the callback into two-factor verification", async () => {
-		mocks.email.mockResolvedValueOnce({ data: { twoFactorRedirect: true }, error: null });
-		const { container } = renderLogin();
-		submitLogin(container, "john@example.com");
-		await waitFor(() =>
-			expect(mocks.navigate).toHaveBeenCalledWith({
-				to: "/auth/verify-2fa",
-				search: { callbackURL: mocks.callbackURL },
-				replace: true,
-			}),
-		);
-	});
+	it.each(["john@example.com", "john"])(
+		"leaves MFA navigation to the auth client without a competing route change (%s)",
+		async (identifier) => {
+			const signIn = identifier.includes("@") ? mocks.email : mocks.username;
+			signIn.mockResolvedValueOnce({ data: { twoFactorRedirect: true }, error: null });
+			const { container } = renderLogin();
+			submitLogin(container, identifier);
+			await waitFor(() => expect(signIn).toHaveBeenCalledOnce());
+			await waitFor(() =>
+				expect(screen.getByRole<HTMLButtonElement>("button", { name: "Sign in" }).disabled).toBe(false),
+			);
+			expect(mocks.navigate).not.toHaveBeenCalled();
+			expect(mocks.continueOAuth).not.toHaveBeenCalled();
+			expect(mocks.queryClient.clear).not.toHaveBeenCalled();
+		},
+	);
 
 	it("lets the provider finish its validated redirect after fresh authentication", async () => {
 		mocks.email.mockResolvedValueOnce({
@@ -246,13 +264,15 @@ describe("OAuth account creation", () => {
 			if (!input) throw new Error(`Missing ${name} field`);
 			fireEvent.change(input, { target: { value } });
 		}
+		fireEvent.click(screen.getByRole("checkbox"));
 		const form = container.querySelector("form");
 		if (!form) throw new Error("Missing registration form");
 		fireEvent.submit(form);
-		await waitFor(() => expect(screen.getByText(/>=8/)).toBeDefined());
+		expect(container.querySelector<HTMLInputElement>('input[name="password"]')?.minLength).toBe(8);
+		await waitFor(() => expect(screen.getByRole("alert")).toBeDefined());
 		expect(mocks.signup).not.toHaveBeenCalled();
 	});
-	it("continues a create prompt only after successful signup with a trimmed one-character name", async () => {
+	it("preserves a create callback through verification and waits for normal login", async () => {
 		mocks.callbackURL += "&prompt=create";
 		mocks.signup.mockResolvedValueOnce({ data: { token: "session" }, error: null });
 		mocks.continueOAuth.mockResolvedValueOnce({
@@ -274,12 +294,18 @@ describe("OAuth account creation", () => {
 			if (!input) throw new Error(`Missing ${name} field`);
 			fireEvent.change(input, { target: { value } });
 		}
+		fireEvent.click(screen.getByRole("checkbox"));
 		const form = container.querySelector("form");
 		if (!form) throw new Error("Missing registration form");
 		fireEvent.submit(form);
 		await waitFor(() =>
-			expect(mocks.continueOAuth).toHaveBeenCalledWith({ created: true, oauth_query: mocks.callbackURL.split("?")[1] }),
+			expect(mocks.navigate).toHaveBeenCalledWith({
+				to: "/auth/verify-email",
+				search: { email: "new@example.com", callbackURL: mocks.callbackURL },
+				replace: true,
+			}),
 		);
+		expect(mocks.continueOAuth).not.toHaveBeenCalled();
 		expect(mocks.signup.mock.calls[0]?.[0]).not.toHaveProperty("oauth_query");
 		expect(mocks.signup).toHaveBeenCalledWith(expect.objectContaining({ name: "A" }));
 	});

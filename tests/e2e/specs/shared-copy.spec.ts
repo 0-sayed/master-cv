@@ -4,9 +4,11 @@ for (const width of [320, 1440]) {
 	test(`Arabic navigation and account menu use approved shared wording at ${width}px`, async ({ authPage: page }) => {
 		await page.setViewportSize({ width, height: 900 });
 		await page.goto("/dashboard/settings/preferences?locale=ar-SA");
-		const navigation = page.locator('nav:has(a[href="/dashboard/career"])');
-		await expect(navigation.getByRole("link", { name: "المستندات", exact: true })).toBeVisible();
-		await expect(navigation.getByRole("link", { name: "متابعة التقديمات", exact: true })).toBeVisible();
+		const navigation = page.locator('nav:has(a[href="/dashboard/career/information"])');
+		await expect(
+			navigation.getByRole("link", { name: width === 1440 ? "مستنداتي" : "المستندات", exact: true }),
+		).toBeVisible();
+		await expect(navigation.getByRole("link", { name: "طلبات التقديم", exact: true })).toBeVisible();
 		if (width === 1440) {
 			await page
 				.getByRole("complementary")

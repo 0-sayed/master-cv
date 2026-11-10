@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { Alert, AlertDescription } from "@reactive-resume/ui/components/alert";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { SuccessTick } from "@reactive-resume/ui/components/success-tick";
 import { cn } from "@reactive-resume/utils/style";
 import { useResumeStore } from "@/features/resume/builder/draft";
 import { ENTER_CLASS } from "@/libs/motion";
@@ -22,7 +23,7 @@ export function SaveStatus() {
 			)}
 			{(status === "saved" || status === "idle") && (
 				<>
-					<Icon name="cloud-check" size={16} />
+					<SuccessTick animated={status === "saved"} />
 					<Trans>Saved</Trans>
 				</>
 			)}

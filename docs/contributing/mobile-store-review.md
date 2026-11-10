@@ -117,7 +117,17 @@ The same private queue also accepts `source = 'public-resume'` reports from the 
 
 Owner confirmed on 2026-10-17 that they will monitor reports daily and promptly act on abusive public sharing or offending content. Use the restricted queue below; there are no email alerts. Triage urgent child-safety/violence reports immediately when noticed, reproduce with fictional data, and correct prompts/providers or disable affected generation when necessary. This commitment does not establish that production reporting is deployed or that a live report has been reviewed.
 
-Use a restricted database session; report contents contain personal data. Do not copy contents into logs, public issues, or analytics. Queue query:
+Use an explicitly authorized operator database session with `BYPASSRLS` (or a superuser administration session). The application's restricted `DATABASE_URL` and a non-bypass schema-owner connection cannot perform this cross-owner triage under forced RLS. Never give operator credentials to the application, worker or browser. This remains a manual, approved operational action; no public moderator endpoint or runtime bypass is enabled. Report contents contain personal data: do not copy them into logs, public issues, or analytics.
+
+Before querying, verify the session's effective role. A false result means stop and obtain the approved operator connection; an empty queue is not evidence that no reports exist:
+
+```sql
+SELECT rolsuper OR rolbypassrls AS operator_can_review
+FROM pg_roles
+WHERE rolname = current_user;
+```
+
+Queue query:
 
 ```sql
 SELECT id, source, reason, content, note, created_at

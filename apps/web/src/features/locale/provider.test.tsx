@@ -12,6 +12,7 @@ import * as localeLibrary from "@/libs/locale";
 const updateUser = vi.hoisted(() => vi.fn());
 vi.mock("@/libs/auth/client", () => ({ authClient: { updateUser } }));
 vi.mock("@/libs/root-context", () => ({ sessionQueryKey: ["auth", "session"] }));
+vi.mock("@/libs/ui-fonts", () => ({ loadUiFonts: vi.fn().mockResolvedValue(undefined) }));
 
 function Controls() {
 	const { locale, pending, changeLocale } = useUiLocale();

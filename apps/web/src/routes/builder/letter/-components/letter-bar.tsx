@@ -1,8 +1,10 @@
+import type { ActionFeedbackState } from "@reactive-resume/ui/components/action-feedback";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { ActionFeedback } from "@reactive-resume/ui/components/action-feedback";
 import { Button } from "@reactive-resume/ui/components/button";
 import { ButtonGroup } from "@reactive-resume/ui/components/button-group";
 import {
@@ -15,6 +17,7 @@ import {
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { SuccessTick } from "@reactive-resume/ui/components/success-tick";
 import { TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
@@ -101,27 +104,29 @@ export function LetterBar({ layout, pinnable }: LetterBarProps) {
 
 /** Download PDF: the letter as it prints, with the sender's header, named First-Last-Cover-Letter.pdf. */
 export function useDownloadLetter() {
-	const [busy, setBusy] = useState(false);
+	const [state, setState] = useState<ActionFeedbackState>("idle");
+	const busy = state === "pending";
 
 	const run = async () => {
 		const letter = useLetterEditorStore.getState().letter;
 		if (!letter || busy) return;
-		setBusy(true);
+		setState("pending");
 		const toastId = toast.add({ type: "loading", description: t`Generating your PDF...` });
 		try {
 			const blob = await createLetterFile(letter, "pdf");
 			downloadWithAnchor(blob, `${letterFileName(letter)}.pdf`);
+			setState("ready");
 		} catch (error) {
+			setState("failed");
 			toast.add({
 				type: "error",
 				description: getReadableErrorMessage(error, t`Could not generate the PDF. Please try again.`),
 			});
 		}
-		setBusy(false);
 		toast.close(toastId);
 	};
 
-	return { run, busy };
+	return { run, busy, state };
 }
 
 function DownloadButtons({ compact, iconOnly }: { compact: boolean; iconOnly: boolean }) {
@@ -130,34 +135,48 @@ function DownloadButtons({ compact, iconOnly }: { compact: boolean; iconOnly: bo
 
 	if (compact) {
 		return (
-			<IconButton
-				icon="download-simple"
-				label={t`Download PDF`}
-				shortcut="⌘P"
+			<Button
+				size="icon"
+				variant="ghost"
+				aria-label={t`Download PDF`}
+				aria-busy={download.busy || undefined}
 				disabled={download.busy}
 				onClick={() => void download.run()}
-			/>
+			>
+				<ActionFeedback
+					state={download.state}
+					label={t`Download PDF`}
+					pendingLabel={t`Preparing…`}
+					readyLabel={t`PDF ready`}
+					iconOnly
+				/>
+			</Button>
 		);
 	}
 
 	return (
-		<ButtonGroup aria-label={t`Download`}>
+		<ButtonGroup variant="split" aria-label={t`Download`}>
 			{/* Tablets drop the label so the bar fits beside the mode switch; the button keeps its name. */}
 			<Button
-				loading={download.busy}
+				aria-busy={download.busy || undefined}
+				disabled={download.busy}
 				size={iconOnly ? "icon" : "default"}
-				aria-label={iconOnly ? t`Download PDF` : undefined}
+				aria-label={t`Download PDF`}
 				className="gap-1.5"
 				onClick={() => void download.run()}
 			>
-				{!download.busy && <Icon name="download-simple" />}
-				{iconOnly ? null : download.busy ? <Trans>Preparing…</Trans> : <Trans>Download PDF</Trans>}
+				<ActionFeedback
+					state={download.state}
+					label={t`Download PDF`}
+					pendingLabel={t`Preparing…`}
+					readyLabel={t`PDF ready`}
+					iconOnly={iconOnly}
+				/>
 			</Button>
 			<Button
-				size="icon"
+				size={iconOnly ? "icon" : "toolbar-icon"}
 				disabled={download.busy}
 				aria-label={t`More download formats`}
-				className="w-8 border-s border-s-[oklch(1_0_0/0.25)]"
 				onClick={() => setShareTab("download")}
 			>
 				<Icon name="caret-down" />
@@ -287,7 +306,7 @@ function LetterSaveStatus() {
 			)}
 			{status === "saved" && (
 				<>
-					<Icon name="cloud-check" size={16} />
+					<SuccessTick />
 					<Trans>Saved</Trans>
 				</>
 			)}

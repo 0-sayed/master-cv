@@ -2,10 +2,13 @@ import { Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { buttonVariants } from "@reactive-resume/ui/components/button";
+import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { DocumentRow } from "./document-card";
 import { LibraryError } from "./library-error";
 import { PageHeader } from "@/components/layout/page-header";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { orpc } from "@/libs/orpc/client";
 
 const noop = () => undefined;
@@ -20,8 +23,9 @@ export function TrashPage() {
 		refetch,
 	} = useQuery(orpc.documents.list.queryOptions({ input: { trashed: true } }));
 
+	const skeletonWait1 = useSkeletonLoading(isPending);
 	return (
-		<div className="mx-auto grid w-full max-w-[1180px] content-start gap-5 px-8 py-8 max-sm:px-4 max-sm:py-5">
+		<div className="contents">
 			<PageHeader
 				back={
 					<Link
@@ -38,23 +42,25 @@ export function TrashPage() {
 
 			{isError && <LibraryError retrying={isFetching} onRetry={() => void refetch()} />}
 
-			{isError && !documents ? null : !isPending && documents?.length === 0 ? (
-				<div className="grid justify-items-center gap-2 py-16 text-center">
+			{isError && !documents ? null : skeletonWait1.pending || isPending ? (
+				<QuerySkeleton shape="rows" count={6} />
+			) : documents?.length === 0 ? (
+				<EmptyState>
 					<Icon name="trash" size={28} className="text-ink-3" />
 					<p className="font-semibold">
 						<Trans>Trash is empty</Trans>
 					</p>
-					<p className="text-sm text-ink-2">
+					<p className="type-body text-ink-2">
 						<Trans>Items you move here stay for 30 days.</Trans>
 					</p>
-				</div>
+				</EmptyState>
 			) : (
 				<table className="w-full table-fixed border-collapse">
 					<caption className="sr-only">
 						<Trans>Trash</Trans>
 					</caption>
 					<thead>
-						<tr className="border-b border-line text-xs font-medium text-ink-3">
+						<tr className="border-b border-line type-metadata font-medium text-ink-3">
 							<th className="h-10 ps-3 text-start font-medium">
 								<Trans>Name</Trans>
 							</th>

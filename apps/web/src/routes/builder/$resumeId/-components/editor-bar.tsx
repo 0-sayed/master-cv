@@ -1,6 +1,7 @@
 import type { EditorMode } from "@/features/resume/editor/store";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { ActionFeedback } from "@reactive-resume/ui/components/action-feedback";
 import { Badge } from "@reactive-resume/ui/components/badge";
 import { Button } from "@reactive-resume/ui/components/button";
 import { ButtonGroup } from "@reactive-resume/ui/components/button-group";
@@ -127,7 +128,7 @@ function ShareButton({ compact, disabled }: ToolbarActionProps) {
 			<IconButton
 				icon="export"
 				label={t`Share`}
-				shortcut="⌘⇧S"
+				shortcut="Mod+Shift+S"
 				className="me-2"
 				disabled={disabled}
 				onClick={() => setShareTab("link")}
@@ -162,40 +163,53 @@ function ShareButton({ compact, disabled }: ToolbarActionProps) {
 /** Download PDF is the only filled button; the ▾ segment opens the Download tab with every format. */
 function DownloadButtons({ compact, iconOnly, disabled }: ToolbarActionProps & { iconOnly?: boolean }) {
 	const resume = useCurrentResume();
-	const { onDownloadPDF, isExporting } = useResumeExport(resume);
+	const { onDownloadPDF, isExporting, downloadState } = useResumeExport(resume);
 	const setShareTab = useEditorStore((state) => state.setShareTab);
 
 	if (compact) {
 		return (
-			<IconButton
-				icon="download-simple"
-				label={t`Download PDF`}
-				shortcut="⌘P"
+			<Button
+				size="icon"
+				variant="ghost"
+				aria-label={t`Download PDF`}
+				aria-busy={isExporting || undefined}
 				disabled={disabled || isExporting}
 				onClick={() => void onDownloadPDF()}
-			/>
+			>
+				<ActionFeedback
+					state={downloadState}
+					label={t`Download PDF`}
+					pendingLabel={t`Preparing…`}
+					readyLabel={t`PDF ready`}
+					iconOnly
+				/>
+			</Button>
 		);
 	}
 
 	return (
-		<ButtonGroup aria-label={t`Download`}>
+		<ButtonGroup variant="split" aria-label={t`Download`}>
 			{/* Tablets drop the label so the bar fits beside the mode switch; the button keeps its name. */}
 			<Button
-				loading={isExporting}
-				disabled={disabled}
+				aria-busy={isExporting || undefined}
+				disabled={disabled || isExporting}
 				size={iconOnly ? "icon" : "default"}
-				aria-label={iconOnly ? t`Download PDF` : undefined}
+				aria-label={t`Download PDF`}
 				className="gap-1.5"
 				onClick={() => void onDownloadPDF()}
 			>
-				{!isExporting && <Icon name="download-simple" />}
-				{iconOnly ? null : isExporting ? <Trans>Preparing…</Trans> : <Trans>Download PDF</Trans>}
+				<ActionFeedback
+					state={downloadState}
+					label={t`Download PDF`}
+					pendingLabel={t`Preparing…`}
+					readyLabel={t`PDF ready`}
+					iconOnly={iconOnly ?? false}
+				/>
 			</Button>
 			<Button
-				size="icon"
+				size={iconOnly ? "icon" : "toolbar-icon"}
 				disabled={disabled || isExporting}
 				aria-label={t`More download formats`}
-				className="w-8 border-s border-s-[oklch(1_0_0/0.25)]"
 				onClick={() => setShareTab("download")}
 			>
 				<Icon name="caret-down" />

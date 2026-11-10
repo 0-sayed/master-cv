@@ -7,9 +7,12 @@ import {
 	careerStoryInputSchema,
 	savedItemDataSchema,
 } from "@reactive-resume/schema/career";
+import { masterFactInputSchema } from "@reactive-resume/schema/career-master";
 
 export const careerFactSchema = createSelectSchema(tables.careerFact, {
 	source: careerSourceSchema,
+	structured: masterFactInputSchema.nullable(),
+	proposedStructured: masterFactInputSchema.nullable(),
 	revisions: z.array(z.object({ text: z.string(), at: z.string() })),
 }).extend({
 	/** The application it's private to, by name; null for shared facts. */

@@ -1,7 +1,7 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { Locale } from "@reactive-resume/utils/locale";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
-import { sampleResumeData } from "@reactive-resume/schema/resume/sample";
+import { createSampleResumeData } from "@reactive-resume/schema/resume/sample";
 import { EMPTY_SEMANTIC_CSS_SOURCE } from "@reactive-resume/schema/resume/stylesheet";
 
 type CreateResumeDataOptions = {
@@ -12,7 +12,9 @@ type CreateResumeDataOptions = {
 };
 
 export function createResumeData(options: CreateResumeDataOptions): ResumeData {
-	const data = structuredClone(options.withSampleData ? sampleResumeData : defaultResumeData);
+	const data = structuredClone(
+		options.withSampleData ? createSampleResumeData(undefined, options.locale) : defaultResumeData,
+	);
 
 	const name = options.name?.trim();
 	if (name) data.basics.name = name;

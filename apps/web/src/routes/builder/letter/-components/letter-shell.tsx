@@ -36,6 +36,7 @@ import { useLetterWebMcpTools } from "@/features/letters/webmcp";
 import { usePreviewPausedStore } from "@/features/resume/builder/draft";
 import { useIsLandscape } from "@/features/resume/editor/chrome";
 import { useEditorStore } from "@/features/resume/editor/store";
+import { storageKey as registeredStorageKey, browserStorage } from "@/libs/browser-storage";
 import { switchModeInstantly } from "@/libs/motion";
 
 const routeApi = getRouteApi("/builder/letter/$coverLetterId");
@@ -220,7 +221,7 @@ function MobileBody({ mode, onModeChange }: MobileBodyProps) {
 								if (tab !== "page") onModeChange(tab);
 							}}
 							className={cn(
-								"relative flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 text-[11px] transition-[color,scale] duration-quick ease-enter active:scale-[0.97]",
+								"relative flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 type-mobile-nav transition-[color,scale] duration-quick ease-enter active:scale-[0.97]",
 								active ? "font-semibold text-ink" : "text-ink-2",
 							)}
 						>
@@ -274,9 +275,9 @@ type SenderSnapshot = Partial<Record<SenderField, string>>;
 const snapshotOf = (letter: CoverLetter): SenderSnapshot =>
 	Object.fromEntries(SENDER_FIELDS.map((field) => [field, letter.style.basics[field]]));
 
-const readSnapshot = (key: string): SenderSnapshot | null => {
+const readSnapshot = (key: ReturnType<typeof registeredStorageKey>): SenderSnapshot | null => {
 	try {
-		return JSON.parse(window.localStorage.getItem(key) ?? "null") as SenderSnapshot | null;
+		return JSON.parse(browserStorage.local.getItem(key) ?? "null") as SenderSnapshot | null;
 	} catch {
 		return null;
 	}
@@ -302,7 +303,7 @@ function useLinkedUpdateNotice() {
 	useEffect(() => {
 		const letter = useLetterEditorStore.getState().letter;
 		if (!letterId || !letter?.senderLinked) return;
-		const before = readSnapshot(`letter-sender:${letter.id}`);
+		const before = readSnapshot(registeredStorageKey("letterSender", letter.id));
 		if (!before) return;
 		const now = snapshotOf(letter);
 		const changed = SENDER_FIELDS.filter((field) => before[field] !== undefined && before[field] !== now[field]);
@@ -319,7 +320,7 @@ function useLinkedUpdateNotice() {
 		const letter = useLetterEditorStore.getState().letter;
 		if (!letter || !basics) return;
 		try {
-			window.localStorage.setItem(`letter-sender:${letter.id}`, JSON.stringify(snapshotOf(letter)));
+			browserStorage.local.setItem(registeredStorageKey("letterSender", letter.id), JSON.stringify(snapshotOf(letter)));
 		} catch {
 			// Storage can be unavailable; the notice is a nicety.
 		}

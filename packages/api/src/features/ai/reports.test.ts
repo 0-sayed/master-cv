@@ -1,3 +1,6 @@
+vi.mock("@reactive-resume/db/owner-scope", () => ({
+	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+}));
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { createProcedureClient } from "@orpc/server";
 

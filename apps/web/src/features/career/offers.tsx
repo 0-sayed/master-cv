@@ -17,22 +17,24 @@ import {
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { CareerLoadError } from "./load-state";
 import { defaultPair, formatMoney, matchingPlace, meetsMinimum, moneyDifference, sameTerms } from "./offer-compare";
 import { useCareerTime, useNow } from "./shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
+import { storageKey as registeredStorageKey, browserStorage } from "@/libs/browser-storage";
 import { orpc } from "@/libs/orpc/client";
 
 type Offer = SavedItem & { data: SavedData<"offer"> };
 type Side = "a" | "b";
 
-const PAIR_KEY = "career:offers-pair";
+const PAIR_KEY = registeredStorageKey("offersPair");
 
 const readPair = (): { a?: string; b?: string } => {
 	try {
-		return JSON.parse(localStorage.getItem(PAIR_KEY) ?? "{}") as { a?: string; b?: string };
+		return JSON.parse(browserStorage.local.getItem(PAIR_KEY) ?? "{}") as { a?: string; b?: string };
 	} catch {
 		return {};
 	}
@@ -40,7 +42,7 @@ const readPair = (): { a?: string; b?: string } => {
 
 const writePair = (a: string | undefined, b: string | undefined) => {
 	try {
-		localStorage.setItem(PAIR_KEY, JSON.stringify({ a, b }));
+		browserStorage.local.setItem(PAIR_KEY, JSON.stringify({ a, b }));
 	} catch {
 		// Private windows can refuse storage; the pair stays in the URL.
 	}
@@ -80,6 +82,7 @@ export function OffersPage({ a, b }: OffersPageProps) {
 			void navigate({ to: "/dashboard/career/offers", search: { a: next.a, b: next.b }, replace: true });
 	}, [query.data, a, b, navigate]);
 
+	const skeletonWait1 = useSkeletonLoading(query.isPending || profileQuery.isPending);
 	if ((query.isError && !query.data) || (profileQuery.isError && !profileQuery.data))
 		return (
 			<CareerLoadError
@@ -89,13 +92,8 @@ export function OffersPage({ a, b }: OffersPageProps) {
 				}}
 			/>
 		);
-	if (query.isPending || profileQuery.isPending)
-		return (
-			<div className="grid gap-4">
-				<Skeleton className="h-9 w-2/3" />
-				<Skeleton className="h-[520px] rounded-xl" />
-			</div>
-		);
+	if (skeletonWait1.pending || query.isPending || profileQuery.isPending)
+		return <QuerySkeleton shape="sections" count={2} />;
 
 	if (!offers?.length)
 		return (

@@ -6,10 +6,12 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { ContextMenu, ContextMenuTrigger } from "@reactive-resume/ui/components/context-menu";
+import { documentCardLayout } from "@reactive-resume/ui/components/document-card-layout";
 import { DropdownMenu, DropdownMenuTrigger } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { cn } from "@reactive-resume/utils/style";
+import { useDocumentsCopy } from "./copy.generated";
 import { DocumentMenuContent, useDocumentActions } from "./document-actions";
 import { daysLeftInTrash } from "./filter";
 import { useNewDocumentsStore } from "./new-documents";
@@ -19,6 +21,7 @@ import { formatRelativeTime } from "@/libs/locale";
 import { ENTER_CLASS, stagger } from "@/libs/motion";
 
 export type DocumentItemProps = {
+	library?: boolean;
 	document: DocumentSummary;
 	onTags: (document: DocumentSummary) => void;
 	onLink: (document: DocumentSummary) => void;
@@ -87,6 +90,7 @@ function RenameInput({ document, onDone }: { document: DocumentSummary; onDone: 
 			// oxlint-disable-next-line jsx-a11y/no-autofocus -- renaming starts from the menu, so focus goes straight to the field.
 			autoFocus
 			value={value}
+			dir="auto"
 			maxLength={100}
 			aria-label={t`Name`}
 			onChange={(event) => setValue(event.target.value)}
@@ -100,7 +104,7 @@ function RenameInput({ document, onDone }: { document: DocumentSummary; onDone: 
 					onDone();
 				}
 			}}
-			className="h-7 w-full min-w-0 rounded-md border border-accent bg-raised px-1.5 text-sm font-semibold ring-3 ring-accent-soft outline-none"
+			className="h-7 w-full min-w-0 rounded-md border border-accent bg-raised px-1.5 type-body font-semibold ring-3 ring-accent-soft outline-none"
 		/>
 	);
 }
@@ -133,6 +137,7 @@ function PaperBadge({ icon, label }: { icon: "globe" | "lock"; label: string }) 
 
 /** A 204px card: the real first page, title with ⋯, "Resume · Edited 2h ago" and the linked application. */
 export function DocumentCard({
+	library = false,
 	document,
 	onTags,
 	onLink,
@@ -141,6 +146,7 @@ export function DocumentCard({
 	onSelectedChange,
 	selecting = false,
 }: DocumentItemProps) {
+	const copy = useDocumentsCopy();
 	const openDocument = useOpenDocument();
 	const [renaming, setRenaming] = useState(false);
 	const isNew = useNewDocumentsStore((state) => state.ids.includes(document.id)) && !document.trashedAt;
@@ -161,7 +167,7 @@ export function DocumentCard({
 					<article
 						style={introIndex === undefined ? undefined : stagger(introIndex)}
 						className={cn(
-							"group/card grid gap-2",
+							documentCardLayout.surface({ library }),
 							introIndex !== undefined && ENTER_CLASS,
 							isNew && "animate-arrive",
 							document.trashedAt && "opacity-70",
@@ -169,13 +175,14 @@ export function DocumentCard({
 					/>
 				}
 			>
-				<div className="relative">
+				<div className={documentCardLayout.preview({ library })}>
 					<OpenLink
 						document={document}
 						label={document.name}
 						onSelect={selecting && onSelectedChange ? () => onSelectedChange(!selected) : undefined}
 						className={cn(
-							"relative block aspect-page overflow-hidden rounded-[6px] shadow-[0_0_0_1px_var(--line),var(--shadow-1)] transition-[translate,scale,box-shadow] duration-quick ease-enter hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--line),var(--shadow-2)] active:scale-[0.98]",
+							documentCardLayout.page({ library }),
+							"shadow-[0_0_0_1px_var(--line),var(--shadow-1)] transition-[translate,scale,box-shadow] duration-quick ease-enter hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--line),var(--shadow-2)] active:scale-[0.98]",
 							(isNew || selected) &&
 								"shadow-[0_0_0_2px_var(--accent),var(--shadow-1)] hover:shadow-[0_0_0_2px_var(--accent),var(--shadow-2)] starting:shadow-[0_0_0_2px_transparent,var(--shadow-1)]",
 							document.trashedAt && "pointer-events-none",
@@ -188,7 +195,7 @@ export function DocumentCard({
 						)}
 						<span className="absolute start-2 top-2 flex gap-1">
 							{isNew && (
-								<span className="rounded bg-accent px-1.5 text-[11px] leading-[18px] font-semibold text-on-accent">
+								<span className="rounded bg-accent px-1.5 type-metadata font-semibold text-on-accent">
 									<Trans>New</Trans>
 								</span>
 							)}
@@ -209,16 +216,20 @@ export function DocumentCard({
 					)}
 				</div>
 
-				<div className="flex items-start gap-1">
+				<div className={documentCardLayout.details({ library })}>
 					<div className="grid min-w-0 flex-1 gap-0.5">
 						{renaming ? (
 							<RenameInput document={document} onDone={() => setRenaming(false)} />
 						) : (
-							<h3 className="truncate text-sm leading-5 font-semibold">{document.name}</h3>
+							<h2 dir="auto" className="truncate text-start type-label">
+								{document.name}
+							</h2>
 						)}
-						<span className="truncate text-xs text-ink-3">{meta}</span>
+						<span data-slot="document-meta" title={meta} className="truncate type-metadata text-ink-3">
+							{meta}
+						</span>
 						{document.application && (
-							<span className="flex min-w-0 items-center gap-1 text-xs text-ink-2">
+							<span className="flex min-w-0 items-center gap-1 type-metadata text-ink-2">
 								<Icon name="briefcase" size={14} />
 								<span className="truncate">{document.application.company}</span>
 							</span>
@@ -238,6 +249,15 @@ export function DocumentCard({
 						<DocumentMenuContent {...menuProps} />
 					</DropdownMenu>
 				</div>
+				{library && (
+					<OpenLink
+						document={document}
+						className={documentCardLayout.action}
+						onSelect={selecting && onSelectedChange ? () => onSelectedChange(!selected) : undefined}
+					>
+						{copy("editor.document.open")}
+					</OpenLink>
+				)}
 			</ContextMenuTrigger>
 			<DocumentMenuContent {...menuProps} variant="context" />
 		</ContextMenu>
@@ -272,7 +292,8 @@ export function DocumentRow({
 					<tr
 						style={introIndex === undefined ? undefined : stagger(introIndex)}
 						className={cn(
-							"border-b border-line transition-colors duration-quick hover:bg-hover",
+							documentCardLayout.row,
+							"transition-colors duration-quick hover:bg-hover",
 							selected && "bg-accent-soft hover:bg-accent-soft",
 							introIndex !== undefined && ENTER_CLASS,
 							document.trashedAt && "opacity-70",
@@ -285,7 +306,7 @@ export function DocumentRow({
 						<Checkbox checked={selected} onCheckedChange={onSelectedChange} aria-label={t`Select ${document.name}`} />
 					</td>
 				)}
-				<td className="py-3 ps-3 pe-2">
+				<td className={documentCardLayout.cell}>
 					<span className="flex min-w-0 items-center gap-2.5">
 						<Icon name={document.type === "resume" ? "file-text" : "envelope-simple"} className="shrink-0 text-ink-2" />
 						{renaming ? (
@@ -293,13 +314,13 @@ export function DocumentRow({
 						) : (
 							<OpenLink
 								document={document}
-								className="min-w-0 truncate text-start text-sm font-semibold hover:underline"
+								className="min-w-0 truncate text-start type-body font-semibold hover:underline"
 							>
 								{document.name}
 							</OpenLink>
 						)}
 						{isNew && (
-							<span className="rounded bg-accent px-1.5 text-[11px] leading-[18px] font-semibold text-on-accent">
+							<span className="rounded bg-accent px-1.5 type-metadata font-semibold text-on-accent">
 								<Trans>New</Trans>
 							</span>
 						)}
@@ -314,11 +335,11 @@ export function DocumentRow({
 						{document.isLocked && <Icon name="lock" size={16} className="shrink-0 text-ink-3" />}
 					</span>
 				</td>
-				<td className="px-2 text-sm text-ink-2 max-sm:hidden">
+				<td className="px-2 type-body text-ink-2 max-sm:hidden">
 					{document.type === "resume" ? <Trans>Resume</Trans> : <Trans>Letter</Trans>}
 				</td>
-				<td className="truncate px-2 text-sm text-ink-2 max-sm:hidden">{document.application?.company ?? "—"}</td>
-				<td className="px-2 text-sm whitespace-nowrap text-ink-3">
+				<td className="truncate px-2 type-body text-ink-2 max-sm:hidden">{document.application?.company ?? "—"}</td>
+				<td className="px-2 type-body whitespace-nowrap text-ink-3">
 					{document.trashedAt ? (
 						<Trans>{daysLeftInTrash(document.trashedAt)} days left</Trans>
 					) : (

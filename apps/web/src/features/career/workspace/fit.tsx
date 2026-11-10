@@ -8,12 +8,13 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { latest, useDefaultProvider, useGenerate, useSavedItems, useWorkspace } from "../hooks";
 import { PrivacyLine, StatusPill, Swap, Working, workingSteps } from "../shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { orpc } from "@/libs/orpc/client";
@@ -63,13 +64,8 @@ export function FitTab({ application, version }: WorkspaceTabProps) {
 	const readOnly = version?.data.kind === "fit";
 	const item = (readOnly ? version : latest(saved.data, "fit")) as FitItem | undefined;
 
-	if (saved.isPending)
-		return (
-			<div className="grid gap-4">
-				<Skeleton className="h-14 w-2/3" />
-				<Skeleton className="h-80 rounded-xl" />
-			</div>
-		);
+	const skeletonWait1 = useSkeletonLoading(saved.isPending);
+	if (skeletonWait1.pending || saved.isPending) return <QuerySkeleton shape="form" />;
 
 	const check = () => void generate.run({ task: "fit" }).catch(() => undefined);
 

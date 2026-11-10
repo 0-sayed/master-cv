@@ -5,9 +5,25 @@ description: "Enable, use, operate, and evaluate Career, the application workspa
 
 The career platform adds application-specific coaching, shared career knowledge, interview practice, and reviewable job-search assistance. This guide covers the implemented controls and operating limits for contributors and self-hosting operators.
 
+## Private career information (T003)
+
+Verified email accounts enter a persisted welcome step, the existing document library and **Career information**.
+Experience, education, skills, languages and certifications use typed manual entries. **Review changes** saves
+only a pending proposal; **Confirm changes** atomically accepts the reviewed revisions. Cancel retains a local,
+account-scoped recovery draft and does not accept it. Expired sessions return through normal password/MFA login.
+A conflict preserves local text, shows the latest saved entry and requires a fresh review before confirmation.
+Switching AR/EN changes interface strings and direction only.
+
+Preferences and inherited text knowledge remain separate. Legacy fact-edit/forget endpoints reject structured
+entries. Removing an entry records a tombstone; saved CV content is unchanged. Accepted snapshots are immutable
+to runtime credentials. CV links reference exact accepted revisions and report staleness after edits/removal;
+T004 owns explicit CV refresh controls and creation/import workflows. A language/job copy cannot be a lineage root.
+Import and AI assistance are not enabled by these screens. Do not expose retained tools or process real CVs from
+this implementation alone.
+
 ## Availability
 
-All career features ship together and are available without a release flag: Today, the coach, Knowledge, offer comparison, the application workspace (fit checks, application answers, interview preparation, practice, debriefs and employer messages), discovery, reminders, and recorded voice practice.
+The inherited features described below remain subject to the Master CV processing and exposure gates in `Planning/context/decisions.md`; their presence does not authorize launch. Retained capabilities include: Today, the coach, Knowledge, offer comparison, the application workspace (fit checks, application answers, interview preparation, practice, debriefs and employer messages), discovery, reminders, and recorded voice practice.
 
 AI generation requires a usable AI connection. Voice can use a speech-capable connection or supported browser speech. Scheduled work requires a working deployment scheduler and explicit user opt-in. The verification section below covers deterministic checks and live-provider evaluation before production deployment.
 

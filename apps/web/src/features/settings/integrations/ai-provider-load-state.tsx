@@ -1,6 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@reactive-resume/ui/components/button";
-import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
+import { QuerySkeleton } from "@/components/query-skeleton";
 
 type AiProviderLoadStateProps = {
 	state: { isLoading: boolean; error: unknown; retry: () => void };
@@ -8,16 +9,12 @@ type AiProviderLoadStateProps = {
 
 /** Loading and lookup failures must not be presented as missing saved connections. */
 export function AiProviderLoadState({ state }: AiProviderLoadStateProps) {
-	if (state.isLoading)
-		return (
-			<p role="status" className="flex items-center gap-2 p-3 text-sm text-ink-2">
-				<Spinner decorative className="size-4" />
-				<Trans>Loading AI connections…</Trans>
-			</p>
-		);
+	const skeletonWait1 = useSkeletonLoading(state.isLoading);
+	if (skeletonWait1.pending || state.isLoading)
+		return <QuerySkeleton shape="settings" count={1} label={<Trans>Loading AI connections…</Trans>} />;
 	if (!state.error) return null;
 	return (
-		<div role="alert" className="grid justify-items-start gap-2 rounded-lg border border-line p-3 text-sm text-ink-2">
+		<div role="alert" className="grid justify-items-start gap-2 rounded-lg border border-line p-3 type-body text-ink-2">
 			<p>
 				<Trans>Couldn't load AI connections. Your saved connections haven't changed.</Trans>
 			</p>

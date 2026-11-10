@@ -12,13 +12,17 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
+import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { Input } from "@reactive-resume/ui/components/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@reactive-resume/ui/components/input-group";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { SkeletonContent } from "@reactive-resume/ui/components/skeleton-content";
 import { Tabs, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { cn } from "@reactive-resume/utils/style";
 import { PageHeader } from "@/components/layout/page-header";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { AddApplicationDialog } from "@/features/applications/components/add-application-dialog";
 import { ApplicationDetailSheet } from "@/features/applications/components/application-detail-sheet";
 import { ApplicationFormSheet } from "@/features/applications/components/application-form-sheet";
@@ -30,6 +34,8 @@ import { ApplicationInsights, InsightsSkeleton } from "@/features/applications/c
 import { ApplicationList } from "@/features/applications/components/list-view";
 import { getNextStep } from "@/features/applications/next-step";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
+import { storageKey as registeredStorageKey, browserStorage } from "@/libs/browser-storage";
+import { PAGE_ENTER_CLASS } from "@/libs/motion";
 import { ENTER_CLASS } from "@/libs/motion";
 
 const VIEWS = ["list", "board", "insights", "calendar"] as const;
@@ -108,18 +114,20 @@ function RouteComponent() {
 	const selected = applications?.find((application) => application.id === selectedId) ?? null;
 	// The board needs room to drag: phones get the list instead.
 	const shown: View = phone && (view === "board" || view === "calendar") ? "list" : view;
-	const empty = !!applications && applications.length === 0;
+	const loading = useSkeletonLoading(isPending);
+	const empty = !loading.pending && !!applications && applications.length === 0;
 	const noMatches = !!applications && !empty && text && filtered.length === 0;
 
 	return (
-		<div className="mx-auto grid w-full max-w-[1180px] content-start gap-5 px-8 py-8 max-sm:px-4 max-sm:py-5">
+		<div className="contents">
 			<PageHeader
+				collectionState={empty ? "empty" : "populated"}
 				title={<Trans>Applications</Trans>}
 				actions={
 					<>
 						<DropdownMenu>
 							<DropdownMenuTrigger
-								render={<Button size="icon" variant="secondary" aria-label={t`Import or export CSV`} />}
+								render={<Button size="toolbar-icon" variant="secondary" aria-label={t`Import or export CSV`} />}
 							>
 								<Icon name="arrows-down-up" />
 							</DropdownMenuTrigger>
@@ -132,7 +140,7 @@ function RouteComponent() {
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
-						<Button onClick={() => setAdding(true)}>
+						<Button size="toolbar" onClick={() => setAdding(true)}>
 							<Icon name="plus" />
 							<Trans>Save job</Trans>
 						</Button>
@@ -148,7 +156,7 @@ function RouteComponent() {
 								setSearch({ view: value as View });
 							}}
 						>
-							<TabsList aria-label={t`View`}>
+							<TabsList size="toolbar" aria-label={t`View`}>
 								<TabsTrigger value="list">
 									<Icon name="rows" size={18} />
 									<Trans>List</Trans>
@@ -172,24 +180,22 @@ function RouteComponent() {
 							</TabsList>
 						</Tabs>
 
-						<div className="relative max-w-72 min-w-40 flex-1">
-							<Icon
-								name="magnifying-glass"
-								size={18}
-								className="pointer-events-none absolute start-2.5 top-1/2 -translate-y-1/2 text-ink-3"
-							/>
-							<Input
+						<InputGroup className="max-w-72 min-w-40 flex-1">
+							<InputGroupAddon>
+								<Icon name="magnifying-glass" size={18} />
+							</InputGroupAddon>
+							<InputGroupInput
 								type="search"
 								aria-label={t`Search applications`}
-								placeholder={t`Search role, company or contact`}
+								placeholder={t`Search applications`}
 								value={query}
-								className="ps-8"
 								onChange={(event) => setQuery(event.target.value)}
 							/>
-						</div>
+						</InputGroup>
 
 						{shown !== "insights" && (
 							<Button
+								size="toolbar"
 								variant="secondary"
 								aria-pressed={closed}
 								onClick={() => setSearch({ closed: !closed })}
@@ -210,7 +216,7 @@ function RouteComponent() {
 					role="alert"
 					className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line p-4"
 				>
-					<p className="text-sm text-danger-text">
+					<p className="type-body text-danger-text">
 						<Trans>Couldn't load applications. Try again.</Trans>
 					</p>
 					<Button variant="secondary" disabled={isFetching} onClick={() => void refetch()}>
@@ -220,26 +226,26 @@ function RouteComponent() {
 			)}
 
 			{isError && !applications ? null : empty ? (
-				<EmptyState onAdd={() => setAdding(true)} onImport={() => setImporting(true)} />
+				<FirstApplication onAdd={() => setAdding(true)} onImport={() => setImporting(true)} />
 			) : (
 				<>
-					{isPending ? (
-						<ViewSkeleton view={shown} />
+					{loading.pending ? (
+						<QuerySkeleton fallback={<ViewSkeleton view={shown} />} />
 					) : noMatches ? (
-						<div className="grid justify-items-center gap-2 py-16 text-center">
-							<p className="text-sm font-medium">
+						<EmptyState>
+							<p className="type-body font-medium">
 								<Trans>No applications match “{query.trim()}”.</Trans>
 							</p>
 							<Button size="sm" variant="secondary" onClick={() => setQuery("")}>
 								<Trans>Clear search</Trans>
 							</Button>
-						</div>
+						</EmptyState>
 					) : (
 						<div
 							key={shown}
 							className={cn(
 								viewSwitched
-									? "transition-[opacity,translate] duration-standard ease-enter starting:translate-y-1 starting:opacity-0"
+									? PAGE_ENTER_CLASS
 									: // The list fades in on its first appearance, after its skeleton.
 										shown === "list" && "transition-opacity duration-standard ease-enter starting:opacity-0",
 							)}
@@ -253,7 +259,7 @@ function RouteComponent() {
 								/>
 							)}
 							{shown === "board" && (
-								<div className="h-[calc(100svh-230px)] min-h-96">
+								<div className="h-[calc(100svh-var(--dashboard-workspace-inset))] min-h-96">
 									<ApplicationBoard
 										applications={filtered}
 										showClosed={closed}
@@ -299,11 +305,11 @@ function RouteComponent() {
 	);
 }
 
-const NUDGE_STORAGE_KEY = "applications-follow-up-dismissed";
+const NUDGE_STORAGE_KEY = registeredStorageKey("followUpDismissed");
 
 function readDismissed(): string[] {
 	try {
-		return JSON.parse(window.localStorage.getItem(NUDGE_STORAGE_KEY) ?? "[]") as string[];
+		return JSON.parse(browserStorage.local.getItem(NUDGE_STORAGE_KEY) ?? "[]") as string[];
 	} catch {
 		return [];
 	}
@@ -330,7 +336,7 @@ function FollowUpNudge({ applications, onOpen }: { applications: Application[]; 
 		const next = [...dismissed, waiting.application.id].slice(-200);
 		setDismissed(next);
 		try {
-			window.localStorage.setItem(NUDGE_STORAGE_KEY, JSON.stringify(next));
+			browserStorage.local.setItem(NUDGE_STORAGE_KEY, JSON.stringify(next));
 		} catch {
 			// Without storage the nudge is dismissed for this visit only.
 		}
@@ -345,7 +351,7 @@ function FollowUpNudge({ applications, onOpen }: { applications: Application[]; 
 			role="status"
 			className={cn(
 				ENTER_CLASS,
-				"flex flex-wrap items-center gap-2 rounded-xl bg-warn-soft px-3 py-2 text-sm text-warn-text",
+				"flex flex-wrap items-center gap-2 rounded-xl bg-warn-soft px-3 py-2 type-body text-warn-text",
 			)}
 		>
 			<Icon name="clock" size={20} />
@@ -364,16 +370,16 @@ function FollowUpNudge({ applications, onOpen }: { applications: Application[]; 
 	);
 }
 
-function EmptyState({ onAdd, onImport }: { onAdd: () => void; onImport: () => void }) {
+function FirstApplication({ onAdd, onImport }: { onAdd: () => void; onImport: () => void }) {
 	return (
-		<div className="grid justify-items-center gap-3 py-20 text-center transition-[opacity,translate] duration-emphasized ease-enter starting:translate-y-2 starting:opacity-0">
+		<EmptyState className={PAGE_ENTER_CLASS}>
 			<span className="grid size-12 place-items-center rounded-xl bg-sunken text-ink-2">
 				<Icon name="briefcase" size={26} />
 			</span>
-			<h2 className="text-lg font-semibold">
+			<h2 className="type-section font-semibold">
 				<Trans>Track your first job</Trans>
 			</h2>
-			<p className="max-w-sm text-sm text-ink-2">
+			<p className="max-w-sm type-body text-ink-2">
 				<Trans>Paste a job link. We'll save the posting so Check, the assistant and your letter can use it.</Trans>
 			</p>
 			<div className="flex gap-2">
@@ -385,7 +391,7 @@ function EmptyState({ onAdd, onImport }: { onAdd: () => void; onImport: () => vo
 					<Trans>Import from CSV</Trans>
 				</Button>
 			</div>
-		</div>
+		</EmptyState>
 	);
 }
 
@@ -396,9 +402,9 @@ function ViewSkeleton({ view }: { view: View }) {
 		return (
 			<div className="grid gap-2 pt-10">
 				{Array.from({ length: 6 }, (_, index) => (
-					<Skeleton key={index} className="h-[52px]" />
+					<Skeleton key={index} className="h-13" />
 				))}
 			</div>
 		);
-	return <Skeleton className="h-[calc(100svh-230px)] min-h-96 rounded-xl" />;
+	return <SkeletonContent shape="board" count={5} />;
 }

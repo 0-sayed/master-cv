@@ -19,6 +19,8 @@ The lockfile and existing catalogs are the baseline; do not run a blanket update
 - `pnpm build`: existing web, Hono and shared build tasks; generated build output is ignored.
 - `pnpm check`, `pnpm format` and `pnpm lint:fix` rewrite source. They are not CI validation commands.
 
+Reject newly added raw UI font/color/spacing/radius values and control-size overrides outside shared definitions; require semantic roles and shared variants. Verify equal header/body start edges and invariant sidebar width across dashboard routes, matching toolbar heights, full select-label fit and avatar inset. Check AR/EN, narrow/wide layouts and every changed dialog/state; record evidence separately from functional smoke.
+
 The web owns routes and React UI; the Hono server owns HTTP/startup/static serving. `packages/api` owns
 authenticated business procedures; `auth`, `db`, `schema`, `resume`, `pdf`, `docx`, `ui`, `fonts`, `env` and
 `email` retain their existing responsibilities. Mobile and native packages remain in the workspace.
@@ -27,7 +29,7 @@ See [the preserved repository guide](agents/repository-guide.md) for conventions
 ## Local development
 
 On a new checkout, run `pnpm local:init`, then `docker compose -f compose.yaml up -d --wait postgres`,
-`pnpm db:migrate`, and `pnpm dev`. Docker Compose v2 with `include` support is required.
+`pnpm db:migrate`, provision its runtime role below, and `pnpm dev`. Docker Compose v2 with `include` support is required.
 `local:init` generates ignored `.env` infrastructure inputs and `.env.local` application configuration,
 with mode 0600. It refuses to replace hand-written `.env.local`. Keep an existing setup deliberately
 or move its configuration aside before using the generator; never discard local credentials implicitly.
@@ -51,6 +53,40 @@ remains an upstream deployment example, with legacy defaults; it is not an appro
 Use explicit `-f compose.yaml` to avoid Compose's warning about both filenames. Production belongs to T012.
 Docker build/watch inputs exclude Planning, credentials, local state and browser reports.
 
+## Private workspace database roles
+
+T003 requires two connections. `DATABASE_MIGRATION_URL` owns schema changes; `DATABASE_URL`
+must be a non-owner login without superuser, BYPASSRLS, migration-role membership, TRUNCATE
+privileges on protected tables or UPDATE/DELETE privileges on `career_fact_revision`. INSERT remains
+required to append revision snapshots. Startup verifies forced RLS and refuses unsafe runtime credentials.
+The 27 protected tables deny private queries without an authenticated owner scope. Identity/session
+lookups stay outside that scope; they do not use the migration connection.
+
+For a new **synthetic local database**, run the existing `pnpm local:init` and `pnpm db:migrate`, then
+`pnpm exec dotenvx run -f .env.local -- node tooling/local/database-roles.mjs`.
+The helper accepts loopback databases only, creates `master_cv_runtime`, and writes ignored,
+mode-600 `.env.runtime.local`; it refuses an existing role or file instead of rotating credentials.
+Existing checkouts must supply their actual schema-owner URL as `DATABASE_MIGRATION_URL` first.
+Do not replace an existing database password or run this against real CV data.
+
+Root development/database scripts load `.env.runtime.local` before `.env.local`; the first file wins.
+Existing process environment still takes precedence. The original local setup and its admin credentials
+are preserved. A worktree needs its own role/file; do not copy runtime files between databases.
+CI provisions a fresh restricted role after migrations and uses a separate admin URL for fixture cleanup.
+Future migrations that add tables or functions must explicitly extend its grants.
+
+Accepted master snapshots are append-only for the application role. Queue and abandoned-run discovery
+functions return bounded owner IDs only; payload work then uses short owner-scoped transactions.
+Atomic confirmation uses one transaction, with independent accepted and draft revision checks.
+
+## T003 copy generation
+
+The copy deck remains the source for scoped AR/EN workspace strings and auth mail. From the tooling
+workspace, use `copy:generate:auth-mail` or `copy:generate:workspace` to regenerate the corresponding
+TypeScript derivatives. Extract the web's `en-US,ar-SA` catalogs with the existing Lingui command,
+then run `copy:sync:workspace` and `copy:check:bindings`. These checks validate active bindings;
+they do not approve pending copy reviews or claim complete release coverage. Preserve other locales.
+
 ## Isolated worktrees
 
 Use worktree-compose 0.2.0 with the `portStride` support verified in this environment. Run `wtc --version`
@@ -61,7 +97,7 @@ It does not copy `.env.local`; each worktree generates separate application secr
 
 1. Create a linked branch worktree from the intended baseline and install with the frozen lockfile there.
 2. From the main checkout run `wtc ls`, then `wtc start <index>`. It starts only PostgreSQL by default.
-3. Inside that worktree run `pnpm local:init`, `pnpm db:migrate`, and `pnpm dev`.
+3. Inside that worktree run `pnpm local:init`, `pnpm db:migrate`, provision its runtime role below, and `pnpm dev`.
 4. Use the URL printed by `local:init`. WTC's URL column can choose an optional S3 port, so it is not
    authoritative for the frontend. Allocated ports and `.env.local` must agree.
 5. Stop `pnpm dev` with Ctrl-C before `wtc stop <index>` from the main checkout. WTC stops infrastructure,
@@ -98,7 +134,7 @@ Build before running browser tests against the production server. For a running 
 `pnpm exec dotenvx run --ignore=MISSING_ENV_FILE -f .env.local -- playwright test tests/e2e/specs/auth.spec.ts`.
 The default uses Playwright Chromium; install it with `pnpm exec playwright install --with-deps chromium`.
 An existing system Chrome can be selected with `PLAYWRIGHT_CHANNEL=chrome`; Playwright's matching ffmpeg
-must still be installed for video artifacts. Browser smoke does not certify Arabic PDF/DOCX gates.
+must still be installed for video artifacts. Browser smoke does not certify Arabic PDF/DOCX gates or D35 UI consistency. Record the separate AR/EN layout, element and dialog/state evidence required above.
 
 ## Security and CI boundaries
 
@@ -135,3 +171,21 @@ See [T000 execution evidence](t000-evidence.md) for actual local passes, failure
 Issue-template support now targets the product repository; its unverified security-report contact was removed.
 The inherited `SECURITY.md` was removed because this repository is private. Add an owner-approved Master CV
 private reporting channel before release. Do not send private product reports to upstream contacts.
+
+T003 browser tests capture actual verification/reset messages through the loopback SMTP sink in
+`tests/e2e/mail-capture.mjs`. It accepts only `.test` recipients and saves ignored mode-600 messages
+under `test-results/mail/`. The browser server runs with synthetic SMTP settings. Never publish these
+messages, traces or local environment files; links are authentication secrets. The production transport
+requires configured SMTP and surfaces delivery failures as retryable errors. Mail delivery/domain and
+legal wording approval remain release gates.
+
+Playwright starts its own application and SMTP capture by default and refuses occupied ports, including
+locally, so an unrelated development server or worktree cannot silently receive test mail. The capture
+port defaults to the web `PORT` plus 3; `E2E_SMTP_PORT` overrides it for both the capture and application.
+`E2E_MAIL_DIRECTORY` selects the capture directory and must match the directory read by the fixtures.
+
+To use an already provisioned isolated browser runtime, set `E2E_REUSE_SERVER=true` together with explicit
+`E2E_SMTP_PORT` and `E2E_MAIL_DIRECTORY`. This opts into reusing both services; the existing application
+must already send to that loopback capture port and the sink must already write to that directory.
+Playwright cannot retrofit SMTP settings into an existing process. Keep `APP_URL`, `PORT`, storage and
+database settings pointed at that same synthetic runtime. `PLAYWRIGHT_CHANNEL=chrome` remains supported.

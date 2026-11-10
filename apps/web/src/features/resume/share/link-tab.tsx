@@ -8,6 +8,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
 import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { InputGroup, InputGroupInput } from "@reactive-resume/ui/components/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@reactive-resume/ui/components/popover";
 import { Separator } from "@reactive-resume/ui/components/separator";
 import { SwitchRow } from "@reactive-resume/ui/components/switch";
@@ -18,7 +19,7 @@ import { formatTimeSince, summarizeViews } from "./format";
 import { useCurrentResume, usePatchResume } from "@/features/resume/builder/draft";
 import { ResumePasswordDialog } from "@/features/resume/builder/password-dialog";
 import { useConfirm } from "@/hooks/use-confirm";
-import { authClient } from "@/libs/auth/client";
+import { useCurrentSession } from "@/hooks/use-current-session";
 import { ENTER_CLASS } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
 
@@ -34,7 +35,7 @@ const errorMessage = (error: unknown) =>
 export function LinkTab() {
 	const resume = useCurrentResume();
 	const patchResume = usePatchResume();
-	const { data: session } = authClient.useSession();
+	const session = useCurrentSession();
 	const { mutateAsync: updateResume, isPending } = useMutation(orpc.resume.update.mutationOptions());
 	const isPublic = resume.isPublic ?? false;
 	const url = `${window.location.origin}/${session?.user.username ?? ""}/${resume.slug}`;
@@ -196,9 +197,10 @@ function AddressField({ url, username }: AddressFieldProps) {
 				<Trans>Address</Trans>
 			</label>
 			<div className="flex gap-1.5">
-				<div
+				<InputGroup
+					dir="ltr"
 					className={cn(
-						"flex h-[38px] min-w-0 flex-1 items-center overflow-hidden rounded-lg border bg-raised transition-colors duration-quick focus-within:ring-3",
+						"min-w-0 flex-1 overflow-hidden",
 						invalid
 							? "border-danger focus-within:border-danger focus-within:ring-danger/15"
 							: "border-line-2 focus-within:border-accent focus-within:ring-accent-soft",
@@ -208,7 +210,8 @@ function AddressField({ url, username }: AddressFieldProps) {
 					<span className="max-w-[55%] truncate ps-2.5 font-mono text-[13px] font-medium text-ink-3" dir="ltr">
 						{window.location.host}/{username}/
 					</span>
-					<input
+					<InputGroupInput
+						dir="ltr"
 						id={id}
 						value={slug}
 						disabled={!isPublic || resume.isLocked}
@@ -216,7 +219,7 @@ function AddressField({ url, username }: AddressFieldProps) {
 						aria-invalid={invalid}
 						aria-describedby={`${id}-message`}
 						onChange={(event) => setSlug(event.target.value.toLowerCase().replace(/\s+/g, "-"))}
-						className="h-full min-w-0 flex-1 bg-transparent pe-1.5 font-mono text-[13px] font-medium text-ink outline-none"
+						className="type-label font-mono"
 					/>
 					{isPublic && slug && (
 						<Icon
@@ -225,11 +228,11 @@ function AddressField({ url, username }: AddressFieldProps) {
 							className={cn("me-2.5", invalid ? "text-danger-text" : "text-accent-text")}
 						/>
 					)}
-				</div>
+				</InputGroup>
 				<CopyLinkButton
 					url={url}
 					label={t`Copy`}
-					className="h-[38px] gap-1.5"
+					className="gap-1.5"
 					disabled={!isPublic || changed}
 					onCopied={() => toast.add({ description: t`Link copied` })}
 				/>

@@ -74,6 +74,7 @@ const existing = {
 	activity: [{ id: "e0", type: "stage" as const, stage: "saved" as const, at: new Date("2026-07-01T12:00:00.000Z") }],
 	appliedAt: new Date("2026-07-01T12:00:00.000Z"),
 	createdAt: new Date("2026-07-01T12:00:00.000Z"),
+	updatedAt: new Date("2026-07-01T12:00:00.000Z"),
 	resumeFileUrl: "http://localhost:3000/api/uploads/user-1/pictures/resume.pdf",
 	coverLetterUrl: "/api/uploads/user-1/pictures/cover.pdf",
 };
@@ -152,6 +153,18 @@ describe("applicationService.update", () => {
 		const value = activity.values.find((item) => typeof item === "string" && item.includes('"type":"stage"'));
 		return JSON.parse(String(value))[0] as { type: string; stage: string };
 	};
+
+	it("rejects notes saved against an obsolete application revision", async () => {
+		captureSet();
+		await expect(
+			applicationService.update({
+				id: "app-1",
+				userId: "user-1",
+				notes: "Stale draft",
+				expectedNotesRevision: "2000-01-01T00:00:00.000Z",
+			} as Parameters<typeof applicationService.update>[0]),
+		).rejects.toMatchObject({ code: "CONFLICT" });
+	});
 
 	it("appends a typed stage timeline entry when the status changes", async () => {
 		const set = captureSet();

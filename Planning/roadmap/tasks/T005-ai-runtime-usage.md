@@ -20,6 +20,10 @@ disabled.
   and truncation handling.
 - Own B-C11 Start/free base-CV/copy limits, reservation/settlement/release ledger, concurrency/cost controls
   and redacted diagnostics. T010 only adds paid grants and billing lifecycle.
+- Make implicit AI state explicit (audit 2026-11-10, ui-audit/implicit-state.md #7,17,26,31,36,40,43): bind each
+  operation and conversation to the approved route/provider; never switch provider silently (show unavailable and ask);
+  provider tests bind to a configuration revision; run, stream-resume, stop and decision states are explicit and
+  confirmed by the server. Prove each with a failing test first.
 - Own `billing.usage.startOperationsLimitHint` in S11: Start operations never replenish; manual editing and PDF
   download remain available. No View plans action at beta; T010 owns Focus exhaustion and any plans action.
 - Own A11 approved processing/data-flow evidence: exact endpoint/model, suppliers/locations/contracts, data
@@ -49,6 +53,8 @@ deferred.
   Never hard-code node IDs in this brief. Verify target names and current renders using authorized access during
   implementation.
 - Do not implement Popup Simulator/Note frames or infer application routes from prototype navigation.
+
+Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
 
 ## Source references
 

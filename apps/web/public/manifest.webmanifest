@@ -1,81 +1,53 @@
 {
-	"name": "Reactive Resume",
-	"short_name": "Reactive Resume",
-	"description": "A free and open-source resume builder.",
+	"name": "Master CV",
+	"short_name": "Master CV",
+	"description": "Upload your CV or start from scratch. Review every detail and suggestion yourself.",
 	"id": "/?source=pwa",
 	"start_url": "/dashboard",
 	"scope": "/",
 	"lang": "en",
 	"display": "standalone",
-	"theme_color": "#F8F7F3",
-	"background_color": "#F8F7F3",
+	"theme_color": "#F1F0EB",
+	"background_color": "#F1F0EB",
 	"icons": [
-		{ "src": "pwa-64x64.png", "sizes": "64x64", "type": "image/png" },
-		{ "src": "pwa-192x192.png", "sizes": "192x192", "type": "image/png" },
-		{ "src": "pwa-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-		{ "src": "maskable-icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+		{
+			"src": "pwa-64x64.png",
+			"sizes": "64x64",
+			"type": "image/png"
+		},
+		{
+			"src": "pwa-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "pwa-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "maskable-icon-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		}
 	],
 	"shortcuts": [
-		{ "name": "Documents", "description": "Your resumes and cover letters", "url": "/dashboard" },
-		{ "name": "Applications", "description": "Track your job applications", "url": "/dashboard/applications" },
-		{ "name": "Career", "description": "Plan your job search", "url": "/dashboard/career" }
-	],
-	"screenshots": [
 		{
-			"src": "screenshots/web/1-landing-page.webp",
-			"sizes": "1920x1080 any",
-			"type": "image/webp",
-			"form_factor": "wide",
-			"label": "Landing Page"
+			"name": "Documents",
+			"description": "Your resumes and cover letters",
+			"url": "/dashboard"
 		},
 		{
-			"src": "screenshots/web/2-resume-dashboard.webp",
-			"sizes": "1920x1080 any",
-			"type": "image/webp",
-			"form_factor": "wide",
-			"label": "Resume Dashboard"
+			"name": "Applications",
+			"description": "Track your job applications",
+			"url": "/dashboard/applications"
 		},
 		{
-			"src": "screenshots/web/3-builder-screen.webp",
-			"sizes": "1920x1080 any",
-			"type": "image/webp",
-			"form_factor": "wide",
-			"label": "Builder Screen"
-		},
-		{
-			"src": "screenshots/web/4-template-gallery.webp",
-			"sizes": "1920x1080 any",
-			"type": "image/webp",
-			"form_factor": "wide",
-			"label": "Template Gallery"
-		},
-		{
-			"src": "screenshots/mobile/1-landing-page.webp",
-			"sizes": "1284x2778 any",
-			"type": "image/webp",
-			"form_factor": "narrow",
-			"label": "Landing Page"
-		},
-		{
-			"src": "screenshots/mobile/2-resume-dashboard.webp",
-			"sizes": "1284x2778 any",
-			"type": "image/webp",
-			"form_factor": "narrow",
-			"label": "Resume Dashboard"
-		},
-		{
-			"src": "screenshots/mobile/3-builder-screen.webp",
-			"sizes": "1284x2778 any",
-			"type": "image/webp",
-			"form_factor": "narrow",
-			"label": "Builder Screen"
-		},
-		{
-			"src": "screenshots/mobile/4-template-gallery.webp",
-			"sizes": "1284x2778 any",
-			"type": "image/webp",
-			"form_factor": "narrow",
-			"label": "Template Gallery"
+			"name": "Career information",
+			"description": "Your experience, education, skills and languages",
+			"url": "/dashboard/career/information"
 		}
 	],
 	"categories": ["productivity", "business", "utilities"]

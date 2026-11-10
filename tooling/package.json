@@ -6,6 +6,9 @@
 	"scripts": {
 		"copy:check": "tsx locales/check-copy.ts",
 		"copy:check:bindings": "tsx locales/check-copy.ts --bindings",
+		"copy:generate:auth-mail": "tsx locales/generate-auth-mail.ts",
+		"copy:generate:workspace": "tsx locales/generate-workspace-copy.ts",
+		"copy:sync:workspace": "tsx locales/sync-workspace-catalogs.ts",
 		"db:reset": "tsx database/reset.ts",
 		"docs:gen": "tsx semantic-css/generate-reference.ts",
 		"test": "vp test run --passWithNoTests",
@@ -23,6 +26,7 @@
 		"@lingui/format-po": "^6.10.0",
 		"@lingui/message-utils": "catalog:",
 		"@phosphor-icons/react": "^2.1.10",
+		"@playwright/test": "^1.64.1",
 		"@reactive-resume/config": "workspace:*",
 		"@reactive-resume/env": "workspace:*",
 		"@reactive-resume/import": "workspace:*",
@@ -40,6 +44,7 @@
 		"react-dom": "19.3.1",
 		"tsrs": "catalog:",
 		"tsx": "^4.23.15",
+		"typescript": "catalog:",
 		"vite-plus": "catalog:",
 		"wrangler": "catalog:",
 		"zod": "catalog:"

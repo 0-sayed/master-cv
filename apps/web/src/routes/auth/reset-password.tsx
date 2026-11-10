@@ -12,7 +12,7 @@ export const Route = createFileRoute("/auth/reset-password")({
 	},
 	onError: (error) => {
 		if (error instanceof SearchParamError) {
-			throw redirect({ to: "/auth/login" });
+			throw redirect({ to: "/auth/forgot-password" });
 		}
 	},
 });

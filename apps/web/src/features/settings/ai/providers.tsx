@@ -18,6 +18,7 @@ import {
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { Switch } from "@reactive-resume/ui/components/switch";
 import { toast } from "@reactive-resume/ui/components/toast";
@@ -31,6 +32,7 @@ import {
 	providerLabel,
 	providerOptions,
 } from "./catalog";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { Combobox } from "@/components/ui/combobox";
 import { useClosingValue } from "@/hooks/use-closing-value";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -61,13 +63,14 @@ export function ProvidersSection() {
 	const defaultId = usable[0]?.id;
 	const makeDefault = useMutation(orpc.aiProviders.setDefault.mutationOptions());
 
+	const skeletonWait1 = useSkeletonLoading(isLoading);
 	return (
 		<section aria-labelledby={`${id}-title`} className="overflow-hidden rounded-xl border border-line bg-surface">
 			<header className="grid gap-1 border-b border-line px-5 py-4 max-sm:px-4">
-				<h2 id={`${id}-title`} className="text-[17px] font-semibold">
+				<h2 id={`${id}-title`} className="type-section">
 					<Trans>AI providers</Trans>
 				</h2>
-				<p className="max-w-[60ch] text-[13px] leading-5 text-ink-3">
+				<p className="max-w-[60ch] type-body text-ink-3">
 					<Trans>
 						Writing help, tailored suggestions and the assistant. The default provider is used wherever you don't pick
 						one. Your keys stay encrypted.
@@ -77,28 +80,25 @@ export function ProvidersSection() {
 			<div className="grid gap-4 p-5">
 				{managed ? (
 					<div className="flex items-center gap-3">
-						<ProviderLogo provider={managed.provider} className="size-10 rounded-[10px] bg-sunken" />
+						<ProviderLogo provider={managed.provider} className="size-10 rounded-lg bg-sunken" />
 						<div className="grid min-w-0 gap-1">
-							<p className="text-sm font-medium">{providerLabel(managed.provider)}</p>
-							<p className="text-xs break-all text-ink-3">{managed.model}</p>
-							<p className="text-xs text-ink-2">
+							<p className="type-body font-medium">{providerLabel(managed.provider)}</p>
+							<p className="type-metadata break-all text-ink-3">{managed.model}</p>
+							<p className="type-metadata text-ink-2">
 								<Trans>Managed by your server</Trans>
 							</p>
 						</div>
 					</div>
 				) : error ? (
-					<p role="alert" className="rounded-lg bg-warn-soft p-3 text-sm text-warn-text">
+					<p role="alert" className="rounded-lg bg-warn-soft p-3 type-body text-warn-text">
 						{isConfigError(error) ? (
 							<Trans>AI providers aren't available on this server until ENCRYPTION_SECRET is set.</Trans>
 						) : (
 							<Trans>AI providers couldn't be loaded. Reload to try again.</Trans>
 						)}
 					</p>
-				) : isLoading ? (
-					<p className="flex items-center gap-2 text-sm text-ink-3">
-						<Spinner decorative className="size-3.5" />
-						<Trans>Loading providers…</Trans>
-					</p>
+				) : skeletonWait1.pending || isLoading ? (
+					<QuerySkeleton shape="settings" label={<Trans>Loading providers…</Trans>} />
 				) : (
 					<>
 						{providers?.map((provider) => (
@@ -131,14 +131,14 @@ export function ProvidersSection() {
 						<button
 							type="button"
 							onClick={() => setAdding(true)}
-							className="flex min-h-14 items-center gap-3 rounded-[10px] border border-dashed border-line-2 px-3 py-2.5 text-start text-sm transition-colors duration-quick hover:bg-hover"
+							className="flex min-h-14 items-center gap-3 rounded-lg border border-dashed border-line-2 px-3 py-2.5 text-start type-body transition-colors duration-quick hover:bg-hover"
 						>
 							<Icon name="plus" size={20} />
 							<span className="grid gap-0.5">
 								<span className="font-medium">
 									<Trans>Add AI provider</Trans>
 								</span>
-								<span className="text-xs text-ink-3">
+								<span className="type-metadata text-ink-3">
 									<Trans>Anthropic, Gemini, Ollama, OpenAI-compatible</Trans>
 								</span>
 							</span>
@@ -227,15 +227,15 @@ function ProviderRow({ provider, isDefault, onMakeDefault, makingDefault, onEdit
 	const error = test.result ? test.result.error : provider.testStatus === "failure" ? provider.testError : null;
 
 	return (
-		<div className="grid gap-2 rounded-[10px] border border-line p-3">
+		<div className="grid gap-2 rounded-lg border border-line p-3">
 			<div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 sm:flex sm:items-center">
 				<ProviderLogo provider={provider.provider} className="size-10 rounded-lg bg-sunken" />
 				<span className="grid min-w-0 flex-1 gap-0.5">
-					<span className="flex flex-wrap items-center gap-2 text-sm font-semibold">
+					<span className="flex flex-wrap items-center gap-2 type-body font-semibold">
 						<span className="break-words">{provider.label}</span>
 						<span
 							className={cn(
-								"rounded-full px-2 py-0.5 text-xs font-medium",
+								"rounded-full px-2 py-0.5 type-metadata font-medium",
 								provider.testStatus === "failure"
 									? "bg-danger-soft text-danger-text"
 									: provider.enabled
@@ -252,13 +252,13 @@ function ProviderRow({ provider, isDefault, onMakeDefault, makingDefault, onEdit
 							)}
 						</span>
 						{isDefault && (
-							<span className="rounded-full border border-accent px-2 py-0.5 text-xs font-medium text-accent-text">
+							<span className="rounded-full border border-accent px-2 py-0.5 type-metadata font-medium text-accent-text">
 								<Trans>Default</Trans>
 							</span>
 						)}
 					</span>
-					<span className="text-xs break-all text-ink-2">{provider.model}</span>
-					<span className="text-xs text-ink-3">
+					<span className="type-metadata break-all text-ink-2">{provider.model}</span>
+					<span className="type-metadata text-ink-3">
 						<Trans>Key ends in {keyEnding(provider.apiKeyPreview)}</Trans>
 					</span>
 				</span>
@@ -291,7 +291,7 @@ function ProviderRow({ provider, isDefault, onMakeDefault, makingDefault, onEdit
 				</div>
 			</div>
 			{error && (
-				<p role="alert" className="ms-12 text-xs text-danger-text">
+				<p role="alert" className="ms-12 type-metadata text-danger-text">
 					{error}
 				</p>
 			)}
@@ -327,6 +327,7 @@ function ProviderFieldsForm({ provider, value, onChange, keyOptional }: Provider
 	});
 	const models = catalogId ? (catalog?.[catalogId] ?? []) : [];
 
+	const skeletonWait1 = useSkeletonLoading(loadingModels);
 	return (
 		<div className="grid gap-3 sm:grid-cols-2">
 			<div className="grid gap-1.5 sm:col-span-2">
@@ -353,6 +354,7 @@ function ProviderFieldsForm({ provider, value, onChange, keyOptional }: Provider
 					<Trans>Model</Trans>
 				</Label>
 				<Input
+					dir="ltr"
 					id={`${id}-model`}
 					list={`${id}-models`}
 					aria-describedby={`${id}-model-hint`}
@@ -368,13 +370,16 @@ function ProviderFieldsForm({ provider, value, onChange, keyOptional }: Provider
 						</option>
 					))}
 				</datalist>
-				<p id={`${id}-model-hint`} className="text-xs leading-5 text-ink-3">
+				<div id={`${id}-model-hint`} className="type-metadata text-ink-3">
 					{!catalogId ? (
 						<Trans>Enter any model ID supported by your endpoint.</Trans>
 					) : modelsUnavailable ? (
 						<Trans>Model suggestions are unavailable. You can still enter any model ID.</Trans>
-					) : loadingModels ? (
-						<Trans>Loading model suggestions… You can also enter any model ID.</Trans>
+					) : skeletonWait1.pending || loadingModels ? (
+						<QuerySkeleton
+							count={1}
+							label={<Trans>Loading model suggestions… You can also enter any model ID.</Trans>}
+						/>
 					) : models.length === 0 ? (
 						<Trans>No suggestions for this provider. Enter any model ID.</Trans>
 					) : (
@@ -391,7 +396,7 @@ function ProviderFieldsForm({ provider, value, onChange, keyOptional }: Provider
 							. You can also enter any model ID.
 						</Trans>
 					)}
-				</p>
+				</div>
 			</div>
 			<div className="grid gap-1.5 sm:col-span-2">
 				<Label htmlFor={`${id}-label`}>
@@ -527,7 +532,7 @@ function AddProviderDialog({ open, onOpenChange }: AddProviderDialogProps) {
 					</div>
 					<ProviderFieldsForm provider={provider} value={fields} onChange={setFields} />
 					{failure && (
-						<p role="alert" className="text-sm text-danger-text">
+						<p role="alert" className="type-body text-danger-text">
 							{failure}
 						</p>
 					)}
@@ -627,12 +632,12 @@ function EditProviderForm({ provider, onClose }: EditProviderFormProps) {
 				}}
 			>
 				<ProviderFieldsForm provider={provider.provider} value={fields} onChange={setFields} keyOptional />
-				<div className="flex items-center justify-between gap-3 text-sm">
+				<div className="flex items-center justify-between gap-3 type-body">
 					<span className="grid gap-0.5">
 						<span id={`${provider.id}-use`} className="font-medium">
 							<Trans>Use this provider</Trans>
 						</span>
-						<span id={`${provider.id}-use-hint`} className="text-xs text-ink-3">
+						<span id={`${provider.id}-use-hint`} className="type-metadata text-ink-3">
 							<Trans>Only providers that pass their test can be turned on.</Trans>
 						</span>
 					</span>
@@ -645,7 +650,7 @@ function EditProviderForm({ provider, onClose }: EditProviderFormProps) {
 					/>
 				</div>
 				{failure && (
-					<p role="alert" className="text-sm text-danger-text">
+					<p role="alert" className="type-body text-danger-text">
 						{failure}
 					</p>
 				)}

@@ -7,7 +7,7 @@ import { ORPCError } from "@orpc/client";
 import { compare, hash } from "bcryptjs";
 import { and, arrayContains, asc, desc, eq, gte, isNotNull, isNull, sql } from "drizzle-orm";
 import { match } from "ts-pattern";
-import { db } from "@reactive-resume/db/client";
+import { db, withDatabaseOwner, withOwnerDatabase } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
 import { detachEmbeddedLetters } from "@reactive-resume/resume/cover-letter";
 import { applyResumePatches, ResumePatchError } from "@reactive-resume/resume/patch";
@@ -187,25 +187,28 @@ const statistics = {
 		slug: string;
 		requestHeaders: Headers;
 		currentUserId?: string;
+		requirePublic?: boolean;
 	}): Promise<boolean> => {
-		const [resume] = await db
-			.select({
-				id: schema.resume.id,
-				userId: schema.resume.userId,
-				isPublic: schema.resume.isPublic,
-				passwordHash: schema.resume.password,
-			})
-			.from(schema.resume)
-			.innerJoin(schema.user, eq(schema.resume.userId, schema.user.id))
-			.where(
-				and(
-					eq(schema.resume.slug, input.slug),
-					eq(schema.user.username, input.username),
-					isNull(schema.resume.trashedAt),
-				),
-			);
+		const lookup = () =>
+			db
+				.select({
+					id: schema.resume.id,
+					userId: schema.resume.userId,
+					isPublic: schema.resume.isPublic,
+					passwordHash: schema.resume.password,
+				})
+				.from(schema.resume)
+				.innerJoin(schema.user, eq(schema.resume.userId, schema.user.id))
+				.where(
+					and(
+						eq(schema.resume.slug, input.slug),
+						eq(schema.user.username, input.username),
+						isNull(schema.resume.trashedAt),
+					),
+				);
+		const [resume] = await (input.currentUserId ? withDatabaseOwner(input.currentUserId, lookup) : lookup());
 
-		if (!resume) throw new ORPCError("NOT_FOUND");
+		if (!resume || (input.requirePublic && !resume.isPublic)) throw new ORPCError("NOT_FOUND");
 		const viewer = input.currentUserId ? { id: input.currentUserId } : null;
 		assertCanView(resume, viewer);
 		if (
@@ -220,7 +223,7 @@ const statistics = {
 		}
 
 		if (shouldCountForStatistics(resume, viewer)) {
-			await statistics.increment({ id: resume.id, downloads: true });
+			await statistics.increment({ id: resume.id, userId: resume.userId, downloads: true });
 		}
 		return true;
 	},
@@ -249,14 +252,16 @@ const statistics = {
 		};
 	},
 
-	increment: async (input: { id: string; views?: boolean; downloads?: boolean }) => {
+	increment: async (input: { id: string; userId: string; views?: boolean; downloads?: boolean }) => {
 		const views = input.views ? 1 : 0;
 		const downloads = input.downloads ? 1 : 0;
 		const lastViewedAt = input.views ? sql`now()` : undefined;
 		const lastDownloadedAt = input.downloads ? sql`now()` : undefined;
 		const today = new Date().toISOString().slice(0, 10);
 
-		await db.transaction(async (tx) => {
+		// The caller has checked public/password access. Only this counter write uses
+		// the owner returned by that lookup; the visitor never receives owner access.
+		await withOwnerDatabase(input.userId, async (tx) => {
 			await tx
 				.insert(schema.resumeStatistics)
 				.values({
@@ -504,26 +509,28 @@ export const resumeService = {
 		requirePublic?: boolean;
 		expectedResumeId?: string;
 	}) => {
-		const [resume] = await db
-			.select({
-				id: schema.resume.id,
-				userId: schema.resume.userId,
-				name: schema.resume.name,
-				slug: schema.resume.slug,
-				tags: schema.resume.tags,
-				data: schema.resume.data,
-				isPublic: schema.resume.isPublic,
-				isLocked: schema.resume.isLocked,
-				showDownloadButtons: schema.resume.showDownloadButtons,
-				passwordHash: schema.resume.password,
-				hasPassword: sql<boolean>`${schema.resume.password} IS NOT NULL`,
-			})
-			.from(schema.resume)
-			.innerJoin(schema.user, eq(schema.resume.userId, schema.user.id))
-			.where(and(matchesSlug(input.slug), eq(schema.user.username, input.username), isNull(schema.resume.trashedAt)))
-			// A resume's current slug wins over another's redirect (renames delete clashing redirects anyway).
-			.orderBy(desc(sql`${schema.resume.slug} = ${input.slug}`))
-			.limit(1);
+		const lookup = () =>
+			db
+				.select({
+					id: schema.resume.id,
+					userId: schema.resume.userId,
+					name: schema.resume.name,
+					slug: schema.resume.slug,
+					tags: schema.resume.tags,
+					data: schema.resume.data,
+					isPublic: schema.resume.isPublic,
+					isLocked: schema.resume.isLocked,
+					showDownloadButtons: schema.resume.showDownloadButtons,
+					passwordHash: schema.resume.password,
+					hasPassword: sql<boolean>`${schema.resume.password} IS NOT NULL`,
+				})
+				.from(schema.resume)
+				.innerJoin(schema.user, eq(schema.resume.userId, schema.user.id))
+				.where(and(matchesSlug(input.slug), eq(schema.user.username, input.username), isNull(schema.resume.trashedAt)))
+				// A resume's current slug wins over another's redirect (renames delete clashing redirects anyway).
+				.orderBy(desc(sql`${schema.resume.slug} = ${input.slug}`))
+				.limit(1);
+		const [resume] = await (input.currentUserId ? withDatabaseOwner(input.currentUserId, lookup) : lookup());
 
 		if (
 			!resume ||
@@ -549,7 +556,7 @@ export const resumeService = {
 		if (shouldCountForStatistics(resume, viewer)) {
 			const key = `${resume.id}:${clientKeyFromHeaders(input.trustedClient)}`;
 			if (await shouldCountView(key, Date.now())) {
-				await resumeService.statistics.increment({ id: resume.id, views: true });
+				await resumeService.statistics.increment({ id: resume.id, userId: resume.userId, views: true });
 			}
 		}
 
@@ -825,6 +832,12 @@ export const resumeService = {
 
 			if (!resume) throw new ORPCError("NOT_FOUND");
 			if (resume.isLocked) throw new ORPCError("RESUME_LOCKED", { status: 403 });
+
+			// Copies keep their own content/history when their original base is purged.
+			await tx
+				.update(schema.resume)
+				.set({ baseResumeId: null, variantKind: "base" })
+				.where(and(eq(schema.resume.userId, input.userId), eq(schema.resume.baseResumeId, input.id)));
 
 			await tx.delete(schema.resume).where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)));
 		});

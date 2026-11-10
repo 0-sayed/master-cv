@@ -2,6 +2,7 @@ import type * as React from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { useUiLabels } from "@reactive-resume/ui/components/ui-labels";
 import { cn } from "@reactive-resume/utils/style";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
@@ -34,7 +35,10 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
 }
 
 type DialogContentProps = DialogPrimitive.Popup.Props & {
+	/** Place a search dialog just below its trigger, sharing its horizontal bounds. */
+	anchor?: { x: number; bottom: number; width: number } | null;
 	showCloseButton?: boolean;
+	size?: "default" | "wide";
 	/** Accessible name of the close button; pass a translated string. */
 	closeLabel?: string;
 	/** Skip the open/close transition, for dialogs toggled many times a day (e.g. the command bar). */
@@ -46,27 +50,45 @@ function DialogContent({
 	className,
 	children,
 	showCloseButton = true,
-	closeLabel = "Close",
+	size = "default",
+	closeLabel,
 	instant = false,
+	anchor,
+	style,
 	...props
 }: DialogContentProps) {
+	const labels = useUiLabels();
 	return (
 		<DialogPortal>
 			<DialogOverlay className={cn(instant && "transition-none")} />
 			<DialogPrimitive.Popup
 				data-slot="dialog-content"
 				className={cn(
-					"fixed inset-s-1/2 top-1/2 z-50 grid max-h-[calc(100svh-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto overscroll-contain rounded-2xl bg-raised p-6 text-sm text-ink shadow-e3 transition-[opacity,scale] duration-standard ease-enter outline-none data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--d2)*0.7)] data-starting-style:scale-[0.98] data-starting-style:opacity-0 sm:max-w-[480px] rtl:translate-x-1/2",
+					"fixed inset-s-1/2 top-1/2 z-50 grid max-h-[calc(100svh-2rem)] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto overscroll-contain rounded-2xl bg-raised p-6 type-body text-ink shadow-e3 transition-[opacity,scale] duration-standard ease-enter outline-none data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--d2)*0.7)] data-starting-style:scale-[0.98] data-starting-style:opacity-0 sm:max-w-[480px] rtl:translate-x-1/2",
 					instant && "transition-none",
+					size === "wide" && "sm:max-w-2xl",
 					className,
 				)}
+				style={{
+					...style,
+					...(anchor && {
+						insetInlineStart: "auto",
+						left: anchor.x + anchor.width / 2,
+						right: "auto",
+						top: `calc(${anchor.bottom}px + var(--space-8))`,
+						translate: "-50% 0",
+						width: anchor.width,
+						maxWidth: "calc(100% - var(--space-32))",
+						maxHeight: `calc(100svh - ${anchor.bottom}px - var(--space-24))`,
+					}),
+				}}
 				{...props}
 			>
 				{children}
 				{showCloseButton && (
 					<DialogPrimitive.Close
 						data-slot="dialog-close"
-						aria-label={closeLabel}
+						aria-label={closeLabel ?? labels.close}
 						render={<Button variant="ghost" className="absolute inset-e-3 top-3 text-ink-2" size="icon" />}
 					>
 						<Icon name="x" />
@@ -84,13 +106,14 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
 function DialogFooter({
 	className,
 	showCloseButton = false,
-	closeLabel = "Close",
+	closeLabel,
 	children,
 	...props
 }: React.ComponentProps<"div"> & {
 	showCloseButton?: boolean;
 	closeLabel?: string;
 }) {
+	const labels = useUiLabels();
 	return (
 		<div
 			data-slot="dialog-footer"
@@ -99,7 +122,9 @@ function DialogFooter({
 		>
 			{children}
 			{showCloseButton && (
-				<DialogPrimitive.Close render={<Button variant="secondary" />}>{closeLabel}</DialogPrimitive.Close>
+				<DialogPrimitive.Close render={<Button variant="secondary" />}>
+					{closeLabel ?? labels.close}
+				</DialogPrimitive.Close>
 			)}
 		</div>
 	);
@@ -108,11 +133,7 @@ function DialogFooter({
 /** Dialog and sheet titles use the display serif at 22px. */
 function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
 	return (
-		<DialogPrimitive.Title
-			data-slot="dialog-title"
-			className={cn("font-display text-[22px] leading-7 font-medium text-ink", className)}
-			{...props}
-		/>
+		<DialogPrimitive.Title data-slot="dialog-title" className={cn("type-title-s text-ink", className)} {...props} />
 	);
 }
 
@@ -120,10 +141,7 @@ function DialogDescription({ className, ...props }: DialogPrimitive.Description.
 	return (
 		<DialogPrimitive.Description
 			data-slot="dialog-description"
-			className={cn(
-				"text-sm leading-5 text-ink-2 *:[a]:text-accent-text *:[a]:underline *:[a]:underline-offset-3",
-				className,
-			)}
+			className={cn("type-body text-ink-2 *:[a]:text-accent-text *:[a]:underline *:[a]:underline-offset-3", className)}
 			{...props}
 		/>
 	);

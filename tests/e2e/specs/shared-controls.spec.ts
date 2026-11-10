@@ -15,7 +15,7 @@ test("form controls keep long labels visible at 320px and use mobile-sized targe
 	);
 	expect(labelFits).toBe(true);
 	expect(
-		await page.getByLabel("Email Address", { exact: true }).evaluate((element) => getComputedStyle(element).fontSize),
+		await page.getByLabel("Email address", { exact: true }).evaluate((element) => getComputedStyle(element).fontSize),
 	).toBe("16px");
 	expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
@@ -24,7 +24,7 @@ test("a portalled document sheet traps focus, closes on Escape and restores its 
 	authPage: page,
 }) => {
 	await page.goto("/dashboard");
-	const trigger = page.getByRole("button", { name: "New", exact: true }).first();
+	const trigger = page.getByRole("button", { name: "Choose a file", exact: true }).first();
 	await trigger.click();
 	const dialog = page.getByRole("dialog");
 	await expect(dialog).toBeVisible();

@@ -17,9 +17,10 @@ import {
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@reactive-resume/ui/components/sheet";
-import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { CoachThread, connectionName, deleteConversation, titleFor, useConversationDate } from "../coach-thread";
 import { PrivacyLine, tabLabel } from "../shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { useConversationConnection } from "@/features/assistant/chat";
 import { ProviderSetup } from "@/features/assistant/provider-setup";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
@@ -172,6 +173,7 @@ function CoachSheetBody({
 		</header>
 	);
 
+	const skeletonWait1 = useSkeletonLoading(providers.isLoading || threads.isPending);
 	if (providers.error)
 		return (
 			<AiProviderLoadState
@@ -184,13 +186,11 @@ function CoachSheetBody({
 				}}
 			/>
 		);
-	if (providers.isLoading || threads.isPending)
+	if (skeletonWait1.pending || providers.isLoading || threads.isPending)
 		return (
 			<>
 				{header}
-				<div className="grid flex-1 place-items-center">
-					<Spinner />
-				</div>
+				<QuerySkeleton shape="conversation" />
 			</>
 		);
 	if (!providers.hasUsableProvider && !threadId)

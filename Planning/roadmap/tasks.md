@@ -7,13 +7,15 @@
 
 Read [execution rules and bootstrap applicability](README.md) before running this graph. The decomposition, priorities and dependency edges are this roadmap’s implementation proposal; existing source requirements and unresolved approvals retain their authority. All briefs require owner review; they grant no implementation or release approval. T000 is marked complete by explicit owner instruction in the 2026-11-07 T001 closing round.
 
+Read D35 and the handoff before every UI task. Share visual APIs across task ownership boundaries; feature-local implementation does not authorize local visual standards.
+
 ## Task Graph
 
 | Done | Priority | Task                                                             | Size | Branch                                       | Depends On                     | Context                                                                                                                                                    |
 | ---- | -------- | ---------------------------------------------------------------- | ---- | -------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [x]  | 0        | `T000` - Bootstrap the existing fork and isolated development    | L    | `chore/t000-project-bootstrap`               | —                              | `roadmap/tasks/T000-project-bootstrap.md`, `bootstrap.md`, `roadmap/README.md`, `context/technical/architecture.md`, `context/technical/infrastructure.md` |
 | [x]  | 10       | `T001` - Prove and harden Arabic document compatibility          | L    | `feat/t001-arabic-document-engine`           | `T000`                         | `roadmap/tasks/T001-arabic-document-engine.md`, `context/technical/architecture.md`                                                                        |
-| [ ]  | 20       | `T002` - Implement the native design system and bilingual shell  | L    | `feat/t002-design-system-shell`              | `T000`                         | `roadmap/tasks/T002-design-system-shell.md`, `context/design/design-system.md`, `context/design/figma-handoff.md`                                          |
+| [x]  | 20       | `T002` - Implement the native design system and bilingual shell  | L    | `feat/t002-design-system-shell`              | `T000`                         | `roadmap/tasks/T002-design-system-shell.md`, `context/design/design-system.md`, `context/design/figma-handoff.md`                                          |
 | [ ]  | 30       | `T003` - Deliver accounts and the private career workspace       | L    | `feat/t003-private-career-workspace`         | `T002`                         | `roadmap/tasks/T003-private-career-workspace.md`, `context/business/requirements.md`, `context/technical/architecture.md`                                  |
 | [ ]  | 40       | `T004` - Deliver the complete native CV workspace                | L    | `feat/t004-cv-workspace`                     | `T001`, `T003`                 | `roadmap/tasks/T004-cv-workspace.md`, `context/business/requirements.md`, `context/technical/ai.md`                                                        |
 | [ ]  | 50       | `T005` - Deliver bounded AI operations and usage accounting      | L    | `feat/t005-ai-runtime-usage`                 | `T004`                         | `roadmap/tasks/T005-ai-runtime-usage.md`, `context/technical/ai.md`                                                                                        |
@@ -43,7 +45,7 @@ Read [execution rules and bootstrap applicability](README.md) before running thi
 
 ## Task briefs
 
-The `Context` column points to the complete scope, source references, Figma keys, ownership boundaries, acceptance evidence and explicit exclusions for each PR. Internal steps and clean commits stay within the large PR; they are not separately scheduled small/medium PRs.
+The `Context` column points to the complete scope, source references, Figma keys, ownership boundaries, acceptance evidence and explicit exclusions for each PR. Share visual APIs across feature/task ownership boundaries under D35. Internal steps and clean commits stay within the large PR; they are not separately scheduled small/medium PRs.
 
 - [T014: Activate mobile authentication](tasks/T014-mobile-authentication.md)
 - [T015: Qualify the paid release](tasks/T015-paid-release-qualification.md)

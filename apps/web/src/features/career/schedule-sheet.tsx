@@ -15,12 +15,13 @@ import { Input } from "@reactive-resume/ui/components/input";
 import { NativeSelect } from "@reactive-resume/ui/components/native-select";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
 import { Sheet, SheetClose, SheetContent, SheetTitle } from "@reactive-resume/ui/components/sheet";
-import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { SwitchRow } from "@reactive-resume/ui/components/switch";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { fromZonedDateTime } from "@reactive-resume/utils/timezone";
 import { PrivacyLine, Swap, useCareerTime, useNow } from "./shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { collectInterviews, interviewKindOf } from "@/features/applications/interviews";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
@@ -173,6 +174,7 @@ export function ScheduleSheet({ schedule, onScheduleChange, onDelete }: Schedule
 	}
 
 	const draft = form?.draft;
+	const skeletonWait1 = useSkeletonLoading(!form || !draft);
 	const set = (patch: Partial<Draft>) =>
 		setForm((current) => current && { ...current, draft: { ...current.draft, ...patch } });
 	const touch = (field: keyof Form["touched"]) =>
@@ -272,10 +274,8 @@ export function ScheduleSheet({ schedule, onScheduleChange, onDelete }: Schedule
 					</SheetClose>
 				</div>
 
-				{!form || !draft ? (
-					<div className="grid min-h-40 flex-1 place-items-center">
-						<Spinner />
-					</div>
+				{skeletonWait1.pending || !form || !draft ? (
+					<QuerySkeleton shape="form" />
 				) : (
 					<div className="flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto px-[22px] py-5">
 						<Segments

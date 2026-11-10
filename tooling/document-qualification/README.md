@@ -13,7 +13,7 @@ From the repository root, use Node 24 and the existing pnpm toolchain:
 
 ```sh
 node tooling/document-qualification/install-poppler.mjs
-export PATH="$PWD/.superpowers/document-toolchain/bin:$PATH"
+export PATH="$PWD/.cache/document-toolchain/bin:$PATH"
 pnpm --filter @reactive-resume/tooling test:documents
 DOCUMENT_PILOT=1 pnpm --filter @reactive-resume/tooling test:documents
 DOCUMENT_MATRIX=1 pnpm --filter @reactive-resume/tooling test:documents

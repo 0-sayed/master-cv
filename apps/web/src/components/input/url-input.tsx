@@ -48,12 +48,14 @@ export function URLInput<TValue extends Website>({ value, onChange, hideLabelBut
 	const urlValue = stripPrefix(value.url);
 
 	return (
-		<InputGroup>
+		<InputGroup dir={props.dir ?? "ltr"}>
 			<InputGroupAddon align="inline-start">
 				<InputGroupText>{prefix}</InputGroupText>
 			</InputGroupAddon>
 
 			<InputGroupInput
+				dir="ltr"
+				inputMode="url"
 				value={urlValue}
 				className={cn(props.className, "ps-0!")}
 				onChange={handleUrlChange}

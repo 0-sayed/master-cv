@@ -49,12 +49,10 @@ it.each(["documents", "trash"])("keeps %s load failures distinct from empty stat
 	);
 
 	expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't load documents");
-	expect(screen.queryByText("Let's start with what you have")).not.toBeInTheDocument();
+	expect(screen.queryByText("No documents yet")).not.toBeInTheDocument();
 	expect(screen.queryByText("Trash is empty")).not.toBeInTheDocument();
 	fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-	expect(
-		await screen.findByText(page === "documents" ? "Let's start with what you have" : "Trash is empty"),
-	).toBeVisible();
+	expect(await screen.findByText(page === "documents" ? "No documents yet" : "Trash is empty")).toBeVisible();
 	expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 	view.unmount();
 	queryClient.clear();

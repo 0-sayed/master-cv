@@ -6,13 +6,17 @@ import { TAB_SPRING } from "@/libs/motion";
  * (which must be `relative`); when another tab becomes active it springs across to it. Reduced motion moves it at
  * once (see `followReducedMotion`).
  */
-export function MobileTabIndicator() {
+export function MobileTabIndicator({ pill = false }: { pill?: boolean }) {
 	return (
 		<m.span
 			aria-hidden="true"
 			layoutId="mobile-tab-indicator"
 			transition={TAB_SPRING}
-			className="absolute inset-x-0 -top-px mx-auto h-0.5 w-8 rounded-full bg-accent"
+			className={
+				pill
+					? "absolute inset-0 rounded-full bg-accent-soft"
+					: "absolute inset-x-0 -top-px mx-auto h-0.5 w-8 rounded-full bg-accent"
+			}
 		/>
 	);
 }

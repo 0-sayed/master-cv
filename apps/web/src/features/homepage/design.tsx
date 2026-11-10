@@ -8,7 +8,7 @@ import { cn } from "@reactive-resume/utils/style";
 import { goToScene, SCENE, useLanding } from "./scroll";
 import { Sheet, sheetTemplates } from "./sheet";
 import { Doodle, SceneCaption } from "./ui";
-import { templates } from "@/dialogs/resume/template/data";
+import { getTemplateImageUrl, templates } from "@/dialogs/resume/template/data";
 
 /** Where each template tab scrolls the scene to: just past its wipe. */
 const TEMPLATE_AT = [0.05, 0.2, 0.36, 0.52, 0.7];
@@ -122,7 +122,7 @@ export function Design() {
 							{cell.template && (
 								<>
 									<img
-										src={`/templates/thumb/${cell.template}.webp`}
+										src={getTemplateImageUrl(cell.template, i18n.locale)}
 										alt=""
 										width={298}
 										height={420}

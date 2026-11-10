@@ -71,7 +71,6 @@
 		"@uiw/react-color-colorful": "^2.10.3",
 		"ai": "catalog:",
 		"better-auth": "catalog:",
-		"cmdk": "^1.1.1",
 		"es-toolkit": "catalog:",
 		"fflate": "catalog:",
 		"fuse.js": "^7.5.0",

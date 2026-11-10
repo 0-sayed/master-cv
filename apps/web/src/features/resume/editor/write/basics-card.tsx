@@ -1,6 +1,7 @@
 import type { Basics, CustomField } from "@reactive-resume/schema/resume/data";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Avatar, AvatarFallback, AvatarImage } from "@reactive-resume/ui/components/avatar";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Collapsible, CollapsibleContent } from "@reactive-resume/ui/components/collapsible";
 import { Icon } from "@reactive-resume/ui/components/icon";
@@ -126,13 +127,12 @@ function PhotoRow({ locked }: { locked: boolean }) {
 
 	return (
 		<div id="sidebar-picture" className="col-span-full flex items-center gap-3 rounded-lg bg-bg p-2.5">
-			{hasPhoto ? (
-				<img src={picture.url} alt="" className="size-10 shrink-0 rounded-md object-cover" />
-			) : (
-				<span className="grid size-10 shrink-0 place-items-center rounded-md bg-sunken text-ink-3">
+			<Avatar size="lg" shape="square">
+				<AvatarImage src={picture.url || undefined} />
+				<AvatarFallback>
 					<Icon name="camera-plus" />
-				</span>
-			)}
+				</AvatarFallback>
+			</Avatar>
 			<p className="min-w-0 flex-1 text-xs leading-4 text-ink-2">
 				{!hasPhoto ? (
 					<Trans>No photo. Most ATS ignore photos; some regions expect one.</Trans>

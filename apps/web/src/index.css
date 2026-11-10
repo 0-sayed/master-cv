@@ -1,6 +1,11 @@
 @import "@reactive-resume/ui/globals.css";
 @import "./features/homepage/landing.css";
 
+/* UI faces are supplied at their real weights. Document typography stays independent. */
+:where(.type-title, .type-title-s, .type-section, .type-label) {
+	font-synthesis: none;
+}
+
 @font-face {
 	font-family: "Noto Sans Arabic";
 	font-style: normal;
@@ -102,75 +107,43 @@
 		repeat-x left center / 6px 4px;
 }
 
-/*
- * Page transitions: the router starts a view transition of type `page` when the pathname changes. The page fades
- * out quickly and the new one fades up 6px; named navigation (app-nav, settings-nav, auth-brand) stays in place.
- */
-@keyframes vt-page-out {
-	to {
-		opacity: 0;
-	}
-}
-
+/* Same-shell navigation may fade only the incoming body. The router skips shell boundaries.
+ * Never retain an outgoing snapshot, interpolate geometry, or translate titles/toolbars. */
 @keyframes vt-page-in {
 	from {
 		opacity: 0;
-		translate: 0 6px;
 	}
 }
 
+html:has([data-slot="dashboard-page"]) {
+	view-transition-name: none;
+}
+
 html:active-view-transition-type(page)::view-transition {
-	background-color: var(--bg);
 	pointer-events: none;
 }
 
 html:active-view-transition-type(page)::view-transition-group(*) {
-	animation-duration: var(--d2);
-	animation-timing-function: var(--ease);
+	animation: none;
 }
 
-html:active-view-transition-type(page)::view-transition-old(root),
-html:active-view-transition-type(page)::view-transition-old(*):only-child {
-	animation: calc(var(--d2) * 0.7) var(--ease) both vt-page-out;
+html:active-view-transition-type(page)::view-transition-old(*) {
+	display: none;
+	animation: none;
 }
 
-html:active-view-transition-type(page)::view-transition-new(root) {
+html:active-view-transition-type(page)::view-transition-new(*) {
+	animation: none;
+}
+
+html:active-view-transition-type(page)::view-transition-new(root),
+html:active-view-transition-type(page)::view-transition-new(dashboard-body) {
 	animation: var(--d2) var(--ease) both vt-page-in;
 }
 
-/*
- * Phones, Settings: a section pushes in from the end and Back returns to the list from the start. The links add a
- * `forward` or `back` type next to `page`, so the page rules above still fade the old page out; these replace only
- * the new page's entry. Same specificity as the page rules, so they must stay after them.
- */
-@keyframes vt-push-in {
-	from {
-		opacity: 0;
-		translate: var(--vt-push) 0;
-	}
-}
-
-@keyframes vt-pop-in {
-	from {
-		opacity: 0;
-		translate: calc(var(--vt-push) * -1) 0;
-	}
-}
-
-html {
-	--vt-push: 24px;
-}
-
-html[dir="rtl"] {
-	--vt-push: -24px;
-}
-
-@media (width < 640px) {
-	html:active-view-transition-type(forward)::view-transition-new(root) {
-		animation: var(--d2) var(--ease) both vt-push-in;
-	}
-
-	html:active-view-transition-type(back)::view-transition-new(root) {
-		animation: var(--d2) var(--ease) both vt-pop-in;
+@media (prefers-reduced-motion: reduce) {
+	html::view-transition-group(*),
+	html::view-transition-new(*) {
+		animation: none;
 	}
 }

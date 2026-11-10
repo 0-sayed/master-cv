@@ -41,17 +41,14 @@ describe("sendEmail", () => {
 		process.env.NODE_ENV = originalNodeEnv;
 	});
 
-	it("skips email send and logs without body in production when SMTP is not configured", async () => {
+	it("fails safely in production when SMTP is not configured", async () => {
 		resetEnv();
 		process.env.NODE_ENV = "production";
 		const infoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
-		await expect(
-			sendEmail({ to: "user@example.com", subject: "Reset password", react: fakeReact }),
-		).resolves.toBeUndefined();
-		expect(infoSpy).toHaveBeenCalledWith("SMTP not configured; skipping email send.", {
-			to: "user@example.com",
-			subject: "Reset password",
-		});
+		await expect(sendEmail({ to: "user@example.com", subject: "Reset password", react: fakeReact })).rejects.toThrow(
+			"Email could not be delivered. Please try again.",
+		);
+		expect(infoSpy).not.toHaveBeenCalled();
 		infoSpy.mockRestore();
 	});
 
@@ -71,7 +68,7 @@ describe("sendEmail", () => {
 		infoSpy.mockRestore();
 	});
 
-	it("does not throw or log sensitive details if the SMTP transport errors", async () => {
+	it("returns a retryable error without sensitive SMTP details", async () => {
 		resetEnv();
 		process.env.NODE_ENV = "production";
 		envMock.SMTP_HOST = "smtp.example.com";
@@ -81,7 +78,9 @@ describe("sendEmail", () => {
 		sendMail.mockRejectedValueOnce(new Error("SMTP rejected password=secret reset-token=private"));
 
 		const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-		await expect(sendEmail({ to: "a@b.com", subject: "hi", react: fakeReact })).resolves.toBeUndefined();
+		await expect(sendEmail({ to: "a@b.com", subject: "hi", react: fakeReact })).rejects.toThrow(
+			"Email could not be delivered. Please try again.",
+		);
 		expect(errorSpy).toHaveBeenCalledExactlyOnceWith("There was an error sending mail.");
 		errorSpy.mockRestore();
 	});

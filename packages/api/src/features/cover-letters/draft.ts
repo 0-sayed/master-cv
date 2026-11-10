@@ -43,9 +43,10 @@ function buildLetterDraftPrompt(input: PromptInput): string {
  * Streams a draft of the letter's body from its resume and its application's posting. Nothing is saved: the client
  * shows the draft until it's kept or discarded, so a failure leaves the letter as it was.
  */
-export async function* draftLetterBody(
+export async function draftLetterBody(
 	input: CoverLetterDraftInput & { userId: string; signal?: AbortSignal | undefined },
-): AsyncGenerator<string> {
+): Promise<AsyncGenerator<string>> {
+	// Resolve private sources while protectedProcedure's owner scope is active.
 	const { userId } = input;
 	const letter = await coverLetterService.getById({ id: input.id, userId });
 	const [resume, application] = await Promise.all([
@@ -92,13 +93,15 @@ export async function* draftLetterBody(
 			cause,
 		});
 
-	try {
-		for await (const part of result.stream) {
-			if (part.type === "text-delta") yield part.text;
-			else if (part.type === "error") throw unreachable(part.error);
+	return (async function* () {
+		try {
+			for await (const part of result.stream) {
+				if (part.type === "text-delta") yield part.text;
+				else if (part.type === "error") throw unreachable(part.error);
+			}
+		} catch (error) {
+			if (input.signal?.aborted) return;
+			throw error instanceof ORPCError ? error : unreachable(error);
 		}
-	} catch (error) {
-		if (input.signal?.aborted) return;
-		throw error instanceof ORPCError ? error : unreachable(error);
-	}
+	})();
 }

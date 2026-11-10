@@ -11,6 +11,7 @@ import { createLocaleSwitchQueue } from "./switch-queue";
 import { authClient } from "@/libs/auth/client";
 import { getUiLocaleMessages } from "@/libs/locale";
 import { sessionQueryKey } from "@/libs/root-context";
+import { loadUiFonts } from "@/libs/ui-fonts";
 
 type LocaleContextValue = { locale: UiLocale; pending: boolean; changeLocale: (value: UiLocale) => Promise<void> };
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -57,7 +58,7 @@ export function LocaleProvider({ children, locale: initialLocale, session }: Loc
 		queue.current = createLocaleSwitchQueue(async (value) => {
 			const isCurrentAccount = () => current;
 			if (!isCurrentAccount()) throw new Error("Session changed");
-			const catalog = await getUiLocaleMessages(value);
+			const [catalog] = await Promise.all([getUiLocaleMessages(value), loadUiFonts(value)]);
 			if (!isCurrentAccount()) throw new Error("Session changed");
 			if (accountId) {
 				const { error } = await authClient.updateUser({ uiLocale: value });

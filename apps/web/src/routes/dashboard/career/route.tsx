@@ -40,10 +40,11 @@ function CareerLayout() {
 		},
 		{ to: "/dashboard/career/offers", match: "/dashboard/career/offers", icon: "scales", label: t`Offers` },
 	];
+	if (matchRoute({ to: "/dashboard/career/information", fuzzy: true })) return <Outlet />;
 	const current = places.find((place) => matchRoute({ to: place.match, fuzzy: place.match !== "/dashboard/career/" }));
 
 	return (
-		<div className="mx-auto flex min-h-svh w-full max-w-[1180px] flex-col gap-5 px-8 py-8 max-sm:px-4 max-sm:py-5">
+		<div className="contents">
 			<PageHeader
 				title={<Trans>Career</Trans>}
 				description={<Trans>Plan your search, keep your evidence in one place, and decide between offers.</Trans>}
@@ -52,7 +53,7 @@ function CareerLayout() {
 					value={current?.to ?? null}
 					className="-mx-4 max-w-[100vw] [scrollbar-width:none] overflow-x-auto px-4 sm:mx-0 sm:px-0"
 				>
-					<TabsList variant="line" aria-label={t`Career`}>
+					<TabsList size="toolbar" variant="line" aria-label={t`Career`}>
 						{places.map((place) => (
 							<TabsTrigger
 								key={place.to}

@@ -3,24 +3,16 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
-import { useId, useRef, useState } from "react";
+import { useRef } from "react";
 import z from "zod";
 import { Avatar, AvatarFallback, AvatarImage } from "@reactive-resume/ui/components/avatar";
 import { Button } from "@reactive-resume/ui/components/button";
-import { Input } from "@reactive-resume/ui/components/input";
-import {
-	InputGroup,
-	InputGroupAddon,
-	InputGroupInput,
-	InputGroupText,
-} from "@reactive-resume/ui/components/input-group";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { getInitials } from "@reactive-resume/utils/string";
-import { cn } from "@reactive-resume/utils/style";
-import { SettingsSection } from "../section";
+import { SettingsRow, SettingsSection } from "../section";
+import { SavedField } from "./saved-field";
 import { authClient } from "@/libs/auth/client";
 import { getReadableErrorMessage } from "@/libs/error-message";
-import { isImeComposing } from "@/libs/keyboard";
 import { orpc } from "@/libs/orpc/client";
 import { sessionQueryKey } from "@/libs/root-context";
 
@@ -32,102 +24,6 @@ const usernameSchema = z
 	.max(64)
 	.regex(/^[a-z0-9._-]+$/);
 const emailSchema = z.email().trim();
-
-type FieldProps = {
-	label: string;
-	value: string;
-	/** Saves the new value; resolves to an error message, or null when it saved. */
-	save: (value: string) => Promise<string | null>;
-	validate: (value: string) => string | null;
-	prefix?: string;
-	hint?: React.ReactNode;
-	type?: "text" | "email";
-	autoComplete?: string;
-	className?: string;
-};
-
-/** A text setting that saves when it loses focus. Invalid or failed values stay, with the reason under them. */
-function SavedField({
-	label,
-	value,
-	save,
-	validate,
-	prefix,
-	hint,
-	type = "text",
-	autoComplete,
-	className,
-}: FieldProps) {
-	const id = useId();
-	const [draft, setDraft] = useState(value);
-	const [error, setError] = useState<string | null>(null);
-	const [saving, setSaving] = useState(false);
-
-	const commit = async () => {
-		const next = draft.trim();
-		if (next === value) return setError(null);
-		const invalid = validate(next);
-		if (invalid) return setError(invalid);
-		setSaving(true);
-		let failure: string | null;
-		try {
-			failure = await save(next);
-		} catch {
-			failure = t`Couldn't save. Try again.`;
-		}
-		setSaving(false);
-		setError(failure);
-	};
-
-	const inputProps = {
-		id,
-		type,
-		value: draft,
-		autoComplete,
-		"aria-invalid": error ? true : undefined,
-		"aria-describedby": error ? `${id}-error` : hint ? `${id}-hint` : undefined,
-		"aria-busy": saving || undefined,
-		onChange: (event: React.ChangeEvent<HTMLInputElement>) => setDraft(event.target.value),
-		onBlur: () => void commit(),
-		onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
-			if (isImeComposing(event)) return;
-			if (event.key === "Enter") event.currentTarget.blur();
-			if (event.key === "Escape") {
-				setDraft(value);
-				setError(null);
-			}
-		},
-	};
-
-	return (
-		<div className={cn("grid content-start gap-1.5", className)}>
-			<label htmlFor={id} className="text-xs font-medium text-ink-2">
-				{label}
-			</label>
-			{prefix ? (
-				<InputGroup>
-					<InputGroupAddon>
-						<InputGroupText>{prefix}</InputGroupText>
-					</InputGroupAddon>
-					<InputGroupInput {...inputProps} />
-				</InputGroup>
-			) : (
-				<Input {...inputProps} />
-			)}
-			{error ? (
-				<p id={`${id}-error`} role="alert" className="text-xs text-danger-text">
-					{error}
-				</p>
-			) : (
-				hint && (
-					<p id={`${id}-hint`} className="text-xs text-ink-3">
-						{hint}
-					</p>
-				)
-			)}
-		</div>
-	);
-}
 
 type ProfileSectionProps = { session: AuthSession };
 
@@ -201,6 +97,7 @@ export function ProfileSection({ session }: ProfileSectionProps) {
 					autoComplete="email"
 					validate={(value) => (emailSchema.safeParse(value).success ? null : t`Enter a valid email address.`)}
 					save={changeEmail}
+					savedMessage={t`Check your email`}
 					hint={
 						<>
 							<Trans>
@@ -252,13 +149,14 @@ function ProfilePhoto({ name, image, onChange }: ProfilePhotoProps) {
 	};
 
 	return (
-		<div className="flex items-center gap-3.5">
-			<Avatar className="size-14">
-				<AvatarImage src={image ?? undefined} alt="" />
-				<AvatarFallback className="bg-accent-soft text-lg font-semibold text-accent-text">
-					{getInitials(name)}
-				</AvatarFallback>
-			</Avatar>
+		<SettingsRow
+			title={
+				<Avatar size="profile">
+					<AvatarImage src={image ?? undefined} alt="" />
+					<AvatarFallback className="bg-accent-soft type-section text-accent-text">{getInitials(name)}</AvatarFallback>
+				</Avatar>
+			}
+		>
 			<input
 				ref={input}
 				type="file"
@@ -276,6 +174,6 @@ function ProfilePhoto({ name, image, onChange }: ProfilePhotoProps) {
 					<Trans>Remove</Trans>
 				</Button>
 			)}
-		</div>
+		</SettingsRow>
 	);
 }

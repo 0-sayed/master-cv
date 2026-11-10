@@ -1,6 +1,8 @@
 import type { ResolvedResumePreviewProps } from "./preview.shared";
 import type { PreviewPageSize } from "./preview.shared.utils";
+import type { PageMapTarget } from "@reactive-resume/pdf/page-map";
 import type { PageMap } from "@reactive-resume/pdf/page-map";
+import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { Template } from "@reactive-resume/schema/templates";
 import type { MotionStyle } from "motion/react";
 import { t } from "@lingui/core/macro";
@@ -9,11 +11,15 @@ import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { isRTL } from "@reactive-resume/utils/locale";
 import { cn } from "@reactive-resume/utils/style";
 import { isEditableElementFocused, usePreviewPausedStore, useResumeData } from "../builder/draft";
+import { changedPreviewTargets } from "./edit-highlight";
+import { EditHighlights } from "./edit-highlights";
 import { PdfCanvasDocument, PdfCanvasPage } from "./pdf-canvas";
+import { queuePreviewLayer } from "./preview-layers";
 import { ResumePreviewLoader } from "./preview.shared";
 import { getResumePreviewGapValue, getResumePreviewPageCount } from "./preview.shared.utils";
 import { ResumeAccessibleText } from "./resume-accessible-text";
@@ -22,6 +28,9 @@ import { getLostCharactersMessage, getReadableErrorMessage } from "@/libs/error-
 import { EASE } from "@/libs/motion";
 
 type PreviewPdf = {
+	data: ResumeData;
+	renderKey: string;
+	highlights: PageMapTarget[];
 	file: Blob;
 	id: number;
 	pageMap: PageMap | undefined;
@@ -44,7 +53,18 @@ const EXITING_TRANSITION = { duration: 0.1, delay: 0.18 };
 // the old one at once, and no half-faded page is ever on screen.
 const INSTANT_TRANSITION = { duration: 0 };
 
-const createPreviewPdf = (file: Blob, id: number, template: Template, pageMap: PageMap | undefined): PreviewPdf => ({
+const createPreviewPdf = (
+	file: Blob,
+	id: number,
+	template: Template,
+	pageMap: PageMap | undefined,
+	data: ResumeData,
+	highlights: PageMapTarget[],
+	renderKey: string,
+): PreviewPdf => ({
+	data,
+	renderKey,
+	highlights,
 	file,
 	id,
 	pageMap,
@@ -55,11 +75,6 @@ const createPreviewPdf = (file: Blob, id: number, template: Template, pageMap: P
 	renderedPages: [],
 	template,
 });
-
-const addPreviewLayer = (layers: PreviewPdf[], nextPdf: PreviewPdf) => {
-	const activeLayers = layers.filter((layer) => layer.phase === "active");
-	return activeLayers.length === 0 ? [nextPdf] : [...activeLayers, nextPdf];
-};
 
 const getActivePreviewLayer = (layers: PreviewPdf[]) => layers.find((layer) => layer.phase === "active") ?? null;
 
@@ -120,6 +135,7 @@ export function ResumePreviewClient({
 	renderPageOverlay,
 	onRender,
 	includeCoverLetterHeader = false,
+	highlightEdits = false,
 }: ResolvedResumePreviewProps) {
 	const builderResumeData = useResumeData();
 	const resumeData = data ?? builderResumeData;
@@ -133,6 +149,7 @@ export function ResumePreviewClient({
 	// Characters the shown preview draws as "?" because no font in the resume has them.
 	const [lostCharacters, setLostCharacters] = useState<string[] | null>(null);
 
+	const publishedData = useRef<ResumeData | undefined>(undefined);
 	const pdfIdRef = useRef(0);
 	const requestIdRef = useRef(0);
 	const hasPreviewRef = useRef(false);
@@ -148,6 +165,7 @@ export function ResumePreviewClient({
 
 		const stale = () => cancelled || requestId !== requestIdRef.current;
 		const renderOptions = includeCoverLetterHeader ? { includeCoverLetterHeader } : undefined;
+		const renderKey = JSON.stringify([resumeData, includeCoverLetterHeader]);
 
 		const generatePdfPreview = async () => {
 			try {
@@ -164,12 +182,20 @@ export function ResumePreviewClient({
 				});
 
 				if (!stale()) {
-					const nextPdf = createPreviewPdf(blob, pdfIdRef.current++, resumeData.metadata.template, pageMap);
+					const nextPdf = createPreviewPdf(
+						blob,
+						pdfIdRef.current++,
+						resumeData.metadata.template,
+						pageMap,
+						resumeData,
+						highlightEdits ? changedPreviewTargets(publishedData.current, resumeData) : [],
+						renderKey,
+					);
 
 					hasPreviewRef.current = true;
 					setFailure(null);
 					setLostCharacters(lost);
-					setPreviewLayers((current) => addPreviewLayer(current, nextPdf));
+					setPreviewLayers((current) => queuePreviewLayer(current, nextPdf));
 				}
 			} catch (error) {
 				if (stale()) return;
@@ -196,17 +222,22 @@ export function ResumePreviewClient({
 			cancelled = true;
 			window.clearTimeout(timeoutId);
 		};
-	}, [paused, resumeData, includeCoverLetterHeader, attempt]);
+	}, [paused, resumeData, includeCoverLetterHeader, attempt, highlightEdits]);
 
 	const activeLayer = getActivePreviewLayer(previewLayers);
 	const activePageCount = activeLayer?.numPages ?? 0;
 	const activePageMap = activeLayer?.pageMap;
 	const activeFile = activeLayer?.file;
+	const activeData = activeLayer?.data;
+	useEffect(() => {
+		if (activeData) publishedData.current = activeData;
+	}, [activeData]);
 	useEffect(() => {
 		if (activePageCount > 0 && activeFile)
 			onRender?.({ pageCount: activePageCount, pageMap: activePageMap, file: activeFile });
 	}, [activePageCount, activePageMap, activeFile, onRender]);
 
+	const initialPreviewLoading = useSkeletonLoading(!getActivePreviewLayer(previewLayers) && !failure);
 	if (!resumeData) return null;
 
 	const visiblePdf = getActivePreviewLayer(previewLayers);
@@ -227,7 +258,7 @@ export function ResumePreviewClient({
 				</p>
 			)}
 			<AnimatePresence initial={false}>
-				{!visiblePdf && (
+				{(initialPreviewLoading.pending || !visiblePdf) && (
 					// Holds under the first render until it's opaque, then drops out, like any replaced layer.
 					<m.div
 						key="loader"
@@ -315,9 +346,18 @@ export function ResumePreviewClient({
 												showPageNumbers={showPageNumbers}
 												caption={renderPageCaption?.({ pageNumber, totalPages })}
 												overlay={
-													visiblePdf.phase === "active"
-														? renderPageOverlay?.({ pageIndex: index, pageMap: visiblePdf.pageMap })
-														: undefined
+													visiblePdf.phase === "active" ? (
+														<>
+															{renderPageOverlay?.({ pageIndex: index, pageMap: visiblePdf.pageMap })}
+															{highlightEdits && (
+																<EditHighlights
+																	pageIndex={index}
+																	pageMap={visiblePdf.pageMap}
+																	targets={visiblePdf.highlights}
+																/>
+															)}
+														</>
+													) : undefined
 												}
 												onLoadSuccess={(_, pageSize) => {
 													setPreviewLayers((current) =>

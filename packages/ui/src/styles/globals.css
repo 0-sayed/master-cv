@@ -29,11 +29,18 @@
 	--sunken: #e7e6e0;
 	--line: #dddcd6;
 	--line-2: #8a8982;
-	--ink: #1c1b15;
+	--ink: var(--brand-mark-light-ink);
 	--ink-2: #4f4d47;
 	--ink-3: #66655e;
-	--accent: #337344;
-	--accent-hover: #206133;
+	--brand-primary: var(--brand-mark-light-tick);
+	--brand-primary-hover: #206133;
+	/* Match both approved SVG treatments even on independently themed landing surfaces. */
+	--brand-mark-light-ink: #1c1b15;
+	--brand-mark-light-tick: #337344;
+	--brand-mark-dark-ink: #efeeeb;
+	--brand-mark-dark-tick: #6fc082;
+	--accent: var(--brand-primary);
+	--accent-hover: var(--brand-primary-hover);
 	--on-accent: #f7fef8;
 	--accent-soft: #dcf2df;
 	--accent-text: #195c2e;
@@ -69,11 +76,36 @@
 	--d2: 200ms;
 	--d3: 320ms;
 	--ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+	--motion-brand-curve: 300ms;
+	--motion-brand-tick: 250ms;
+	--motion-brand-total: 550ms;
+	--motion-acknowledge: 400ms;
+	--motion-edit-highlight: 600ms;
+	/* Static success hold, not an animation duration. */
+	--motion-success-hold: 1500ms;
+	--motion-skeleton: 1200ms;
+	--motion-template-lift: calc(var(--space-4) / -2);
 
 	/* Layout constants */
 	--editor-bar: 56px;
 	--editor-panel: 400px;
 	--app-sidebar: 236px;
+	--app-toolbar-height: var(--space-64);
+	--app-sidebar-inset: var(--space-12);
+	--app-nav-gutter: calc(var(--space-20) / 2);
+	--app-nav-icon: var(--space-20);
+	--app-brand-mark: var(--space-32);
+	--app-mobile-nav-columns: 4;
+	--settings-action: calc(var(--space-48) * 4);
+	--dashboard-gutter: 18px;
+	--dashboard-content-width: 1120px;
+	--dashboard-wide-width: 1360px;
+	--dashboard-form-width: 640px;
+	--dashboard-narrow-width: 720px;
+	--header-search-width: calc(var(--space-32) * 20);
+	--header-side-width: calc(var(--space-32) * 4);
+	/* Retain Reactive Resume's bounded dashboard board/skeleton scrolling contract. */
+	--dashboard-workspace-inset: 230px;
 	--sheet-share: 440px;
 	--sheet-detail: 480px;
 	--assistant: 400px;
@@ -94,10 +126,10 @@
 	--sunken: #0a0907;
 	--line: #33322c;
 	--line-2: #848279;
-	--ink: #efeeeb;
+	--ink: var(--brand-mark-dark-ink);
 	--ink-2: #bcbab5;
 	--ink-3: #979590;
-	--accent: #6fc082;
+	--accent: var(--brand-mark-dark-tick);
 	--accent-hover: #83d494;
 	--on-accent: #07150a;
 	--accent-soft: #1a3520;
@@ -214,10 +246,11 @@
 
 	html {
 		@apply font-sans;
+		scrollbar-gutter: stable;
 	}
 
 	body {
-		@apply bg-bg text-sm text-ink proportional-nums antialiased selection:bg-accent-soft selection:text-ink;
+		@apply bg-bg type-body text-ink proportional-nums antialiased selection:bg-accent-soft selection:text-ink;
 	}
 
 	h1 {
@@ -235,14 +268,254 @@
 		@apply [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none;
 	}
 
-	button:not(:disabled),
-	[role="button"]:not(:disabled) {
-		cursor: pointer;
-	}
-
 	.wysiwyg {
 		@apply prose prose-sm max-w-none prose-stone dark:prose-invert prose-p:my-3! prose-ol:my-3! prose-ul:my-3! prose-li:my-3!;
 	}
+}
+
+/* One interaction affordance across native controls, Base UI and composite controls.
+ * Outside layers so utility defaults cannot make menu/segment labels look like editable text. */
+:where(
+	button,
+	[role="button"],
+	[role="tab"],
+	[role="radio"],
+	[role="checkbox"],
+	[role="switch"],
+	[role^="menuitem"],
+	[role="option"],
+	summary,
+	a[href],
+	select,
+	input:is([type="radio"], [type="checkbox"]),
+	label[for],
+	label:has(input:is([type="radio"], [type="checkbox"])),
+	[data-slot="segmented-control-item"],
+	[data-slot="toggle-group-item"]
+) {
+	cursor: pointer;
+	& :where(span, label) {
+		cursor: inherit;
+		user-select: none;
+	}
+}
+
+:where(
+	input:not(
+		[type="radio"],
+		[type="checkbox"],
+		[type="button"],
+		[type="submit"],
+		[type="reset"],
+		[type="range"],
+		[type="color"]
+	),
+	textarea,
+	[contenteditable="true"]
+) {
+	cursor: text;
+}
+
+:where(
+	:disabled,
+	[aria-disabled="true"],
+	[data-disabled]:not([data-disabled="false"]),
+	label:has(input:disabled),
+	input:disabled + label
+) {
+	cursor: not-allowed;
+}
+
+@media (width >= 40rem) {
+	:root {
+		--dashboard-gutter: 28px;
+	}
+}
+
+@media (width >= 64rem) {
+	:root {
+		--dashboard-gutter: 40px;
+	}
+}
+
+@utility dashboard-inline {
+	padding-inline: var(--dashboard-gutter);
+}
+
+@utility dashboard-canvas {
+	@media (width >= 100rem) {
+		&[data-width="wide"] {
+			--dashboard-content-width: var(--dashboard-wide-width);
+		}
+	}
+}
+
+@utility collection-grid {
+	display: grid;
+	gap: var(--space-16);
+	grid-template-columns: minmax(0, 1fr);
+	&[data-variant="documents"] {
+		@media (width >= 40rem) {
+			gap: var(--space-24);
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		@media (width >= 80rem) {
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+		}
+		@media (width >= 100rem) {
+			grid-template-columns: repeat(5, minmax(0, 1fr));
+		}
+	}
+	&[data-variant="sections"] {
+		align-items: start;
+		& > [data-slot="collection-grid-group"] {
+			display: grid;
+			gap: var(--space-16);
+		}
+		@media (width >= 64rem) {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		@media (width >= 100rem) {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			& > [data-slot="collection-grid-group"] {
+				display: contents;
+			}
+		}
+	}
+}
+
+@utility dashboard-width {
+	max-width: calc(var(--dashboard-content-width) + 2 * var(--dashboard-gutter));
+	margin-inline: auto;
+}
+
+@utility dashboard-content {
+	max-width: var(--dashboard-content-width);
+	margin-inline-end: auto;
+	&[data-width="form"] {
+		max-width: var(--dashboard-form-width);
+	}
+	&[data-width="narrow"] {
+		max-width: var(--dashboard-narrow-width);
+	}
+}
+
+@utility form-content {
+	width: 100%;
+	max-width: var(--dashboard-form-width);
+	margin-inline-end: auto;
+}
+
+/* Settings actions share a trailing column, independent of label/translation length. */
+@utility settings-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) var(--settings-action);
+	@media (width < 640px) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@utility dashboard-band {
+	max-width: var(--dashboard-content-width);
+	margin-inline: auto;
+}
+
+/* Equal side tracks keep search on the canvas centre, regardless of control labels. */
+@utility dashboard-header-layout {
+	display: grid;
+	grid-template-columns: minmax(var(--header-side-width), 1fr) minmax(0, var(--header-search-width)) minmax(
+			var(--header-side-width),
+			1fr
+		);
+	gap: calc(var(--spacing) * 3);
+	@media (40rem <= width < 64rem) {
+		--header-side-width: calc(var(--space-48) * 2 + var(--space-12));
+		gap: var(--space-8);
+	}
+	@media (width < 40rem) {
+		display: flex;
+		gap: calc(var(--spacing) * 2);
+	}
+}
+
+/* Brand slots and controls share the same content centre, above the bottom border. */
+@utility shell-toolbar {
+	block-size: var(--app-toolbar-height);
+	container-type: inline-size;
+}
+
+@utility shell-brand-row {
+	@apply border-b border-transparent;
+	display: flex;
+	align-items: center;
+	block-size: var(--app-toolbar-height);
+	flex-shrink: 0;
+}
+
+@utility sidebar-item-inset {
+	padding-inline: var(--app-nav-gutter);
+}
+
+@utility sidebar-brand-inset {
+	padding-inline: calc(var(--app-nav-gutter) + (var(--app-nav-icon) - var(--app-brand-mark)) / 2);
+	@variant rtl {
+		padding-inline: var(--app-nav-gutter);
+	}
+}
+
+/* Reserve the same compact section capacities before and after the initial profile query. */
+@utility section-card-reserved {
+	min-block-size: calc(var(--space-64) * 3);
+	&[data-capacity="entries"] {
+		min-block-size: calc(var(--space-64) * 4 + var(--space-8));
+	}
+	&[data-capacity="entry"] {
+		min-block-size: calc(var(--space-64) * 3 + var(--space-8));
+	}
+	&[data-capacity="notice"] {
+		min-block-size: calc(var(--space-64) * 3 + var(--space-32));
+	}
+}
+
+@utility mobile-brand-slot {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	/* The leading mobile destination and brand share one column, including the root scrollbar gutter. */
+	inline-size: calc(
+		(100cqw + 2 * var(--dashboard-gutter)) / var(--app-mobile-nav-columns) - 2 * var(--dashboard-gutter)
+	);
+}
+
+/* The visible 24px circle sits on the border; its 40px target never consumes layout space. */
+@utility sidebar-border-toggle {
+	position: absolute;
+	inset-inline-end: calc(var(--space-20) * -1);
+	top: 50%;
+	z-index: 30;
+	translate: 0 -50%;
+}
+
+@utility sidebar-toggle-circle {
+	display: grid;
+	flex-shrink: 0;
+	place-items: center;
+	width: calc(var(--spacing) * 6);
+	height: calc(var(--spacing) * 6);
+	border-radius: 50%;
+	background: var(--brand-primary);
+	color: var(--on-brand);
+	box-shadow: var(--shadow-1);
+	transition: background-color var(--d1) var(--ease);
+	:is(button:hover, button:focus-visible) & {
+		background: var(--brand-primary-hover);
+	}
+}
+
+/* Form density belongs to the existing overlay primitives, including mobile sheets. */
+:where([data-slot="dialog-content"], [data-slot="sheet-content"]) form {
+	@apply form-content;
 }
 
 /* Outside layers so text-size utilities cannot undo the iOS zoom prevention. */
@@ -287,9 +560,23 @@
 :root:lang(ar) {
 	--font-ui: "Noto Sans Arabic", "Noto Sans", system-ui, sans-serif;
 	--font-display: "Noto Sans Arabic", "Noto Serif", serif;
+	--type-body-size: 16px;
+	--type-body-line: 26px;
+	--type-label-size: 16px;
+	--type-label-line: 26px;
+	--type-metadata-size: 14px;
+	--type-metadata-line: 24px;
+	--type-metadata-weight: 500;
 }
 
 :root {
+	--type-body-size: 14px;
+	--type-body-line: 23px;
+	--type-label-size: 14px;
+	--type-label-line: 22px;
+	--type-metadata-size: 12px;
+	--type-metadata-line: 20px;
+	--type-metadata-weight: 400;
 	--space-0: 0px;
 	--space-4: 4px;
 	--space-6: 6px;
@@ -323,6 +610,7 @@
 }
 
 @utility type-title {
+	text-wrap-style: balance;
 	font-family: var(--font-display);
 	font-size: 32px;
 	line-height: 48px;
@@ -330,6 +618,7 @@
 }
 
 @utility type-title-s {
+	text-wrap-style: balance;
 	font-family: var(--font-display);
 	font-size: 24px;
 	line-height: 36px;
@@ -337,6 +626,7 @@
 }
 
 @utility type-section {
+	text-wrap-style: balance;
 	font-family: var(--font-ui);
 	font-size: 19px;
 	line-height: 29px;
@@ -344,9 +634,10 @@
 }
 
 @utility type-body {
+	text-wrap-style: pretty;
 	font-family: var(--font-ui);
-	font-size: 14px;
-	line-height: 23px;
+	font-size: var(--type-body-size);
+	line-height: var(--type-body-line);
 	font-weight: 400;
 }
 
@@ -358,17 +649,18 @@
 }
 
 @utility type-label {
+	text-wrap-style: balance;
 	font-family: var(--font-ui);
-	font-size: 14px;
-	line-height: 22px;
+	font-size: var(--type-label-size);
+	line-height: var(--type-label-line);
 	font-weight: 600;
 }
 
 @utility type-metadata {
 	font-family: var(--font-ui);
-	font-size: 12px;
-	line-height: 20px;
-	font-weight: 400;
+	font-size: var(--type-metadata-size);
+	line-height: var(--type-metadata-line);
+	font-weight: var(--type-metadata-weight);
 }
 
 @utility type-input {
@@ -380,11 +672,275 @@
 
 @utility type-mobile-nav {
 	font-family: var(--font-ui);
-	font-size: 12px;
+	font-size: var(--type-metadata-size);
 	line-height: 20px;
 	font-weight: 400;
 }
 
+/* Compact page thumbnails keep their empty-state icon and label inside the page footprint. */
+@container thumbnail (width < 6rem) {
+	[data-slot="preview-placeholder"][data-variant="thumbnail"] {
+		gap: var(--space-4);
+		padding: var(--space-4);
+	}
+	[data-slot="preview-placeholder"][data-variant="thumbnail"] > :first-child {
+		width: var(--space-16);
+		height: var(--space-16);
+	}
+	[data-slot="preview-placeholder"][data-variant="thumbnail"] [data-slot="icon"] {
+		width: 100%;
+		height: 100%;
+	}
+	[data-slot="preview-placeholder"][data-variant="thumbnail"] > :last-child {
+		line-height: var(--space-20);
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+}
+
 :root:lang(en) :where(.type-title, .type-title-s) {
 	font-weight: 500;
+}
+
+/* Toast portals sit outside the shell; reserve mobile navigation only while it is mounted. */
+:root {
+	--app-bottom-inset: 0px;
+}
+@media (width < 40rem) {
+	html:has([data-slot="app-bottom-nav"]) {
+		--app-bottom-inset: calc(4rem + env(safe-area-inset-bottom));
+	}
+}
+
+/* Empty mixed fields follow the placeholder; filled fields use native dir=auto. */
+@utility field-direction {
+	text-align: start;
+	&[dir="auto"]:placeholder-shown {
+		direction: var(--field-placeholder-direction);
+	}
+}
+
+/* Editor DOM only: each natural-language paragraph chooses its own base direction. */
+@utility field-content-direction {
+	& :is(p, h1, h2, h3, h4, h5, h6, li) {
+		unicode-bidi: plaintext;
+	}
+}
+
+/* Signature feedback is local to reserved boxes; no route or layout motion. */
+.brand-mark {
+	--mark-ink: var(--brand-mark-light-ink);
+	--mark-tick: var(--brand-mark-light-tick);
+	position: relative;
+	display: inline-flex;
+	flex-shrink: 0;
+	direction: ltr;
+}
+.brand-dark {
+	display: none;
+}
+.dark .brand-dark,
+.brand-mark[data-tone="dark"] .brand-dark {
+	display: block;
+}
+.dark .brand-light,
+.brand-mark[data-tone="dark"] .brand-light {
+	display: none;
+}
+.brand-mark[data-tone="light"] .brand-light {
+	display: block;
+}
+.brand-mark[data-tone="light"] .brand-dark {
+	display: none;
+}
+.brand-approval {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	pointer-events: none;
+}
+.brand-curve {
+	fill: var(--mark-ink);
+}
+.brand-tick,
+.brand-tint {
+	fill: var(--mark-tick);
+}
+.brand-tint {
+	opacity: 0;
+}
+.dark .brand-mark,
+.brand-mark[data-tone="dark"] {
+	--mark-ink: var(--brand-mark-dark-ink);
+	--mark-tick: var(--brand-mark-dark-tick);
+}
+.brand-mark[data-tone="light"] {
+	--mark-ink: var(--brand-mark-light-ink);
+	--mark-tick: var(--brand-mark-light-tick);
+}
+.brand-mark[data-playing="true"] > img {
+	opacity: 0;
+}
+.brand-mark[data-playing="true"] .brand-approval {
+	opacity: 1;
+	animation: brand-approved var(--motion-brand-total) var(--ease);
+}
+.brand-mark[data-playing="true"] .brand-c-reveal {
+	animation: signature-draw var(--motion-brand-curve) var(--ease) both;
+}
+.brand-mark[data-playing="true"] .brand-tick-reveal {
+	animation: signature-snap var(--motion-brand-tick) var(--ease) var(--motion-brand-curve) both;
+}
+.brand-mark[data-playing="true"] .brand-tint {
+	animation: brand-tint var(--motion-brand-total) var(--ease) both;
+}
+@keyframes brand-approved {
+	from,
+	to {
+		opacity: 1;
+	}
+}
+@keyframes signature-draw {
+	from {
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+	}
+	to {
+		stroke-dasharray: 1;
+		stroke-dashoffset: 0;
+	}
+}
+/* Only the reveal overshoots, never the approved geometry. */
+@keyframes signature-snap {
+	0% {
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+	}
+	80% {
+		stroke-dasharray: 1;
+		stroke-dashoffset: -0.03;
+	}
+	100% {
+		stroke-dasharray: 1;
+		stroke-dashoffset: 0;
+	}
+}
+@keyframes brand-tint {
+	0%,
+	35%,
+	100% {
+		opacity: 0;
+	}
+	65% {
+		opacity: 0.85;
+	}
+}
+.success-tick {
+	direction: ltr;
+	color: var(--accent-text);
+}
+button .success-tick {
+	color: inherit;
+}
+.success-tick[data-animated="true"] path {
+	animation: signature-draw var(--motion-acknowledge) var(--ease) both;
+}
+.action-feedback {
+	position: relative;
+	display: inline-grid;
+}
+.action-label,
+.action-result {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-6);
+	white-space: nowrap;
+}
+.action-result {
+	position: absolute;
+	inset: 0;
+}
+.action-feedback:is([data-state="pending"], [data-state="ready"]) .action-label {
+	opacity: 0;
+}
+.template-thumbnail {
+	transition: transform var(--d2) var(--ease);
+}
+.template-alternate {
+	opacity: 0;
+	transition: opacity var(--d2) var(--ease);
+}
+:is(button, a):is(:hover, :focus):not(:disabled):not([aria-disabled="true"]) .template-thumbnail {
+	transform: translateY(var(--motion-template-lift));
+}
+:is(button, a):is(:hover, :focus):not(:disabled):not([aria-disabled="true"]) .template-alternate[data-ready="true"] {
+	opacity: 1;
+}
+/* Shadow is static on hover: only transform/opacity interpolate. */
+:is(button, a):is(:hover, :focus) .template-thumbnail {
+	box-shadow: var(--shadow-2);
+}
+.preview-edit-highlight {
+	pointer-events: none;
+	position: absolute;
+	background: var(--accent-soft);
+	outline: 1px solid var(--accent);
+	opacity: 0;
+	animation: edit-acknowledged var(--motion-edit-highlight) var(--ease) both;
+}
+@keyframes edit-acknowledged {
+	from {
+		opacity: 0.7;
+	}
+	to {
+		opacity: 0;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.brand-mark[data-playing="true"] > img {
+		opacity: 1;
+	}
+	.brand-mark[data-playing="true"] .brand-approval {
+		display: none;
+	}
+	.brand-approval,
+	.brand-approval *,
+	.success-tick path,
+	.preview-edit-highlight {
+		animation: none !important;
+	}
+	.preview-edit-highlight {
+		display: none;
+	}
+	.template-thumbnail,
+	.template-alternate {
+		transition: none;
+	}
+	:is(button, a):is(:hover, :focus):not(:disabled):not([aria-disabled="true"]) .template-thumbnail {
+		transform: none;
+	}
+}
+
+/* Query placeholders pulse within reserved boxes; motion never changes layout. */
+@keyframes skeleton-pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.55;
+	}
+}
+.skeleton {
+	animation: skeleton-pulse var(--motion-skeleton) var(--ease) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+	.skeleton {
+		animation: none !important;
+	}
 }

@@ -4,18 +4,18 @@ import type { FocusEvent, KeyboardEvent, PointerEvent } from "react";
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useId, useRef, useState } from "react";
 import { templateLayouts } from "@reactive-resume/schema/templates";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
 import { Slider } from "@reactive-resume/ui/components/slider";
+import { TemplateThumbnail } from "@reactive-resume/ui/components/template-thumbnail";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { isRTL } from "@reactive-resume/utils/locale";
-import { cn } from "@reactive-resume/utils/style";
 import { useEditorStore } from "../store";
 import { useTemplateThumbnail } from "./thumbnails";
-import { templates } from "@/dialogs/resume/template/data";
+import { getTemplateImageUrl, templates } from "@/dialogs/resume/template/data";
 import { useResumeData, useResumeStore, useUpdateResumeData } from "@/features/resume/builder/draft";
 
 type Filter = "all" | "one" | "two" | "ats";
@@ -149,6 +149,7 @@ type TemplateCardProps = { id: Template; data: ResumeData; selected: boolean; on
 function TemplateCard({ id, data, selected, onPreview }: TemplateCardProps) {
 	const { data: thumbnail } = useTemplateThumbnail(id, data, true);
 	const metadata = templates[id];
+	const { i18n } = useLingui();
 	const hold = useRef<{ timer?: number; previewing: boolean }>({ previewing: false });
 
 	const endHold = () => {
@@ -185,19 +186,17 @@ function TemplateCard({ id, data, selected, onPreview }: TemplateCardProps) {
 			}}
 			className="group/card grid gap-1.5 rounded-lg text-start"
 		>
-			<span
-				className={cn(
-					"relative block aspect-page overflow-hidden rounded-md border border-line bg-white shadow-e1 transition-[translate,scale,box-shadow] duration-quick ease-enter group-hover/card:-translate-y-0.5 group-hover/card:shadow-e2 group-active/card:scale-[0.98]",
-					selected && "ring-2 ring-accent ring-offset-2 ring-offset-surface",
-				)}
+			<TemplateThumbnail
+				src={thumbnail ?? getTemplateImageUrl(id, i18n.locale)}
+				alternateSrc={getTemplateImageUrl(id, i18n.locale.startsWith("ar") ? "en-US" : "ar-SA")}
+				selected={selected}
 			>
-				<img src={thumbnail ?? metadata.imageUrl} alt="" className="size-full object-cover object-top" />
 				{selected && (
 					<span className="absolute end-1.5 top-1.5 grid size-5 place-items-center rounded-full bg-accent text-on-accent">
 						<Icon name="check" size={14} />
 					</span>
 				)}
-			</span>
+			</TemplateThumbnail>
 			<span className="text-sm leading-4 font-medium">{metadata.name}</span>
 			<span className="text-xs leading-4 text-ink-3">{layoutTags(id)}</span>
 		</button>

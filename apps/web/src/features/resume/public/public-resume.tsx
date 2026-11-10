@@ -5,16 +5,17 @@ import { useQuery } from "@tanstack/react-query";
 import { getRouteApi } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useCopyToClipboard } from "usehooks-ts";
+import { ActionFeedback } from "@reactive-resume/ui/components/action-feedback";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { PdfViewer } from "./pdf-viewer";
 import { ResumeReflow } from "./resume-reflow";
-import { LoadingScreen } from "@/components/layout/loading-screen";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { useResumeExport } from "@/features/resume/export/use-resume-export";
 import { CopyLinkButton } from "@/features/resume/share/copy-link-button";
-import { POP_CLASS } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
 
 const publicResumeRoute = getRouteApi("/$username/$slug");
@@ -42,11 +43,15 @@ type PublicResumePageProps = {
  */
 export function PublicResumePage({ resume, username, slug, flags, isRoot = false }: PublicResumePageProps) {
 	const publicResume = useMemo(() => ({ username, slug }), [slug, username]);
-	const { onDownloadPDF, isExporting } = useResumeExport(resume, resume ? { publicResumePdf: { publicResume } } : {});
+	const { onDownloadPDF, isExporting, downloadState } = useResumeExport(
+		resume,
+		resume ? { publicResumePdf: { publicResume } } : {},
+	);
 	const phone = useBreakpoint() === "mobile";
 	const [, copy] = useCopyToClipboard();
 
-	if (!resume) return <LoadingScreen />;
+	const skeletonWait1 = useSkeletonLoading(!resume);
+	if (skeletonWait1.pending || !resume) return <QuerySkeleton shape="preview" />;
 
 	const { basics } = resume.data;
 	const downloads = resume.showDownloadButtons !== false;
@@ -69,21 +74,27 @@ export function PublicResumePage({ resume, username, slug, flags, isRoot = false
 	const download = (
 		<Button
 			onClick={() => void onDownloadPDF()}
-			loading={isExporting}
+			aria-busy={isExporting || undefined}
+			disabled={isExporting}
+			aria-label={t`Download PDF`}
 			className={phone ? "h-12 flex-1 text-base" : undefined}
 		>
-			{!isExporting && <Icon name="download-simple" size={phone ? 20 : 18} className={POP_CLASS} />}
-			<Trans>Download PDF</Trans>
+			<ActionFeedback
+				state={downloadState}
+				label={t`Download PDF`}
+				pendingLabel={t`Preparing…`}
+				readyLabel={t`PDF ready`}
+			/>
 		</Button>
 	);
 
 	const credit = (
 		<footer className="flex justify-center px-4 py-6 text-sm text-ink-3 print:hidden">
 			{flags.disableSignups ? (
-				<Trans>Made with Reactive Resume, free and open source</Trans>
+				<Trans>Made with Master CV, free and open source</Trans>
 			) : (
 				<a href={isRoot ? "/dashboard" : "/"} className="underline-offset-2 hover:text-ink hover:underline">
-					<Trans>Made with Reactive Resume, free and open source</Trans>
+					<Trans>Made with Master CV, free and open source</Trans>
 				</a>
 			)}
 		</footer>

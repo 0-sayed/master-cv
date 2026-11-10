@@ -1,5 +1,6 @@
 import type { DesignSource } from "@/features/resume/editor/design/style-groups";
 import type { Template } from "@reactive-resume/schema/templates";
+import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
@@ -10,9 +11,9 @@ import { templateSchema } from "@reactive-resume/schema/templates";
 import { buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { SwitchRow } from "@reactive-resume/ui/components/switch";
+import { TemplateThumbnail } from "@reactive-resume/ui/components/template-thumbnail";
 import { toast } from "@reactive-resume/ui/components/toast";
-import { cn } from "@reactive-resume/utils/style";
-import { templates } from "@/dialogs/resume/template/data";
+import { getTemplateImageUrl, templates } from "@/dialogs/resume/template/data";
 import { useLetterEditorStore } from "@/features/letters/store";
 import { ColorGroup, DesignSourceProvider, PageGroup, TypeGroup } from "@/features/resume/editor/design/style-groups";
 import { useEditorStore } from "@/features/resume/editor/store";
@@ -150,26 +151,17 @@ export function LetterDesignPanel() {
 									}}
 									className="group/template grid gap-1.5 text-start disabled:cursor-not-allowed disabled:opacity-60"
 								>
-									<span
-										className={cn(
-											"relative block aspect-[1/1.414] overflow-hidden rounded-md border bg-white transition-[translate,scale,box-shadow] duration-quick ease-enter group-hover/template:-translate-y-0.5 group-active/template:scale-[0.98]",
-											selected
-												? "border-accent shadow-[0_0_0_2px_var(--accent)]"
-												: "border-line group-hover/template:shadow-e2",
-										)}
+									<TemplateThumbnail
+										src={getTemplateImageUrl(id, i18n.locale)}
+										alternateSrc={getTemplateImageUrl(id, i18n.locale.startsWith("ar") ? "en-US" : "ar-SA")}
+										selected={selected}
 									>
-										<img
-											src={templates[id].imageUrl}
-											alt=""
-											loading="lazy"
-											className="size-full object-cover object-top"
-										/>
 										{selected && (
 											<span className="absolute end-1.5 top-1.5 grid size-5 place-items-center rounded-full bg-accent text-on-accent">
 												<Icon name="check" size={14} />
 											</span>
 										)}
-									</span>
+									</TemplateThumbnail>
 									<span className="text-sm leading-4 font-medium">{templates[id].name}</span>
 								</button>
 							);

@@ -29,6 +29,18 @@ vi.mock("./theme", () => ({
 }));
 
 describe("loadRootContext", () => {
+	it.each([null, { user: { id: "bob" }, session: { id: "bob-session" } }])(
+		"removes private caches when the authenticated account changes to %j",
+		async (next) => {
+			const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+			queryClient.setQueryData(sessionQueryKey, { user: { id: "alice" }, session: { id: "alice-session" } });
+			queryClient.setQueryData(["documents"], [{ id: "private-alice" }]);
+			await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
+			getSessionMock.mockResolvedValueOnce(next);
+			expect((await loadRootContext(queryClient)).session).toEqual(next);
+			expect(queryClient.getQueryData(["documents"])).toBeUndefined();
+		},
+	);
 	it("resolves interface locale from the fetched session and reuses the cached session for hover loads", async () => {
 		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 		getSessionMock.mockResolvedValueOnce({
@@ -56,7 +68,7 @@ describe("loadRootContext", () => {
 		expect(context.session).toEqual(mockSession);
 	});
 
-	it("retains cached session when getSession encounters a transient error on refresh", async () => {
+	it("rejects an unverifiable identity instead of retaining private cached identity", async () => {
 		const queryClient = new QueryClient({
 			defaultOptions: { queries: { retry: false } },
 		});
@@ -70,8 +82,8 @@ describe("loadRootContext", () => {
 
 		getSessionMock.mockRejectedValueOnce(new Error("Too many requests. Please try again later."));
 
-		const context = await loadRootContext(queryClient);
-		expect(context.session).toEqual(cachedSession);
+		await expect(loadRootContext(queryClient)).rejects.toThrow("Too many requests");
+		expect(queryClient.getQueryData(sessionQueryKey)).toBeUndefined();
 	});
 
 	it("re-throws error when getSession fails and there is no cached session", async () => {
@@ -82,4 +94,31 @@ describe("loadRootContext", () => {
 
 		await expect(loadRootContext(queryClient)).rejects.toThrow("Session check failed with status 500");
 	});
+});
+
+it("concurrent hover and navigation accept the same new identity without a router error", async () => {
+	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const session = { user: { id: "concurrent-sign-in", uiLocale: "en-US" }, session: { id: "new-session" } };
+	getSessionMock.mockResolvedValue(session);
+	const results = await Promise.all([loadRootContext(client), loadRootContext(client)]);
+	expect(results.map((context) => context.session)).toEqual([session, session]);
+});
+
+it("re-reads a cancelled generation without exposing the previous owner or a route error", async () => {
+	const { authIdentity } = await import("./auth/identity");
+	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const next = { user: { id: "current-owner" }, session: { id: "current-session" } };
+	let resolve!: (value: typeof next) => void;
+	getSessionMock
+		.mockImplementationOnce(
+			() =>
+				new Promise((accept) => {
+					resolve = accept;
+				}),
+		)
+		.mockResolvedValue(next);
+	const pending = loadRootContext(client);
+	authIdentity(client).check();
+	resolve({ user: { id: "obsolete-owner" }, session: { id: "obsolete-session" } });
+	await expect(pending).resolves.toMatchObject({ session: next });
 });

@@ -5,7 +5,7 @@ import { useId, useState } from "react";
 import { formatYearMonth, getPresentLabel, toYearMonth } from "@reactive-resume/schema/resume/dates";
 import { readSingleDate } from "@reactive-resume/schema/resume/period";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { inputBaseClassName } from "@reactive-resume/ui/components/input";
+import { inputBaseClassName, fieldDirectionProps } from "@reactive-resume/ui/components/input";
 import { Switch } from "@reactive-resume/ui/components/switch";
 import { cn } from "@reactive-resume/utils/style";
 
@@ -56,6 +56,7 @@ function MonthYearInput({
 				className="pointer-events-none absolute start-2.5 top-1/2 -translate-y-1/2 text-ink-3"
 			/>
 			<input
+				{...fieldDirectionProps({ placeholder: t`Mar 2022` })}
 				type="text"
 				inputMode="text"
 				autoComplete="off"

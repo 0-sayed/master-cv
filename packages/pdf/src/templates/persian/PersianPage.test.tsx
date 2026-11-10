@@ -5,15 +5,20 @@ import * as forme from "@formepdf/core";
 import { encode } from "fast-png";
 import { getDocument, OPS } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { act } from "react";
-import { sampleResumeData } from "@reactive-resume/schema/resume/sample";
+import { createSampleResumeData } from "@reactive-resume/schema/resume/sample";
 import { renderResume } from "../../forme/render";
 import { dateDisplay } from "../shared/date-display";
+
+// English extraction/geometry fixtures must not inherit the product sample's Arabic default.
+const sampleResumeData = createSampleResumeData(undefined, "en-US");
 
 // Layout fixtures use Forme's built-in Times faces; no network font download is needed.
 vi.mock("../../forme/fonts", () => ({ loadFonts: async () => ({ fonts: [], warnings: [], missing: [] }) }));
 
 function fixture() {
 	const data = structuredClone(sampleResumeData);
+	// The header headline and first role must be distinct for the text-item geometry lookup.
+	data.basics.headline = "Web Applications Specialist";
 	data.metadata.template = "persian";
 	data.metadata.typography.body.fontFamily = "Times-Roman";
 	data.metadata.typography.heading.fontFamily = "Times-Roman";

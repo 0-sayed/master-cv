@@ -5,8 +5,16 @@ import { RPCLink } from "@orpc/client/fetch";
 import { BatchLinkPlugin } from "@orpc/client/plugins";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { rpcFetch } from "./fetch";
+import { runPersonalRequest } from "@/libs/browser-storage";
 
 const getRpcUrl = () => `${window.location.origin}/api/rpc`;
+
+function handleRpcError(error: unknown) {
+	if (error instanceof DOMException && error.name === "AbortError") return;
+	if (error && typeof error === "object" && "code" in error && error.code === "UNAUTHORIZED")
+		window.dispatchEvent(new Event("master-cv:session-expired"));
+	console.warn("[oRPC client]", error);
+}
 
 export const client: RouterClient<typeof router> = createORPCClient(
 	new RPCLink({
@@ -19,10 +27,9 @@ export const client: RouterClient<typeof router> = createORPCClient(
 			}),
 		],
 		interceptors: [
-			onError((error) => {
-				if (error instanceof DOMException && error.name === "AbortError") return;
-				console.warn("[oRPC client]", error);
-			}),
+			({ next, signal, ...options }) =>
+				runPersonalRequest((identitySignal) => next({ ...options, signal: identitySignal }), signal),
+			onError(handleRpcError),
 		],
 	}),
 );
@@ -32,10 +39,9 @@ export const streamClient: RouterClient<typeof router> = createORPCClient(
 		url: getRpcUrl,
 		fetch: rpcFetch,
 		interceptors: [
-			onError((error) => {
-				if (error instanceof DOMException && error.name === "AbortError") return;
-				console.warn("[oRPC stream client]", error);
-			}),
+			({ next, signal, ...options }) =>
+				runPersonalRequest((identitySignal) => next({ ...options, signal: identitySignal }), signal),
+			onError(handleRpcError),
 		],
 	}),
 );

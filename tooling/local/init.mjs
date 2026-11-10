@@ -55,6 +55,9 @@ export function initLocal(root = process.cwd()) {
 		...ports,
 		APP_URL: `http://localhost:${ports.PORT}`,
 		DATABASE_URL: `postgresql://master_cv:${encodeURIComponent(password)}@127.0.0.1:${ports.POSTGRES_PORT}/master_cv`,
+		DATABASE_MIGRATION_URL:
+			previous.DATABASE_MIGRATION_URL ||
+			`postgresql://master_cv:${encodeURIComponent(password)}@127.0.0.1:${ports.POSTGRES_PORT}/master_cv`,
 		AUTH_SECRET: previous.AUTH_SECRET || secret(),
 		ENCRYPTION_SECRET: previous.ENCRYPTION_SECRET || secret(),
 		STORAGE_BACKEND: previous.STORAGE_BACKEND || "local",

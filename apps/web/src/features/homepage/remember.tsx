@@ -19,7 +19,7 @@ function useStory() {
 			part: "s",
 			letter: t`S`,
 			label: t`Situation`,
-			text: t`Most new teams at Northwind Labs stalled during setup and never reached activation.`,
+			text: t`Most new teams at Afaq Design (example) stalled during setup and never reached activation.`,
 		},
 		{ part: "t", letter: t`T`, label: t`Task`, text: t`Find out why, and shorten setup without adding support work.` },
 		{
@@ -45,7 +45,7 @@ function useStory() {
 function useDraft(destination: Destination, withResult: boolean): Draft {
 	const drafts: Record<Destination, [Part, string][]> = {
 		answer: [
-			["s", t`At Northwind Labs, most new teams stalled before they finished setup.`],
+			["s", t`At Afaq Design (example), most new teams stalled before they finished setup.`],
 			[
 				"a",
 				t`I interviewed 14 customers, mapped three drop-off points and prototyped a shorter setup with engineering.`,
@@ -53,7 +53,7 @@ function useDraft(destination: Destination, withResult: boolean): Draft {
 			["r", t`Activation rose from 31% to 44% in one quarter.`],
 		],
 		opening: [
-			["s", t`New teams at Northwind were stalling in setup; most never got through.`],
+			["s", t`New teams at Afaq Design (example) were stalling in setup; most never got through.`],
 			["t", t`My job was to find out why, without adding support work.`],
 			[
 				"a",
@@ -65,7 +65,7 @@ function useDraft(destination: Destination, withResult: boolean): Draft {
 		reply: [
 			[
 				"a",
-				t`Thanks, Sam. Here’s one: at Northwind Labs I led the onboarding redesign, from 14 customer interviews to a shorter setup.`,
+				t`Thanks, Sam. Here’s one: at Afaq Design (example) I led the onboarding redesign, from 14 customer interviews to a shorter setup.`,
 			],
 			["r", t`Activation rose from 31% to 44% in one quarter.`],
 			["a", t`Happy to walk you through it on our call.`],
@@ -147,7 +147,7 @@ export function Remember() {
 							{t`Story · 5 of 5 parts`}
 						</span>
 						<h3 className="mt-2 font-display text-[clamp(20px,1.7vw,26px)] leading-[1.15] font-medium text-pretty text-ink">
-							{t`Fixing onboarding drop-off at Northwind Labs`}
+							{t`Fixing onboarding drop-off at Afaq Design (example)`}
 						</h3>
 						{/* Below 1000px only the five tiles show, so the switch and the draft it changes share the screen. */}
 						<ul className="mt-4 flex flex-col divide-y divide-line font-ui text-[14px] leading-[1.5] max-[999px]:mt-3 max-[999px]:flex-row max-[999px]:gap-1.5 max-[999px]:divide-y-0">

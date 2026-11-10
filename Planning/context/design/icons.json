@@ -1,0 +1,340 @@
+{
+	"set": "ph",
+	"package": "@phosphor-icons/core",
+	"codePackage": "@phosphor-icons/react",
+	"version": "2.1.1",
+	"weight": "regular",
+	"icons": [
+		{
+			"name": "file-text",
+			"nodeId": "5:5"
+		},
+		{
+			"name": "files",
+			"nodeId": "5:9"
+		},
+		{
+			"name": "user",
+			"nodeId": "5:13"
+		},
+		{
+			"name": "briefcase",
+			"nodeId": "5:17"
+		},
+		{
+			"name": "envelope",
+			"nodeId": "5:21",
+			"phosphorName": "envelope-simple"
+		},
+		{
+			"name": "credit-card",
+			"nodeId": "5:25"
+		},
+		{
+			"name": "gear",
+			"nodeId": "5:29",
+			"phosphorName": "gear-six"
+		},
+		{
+			"name": "shield",
+			"nodeId": "5:33",
+			"phosphorName": "shield-check"
+		},
+		{
+			"name": "magnifying-glass",
+			"nodeId": "5:37"
+		},
+		{
+			"name": "plus",
+			"nodeId": "5:41"
+		},
+		{
+			"name": "upload",
+			"nodeId": "5:45",
+			"phosphorName": "upload-simple"
+		},
+		{
+			"name": "download",
+			"nodeId": "5:49",
+			"phosphorName": "download-simple"
+		},
+		{
+			"name": "pencil",
+			"nodeId": "5:53",
+			"phosphorName": "pencil-simple"
+		},
+		{
+			"name": "eye",
+			"nodeId": "5:57"
+		},
+		{
+			"name": "check",
+			"nodeId": "5:61"
+		},
+		{
+			"name": "check-circle",
+			"nodeId": "5:65"
+		},
+		{
+			"name": "x",
+			"nodeId": "5:69"
+		},
+		{
+			"name": "warning-circle",
+			"nodeId": "5:73"
+		},
+		{
+			"name": "warning",
+			"nodeId": "5:77"
+		},
+		{
+			"name": "info",
+			"nodeId": "5:81"
+		},
+		{
+			"name": "sparkle",
+			"nodeId": "5:85"
+		},
+		{
+			"name": "target",
+			"nodeId": "5:89"
+		},
+		{
+			"name": "translate",
+			"nodeId": "5:93"
+		},
+		{
+			"name": "clock-counter-clockwise",
+			"nodeId": "5:97"
+		},
+		{
+			"name": "layout",
+			"nodeId": "5:101"
+		},
+		{
+			"name": "list-checks",
+			"nodeId": "5:105"
+		},
+		{
+			"name": "arrow-right",
+			"nodeId": "5:109"
+		},
+		{
+			"name": "arrow-left",
+			"nodeId": "5:113"
+		},
+		{
+			"name": "caret-down",
+			"nodeId": "5:117"
+		},
+		{
+			"name": "caret-left",
+			"nodeId": "5:121"
+		},
+		{
+			"name": "caret-right",
+			"nodeId": "5:125"
+		},
+		{
+			"name": "dots-three",
+			"nodeId": "5:129"
+		},
+		{
+			"name": "globe",
+			"nodeId": "5:133"
+		},
+		{
+			"name": "moon",
+			"nodeId": "5:137"
+		},
+		{
+			"name": "sign-out",
+			"nodeId": "5:141"
+		},
+		{
+			"name": "trash",
+			"nodeId": "5:145"
+		},
+		{
+			"name": "lock",
+			"nodeId": "5:149"
+		},
+		{
+			"name": "copy",
+			"nodeId": "5:153"
+		},
+		{
+			"name": "arrows-clockwise",
+			"nodeId": "5:157"
+		},
+		{
+			"name": "cloud-check",
+			"nodeId": "5:161"
+		},
+		{
+			"name": "cloud-slash",
+			"nodeId": "5:165"
+		},
+		{
+			"name": "spinner",
+			"nodeId": "5:169",
+			"phosphorName": "circle-notch"
+		},
+		{
+			"name": "question",
+			"nodeId": "5:173"
+		},
+		{
+			"name": "link",
+			"nodeId": "5:177"
+		},
+		{
+			"name": "calendar",
+			"nodeId": "5:181",
+			"phosphorName": "calendar-blank"
+		},
+		{
+			"name": "graduation-cap",
+			"nodeId": "5:185"
+		},
+		{
+			"name": "phone",
+			"nodeId": "5:189"
+		},
+		{
+			"name": "house",
+			"nodeId": "5:193"
+		},
+		{
+			"name": "file-pdf",
+			"nodeId": "5:197"
+		},
+		{
+			"name": "file-doc",
+			"nodeId": "5:201"
+		},
+		{
+			"name": "paper-plane-tilt",
+			"nodeId": "5:205"
+		},
+		{
+			"name": "list",
+			"nodeId": "5:209"
+		},
+		{
+			"name": "circle",
+			"nodeId": "5:213"
+		},
+		{
+			"name": "radio-button",
+			"nodeId": "5:217"
+		},
+		{
+			"name": "square",
+			"nodeId": "5:221"
+		},
+		{
+			"name": "check-square",
+			"nodeId": "5:225"
+		},
+		{
+			"name": "lightbulb",
+			"nodeId": "5:229"
+		},
+		{
+			"name": "clock",
+			"nodeId": "5:233"
+		},
+		{
+			"name": "wifi-slash",
+			"nodeId": "5:237"
+		},
+		{
+			"name": "key",
+			"nodeId": "5:241"
+		},
+		{
+			"name": "device-mobile",
+			"nodeId": "5:245"
+		},
+		{
+			"name": "sun",
+			"nodeId": "5:249"
+		},
+		{
+			"name": "receipt",
+			"nodeId": "5:253"
+		},
+		{
+			"name": "star",
+			"nodeId": "5:257"
+		},
+		{
+			"name": "arrow-up-right",
+			"nodeId": "5:261"
+		},
+		{
+			"name": "funnel",
+			"nodeId": "5:265"
+		},
+		{
+			"name": "text-aa",
+			"nodeId": "5:269"
+		},
+		{
+			"name": "columns",
+			"nodeId": "5:273"
+		},
+		{
+			"name": "note",
+			"nodeId": "5:277"
+		},
+		{
+			"name": "certificate",
+			"nodeId": "5:281"
+		},
+		{
+			"name": "wrench",
+			"nodeId": "5:285"
+		},
+		{
+			"name": "chat",
+			"nodeId": "5:289",
+			"phosphorName": "chat-circle-text"
+		},
+		{
+			"name": "hourglass",
+			"nodeId": "5:293",
+			"phosphorName": "hourglass-medium"
+		},
+		{
+			"name": "buildings",
+			"nodeId": "5:297"
+		},
+		{
+			"name": "map-pin",
+			"nodeId": "5:301"
+		},
+		{
+			"name": "play",
+			"nodeId": "5:305"
+		},
+		{
+			"name": "minus",
+			"nodeId": "23:989"
+		},
+		{
+			"name": "arrows-out",
+			"nodeId": "23:993"
+		},
+		{
+			"name": "printer",
+			"nodeId": "23:997"
+		},
+		{
+			"name": "share",
+			"nodeId": "23:1001",
+			"phosphorName": "share-network"
+		}
+	]
+}

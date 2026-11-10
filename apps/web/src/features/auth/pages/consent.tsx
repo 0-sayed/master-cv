@@ -3,8 +3,11 @@ import { Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { cn } from "@reactive-resume/utils/style";
+import { AuthHeading } from "../components/auth-heading";
 import { isOAuthRedirect } from "../redirect";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { authClient } from "@/libs/auth/client";
 import { ENTER_CLASS } from "@/libs/motion";
 
@@ -61,13 +64,14 @@ export function OAuthConsentPage({ oauthQuery, email }: OAuthConsentPageProps) {
 		}
 	}
 
+	const skeletonWait1 = useSkeletonLoading(isPending);
 	return (
 		<>
 			<div className="space-y-2 text-center">
-				<h1 className="text-2xl font-semibold tracking-tight">
+				<AuthHeading>
 					<Trans>Connect an application</Trans>
-				</h1>
-				<p className="text-sm wrap-anywhere text-ink-3">
+				</AuthHeading>
+				<p className="type-body wrap-anywhere text-ink-3">
 					<Trans>Signed in as {email}</Trans>
 				</p>
 			</div>
@@ -75,22 +79,20 @@ export function OAuthConsentPage({ oauthQuery, email }: OAuthConsentPageProps) {
 				<p key="invalid" role="alert" className={ENTER_CLASS}>
 					<Trans>This connection request is invalid or has expired.</Trans>
 				</p>
-			) : isPending ? (
-				<p role="status">
-					<Trans>Loading connection request...</Trans>
-				</p>
+			) : skeletonWait1.pending || isPending ? (
+				<QuerySkeleton shape="form" label={<Trans>Loading connection request...</Trans>} />
 			) : client ? (
 				<div className={cn(ENTER_CLASS, "space-y-4")}>
 					<div className="space-y-1 wrap-anywhere">
 						<p className="font-medium">{client.client_name || clientId}</p>
-						<p className="text-xs text-ink-3">
+						<p className="type-metadata text-ink-3">
 							<Trans>Client ID</Trans>: {clientId}
 						</p>
 					</div>
-					<p className="text-sm">
+					<p className="type-body">
 						<Trans>Only allow applications you trust. This application will be able to:</Trans>
 					</p>
-					<ul className="list-disc space-y-2 pl-5 text-sm">
+					<ul className="list-disc space-y-2 pl-5 type-body">
 						{["api:read", "api:write", "api:delete"].some((scope) => scopes.has(scope)) ? (
 							<>
 								{scopes.has("api:read") && (
@@ -134,7 +136,7 @@ export function OAuthConsentPage({ oauthQuery, email }: OAuthConsentPageProps) {
 						)}
 					</ul>
 					{error && (
-						<p role="alert" className={cn(ENTER_CLASS, "text-sm text-danger-text")}>
+						<p role="alert" className={cn(ENTER_CLASS, "type-body text-danger-text")}>
 							{error}
 						</p>
 					)}

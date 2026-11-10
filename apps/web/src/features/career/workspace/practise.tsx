@@ -16,7 +16,7 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { Label } from "@reactive-resume/ui/components/label";
 import { NativeSelect } from "@reactive-resume/ui/components/native-select";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
@@ -37,8 +37,10 @@ import {
 	speakAloud,
 	writeNumbersAsDigits,
 } from "./recorder";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
+import { storageKey as registeredStorageKey, browserStorage } from "@/libs/browser-storage";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { D2, EASE, ENTER_CLASS } from "@/libs/motion";
 import { client } from "@/libs/orpc/client";
@@ -81,6 +83,8 @@ export function PractiseTab({ application, version, interview, speak, story, now
 				},
 			]
 		: practiceQuestions(saved.data, interview?.id, application.company);
+	const skeletonWait1 = useSkeletonLoading(Boolean(story) && !knowledge.loaded);
+	const skeletonWait2 = useSkeletonLoading(saved.isPending);
 	if (story && knowledge.isError)
 		return (
 			<Notice icon="warning-circle">
@@ -92,7 +96,7 @@ export function PractiseTab({ application, version, interview, speak, story, now
 				</Button>
 			</Notice>
 		);
-	if (story && !knowledge.loaded) return <Skeleton className="h-60 rounded-xl" />;
+	if (skeletonWait1.pending || (story && !knowledge.loaded)) return <QuerySkeleton shape="card" />;
 	if (story && !selectedStory)
 		return (
 			<Notice icon="warning-circle">
@@ -109,11 +113,8 @@ export function PractiseTab({ application, version, interview, speak, story, now
 		<div className="grid items-start gap-5 @3xl:grid-cols-[minmax(0,1fr)_280px]">
 			{viewing ? (
 				<SavedAttempt item={viewing} />
-			) : saved.isPending ? (
-				<div className="grid gap-4">
-					<Skeleton className="h-40 rounded-xl" />
-					<Skeleton className="h-60 rounded-xl" />
-				</div>
+			) : skeletonWait2.pending || saved.isPending ? (
+				<QuerySkeleton shape="form" />
 			) : (
 				<Session
 					key={`${application.id}:${interview?.id ?? "none"}:${story ?? "general"}`}
@@ -812,7 +813,7 @@ function HearIt({ text, voice }: { text: string; voice: VoiceSettings }) {
 
 /** The browser's own speech, used when no connection offers a speech model. */
 const BROWSER = "browser";
-const VOICE_KEY = "career-voice-settings";
+const VOICE_KEY = registeredStorageKey("voice");
 type StoredVoice = {
 	transcribeWith?: string;
 	transcribeModel?: string | undefined;
@@ -836,7 +837,7 @@ function useVoiceSettings() {
 	const readers = capable("speech");
 	const [stored, setStored] = useState<StoredVoice>(() => {
 		try {
-			return JSON.parse(localStorage.getItem(VOICE_KEY) ?? "{}") as StoredVoice;
+			return JSON.parse(browserStorage.local.getItem(VOICE_KEY) ?? "{}") as StoredVoice;
 		} catch {
 			return {};
 		}
@@ -845,7 +846,7 @@ function useVoiceSettings() {
 		const next = { ...stored, ...patch };
 		setStored(next);
 		try {
-			localStorage.setItem(VOICE_KEY, JSON.stringify(next));
+			browserStorage.local.setItem(VOICE_KEY, JSON.stringify(next));
 		} catch {
 			// Storage is blocked: the choice lasts for this visit.
 		}

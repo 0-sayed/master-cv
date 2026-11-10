@@ -8,6 +8,7 @@ import { Button } from "@reactive-resume/ui/components/button";
 import { FormControl, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { AuthHeading } from "../components/auth-heading";
 import { PasswordInput } from "@/components/input/password-input";
 import { getReadableErrorMessage } from "@/libs/error-message";
 import { orpc } from "@/libs/orpc/client";
@@ -75,11 +76,11 @@ export function ResumePasswordPage({ username, slug, redirectPath }: ResumePassw
 	return (
 		<>
 			<div className="space-y-4 text-center">
-				<h1 className="text-2xl font-semibold tracking-tight">
+				<AuthHeading>
 					<Trans>This resume is password protected</Trans>
-				</h1>
+				</AuthHeading>
 
-				<div className="leading-relaxed text-ink-3">
+				<div className="type-body text-ink-3">
 					<Trans>Enter the password the resume owner shared with you.</Trans>
 				</div>
 			</div>

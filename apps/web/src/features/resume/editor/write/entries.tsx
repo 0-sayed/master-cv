@@ -46,6 +46,7 @@ function Text({
 	return (
 		<TextField
 			label={label}
+			name={field}
 			value={str(valuesOf(entry)[field])}
 			wide={wide}
 			autoFocus={autoFocus}

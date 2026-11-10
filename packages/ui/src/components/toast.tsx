@@ -1,6 +1,7 @@
 import { Toast as ToastPrimitive } from "@base-ui/react/toast";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { useUiLabels } from "@reactive-resume/ui/components/ui-labels";
 import { cn } from "@reactive-resume/utils/style";
 
 /**
@@ -22,7 +23,7 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
 		<ToastPrimitive.Viewport
 			data-slot="toast-viewport"
 			className={cn(
-				"pointer-events-none fixed inset-x-4 bottom-7 z-200 grid justify-items-center outline-none",
+				"pointer-events-none fixed inset-x-4 bottom-[calc(var(--app-bottom-inset,var(--space-0))+var(--space-28))] z-200 grid justify-items-center outline-none",
 				className,
 			)}
 			{...props}
@@ -55,11 +56,7 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
 
 function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
 	return (
-		<ToastPrimitive.Title
-			data-slot="toast-title"
-			className={cn("text-sm font-semibold empty:hidden", className)}
-			{...props}
-		/>
+		<ToastPrimitive.Title data-slot="toast-title" className={cn("type-label empty:hidden", className)} {...props} />
 	);
 }
 
@@ -67,7 +64,7 @@ function ToastDescription({ className, ...props }: ToastPrimitive.Description.Pr
 	return (
 		<ToastPrimitive.Description
 			data-slot="toast-description"
-			className={cn("text-sm font-medium empty:hidden", className)}
+			className={cn("type-body empty:hidden", className)}
 			{...props}
 		/>
 	);
@@ -79,7 +76,7 @@ function ToastAction({ className, ...props }: ToastPrimitive.Action.Props) {
 		<ToastPrimitive.Action
 			data-slot="toast-action"
 			className={cn(
-				"-my-1 shrink-0 rounded-sm px-1 py-1 text-sm font-semibold underline underline-offset-3 transition-opacity hover:opacity-80",
+				"touch-target relative -my-1 shrink-0 rounded-sm px-1 py-1 type-label underline underline-offset-3 transition-opacity hover:opacity-80",
 				className,
 			)}
 			{...props}
@@ -88,12 +85,13 @@ function ToastAction({ className, ...props }: ToastPrimitive.Action.Props) {
 }
 
 function ToastClose({ className, children, ...props }: ToastPrimitive.Close.Props) {
+	const labels = useUiLabels();
 	return (
 		<ToastPrimitive.Close
 			data-slot="toast-close"
-			aria-label="Close"
+			aria-label={labels.close}
 			className={cn(
-				"-me-2 inline-flex size-7 shrink-0 items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100",
+				"touch-target relative -me-2 inline-flex size-7 shrink-0 items-center justify-center rounded-sm opacity-70 transition-opacity hover:opacity-100",
 				className,
 			)}
 			{...props}

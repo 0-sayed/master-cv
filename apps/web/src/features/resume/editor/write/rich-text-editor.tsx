@@ -209,12 +209,13 @@ export function RichTextEditor({
 		editorProps: {
 			attributes: {
 				...(id ? { id } : {}),
+				dir: "auto",
 				"aria-label": label,
 				"aria-multiline": "true",
 				role: "textbox",
 				spellcheck: "true",
 				class: cn(
-					"wysiwyg overflow-y-auto px-3 py-2 text-sm outline-none",
+					"wysiwyg overflow-y-auto px-3 py-2 text-sm outline-none field-content-direction",
 					heightClassName,
 					"[&_[data-resume-whitespace=preserve]]:whitespace-pre-wrap",
 				),

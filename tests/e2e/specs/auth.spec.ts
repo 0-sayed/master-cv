@@ -7,16 +7,17 @@ test("registers and logs in with email credentials", async ({ page, account }) =
 		if (request.isNavigationRequest() && request.frame() === page.mainFrame()) documentRequests++;
 	});
 	await registerViaUi(page, account, "/dashboard?from=signup#documents");
-	await expect(page.getByRole("heading", { name: "Documents", level: 1 })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "My documents", level: 1 })).toBeVisible();
 	await expect(page).toHaveURL(/\/dashboard\?from=signup#documents$/);
-	expect(documentRequests).toBe(1);
+	// The real verification link performs a document navigation through Better Auth before password login.
+	expect(documentRequests).toBeGreaterThanOrEqual(2);
 
 	await logoutViaUi(page, account);
-	await expect(page.getByRole("heading", { name: "Sign in to your account" })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Sign in", exact: true })).toBeVisible();
 
 	const beforeLogin = documentRequests;
 	await loginViaUi(page, account, "/dashboard?from=login#documents");
-	await expect(page.getByRole("heading", { name: "Documents", level: 1 })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "My documents", level: 1 })).toBeVisible();
 	await expect(page).toHaveURL(/\/dashboard\?from=login#documents$/);
 	expect(documentRequests).toBe(beforeLogin + 1);
 });

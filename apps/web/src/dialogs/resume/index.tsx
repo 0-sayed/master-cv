@@ -206,7 +206,12 @@ const ResumeForm = withForm({
 									}
 								/>
 
-								<Button size="icon" variant="secondary" title={t`Generate a random name`} onClick={onGenerateName}>
+								<Button
+									size="toolbar-icon"
+									variant="secondary"
+									title={t`Generate a random name`}
+									onClick={onGenerateName}
+								>
 									<Icon name="magic-wand" size={16} />
 								</Button>
 							</div>

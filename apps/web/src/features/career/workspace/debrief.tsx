@@ -5,29 +5,37 @@ import type { InterviewKind, InterviewTimelineEntry } from "@reactive-resume/sch
 import { plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouteContext } from "@tanstack/react-router";
 import { useId, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
 import { cn } from "@reactive-resume/utils/style";
 import { latest, useDefaultProvider, useGenerate, useSavedItems, useTicks } from "../hooks";
 import { FilterChip, MemoryProposal, PrivacyLine, useCareerTime, Working, workingSteps } from "../shared";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { buildIcs } from "@/features/applications/ics";
 import { isInterview } from "@/features/applications/interviews";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
+import {
+	storageKey as registeredStorageKey,
+	browserStorage,
+	personalStorageGeneration,
+	storageKey,
+} from "@/libs/browser-storage";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { ENTER_CLASS } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
+import { readStoredDraft, removeStoredDraft, writeStoredDraft } from "@/libs/stored-draft";
 
 type Debrief = SavedData<"debrief">;
-type Review = Pick<SavedItem, "id" | "interviewId" | "evidence"> & { data: Debrief };
+type Review = Pick<SavedItem, "id" | "interviewId" | "evidence" | "updatedAt"> & { data: Debrief };
 type Draft = { question: string; answer: string; landed: Debrief["landed"] | null };
 
 const isDebrief = (item: SavedItem | undefined): item is SavedItem & { data: Debrief } => item?.data.kind === "debrief";
@@ -59,14 +67,15 @@ export function DebriefTab({ application, version, now }: WorkspaceTabProps) {
 	const review = viewing ?? fresh ?? forRound;
 	const plan = viewing ?? fresh ?? latest(saved.data, "debrief");
 
+	const skeletonWait1 = useSkeletonLoading(saved.isPending);
 	return (
 		<div className="grid items-start gap-5 @3xl:grid-cols-[minmax(0,1fr)_320px]">
 			<div className="grid min-w-0 gap-4">
-				{saved.isPending ? (
-					<Skeleton className="h-80 rounded-xl" />
+				{skeletonWait1.pending || saved.isPending ? (
+					<QuerySkeleton shape="card" />
 				) : (
 					<DebriefForm
-						key={`form:${viewing?.id ?? round?.id ?? "none"}`}
+						key={`form:${viewing?.id ?? round?.id ?? "none"}:${(viewing ?? forRound)?.id ?? "new"}:${(viewing ?? forRound)?.updatedAt ?? "new"}`}
 						application={application}
 						round={round}
 						from={viewing ?? forRound}
@@ -104,33 +113,50 @@ function DebriefForm({ application, round, from, readOnly, onReviewed }: Debrief
 	const generate = useGenerate(application.id);
 	const connection = useDefaultProvider();
 	const { provider } = connection;
-	// Tab switches and reloads keep what was written until it's reviewed.
-	const storageKey = `career-debrief-draft:${application.id}:${round?.id ?? "none"}`;
-	const [draft, setDraft] = useState<Draft>(() => {
-		if (!readOnly) {
-			try {
-				const stored = sessionStorage.getItem(storageKey);
-				if (stored) return JSON.parse(stored) as Draft;
-			} catch {
-				// Storage is blocked: the draft lives in this view only.
-			}
-		}
-		return from
-			? { question: from.data.question, answer: from.data.answer, landed: from.data.landed }
-			: { question: "", answer: "", landed: null };
+
+	const { session } = useRouteContext({ strict: false });
+	const ownerId = session?.user.id ?? "";
+	const identity = {
+		ownerId,
+		documentId: `${application.id}:${round?.id ?? "none"}`,
+		baseRevision: from ? `${from.id}:${from.updatedAt}` : "new",
+	};
+	const key = storageKey("debriefDraft", `${ownerId}:${identity.documentId}`);
+	const initial = from
+		? { question: from.data.question, answer: from.data.answer, landed: from.data.landed }
+		: { question: "", answer: "", landed: null };
+	const parse = (value: unknown): Draft | undefined => {
+		if (!value || typeof value !== "object" || !("question" in value) || !("answer" in value) || !("landed" in value))
+			return;
+		if (
+			typeof value.question !== "string" ||
+			value.question.length > 500 ||
+			typeof value.answer !== "string" ||
+			value.answer.length > 6000 ||
+			![null, "well", "mixed", "not"].includes(value.landed as string | null)
+		)
+			return;
+		return { question: value.question, answer: value.answer, landed: value.landed as Draft["landed"] };
+	};
+	type DebriefState = { status: "editing"; value: Draft } | { status: "restorable"; value: Draft; candidate: Draft };
+	const [state, setState] = useState<DebriefState>(() => {
+		const stored = !readOnly && readStoredDraft("session", key, identity, parse);
+		if (stored && stored.baseRevision === identity.baseRevision)
+			return { status: "restorable", value: initial, candidate: stored.value };
+		if (stored) removeStoredDraft("session", key);
+		return { status: "editing", value: initial };
 	});
+	const draft = state.value;
 	const change = (patch: Partial<Draft>) => {
 		if (readOnly) return;
 		const next = { ...draft, ...patch };
-		setDraft(next);
-		try {
-			sessionStorage.setItem(storageKey, JSON.stringify(next));
-		} catch {
-			// Storage is blocked: the draft lives in this view only.
-		}
+		setState({ status: "editing", value: next });
+		writeStoredDraft("session", key, identity, next);
 	};
+
 	const submit = () => {
 		if (!draft.landed) return;
+		const generation = personalStorageGeneration();
 		generate
 			.run({
 				task: "debrief",
@@ -140,13 +166,9 @@ function DebriefForm({ application, round, from, readOnly, onReviewed }: Debrief
 				landed: draft.landed,
 			})
 			.then(({ item }) => {
-				if (item?.data.kind !== "debrief") return;
+				if (generation !== personalStorageGeneration() || item?.data.kind !== "debrief") return;
 				onReviewed(item as Review);
-				try {
-					sessionStorage.removeItem(storageKey);
-				} catch {
-					// Nothing to clear.
-				}
+				removeStoredDraft("session", key);
 			})
 			.catch(() => undefined);
 	};
@@ -170,6 +192,11 @@ function DebriefForm({ application, round, from, readOnly, onReviewed }: Debrief
 					<Trans>Write it down while it's fresh</Trans>
 				</p>
 			</div>
+			{state.status === "restorable" && (
+				<Button variant="secondary" size="sm" onClick={() => setState({ status: "editing", value: state.candidate })}>
+					<Trans>Restore draft</Trans>
+				</Button>
+			)}
 			<div className="grid gap-1.5">
 				<Label htmlFor={`${id}-question`}>
 					<Trans>What did they ask?</Trans>
@@ -248,10 +275,10 @@ function ReviewCard({ application, review, readOnly }: ReviewCardProps) {
 	const queryClient = useQueryClient();
 	const { data } = review;
 	const facts = useQuery(orpc.career.facts.queryOptions({ input: { applicationId: application.id } }));
-	const dismissKey = `career-memory-dismissed:${review.id}`;
+	const dismissKey = registeredStorageKey("memoryDismissed", review.id);
 	const [dismissed, setDismissed] = useState(() => {
 		try {
-			return localStorage.getItem(dismissKey) === "1";
+			return browserStorage.local.getItem(dismissKey) === "1";
 		} catch {
 			return false;
 		}
@@ -338,7 +365,7 @@ function ReviewCard({ application, review, readOnly }: ReviewCardProps) {
 					onDismiss={() => {
 						setDismissed(true);
 						try {
-							localStorage.setItem(dismissKey, "1");
+							browserStorage.local.setItem(dismissKey, "1");
 						} catch {
 							// Storage is blocked: it stays hidden for this visit.
 						}

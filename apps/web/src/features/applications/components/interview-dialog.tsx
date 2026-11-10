@@ -21,7 +21,7 @@ import { fromZonedDateTime } from "@reactive-resume/utils/timezone";
 import { dayKey } from "../interviews";
 import { applicationsListQueryKey } from "../queries";
 import { Combobox } from "@/components/ui/combobox";
-import { useCareerTime, withUndo } from "@/features/career/shared";
+import { useCareerTime, confirmAction } from "@/features/career/shared";
 import { useClosingValue } from "@/hooks/use-closing-value";
 import { D2, EASE } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
@@ -261,28 +261,15 @@ export function InterviewDialog({
 		});
 	};
 
-	// Commit after Undo closes so a restored round retains its identity, history and briefing schedules.
 	const deleteInterview = () => {
 		if (!editing) return;
 		const applicationId = draft.applicationId;
-		const drop = (item: Application) =>
-			item.id === applicationId
-				? { ...item, activity: item.activity.filter((entry) => entry.id !== editing.id) }
-				: item;
-		queryClient.setQueryData(applicationsListQueryKey(), (list) => list?.map(drop));
-		queryClient.setQueryData(
-			orpc.applications.getById.queryKey({ input: { id: applicationId } }),
-			(item) => item && drop(item),
-		);
-		onOpenChange(false);
-		withUndo({
+		confirmAction({
 			description: t`Interview deleted`,
-			onUndo: () => invalidate(applicationId),
-			commit: () => {
-				void remove
-					.mutateAsync({ id: applicationId, entryId: editing.id })
-					.catch(() => undefined)
-					.finally(() => invalidate(applicationId));
+			commit: () => remove.mutateAsync({ id: applicationId, entryId: editing.id }),
+			onCommitted: () => {
+				invalidate(applicationId);
+				onOpenChange(false);
 			},
 		});
 	};

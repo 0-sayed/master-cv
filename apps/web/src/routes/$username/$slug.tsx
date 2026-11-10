@@ -3,12 +3,15 @@ import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { ORPCError } from "@orpc/client";
 import { createFileRoute, lazyRouteComponent, notFound, redirect } from "@tanstack/react-router";
 import { getResumeSocialMeta } from "@reactive-resume/resume/social-meta";
+import { RouteSkeleton } from "@/components/query-skeleton";
 import { orpc } from "@/libs/orpc/client";
+import { formatPageTitle, getRouteTitle } from "@/libs/route-titles";
 import { createNoindexFollowMeta } from "@/libs/seo";
 
 type LoaderData = Omit<RouterOutput["resume"]["getBySlug"], "data"> & { data: ResumeData };
 
 export const Route = createFileRoute("/$username/$slug")({
+	pendingComponent: () => <RouteSkeleton shape="preview" />,
 	component: lazyRouteComponent(() => import("@/features/resume/public/public-resume"), "PublicResumeRoute"),
 	notFoundComponent: lazyRouteComponent(
 		() => import("@/features/resume/public/public-resume"),
@@ -29,17 +32,16 @@ export const Route = createFileRoute("/$username/$slug")({
 	},
 	head: ({ loaderData }) => {
 		const resume = loaderData?.resume;
-		const name = resume ? resume.data.basics.name || resume.name || "Resume" : "Reactive Resume";
 
 		if (!resume) {
-			return { meta: [{ title: `${name} - Reactive Resume` }, createNoindexFollowMeta()] };
+			return { meta: [{ title: getRouteTitle("/$username/$slug") }, createNoindexFollowMeta()] };
 		}
 
 		const social = getResumeSocialMeta(resume.data, resume.name || "Resume");
 
 		return {
 			meta: [
-				{ title: `${social.name} - Reactive Resume` },
+				{ title: formatPageTitle(social.name) },
 				{ name: "description", content: social.description },
 				createNoindexFollowMeta(),
 			],

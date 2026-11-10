@@ -91,16 +91,20 @@ function getRelativeTimeFormatter(locale: string) {
 }
 
 export function formatRelativeTime(value: Date | string, locale: string) {
-	const formatter = getRelativeTimeFormatter(locale);
 	const date = value instanceof Date ? value : new Date(value);
 	const diffMs = date.getTime() - Date.now();
-	if (Number.isNaN(diffMs)) return formatter.format(0, "second");
+	if (Number.isNaN(diffMs)) return formatRelativeTimeUnit(0, "second", locale);
 
 	const division = relativeTimeDivisions.find((candidate) => Math.abs(diffMs) >= candidate.amount);
 
 	return division
-		? formatter.format(Math.round(diffMs / division.amount), division.unit)
-		: formatter.format(0, "second");
+		? formatRelativeTimeUnit(Math.round(diffMs / division.amount), division.unit, locale)
+		: formatRelativeTimeUnit(0, "second", locale);
+}
+
+/** Keep the localized duration together, including Arabic number/unit inflections and Latin digits. */
+export function formatRelativeTimeUnit(value: number, unit: Intl.RelativeTimeFormatUnit, locale: string) {
+	return getRelativeTimeFormatter(locale).format(value, unit).replaceAll(" ", "\u00a0");
 }
 
 export const getLocale = (saved?: unknown) =>

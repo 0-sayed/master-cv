@@ -8,6 +8,7 @@ import { t } from "@lingui/core/macro";
 import { Plural, Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { useId, useState } from "react";
+import { ActionFeedback } from "@reactive-resume/ui/components/action-feedback";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { Icon } from "@reactive-resume/ui/components/icon";
@@ -68,7 +69,7 @@ export const getExportFormats = (): DownloadFormat[] => [
 		label: "JSON",
 		extension: ".json",
 		icon: "brackets-curly",
-		description: t`Complete data backup. Imports back into Reactive Resume or JSON Resume tools.`,
+		description: t`Complete data backup. Imports back into Master CV or JSON Resume tools.`,
 	},
 ];
 
@@ -133,6 +134,7 @@ export function FileNameField({ value, extension, hint, onChange }: FileNameFiel
 			</label>
 			<div className="flex h-[38px] items-center overflow-hidden rounded-lg border border-line-2 bg-raised focus-within:border-accent focus-within:ring-3 focus-within:ring-accent-soft">
 				<input
+					dir="auto"
 					id={id}
 					value={value}
 					spellCheck={false}
@@ -185,12 +187,20 @@ export function DownloadActions({ state, label, onDownload, onDownloadPdf }: Dow
 			)}
 
 			<Button
-				className="h-11 gap-2 text-[15px]"
+				size="toolbar"
+				aria-label={state !== "error" && label === "PDF" ? t`Download ${label}` : undefined}
 				aria-busy={state === "busy"}
 				disabled={state === "busy"}
 				onClick={onDownload}
 			>
-				{state === "busy" ? (
+				{label === "PDF" && state !== "error" ? (
+					<ActionFeedback
+						state={state === "busy" ? "pending" : state === "done" ? "ready" : "idle"}
+						label={t`Download ${label}`}
+						pendingLabel={t`Preparing…`}
+						readyLabel={t`PDF ready`}
+					/>
+				) : state === "busy" ? (
 					<>
 						<Spinner decorative className="size-4" />
 						<Trans>Preparing {label} file…</Trans>
@@ -212,7 +222,7 @@ export function DownloadActions({ state, label, onDownload, onDownloadPdf }: Dow
 				<p className={cn(ENTER_CLASS, "flex items-start gap-2 text-[13px] leading-[19px] text-ink-2")}>
 					<Icon name="hand-heart" size={18} className="shrink-0 text-ink-3" />
 					<span>
-						<Trans>Good luck out there. Reactive Resume stays free because people chip in.</Trans>{" "}
+						<Trans>Good luck out there. Master CV stays free because people chip in.</Trans>{" "}
 						<a
 							href="https://opencollective.com/reactive-resume/donate"
 							target="_blank"

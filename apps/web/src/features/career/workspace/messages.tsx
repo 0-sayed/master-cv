@@ -8,7 +8,7 @@ import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
@@ -22,8 +22,9 @@ import {
 	useWorkspace,
 } from "../hooks";
 import { formatMoney } from "../offer-compare";
-import { Swap, useCareerTime, withUndo, Working, workingSteps } from "../shared";
+import { Swap, useCareerTime, confirmAction, Working, workingSteps } from "../shared";
 import { AiNotice } from "./fit";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { describeNextStep, getNextStep } from "@/features/applications/next-step";
 import { getStageLabel } from "@/features/applications/stages";
 import { useInvalidateApplications } from "@/features/applications/use-application-actions";
@@ -38,10 +39,11 @@ export function MessagesTab({ application, version, now }: WorkspaceTabProps) {
 	const readOnly = version?.data.kind === "reply";
 	const reply = (readOnly ? version : latest(saved.data, "reply")) as ReplyItem | undefined;
 
-	if (workspace.isPending || saved.isPending)
+	const skeletonWait1 = useSkeletonLoading(workspace.isPending || saved.isPending);
+	if (skeletonWait1.pending || workspace.isPending || saved.isPending)
 		return (
 			<div className="grid gap-4 @3xl:w-1/2">
-				<Skeleton className="h-28 rounded-lg" />
+				<QuerySkeleton shape="card" />
 			</div>
 		);
 
@@ -68,7 +70,7 @@ type PasteBoxProps = {
 	application: WorkspaceTabProps["application"];
 	initial: string;
 	readOnly: boolean;
-	onSave: (message: string) => void;
+	onSave: (message: string) => Promise<unknown>;
 };
 
 /** W15: the employer's message, kept with the application, and "Read it for me". */
@@ -257,10 +259,9 @@ function ProposalCard({ reply, application, now, readOnly }: ProposalCardProps) 
 
 	const onApply = () => {
 		const chosen = ticked;
-		setAppliedNow({ changes: chosen, at: new Date() });
-		withUndo({
+		confirmAction({
 			description: t`Application updated`,
-			onUndo: () => setAppliedNow(null),
+			onCommitted: () => setAppliedNow({ changes: chosen, at: new Date() }),
 			commit: () =>
 				apply.mutateAsync({ id: reply.id, changes: chosen }).then(
 					() => {
@@ -268,9 +269,10 @@ function ProposalCard({ reply, application, now, readOnly }: ProposalCardProps) 
 						void queryClient.invalidateQueries({ queryKey: orpc.career.savedItems.key() });
 						void queryClient.invalidateQueries({ queryKey: orpc.career.schedules.key() });
 					},
-					() => {
+					(error: unknown) => {
 						setAppliedNow(null);
 						toast.add({ type: "error", description: t`Couldn't update the application. Nothing was changed.` });
+						throw error;
 					},
 				),
 		});

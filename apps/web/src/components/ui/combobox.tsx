@@ -166,12 +166,17 @@ function Combobox<TValue extends string | number = string>(props: ComboboxProps<
 				render ?? (
 					<Button
 						variant="secondary"
-						className={cn("justify-start text-left font-normal hover:bg-sunken/20", className)}
+						className={cn("justify-start text-start font-normal hover:bg-sunken/20", className)}
 					/>
 				)
 			}
 		>
-			<span className={cn("min-w-0 flex-1 truncate text-left", showClear && hasSelectedValue && "pe-7")}>
+			<span
+				className={cn(
+					"min-w-0 flex-1 text-start break-words whitespace-normal",
+					showClear && hasSelectedValue && "pe-7",
+				)}
+			>
 				<ComboboxValue placeholder={placeholder ?? t`Select...`} />
 			</span>
 		</ComboboxTrigger>

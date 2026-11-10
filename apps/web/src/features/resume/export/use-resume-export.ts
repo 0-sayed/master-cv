@@ -1,8 +1,9 @@
 import type { PublicResumePdfOptions } from "@/features/resume/public/public-pdf";
 import type { ResumeExportTarget } from "@reactive-resume/resume/export-sections";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
+import type { ActionFeedbackState } from "@reactive-resume/ui/components/action-feedback";
 import { t } from "@lingui/core/macro";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { buildDocx } from "@reactive-resume/docx";
 import { buildOdt } from "@reactive-resume/odt";
 import { getResumeSectionTitle } from "@reactive-resume/pdf/section-title";
@@ -116,7 +117,16 @@ function printPdf(blob: Blob) {
 
 /** One-click exports that report their own progress and failures in toasts (the bar, ⌘P, public pages). */
 export function useResumeExport(resume: ExportableResume | undefined, exportOptions: UseResumeExportOptions = {}) {
-	const [isExporting, setIsExporting] = useState(false);
+	const [exportState, setExportState] = useState<"idle" | "generating" | "ready" | "failed" | "printing">("idle");
+	const inFlight = useRef(false);
+	const isExporting = exportState === "generating" || exportState === "printing";
+	const downloadState: ActionFeedbackState = isExporting
+		? "pending"
+		: exportState === "ready"
+			? "ready"
+			: exportState === "failed"
+				? "failed"
+				: "idle";
 
 	const onDownloadJSON = useCallback(async () => {
 		if (!resume) return;
@@ -148,12 +158,13 @@ export function useResumeExport(resume: ExportableResume | undefined, exportOpti
 	}, [resume]);
 
 	const onDownloadPDF = useCallback(async () => {
-		if (!resume) return;
+		if (!resume || inFlight.current) return;
+		inFlight.current = true;
 		const toastId = toast.add({
 			type: "loading",
 			description: t`Generating your PDF...`,
 		});
-		setIsExporting(true);
+		setExportState("generating");
 		const makeBlob = () =>
 			exportOptions.publicResumePdf
 				? resolvePublicResumePdfBlob({ data: resume.data, ...exportOptions.publicResumePdf })
@@ -161,24 +172,27 @@ export function useResumeExport(resume: ExportableResume | undefined, exportOpti
 		try {
 			const blob = await makeBlob();
 			downloadWithAnchor(blob, `${getDefaultFileName(resume)}.pdf`);
+			setExportState("ready");
 			if (exportOptions.publicResumePdf) {
 				// Statistics are best effort and must not delay or fail a completed browser download.
 				void client.resume.statistics.recordDownload(exportOptions.publicResumePdf.publicResume).catch(() => undefined);
 			}
 		} catch (error) {
+			setExportState("failed");
 			toast.add({
 				type: "error",
 				description: getReadableErrorMessage(error, t`Could not generate the PDF. Please try again.`),
 			});
 		}
-		setIsExporting(false);
+		inFlight.current = false;
 		toast.close(toastId);
 	}, [exportOptions.publicResumePdf, resume]);
 
 	const onPrint = useCallback(async () => {
-		if (!resume) return;
+		if (!resume || inFlight.current) return;
+		inFlight.current = true;
 		const toastId = toast.add({ type: "loading", description: t`Preparing your resume for printing...` });
-		setIsExporting(true);
+		setExportState("printing");
 		const makeBlob = () =>
 			exportOptions.publicResumePdf
 				? resolvePublicResumePdfBlob({ data: resume.data, ...exportOptions.publicResumePdf })
@@ -191,9 +205,10 @@ export function useResumeExport(resume: ExportableResume | undefined, exportOpti
 				description: getReadableErrorMessage(error, t`Could not prepare your resume for printing. Please try again.`),
 			});
 		}
-		setIsExporting(false);
+		inFlight.current = false;
+		setExportState("idle");
 		toast.close(toastId);
 	}, [exportOptions.publicResumePdf, resume]);
 
-	return { onDownloadJSON, onDownloadMarkdown, onDownloadDOCX, onDownloadPDF, onPrint, isExporting };
+	return { onDownloadJSON, onDownloadMarkdown, onDownloadDOCX, onDownloadPDF, onPrint, isExporting, downloadState };
 }

@@ -3,6 +3,7 @@ import type z from "zod";
 import { ORPCError } from "@orpc/client";
 import { and, asc, desc, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
 import { db } from "@reactive-resume/db/client";
+import { withDatabaseOwner } from "@reactive-resume/db/owner-scope";
 import * as tables from "@reactive-resume/db/schema";
 import { sendCareerNotification } from "@reactive-resume/email/transport";
 import { env } from "@reactive-resume/env/server";
@@ -441,9 +442,10 @@ async function execute(job: typeof tables.careerJob.$inferSelect) {
 	});
 }
 
-async function sendPendingEmail() {
+async function sendPendingEmail(maxEmails: number) {
+	let attempted = 0;
 	// Claim independently of job completion so a crash before SMTP can recover on the next tick.
-	for (let i = 0; i < 2; i++) {
+	for (let i = 0; i < maxEmails; i++) {
 		const notification = await db.transaction(async (tx) => {
 			const [row] = await tx
 				.select({ notification: tables.careerNotification })
@@ -474,6 +476,7 @@ async function sendPendingEmail() {
 			return row.notification;
 		});
 		if (!notification) break;
+		attempted++;
 		const [owner] = await db
 			.select({ email: tables.user.email, verified: tables.user.emailVerified })
 			.from(tables.user)
@@ -483,7 +486,7 @@ async function sendPendingEmail() {
 				const sent = await sendCareerNotification({
 					to: owner.email,
 					subject: noticeText(notification.notice).title,
-					text: "You have a career update in Reactive Resume.",
+					text: "You have a career update in Master CV.",
 					url: new URL(notification.url ?? CAREER_URL, env.APP_URL).toString(),
 					key: notification.key,
 				});
@@ -505,10 +508,11 @@ async function sendPendingEmail() {
 			}
 		}
 	}
+	return attempted;
 }
 
 /** One bounded scheduler tick. No work continues after this promise resolves. */
-export async function runCareerJobs() {
+async function runCareerJobsForOwner(maxJobs: number, maxEmails: number) {
 	const exhausted = await db
 		.update(tables.careerJob)
 		.set({
@@ -537,7 +541,7 @@ export async function runCareerJobs() {
 			.onConflictDoNothing();
 	await enqueue();
 	let processed = 0;
-	for (let i = 0; i < 2; i++) {
+	for (let i = 0; i < maxJobs; i++) {
 		const job = await claim();
 		if (!job) break;
 		try {
@@ -572,6 +576,20 @@ export async function runCareerJobs() {
 		}
 		processed++;
 	}
-	await sendPendingEmail();
+	const emailAttempts = await sendPendingEmail(maxEmails);
+	return { processed, emailAttempts };
+}
+
+export async function runCareerJobs() {
+	const owners = await db.execute<{ userId: string }>(sql`SELECT user_id AS "userId" FROM master_cv_queue_owners()`);
+	let processed = 0;
+	let emailAttempts = 0;
+	for (const owner of owners.rows) {
+		const result = await withDatabaseOwner(owner.userId, () =>
+			runCareerJobsForOwner(Math.max(0, 2 - processed), Math.max(0, 2 - emailAttempts)),
+		);
+		processed += result.processed;
+		emailAttempts += result.emailAttempts;
+	}
 	return { processed };
 }

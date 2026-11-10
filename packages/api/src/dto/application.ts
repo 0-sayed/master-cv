@@ -46,7 +46,7 @@ const applicationSchema = createSelectSchema(schema.application, {
 	closedReason: applicationClosedReasonSchema
 		.nullable()
 		.describe("Why a closed application ended: accepted, not-selected, withdrew, accepted-other or no-response."),
-	resumeId: z.string().nullable().describe("The linked Reactive Resume, if any."),
+	resumeId: z.string().nullable().describe("The linked Master CV, if any."),
 	coverLetterId: z.string().nullable().describe("The linked saved cover letter, if any."),
 	sentResumeVersionId: z
 		.string()
@@ -152,6 +152,7 @@ export const applicationDto = {
 
 	update: {
 		input: editableSchema.partial().extend({
+			expectedNotesRevision: z.iso.datetime().optional(),
 			...documentFilesShape,
 			id: z.string(),
 			status: applicationStatusSchema.optional(),

@@ -25,11 +25,12 @@ import { toast } from "@reactive-resume/ui/components/toast";
 import { publicResumeUrl } from "./filter";
 import { useNewDocumentsStore } from "./new-documents";
 import { ChipInput } from "@/components/input/chip-input";
+import { QueryListState } from "@/components/query-list-state";
 import { useDialogStore } from "@/dialogs/store";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
 import { useClosingValue } from "@/hooks/use-closing-value";
 import { useConfirm } from "@/hooks/use-confirm";
-import { authClient } from "@/libs/auth/client";
+import { useCurrentSession } from "@/hooks/use-current-session";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { orpc } from "@/libs/orpc/client";
 
@@ -237,7 +238,7 @@ export function DocumentMenuContent({
 	variant = "dropdown",
 }: DocumentMenuProps) {
 	const actions = useDocumentActions();
-	const { data: session } = authClient.useSession();
+	const session = useCurrentSession();
 	const [, copy] = useCopyToClipboard();
 	const url = publicResumeUrl(document, session?.user.username);
 
@@ -391,7 +392,7 @@ export function LinkApplicationDialog({ document: requested, onClose }: LinkAppl
 	const queryClient = useQueryClient();
 	// Closing keeps the list, its highlight and Unlink on screen until the dialog has faded out.
 	const [document, onOpenChangeComplete] = useClosingValue(requested);
-	const { data: applications } = useQuery({ ...applicationsListQueryOptions(), enabled: requested !== null });
+	const query = useQuery({ ...applicationsListQueryOptions(), enabled: requested !== null });
 	const link = useMutation(orpc.documents.linkApplication.mutationOptions());
 
 	const choose = async (applicationId: string | null) => {
@@ -405,7 +406,7 @@ export function LinkApplicationDialog({ document: requested, onClose }: LinkAppl
 		}
 	};
 
-	const jobs = (applications ?? []).filter((application) => application.status !== "closed");
+	const jobs = (query.data ?? []).filter((application) => application.status !== "closed");
 
 	return (
 		<Dialog
@@ -423,26 +424,30 @@ export function LinkApplicationDialog({ document: requested, onClose }: LinkAppl
 					</DialogDescription>
 				</DialogHeader>
 				<div className="grid max-h-72 gap-1 overflow-y-auto">
-					{jobs.map((application) => (
-						<Button
-							key={application.id}
-							variant={document?.application?.id === application.id ? "secondary" : "ghost"}
-							className="h-auto justify-start py-2 text-start"
-							disabled={link.isPending}
-							onClick={() => void choose(application.id)}
-						>
-							<Icon name="briefcase" className="text-ink-2" />
-							<span className="grid min-w-0">
-								<span className="truncate font-medium">{application.role}</span>
-								<span className="truncate text-xs text-ink-3">{application.company}</span>
-							</span>
-						</Button>
-					))}
-					{jobs.length === 0 && (
-						<p className="text-sm text-ink-2">
-							<Trans>No applications yet. Add one in Applications first.</Trans>
-						</p>
-					)}
+					<QueryListState
+						query={query}
+						empty={jobs.length === 0}
+						loadingMessage={<Trans>Loading applications…</Trans>}
+						errorMessage={<Trans>Couldn't load this. Your saved data hasn't changed.</Trans>}
+						emptyMessage={<Trans>No applications yet. Add one in Applications first.</Trans>}
+					>
+						{jobs.map((application) => (
+							<Button
+								key={application.id}
+								variant={document?.application?.id === application.id ? "secondary" : "ghost"}
+								size="row"
+								className="justify-start text-start"
+								disabled={link.isPending}
+								onClick={() => void choose(application.id)}
+							>
+								<Icon name="briefcase" className="text-ink-2" />
+								<span className="grid min-w-0">
+									<span className="truncate font-medium">{application.role}</span>
+									<span className="truncate type-metadata text-ink-3">{application.company}</span>
+								</span>
+							</Button>
+						))}
+					</QueryListState>
 				</div>
 				{document?.application && (
 					<DialogFooter>

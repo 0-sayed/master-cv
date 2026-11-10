@@ -1,7 +1,25 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi, afterEach } from "vite-plus/test";
 import { getQueryClient } from "./client";
 
 describe("getQueryClient mutationCache", () => {
+	afterEach(() => vi.unstubAllGlobals());
+	it("clears private queries on an unauthorized response", async () => {
+		vi.stubGlobal("window", new EventTarget());
+		const queryClient = getQueryClient();
+		queryClient.setQueryData(["auth", "session"], { user: { id: "alice" } });
+		queryClient.setQueryData(["resume", "list"], [{ id: "private-alice" }]);
+		await expect(
+			queryClient.fetchQuery({
+				queryKey: ["career", "master"],
+				retry: false,
+				queryFn: async () => {
+					throw { code: "UNAUTHORIZED" };
+				},
+			}),
+		).rejects.toMatchObject({ code: "UNAUTHORIZED" });
+		expect(queryClient.getQueryData(["resume", "list"])).toBeUndefined();
+		expect(queryClient.getQueryData(["auth", "session"])).toBeNull();
+	});
 	it("invalidates data queries but excludes auth session and flags on mutation settled", async () => {
 		const queryClient = getQueryClient();
 

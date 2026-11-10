@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as tables from "@reactive-resume/db/schema";
@@ -17,6 +17,8 @@ const fixture = vi.hoisted(() => ({
 	env: { CRON_SECRET: undefined as string | undefined },
 }));
 vi.mock("@reactive-resume/db/client", () => ({
+	// This suite isolates queue behavior; the restricted-role suite exercises real RLS.
+	withDatabaseOwner: (_owner: string, work: () => unknown) => work(),
 	get db() {
 		return fixture.db;
 	},
@@ -547,6 +549,149 @@ describe.skipIf(!databaseUrl)("durable career scheduling", () => {
 			{ description: "Updated responsibilities" },
 		]);
 		expect((await jobs.notifications("alice")).filter((item) => item.notice.type === "opportunities")).toHaveLength(1);
+	});
+
+	it("shares the two-email tick budget across owners and leaves remaining mail retryable", async () => {
+		const owners = ["alice", "bob", "charlie"];
+		await getDb()
+			.insert(tables.user)
+			.values(
+				owners.slice(1).map((id) => ({
+					id,
+					name: id,
+					email: `${id}@example.test`,
+					username: id,
+					displayUsername: id,
+					emailVerified: true,
+				})),
+			);
+		for (const userId of owners) {
+			await getDb()
+				.insert(tables.careerSchedule)
+				.values({
+					id: `mail-schedule-${userId}`,
+					userId,
+					kind: "discovery",
+					query: "Engineering roles",
+					enabled: true,
+					email: true,
+					timezone: "UTC",
+					nextRunAt: due(),
+					lastQueuedAt: new Date(),
+				});
+			await getDb()
+				.insert(tables.careerJob)
+				.values({
+					id: `mail-job-${userId}`,
+					userId,
+					scheduleId: `mail-schedule-${userId}`,
+					dueAt: due(),
+					status: "completed",
+				});
+			await getDb()
+				.insert(tables.careerNotification)
+				.values({
+					userId,
+					key: `mail-job-${userId}`,
+					notice: { type: "opportunities", count: 1, query: "Engineering roles" },
+				});
+		}
+		await run();
+		expect(fixture.email).toHaveBeenCalledTimes(2);
+		const notices = await getDb().select().from(tables.careerNotification);
+		expect(notices.filter((notice) => notice.emailedAt)).toHaveLength(2);
+		expect(notices.filter((notice) => !notice.emailAttemptedAt)).toHaveLength(1);
+		await run();
+		expect(fixture.email).toHaveBeenCalledTimes(3);
+	});
+
+	it("durably rotates bounded discovery so every queued owner can lead a tick", async () => {
+		const owners = Array.from({ length: 101 }, (_, i) => `owner-${String(i).padStart(3, "0")}`);
+		await getDb()
+			.insert(tables.user)
+			.values(
+				owners.map((id) => ({
+					id,
+					name: id,
+					email: `${id}@example.test`,
+					username: id,
+					displayUsername: id,
+				})),
+			);
+		await getDb()
+			.insert(tables.careerSchedule)
+			.values(
+				owners.map((userId) => ({
+					userId,
+					kind: "discovery" as const,
+					query: "Engineering roles",
+					enabled: true,
+					timezone: "UTC",
+					nextRunAt: due(),
+				})),
+			);
+		const firstOwners = new Set<string>();
+		for (let i = 0; i < owners.length; i++) {
+			const discovered = await getDb().execute<{ userId: string }>(
+				sql`SELECT user_id AS "userId" FROM master_cv_queue_owners()`,
+			);
+			expect(discovered.rows).toHaveLength(100);
+			const first = discovered.rows[0];
+			if (!first) throw new Error("Expected a discovered owner.");
+			expect(Object.keys(first)).toEqual(["userId"]);
+			firstOwners.add(first.userId);
+		}
+		expect([...firstOwners].sort()).toEqual(owners);
+	});
+
+	it("rotates concurrent restricted-role discovery without granting queue payload or cursor access", async () => {
+		await schedule();
+		await getDb().insert(tables.user).values({
+			id: "bob",
+			name: "Bob",
+			email: "bob@example.test",
+			username: "bob",
+			displayUsername: "bob",
+		});
+		await getDb().insert(tables.careerSchedule).values({
+			userId: "bob",
+			kind: "discovery",
+			query: "Engineering roles",
+			enabled: true,
+			timezone: "UTC",
+			nextRunAt: due(),
+		});
+		const role = `queue_discovery_${randomUUID().replaceAll("-", "")}`;
+		await admin.query(`CREATE ROLE "${role}" NOLOGIN NOSUPERUSER NOBYPASSRLS NOINHERIT`);
+		const clients = await Promise.all([pool.connect(), pool.connect()]);
+		try {
+			await admin.query(`GRANT USAGE ON SCHEMA "${schemaName}" TO "${role}"`);
+			await admin.query(`GRANT EXECUTE ON FUNCTION "${schemaName}".master_cv_queue_owners() TO "${role}"`);
+			await Promise.all(clients.map((client) => client.query(`SET ROLE "${role}"`)));
+			const discoveries = await Promise.all(
+				clients.map((client) => client.query<{ user_id: string }>("SELECT user_id FROM master_cv_queue_owners()")),
+			);
+			expect(discoveries.map((result) => result.rows[0]?.user_id).sort()).toEqual(["alice", "bob"]);
+			for (const result of discoveries) {
+				expect(result.rows).toHaveLength(2);
+				expect(Object.keys(result.rows[0] ?? {})).toEqual(["user_id"]);
+			}
+			const [client] = clients;
+			if (!client) throw new Error("Expected a restricted connection.");
+			await expect(client.query("SELECT * FROM career_schedule")).rejects.toMatchObject({ code: "42501" });
+			await expect(client.query("SELECT last_value FROM master_cv_queue_rotation")).rejects.toMatchObject({
+				code: "42501",
+			});
+		} finally {
+			await Promise.all(
+				clients.map(async (client) => {
+					await client.query("RESET ROLE");
+					client.release();
+				}),
+			);
+			await admin.query(`DROP OWNED BY "${role}"`);
+			await admin.query(`DROP ROLE "${role}"`);
+		}
 	});
 
 	it("reclaims an abandoned email attempt but never resends a delivered notification", async () => {

@@ -4,6 +4,7 @@ import { Link, useRouteContext } from "@tanstack/react-router";
 import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
 import { buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { AuthHeading } from "../components/auth-heading";
 
 function getErrorMessage(code: string | undefined): string {
 	switch (code) {
@@ -60,11 +61,11 @@ export function AuthErrorPage({ code, description }: AuthErrorPageProps) {
 	return (
 		<>
 			<div className="space-y-1 text-center">
-				<h1 className="text-2xl font-semibold tracking-tight">
+				<AuthHeading>
 					<Trans comment="Title on the page shown after a failed or cancelled OAuth sign-in">
 						Sign-in didn't complete
 					</Trans>
-				</h1>
+				</AuthHeading>
 			</div>
 
 			<Alert>
@@ -72,12 +73,12 @@ export function AuthErrorPage({ code, description }: AuthErrorPageProps) {
 				<AlertTitle>{getErrorMessage(code)}</AlertTitle>
 				{description && (
 					<AlertDescription>
-						<span className="mb-1 block text-xs">
+						<span className="mb-1 block type-metadata">
 							<Trans comment="Label above the raw error text forwarded by the identity provider">
 								Details from the provider:
 							</Trans>
 						</span>
-						<span className="block font-mono text-xs break-words">{description}</span>
+						<span className="block type-metadata font-mono break-words">{description}</span>
 					</AlertDescription>
 				)}
 			</Alert>

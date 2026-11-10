@@ -2,7 +2,7 @@ import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { ORPCError } from "@orpc/server";
 import { env } from "@reactive-resume/env/server";
 import { generateFilename } from "@reactive-resume/utils/file";
-import { assertCanView } from "./access-policy";
+import { assertCanView, isOwner } from "./access-policy";
 import { publicRenderRateLimiter } from "./public-render-rate-limit";
 import { parseStoredResumeData } from "./resume-data-validation";
 
@@ -21,31 +21,35 @@ export type CreatePublicResumePdfInput = {
 	trustedClient: string;
 };
 
+type FindResumeInput = Pick<CreatePublicResumePdfInput, "username" | "slug"> & { currentUserId?: string };
+
 export type PublicResumePdfDependencies = {
-	findResume(input: Pick<CreatePublicResumePdfInput, "username" | "slug">): Promise<PublicRenderResume | null>;
+	findResume(input: FindResumeInput): Promise<PublicRenderResume | null>;
 	hasPasswordAccess(requestHeaders: Headers, resumeId: string, passwordHash: string | null): boolean | Promise<boolean>;
 	resolveCurrentUserId(requestHeaders: Headers): Promise<string | undefined>;
 	rateLimiter: { consume(input: { trustedClient: string; resumeId: string }): void | Promise<void> };
 	renderPdf(input: { data: ResumeData; filename: string }): Promise<File>;
 };
 
-const findResume = async ({ username, slug }: Pick<CreatePublicResumePdfInput, "username" | "slug">) => {
-	const [{ db }, schema, { and, eq, isNull }] = await Promise.all([
+const findResume = async ({ username, slug, currentUserId }: FindResumeInput) => {
+	const [{ db, withDatabaseOwner }, schema, { and, eq, isNull }] = await Promise.all([
 		import("@reactive-resume/db/client"),
 		import("@reactive-resume/db/schema"),
 		import("drizzle-orm"),
 	]);
-	const [resume] = await db
-		.select({
-			id: schema.resume.id,
-			userId: schema.resume.userId,
-			data: schema.resume.data,
-			isPublic: schema.resume.isPublic,
-			passwordHash: schema.resume.password,
-		})
-		.from(schema.resume)
-		.innerJoin(schema.user, eq(schema.resume.userId, schema.user.id))
-		.where(and(eq(schema.resume.slug, slug), eq(schema.user.username, username), isNull(schema.resume.trashedAt)));
+	const lookup = () =>
+		db
+			.select({
+				id: schema.resume.id,
+				userId: schema.resume.userId,
+				data: schema.resume.data,
+				isPublic: schema.resume.isPublic,
+				passwordHash: schema.resume.password,
+			})
+			.from(schema.resume)
+			.innerJoin(schema.user, eq(schema.resume.userId, schema.user.id))
+			.where(and(eq(schema.resume.slug, slug), eq(schema.user.username, username), isNull(schema.resume.trashedAt)));
+	const [resume] = await (currentUserId ? withDatabaseOwner(currentUserId, lookup) : lookup());
 	return resume ?? null;
 };
 
@@ -66,13 +70,19 @@ export async function createPublicResumePdf(
 	input: CreatePublicResumePdfInput,
 	dependencies: PublicResumePdfDependencies = defaultDependencies,
 ): Promise<{ body: File; filename: string }> {
-	const resume = await dependencies.findResume(input);
+	const currentUserId = await dependencies.resolveCurrentUserId(input.requestHeaders);
+	const resume = await dependencies.findResume({
+		username: input.username,
+		slug: input.slug,
+		...(currentUserId ? { currentUserId } : {}),
+	});
 	if (!resume) throw new ORPCError("NOT_FOUND");
 
-	const currentUserId = await dependencies.resolveCurrentUserId(input.requestHeaders);
-	assertCanView(resume, currentUserId ? { id: currentUserId } : null);
+	const viewer = currentUserId ? { id: currentUserId } : null;
+	assertCanView(resume, viewer);
 	if (
 		resume.passwordHash &&
+		!isOwner(resume, viewer) &&
 		!(await dependencies.hasPasswordAccess(input.requestHeaders, resume.id, resume.passwordHash))
 	) {
 		throw new ORPCError("NEED_PASSWORD", {

@@ -113,6 +113,8 @@ Where each concern lives, and where new code for it goes:
 | Focused support surfaces                                                                        | `packages/fonts`, `packages/email`, `packages/import`, `packages/ai`, `packages/utils`, `packages/config` — prefer existing exports over cross-package shortcuts |
 | Dev-only scripts                                                                                | `tooling/`, not `packages/`, so packages only hold runtime-bundled code                                                                                          |
 
+Feature ownership permits workflow composition, not a separate visual system. Use D35, shared layout APIs and T002 semantic type/spacing/radius/control definitions across feature boundaries.
+
 Narrow cross-cutting helpers go in `packages/utils` only after checking no domain package is a better owner. Specifically: resume JSON Patch behavior belongs in `@reactive-resume/resume/patch` and DOCX builders in `@reactive-resume/docx` — not in `@reactive-resume/utils`.
 
 ## Web app conventions
@@ -181,6 +183,8 @@ pnpm exec turbo boundaries
 
 ### Browser tests
 
+Reject newly added raw UI font/color/spacing/radius values and control-size overrides outside shared definitions; require semantic roles and shared variants. Verify equal header/body start edges and invariant sidebar width across dashboard routes, matching toolbar heights, full select-label fit and avatar inset. Check AR/EN, narrow/wide layouts and every changed dialog/state; record evidence separately from functional smoke.
+
 Playwright specs live in `tests/e2e/specs/*.spec.ts`, with fixtures in `tests/e2e/fixtures`. Configure a disposable PostgreSQL database and export test environment variables before building/running; these root scripts do not wrap `dotenvx`.
 
 ```sh
@@ -194,7 +198,7 @@ pnpm test:e2e:ui
 - `playwright.config.ts` starts `node apps/server/dist/index.mjs` in production mode and waits for `/api/health`; locally it can reuse an existing server. Build first. Keep the direct Node command: pnpm's script process groups can prevent Playwright from cleaning up a server started through `pnpm start`.
 - Export `APP_URL`, `PORT`, `DATABASE_URL`, `AUTH_SECRET`, and `ENCRYPTION_SECRET`, and choose an absolute writable `LOCAL_STORAGE_PATH`. Auth fixtures need signups/email auth enabled; `FLAG_DISABLE_API_RATE_LIMIT=true` is appropriate for this isolated test installation.
 - Assistant specs use a deterministic local AI stub and need `FLAG_ALLOW_UNSAFE_AI_BASE_URL=true`; otherwise those specs skip. See `tests/e2e/README.md` for the full environment recipe; adapt its example storage path to your machine.
-- Playwright runs Chromium with no retries. CI uses one worker and retains failure traces, screenshots, videos, and reports. PDF/DOCX rasterization and visual regression are outside this browser gate.
+- Playwright runs Chromium with no retries. CI uses one worker and retains failure traces, screenshots, videos, and reports. PDF/DOCX rasterization and Figma pixel-parity regression are outside this browser gate. D35 element/state review and internal geometry checks remain required; record them separately from functional smoke.
 
 ## Code style
 
@@ -208,7 +212,7 @@ pnpm test:e2e:ui
 - After code changes, run `pnpm exec vp lint --fix <changed paths>`, then `pnpm exec vp fmt <changed paths>`. Safe lint fixes run before formatting and import/Tailwind sorting. Keep side-effect import order intact.
 - Before finishing, run `pnpm lint:agent` (`vp lint --deny-warnings --format=agent`) and `pnpm format:check`. Fix diagnostics and recheck; do not disable rules merely to make a check pass. Any necessary inline suppression must name its rule and explain why.
 - Lint rules live in `vite.config.ts` under `lint`; formatting and import groups live under `fmt`. Generated route trees, build outputs, migrations, OpenAPI JSON, generated schema references, and byte-sensitive PDF CSS fixtures are excluded where appropriate.
-- `@shadcn/lint` is registered as a JS plugin. Its design-system rules are opt-in: configure them in the root `vite.config.ts` lint block after choosing the policy. It discovers the shared UI exports and Tailwind theme through `apps/web/components.json` and `packages/ui/components.json`. See [available rules](https://github.com/shadcn-ui/lint#rules). Keep UI-specific policies scoped to the web app and UI package.
+- `@shadcn/lint` is registered as a JS plugin. Its plugin rules are opt-in; D35 and the shared visual API policy already apply. Reject raw UI styling and call-site control-size overrides during review even where plugin enforcement is absent. Configure automated enforcement in the root `vite.config.ts` only as authorized scope. It discovers the shared UI exports and Tailwind theme through `apps/web/components.json` and `packages/ui/components.json`. See [available rules](https://github.com/shadcn-ui/lint#rules). Keep UI-specific policies scoped to the web app and UI package.
 - Async test doubles may return a Promise without awaiting; the test override permits this. Playwright fixture callbacks named `use` are not React hooks, so `rules-of-hooks` is disabled only in the fixture adapter. Path references in declaration shims remain supported. CSS is formatted by Oxfmt; Oxlint checks JavaScript/TypeScript rather than CSS declarations.
 - Editor setup is checked in under `.vscode/`: install the recommended Oxc extension for lint fixes and formatting on save. This workflow follows the [Oxc coding-agent guide](https://oxc.rs/docs/guide/usage/coding-agents.html). Restart Codex sessions after changing these instructions.
 

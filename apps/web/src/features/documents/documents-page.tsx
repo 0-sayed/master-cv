@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
+import { CollectionGrid } from "@reactive-resume/ui/components/collection-grid";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -13,24 +14,29 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
+import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@reactive-resume/ui/components/input-group";
 import { Kbd } from "@reactive-resume/ui/components/kbd";
 import { NativeSelect } from "@reactive-resume/ui/components/native-select";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Tabs, TabsCount, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { cn } from "@reactive-resume/utils/style";
+import { useDocumentsCopy } from "./copy.generated";
 import { LinkApplicationDialog, TagsDialog, useBatchActions } from "./document-actions";
 import { DocumentCard, DocumentRow } from "./document-card";
 import { collectTags, filterDocuments } from "./filter";
 import { LibraryError } from "./library-error";
 import { useStartDocument } from "./new-document-dialog";
 import { PageHeader } from "@/components/layout/page-header";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { useDialogStore } from "@/dialogs/store";
 import { useUiLocale } from "@/features/locale/provider";
 import { isEditableElementFocused } from "@/features/resume/builder/draft";
+import { storageKey as registeredStorageKey, browserStorage } from "@/libs/browser-storage";
+import { PAGE_ENTER_CLASS } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
 
 export type DocumentsSearch = {
@@ -53,6 +59,7 @@ type DocumentsPageProps = {
  * chips once tags exist. A file dropped anywhere on the page imports straight away.
  */
 export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
+	const copy = useDocumentsCopy();
 	const { locale } = useUiLocale();
 	const openDialog = useDialogStore((state) => state.openDialog);
 	const searchRef = useRef<HTMLInputElement>(null);
@@ -81,9 +88,7 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 		storeView(next);
 		onSearchChange({ view: next });
 	};
-	const viewEnter =
-		viewSwitched &&
-		"transition-[opacity,translate] duration-standard ease-enter starting:translate-y-1 starting:opacity-0";
+	const viewEnter = viewSwitched && PAGE_ENTER_CLASS;
 
 	useHotkey("/", (event) => {
 		if (isEditableElementFocused()) return;
@@ -93,7 +98,8 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 
 	const all = documents ?? [];
 	const failed = isError && !documents;
-	const firstRun = !isPending && all.length === 0;
+	const loading = useSkeletonLoading(isPending);
+	const firstRun = !loading.pending && all.length === 0;
 	const shown = filterDocuments(all, search, locale);
 	const tags = collectTags(all, locale);
 	const counts = {
@@ -129,23 +135,60 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 	});
 
 	return (
-		<div className="mx-auto grid w-full max-w-[1180px] content-start gap-5 px-7 py-8 max-sm:px-[18px] max-sm:py-5 lg:px-10">
-			<PageHeader title={<Trans>Documents</Trans>}>
+		<div className="contents">
+			<PageHeader
+				collectionState={firstRun ? "empty" : "populated"}
+				mobileTitleInShell
+				title={copy("editor.navigation.documentsTitle")}
+				description={copy("editor.documents.subtitle")}
+				actions={
+					<Button
+						size="toolbar"
+						aria-keyshortcuts="N"
+						className="max-sm:w-full"
+						onClick={() => openDialog("document.new", undefined)}
+					>
+						<Icon name="plus" />
+						<Trans>New</Trans>
+					</Button>
+				}
+			>
 				{!failed && !firstRun && (
 					<>
 						<Tabs value={search.type} onValueChange={(type) => onSearchChange({ type: type as DocumentTypeFilter })}>
-							<TabsList variant="line" aria-label={t`Document type`}>
+							<TabsList size="toolbar" variant="line" aria-label={t`Document type`}>
 								<TabsTrigger value="all">
-									<Trans>All</Trans>
-									<TabsCount>{counts.all}</TabsCount>
+									{copy("editor.documents.all")}
+									<QuerySkeleton
+										inline
+										loading={loading.pending}
+										shape="badge"
+										label={<Trans>Loading the total</Trans>}
+									>
+										<TabsCount>{counts.all}</TabsCount>
+									</QuerySkeleton>
 								</TabsTrigger>
 								<TabsTrigger value="resume">
-									<Trans>Resumes</Trans>
-									<TabsCount>{counts.resume}</TabsCount>
+									{copy("editor.documents.cvsTab")}
+									<QuerySkeleton
+										inline
+										loading={loading.pending}
+										shape="badge"
+										label={<Trans>Loading the total</Trans>}
+									>
+										<TabsCount>{counts.resume}</TabsCount>
+									</QuerySkeleton>
 								</TabsTrigger>
 								<TabsTrigger value="letter">
-									<Trans>Letters</Trans>
-									<TabsCount>{counts.letter}</TabsCount>
+									{copy("editor.navigation.letters")}
+									<QuerySkeleton
+										inline
+										loading={loading.pending}
+										shape="badge"
+										label={<Trans>Loading the total</Trans>}
+									>
+										<TabsCount>{counts.letter}</TabsCount>
+									</QuerySkeleton>
 								</TabsTrigger>
 							</TabsList>
 						</Tabs>
@@ -159,16 +202,18 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 									ref={searchRef}
 									type="search"
 									value={search.q}
-									aria-label={t`Search documents`}
-									placeholder={t`Search`}
+									aria-label={copy("editor.documents.search")}
+									placeholder={copy("editor.documents.search")}
 									onChange={(event) => onSearchChange({ q: event.target.value })}
 								/>
 								<InputGroupAddon align="inline-end" className="max-sm:hidden pointer-coarse:hidden">
 									<Kbd>/</Kbd>
 								</InputGroupAddon>
 							</InputGroup>
-							<div className="w-[150px]">
+							<div className="max-w-full">
 								<NativeSelect
+									size="toolbar"
+									fit="content"
 									aria-label={t`Sort`}
 									value={search.sort}
 									onChange={(event) => onSearchChange({ sort: event.target.value as DocumentSort })}
@@ -179,6 +224,7 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 								</NativeSelect>
 							</div>
 							<SegmentedControl
+								size="toolbar"
 								aria-label={t`View`}
 								value={view}
 								onValueChange={(next) => setView(next as "grid" | "list")}
@@ -212,10 +258,10 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 						/>
 					)}
 
-					{isPending ? (
-						<LibrarySkeleton view={view} />
+					{loading.pending ? (
+						<QuerySkeleton shape={view === "list" ? "document-rows" : "documents"} count={6} />
 					) : shown.length === 0 ? (
-						<div className="grid justify-items-center gap-2 py-16 text-center">
+						<EmptyState>
 							<Icon name="magnifying-glass" size={28} className="text-ink-3" />
 							<p className="font-semibold">
 								{search.q.trim() ? (
@@ -224,7 +270,7 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 									<Trans>Nothing matches these filters</Trans>
 								)}
 							</p>
-							<p className="text-sm text-ink-2">
+							<p className="type-body text-ink-2">
 								<Trans>Search covers titles, tags and linked applications.</Trans>
 							</p>
 							{filtered && (
@@ -236,14 +282,14 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 									<Trans>Clear search and filters</Trans>
 								</Button>
 							)}
-						</div>
+						</EmptyState>
 					) : view === "list" ? (
 						<table className={cn("w-full table-fixed border-collapse", viewEnter)}>
 							<caption className="sr-only">
 								<Trans>Documents</Trans>
 							</caption>
 							<thead>
-								<tr className="border-b border-line text-start text-xs font-medium text-ink-3">
+								<tr className="border-b border-line text-start type-metadata font-medium text-ink-3">
 									<th className="w-10 ps-3">
 										<Checkbox
 											checked={allSelected}
@@ -283,21 +329,17 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 							</tbody>
 						</table>
 					) : (
-						<div
-							className={cn(
-								"grid grid-cols-[repeat(auto-fill,minmax(180px,204px))] gap-x-7 gap-y-[22px] max-sm:grid-cols-2 max-sm:gap-4",
-								viewEnter,
-							)}
-						>
+						<CollectionGrid className={cn(viewEnter)}>
 							{shown.map((document, index) => (
 								<DocumentCard
+									library
 									key={documentKey(document)}
 									document={document}
 									introIndex={intro ? index : undefined}
 									{...itemProps(document)}
 								/>
 							))}
-						</div>
+						</CollectionGrid>
 					)}
 				</>
 			)}
@@ -318,14 +360,14 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 
 const documentKey = (document: DocumentSummary) => `${document.type}:${document.id}`;
 
-const VIEW_KEY = "documents-view";
+const VIEW_KEY = registeredStorageKey("documentsView");
 // Longest stagger (150ms) plus the D2 entrance (200ms), with room to spare: then the intro classes come off.
 const INTRO_MS = 400;
 
 // The last view picked on this device; storage can be unavailable, and then it's the grid.
 function readStoredView(): "grid" | "list" {
 	try {
-		return window.localStorage.getItem(VIEW_KEY) === "list" ? "list" : "grid";
+		return browserStorage.local.getItem(VIEW_KEY) === "list" ? "list" : "grid";
 	} catch {
 		return "grid";
 	}
@@ -333,7 +375,7 @@ function readStoredView(): "grid" | "list" {
 
 function storeView(view: "grid" | "list") {
 	try {
-		window.localStorage.setItem(VIEW_KEY, view);
+		browserStorage.local.setItem(VIEW_KEY, view);
 	} catch {
 		// A convenience only.
 	}
@@ -341,41 +383,42 @@ function storeView(view: "grid" | "list") {
 
 /** The first visit: import is the filled button here, and only here. */
 function FirstRun({ onChooseFile }: { onChooseFile: () => void }) {
+	const copy = useDocumentsCopy();
 	const { startBlank, trySample, creating } = useStartDocument();
 
 	return (
-		<section className="grid max-w-xl gap-4 pt-4 transition-[opacity,translate] duration-emphasized ease-enter starting:translate-y-2 starting:opacity-0">
-			<h2 className="font-display text-[26px] leading-8 font-medium">
-				<Trans>Let's start with what you have</Trans>
-			</h2>
-			<p className="leading-6 text-ink-2">
+		<section className={cn("grid max-w-xl gap-4 pt-4", PAGE_ENTER_CLASS)}>
+			<h2 className="type-title-s">{copy("editor.documents.empty.title")}</h2>
+			<p className="type-body text-ink-2">
 				<Trans>
 					Import your current resume and we'll lay out every section for you to refine. Or start fresh. Start with your
 					name. Build from there.
 				</Trans>
 			</p>
-			<div className="flex flex-wrap items-center gap-3 rounded-xl border-[1.5px] border-dashed border-line-2 p-5">
+			<div className="flex flex-wrap items-center gap-3 rounded-xl border-2 border-dashed border-line-2 p-5">
 				<Icon name="file-arrow-up" size={24} className="text-ink-2" />
-				<span className="flex-1 text-sm text-ink-2">
+				<span className="flex-1 type-body text-ink-2">
 					<Trans>Drop a PDF, Word or JSON file</Trans>
 				</span>
-				<Button onClick={onChooseFile}>
+				<Button aria-keyshortcuts="N" onClick={onChooseFile}>
 					<Trans>Choose a file</Trans>
 				</Button>
 			</div>
-			<div className="flex flex-wrap gap-4 text-sm">
+			<div className="flex flex-wrap gap-4 type-body">
 				<Button
 					variant="link"
+					size="link-touch"
 					disabled={creating}
-					className="text-ink-2 underline underline-offset-2 hover:text-ink pointer-coarse:min-h-11"
+					className="text-ink-2 underline underline-offset-2 hover:text-ink"
 					onClick={() => void startBlank()}
 				>
 					<Trans>Start blank</Trans>
 				</Button>
 				<Button
 					variant="link"
+					size="link-touch"
 					disabled={creating}
-					className="text-ink-2 underline underline-offset-2 hover:text-ink pointer-coarse:min-h-11"
+					className="text-ink-2 underline underline-offset-2 hover:text-ink"
 					onClick={() => void trySample()}
 				>
 					<Trans>Try a sample</Trans>
@@ -397,7 +440,7 @@ type TagFilterProps = {
 
 const chipClassName = (isActive: boolean) =>
 	cn(
-		"min-h-7 rounded-full border px-3 text-[13px] transition-[background-color,border-color,color,scale] duration-quick ease-enter active:scale-[0.97] pointer-coarse:min-h-11",
+		"min-h-7 rounded-full border px-3 type-body transition-[background-color,border-color,color,scale] duration-quick ease-enter active:scale-[0.97] pointer-coarse:min-h-11",
 		isActive ? "border-accent bg-accent-soft text-accent-text" : "border-line-2 text-ink-2 hover:bg-hover",
 	);
 
@@ -466,11 +509,11 @@ function SelectionBar({ selection, allSelected, onSelectAll, onClear, onTags }: 
 			aria-hidden={count === 0}
 			inert={count === 0}
 			className={cn(
-				"fixed inset-x-0 bottom-6 z-30 mx-auto flex w-fit max-w-[calc(100vw-32px)] items-center gap-1 rounded-xl border border-line bg-raised p-1.5 shadow-e3 transition-[opacity,translate] duration-standard ease-enter max-sm:bottom-4",
+				"fixed inset-x-0 bottom-6 z-30 mx-auto flex w-fit max-w-[calc(100vw-var(--space-32))] items-center gap-1 rounded-xl border border-line bg-raised p-1.5 shadow-e3 transition-[opacity,translate] duration-standard ease-enter max-sm:bottom-4",
 				count === 0 && "pointer-events-none translate-y-2 opacity-0",
 			)}
 		>
-			<span className="px-2 text-sm font-semibold whitespace-nowrap" aria-live="polite">
+			<span className="px-2 type-label whitespace-nowrap" aria-live="polite">
 				<Trans>{count} selected</Trans>
 			</span>
 			{!allSelected && (
@@ -533,31 +576,6 @@ function SelectionBar({ selection, allSelected, onSelectAll, onClear, onTags }: 
 	);
 }
 
-function LibrarySkeleton({ view }: { view: "grid" | "list" }) {
-	if (view === "list") {
-		return (
-			<div className="grid">
-				<div className="h-10 border-b border-line" />
-				{Array.from({ length: 6 }, (_, index) => (
-					<div key={index} className="flex h-[45px] items-center border-b border-line ps-3">
-						<Skeleton className="h-4 w-1/3" />
-					</div>
-				))}
-			</div>
-		);
-	}
-	return (
-		<div className="grid grid-cols-[repeat(auto-fill,minmax(180px,204px))] gap-x-7 gap-y-[22px] max-sm:grid-cols-2 max-sm:gap-4">
-			{Array.from({ length: 6 }, (_, index) => (
-				<div key={index} className="grid gap-2">
-					<Skeleton className="aspect-page rounded-[6px]" />
-					<Skeleton className="h-4 w-3/4 rounded" />
-				</div>
-			))}
-		</div>
-	);
-}
-
 /** A file dragged anywhere over the page shows the drop target, and dropping it starts the import. */
 function DropToImport() {
 	const openDialog = useDialogStore((state) => state.openDialog);
@@ -611,10 +629,10 @@ function DropToImport() {
 		>
 			<div className="grid justify-items-center gap-2 text-center">
 				<Icon name="download-simple" size={32} className="text-accent-text" />
-				<p className="text-lg font-semibold">
+				<p className="type-section">
 					<Trans>Drop to import</Trans>
 				</p>
-				<p className="text-sm text-ink-2">
+				<p className="type-body text-ink-2">
 					<Trans>PDF, Word or JSON. We'll build a resume from it.</Trans>
 				</p>
 			</div>

@@ -20,6 +20,7 @@ export default defineConfig({
 			correctness: "error",
 		},
 		ignorePatterns: [
+			"**/.archon/**",
 			"**/.turbo/**",
 			"**/.output/**",
 			"**/dist/**",
@@ -165,6 +166,7 @@ export default defineConfig({
 			functions: ["clsx", "cva", "cn"],
 		},
 		ignorePatterns: [
+			"**/.archon/**",
 			"**/.turbo/**",
 			"**/.output/**",
 			"**/dist/**",

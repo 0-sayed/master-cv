@@ -138,16 +138,31 @@ it.each([false, true])(
 	},
 );
 
-it("Delete then Undo restores the existing round without deleting or recreating its identity", async () => {
+it("keeps the saved round until deletion is explicitly confirmed and acknowledged", async () => {
+	let acknowledge!: (value: Application) => void;
+	api.remove.mockImplementation(
+		() =>
+			new Promise<Application>((resolve) => {
+				acknowledge = resolve;
+			}),
+	);
 	mount(true);
 	await waitFor(() => expect(api.read).toHaveBeenCalled());
 	fireEvent.click(await screen.findByRole("button", { name: /^Delete$/ }));
-	const undo = await screen.findByRole("button", { name: "Undo" });
+	const confirm = await screen.findByRole("button", { name: "Confirm" });
 	expect(api.remove).not.toHaveBeenCalled();
-	fireEvent.click(undo);
-	await waitFor(() => expect(screen.getByLabelText("Saved round identity").textContent).toBe("original-round"));
+	expect(screen.getByLabelText("Saved round identity").textContent).toBe("original-round");
+	fireEvent.click(confirm);
+	await waitFor(() => expect(api.remove).toHaveBeenCalledTimes(1));
+	expect(api.remove.mock.calls[0]?.[0]).toEqual({ id: "application", entryId: "original-round" });
+	expect(screen.getByRole("dialog", { name: "Edit interview" })).toBeTruthy();
+	expect(screen.getByLabelText("Saved round identity").textContent).toBe("original-round");
+	const deleted = { ...application, activity: [] };
+	api.read.mockResolvedValue([deleted]);
+	acknowledge(deleted);
 	await waitFor(() => expect(api.read.mock.calls.length).toBeGreaterThan(1));
-	expect(api.remove).not.toHaveBeenCalled();
+	await waitFor(() => expect(screen.queryByRole("dialog", { name: "Edit interview" })).toBeNull());
+	expect(screen.getByLabelText("Saved round identity").textContent).toBe("");
 	expect(api.add).not.toHaveBeenCalled();
 	expect(api.update).not.toHaveBeenCalled();
 });

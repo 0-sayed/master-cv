@@ -18,7 +18,15 @@ function safeCallbackURL(value: unknown): string | undefined {
 	}
 }
 
+export function verificationCallback(email: string, callbackURL: unknown) {
+	const search = new URLSearchParams({ email, done: "true" });
+	const callback = safeCallbackURL(callbackURL);
+	if (callback) search.set("callbackURL", callback);
+	return `/auth/verify-email?${search}`;
+}
+
 export const authSearchSchema = z.object({
+	reason: z.enum(["sessionExpired", "passwordChanged", "verificationExpired"]).optional().catch(undefined),
 	callbackURL: z.unknown().transform(safeCallbackURL).optional(),
 	reauthenticate: z.boolean().optional().catch(undefined),
 });
@@ -36,6 +44,13 @@ export function getOAuthSignInOptions(callback: unknown) {
 	const url = new URL(callbackURL, "https://callback.invalid");
 	if (url.pathname !== "/api/auth/oauth" || !url.searchParams.has("sig")) return {};
 	return { oauth_query: url.search.slice(1) };
+}
+
+export function getOAuthCreationOptions(callback: unknown) {
+	const options = getOAuthSignInOptions(callback);
+	if (!options.oauth_query) return;
+	if (!new URLSearchParams(options.oauth_query).get("prompt")?.split(/\s+/).includes("create")) return;
+	return { created: true as const, oauth_query: options.oauth_query };
 }
 
 export function isOAuthRedirect(data: unknown) {
@@ -62,3 +77,13 @@ export function getOAuthPasskeyOptions(callbackURL: unknown) {
 		},
 	};
 }
+
+export const verificationSearchSchema = z.object({
+	email: z.email().optional().catch(undefined),
+	done: z
+		.union([z.literal(true), z.literal("true")])
+		.transform(() => true)
+		.optional()
+		.catch(undefined),
+	error: z.enum(["INVALID_TOKEN", "TOKEN_EXPIRED", "USER_NOT_FOUND"]).optional().catch(undefined),
+});

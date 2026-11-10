@@ -224,7 +224,7 @@ def check(snapshot=None):
     security_text = (context / 'technical/security.md').read_text()
     definitions = {}
     for label, source, pattern, expected in [
-        ('business decisions', decision_text, r'^\| (D\d{2}) \|', {f'D{i:02}' for i in range(1, 35)}),
+        ('business decisions', decision_text, r'^\| (D\d{2}) \|', {f'D{i:02}' for i in range(1, 36)}),
         ('technical decisions', decision_text, r'^\| (T\d{2}) \|', {f'T{i:02}' for i in range(1, 17)}),
         ('requirements', requirements_text, r'^\| (B-[CEO]\d{2}|A\d{2}) \|', required),
         ('OTP controls', security_text, r'^\| (OTP-\d{2}) \|', {f'OTP-{i:02}' for i in range(1, 13)}),

@@ -33,7 +33,7 @@ const getFragments = () => [
 		className: cn(fragmentKind.pill, pillAccent),
 	},
 	{
-		text: t`Lisbon`,
+		text: t`Riyadh`,
 		at: ["41vw", "20vh", "6vw", "10vh", "-3deg", 1, 0.5],
 		className: cn(fragmentKind.serif, "text-[2.8vw] text-ink-3"),
 	},
@@ -58,12 +58,12 @@ const getFragments = () => [
 		className: cn(fragmentKind.serif, "text-[1.5vw] text-ink-2"),
 	},
 	{
-		text: t`University of Porto`,
+		text: t`Riyadh Private University (example)`,
 		at: ["-9vw", "-43vh", "-3vw", "-16vh", "2deg", 1, 0.35],
 		className: cn(fragmentKind.mono, "text-ink-3"),
 	},
 	{
-		text: t`Parcel & Co.`,
+		text: t`Madarat Design (example)`,
 		at: ["39vw", "3vh", "5vw", "1vh", "-6deg", 1, 0.8],
 		className: cn(fragmentKind.display, "text-[1.9vw] text-ink-2 font-stretch-[108%]"),
 	},
@@ -78,7 +78,7 @@ const getFragments = () => [
 		className: cn(fragmentKind.pill, pillAccent),
 	},
 	{
-		text: "alex@morgan.design",
+		text: "sara.alotaibi@example.test",
 		at: ["25vw", "29vh", "4vw", "9vh", "2deg", 1, 0.4],
 		className: cn(fragmentKind.mono, "text-ink-3"),
 	},
@@ -248,7 +248,7 @@ export function Hero() {
 
 				<div className="absolute inset-x-(--gutter) bottom-[clamp(20px,4vh,40px)] z-2 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
 					<p className="max-w-full font-display text-base leading-[1.45] text-pretty text-ink-2 min-[900px]:max-w-[min(25em,calc(50vw-var(--pw)/2-5vw))] min-[900px]:text-[clamp(17px,1.3vw,20px)]">
-						{t`Reactive Resume is a free, open-source resume builder. Write it, design it, check it, tailor it for every job and walk into the interview prepared.`}
+						{t`Master CV is a free, open-source resume builder. Write it, design it, check it, tailor it for every job and walk into the interview prepared.`}
 					</p>
 					<CtaLink size="hero" />
 				</div>

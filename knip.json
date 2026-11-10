@@ -1,7 +1,7 @@
 {
 	"$schema": "https://unpkg.com/knip@6/schema.json",
 	"tags": ["-lintignore"],
-	"ignoreBinaries": ["pdftotext", "gitleaks", "dpkg-deb"],
+	"ignoreBinaries": ["pdftotext", "pdftoppm", "gitleaks", "dpkg-deb"],
 	"workspaces": {
 		"apps/mobile": {
 			"ignoreExportsUsedInFile": true,
@@ -79,7 +79,6 @@
 				"react-reconciler",
 				"resumable-stream",
 				"sanitize-html",
-				"sharp",
 				"tokenx",
 				"ts-pattern",
 				"unique-names-generator",

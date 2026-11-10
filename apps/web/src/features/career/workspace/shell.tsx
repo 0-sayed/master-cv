@@ -14,7 +14,7 @@ import { useState } from "react";
 import { WORKSPACE_TABS } from "@reactive-resume/schema/career";
 import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
@@ -30,12 +30,15 @@ import { MessagesTab } from "./messages";
 import { PractiseTab } from "./practise";
 import { PrepareTab } from "./prepare";
 import { SavedTab } from "./saved";
+import { PageHeader } from "@/components/layout/page-header";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { ApplicationNotes } from "@/features/applications/components/application-notes";
 import { InterviewDialog } from "@/features/applications/components/interview-dialog";
 import { buildIcs } from "@/features/applications/ics";
 import { formatDuration, interviewKindOf, isInterview } from "@/features/applications/interviews";
 import { describeNextStep, getNextStep } from "@/features/applications/next-step";
 import { getStageLabel, PIPELINE } from "@/features/applications/stages";
+import { CommandPaletteTrigger } from "@/features/command-palette/trigger";
 import { D1, EASE } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
 
@@ -117,18 +120,14 @@ export function Workspace({ applicationId, tab: requested, search }: WorkspacePr
 	const saved = useSavedItems(applicationId);
 	const workspace = useQuery(orpc.career.workspace.queryOptions({ input: { applicationId } }));
 	const overlay = useOverlayHistory();
+	const loading = useSkeletonLoading(query.isPending);
 	const application = query.data;
 
-	if (query.isPending)
-		return (
-			<div className="grid min-h-svh place-items-center">
-				<Spinner />
-			</div>
-		);
+	if (loading.pending) return <QuerySkeleton shape="form" />;
 	if (!application)
 		return (
 			<div className="grid min-h-svh place-content-center justify-items-center gap-3 p-6 text-center">
-				<p role="alert" className="font-display text-[22px] leading-7">
+				<p role="alert" className="type-title-s">
 					<Trans>This application couldn't be opened.</Trans>
 				</p>
 				<Link to="/dashboard/applications" className={cn(buttonVariants({ variant: "secondary" }))}>
@@ -189,7 +188,7 @@ export function Workspace({ applicationId, tab: requested, search }: WorkspacePr
 	const wide = breakpoint === "desktop" || breakpoint === "wide";
 
 	return (
-		<div className="flex min-h-svh flex-col">
+		<div className="contents">
 			<WorkspaceHeader application={application} onAskCoach={() => openSearch({ coach: true })} />
 			<div
 				className={cn(
@@ -229,8 +228,9 @@ export function Workspace({ applicationId, tab: requested, search }: WorkspacePr
 				)}
 				<Tabs value={tab} onValueChange={(value) => go(value as WorkspaceTab)} className="min-w-0 gap-0">
 					<TabsList
+						size="toolbar"
 						variant="line"
-						className="h-[46px] w-full [scrollbar-width:none] justify-start gap-0 overflow-x-auto px-4 md:px-6 [&_[data-slot=tabs-indicator]]:bg-accent"
+						className="w-full [scrollbar-width:none] justify-start gap-0 overflow-x-auto px-4 md:px-6 [&_[data-slot=tabs-indicator]]:bg-accent"
 					>
 						{WORKSPACE_TABS.map((value) => (
 							<TabsTrigger key={value} value={value} className="gap-1.5 px-3 data-active:font-semibold">
@@ -250,18 +250,14 @@ export function Workspace({ applicationId, tab: requested, search }: WorkspacePr
 					{WORKSPACE_TABS.map((value) => (
 						<TabsContent key={value} value={value} className="@container min-w-0 px-4 py-6 md:px-7">
 							{value === tab && (
-								<m.div
-									initial={{ opacity: 0, transform: "translateY(4px)" }}
-									animate={{ opacity: 1, transform: "translateY(0px)" }}
-									transition={{ duration: D1, ease: EASE }}
-								>
+								<m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: D1, ease: EASE }}>
 									{blocked ? (
 										<div className="grid justify-items-start gap-3 rounded-xl border border-line p-5">
 											{waiting ? (
-												<p role="status" className="flex items-center gap-2 text-sm text-ink-2">
-													<Spinner decorative />
-													{archived ? <Trans>Loading saved version…</Trans> : <Trans>Loading workspace…</Trans>}
-												</p>
+												<QuerySkeleton
+													shape="card"
+													label={archived ? <Trans>Loading saved version…</Trans> : <Trans>Loading workspace…</Trans>}
+												/>
 											) : (
 												<p role="alert" className="text-sm text-ink-2">
 													{failed ? (
@@ -364,7 +360,7 @@ function TabBadge({ tone, children }: { tone: "accent" | "warn" | "info" | "plai
 	return (
 		<span
 			className={cn(
-				"inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1.5 font-mono text-[11px] font-medium",
+				"inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1.5 type-metadata font-mono font-medium",
 				tone === "accent" && "bg-accent-soft text-accent-text",
 				tone === "warn" && "bg-warn-soft text-warn-text",
 				tone === "info" && "bg-info-soft text-info-text",
@@ -389,42 +385,48 @@ type WorkspaceHeaderProps = { application: Application; onAskCoach: () => void }
 
 function WorkspaceHeader({ application, onAskCoach }: WorkspaceHeaderProps) {
 	const { date } = useCareerTime();
+	const mobile = useBreakpoint() === "mobile";
 	const reached = PIPELINE.indexOf(application.status);
 	const sent = application.status !== "saved";
 	return (
-		<header className="grid gap-3 border-b border-line px-4 pt-[22px] pb-4 md:px-8">
-			<Link
-				to="/dashboard/applications"
-				className="flex w-fit items-center gap-1 text-[13px] text-ink-3 transition-colors duration-quick hover:text-ink-2"
-			>
-				<Icon name="caret-left" size={16} />
-				<Trans>Applications</Trans>
-			</Link>
-			<div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-				<div className="grid min-w-0 gap-1.5">
-					<h1 className="font-display text-2xl leading-8 font-medium md:text-[30px] md:leading-9">
-						{application.role} · {application.company}
-					</h1>
-					<p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-ink-2">
-						<span className="flex items-center gap-1.5 text-ink">
-							<span aria-hidden="true" className={cn("size-2 rounded-full", stageDot[application.status])} />
-							{getStageLabel(application.status)}
-						</span>
-						{application.location && <span>· {application.location}</span>}
-						{sent && <span>· {t`Applied ${date(application.appliedAt)}`}</span>}
-						{application.sourceUrl && (
-							<a
-								href={application.sourceUrl}
-								target="_blank"
-								rel="noreferrer"
-								className="underline underline-offset-3 hover:text-ink"
-							>
-								<Trans>View posting</Trans>
-							</a>
-						)}
-					</p>
-				</div>
-				<div className="flex items-center gap-4">
+		<PageHeader
+			title={
+				<>
+					{application.role} · {application.company}
+				</>
+			}
+			back={
+				<Link
+					to="/dashboard/applications"
+					className="flex w-fit items-center gap-1 type-body text-ink-3 transition-colors duration-quick hover:text-ink-2"
+				>
+					<Icon name="caret-left" size={16} />
+					<Trans>Applications</Trans>
+				</Link>
+			}
+			description={
+				<span className="flex flex-wrap items-center gap-x-2 gap-y-1 type-metadata text-ink-2">
+					<span className="flex items-center gap-1.5 text-ink">
+						<span aria-hidden="true" className={cn("size-2 rounded-full", stageDot[application.status])} />
+						{getStageLabel(application.status)}
+					</span>
+					{application.location && <span>· {application.location}</span>}
+					{sent && <span>· {t`Applied ${date(application.appliedAt)}`}</span>}
+					{application.sourceUrl && (
+						<a
+							href={application.sourceUrl}
+							target="_blank"
+							rel="noreferrer"
+							className="underline underline-offset-3 hover:text-ink"
+						>
+							<Trans>View posting</Trans>
+						</a>
+					)}
+				</span>
+			}
+			actions={
+				<div className="flex flex-wrap items-center gap-4">
+					{mobile && <CommandPaletteTrigger compact />}
 					{application.status !== "closed" && (
 						<div aria-hidden="true" className="hidden gap-1 lg:flex">
 							{PIPELINE.map((stage, index) => (
@@ -442,6 +444,7 @@ function WorkspaceHeader({ application, onAskCoach }: WorkspaceHeaderProps) {
 						</Link>
 					)}
 					<Button
+						size="toolbar"
 						className="bg-accent-soft text-accent-text hover:bg-accent-soft hover:brightness-95"
 						onClick={onAskCoach}
 					>
@@ -449,8 +452,8 @@ function WorkspaceHeader({ application, onAskCoach }: WorkspaceHeaderProps) {
 						<Trans>Ask the coach</Trans>
 					</Button>
 				</div>
-			</div>
-		</header>
+			}
+		/>
 	);
 }
 
@@ -501,6 +504,7 @@ function ContextColumn({ application, interview, now, onEdit }: ContextColumnPro
 		);
 	};
 
+	const skeletonWait1 = useSkeletonLoading(documentsPending);
 	return (
 		<>
 			<section className="grid gap-2">
@@ -521,13 +525,13 @@ function ContextColumn({ application, interview, now, onEdit }: ContextColumnPro
 							</p>
 							{upcoming ? (
 								<>
-									<p className="text-[13px] text-ink-2">
+									<p className="type-body text-ink-2">
 										{day(upcoming.at)} · {time(upcoming.at)} · {formatDuration(upcoming.durationMinutes, i18n.locale)}
 									</p>
 									{upcoming.location && <p className="text-xs text-ink-3">{upcoming.location}</p>}
 								</>
 							) : (
-								text.sub && <p className="text-[13px] text-ink-2">{text.sub}</p>
+								text.sub && <p className="type-body text-ink-2">{text.sub}</p>
 							)}
 						</div>
 					</div>
@@ -557,7 +561,7 @@ function ContextColumn({ application, interview, now, onEdit }: ContextColumnPro
 								{getInitials(person.name)}
 							</span>
 							<div className="grid min-w-0">
-								<span className="truncate text-[13px] font-semibold">{person.name}</span>
+								<span className="truncate type-label">{person.name}</span>
 								{person.role && <span className="truncate text-xs text-ink-3">{person.role}</span>}
 							</div>
 						</div>
@@ -569,9 +573,7 @@ function ContextColumn({ application, interview, now, onEdit }: ContextColumnPro
 					<Eyebrow>
 						<Trans>Interview notes</Trans>
 					</Eyebrow>
-					<p className="rounded-lg bg-sunken px-3 py-2.5 text-[13px] leading-[19px] whitespace-pre-wrap text-ink-2">
-						{upcoming.notes}
-					</p>
+					<p className="rounded-lg bg-sunken px-3 py-2.5 type-body whitespace-pre-wrap text-ink-2">{upcoming.notes}</p>
 				</section>
 			)}
 
@@ -584,10 +586,8 @@ function ContextColumn({ application, interview, now, onEdit }: ContextColumnPro
 							<Trans>Documents for this job</Trans>
 						)}
 					</Eyebrow>
-					{documentsPending ? (
-						<p role="status" className="text-xs text-ink-3">
-							<Trans>Loading linked documents…</Trans>
-						</p>
+					{skeletonWait1.pending || documentsPending ? (
+						<QuerySkeleton count={1} label={<Trans>Loading linked documents…</Trans>} />
 					) : documentsFailed ? (
 						<div className="grid justify-items-start gap-1.5">
 							<p role="alert" className="text-xs text-ink-3">
@@ -614,7 +614,7 @@ function ContextColumn({ application, interview, now, onEdit }: ContextColumnPro
 						>
 							<Icon name="file-text" className="shrink-0 text-ink-2" />
 							<span className="grid min-w-0">
-								<span className="truncate text-[13px] font-semibold">{resume.name}</span>
+								<span className="truncate type-label">{resume.name}</span>
 								<span className="text-xs text-ink-3">
 									{application.sentResumeVersionId ? (
 										<Trans>Resume · version sent</Trans>
@@ -634,7 +634,7 @@ function ContextColumn({ application, interview, now, onEdit }: ContextColumnPro
 						>
 							<Icon name="envelope-simple" className="shrink-0 text-ink-2" />
 							<span className="grid min-w-0">
-								<span className="truncate text-[13px] font-semibold">{letter.name}</span>
+								<span className="truncate type-label">{letter.name}</span>
 								<span className="text-xs text-ink-3">
 									{application.sentCoverLetterVersionId ? (
 										<Trans>Letter · version sent</Trans>

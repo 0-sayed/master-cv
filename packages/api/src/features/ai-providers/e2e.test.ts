@@ -1,3 +1,6 @@
+vi.mock("@reactive-resume/db/owner-scope", () => ({
+	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+}));
 /**
  * End-to-end coverage for the provider connection test.
  *
@@ -13,7 +16,14 @@ const { dbMock, dbState } = vi.hoisted(() => {
 	const state = { rows: [] as Record<string, unknown>[] };
 
 	const selectChain = {
-		from: () => selectChain,
+		from: (table: { id?: string }) =>
+			table.id === "user.id"
+				? {
+						where: () => ({
+							limit: async () => [{ id: "user-1", email: "kaushik@example.test", emailVerified: true }],
+						}),
+					}
+				: selectChain,
 		where: () => selectChain,
 		orderBy: async () => state.rows,
 		limit: async () => state.rows,

@@ -264,25 +264,25 @@ it("waits for an existing answer save before submitting its current form state",
 	);
 });
 
-it("does not automatically retry rejected text after rollback, but allows explicit retry", async () => {
+it("retries the same text after a rejected save without an intervening edit", async () => {
 	vi.useFakeTimers();
-	const save = vi.fn();
-	function Editor({ saved }: { saved: string }) {
-		const flush = useDebouncedSave("Draft", saved, save);
+	const save = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValue(undefined);
+	function Editor() {
+		const flush = useDebouncedSave("Draft", "Original", save);
 		return <button onClick={() => flush(true)}>Retry</button>;
 	}
-	const view = mount(<Editor saved="Original" />);
+	mount(<Editor />);
 	await act(async () => {
 		await vi.advanceTimersByTimeAsync(2000);
 	});
 	expect(save).toHaveBeenCalledTimes(1);
-	view.rerender(<Editor saved="Draft" />);
-	view.rerender(<Editor saved="Original" />);
+	await act(async () => {
+		await vi.advanceTimersByTimeAsync(2000);
+	});
+	expect(save).toHaveBeenCalledTimes(2);
 	await act(async () => {
 		await vi.advanceTimersByTimeAsync(10000);
 	});
-	expect(save).toHaveBeenCalledTimes(1);
-	fireEvent.click(screen.getByRole("button", { name: "Retry" }));
 	expect(save).toHaveBeenCalledTimes(2);
 });
 
@@ -440,4 +440,66 @@ it("stops question playback and releases its audio when leaving Practise", async
 	view.unmount();
 	expect(pause).toHaveBeenCalledOnce();
 	expect(revoke).toHaveBeenCalledWith("blob:question");
+});
+
+it("does not let an unbound interview draft overwrite a newer server review", async () => {
+	api.data.savedItems = [debrief()];
+	sessionStorage.setItem(
+		`career-debrief-draft:${application.id}:none`,
+		JSON.stringify({ question: "Stale private draft", answer: "Old answer", landed: "well" }),
+	);
+	mount(<DebriefTab {...props} />);
+	await waitFor(() =>
+		expect(screen.getByRole("textbox", { name: "What did they ask?" })).toHaveValue("Describe your contribution"),
+	);
+});
+
+it.each(["matching", "expired", "wrong-owner", "obsolete-base"] as const)(
+	"offers debrief restore only for a valid matching envelope: %s",
+	async (scenario) => {
+		const review = debrief();
+		api.data.savedItems = [review];
+		sessionStorage.setItem(
+			`career-debrief-draft:${api.userId}:${application.id}:none`,
+			JSON.stringify({
+				version: 1,
+				ownerId: scenario === "wrong-owner" ? "other-owner" : api.userId,
+				documentId: `${application.id}:none`,
+				baseRevision: scenario === "obsolete-base" ? "old" : `${review.id}:${review.updatedAt}`,
+				expiresAt: scenario === "expired" ? Date.now() - 1 : Date.now() + 60_000,
+				value: { question: "Saved local question", answer: "Local answer", landed: "well" },
+			}),
+		);
+		mount(<DebriefTab {...props} />);
+		await waitFor(() =>
+			expect(screen.getByRole("textbox", { name: "What did they ask?" })).toHaveValue("Describe your contribution"),
+		);
+		if (scenario === "matching") {
+			fireEvent.click(screen.getByRole("button", { name: "Restore draft" }));
+			expect(screen.getByRole("textbox", { name: "What did they ask?" })).toHaveValue("Saved local question");
+		} else expect(screen.queryByRole("button", { name: "Restore draft" })).toBeNull();
+	},
+);
+
+it("serializes debounced writes and saves a newer value after an in-flight acknowledgment", async () => {
+	vi.useFakeTimers();
+	const first = deferred<void>();
+	const save = vi.fn().mockReturnValueOnce(first.promise).mockResolvedValue(undefined);
+	function Editor({ value }: { value: string }) {
+		useDebouncedSave(value, "Original", save);
+		return null;
+	}
+	const view = mount(<Editor value="First" />);
+	await act(async () => {
+		await vi.advanceTimersByTimeAsync(2000);
+	});
+	view.rerender(<Editor value="Second" />);
+	await act(async () => {
+		await vi.advanceTimersByTimeAsync(2000);
+	});
+	expect(save).toHaveBeenCalledTimes(1);
+	await act(async () => {
+		first.resolve();
+	});
+	expect(save.mock.calls.map((call) => call[0])).toEqual(["First", "Second"]);
 });

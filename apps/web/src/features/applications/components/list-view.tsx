@@ -379,7 +379,13 @@ function BulkBar({ ids, onDone }: BulkBarProps) {
 							setTag("");
 						}}
 					>
-						<Input aria-label={t`Tag`} value={tag} onChange={(event) => setTag(event.target.value)} autoFocus />
+						<Input
+							size="sm"
+							aria-label={t`Tag`}
+							value={tag}
+							onChange={(event) => setTag(event.target.value)}
+							autoFocus
+						/>
 						<Button size="sm" type="submit" disabled={!tag.trim()}>
 							<Trans>Add</Trans>
 						</Button>

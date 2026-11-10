@@ -3,6 +3,7 @@ import { t } from "@lingui/core/macro";
 import { ORPCError } from "@orpc/client";
 import { create } from "zustand/react";
 import { generateId } from "@reactive-resume/utils/string";
+import { onPersonalStorageCleared } from "@/libs/browser-storage";
 import { client, streamClient } from "@/libs/orpc/client";
 
 type LetterMetadata = CoverLetter["style"]["metadata"];
@@ -209,3 +210,5 @@ export function discardLetterDraft() {
 	drafting = null;
 	useLetterEditorStore.setState({ draft: idleDraft });
 }
+
+onPersonalStorageCleared(() => useLetterEditorStore.getState().reset());

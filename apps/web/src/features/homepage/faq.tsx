@@ -27,7 +27,7 @@ function useQuestions(): Question[] {
 	return [
 		{
 			id: "free",
-			question: t`Is Reactive Resume really free?`,
+			question: t`Is Master CV really free?`,
 			answer: t`Yes. Every feature is free: all ${templates} templates, PDF and Word downloads, the ATS checker, cover letters and the job tracker. There are no ads, no tracking and no paid tier. Donations pay for hosting and development.`,
 		},
 		{
@@ -44,12 +44,12 @@ function useQuestions(): Question[] {
 		{
 			id: "import",
 			question: t`Can I import a resume I already have?`,
-			answer: t`Yes. Import a PDF, a LinkedIn data export, a JSON Resume file or a Reactive Resume export, then pick up where it left off. With an AI provider set up, Word documents work too.`,
+			answer: t`Yes. Import a PDF, a LinkedIn data export, a JSON Resume file or a Master CV export, then pick up where it left off. With an AI provider set up, Word documents work too.`,
 		},
 		{
 			id: "export",
 			question: t`What formats can I download?`,
-			answer: t`PDF, Word (DOCX), Markdown and JSON. The JSON export imports back into any Reactive Resume, including one you host yourself, so your data is never locked in.`,
+			answer: t`PDF, Word (DOCX), Markdown and JSON. The JSON export imports back into any Master CV, including one you host yourself, so your data is never locked in.`,
 		},
 		{
 			id: "ai",
@@ -64,7 +64,7 @@ function useQuestions(): Question[] {
 		{
 			id: "self-host",
 			question: t`Can I host it myself?`,
-			answer: t`Yes. Reactive Resume is open source under the MIT License and ships as a Docker image, so it runs on your own server with your own database and storage.`,
+			answer: t`Yes. Master CV is open source under the MIT License and ships as a Docker image, so it runs on your own server with your own database and storage.`,
 			link: { label: t`Read the self-hosting guide`, href: "https://docs.rxresu.me/self-hosting/docker" },
 		},
 		{

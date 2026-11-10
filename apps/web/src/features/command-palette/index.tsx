@@ -1,7 +1,8 @@
+import type { DialogContentProps } from "@reactive-resume/ui/components/dialog";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useHotkeys } from "@tanstack/react-hotkeys";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Command, CommandEmpty, CommandInput, CommandList } from "@reactive-resume/ui/components/command";
 import {
 	Dialog,
@@ -21,10 +22,34 @@ export function CommandPalette() {
 	const commandRef = useRef<HTMLDivElement>(null);
 	const [selectedValue, setSelectedValue] = useState("");
 	const { open, search, pages, setOpen, setSearch, goBack } = useCommandPaletteStore();
+	const [anchor, setAnchor] = useState<NonNullable<DialogContentProps["anchor"]> | null>(null);
+
+	useLayoutEffect(() => {
+		if (!open) return;
+		const trigger = document.querySelector<HTMLElement>('[data-slot="shell-search"]');
+		// Synchronize the popup with observed trigger geometry, including responsive changes.
+		const update = () => {
+			// Mobile and editor palettes retain the shared centred dialog treatment.
+			if (!trigger?.querySelector("kbd")) {
+				setAnchor(null);
+				return;
+			}
+			const { x, bottom, width } = trigger.getBoundingClientRect();
+			setAnchor({ x, bottom, width });
+		};
+		update();
+		if (!trigger) return;
+		const observer = new ResizeObserver(update);
+		observer.observe(trigger);
+		const header = trigger.closest("header");
+		if (header) observer.observe(header);
+		return () => observer.disconnect();
+	}, [open]);
 
 	const isFirstPage = pages.length === 0;
 	const currentPage = pages[pages.length - 1];
 	const commandListPage = currentPage ?? "root";
+	const embeddedQueryPage = currentPage === "resumes" || currentPage === "applications" || currentPage === "threads";
 
 	// Toggle command palette with Cmd+K / Ctrl+K
 	useHotkeys([
@@ -103,6 +128,8 @@ export function CommandPalette() {
 
 			<DialogContent
 				instant
+				anchor={anchor}
+				finalFocus={() => document.querySelector<HTMLElement>('[data-slot="shell-search"]') ?? true}
 				className="overflow-hidden p-0"
 				aria-label={
 					isFirstPage
@@ -125,7 +152,6 @@ export function CommandPalette() {
 						comment: "Accessible label for command list region inside command palette",
 						message: "Command Palette",
 					})}
-					className="[&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-ink-3 **:[[cmdk-group]]:px-2 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3"
 				>
 					<CommandInput
 						ref={inputRef}
@@ -149,11 +175,13 @@ export function CommandPalette() {
 					/>
 
 					<CommandList key={commandListPage} data-command-page={commandListPage}>
-						<CommandEmpty>
-							<Trans comment="Empty-state message when no command palette results match the search query">
-								No commands match that search.
-							</Trans>
-						</CommandEmpty>
+						{!embeddedQueryPage && (
+							<CommandEmpty>
+								<Trans comment="Empty-state message when no command palette results match the search query">
+									No commands match that search.
+								</Trans>
+							</CommandEmpty>
+						)}
 
 						<ResumesCommandGroup />
 						<PreferencesCommandGroup />

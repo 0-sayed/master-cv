@@ -1,5 +1,6 @@
 import type { AIProvider } from "@reactive-resume/ai/types";
 import { t } from "@lingui/core/macro";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { Combobox } from "@/components/ui/combobox";
 
 export type UsableAiProvider = {
@@ -30,12 +31,14 @@ export function AiProviderPicker({ value, providers, isLoading, disabled, onValu
 	}));
 
 	return (
-		<Combobox
-			value={value}
-			options={options}
-			disabled={disabled || isLoading || options.length === 0}
-			placeholder={isLoading ? t`Loading providers…` : t`Select an AI provider`}
-			onValueChange={onValueChange}
-		/>
+		<QuerySkeleton loading={Boolean(isLoading)} shape="control" label={t`Loading providers…`}>
+			<Combobox
+				value={value}
+				options={options}
+				disabled={disabled || isLoading || options.length === 0}
+				placeholder={t`Select an AI provider`}
+				onValueChange={onValueChange}
+			/>
+		</QuerySkeleton>
 	);
 }

@@ -396,7 +396,8 @@ export function ChipInput({
 								placeholder={isEditingKeyword ? t`Editing keyword...` : t`Add a keyword...`}
 								onKeyDown={handleKeyDown}
 								onChange={handleInputChange}
-								className="h-9 flex-1 border-none p-0 focus-visible:border-none focus-visible:ring-0 dark:bg-transparent"
+								size="sm"
+								className="flex-1 border-none p-0 focus-visible:border-none focus-visible:ring-0 dark:bg-transparent"
 							/>
 							{chips.length > 0 && (
 								<span
@@ -420,11 +421,11 @@ export function ChipInput({
 				<p className="text-xs text-ink-3">
 					{allowCommas ? (
 						<Trans>
-							Press <Kbd>{RETURN_KEY}</Kbd> to add or save the current keyword.
+							Press <Kbd keys={RETURN_KEY} /> to add or save the current keyword.
 						</Trans>
 					) : (
 						<Trans>
-							Press <Kbd>{RETURN_KEY}</Kbd> or <Kbd>{COMMA_KEY}</Kbd> to add or save the current keyword.
+							Press <Kbd keys={RETURN_KEY} /> or <Kbd keys={COMMA_KEY} /> to add or save the current keyword.
 						</Trans>
 					)}
 				</p>

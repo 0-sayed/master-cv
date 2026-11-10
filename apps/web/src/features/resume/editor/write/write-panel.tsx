@@ -5,6 +5,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Alert, AlertDescription } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { Kbd } from "@reactive-resume/ui/components/kbd";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useEditorStore } from "../store";
 import { AddSectionMenu, StartSuggestions } from "./add-section";
@@ -34,6 +35,7 @@ export function WritePanel() {
 	const added = useEditorStore((state) => state.addedSections);
 	const isEmpty = useCurrentBuilderResumeSelector((resume) => getOutlineRows(resume.data, new Set(added)).length === 0);
 	const openDialog = useDialogStore((state) => state.openDialog);
+	const keys = <Kbd keys="Alt+ArrowUp/ArrowDown" />;
 
 	return (
 		<div className="grid gap-4 p-4">
@@ -43,14 +45,16 @@ export function WritePanel() {
 			<BasicsCard locked={locked} />
 
 			<div>
-				<p className="mb-1.5 flex items-baseline justify-between px-1 text-[11px] font-semibold tracking-[0.08em] text-ink-3 uppercase">
-					<Trans>Sections · print order</Trans>
+				<div className="mb-1.5 grid gap-1 px-1 type-metadata text-ink-2">
+					<p className="font-semibold">
+						<Trans>Sections · print order</Trans>
+					</p>
 					{!locked && (
-						<span className="font-normal tracking-normal normal-case">
-							<Trans>drag · ⌥↑↓</Trans>
-						</span>
+						<p data-slot="reorder-hint">
+							<Trans>Drag or press {keys} to reorder</Trans>
+						</p>
 					)}
-				</p>
+				</div>
 
 				{isEmpty && !locked ? (
 					<StartSuggestions onImport={() => openDialog("document.new", undefined)} />

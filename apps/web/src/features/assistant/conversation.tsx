@@ -14,6 +14,7 @@ import { agentWebSources, readPageOutputSchema } from "@reactive-resume/ai/tools
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
+import { Input } from "@reactive-resume/ui/components/input";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
@@ -591,12 +592,14 @@ function QuestionCard({ part, readOnly, onAnswer }: QuestionCardProps) {
 						<label htmlFor={id} className="sr-only">
 							<Trans>Answer in your own words</Trans>
 						</label>
-						<input
+						<Input
+							size="sm"
+							dir="auto"
 							id={id}
 							value={other}
 							onChange={(event) => setOther(event.target.value)}
 							placeholder={t`Or in your own words…`}
-							className="h-8 min-w-0 flex-1 rounded-md border border-line-2 bg-raised px-2 text-sm text-ink transition-[border-color,box-shadow] outline-none focus:border-accent"
+							className="min-w-0 flex-1"
 						/>
 						<Button type="submit" size="sm" disabled={!other.trim()}>
 							<Trans>Send</Trans>
@@ -741,6 +744,7 @@ export function Composer(props: ComposerProps) {
 					<Trans>Message the assistant</Trans>
 				</label>
 				<textarea
+					dir="auto"
 					id={id}
 					rows={2}
 					value={text}
@@ -770,6 +774,7 @@ export function Composer(props: ComposerProps) {
 							onClick={() => fileInput.current?.click()}
 						/>
 						<input
+							dir="auto"
 							ref={fileInput}
 							type="file"
 							multiple

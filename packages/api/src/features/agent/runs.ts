@@ -1,6 +1,7 @@
 import type { UIMessage } from "ai";
 import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { db } from "@reactive-resume/db/client";
+import { withOwnerDatabase } from "@reactive-resume/db/owner-scope";
 import * as schema from "@reactive-resume/db/schema";
 
 type AgentRunStateDb = Pick<typeof db, "update">;
@@ -204,4 +205,12 @@ export async function reapStaleAgentRunsAtBoot(database: AgentRunReaperDb = db) 
 			database,
 		);
 	}
+}
+
+/** Discover only owner identifiers; read and clear each stale run under its owner's database scope. */
+export async function reapStaleAgentRunsWithOwners() {
+	const owners = await db.execute<{ userId: string }>(
+		sql`SELECT user_id AS "userId" FROM master_cv_stale_agent_owners()`,
+	);
+	for (const { userId } of owners.rows) await withOwnerDatabase(userId, () => reapStaleAgentRunsAtBoot());
 }

@@ -29,10 +29,11 @@ export const authClient = createAuthClient({
 					reauthenticate: new URLSearchParams(window.location.search).get("reauthenticate") === "true",
 					callbackURL: new URLSearchParams(window.location.search).get("callbackURL"),
 				});
-				const search = callbackURL
-					? `?${new URLSearchParams({ callbackURL, ...(reauthenticate ? { reauthenticate: "true" } : {}) })}`
-					: "";
-				window.location.href = `/auth/verify-2fa${search}`;
+				const search = new URLSearchParams({
+					...(callbackURL ? { callbackURL } : {}),
+					...(reauthenticate ? { reauthenticate: "true" } : {}),
+				}).toString();
+				window.location.href = `/auth/verify-2fa${search ? `?${search}` : ""}`;
 			},
 		}),
 		oauthProviderClient(),

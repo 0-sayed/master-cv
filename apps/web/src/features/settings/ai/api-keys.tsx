@@ -15,11 +15,12 @@ import {
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
-import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Swap } from "@reactive-resume/ui/components/swap";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { SettingsSection } from "../section";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { authClient } from "@/libs/auth/client";
 import { getReadableErrorMessage } from "@/libs/error-message";
 import { ENTER_CLASS } from "@/libs/motion";
@@ -80,6 +81,7 @@ export function ApiKeysSection() {
 		});
 	};
 
+	const skeletonWait1 = useSkeletonLoading(isLoading);
 	return (
 		<SettingsSection
 			title={<Trans>API keys</Trans>}
@@ -93,18 +95,18 @@ export function ApiKeysSection() {
 				</Button>
 			}
 		>
-			{isLoading ? (
-				<Skeleton className="h-14 rounded-xl" />
+			{skeletonWait1.pending || isLoading ? (
+				<QuerySkeleton shape="settings" />
 			) : keys.length === 0 ? (
-				<p className="rounded-xl border border-dashed border-line-2 p-4 text-sm text-ink-2 transition-opacity duration-standard ease-enter starting:opacity-0">
+				<p className="rounded-xl border border-dashed border-line-2 p-4 type-body text-ink-2 transition-opacity duration-standard ease-enter starting:opacity-0">
 					<Trans>No keys yet.</Trans>
 				</p>
 			) : (
-				<table className="w-full overflow-hidden rounded-xl text-[13px] outline outline-line transition-opacity duration-standard ease-enter max-sm:block starting:opacity-0">
+				<table className="w-full overflow-hidden rounded-xl type-body outline outline-line transition-opacity duration-standard ease-enter max-sm:block starting:opacity-0">
 					<caption className="sr-only">
 						<Trans>API keys</Trans>
 					</caption>
-					<thead className="bg-bg text-xs text-ink-3 max-sm:hidden">
+					<thead className="bg-bg type-metadata text-ink-3 max-sm:hidden">
 						<tr className="h-9 text-start">
 							<th scope="col" className="ps-3.5 text-start font-medium">
 								<Trans>Name</Trans>
@@ -134,19 +136,19 @@ export function ApiKeysSection() {
 								<td className="ps-3.5 font-medium max-sm:w-full max-sm:ps-0">
 									{key.name || <span className="font-mono text-ink-2">{key.start}…</span>}
 								</td>
-								<td className="text-ink-2 max-sm:text-xs">
+								<td className="text-ink-2 max-sm:type-metadata">
 									<span className="sm:hidden">
 										<Trans>Created</Trans>{" "}
 									</span>
 									{shortDate(key.createdAt)}
 								</td>
-								<td className="text-ink-2 max-sm:text-xs">
+								<td className="text-ink-2 max-sm:type-metadata">
 									<span className="sm:hidden">
 										<Trans>Last used</Trans>{" "}
 									</span>
 									{key.lastRequest ? shortDate(key.lastRequest) : <Trans>Never</Trans>}
 								</td>
-								<td className="text-ink-2 max-sm:text-xs">
+								<td className="text-ink-2 max-sm:type-metadata">
 									<span className="sm:hidden">
 										<Trans>Expires</Trans>{" "}
 									</span>
@@ -226,7 +228,7 @@ function NewKeyDialog({ open, onOpenChange, onCreated }: NewKeyDialogProps) {
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange} onOpenChangeComplete={(next) => !next && reset()}>
-			<DialogContent className="sm:max-w-[500px]">
+			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>
 						<Trans>New API key</Trans>
@@ -238,14 +240,11 @@ function NewKeyDialog({ open, onOpenChange, onCreated }: NewKeyDialogProps) {
 
 				{key ? (
 					<div className={cn(ENTER_CLASS, "grid gap-3")}>
-						<p
-							role="status"
-							className="flex gap-2.5 rounded-[10px] bg-warn-soft px-3 py-2.5 text-[13px] text-warn-text"
-						>
+						<p role="status" className="flex gap-2.5 rounded-lg bg-warn-soft px-3 py-2.5 type-body text-warn-text">
 							<Icon name="key" size={20} />
 							<Trans>Copy it now. For your security, it won't be shown again.</Trans>
 						</p>
-						<div className="flex h-[42px] items-center gap-2 rounded-lg border border-line-2 bg-bg ps-3 pe-1.5 font-mono text-[13px]">
+						<div className="flex h-11 items-center gap-2 rounded-lg border border-line-2 bg-bg ps-3 pe-1.5 type-body font-mono">
 							<span className="min-w-0 flex-1 truncate">{key}</span>
 							<Button
 								size="sm"
@@ -307,14 +306,14 @@ function NewKeyDialog({ open, onOpenChange, onCreated }: NewKeyDialogProps) {
 								id={`${id}-access`}
 								value={access}
 								onChange={(event) => setAccess(event.target.value === "read" ? "read" : "full")}
-								className="h-9 rounded-lg border border-line-2 bg-bg px-3 text-sm"
+								className="h-9 rounded-lg border border-line-2 bg-bg px-3 type-body"
 							>
 								<option value="read">{t`Read only`}</option>
 								<option value="full">{t`Read, write and delete`}</option>
 							</select>
 						</div>
 						<fieldset className="grid gap-1.5">
-							<legend className="mb-1.5 text-sm font-medium">
+							<legend className="mb-1.5 type-body font-medium">
 								<Trans>Expires</Trans>
 							</legend>
 							<div className="grid grid-cols-3 gap-2">
@@ -322,7 +321,7 @@ function NewKeyDialog({ open, onOpenChange, onCreated }: NewKeyDialogProps) {
 									<label
 										key={option.label()}
 										className={cn(
-											"flex h-9 cursor-pointer items-center justify-center rounded-lg border border-line-2 text-sm font-medium transition-colors duration-quick hover:bg-hover has-focus-visible:outline-2 has-focus-visible:outline-accent",
+											"flex h-9 cursor-pointer items-center justify-center rounded-lg border border-line-2 type-body font-medium transition-colors duration-quick hover:bg-hover has-focus-visible:outline-2 has-focus-visible:outline-accent",
 											expiry === index && "border-accent bg-accent-soft text-accent-text",
 										)}
 									>
@@ -339,7 +338,7 @@ function NewKeyDialog({ open, onOpenChange, onCreated }: NewKeyDialogProps) {
 							</div>
 						</fieldset>
 						{failure && (
-							<p role="alert" className="text-sm text-danger-text">
+							<p role="alert" className="type-body text-danger-text">
 								{failure}
 							</p>
 						)}

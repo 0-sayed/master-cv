@@ -5,7 +5,7 @@ import { DialogDescription, DialogHeader, DialogTitle } from "@reactive-resume/u
 import { templates } from "@/dialogs/resume/template/data";
 import { useCurrentResume } from "@/features/resume/builder/draft";
 import { useEditorStore } from "@/features/resume/editor/store";
-import { authClient } from "@/libs/auth/client";
+import { useCurrentSession } from "@/hooks/use-current-session";
 import { formatRelativeTime, localeMap, resolveLocale } from "@/libs/locale";
 
 type RowProps = { label: ReactNode; children: ReactNode };
@@ -27,7 +27,7 @@ export function DocumentDetails() {
 	const { i18n } = useLingui();
 	const resume = useCurrentResume();
 	const pageCount = useEditorStore((state) => state.rendered.pageCount);
-	const { data: session } = authClient.useSession();
+	const session = useCurrentSession();
 	const { template, page } = resume.data.metadata;
 	const address = `${window.location.host}/${session?.user.username ?? ""}/${resume.slug}`;
 

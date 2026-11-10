@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
+import { getPool } from "@reactive-resume/db/client";
+import { assertRuntimeDatabaseRole } from "@reactive-resume/db/owner-scope";
 import { env } from "@reactive-resume/env/server";
 import { getLocalDataDirectory } from "@reactive-resume/utils/monorepo.node";
 import { verifyMigratedSchema } from "./schema-check";
@@ -93,8 +95,8 @@ async function validateLocalStoragePath() {
 
 async function reapStaleAgentRuns() {
 	try {
-		const { reapStaleAgentRunsAtBoot } = await import("@reactive-resume/api/features/agent/runs");
-		await reapStaleAgentRunsAtBoot();
+		const { reapStaleAgentRunsWithOwners } = await import("@reactive-resume/api/features/agent/runs");
+		await reapStaleAgentRunsWithOwners();
 	} catch (error) {
 		// A reap failure must not block serving traffic; stuck runs also heal lazily on access.
 		console.error("Failed to reap stale agent runs at boot", { error });
@@ -103,6 +105,7 @@ async function reapStaleAgentRuns() {
 
 export async function runStartupChecks() {
 	await runDatabaseMigrations();
+	await assertRuntimeDatabaseRole(getPool());
 	await validateLocalStoragePath();
 	await reapStaleAgentRuns();
 }

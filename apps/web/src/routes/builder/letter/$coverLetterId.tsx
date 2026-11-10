@@ -3,11 +3,14 @@ import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useBlocker } from "@tanstack/react-router";
 import { useEffect } from "react";
 import z from "zod";
+import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { LetterShell } from "./-components/letter-shell";
+import { QuerySkeleton, RouteSkeleton } from "@/components/query-skeleton";
 import { letterWordsQueryOptions } from "@/features/letters/compose";
 import { useLetterEditorStore } from "@/features/letters/store";
 import { orpc } from "@/libs/orpc/client";
+import { formatPageTitle } from "@/libs/route-titles";
 import { createNoindexFollowMeta } from "@/libs/seo";
 
 const searchSchema = z.object({
@@ -23,6 +26,7 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/builder/letter/$coverLetterId")({
 	component: RouteComponent,
+	pendingComponent: () => <RouteSkeleton shape="editor" />,
 	validateSearch: searchSchema,
 	beforeLoad: ({ context, location }) => {
 		if (!context.session) throw redirect({ to: "/auth/login", search: { callbackURL: location.href }, replace: true });
@@ -39,7 +43,7 @@ export const Route = createFileRoute("/builder/letter/$coverLetterId")({
 	},
 	head: ({ loaderData }) => ({
 		meta: loaderData
-			? [{ title: `${loaderData.name} - Reactive Resume` }, createNoindexFollowMeta()]
+			? [{ title: formatPageTitle(loaderData.name) }, createNoindexFollowMeta()]
 			: [createNoindexFollowMeta()],
 	}),
 });
@@ -91,7 +95,8 @@ function RouteComponent() {
 		[coverLetterId, queryClient],
 	);
 
-	if (!loaded) return null;
+	const skeletonWait1 = useSkeletonLoading(!loaded);
+	if (skeletonWait1.pending || !loaded) return <QuerySkeleton shape="editor" />;
 
 	return <LetterShell />;
 }

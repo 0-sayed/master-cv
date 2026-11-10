@@ -1,9 +1,77 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { env } from "@reactive-resume/env/server";
 
 const requestDatabase = new AsyncLocalStorage<{ pool: Pool; database: ReturnType<typeof drizzle> }>();
+type Database = ReturnType<typeof drizzle>;
+export type OwnerTransaction = Parameters<Parameters<Database["transaction"]>[0]>[0];
+const ownerDatabase = new AsyncLocalStorage<{
+	userId: string;
+	database: Database | OwnerTransaction;
+	transaction: boolean;
+}>();
+
+function baseDatabase() {
+	const database = requestDatabase.getStore()?.database ?? globalThis.__drizzle;
+	if (!database) throw new Error("Database is not initialized");
+	return database;
+}
+
+function checkOwner(userId: string) {
+	if (!userId || userId.length > 255) throw new Error("Invalid database owner");
+	const current = ownerDatabase.getStore();
+	if (current && current.userId !== userId) throw new Error("Cannot change database owner within an active scope");
+	return current;
+}
+
+/** One atomic unit of private work. Same-owner nesting uses the existing transaction. */
+export async function withOwnerDatabase<T>(userId: string, work: (tx: OwnerTransaction) => Promise<T>): Promise<T> {
+	return await ownerTransaction(userId, work);
+}
+
+async function ownerTransaction<T>(
+	userId: string,
+	work: (tx: OwnerTransaction) => Promise<T>,
+	config?: Parameters<Database["transaction"]>[1],
+): Promise<T> {
+	const current = checkOwner(userId);
+	if (current?.transaction) return work(current.database as OwnerTransaction);
+	return await baseDatabase().transaction(async (tx) => {
+		await tx.execute(sql`SELECT set_config('app.user_id', ${userId}, true)`);
+		return ownerDatabase.run({ userId, database: tx, transaction: true }, () => work(tx));
+	}, config);
+}
+
+/** Authenticated request scope; each standalone query gets a short transaction, never a network-call-sized one. */
+export function withDatabaseOwner<T>(userId: string, work: () => T): T {
+	if (checkOwner(userId)) return work();
+	const pool = getPool();
+	const scopedPool = new Proxy(pool, {
+		get(target, property) {
+			if (property === "query")
+				return async (...args: unknown[]) => {
+					const client = await target.connect();
+					try {
+						await client.query("BEGIN");
+						await client.query("SELECT set_config('app.user_id', $1, true)", [userId]);
+						const result = await Reflect.apply(client.query, client, args);
+						await client.query("COMMIT");
+						return result;
+					} catch (error) {
+						await client.query("ROLLBACK");
+						throw error;
+					} finally {
+						client.release();
+					}
+				};
+			const value: unknown = Reflect.get(target, property, target);
+			return typeof value === "function" ? value.bind(target) : value;
+		},
+	});
+	return ownerDatabase.run({ userId, database: drizzle({ client: scopedPool }), transaction: false }, work);
+}
 
 declare global {
 	var __pool: Pool | undefined;
@@ -56,7 +124,12 @@ export function withDatabasePool<T>(pool: Pool, callback: () => T): T {
 
 export const db = new Proxy(globalThis.__drizzle, {
 	get(target, property) {
-		const database = requestDatabase.getStore()?.database ?? target;
+		const owner = ownerDatabase.getStore();
+		if (owner && !owner.transaction && property === "transaction") {
+			return (work: (tx: OwnerTransaction) => Promise<unknown>, config?: Parameters<Database["transaction"]>[1]) =>
+				ownerTransaction(owner.userId, work, config);
+		}
+		const database = owner?.database ?? requestDatabase.getStore()?.database ?? target;
 		const value = Reflect.get(database, property, database) as unknown;
 		return typeof value === "function" ? value.bind(database) : value;
 	},

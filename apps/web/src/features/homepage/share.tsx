@@ -9,7 +9,7 @@ import { SCENE, useLanding } from "./scroll";
 import { Sheet } from "./sheet";
 import { Doodle, labelClass, TypedText } from "./ui";
 
-const ADDRESS = "rxresu.me/alex-morgan";
+const ADDRESS = "/alex-morgan";
 const SLUG_START = ADDRESS.indexOf("/") + 1;
 
 /**

@@ -4,9 +4,10 @@ import * as pg from "drizzle-orm/pg-core";
 import { generateId } from "@reactive-resume/utils/string";
 import { application } from "./applications";
 import { user } from "./auth";
+import { ownerPolicy } from "./ownership";
 import { resume } from "./resume";
 
-export const coverLetter = pg.pgTable(
+export const coverLetter = pg.pgTable.withRLS(
 	"cover_letter",
 	{
 		id: pg
@@ -46,7 +47,7 @@ export const coverLetter = pg.pgTable(
 			.defaultNow()
 			.$onUpdate(() => new Date()),
 	},
-	(table) => [pg.index().on(table.userId, table.updatedAt.desc(), table.id.desc())],
+	(table) => [ownerPolicy(table.userId), pg.index().on(table.userId, table.updatedAt.desc(), table.id.desc())],
 );
 
 export const COVER_LETTER_VERSION_KINDS = ["created", "auto", "named", "before-restore", "restored", "sent"] as const;
@@ -67,7 +68,7 @@ export type CoverLetterVersionData = {
 	letterDate: string | null;
 };
 
-export const coverLetterVersion = pg.pgTable(
+export const coverLetterVersion = pg.pgTable.withRLS(
 	"cover_letter_version",
 	{
 		id: pg
@@ -92,6 +93,7 @@ export const coverLetterVersion = pg.pgTable(
 		createdAt: pg.timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 	},
 	(t) => [
+		ownerPolicy(t.userId),
 		pg.index().on(t.coverLetterId, t.createdAt.desc()),
 		pg
 			.uniqueIndex("cover_letter_version_session_unique")

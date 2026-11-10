@@ -12,6 +12,7 @@ import { create } from "zustand/react";
 import { syncResumeDates } from "@reactive-resume/schema/resume/dates";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { generateId } from "@reactive-resume/utils/string";
+import { storageKey as registeredStorageKey, browserStorage, onPersonalStorageCleared } from "@/libs/browser-storage";
 import { orpc, streamClient } from "@/libs/orpc/client";
 
 export type Resume = {
@@ -118,7 +119,7 @@ const HISTORY_COALESCE_MS = 500;
 const FIELD_COALESCE_MS = 1000;
 // Bounded stacks. Entries are shared-structure references, so 200 steps stay cheap.
 const MAX_HISTORY_ENTRIES = 200;
-const UNSAVED_STORAGE_PREFIX = "reactive-resume:unsaved:";
+
 const runtimes = new Map<string, Runtime>();
 
 // Coalescing bookkeeping. Not reactive — only decides whether the next edit opens a new undo step.
@@ -145,8 +146,8 @@ function shouldCoalesceEdit(
 // Unsaved changes survive a reload or a closed tab: they're kept on this device until a save succeeds.
 function storeUnsavedResume(resume: Resume) {
 	try {
-		window.localStorage.setItem(
-			`${UNSAVED_STORAGE_PREFIX}${resume.id}`,
+		browserStorage.local.setItem(
+			registeredStorageKey("resumeBackup", resume.id),
 			JSON.stringify({ data: resume.data, storedAt: Date.now() }),
 		);
 	} catch {
@@ -156,7 +157,7 @@ function storeUnsavedResume(resume: Resume) {
 
 function clearUnsavedResume(id: string) {
 	try {
-		window.localStorage.removeItem(`${UNSAVED_STORAGE_PREFIX}${id}`);
+		browserStorage.local.removeItem(registeredStorageKey("resumeBackup", id));
 	} catch {
 		// Nothing to clear.
 	}
@@ -164,7 +165,7 @@ function clearUnsavedResume(id: string) {
 
 export function readUnsavedResumeData(id: string): ResumeData | undefined {
 	try {
-		const raw = window.localStorage.getItem(`${UNSAVED_STORAGE_PREFIX}${id}`);
+		const raw = browserStorage.local.getItem(registeredStorageKey("resumeBackup", id));
 		if (!raw) return undefined;
 		const parsed = JSON.parse(raw) as { data?: ResumeData };
 		return parsed.data;
@@ -264,6 +265,7 @@ async function flushResumeSave(id: string) {
 			{ signal: runtime.abortController.signal },
 		)) as Resume;
 
+		if (runtime.abortController.signal.aborted) return;
 		runtime.queryClient?.setQueryData(getResumeQueryKey(submitted.id), updated);
 
 		const currentResume = useResumeStore.getState().resume;
@@ -292,7 +294,8 @@ async function flushResumeSave(id: string) {
 		runtime.saveFailed = false;
 		if (!runtime.pendingResume && !runtime.hasPendingLocalChanges) clearUnsavedResume(submitted.id);
 	} catch (error: unknown) {
-		if (error instanceof DOMException && error.name === "AbortError") return;
+		if (runtime.abortController.signal.aborted || (error instanceof DOMException && error.name === "AbortError"))
+			return;
 
 		runtime.pendingResume ??= submitted;
 		runtime.hasPendingLocalChanges = true;
@@ -306,7 +309,8 @@ async function flushResumeSave(id: string) {
 			runtime.slowSaveToastId = undefined;
 		}
 		runtime.isSaving = false;
-		if (runtime.pendingResume && !runtime.saveFailed) void flushResumeSave(id);
+		if (!runtime.abortController.signal.aborted && runtime.pendingResume && !runtime.saveFailed)
+			void flushResumeSave(id);
 	}
 }
 
@@ -368,11 +372,11 @@ function hasPendingLocalChanges(id: string): boolean {
 	return getRuntime(id).hasPendingLocalChanges;
 }
 
-function cleanupRuntime(id: string) {
+function cleanupRuntime(id: string, disposition: "flush" | "discard" = "flush") {
 	const runtime = runtimes.get(id);
 	if (!runtime) return;
 
-	runtime.syncResume.flush();
+	if (disposition === "flush") runtime.syncResume.flush();
 	runtime.abortController.abort();
 
 	if (runtime.beforeUnloadHandler) {
@@ -858,3 +862,8 @@ export function useResumeCleanup() {
 		};
 	}, [resumeId, reset]);
 }
+
+onPersonalStorageCleared(() => {
+	for (const id of runtimes.keys()) cleanupRuntime(id, "discard");
+	useResumeStore.getState().reset();
+});

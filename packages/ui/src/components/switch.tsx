@@ -62,15 +62,12 @@ function SwitchRow({ className, label, description, size = "default", ...props }
 			{...props}
 		>
 			<span className="flex min-w-0 flex-col gap-0.5">
-				<span id={labelId} className="text-sm text-ink group-data-disabled/switch:text-ink-3">
+				<span id={labelId} className="type-body text-ink group-data-disabled/switch:text-ink-3">
 					{label}
 				</span>
 				{description && (
 					// A checked row may sit on the accent tint, where ink-3 falls short of 4.5:1; ink-2 keeps it readable.
-					<span
-						id={descriptionId}
-						className="text-[13px] leading-[18px] text-ink-3 group-data-checked/switch:text-ink-2"
-					>
+					<span id={descriptionId} className="type-body text-ink-3 group-data-checked/switch:text-ink-2">
 						{description}
 					</span>
 				)}

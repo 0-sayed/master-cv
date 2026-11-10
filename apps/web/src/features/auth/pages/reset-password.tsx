@@ -1,108 +1,95 @@
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
-import { useSelector } from "@tanstack/react-form";
-import { useNavigate } from "@tanstack/react-router";
-import z from "zod";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
-import { FormControl, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
-import { toast } from "@reactive-resume/ui/components/toast";
+import { AuthErrorSummary } from "../components/auth-error-summary";
+import { AuthHeading } from "../components/auth-heading";
+import { useAuthCopy } from "../copy.generated";
+import { authErrorMessage } from "../errors";
 import { PasswordInput } from "@/components/input/password-input";
 import { authClient } from "@/libs/auth/client";
-import { useAppForm } from "@/libs/tanstack-form";
 
-const formSchema = z.object({
-	password: z.string().min(8).max(64),
-});
-
-type Props = {
-	token: string;
-};
-
-export function ResetPasswordPage({ token }: Props) {
+export function ResetPasswordPage({ token }: { token: string }) {
+	const copy = useAuthCopy();
 	const navigate = useNavigate();
-
-	const form = useAppForm({
-		defaultValues: { password: "" },
-		validators: { onSubmit: formSchema },
-		onSubmit: async ({ value }) => {
-			const toastId = toast.add({ type: "loading", description: t`Resetting your password...` });
-
-			const { error } = await authClient.resetPassword({ token, newPassword: value.password });
-
-			if (error) {
-				toast.add({
-					type: "error",
-					description:
-						error.message ||
-						t({
-							comment: "Fallback toast when resetting password fails and no backend message is available",
-							message: "Failed to reset your password. Please try again.",
-						}),
-					id: toastId,
-				});
+	const router = useRouter();
+	const queryClient = useQueryClient();
+	const [password, setPassword] = useState("");
+	const [confirmation, setConfirmation] = useState("");
+	const [pending, setPending] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [invalid, setInvalid] = useState(false);
+	async function submit(event: React.FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		setError(null);
+		if (password !== confirmation) {
+			setError(t`Passwords do not match.`);
+			return;
+		}
+		setPending(true);
+		try {
+			const result = await authClient.resetPassword({ token, newPassword: password });
+			if (result.error) {
+				setError(authErrorMessage(result.error.code));
+				if (result.error.code === "INVALID_TOKEN" || result.error.code === "TOKEN_EXPIRED") setInvalid(true);
 				return;
 			}
-
-			toast.add({
-				type: "success",
-				description: t`Your password has been reset. You can now sign in with your new password.`,
-				id: toastId,
-			});
-
-			void navigate({ to: "/auth/login" });
-		},
-	});
-
-	const isSubmitting = useSelector(form.store, (state) => state.isSubmitting);
-
+			queryClient.clear();
+			await router.invalidate();
+			await navigate({ to: "/auth/login", search: { reason: "passwordChanged" }, replace: true });
+		} catch {
+			setError(authErrorMessage(undefined));
+		} finally {
+			setPending(false);
+		}
+	}
 	return (
 		<>
-			<div className="space-y-1 text-center">
-				<h1 className="text-2xl font-semibold tracking-tight">
-					<Trans>Reset your password</Trans>
-				</h1>
-
-				<div className="text-ink-3">
-					<Trans>Enter a new password for your account</Trans>
-				</div>
+			<div className="space-y-1">
+				<AuthHeading>{copy("auth.password.newLabel")}</AuthHeading>
+				<p className="type-body text-ink-2">{copy("auth.password.newHint")}</p>
 			</div>
-
-			<form
-				className="space-y-6"
-				onSubmit={(event) => {
-					event.preventDefault();
-					event.stopPropagation();
-					void form.handleSubmit();
-				}}
-			>
-				<form.Field name="password">
-					{(field) => (
-						<FormItem hasError={field.state.meta.isTouched && field.state.meta.errors.length > 0}>
-							<FormLabel>
-								<Trans comment="Label for new password input on reset-password form">New Password</Trans>
-							</FormLabel>
-							<FormControl
-								render={
-									<PasswordInput
-										minLength={8}
-										maxLength={64}
-										autoComplete="new-password"
-										name={field.name}
-										value={field.state.value}
-										onBlur={field.handleBlur}
-										onChange={(event) => field.handleChange(event.target.value)}
-									/>
-								}
-							/>
-							<FormMessage errors={field.state.meta.errors} />
-						</FormItem>
-					)}
-				</form.Field>
-
-				<Button type="submit" className="w-full" disabled={isSubmitting}>
-					<Trans comment="Primary action button label on reset-password form">Reset Password</Trans>
-				</Button>
-			</form>
+			<AuthErrorSummary message={error} field={invalid ? undefined : "confirm-password"} />
+			{invalid ? (
+				<Link to="/auth/forgot-password" className="text-accent-text underline">
+					{copy("auth.reset.sendLink")}
+				</Link>
+			) : (
+				<form className="grid gap-5" onSubmit={submit}>
+					<label className="grid gap-1.5 type-label">
+						{copy("auth.password.newLabel")}
+						<PasswordInput
+							embedded
+							name="password"
+							autoComplete="new-password"
+							required
+							minLength={8}
+							maxLength={64}
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+						/>
+						<span className="type-metadata font-normal text-ink-3">{copy("auth.password.requirementsHint")}</span>
+					</label>
+					<label className="grid gap-1.5 type-label">
+						{copy("auth.password.confirmLabel")}
+						<PasswordInput
+							embedded
+							id="confirm-password"
+							name="confirmation"
+							autoComplete="new-password"
+							required
+							minLength={8}
+							maxLength={64}
+							value={confirmation}
+							onChange={(e) => setConfirmation(e.target.value)}
+						/>
+					</label>
+					<Button type="submit" loading={pending} size="lg">
+						{copy("auth.password.save")}
+					</Button>
+				</form>
+			)}
 		</>
 	);
 }

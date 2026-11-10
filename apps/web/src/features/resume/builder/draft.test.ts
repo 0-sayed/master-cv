@@ -1,6 +1,5 @@
-// @vitest-environment happy-dom
-
 import type { Resume } from "./draft";
+// @vitest-environment happy-dom
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, assert, beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -16,6 +15,7 @@ import {
 	useResumeStore,
 	useResumeUpdateSubscription,
 } from "./draft";
+import { clearPersonalStorage } from "@/libs/browser-storage";
 
 const orpcMocks = vi.hoisted(() => ({
 	getResumeById: vi.fn(),
@@ -337,6 +337,27 @@ describe("builder resume autosave", () => {
 			sessionId: expect.any(String),
 		});
 		expect(orpcMocks.patchResume).not.toHaveBeenCalled();
+	});
+
+	it("does not recreate a personal backup when an old save fails after sign-out", async () => {
+		const initial = makeResume("signed-out-private");
+		useResumeStore.getState().initialize(initial);
+		let reject!: (error: Error) => void;
+		orpcMocks.updateResume.mockImplementationOnce(
+			() =>
+				new Promise((_resolve, fail) => {
+					reject = fail;
+				}),
+		);
+		useResumeStore.getState().updateResumeData((draft) => {
+			draft.basics.name = "Private old owner";
+		});
+		await vi.advanceTimersByTimeAsync(500);
+		clearPersonalStorage();
+		reject(new Error("late network failure"));
+		await flushMicrotasks();
+		expect(readUnsavedResumeData(initial.id)).toBeUndefined();
+		expect(useResumeStore.getState().resume).toBeNull();
 	});
 
 	it("reports offline, keeps the draft on this device and sends it when the connection returns", async () => {
