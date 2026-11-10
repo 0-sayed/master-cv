@@ -95,3 +95,30 @@ describe("loadRootContext", () => {
 		await expect(loadRootContext(queryClient)).rejects.toThrow("Session check failed with status 500");
 	});
 });
+
+it("concurrent hover and navigation accept the same new identity without a router error", async () => {
+	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const session = { user: { id: "concurrent-sign-in", uiLocale: "en-US" }, session: { id: "new-session" } };
+	getSessionMock.mockResolvedValue(session);
+	const results = await Promise.all([loadRootContext(client), loadRootContext(client)]);
+	expect(results.map((context) => context.session)).toEqual([session, session]);
+});
+
+it("re-reads a cancelled generation without exposing the previous owner or a route error", async () => {
+	const { authIdentity } = await import("./auth/identity");
+	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const next = { user: { id: "current-owner" }, session: { id: "current-session" } };
+	let resolve!: (value: typeof next) => void;
+	getSessionMock
+		.mockImplementationOnce(
+			() =>
+				new Promise((accept) => {
+					resolve = accept;
+				}),
+		)
+		.mockResolvedValue(next);
+	const pending = loadRootContext(client);
+	authIdentity(client).check();
+	resolve({ user: { id: "obsolete-owner" }, session: { id: "obsolete-session" } });
+	await expect(pending).resolves.toMatchObject({ session: next });
+});

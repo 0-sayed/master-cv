@@ -20,11 +20,13 @@ export function IdentityBoundary({ queryClient, session, children }: IdentityBou
 	const liveOwner = live.data?.user.id ?? null;
 	const mismatched = !live.isPending && !live.error && liveOwner !== routeOwner;
 	useEffect(() => {
-		if (!mismatched) return;
+		// A current reconciliation (or its confirmed result awaiting router commit) must finish.
+		// Rechecking on every pending→resolved toggle cancels that very loader and loops forever.
+		if (!mismatched || state.status !== "confirmed" || (state.session?.user.id ?? null) === liveOwner) return;
 		identity.check();
 		// An expired RPC may update the router before Better Auth observes the cookie change.
 		void refetch().finally(() => router.invalidate());
-	}, [mismatched, identity, router, refetch]);
+	}, [mismatched, state, liveOwner, identity, router, refetch]);
 	useEffect(
 		() =>
 			getGlobalBroadcastChannel().subscribe(() => {

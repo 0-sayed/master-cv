@@ -11,6 +11,7 @@ export function LoadingScreen() {
 
 	return (
 		<div
+			data-slot="loading-screen"
 			className={cn(
 				"fixed inset-0 z-50 flex h-svh w-svw flex-col items-center justify-center gap-y-6 bg-bg",
 				hasNavigated && "transition-opacity duration-standard ease-enter starting:opacity-0",

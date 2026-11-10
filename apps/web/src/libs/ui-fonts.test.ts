@@ -27,6 +27,10 @@ it("waits for all real Arabic weights before completing", async () => {
 		'400 16px "Noto Sans Arabic"',
 		'500 16px "Noto Sans Arabic"',
 		'600 16px "Noto Sans Arabic"',
+		'400 16px "Noto Sans"',
+		'500 16px "Noto Sans"',
+		'600 16px "Noto Sans"',
+		'500 32px "Noto Serif"',
 	]);
 	release();
 	await loading;

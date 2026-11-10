@@ -1,14 +1,13 @@
 import type { UiLocale } from "@reactive-resume/utils/locale";
 
 /** Await the actual UI faces before the first render or a script switch. CV fonts are independent. */
-export async function loadUiFonts(locale: UiLocale) {
-	const faces =
-		locale === "ar-SA"
-			? [400, 500, 600].map((weight) => document.fonts.load(`${weight} 16px "Noto Sans Arabic"`, "المعلومات المهنية"))
-			: [
-					...[400, 500, 600].map((weight) => document.fonts.load(`${weight} 16px "Noto Sans"`, "Career information")),
-					document.fonts.load('500 32px "Noto Serif"', "Career information"),
-				];
+export async function loadUiFonts(_locale: UiLocale) {
+	// Both scripts occur in either UI: brand names, account names and user-owned titles stay untranslated.
+	const faces = [
+		...[400, 500, 600].map((weight) => document.fonts.load(`${weight} 16px "Noto Sans Arabic"`, "المعلومات المهنية")),
+		...[400, 500, 600].map((weight) => document.fonts.load(`${weight} 16px "Noto Sans"`, "Career information")),
+		document.fonts.load('500 32px "Noto Serif"', "Career information"),
+	];
 	try {
 		await Promise.all(faces);
 	} catch {

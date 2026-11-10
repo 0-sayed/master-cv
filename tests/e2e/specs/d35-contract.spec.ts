@@ -215,3 +215,26 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			await expect(page.getByRole("alert").getByRole("link")).toHaveCount(0);
 			await expect(page.getByRole("alert")).not.toContainText("private server detail");
 		});
+
+test("provider discovery never adds an unrelated workspace status to the login notice", async ({ page }) => {
+	let release!: () => void;
+	const pending = new Promise<void>((resolve) => {
+		release = resolve;
+	});
+	await page.route("**/api/rpc/auth/providers/list**", async (route) => {
+		const response = await route.fetch();
+		await pending;
+		await route.fulfill({ response });
+	});
+	try {
+		await page.goto("/auth/login?reason=sessionExpired");
+		await expect(page.getByRole("heading", { name: "Sign in", exact: true })).toBeVisible();
+		// Exercise the shared skeleton's 200ms delay while provider discovery is still pending.
+		await page.clock.install();
+		await page.clock.runFor(400);
+		await expect(page.getByRole("status")).toHaveCount(1);
+		await expect(page.locator('[data-slot="skeleton-region"]')).toHaveCount(0);
+	} finally {
+		release();
+	}
+});

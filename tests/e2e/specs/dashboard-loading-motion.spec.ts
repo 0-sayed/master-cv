@@ -25,10 +25,13 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				data: { company: "Synthetic loading fixture", role: "Engineer", status: "saved" },
 			}),
 		).toBeOK();
+		let responses = Promise.resolve();
+		let releaseResponses = () => {};
 		await page.route(/\/api\/rpc(?:\/|\?|$)/u, async (route) => {
+			const pending = responses;
 			const response = await route.fetch();
-			// A real successful response under controlled network latency, not a fabricated loading state.
-			await new Promise((resolve) => setTimeout(resolve, 600));
+			// Root auth/flags/onboarding must resolve before the page's query can start.
+			if (!/\/(?:flags\/get|career\/personalWorkspace\/state)(?:\/|\?|$)/u.test(route.request().url())) await pending;
 			await route.fulfill({ response });
 		});
 		await page.addInitScript(() => {
@@ -65,7 +68,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				if (boxes.title)
 					frames.push({
 						loading: !!document.querySelector(
-							'[data-slot="skeleton"]:not([data-slot="context-menu-trigger"] [data-slot="skeleton"])',
+							'main [data-slot="skeleton-region"] [data-visible="true"] [data-slot="skeleton"]',
 						),
 						boxes,
 					});
@@ -80,13 +83,16 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		for (const width of [1440, 1920]) {
 			await page.setViewportSize({ width, height: 900 });
 			for (const route of ["/dashboard", "/dashboard/career/information", "/dashboard/applications"]) {
-				await page.goto(route);
-				await expect(
-					page.locator('[data-slot="skeleton"]:not([data-slot="context-menu-trigger"] [data-slot="skeleton"])').first(),
-				).toBeVisible();
-				await expect(
-					page.locator('[data-slot="skeleton"]:not([data-slot="context-menu-trigger"] [data-slot="skeleton"])'),
-				).toHaveCount(0);
+				responses = new Promise<void>((resolve) => {
+					releaseResponses = resolve;
+				});
+				try {
+					await page.goto(route);
+					await expect(page.locator('main [data-slot="skeleton-region"] [data-visible="true"]').first()).toBeVisible();
+				} finally {
+					releaseResponses();
+				}
+				await expect(page.locator('main [data-slot="skeleton-region"]')).toHaveCount(0);
 				await settleScreen(page);
 				const frames = await page.evaluate(() => (globalThis as LoadingWindow).stopLoadingFrames());
 				expect(

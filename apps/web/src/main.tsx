@@ -1,3 +1,5 @@
+import { i18n } from "@lingui/core";
+import { I18nProvider } from "@lingui/react";
 import { RouterProvider } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 import { followReducedMotion } from "./libs/motion";
@@ -21,4 +23,9 @@ document.head.querySelectorAll('title, meta[name="description"], meta[name="robo
 // for the route to load; otherwise the prerendered page would give way to a loading screen before coming back.
 if (rootElement.hasChildNodes()) await router.load();
 
-ReactDOM.createRoot(rootElement).render(<RouterProvider router={router} />);
+// Root pending/error/not-found screens can render before the root route's own providers.
+ReactDOM.createRoot(rootElement).render(
+	<I18nProvider i18n={i18n}>
+		<RouterProvider router={router} />
+	</I18nProvider>,
+);

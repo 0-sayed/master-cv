@@ -6,11 +6,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { Skeleton, useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { getAuthRedirectOptions, getOAuthPasskeyOptions, getOAuthSignInOptions, isOAuthRedirect } from "../redirect";
-import { QuerySkeleton } from "@/components/query-skeleton";
 import { authClient } from "@/libs/auth/client";
 import { ENTER_CLASS } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
@@ -18,8 +16,8 @@ import { sessionQueryKey } from "@/libs/root-context";
 
 export function SocialAuth() {
 	const { data: providers = {}, isLoading } = useQuery(orpc.auth.providers.list.queryOptions());
-	const loading = useSkeletonLoading(isLoading);
-	if (!loading.pending && Object.keys(providers).length === 0) return null;
+	// Available providers have no known shape before discovery. Do not invent workspace-loading content in auth.
+	if (isLoading || Object.keys(providers).length === 0) return null;
 
 	return (
 		<>
@@ -33,20 +31,8 @@ export function SocialAuth() {
 				<hr className="flex-1" />
 			</div>
 
-			{loading.pending ? (
-				<QuerySkeleton fallback={<SocialAuthSkeleton />} />
-			) : (
-				<SocialAuthButtons providers={providers} />
-			)}
+			<SocialAuthButtons providers={providers} />
 		</>
-	);
-}
-
-function SocialAuthSkeleton() {
-	return (
-		<div className="grid grid-cols-1 gap-4">
-			<Skeleton className="h-11 w-full" />
-		</div>
 	);
 }
 
