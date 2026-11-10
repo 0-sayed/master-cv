@@ -16,9 +16,7 @@ function workspaceRoot() {
 
 /** Verify executable AND linked Poppler library, independent of PATH and version banners. */
 export async function verifiedPoppler(executable?: string) {
-	const root = resolve(
-		process.env.DOCUMENT_TOOLCHAIN_DIRECTORY ?? join(workspaceRoot(), ".superpowers/document-toolchain"),
-	);
+	const root = resolve(process.env.DOCUMENT_TOOLCHAIN_DIRECTORY ?? join(workspaceRoot(), ".cache/document-toolchain"));
 	const binaryPath = executable ?? join(root, "usr/bin/pdftotext");
 	const libraryDirectory = join(root, "usr/lib/x86_64-linux-gnu");
 	const artifacts = [
