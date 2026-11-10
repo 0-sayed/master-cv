@@ -27,13 +27,19 @@ const server = createServer((socket) => {
 				}
 				data = false;
 				const key = createHash("sha256").update(recipient.toLowerCase()).digest("hex");
-				await writeFile(
-					resolve(directory, `${key}-${Date.now()}-${randomUUID()}.json`),
-					JSON.stringify({ recipient, raw, at: Date.now() }),
-					{ mode: 0o600 },
-				);
-				raw = "";
-				socket.write("250 captured\r\n");
+				try {
+					await mkdir(directory, { recursive: true, mode: 0o700 });
+					await writeFile(
+						resolve(directory, `${key}-${Date.now()}-${randomUUID()}.json`),
+						JSON.stringify({ recipient, raw, at: Date.now() }),
+						{ mode: 0o600 },
+					);
+					socket.write("250 captured\r\n");
+				} catch {
+					socket.write("451 Temporary capture failure; try again\r\n");
+				} finally {
+					raw = "";
+				}
 				continue;
 			}
 			if (login) {
