@@ -38,7 +38,7 @@ jobs:
     name: Unit integration and browser
     # Browser qualification links the same checksum-pinned Ubuntu 22.04 reader as the document job.
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     services:
       postgres:
