@@ -15,6 +15,7 @@
 				"src/features/licences/generate.cjs",
 				"src/draft/index.ts",
 				"src/features/applications/stages.ts",
+				"src/features/ats-checker/checker.tsx",
 				"src/features/assistant/chat-view.tsx",
 				"src/features/workspace/hooks.ts",
 				"src/features/write/{fields,rich-text}.ts",

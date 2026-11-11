@@ -78,7 +78,7 @@ it.each([
 	[
 		"Design",
 		(data: ResumeData) => {
-			data.metadata.design.colors.primary = "rgba(0, 0, 0, 1)";
+			data.metadata.design.colors.primary = data.metadata.design.colors.background;
 		},
 	],
 	[
@@ -104,7 +104,10 @@ it.each([
 	[
 		"Custom Styles",
 		(data: ResumeData) => {
-			data.metadata.stylesheet = { mode: "semantic", source: { languageVersion: 1, text: ".resume { color: red; }" } };
+			data.metadata.stylesheet = {
+				mode: "semantic",
+				source: { languageVersion: 1, text: ".resume { font-weight: bold; }" },
+			};
 		},
 	],
 	[

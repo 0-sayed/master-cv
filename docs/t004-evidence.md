@@ -1,6 +1,6 @@
 # T004 CV workspace implementation evidence
 
-2026-11-11. Source: uncommitted worktree on `feat/t004-cv-workspace`, based on `5c3eea1b8`. No commit, push, deployment, real CV processing or task-status update is authorized. This file records engineering evidence; it does not close approval gates.
+Initial implementation snapshot: 2026-11-11, uncommitted worktree on `feat/t004-cv-workspace`, based on `5c3eea1b8`. The owner subsequently authorized commits, pushing and PR review on 2026-11-11; the initial restrictions recorded below describe their historical lane snapshots. Deployment and real CV processing remain gated. This file records engineering evidence; it does not close approval gates.
 
 ## Contract and design coverage
 
@@ -277,3 +277,28 @@ Live Figma renders inspected: S07 [desktop 28:875](https://www.figma.com/design/
 Twelve browser captures were visually inspected separately from functional assertions: import experience, empty Check and document timestamp, each in AR/EN at 1440/390. Information starts align with the shared shell, desktop panes mirror direction, source metadata is muted, one date range is visible, Not checked replaces false failure, timestamps occupy their own row, and changed screens show no observed horizontal overflow. No new dialogs were introduced. Captures, five Figma renders and final validation logs are preserved in `/mnt/storage/master-cv-design-archive/ui-audit/followups/owner-fix-evidence/`.
 
 The browser PDF fixture is synthetic and uses line-level text runs. The existing per-glyph native fixture did not expose page-source tags during the initial browser attempt; that adjacent extraction/source-association limitation was not changed. These checks do not qualify every PDF layout or close A01/A04/A13. Unrelated worktree edits and both protected Superpowers directories were left untouched.
+
+## PR #14 — review round 1 (2026-11-11)
+
+The owner authorized committing, pushing and reviewing T004 without merging. T003 was marked complete with its Mermaid class synchronized; T004 remains unchecked until merge. The final pre-review tree passed `pnpm validate:static` and `pnpm test:ci` once. After review edits, only the affected checks below were rerun.
+
+Twenty-eight valid review findings were fixed. Native standalone checking is gated because the shared endpoint now requires an owned current CV artifact. Import preserves plain factual descriptions, only attributes a unique source page, requires complete partial-file review and guards creation/reuse retries. Recovery remains visible on mobile, comparisons include all saved data, and stale or locked font acceptance cannot report success. Preview callbacks match the requested render; Fit retains Undo after a timeout; letter fonts follow the letter's own content; History navigation waits for preparation. Readiness contains synchronous errors, extracted-text navigation closes the tablet drawer, entry hover reveals reorder handles, signed downloads retain artifact/revision headers, and startup preserves private-shell `noindex`. Guides and the validation example were reconciled with these behaviors and D36.
+
+Five suggestions were dismissed: expanding launch copy to 53 additional interface locales is outside D25/D34; notes/direct print launchers were intentionally removed from T004's mapped editor; disabled assistant actions are already absent from the active panels; and changing the marketing animation was a cosmetic preference without a demonstrated defect.
+
+Functional verification after fixes:
+
+- Targeted import units: 44 passed; review/start/reuse components: 33 passed.
+- Recovery/store/comparison units: 58 passed; a retry mutation proved that the flow-ID assertion fails when retries regenerate it.
+- Preview/Fit/letter/History units: 16 passed.
+- Readiness/check/startup units: 11 passed; signed-download handler: 3 passed; native route gate: 1 passed.
+- Changed-file formatting/lint, import/web/server/mobile type checks and whitespace checks passed.
+- Fresh production build and five recovery/conflict/history/master-reuse/reorder browser journeys passed (17.2s).
+
+CI's first head and its failed-job retry stopped before executing application or document cases: Ubuntu archive host resolution failed during checksum-pinned reader installation. This is infrastructure evidence, not a failed document score or a reason to weaken qualification. Full browser and document results remain authoritative on the PR. A01/A04, A13, legal destinations and the hidden OAuth/passkey options remain open/gated.
+
+The visual browser suite exposed an obsolete assertion: its name-only synthetic CV still expected a checked PDF hash after the approved empty/name-only predicate was introduced. The fixture now asserts Not checked in the PDF-readability region and no artifact hash, preserving that behavior rather than forcing PDF checks on empty CVs. The first run passed all four font cases and three import cases before reaching this stale visual expectation.
+
+The corrected AR/EN visual cases passed **4/4** at 1440/390 (23.4s); the parent inspected all four Check captures and AR desktop/EN mobile font-preview captures. The four font and three import journeys passed unchanged, yielding **16 distinct passing scoped browser cases** across the two runs and corrected visual rerun. Artifacts: `/tmp/master-cv-ci-browser-vUl9Ud/browser` (font/import) and `/tmp/master-cv-ci-browser-g0RWK5/browser` (corrected visual). These are engineering captures, not document qualification or full state coverage.
+
+The token audit rejected two raw colors in the new synthetic comparison test; the fixture now reuses its document background color and changes font weight instead. The 15 comparison tests and token audit pass. Knip identified the deliberately retained native standalone checker after its route was gated; its entry is now listed beside other retained gated feature entries, matching the existing web convention. Knip passes; the native route remains redirected. No production dependency or release gate was changed.

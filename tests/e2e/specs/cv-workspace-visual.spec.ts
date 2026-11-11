@@ -58,7 +58,9 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 			if (width === 1440) await page.getByRole("tab", { name: /^(Check|فحص|مراجعة)/u }).click();
 			else await page.getByRole("button", { name: /^(Check|فحص|مراجعة)/u }).click();
-			await expect(page.locator("[data-pdf-bytes-hash]")).toBeVisible({ timeout: 60000 });
+			const pdfReadiness = page.getByRole("region", { name: ar ? "قابلية قراءة PDF" : "PDF readability", exact: true });
+			await expect(pdfReadiness.getByRole("status")).toHaveText(ar ? "لم يُفحص" : "Not checked");
+			await expect(page.locator("[data-pdf-bytes-hash]")).toHaveCount(0);
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("check.png") });
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
