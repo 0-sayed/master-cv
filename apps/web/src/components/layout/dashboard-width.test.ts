@@ -9,9 +9,9 @@ describe("dashboard page types", () => {
 		},
 	);
 	it.each(["/settings", "/settings/account", "/settings/preferences"])(
-		"keeps %s narrow including redirects",
+		"expands %s settings including redirects",
 		(suffix) => {
-			expect(dashboardWidth(`/dashboard${suffix}`)).toBe("narrow");
+			expect(dashboardWidth(`/dashboard${suffix}`)).toBe("wide");
 		},
 	);
 	it("keeps welcome a form", () => expect(dashboardWidth("/dashboard/welcome")).toBe("form"));

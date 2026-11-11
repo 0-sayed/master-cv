@@ -102,7 +102,6 @@
 	--dashboard-content-width: 1120px;
 	--dashboard-wide-width: 1360px;
 	--dashboard-form-width: 640px;
-	--dashboard-narrow-width: 720px;
 	--header-search-width: calc(var(--space-32) * 20);
 	--header-side-width: calc(var(--space-32) * 4);
 	/* Retain Reactive Resume's bounded dashboard board/skeleton scrolling contract. */
@@ -396,9 +395,6 @@
 	margin-inline-end: auto;
 	&[data-width="form"] {
 		max-width: var(--dashboard-form-width);
-	}
-	&[data-width="narrow"] {
-		max-width: var(--dashboard-narrow-width);
 	}
 	&[data-align="center"] {
 		margin-inline: auto;

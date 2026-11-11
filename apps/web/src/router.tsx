@@ -22,6 +22,7 @@ export const getRouter = async () => {
 	const router = createRouter({
 		routeTree,
 		scrollRestoration: true,
+		scrollToTopSelectors: ["#main-content"],
 		defaultStructuralSharing: true,
 		defaultViewTransition: supportsTransitionTypes && {
 			types: ({ fromLocation, toLocation, pathChanged }) =>
