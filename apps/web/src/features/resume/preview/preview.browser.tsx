@@ -159,6 +159,7 @@ export function ResumePreviewClient({
 	const pdfIdRef = useRef(0);
 	const requestIdRef = useRef(0);
 	const hasPreviewRef = useRef(false);
+	const requestedRenderKey = JSON.stringify([resumeData, includeCoverLetterHeader]);
 
 	useEffect(() => {
 		if (!resumeData) return;
@@ -248,14 +249,22 @@ export function ResumePreviewClient({
 		if (activeData) publishedData.current = activeData;
 	}, [activeData]);
 	useEffect(() => {
-		if (activePageCount > 0 && activeFile)
+		if (activeLayer?.renderKey === requestedRenderKey && activePageCount > 0 && activeFile)
 			onRender?.({
 				identity: activeLayer?.identity,
 				pageCount: activePageCount,
 				pageMap: activePageMap,
 				file: activeFile,
 			});
-	}, [activePageCount, activePageMap, activeFile, activeLayer?.identity, onRender]);
+	}, [
+		activePageCount,
+		activePageMap,
+		activeFile,
+		activeLayer?.identity,
+		activeLayer?.renderKey,
+		requestedRenderKey,
+		onRender,
+	]);
 
 	const initialPreviewLoading = useSkeletonLoading(!getActivePreviewLayer(previewLayers) && !failure);
 	if (!resumeData) return null;

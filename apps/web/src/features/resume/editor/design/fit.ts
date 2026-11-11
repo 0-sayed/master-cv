@@ -117,6 +117,13 @@ export async function runFit() {
 		);
 	} catch (error) {
 		if (error !== stopped) throw error;
+		if (applied && interrupted === "timed-out") {
+			toast.add({
+				type: "error",
+				description: t`The resume preview could not be updated. The last valid preview is still shown.`,
+				actionProps: { children: t`Undo`, onClick: captureUndoAction() },
+			});
+		}
 		return interrupted ?? "cancelled";
 	}
 	const undoAction = { children: t`Undo`, onClick: captureUndoAction() };
