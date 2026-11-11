@@ -14,7 +14,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await page.keyboard.press("Escape");
 		await page.goto(`/dashboard?locale=${locale}`);
 		await expect(
-			page.getByRole("button", { name: locale === "ar-SA" ? "اختر ملفًا" : "Choose a file", exact: true }),
+			page.getByRole("button", { name: locale === "ar-SA" ? "سيرة ذاتية جديدة" : "New CV", exact: true }),
 		).toHaveCount(1);
 		await expect(page.locator("main h1").locator("xpath=ancestor::header").getByRole("button")).toHaveCount(0);
 		await expect(page.locator('[data-slot="page-toolbar"]')).toHaveCount(0);

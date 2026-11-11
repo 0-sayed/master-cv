@@ -92,7 +92,7 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await expect(page).not.toHaveURL(/welcome/);
 			await expect(page.locator("h1")).toBeAttached();
 			await expect(
-				page.getByRole("button", { name: locale === "en-US" ? "Choose a file" : "اختر ملفًا", exact: true }),
+				page.getByRole("button", { name: locale === "en-US" ? "New CV" : "سيرة ذاتية جديدة", exact: true }),
 			).toBeVisible();
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("documents-empty.png"), fullPage: true });
@@ -252,7 +252,7 @@ for (const locale of ["en-US", "ar-SA"] as const)
 		test(`base CV quota recovery preserves library ${locale} at ${width}`, async ({ authPage: page }, testInfo) => {
 			await page.setViewportSize({ width, height: 950 });
 			await page.goto(`/dashboard?locale=${locale}`);
-			await page.locator('button[aria-keyshortcuts="N"]').first().click();
+			await page.getByRole("button", { name: locale === "en-US" ? "New CV" : "سيرة ذاتية جديدة", exact: true }).click();
 			await page.route("**/api/rpc/resume/create", (route) =>
 				route.fulfill({
 					status: 412,
@@ -270,19 +270,19 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			);
 			await page
 				.getByRole("dialog")
-				.getByRole("button", { name: locale === "en-US" ? "Start blank" : "البدء بسيرة فارغة", exact: false })
+				.getByRole("button", { name: locale === "en-US" ? "Write from scratch" : "الكتابة من الصفر", exact: false })
 				.click();
 			await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("base-cv-limit.png"), fullPage: true });
 			await page
 				.getByRole("dialog")
-				.getByRole("button", { name: locale === "en-US" ? "Back to documents" : "العودة إلى المستندات", exact: true })
+				.getByRole("button", { name: locale === "en-US" ? "Cancel" : "إلغاء", exact: true })
 				.click();
 			await expect(page.locator('[data-slot="dialog-content"]')).not.toBeVisible();
 			await expect(page.locator("h1")).toBeAttached();
 			await expect(
-				page.getByRole("button", { name: locale === "en-US" ? "Choose a file" : "اختر ملفًا", exact: true }),
+				page.getByRole("button", { name: locale === "en-US" ? "New CV" : "سيرة ذاتية جديدة", exact: true }),
 			).toBeVisible();
 			await expect(page).toHaveURL(/dashboard/);
 		});

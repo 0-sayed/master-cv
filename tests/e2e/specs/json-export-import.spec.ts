@@ -1,38 +1,24 @@
-import { readFile, writeFile } from "node:fs/promises";
 import { createSampleResumeFromDashboard, openDownloadDialog, openSidebarSection } from "../fixtures/resume";
 import { expect, test } from "../fixtures/test";
 
-test("round-trips a JSON backup and splits a legacy embedded letter on import", async ({
+test("retained API round-trips JSON and splits a legacy letter while JSON controls stay gated", async ({
 	authPage: page,
 }, testInfo) => {
 	await createSampleResumeFromDashboard(page, testInfo);
 
 	const sheet = await openDownloadDialog(page);
-	await sheet.getByRole("radio", { name: /^JSON/ }).click();
-	const downloadPromise = page.waitForEvent("download");
-	await sheet.getByRole("button", { name: "Download JSON" }).click();
-	const download = await downloadPromise;
-	expect(download.suggestedFilename()).toMatch(/\.json$/);
+	await expect(sheet.getByRole("radio", { name: /^JSON/ })).toHaveCount(0);
+	const resumeId = new URL(page.url()).pathname.split("/").at(-1);
+	const response = await page.request.get(`/api/openapi/resumes/${resumeId}`);
+	await expect(response).toBeOK();
+	const { data: exportedData } = await response.json();
 
-	const downloadPath = testInfo.outputPath(download.suggestedFilename());
-	await download.saveAs(downloadPath);
-	const exportedData = JSON.parse(await readFile(downloadPath, "utf-8")) as {
-		basics: { name: string };
-		customSections: unknown[];
-		metadata: { layout: { pages: { fullWidth: boolean; main: string[]; sidebar: string[] }[] } };
-	};
 	// A name only this file carries, so a builder that opens anything but the imported resume fails.
 	exportedData.basics.name = `Imported ${Date.now()}`;
-	await writeFile(downloadPath, JSON.stringify(exportedData));
+	const imported = await page.request.post("/api/openapi/resumes/import", { data: { data: exportedData } });
+	await expect(imported).toBeOK();
+	await page.goto(`/builder/${await imported.json()}`);
 
-	// New → Import a resume: picking the file detects the format and imports it in three steps.
-	await page.goto("/dashboard");
-	await page.getByRole("button", { name: "New", exact: true }).click();
-	const dialog = page.getByRole("dialog", { name: "New document" });
-	await dialog.getByLabel("Choose a file to import").setInputFiles(downloadPath);
-	await page.getByRole("button", { name: "Open in editor" }).click();
-
-	await page.waitForURL(/\/builder\/.+/);
 	await openSidebarSection(page, "Basics");
 	await expect(page.getByRole("textbox", { name: "Full name", exact: true })).toHaveValue(exportedData.basics.name);
 
@@ -49,14 +35,9 @@ test("round-trips a JSON backup and splits a legacy embedded letter on import", 
 		items: [{ id: "old-letter-item", hidden: false, recipient: "<p>Globex</p>", content: "<p>Dear Globex team,</p>" }],
 	});
 	exportedData.metadata.layout.pages.push({ fullWidth: true, main: ["old-letter"], sidebar: [] });
-	const path = testInfo.outputPath("with-letter.json");
-	await writeFile(path, JSON.stringify(exportedData));
-
-	await page.goto("/dashboard");
-	await page.getByRole("button", { name: "New", exact: true }).click();
-	await page.getByRole("dialog", { name: "New document" }).getByLabel("Choose a file to import").setInputFiles(path);
-	await page.getByRole("button", { name: "Open in editor" }).click();
-	await page.waitForURL(/\/builder\/.+/);
+	const legacy = await page.request.post("/api/openapi/resumes/import", { data: { data: exportedData } });
+	await expect(legacy).toBeOK();
+	await page.goto(`/builder/${await legacy.json()}`);
 	await expect(page.getByText("Dear Globex team,")).toHaveCount(0);
 
 	await page.goto("/dashboard");

@@ -33,7 +33,8 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			await page.screenshot({ path: info.outputPath("career-empty.png"), fullPage: true });
 
 			// The existing settings surface scrolls the document, so sticky chrome and history use that same owner.
-			await page.goto("/dashboard/settings");
+			await page.setViewportSize({ width, height: 480 });
+			await page.goto("/dashboard/settings/account");
 			await settleScreen(page);
 			await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
 			await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
@@ -50,8 +51,11 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			await settleScreen(page);
 			await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
 			await page.goBack();
-			await expect.poll(() => page.evaluate(() => Math.abs(scrollY - savedScroll))).toBeLessThanOrEqual(1);
+			await expect
+				.poll(() => page.evaluate((offset) => Math.abs(scrollY - offset), savedScroll))
+				.toBeLessThanOrEqual(1);
 
+			await page.setViewportSize({ width, height: 900 });
 			const resume = await page.request.post("/api/openapi/resumes", {
 				data: { name: "Synthetic layout CV", tags: [], withSampleData: false },
 			});
@@ -66,7 +70,10 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			] as const) {
 				await page.goto(path);
 				await settleScreen(page);
-				await expect(page.locator("main")).toBeVisible();
+				await expect(page.getByRole("banner")).toBeVisible();
+				await expect(page.locator("main")).toBeAttached();
+				if (width === 1440) await expect(page.locator("main")).toBeVisible();
+				else await expect(page.getByRole("tabpanel")).toBeVisible();
 				expect(
 					await page.evaluate(() => ({
 						height: document.documentElement.scrollHeight,

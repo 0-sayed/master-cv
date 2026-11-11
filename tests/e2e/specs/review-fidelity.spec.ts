@@ -121,12 +121,20 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		}
 	});
 
-	test(`welcome privacy heading includes the information glyph in ${locale}`, async ({ authPage: page, baseURL }) => {
+	test(`welcome shows the current three-step journey in ${locale}`, async ({ authPage: page, baseURL }) => {
 		await page.context().addCookies([{ name: "locale", value: locale, url: baseURL ?? "http://localhost:3000" }]);
 		await page.goto("/dashboard/welcome");
-		const heading = page.getByRole("heading", { name: locale === "ar-SA" ? "سيرتك تخصّك" : "Your CV belongs to you" });
-		await expect(heading).toBeVisible();
-		await expect(heading.locator("svg")).toBeVisible();
+		const titles =
+			locale === "ar-SA"
+				? ["1. اجمع خبرتك", "2. راجع كل معلومة", "3. نزّل سيرتك"]
+				: ["1. Gather your experience", "2. Review every detail", "3. Download your CV"];
+		for (const title of titles) await expect(page.getByRole("heading", { name: title, exact: true })).toBeVisible();
+		await expect(
+			page.getByText(
+				"Start by adding your career information yourself. File import and AI assistance are not enabled yet.",
+				{ exact: true },
+			),
+		).toHaveCount(0);
 	});
 }
 

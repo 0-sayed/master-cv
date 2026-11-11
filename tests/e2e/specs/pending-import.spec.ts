@@ -60,11 +60,10 @@ test("the review route refuses another owner's draft and an expired draft", asyn
 		}
 	});
 	await page.goto(url);
-	await expect(
-		page.getByText("This import review has expired or is unavailable on this device. Choose your file again.", {
-			exact: true,
-		}),
-	).toBeVisible();
+	await expect(page.locator('[data-slot="alert-description"]')).toContainText(
+		"This import review has expired or is unavailable on this device. Choose your file again.",
+	);
+	await expect(page.getByLabel("Full name", { exact: true })).toHaveCount(0);
 	await openPdfReview(page);
 	const expiring = page.url();
 	await page.evaluate(async () => {
@@ -91,9 +90,8 @@ test("the review route refuses another owner's draft and an expired draft", asyn
 		}
 	});
 	await page.goto(expiring);
-	await expect(
-		page.getByText("This import review has expired or is unavailable on this device. Choose your file again.", {
-			exact: true,
-		}),
-	).toBeVisible();
+	await expect(page.locator('[data-slot="alert-description"]')).toContainText(
+		"This import review has expired or is unavailable on this device. Choose your file again.",
+	);
+	await expect(page.getByLabel("Full name", { exact: true })).toHaveCount(0);
 });
