@@ -36,6 +36,9 @@ its current AGENTS.md; do not blindly overwrite existing project guidance.
 - Reuse installed formatter/linter/test tools and runtime dependencies. No
   blanket latest-version upgrade, second app or mandatory native-mobile release.
 - All scheduled PRs remain L; commit-sized steps stay inside their task PR.
+- Each task PR ticks its row in `Planning/roadmap/tasks.md` and updates its class in `Planning/roadmap/dependencies.mmd`
+  in the same final commit, once CI is green, so main shows the task done when the PR merges.
+  Run `python3 Planning/roadmap/check.py` (must report 0 errors). Never commit directly to main.
 
 ## Design source
 
