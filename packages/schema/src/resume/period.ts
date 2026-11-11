@@ -32,7 +32,7 @@ const MAX_YEAR = 2100;
 
 export const ONGOING_TOKENS_BY_LANGUAGE: Readonly<Record<string, readonly string[]>> = {
 	af: ["hede", "tans", "huidig"],
-	ar: ["الآن", "حتى الآن", "الحاضر"],
+	ar: ["الآن", "حتى الآن", "الحاضر", "حاليًا", "حالياً", "حاليا", "حتى اليوم"],
 	bg: ["настояще", "сега", "днес"],
 	bn: ["বর্তমান"],
 	ca: ["present", "actual", "actualitat"],

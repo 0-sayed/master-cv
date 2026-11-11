@@ -153,17 +153,20 @@ export const Text = ({
 	const rtlDateRange =
 		date &&
 		isRTL(metadata.page.locale) &&
-		/^[\d/]+ - (?:[\d/]+|حتى الآن|حاليا|الآن|الحاضر)$/u.test(removeArabicDiacritics(date.text));
-	// D33: all numeric/ongoing Arabic ranges read start-to-end from right to left.
+		/^[\d/]+ - (?:حتى الآن|حاليا|الآن|الحاضر)$/u.test(removeArabicDiacritics(date.text));
+	const closedNumericRange = date && /^[\d/]+-[\d/]+$/u.test(date.text);
+	// D33(4): closed numeric ranges start on the left; ongoing Arabic labels retain RTL placement.
 	const numericDateStyle: Style | undefined = rtlDateRange
 		? { direction: "rtl" }
 		: date && /^[\d\s.,/–—-]+(?:حتى الآن|حالياً)?$/u.test(date.text)
 			? { direction: "ltr" }
 			: undefined;
-	// Isolate the range from Latin roles, and each numeric endpoint from the RTL separator.
-	const dateText =
-		numericDateStyle?.direction === "rtl"
-			? `\u2067${date?.text.replace(/^([\d/]+) - ([\d/]+)$/u, "\u2066$1\u2069 - \u2066$2\u2069")}\u2069`
+	const dateText = closedNumericRange
+		? isRTL(metadata.page.locale)
+			? `\u2066${date.text}\u2069`
+			: date.text
+		: numericDateStyle?.direction === "rtl"
+			? `\u2067${date?.text}\u2069`
 			: date?.text;
 	const resolvedNodeKey = usePrimitiveNodeKey({
 		nodeKey,

@@ -126,6 +126,7 @@ export const RichText = ({ children, semanticField }: RichTextProps) => {
 		if (!visible) return null;
 		const text = (
 			<PdfText
+				data-resume-node={nodeKey}
 				{...resolvedPdfTextProps(resolved)}
 				data-resume-whitespace={element.getAttribute("data-resume-whitespace")}
 				style={composeStyles(style, resolved.style, safeTextStyle)}
@@ -222,6 +223,7 @@ export const RichText = ({ children, semanticField }: RichTextProps) => {
 						indent: Number(props.element.getAttribute("data-indent")),
 						semanticStyle: resolved.style,
 						textProps: {
+							"data-resume-node": keyFor(props.element),
 							...resolvedPdfTextProps(resolved),
 							"data-resume-whitespace": props.element.getAttribute("data-resume-whitespace"),
 						},

@@ -39,23 +39,23 @@ const fixture = () => {
 	];
 	return data;
 };
-it.each(templateSchema.options)("draws a natural RTL date range on the role line: %s", async (template) => {
+it.each(templateSchema.options)("draws a compact start-left date range on the role line: %s", async (template) => {
 	const data = fixture();
 	data.metadata.template = template;
 	const result = await act(() => renderResume(forme, { data: parseResumeData(data) }));
 	const nodes = flatten(defined(result.layout.pages[0]).elements);
 	const line = nodes.find((n) => n.nodeType === "TextLine" && n.textContent?.includes("2020"));
-	expect(line?.textContent?.replace(/[\u2066-\u2069\u00a0]/gu, " ").replace(/\s+/g, " ")).toContain("2024 - 2020");
+	expect(line?.textContent).toContain("2020-2024");
 	expect(line?.textContent).toContain("قئاثو");
 });
 for (const [period, expected] of [
-	["2020 - 2024", /2024 - 2020/u],
-	["2016-01 - 2029-05", /05\/2029 - 01\/2016/u],
+	["2020 - 2024", /2020-2024/u],
+	["2016-01 - 2029-05", /01\/2016-05\/2029/u],
 	// Layout text is painted left-to-right: Arabic label, hyphen, then the start at the right.
 	["2015 - حتى الآن", /ىتح - 2015/u],
 ] as const)
 	it.each(templateSchema.options)(
-		`keeps natural RTL dates beside an English role (${period}): %s`,
+		`keeps the approved date placement beside an English role (${period}): %s`,
 		async (template) => {
 			const data = fixture();
 			data.metadata.template = template;

@@ -405,6 +405,7 @@ const SectionShell = ({ sectionId, title, showHeading = true, children }: Sectio
 			<View style={resolvedSectionStyle} {...flowProps} data-resume-node={sectionNodeKey}>
 				{showHeading && sectionHeadingEnabled && sectionHeadingVisible && (
 					<View
+						data-resume-node={sectionHeadingNodeKey}
 						{...resolvedPdfFlowProps(sectionHeadingResolved)}
 						style={composeStyles(
 							sectionHeadingStyle,

@@ -39,7 +39,7 @@ it.each(["+966 50 123 4567", "+٩٦٦ ٥٠ ١٢٣ ٤٥٦٧", "+۹۶۶ ۵۰ ۱۲�
 			.replace(/[\u202a-\u202e]/gu, "")
 			.replace(/\s+/g, " ");
 		expect(text).toContain("+966 50 123 4567");
-		expect(text).toMatch(/(?:2020 - 2022|2022 - 2020)/u);
+		expect(text).toContain("2020-2022");
 		expect(text).toContain("مهندس برمجيات");
 		expect(data.basics.phone).toBe(phone);
 	},

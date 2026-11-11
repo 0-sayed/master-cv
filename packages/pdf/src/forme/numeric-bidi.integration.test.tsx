@@ -11,35 +11,53 @@ const clean = (text: string) =>
 	text
 		.replace(/[\u202a-\u202e\u2066-\u2069]/gu, "")
 		.replace(/\s+/gu, " ")
+		.replace(/\s*([/-])\s*/gu, "$1")
 		.trim();
 
-it.each([
+const cases = [
 	["year", "٢٠٢٤", "2024"],
 	["date", "٠١/٠٢/٢٠٢٤", "01/02/2024"],
 	["hijri", "١٤٤٥ هـ - ١٤٤٦ هـ", "1445 هـ - 1446 هـ"],
 	["single-hijri", "١٤٤٥ هـ", "1445 هـ"],
 	["persian", "۰۱/۰۲/۲۰۲۴", "01/02/2024"],
-	["range", "٢٠٢٠ – ٢٠٢٢", "2020 - 2022"],
+	["range", "٢٠٢٠ – ٢٠٢٢", "2020-2022"],
 	["labelled", "من ٢٠٢٠ إلى ٢٠٢٤", "من 2020 إلى 2024"],
-	["latin", "2020 – 2022", "2020 - 2022"],
-])(
-	"default Latin display preserves the %s date value in both readers without editing data",
+	["latin", "2020 – 2022", "2020-2022"],
+	["month-range", "08/1999 - 12/2003", "08/1999-12/2003"],
+	["descending", "2019 - 2015", "2019-2015"],
+	["ongoing-ar", "2015 - حتى الآن", "2015 - حتى الآن"],
+	["ongoing-en", "2015 - Present", "2015 - Present"],
+] as const;
+
+it.each(
+	cases.flatMap((entry) =>
+		(/(?:hijri|labelled|ongoing-ar)/u.test(entry[0]) ? ["ar-SA"] : ["ar-SA", "en-US"]).map(
+			(locale) => [...entry, locale] as const,
+		),
+	),
+)(
+	"preserves the %s date (%s → %s, %s) in both readers without editing data",
 	{ timeout: 60000 },
-	async (id, raw, expected) => {
+	async (id, raw, expected, locale) => {
 		const data = structuredClone(defaultResumeData);
 		data.picture.hidden = true;
-		data.basics.name = "أحمد العتيبي";
+		data.basics.name = locale === "ar-SA" ? "أحمد العتيبي" : "Ahmed Alotaibi";
 		data.metadata.template = "onyx";
-		data.metadata.page.locale = "ar-SA";
+		data.metadata.page.locale = locale;
 		data.metadata.page.hideIcons = true;
-		data.metadata.typography.body.fontFamily = "Noto Sans Arabic";
-		data.metadata.typography.heading.fontFamily = "Noto Sans Arabic";
+		if (locale === "ar-SA") {
+			data.metadata.typography.body.fontFamily = "Noto Sans Arabic";
+			data.metadata.typography.heading.fontFamily = "Noto Sans Arabic";
+		} else {
+			data.metadata.typography.body.fontFamily = "Noto Sans";
+			data.metadata.typography.heading.fontFamily = "Noto Sans";
+		}
 		data.metadata.layout.pages = [{ fullWidth: true, main: ["projects"], sidebar: [] }];
 		data.sections.projects.items = [
 			{
 				id: "project",
 				hidden: false,
-				name: "مشروع التقويم",
+				name: locale === "ar-SA" ? "مشروع التقويم" : "Calendar project",
 				period: raw,
 				dates: { start: null, end: null, present: false, raw },
 				website: { url: "", label: "", inlineLink: false },
@@ -66,9 +84,9 @@ it.each([
 		}
 		if (process.env.NUMERIC_BIDI_EVIDENCE) {
 			await mkdir(process.env.NUMERIC_BIDI_EVIDENCE, { recursive: true });
-			await writeFile(join(process.env.NUMERIC_BIDI_EVIDENCE, `${id}.pdf`), bytes, { flag: "wx" });
+			await writeFile(join(process.env.NUMERIC_BIDI_EVIDENCE, `${id}-${locale}.pdf`), bytes, { flag: "wx" });
 			await writeFile(
-				join(process.env.NUMERIC_BIDI_EVIDENCE, `${id}.json`),
+				join(process.env.NUMERIC_BIDI_EVIDENCE, `${id}-${locale}.json`),
 				JSON.stringify({ raw, pdfjs, poppler }, null, 2),
 				{ flag: "wx" },
 			);
@@ -78,17 +96,16 @@ it.each([
 			["PDF.js", pdfjs],
 			["Poppler", poppler],
 		] as const) {
-			if (id === "range" || id === "latin") {
-				// Arabic extraction order is accepted; both endpoints must remain with their entry.
-				expect.soft(clean(text), reader).toContain("2020");
-				expect.soft(clean(text), reader).toContain("2022");
-				expect.soft(clean(text), reader).toContain("مشروع التقويم");
-			} else if (reader === "Poppler" && /hijri|labelled/u.test(id)) {
+			if (/^(?:range|latin|month-range|descending)$/u.test(id)) {
+				// The compact number run must survive without repairing reader whitespace.
+				expect.soft(text.replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/gu, ""), reader).toContain(expected);
+				expect.soft(clean(text), reader).toContain(locale === "ar-SA" ? "مشروع التقويم" : "Calendar project");
+			} else if (/ongoing/u.test(id) || (reader === "Poppler" && /hijri|labelled/u.test(id))) {
 				// D32: Poppler loses spacing around Arabic suffixes/labels; every value and label must survive.
 				for (const token of expected.split(/[\s-]+/u).filter(Boolean)) {
 					expect.soft(clean(text), reader).toContain(token);
 				}
-			} else expect.soft(clean(text), reader).toContain(expected);
+			} else expect.soft(clean(text), reader).toContain(clean(expected));
 		}
 	},
 );
