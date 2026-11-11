@@ -124,7 +124,7 @@ export function EntryCard({ section, entryId, index, count, page, locked, onMove
 						size="icon-compact"
 						disclosure="hover"
 						label={t`Reorder ${title || t`Untitled`}`}
-						className="cursor-grab text-ink-3 active:cursor-grabbing"
+						className="cursor-grab text-ink-3 group-hover/entry:opacity-100 active:cursor-grabbing"
 						{...attributes}
 						{...listeners}
 					/>

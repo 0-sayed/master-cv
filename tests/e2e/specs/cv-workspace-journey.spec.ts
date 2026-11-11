@@ -1,4 +1,5 @@
 import { loginViaUi } from "../fixtures/auth";
+import { createSampleResumeFromDashboard, openSidebarSection } from "../fixtures/resume";
 import { expect, test } from "../fixtures/test";
 
 test("history restore survives sign-out and fresh sign-in without changing the other language CV", async ({
@@ -95,4 +96,12 @@ test("reusing confirmed master facts links the CV while local corrections preser
 		.poll(async () => (await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.basics.name)
 		.toBe("Local CV correction");
 	expect((await (await page.request.get("/api/openapi/career/master")).json()).facts).toEqual(master.facts);
+});
+
+test("entry hover reveals its reorder handle", async ({ authPage: page }, testInfo) => {
+	await createSampleResumeFromDashboard(page, testInfo);
+	await openSidebarSection(page, "Experience");
+	const entry = page.locator("[data-entry-id]").first();
+	await entry.hover();
+	await expect(entry.getByRole("button", { name: /^Reorder / })).toHaveCSS("opacity", "1");
 });
