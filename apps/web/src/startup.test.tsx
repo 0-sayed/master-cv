@@ -33,3 +33,12 @@ it("also recovers a failed initial route load", async () => {
 	});
 	expect(screen.getByRole("button", { name: "Try again" })).toBeEnabled();
 });
+
+it("preserves the server noindex marker for a configured root-resume shell", async () => {
+	document.head.innerHTML = '<meta name="robots" content="noindex, follow" data-root-resume-shell>';
+	mocks.router.mockResolvedValueOnce({ load: vi.fn() });
+	await act(async () => {
+		await startApplication(document.getElementById("app") as HTMLElement);
+	});
+	expect(document.head.querySelector("meta[data-root-resume-shell]")).toHaveAttribute("content", "noindex, follow");
+});

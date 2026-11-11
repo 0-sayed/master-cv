@@ -25,7 +25,7 @@ export async function startApplication(element: HTMLElement) {
 			// Preserve a prerendered homepage until its route is ready.
 			if (element.hasChildNodes()) await router.load();
 			document.head
-				.querySelectorAll('title, meta[name="description"], meta[name="robots"]')
+				.querySelectorAll('title, meta[name="description"], meta[name="robots"]:not([data-root-resume-shell])')
 				.forEach((tag) => tag.remove());
 			render(<RouterProvider router={router} />);
 		} catch {
