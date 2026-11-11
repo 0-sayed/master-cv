@@ -40,6 +40,13 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 	const [generation] = useState(() => useDialogStore.getState().openCount);
 	const close = useDialogStore((state) => state.closeDialog);
 	const navigate = useNavigate();
+	useEffect(() => {
+		const { setOnBeforeClose } = useDialogStore.getState();
+		setOnBeforeClose(() => busy !== "creating");
+		return () => {
+			if (useDialogStore.getState().openCount === generation) setOnBeforeClose(null);
+		};
+	}, [busy, generation]);
 	const manual = async () => {
 		if (busy) return;
 		const controller = new AbortController();

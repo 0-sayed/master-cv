@@ -32,6 +32,12 @@ import { getOrpcErrorMessage } from "@/libs/error-message";
 import { client } from "@/libs/orpc/client";
 import { getSectionTitle } from "@/libs/resume/section";
 
+/** Repeated text cannot establish which page supplied a fact. */
+function uniqueSourcePage(text: string, pages?: { page: number; text: string }[]): number | undefined {
+	const matches = pages?.filter((page) => page.text.includes(text));
+	return matches?.length === 1 ? matches[0]?.page : undefined;
+}
+
 export function ImportReview({
 	initial,
 	flowId,
@@ -138,18 +144,18 @@ export function ImportReview({
 	};
 	const keyOf = (fact: (typeof candidates)[number]) => `${fact.section}:${fact.entityId}:${fact.field}`;
 	const withSource = (fact: (typeof candidates)[number]) => {
-		const value = typeof fact.value === "string" ? fact.value.replace(/<[^>]*>/g, " ").trim() : fact.value.raw;
-		const page = value && pages?.find((page) => page.text.includes(value));
+		const value = typeof fact.value === "string" ? fact.value.trim() : fact.value.raw;
+		const page = value ? uniqueSourcePage(value, pages) : undefined;
 		return {
 			...fact,
 			source: {
 				...fact.source,
-				quote: page ? `PDF page ${page.page}: ${value}`.slice(0, 4000) : (value?.slice(0, 4000) ?? ""),
+				quote: page ? `PDF page ${page}: ${value}`.slice(0, 4000) : (value?.slice(0, 4000) ?? ""),
 			},
 		};
 	};
 	const confirm = async () => {
-		if (busy) return;
+		if (busy || needsReconciliation || (partial && reviewedCount < total)) return;
 		const controller = lifetime.current;
 		const currentSignal = signal ? AbortSignal.any([signal, controller.signal]) : controller.signal;
 		setBusy(true);
@@ -382,7 +388,7 @@ export function ImportReview({
 				: value && typeof value === "object" && "raw" in value && typeof value.raw === "string"
 					? value.raw
 					: "";
-		return text ? pages?.find((page) => page.text.includes(text))?.page : undefined;
+		return text ? uniqueSourcePage(text, pages) : undefined;
 	};
 	const sourceTag = (page: number | undefined) =>
 		page ? (
@@ -774,7 +780,11 @@ export function ImportReview({
 				<Button variant="secondary" disabled={busy} onClick={onBack}>
 					<Trans>Cancel</Trans>
 				</Button>
-				<Button loading={busy} disabled={needsReconciliation} onClick={() => void confirm()}>
+				<Button
+					loading={busy}
+					disabled={needsReconciliation || (partial && reviewedCount < total)}
+					onClick={() => void confirm()}
+				>
 					<Trans context="review.import.saveAndContinue">Create CV and open editor</Trans>
 				</Button>
 			</footer>

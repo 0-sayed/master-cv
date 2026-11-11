@@ -30,7 +30,7 @@ export function CareerReuseNotice({ available }: CareerReuseNoticeProps) {
 		if (busy) return;
 		const signal = lifetime.current.signal;
 		const before = useResumeStore.getState();
-		if (!before.resume || !before.ownerId || before.resume.isLocked) return;
+		if (!before.resume || !before.ownerId || before.resume.isLocked || (!available && !pending.current)) return;
 		setBusy(true);
 		setError(null);
 		setEmpty(false);

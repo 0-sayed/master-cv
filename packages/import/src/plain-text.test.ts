@@ -336,3 +336,18 @@ it("does not consume a digit-leading URL token as part of a phone", () => {
 	const data = parseResumeText("Sara Example\n+20 106 449 4638 2example.test/profile");
 	expect(data.basics.phone).toBe("+20 106 449 4638");
 });
+
+it.each(["Acme, Software Engineer, London", "Software Engineer, Acme, London", "شركة ألف، مهندس برمجيات، الرياض"])(
+	"recognizes the role segment in comma-separated experience headers: %s",
+	(header) => {
+		const arabic = header.startsWith("شركة");
+		const data = parseResumeText(`Sara Example\nEXPERIENCE\n${header}\n2020 - 2024`, {
+			locale: arabic ? "ar-SA" : "en-US",
+		});
+		expect(data.sections.experience.items[0]).toMatchObject({
+			company: arabic ? "شركة ألف" : "Acme",
+			position: arabic ? "مهندس برمجيات" : "Software Engineer",
+			location: arabic ? "الرياض" : "London",
+		});
+	},
+);

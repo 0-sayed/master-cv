@@ -87,3 +87,36 @@ it("offers creation retry after a manual start fails, rather than opening the fi
 	await waitFor(() => expect(mocks.navigate).toHaveBeenCalled());
 	expect(mocks.create).toHaveBeenCalledTimes(2);
 });
+
+it("blocks dialog dismissal while manual creation is pending and opens the created CV", async () => {
+	let complete!: (id: string) => void;
+	mocks.create.mockReturnValue(
+		new Promise<string>((resolve) => {
+			complete = resolve;
+		}),
+	);
+	render(
+		<I18nProvider i18n={i18n}>
+			<QueryClientProvider client={new QueryClient()}>
+				<Dialog open>
+					<StartCvDialog />
+				</Dialog>
+			</QueryClientProvider>
+		</I18nProvider>,
+	);
+	fireEvent.click(screen.getByRole("button", { name: /^Write from scratch/ }));
+	const cancelDismissal = vi.fn();
+	useDialogStore.getState().onOpenChange(false, { cancel: cancelDismissal });
+	await waitFor(() => expect(cancelDismissal).toHaveBeenCalledOnce());
+	expect(useDialogStore.getState().open).toBe(true);
+	expect(mocks.create.mock.calls[0]?.[1].signal.aborted).toBe(false);
+	complete("new-cv");
+	await waitFor(() =>
+		expect(mocks.navigate).toHaveBeenCalledWith({
+			to: "/builder/$resumeId",
+			params: { resumeId: "new-cv" },
+			search: { mode: "write" },
+		}),
+	);
+	expect(useDialogStore.getState().open).toBe(false);
+});

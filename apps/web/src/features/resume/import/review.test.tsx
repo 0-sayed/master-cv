@@ -10,6 +10,7 @@ import { parseResumeText } from "@reactive-resume/import/plain-text";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { Dialog, DialogContent } from "@reactive-resume/ui/components/dialog";
 import { ImportReview } from "./review";
+import { createReviewState } from "./review-draft";
 import { ConfirmDialogProvider } from "@/hooks/use-confirm";
 const mocks = vi.hoisted(() => ({ read: vi.fn(), confirm: vi.fn() }));
 vi.mock("@/features/settings/integrations/hooks/use-has-usable-ai-provider", () => ({
@@ -330,4 +331,66 @@ it("renders the structured date once instead of the legacy period label", () => 
 	const entry = screen.getByRole("article", { name: /Engineer/ });
 	expect(within(entry).queryByText("period")).not.toBeInTheDocument();
 	expect(within(entry).getAllByText("Jul 2024 – Present")).toHaveLength(1);
+});
+
+it("does not attribute repeated source text to an arbitrary PDF page", async () => {
+	mocks.read.mockResolvedValue({ profileRevision: 0, facts: [] });
+	mocks.confirm.mockResolvedValue({ resumeId: "created" });
+	importedReview(vi.fn(), {
+		file: new File(["pdf"], "fixture.pdf"),
+		pages: [
+			{ page: 1, text: "Sara Example TypeScript" },
+			{ page: 2, text: "Sara Example TypeScript" },
+		],
+	});
+	expect(screen.queryByRole("button", { name: "PDF page 1" })).not.toBeInTheDocument();
+	fireEvent.click(screen.getByRole("button", { name: "Confirm all remaining" }));
+	fireEvent.click(saveButton());
+	await waitFor(() => expect(mocks.confirm).toHaveBeenCalledOnce());
+	const skill = mocks.confirm.mock.calls[0]?.[0].acceptedFacts.find(
+		({ fact }: { fact: { value: unknown } }) => fact.value === "TypeScript",
+	);
+	expect(skill.fact.source.quote).toBe("TypeScript");
+});
+
+it("allows partial imports to save only after every current section is reviewed", () => {
+	importedReview(vi.fn(), { partial: true });
+	expect(saveButton()).toBeDisabled();
+	fireEvent.click(screen.getByRole("button", { name: "Confirm section" }));
+	expect(saveButton()).toBeDisabled();
+	const navigation = screen.getByRole("navigation", { name: "Review sections" });
+	for (const section of [/^Experience/, /^Skills/]) {
+		fireEvent.click(within(navigation).getByRole("button", { name: section }));
+		fireEvent.click(screen.getByRole("button", { name: "Confirm section" }));
+	}
+	expect(saveButton()).toBeEnabled();
+});
+
+it("does not bypass partial review requirements through an error retry", async () => {
+	const onCheckpoint = vi.fn(async () => {
+		throw new Error("Storage unavailable");
+	});
+	importedReview(vi.fn(), { partial: true, onCheckpoint });
+	fireEvent.click(await screen.findByRole("button", { name: "Try again" }));
+	await act(async () => {});
+	expect(mocks.read).not.toHaveBeenCalled();
+	expect(mocks.confirm).not.toHaveBeenCalled();
+});
+
+it("preserves decoded description text in the accepted source quote", async () => {
+	mocks.read.mockResolvedValue({ profileRevision: 0, facts: [] });
+	mocks.confirm.mockResolvedValue({ resumeId: "created" });
+	const data = parseResumeText("Sara Example\nEXPERIENCE\nExample Labs | Engineer | 2020 - 2024\nSaved <5 hours>.");
+	importedReview(vi.fn(), { state: createReviewState(data, flowId) });
+	fireEvent.click(
+		within(screen.getByRole("navigation", { name: "Review sections" })).getByRole("button", { name: /^Experience/ }),
+	);
+	fireEvent.click(screen.getByRole("button", { name: "Confirm section" }));
+	fireEvent.click(saveButton());
+	await waitFor(() => expect(mocks.confirm).toHaveBeenCalledOnce());
+	const description = mocks.confirm.mock.calls[0]?.[0].acceptedFacts.find(
+		({ fact }: { fact: { field: string } }) => fact.field === "description",
+	);
+	expect(description.fact.value).toBe("Saved <5 hours>.");
+	expect(description.fact.source.quote).toBe("Saved <5 hours>.");
 });

@@ -394,8 +394,7 @@ function experienceFields(entry: RawEntry, options: ImportOptions) {
 		const comma = first.split(/[,،]\s*/u);
 		if (comma.length >= 2)
 			parts = [
-				comma[1] ?? "",
-				comma[0] ?? "",
+				...(looksLikeRole(comma[0] ?? "") ? [comma[1] ?? "", comma[0] ?? ""] : comma.slice(0, 2)),
 				comma.slice(2).join(first.includes("،") ? "، " : ", "),
 				...parts.slice(1),
 			].filter(Boolean);

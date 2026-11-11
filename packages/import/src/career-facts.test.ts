@@ -21,3 +21,24 @@ it("does not invent facts for empty values or unsupported sections", () => {
 		buildCareerFactCandidates(data, { kind: "manual", id: "flow", quote: "" }).filter((f) => f.section === "skills"),
 	).toEqual([]);
 });
+
+it("stores descriptions as readable plain text while retaining the CV rich text", () => {
+	const data = structuredClone(sampleResumeData);
+	const item = data.sections.experience.items[0]!;
+	const description =
+		"<p>Built <strong>R&amp;D</strong> tools.</p><ul><li>Saved &lt;5 hours</li><li>Led a team</li></ul>";
+	item.description = description;
+	const facts = buildCareerFactCandidates(data, { kind: "manual", id: "flow", quote: "" });
+	expect(facts.find((fact) => fact.entityId === item.id && fact.field === "description")?.value).toBe(
+		"Built R&D tools.\nSaved <5 hours\nLed a team",
+	);
+	expect(item.description).toBe(description);
+});
+
+it("keeps literal angle-bracket text after decoding a description", () => {
+	const data = structuredClone(sampleResumeData);
+	const item = data.sections.experience.items[0]!;
+	item.description = "<p>&lt;5 hours&gt;</p>";
+	const facts = buildCareerFactCandidates(data, { kind: "manual", id: "flow", quote: "" });
+	expect(facts.find((fact) => fact.entityId === item.id && fact.field === "description")?.value).toBe("<5 hours>");
+});

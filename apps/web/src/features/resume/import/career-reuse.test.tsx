@@ -103,3 +103,37 @@ it("retries saving and linking without copying career facts twice", async () => 
 	await waitFor(() => expect(mocks.link).toHaveBeenCalledOnce());
 	expect(mocks.update).toHaveBeenCalledOnce();
 });
+
+it("does not start a fresh reuse retry after the CV becomes unavailable", async () => {
+	mocks.read.mockRejectedValueOnce(new Error("offline")).mockResolvedValue({ facts: [fact] });
+	const notice = (available: boolean) => (
+		<I18nProvider i18n={i18n}>
+			<CareerReuseNotice available={available} />
+		</I18nProvider>
+	);
+	const view = render(notice(true));
+	fireEvent.click(screen.getByRole("button", { name: "Use confirmed career information" }));
+	await screen.findByText("offline");
+	view.rerender(notice(false));
+	fireEvent.click(screen.getByRole("button", { name: "Use confirmed career information" }));
+	expect(mocks.read).toHaveBeenCalledOnce();
+	expect(mocks.update).not.toHaveBeenCalled();
+});
+
+it("finishes an already-applied reuse retry when the CV is no longer empty", async () => {
+	mocks.read.mockResolvedValue({ facts: [fact] });
+	mocks.save.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+	const notice = (available: boolean) => (
+		<I18nProvider i18n={i18n}>
+			<CareerReuseNotice available={available} />
+		</I18nProvider>
+	);
+	const view = render(notice(true));
+	fireEvent.click(screen.getByRole("button", { name: "Use confirmed career information" }));
+	await screen.findByRole("button", { name: "Retry" });
+	view.rerender(notice(false));
+	fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+	await waitFor(() => expect(mocks.link).toHaveBeenCalledOnce());
+	expect(mocks.update).toHaveBeenCalledOnce();
+	expect(mocks.read).toHaveBeenCalledOnce();
+});
