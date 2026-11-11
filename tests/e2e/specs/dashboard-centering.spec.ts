@@ -41,7 +41,7 @@ for (const locale of ["ar-SA", "en-US"]) {
 				};
 			});
 			expect.soft(Math.abs(geometry.gapDifference), route).toBeLessThanOrEqual(2);
-			expect.soft(geometry.width, route).toBe(route.includes("settings") ? 1120 : 1360);
+			expect.soft(geometry.width, route).toBe(1360);
 			expect.soft(Math.abs(geometry.titleStart - geometry.headerStart), route).toBeLessThanOrEqual(1);
 			expect.soft(Math.abs(geometry.headerEnd - geometry.contentEnd), route).toBeLessThanOrEqual(1);
 			expect.soft(Math.abs(geometry.controlsEnd - geometry.contentEnd), route).toBeLessThanOrEqual(1);

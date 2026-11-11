@@ -292,3 +292,9 @@ T008 career consumers remain gated. T009 consumes owner-safe cancel/status/resul
 and consent revocation; data-rights retention/deletion remains separate. T010 adds
 paid grants without resetting the five lifetime Start operations. T012 qualifies
 worker topology, recovery and production controls.
+
+### PR CI layout follow-up
+
+- D36: reserve desktop scrollbars on both edges so switching AR/EN preserves the header rectangle; hide the mobile scrollbar so the brand retains the bottom navigation's column center.
+- Header and page use the same route width. Settings uses the shared wide width; existing form and workspace widths remain intact.
+- The 20 initially failing CI browser cases passed locally after corrections, including strict shell motion, centering, mobile brand alignment, and AR/EN width assertions. No assertion tolerance or timeout was increased. Static validation passed.
