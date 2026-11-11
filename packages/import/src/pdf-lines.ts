@@ -95,8 +95,11 @@ export function documentToLines(doc: ExtractedDocument): string[] {
 }
 
 /** Shared API/browser import boundary. Interface locale must never enter this decision. */
-export function pdfImportText(raw: RawExtraction): { lines: string[]; locale?: string } {
-	if (raw.truncated || raw.coverage?.pages.some((page) => page.text !== "complete"))
+export function pdfImportText(
+	raw: RawExtraction,
+	options: { allowPartial?: boolean } = {},
+): { lines: string[]; locale?: string } {
+	if (!options.allowPartial && (raw.truncated || raw.coverage?.pages.some((page) => page.text !== "complete")))
 		throw new Error("The PDF text could not be read completely.");
 	const language = raw.metadata.language?.replaceAll("_", "-");
 	let locale: string | undefined;
