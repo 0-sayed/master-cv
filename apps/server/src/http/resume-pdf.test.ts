@@ -26,7 +26,11 @@ describe("handleResumePdfDownload", () => {
 			expiresAt: "2026-06-01T10:10:00.000Z",
 		});
 		mocks.createResumePdfDownload.mockResolvedValueOnce({
-			headers: { "content-disposition": 'attachment; filename="Scizor.pdf"' },
+			headers: {
+				"content-disposition": 'attachment; filename="Scizor.pdf"',
+				"x-resume-revision": "2026-11-11T10:00:00.000Z",
+				"x-pdf-sha256": "a".repeat(64),
+			},
 			body: pdf,
 		});
 
@@ -36,6 +40,8 @@ describe("handleResumePdfDownload", () => {
 		);
 
 		expect(response.status).toBe(200);
+		expect(response.headers.get("x-resume-revision")).toBe("2026-11-11T10:00:00.000Z");
+		expect(response.headers.get("x-pdf-sha256")).toBe("a".repeat(64));
 		expect(response.headers.get("Content-Type")).toBe("application/pdf");
 		expect(response.headers.get("Content-Disposition")).toBe('attachment; filename="Scizor.pdf"');
 		expect(response.headers.get("Cache-Control")).toBe("private, no-store");

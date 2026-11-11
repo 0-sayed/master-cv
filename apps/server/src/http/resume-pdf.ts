@@ -50,7 +50,7 @@ export async function handleResumePdfDownload(request: Request, id: string) {
 			headers: {
 				...Object.fromEntries(resHeaders),
 				"Content-Type": download.body.type || "application/pdf",
-				"Content-Disposition": download.headers["content-disposition"],
+				...download.headers,
 				...downloadHeaders,
 			},
 		});
