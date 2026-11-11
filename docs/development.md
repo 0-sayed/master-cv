@@ -144,6 +144,16 @@ The default uses Playwright Chromium; install it with `pnpm exec playwright inst
 An existing system Chrome can be selected with `PLAYWRIGHT_CHANNEL=chrome`; Playwright's matching ffmpeg
 must still be installed for video artifacts. Browser smoke does not certify Arabic PDF/DOCX gates or D35 UI consistency. Record the separate AR/EN layout, element and dialog/state evidence required above.
 
+The application-test workflow caches `.cache/document-toolchain` by runner OS/architecture and the
+installer plus `versions.json`. Every install checks the pin marker, executable/library SHA-256 values
+and reader version before reuse; a valid cache makes no downloads. Cold downloads use three attempts
+per Ubuntu archive/security mirror, 20-second request timeouts and exponential backoff, retaining the
+same exact package checksums. Setup checks the runner's installed runtime libraries and invokes apt
+only for missing packages, with five acquisition retries and bounded timeouts. It no longer installs a
+second, unpinned system Poppler. Reader setup has a six-minute job-step limit. Chromium installation also reuses the runner runtime
+libraries without `--with-deps` (which otherwise refreshes apt and installs unrelated language fonts);
+Playwright still validates its host library dependencies.
+
 ## Security and CI boundaries
 
 Gitleaks 8.30.1 is an external CLI. `pnpm security:staged` scans staged changes; `pnpm security:secrets`
