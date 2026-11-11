@@ -45,6 +45,7 @@ test("two tabs resolve a stale save without overwriting either draft", async ({ 
 	const id = new URL(url).pathname.split("/").at(-1)!;
 	const second = await page.context().newPage();
 	await second.goto(url);
+	await expect(second.getByLabel("Full name", { exact: true })).toBeVisible();
 	// Hold this tab's already-guarded request while the other tab commits a newer baseline.
 	let release!: () => void;
 	const held = new Promise<void>((resolve) => {
