@@ -4,6 +4,7 @@ export type DashboardWidth = "default" | "wide" | "form" | "narrow";
 export function dashboardWidth(pathname: string): DashboardWidth {
 	const path = pathname.replace(/\/$/u, "");
 	if (path === "/dashboard/welcome") return "form";
+	if (path.startsWith("/dashboard/import/")) return "wide";
 	if (/^\/dashboard\/settings(?:\/|$)/u.test(path)) return "narrow";
 	if (
 		[

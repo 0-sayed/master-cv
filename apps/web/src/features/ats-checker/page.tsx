@@ -1,16 +1,20 @@
-import { AtsChecker } from "./checker";
-
-type AtsCheckerPageProps = { signedIn: boolean; importPending: boolean };
-
-/**
- * The /ats-checker page, which the build also prerenders (features/homepage/prerender.tsx). The checker's first screen
- * is light, and PDF.js and the analysis engine load only once a file is chosen, so it renders without a loading state.
- */
-export function AtsCheckerPage({ signedIn, importPending }: AtsCheckerPageProps) {
+import { Trans } from "@lingui/react/macro";
+import { Link } from "@tanstack/react-router";
+import { buttonVariants } from "@reactive-resume/ui/components/button";
+export function AtsCheckerPage({ signedIn }: { signedIn: boolean; importPending: boolean }) {
 	return (
-		// The marketing header is fixed and 65px tall, so the page makes room for it.
-		<main id="main-content" className="min-h-svh bg-bg pt-20">
-			<AtsChecker signedIn={signedIn} importPending={importPending} />
+		<main id="main-content" className="grid min-h-svh content-center justify-items-center gap-4 bg-bg p-4">
+			<h1 className="type-title">
+				<Trans>Check your CV in your private workspace</Trans>
+			</h1>
+			<p className="type-body text-ink-2">
+				<Trans>
+					Import and review your CV, then check the exact PDF from its editor. No public file upload is available.
+				</Trans>
+			</p>
+			<Link to={signedIn ? "/dashboard" : "/auth/login"} className={buttonVariants()}>
+				<Trans>Open private workspace</Trans>
+			</Link>
 		</main>
 	);
 }

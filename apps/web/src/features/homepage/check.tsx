@@ -81,11 +81,9 @@ function ParsedText({ fixed }: { fixed: boolean }) {
  * ticks off. A lens drifts down the page, showing what hiring software reads; with a mouse, it follows the cursor.
  */
 export function Check() {
-	const { i18n } = useLingui();
 	const progress = useLanding((state) => state.checkProgress);
 	const sectionRef = useRef<HTMLElement>(null);
 	const check = t`Check`;
-	const score = Math.round(58 + 36 * progress);
 
 	const items = [
 		{ label: t`Contact details found`, done: progress > 0.08, warning: false },
@@ -144,11 +142,8 @@ export function Check() {
 				<div className="absolute inset-x-(--gutter) top-[calc(10vh+16vw)] flex flex-col justify-between gap-6 min-[900px]:end-auto min-[900px]:top-[calc(11vh+clamp(72px,9vw,160px)*.95+4vh)] min-[900px]:bottom-[clamp(20px,5vh,44px)] min-[900px]:w-[min(34em,36vw)]">
 					<div className="flex flex-col gap-3.5">
 						<span className={cn(labelClass, "text-ink-3")}>{t`ATS readability`}</span>
-						<p className="flex items-baseline gap-2.5">
-							<span className="font-anybody text-[48px] leading-[.9] font-light tracking-[-.03em] text-ink tabular-nums min-[900px]:text-[clamp(52px,5vw,92px)]">
-								{i18n.number(score)}
-							</span>
-							<span className="font-martian text-[13px] text-ink-3">/ {i18n.number(100)}</span>
+						<p className="type-section text-ink">
+							<span>{t`Review each area`}</span>
 						</p>
 						<ul className="flex flex-col gap-2 font-ui text-sm leading-[1.3] font-medium">
 							{items.map((item, index) => (
@@ -180,15 +175,15 @@ export function Check() {
 						className="min-[900px]:short:hidden hidden min-[900px]:flex"
 						action={
 							<Link
-								to="/ats-checker"
+								to="/auth/login"
 								className="flex items-center gap-1.5 self-start font-ui text-[15px] font-semibold text-accent-text transition-colors hover:text-accent-hover"
 							>
-								{t`Check any PDF, no account needed`}
+								{t`Sign in to check your CV`}
 								<Icon name="arrow-right" size={19} />
 							</Link>
 						}
 					>
-						{t`Check reads your resume the way hiring software does and explains what to fix in plain words. It runs in your browser, so the file stays with you: 0 uploads.`}
+						{t`Checking requires an account. Review PDF readability and writing notes separately in your private workspace, without an overall score or hiring prediction.`}
 					</SceneCaption>
 				</div>
 

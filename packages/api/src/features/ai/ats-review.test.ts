@@ -19,3 +19,18 @@ describe("atsReviewOutputSchema", () => {
 		expect(parsed.jdAlignment?.missingConcepts).toEqual(["kubernetes"]);
 	});
 });
+
+it("denies direct contact-bearing reviews before provider lookup", async () => {
+	const { reviewResumeText } = await import("./ats-review");
+	await expect(
+		reviewResumeText({
+			provider: "openai",
+			model: "unused",
+			apiKey: "unused",
+			baseURL: "",
+			extractedText: "synthetic.private@example.test",
+			findings: [],
+			passages: [],
+		}),
+	).rejects.toMatchObject({ code: "FORBIDDEN" });
+});

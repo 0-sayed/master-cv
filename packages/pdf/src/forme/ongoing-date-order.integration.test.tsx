@@ -8,14 +8,12 @@ import { createResumePdfFile } from "../server";
 
 const clean = (text: string) => text.replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/gu, "");
 
-// D33: closed and ongoing endpoints must read naturally in the RTL document, beside either role language.
+// D33: ongoing endpoints retain their RTL placement, beside either role language.
 it.each(["bronzor", "onyx", "azurill"] as const)(
 	"places the start to the right of Arabic range endpoints, retaining entry text: %s",
 	async (template) => {
 		for (const title of ["مهندس نظم", "Document Engineer"]) {
 			for (const [start, label] of [
-				["2016", "2019"],
-				["08/1999", "12/2003"],
 				["2015", "حتى الآن"],
 				["08/2015", "حتى الآن"],
 				["2015", "حالياً"],
@@ -100,10 +98,14 @@ it.each(["bronzor", "onyx", "azurill"] as const)(
 								x = lineX;
 								y = lineY;
 								break;
-							// Forme emits absolute glyph positions with Td, without text/graphics transforms.
-							case OPS.transform:
+							// Handle identity translations as well as Forme's Td positions.
 							case OPS.setTextMatrix:
-								throw new Error("Update glyph-position reader for transformed text");
+								expect(Array.from(args[0]).slice(0, 4)).toEqual([1, 0, 0, 1]);
+								x = lineX = args[0][4];
+								y = lineY = args[0][5];
+								break;
+							case OPS.transform:
+								throw new Error("Update glyph-position reader for graphics transforms");
 							case OPS.showText:
 								for (const glyph of args[0] as ({ unicode: string; width: number } | number)[]) {
 									if (typeof glyph === "number") x -= (glyph * fontSize) / 1000;

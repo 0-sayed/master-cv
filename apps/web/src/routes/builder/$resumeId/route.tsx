@@ -49,20 +49,22 @@ export const Route = createFileRoute("/builder/$resumeId")({
 
 function RouteComponent() {
 	const { resumeId } = Route.useParams();
+	const { session } = Route.useRouteContext();
 	const { data: resume } = useSuspenseQuery(orpc.resume.getById.queryOptions({ input: { id: resumeId } }));
 	const initializeResumeStore = useResumeStore((state) => state.initialize);
 	const mergeResumeMetadata = useResumeStore((state) => state.mergeResumeMetadata);
 	const isReady = useResumeStore((state) => state.isReady);
 	const initializedResumeId = useResumeStore((state) => state.resumeId);
-	const isInitialized = isReady && initializedResumeId === resumeId;
+	const ownerId = useResumeStore((state) => state.ownerId);
+	const isInitialized = isReady && initializedResumeId === resumeId && ownerId === session.user.id;
 
 	useResumeCleanup();
 	useBuilderResumeUpdateSubscription();
 
 	useEffect(() => {
 		if (isInitialized) return;
-		initializeResumeStore(resume);
-	}, [initializeResumeStore, isInitialized, resume]);
+		initializeResumeStore(resume, session.user.id);
+	}, [initializeResumeStore, isInitialized, resume, session.user.id]);
 
 	useEffect(() => {
 		mergeResumeMetadata(resume);

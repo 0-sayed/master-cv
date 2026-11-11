@@ -1,3 +1,4 @@
+import type { ImportReviewIssue } from "@reactive-resume/import/plain-text";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { t } from "@lingui/core/macro";
 import { parseJSONResume } from "@reactive-resume/import/json-resume";
@@ -5,7 +6,6 @@ import { parseReactiveResumeJSON } from "@reactive-resume/import/reactive-resume
 import { parseReactiveResumeV4JSON } from "@reactive-resume/import/reactive-resume-v4-json";
 import { convertLegacyStylesheet, needsLegacyStyleConversion } from "@reactive-resume/pdf/semantic-legacy";
 import { forEachDatedEntry } from "@reactive-resume/schema/resume/dates";
-import { client } from "@/libs/orpc/client";
 
 /** What a file holds, read from its bytes and shape rather than its extension or type. */
 export type ImportKind =
@@ -118,25 +118,17 @@ export function parseResumeJson(text: string, kind: ResumeJsonKind): ResumeData 
 	return parseJSONResume(data);
 }
 
-function fileToBase64(file: File): Promise<string> {
-	return new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		// Drop the data URL prefix ("data:application/pdf;base64,").
-		reader.onload = () => resolve(String(reader.result).split(",")[1] ?? "");
-		reader.onerror = reject;
-		reader.readAsDataURL(file);
-	});
-}
-
-/**
- * Reads a resume from a file. PDFs go to the AI provider when one is set up and are read in the browser
- * otherwise; Word needs a provider; LinkedIn exports and JSON never leave the browser. `onRead` reports the
- * end of the first step (the file's text is in hand) with a short note.
- */
+/** Native import never transmits the original attachment to a model. */
 export async function readResumeFile(
 	file: File,
 	kind: Exclude<ImportKind, "cover-letter-json">,
-	options: { aiAvailable: boolean; onRead?: (note: string) => void },
+	options: {
+		aiAvailable: boolean;
+		signal?: AbortSignal;
+		onCoverage?: (value: { partial: boolean; pages?: { page: number; text: string }[] }) => void;
+		onRead?: (note: string) => void;
+		onUncertain?: (issue: ImportReviewIssue) => void;
+	},
 ): Promise<ResumeData> {
 	if (kind === "reactive-resume-json" || kind === "reactive-resume-v4-json" || kind === "json-resume-json") {
 		const text = await file.text();
@@ -151,39 +143,25 @@ export async function readResumeFile(
 		return parseLinkedInExport(bytes);
 	}
 
-	if (kind === "docx") {
-		if (!options.aiAvailable) {
-			throw new ImportError(
-				t`Reading Word files needs an AI provider. Set one up in Settings, or import a PDF or JSON file instead.`,
-			);
-		}
-		const base64 = await fileToBase64(file);
-		options.onRead?.(t`file read`);
-		const mediaType =
-			file.type === "application/msword"
-				? ("application/msword" as const)
-				: ("application/vnd.openxmlformats-officedocument.wordprocessingml.document" as const);
-		return client.ai.parseDocx({ mediaType, file: { name: file.name, data: base64 } });
-	}
-
-	if (options.aiAvailable) {
-		const base64 = await fileToBase64(file);
-		options.onRead?.(t`file read`);
-		return client.ai.parsePdf({ file: { name: file.name, data: base64 } });
-	}
+	if (kind === "docx")
+		throw new ImportError(t`Word import is not available. Import a readable PDF or enter your information manually.`);
 
 	const [{ extractPdfText }, { parseResumeText }] = await Promise.all([
 		import("./pdf-text"),
 		import("@reactive-resume/import/plain-text"),
 	]);
-	const { lines, locale } = await extractPdfText(file);
+	const { lines, locale, partial, pages } = await extractPdfText(file, options.signal);
+	options.onCoverage?.({ partial, pages });
 	if (lines.length === 0) {
 		throw new ImportError(
-			t`This PDF is a scanned image. There's no text to read. Try the Word version, or start blank and paste sections in.`,
+			t`This PDF is a scanned image. There's no text to read. Start blank and enter your information manually.`,
 		);
 	}
 	options.onRead?.(t`text layer found`);
-	return parseResumeText(lines.join("\n"), locale ? { locale } : {});
+	return parseResumeText(lines.join("\n"), {
+		...(locale ? { locale } : {}),
+		...(options.onUncertain ? { onUncertain: options.onUncertain } : {}),
+	});
 }
 
 /** What an import found: sections with content, their entries, and dates flagged for a look. */

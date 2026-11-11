@@ -52,7 +52,7 @@ for (const width of [1280, 1440]) {
 		await page.getByRole("button", { name: "جديد", exact: true }).click();
 		const dialog = page.getByRole("dialog");
 		await expect(dialog).toBeVisible();
-		await expect(dialog.getByRole("button", { name: /^البدء بسيرة فارغة/u })).toBeVisible();
+		await expect(dialog.getByRole("button", { name: /^الكتابة من الصفر/u })).toBeVisible();
 		expect(await dialog.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
 	});
 }

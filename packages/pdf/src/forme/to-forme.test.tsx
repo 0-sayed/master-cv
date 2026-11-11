@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 import { act } from "react";
-import { Document, Link, Page, Text } from "./primitives";
+import { Document, Link, Page, Text, View } from "./primitives";
 import { renderHostTree } from "./reconciler";
 import { toFormeDocument } from "./to-forme";
 
@@ -59,3 +59,19 @@ it.each([
 		expect(text?.kind.runs?.find((run) => run.content === "site")?.style.fontSize).toBe(expected);
 	},
 );
+
+it("keeps A4 geometry unchanged after measuring pagination", () => {
+	const tree = renderHostTree(
+		<Document>
+			<Page size="A4" style={{ paddingVertical: 48 }}>
+				<View fixed style={{ position: "absolute", top: 0, bottom: 0, width: "30%", backgroundColor: "#dc2626" }} />
+				<View style={{ minHeight: "100%" }}>
+					<Text>Measured content</Text>
+				</View>
+			</Page>
+		</Document>,
+	);
+	const before = toFormeDocument(tree).document;
+	toFormeDocument(tree, { measurePagination: true });
+	expect(toFormeDocument(tree).document).toEqual(before);
+});

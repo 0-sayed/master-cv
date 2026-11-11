@@ -45,6 +45,105 @@ function assertResumeVersion(updatedAt: Date, expectedUpdatedAt?: Date) {
 	}
 }
 
+function nextResumeVersion(previous: Date) {
+	return new Date(Math.max(Date.now(), previous.getTime() + 1));
+}
+
+type ResumeUpdateInput = {
+	id: string;
+	userId: string;
+	name?: string;
+	slug?: string;
+	tags?: string[];
+	data?: ResumeData;
+	isPublic?: boolean;
+	showDownloadButtons?: boolean;
+	expectedUpdatedAt?: Date;
+	skipAutoSnapshot?: boolean;
+	/** The editor visit this save belongs to; its autosaves share one version. */
+	sessionId?: string;
+};
+
+async function updateResumeTx(tx: DbOrTx, input: ResumeUpdateInput) {
+	const [existing] = await tx
+		.select({
+			name: schema.resume.name,
+			data: schema.resume.data,
+			slug: schema.resume.slug,
+			isLocked: schema.resume.isLocked,
+			autoName: schema.resume.autoName,
+			updatedAt: schema.resume.updatedAt,
+		})
+		.from(schema.resume)
+		.where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId), isNull(schema.resume.trashedAt)))
+		.for("update");
+
+	if (!existing) throw new ORPCError("NOT_FOUND");
+	if (existing.isLocked) throw new ORPCError("RESUME_LOCKED", { status: 403 });
+	assertResumeVersion(existing.updatedAt, input.expectedUpdatedAt);
+
+	// A new address must follow the pattern; existing ones that don't keep working until changed.
+	const renamed = input.slug !== undefined && input.slug !== existing.slug;
+	if (renamed && !SLUG_PATTERN.test(input.slug as string)) {
+		throw new ORPCError("INVALID_SLUG", { status: 400 });
+	}
+	if (renamed) {
+		await recordSlugChange(tx, {
+			userId: input.userId,
+			resumeId: input.id,
+			from: existing.slug,
+			to: input.slug as string,
+		});
+	}
+
+	const normalizedData = input.data ? parseWritableResumeData(input.data) : undefined;
+	if (normalizedData)
+		await adoptEmbeddedLetters(tx, {
+			userId: input.userId,
+			resumeId: input.id,
+			resumeName: input.name ?? existing.name,
+			data: normalizedData,
+		});
+	// A blank resume is named after its headline until someone names it by hand.
+	const followedName =
+		existing.autoName && input.name === undefined && normalizedData
+			? normalizedData.basics.headline.trim().slice(0, 100) || undefined
+			: undefined;
+	const updateData: Partial<typeof schema.resume.$inferSelect> = {
+		updatedAt: nextResumeVersion(existing.updatedAt),
+		...(input.name !== undefined ? { name: input.name, autoName: false } : {}),
+		...(followedName ? { name: followedName } : {}),
+		...(input.slug !== undefined ? { slug: input.slug } : {}),
+		...(input.tags !== undefined ? { tags: input.tags } : {}),
+		...(normalizedData ? { data: normalizedData } : {}),
+		...(input.isPublic !== undefined ? { isPublic: input.isPublic } : {}),
+		...(input.showDownloadButtons !== undefined ? { showDownloadButtons: input.showDownloadButtons } : {}),
+	};
+
+	const [updated] = await tx
+		.update(schema.resume)
+		.set(updateData)
+		.where(
+			and(eq(schema.resume.id, input.id), eq(schema.resume.isLocked, false), eq(schema.resume.userId, input.userId)),
+		)
+		.returning({
+			id: schema.resume.id,
+			name: schema.resume.name,
+			slug: schema.resume.slug,
+			tags: schema.resume.tags,
+			data: schema.resume.data,
+			isPublic: schema.resume.isPublic,
+			isLocked: schema.resume.isLocked,
+			showDownloadButtons: schema.resume.showDownloadButtons,
+			createdAt: schema.resume.createdAt,
+			updatedAt: schema.resume.updatedAt,
+			hasPassword: sql<boolean>`${schema.resume.password} IS NOT NULL`,
+		});
+
+	if (!updated) throw new ORPCError("NOT_FOUND");
+	return updated;
+}
+
 function invalidPatchOperation(message: string, index: number, operation: JsonPatchOperation) {
 	return new ORPCError("INVALID_PATCH_OPERATIONS", { status: 400, message, data: { index, operation } });
 }
@@ -93,7 +192,7 @@ async function applyResumePatchTx(
 			updatedAt: schema.resume.updatedAt,
 		})
 		.from(schema.resume)
-		.where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)))
+		.where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId), isNull(schema.resume.trashedAt)))
 		.for("update");
 
 	if (!existing) throw new ORPCError("NOT_FOUND");
@@ -135,7 +234,7 @@ async function applyResumePatchTx(
 	// zero rows and every guarded patch on a fresh resume reports a version conflict forever.
 	const [resume] = await client
 		.update(schema.resume)
-		.set({ data: patchedData })
+		.set({ data: patchedData, updatedAt: nextResumeVersion(existing.updatedAt) })
 		.where(
 			and(eq(schema.resume.id, input.id), eq(schema.resume.isLocked, false), eq(schema.resume.userId, input.userId)),
 		)
@@ -356,7 +455,7 @@ function toSharedResumeResponse(
 	};
 }
 
-async function notifyResumeUpdated(event: ResumeUpdatedEvent) {
+export async function notifyResumeUpdated(event: ResumeUpdatedEvent) {
 	try {
 		await publishResumeUpdated(event);
 	} catch (error) {
@@ -413,35 +512,50 @@ export const resumeService = {
 
 		// Non-destructive restore: writes the snapshot's data back through the normal update path, so
 		// prior versions remain and the restore is itself just another (snapshot-able, undoable) change.
-		restore: async (input: { resumeId: string; versionId: string; userId: string }) => {
-			// Check lock state before loading or validating historical data so locked resumes fail without expensive work.
-			const current = await resumeService.getById({ id: input.resumeId, userId: input.userId });
-			if (current.isLocked) throw new ORPCError("RESUME_LOCKED", { status: 403 });
-
-			const version = await getVersion(input);
-
-			// Capture the pre-restore state first so the restore itself is undoable.
-			await writeVersion(db, {
-				resumeId: input.resumeId,
-				userId: input.userId,
-				data: current.data,
-				kind: "before-restore",
+		restore: async (input: { resumeId: string; versionId: string; userId: string; expectedUpdatedAt?: Date }) => {
+			const updated = await db.transaction(async (tx) => {
+				const [current] = await tx
+					.select({ data: schema.resume.data, isLocked: schema.resume.isLocked, updatedAt: schema.resume.updatedAt })
+					.from(schema.resume)
+					.where(
+						and(
+							eq(schema.resume.id, input.resumeId),
+							eq(schema.resume.userId, input.userId),
+							isNull(schema.resume.trashedAt),
+						),
+					)
+					.for("update");
+				if (!current) throw new ORPCError("NOT_FOUND");
+				if (current.isLocked) throw new ORPCError("RESUME_LOCKED", { status: 403 });
+				assertResumeVersion(current.updatedAt, input.expectedUpdatedAt);
+				const version = await getVersion(input, tx);
+				await writeVersion(tx, {
+					resumeId: input.resumeId,
+					userId: input.userId,
+					data: parseStoredResumeData(current.data),
+					kind: "before-restore",
+				});
+				const restored = await updateResumeTx(tx, {
+					id: input.resumeId,
+					userId: input.userId,
+					data: version.data,
+					expectedUpdatedAt: current.updatedAt,
+				});
+				await writeVersion(tx, {
+					resumeId: input.resumeId,
+					userId: input.userId,
+					data: restored.data,
+					kind: "restored",
+				});
+				return restored;
 			});
-
-			const updated = await resumeService.update({
-				id: input.resumeId,
+			await notifyResumeUpdated({
+				type: "resume.updated",
+				resumeId: updated.id,
 				userId: input.userId,
-				data: version.data,
-				skipAutoSnapshot: true,
+				updatedAt: updated.updatedAt.toISOString(),
+				mutation: "update",
 			});
-
-			await writeVersion(db, {
-				resumeId: input.resumeId,
-				userId: input.userId,
-				data: updated.data,
-				kind: "restored",
-			});
-
 			return updated;
 		},
 	},
@@ -492,7 +606,9 @@ export const resumeService = {
 				applicationId: schema.resume.applicationId,
 			})
 			.from(schema.resume)
-			.where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)));
+			.where(
+				and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId), isNull(schema.resume.trashedAt)),
+			);
 
 		if (!resume) throw new ORPCError("NOT_FOUND");
 
@@ -564,20 +680,23 @@ export const resumeService = {
 		return toSharedResumeResponse(redactResumeForViewer(current, isOwner(current, viewer)), resume.hasPassword);
 	},
 
-	create: async (input: {
-		id?: string;
-		userId: string;
-		name: string;
-		/** Generated from the name, and made unique among the user's resumes, when omitted. */
-		slug?: string;
-		tags: string[];
-		locale: Locale;
-		data?: ResumeData;
-		/** The first version in History: "created", or "import" for an imported document. */
-		origin?: "created" | "import";
-		/** The name follows the headline until someone renames the resume. */
-		autoName?: boolean;
-	}) => {
+	create: async (
+		input: {
+			id?: string;
+			userId: string;
+			name: string;
+			/** Generated from the name, and made unique among the user's resumes, when omitted. */
+			slug?: string;
+			tags: string[];
+			locale: Locale;
+			data?: ResumeData;
+			/** The first version in History: "created", or "import" for an imported document. */
+			origin?: "created" | "import";
+			/** The name follows the headline until someone renames the resume. */
+			autoName?: boolean;
+		},
+		options: { atomicConfirmation?: boolean } = {},
+	) => {
 		const id = input.id ?? generateId();
 		const data = parseWritableResumeData(structuredClone(input.data ?? defaultResumeData));
 		data.metadata.page.locale = input.locale;
@@ -600,18 +719,18 @@ export const resumeService = {
 				await adoptEmbeddedLetters(tx, { userId: input.userId, resumeId: id, resumeName: input.name, data });
 			});
 
-			// History is never empty: its first entry is where the document came from (best effort).
-			await writeVersion(db, { resumeId: id, userId: input.userId, data, kind: input.origin ?? "created" }).catch(
-				(error: unknown) => console.warn("Failed to save the first version:", error),
-			);
-
-			await notifyResumeUpdated({
-				type: "resume.updated",
-				resumeId: id,
-				userId: input.userId,
-				updatedAt: new Date().toISOString(),
-				mutation: "create",
-			});
+			const initialVersion = () =>
+				writeVersion(db, { resumeId: id, userId: input.userId, data, kind: input.origin ?? "created" });
+			if (options.atomicConfirmation) await initialVersion();
+			else await initialVersion().catch(() => console.warn("Failed to save the first version"));
+			if (!options.atomicConfirmation)
+				await notifyResumeUpdated({
+					type: "resume.updated",
+					resumeId: id,
+					userId: input.userId,
+					updatedAt: new Date().toISOString(),
+					mutation: "create",
+				});
 
 			return id;
 		} catch (error) {
@@ -621,7 +740,7 @@ export const resumeService = {
 				throw new ORPCError("RESUME_SLUG_ALREADY_EXISTS", { status: 400 });
 			}
 
-			console.error("Failed to create resume:", error);
+			console.error("Failed to create resume");
 			throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Failed to create resume" });
 		}
 	},
@@ -641,88 +760,7 @@ export const resumeService = {
 		sessionId?: string;
 	}) => {
 		const resume = await db
-			.transaction(async (tx) => {
-				const [existing] = await tx
-					.select({
-						name: schema.resume.name,
-						data: schema.resume.data,
-						slug: schema.resume.slug,
-						isLocked: schema.resume.isLocked,
-						autoName: schema.resume.autoName,
-						updatedAt: schema.resume.updatedAt,
-					})
-					.from(schema.resume)
-					.where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)))
-					.for("update");
-
-				if (!existing) throw new ORPCError("NOT_FOUND");
-				if (existing.isLocked) throw new ORPCError("RESUME_LOCKED", { status: 403 });
-				assertResumeVersion(existing.updatedAt, input.expectedUpdatedAt);
-
-				// A new address must follow the pattern; existing ones that don't keep working until changed.
-				const renamed = input.slug !== undefined && input.slug !== existing.slug;
-				if (renamed && !SLUG_PATTERN.test(input.slug as string)) {
-					throw new ORPCError("INVALID_SLUG", { status: 400 });
-				}
-				if (renamed) {
-					await recordSlugChange(tx, {
-						userId: input.userId,
-						resumeId: input.id,
-						from: existing.slug,
-						to: input.slug as string,
-					});
-				}
-
-				const normalizedData = input.data ? parseWritableResumeData(input.data) : undefined;
-				if (normalizedData)
-					await adoptEmbeddedLetters(tx, {
-						userId: input.userId,
-						resumeId: input.id,
-						resumeName: input.name ?? existing.name,
-						data: normalizedData,
-					});
-				// A blank resume is named after its headline until someone names it by hand.
-				const followedName =
-					existing.autoName && input.name === undefined && normalizedData
-						? normalizedData.basics.headline.trim().slice(0, 100) || undefined
-						: undefined;
-				const updateData: Partial<typeof schema.resume.$inferSelect> = {
-					...(input.name !== undefined ? { name: input.name, autoName: false } : {}),
-					...(followedName ? { name: followedName } : {}),
-					...(input.slug !== undefined ? { slug: input.slug } : {}),
-					...(input.tags !== undefined ? { tags: input.tags } : {}),
-					...(normalizedData ? { data: normalizedData } : {}),
-					...(input.isPublic !== undefined ? { isPublic: input.isPublic } : {}),
-					...(input.showDownloadButtons !== undefined ? { showDownloadButtons: input.showDownloadButtons } : {}),
-				};
-
-				const [updated] = await tx
-					.update(schema.resume)
-					.set(updateData)
-					.where(
-						and(
-							eq(schema.resume.id, input.id),
-							eq(schema.resume.isLocked, false),
-							eq(schema.resume.userId, input.userId),
-						),
-					)
-					.returning({
-						id: schema.resume.id,
-						name: schema.resume.name,
-						slug: schema.resume.slug,
-						tags: schema.resume.tags,
-						data: schema.resume.data,
-						isPublic: schema.resume.isPublic,
-						isLocked: schema.resume.isLocked,
-						showDownloadButtons: schema.resume.showDownloadButtons,
-						createdAt: schema.resume.createdAt,
-						updatedAt: schema.resume.updatedAt,
-						hasPassword: sql<boolean>`${schema.resume.password} IS NOT NULL`,
-					});
-
-				if (!updated) throw new ORPCError("NOT_FOUND");
-				return updated;
-			})
+			.transaction((tx) => updateResumeTx(tx, input))
 			.catch((error: unknown) => {
 				if (error instanceof ORPCError) throw error;
 

@@ -6,7 +6,6 @@ export type PreviewPageSize = {
 	width: number;
 };
 
-const PDF_PAGE_RENDER_SCALE = 4;
 const MAX_PREVIEW_CANVAS_PIXELS = 16_777_216; // 4096 * 4096
 
 export const DEFAULT_PDF_PAGE_SIZE: PreviewPageSize = {
@@ -14,9 +13,12 @@ export const DEFAULT_PDF_PAGE_SIZE: PreviewPageSize = {
 	width: 595.28,
 };
 
-export const getPreviewCanvasScale = (width: number, height: number) => {
-	const devicePixelRatio = window.devicePixelRatio || 1;
-	const desiredScale = Math.max(PDF_PAGE_RENDER_SCALE, devicePixelRatio);
+export const getPreviewCanvasScale = (
+	width: number,
+	height: number,
+	devicePixelRatio = window.devicePixelRatio || 1,
+) => {
+	const desiredScale = devicePixelRatio;
 	const desiredPixels = width * height * desiredScale * desiredScale;
 
 	if (desiredPixels <= MAX_PREVIEW_CANVAS_PIXELS) return desiredScale;
@@ -25,8 +27,8 @@ export const getPreviewCanvasScale = (width: number, height: number) => {
 };
 
 export const getScaledPreviewPageSize = (pageSize: PreviewPageSize, pageScale: number): PreviewPageSize => ({
-	height: pageSize.height * pageScale,
-	width: pageSize.width * pageScale,
+	height: Math.round(pageSize.height * pageScale),
+	width: Math.round(pageSize.width * pageScale),
 });
 
 export const getResumePreviewGapValue = (pageGap: CSSProperties["gap"]) =>

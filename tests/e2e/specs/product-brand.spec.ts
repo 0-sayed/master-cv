@@ -3,16 +3,15 @@ import { resolve } from "node:path";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
-test("built shell and install manifest use Master CV and canonical loader assets", async ({ request }) => {
+test("built shell and install manifest use Master CV and inline loader mark", async ({ request }) => {
 	const index = await readFile(resolve("apps/web/dist/index.html"), "utf8");
 	const manifestFile = await readFile(resolve("apps/web/dist/manifest.webmanifest"), "utf8");
 	for (const content of [index, manifestFile]) {
 		expect.soft(content).not.toMatch(/Reactive Resume|\/icon\/light\.svg/i);
 	}
 	expect(index).toMatch(/<title>Master CV/);
-	for (const theme of ["light", "dark"]) {
-		expect(index).toContain(`src="/master-cv/${theme}.svg"`);
-	}
+	expect(index).toContain('class="initial-loader__mark"');
+	expect(index).toContain('mask="url(#boot-tick)"');
 	const manifest = JSON.parse(manifestFile);
 	expect(manifest.name).toBe("Master CV");
 	expect(manifest.short_name).toBe("Master CV");
@@ -35,7 +34,7 @@ for (const theme of ["light", "dark"] as const) {
 			// Keep the inline theme bootstrap; hold the app bundle to capture the real startup screen.
 			await page.route(/\/assets\/.*\.js(?:\?.*)?$/, (route) => route.abort());
 			await page.goto("/auth/login");
-			const mark = page.locator(`#initial-loader img[src="/master-cv/${theme}.svg"]`);
+			const mark = page.locator("#initial-loader svg.initial-loader__mark");
 			await expect(mark).toBeVisible();
 			const box = await mark.boundingBox();
 			expect(box?.width).toBe(48);

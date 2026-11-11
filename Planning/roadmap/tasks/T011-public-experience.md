@@ -45,6 +45,19 @@ deferred.
 
 Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
 
+## Owner decision 2026-11-11 &mdash; landing design source
+
+- Use a MIXED landing design: Figma's landing inventory (screens, states and content as starting design per D36)
+  plus inspiration from the original Reactive Resume landing page by Amruth Pillai (MIT): animations, motion and section ideas.
+- Before building, research candidate upstream animations/elements with screenshots/recordings; the owner picks
+  which to adapt.
+- Adapt selected elements to Master CV's brand, T002/D35 tokens, copy deck and AR/EN. Never reuse Reactive Resume's
+  name, logo, screenshots or third-party images as our own; check each non-code asset's own license.
+- Keep the MIT copyright/license text in `LICENSE` and the footer credit
+  'Built on Reactive Resume by Amruth Pillai, licensed under MIT'; add a link to the
+  [original repository](https://github.com/reactive-resume/reactive-resume).
+- Do not update Figma for this decision; record each divergence in this task's evidence under D36.
+
 ## Source references
 
 - [business/product.md](../../context/business/product.md)

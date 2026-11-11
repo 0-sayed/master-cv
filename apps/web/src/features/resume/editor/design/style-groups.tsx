@@ -7,6 +7,7 @@ import { RadioGroup } from "@base-ui/react/radio-group";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createContext, useContext, useId, useState } from "react";
+import { getDocumentFontChoices } from "@reactive-resume/schema/resume/font-policy";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
@@ -22,7 +23,6 @@ import {
 	applyMargins,
 	applyTextSize,
 	darkenForWhite,
-	FONT_PAIRINGS,
 	hexToRgba,
 	isValidHex,
 	matchDensity,
@@ -40,7 +40,11 @@ type Metadata = Pick<ResumeData["metadata"], "typography" | "design" | "page">;
 /** Edits the design; `key` names the control, so dragging a slider is one undo step. */
 type DesignWriter = (key: string, mutate: (metadata: WritableDraft<Metadata>) => void, discrete?: boolean) => void;
 
-export type DesignSource = { metadata: Metadata | undefined; write: DesignWriter };
+export type DesignSource = {
+	metadata: Metadata | undefined;
+	fontPolicyData: ResumeData | undefined;
+	write: DesignWriter;
+};
 
 const DesignSourceContext = createContext<DesignSource | null>(null);
 
@@ -54,6 +58,7 @@ function useDesign(): DesignSource {
 	if (source) return source;
 	return {
 		metadata: data?.metadata,
+		fontPolicyData: data,
 		write: (key, mutate, discrete = false) =>
 			updateResumeData(
 				(draft) => mutate(draft.metadata),
@@ -71,11 +76,15 @@ type TypeGroupProps = {
 
 /** Type: five font pairings (or any font, in Advanced), the text size (9–12.5 pt) and density. */
 export function TypeGroup({ onCustomFonts }: TypeGroupProps) {
-	const { metadata, write } = useDesign();
+	const { metadata, fontPolicyData, write } = useDesign();
 	const sizeLabelId = useId();
 	if (!metadata) return null;
 
-	const pairing = matchFontPairing(metadata);
+	const pairings = fontPolicyData
+		? getDocumentFontChoices({ ...fontPolicyData, metadata: { ...fontPolicyData.metadata, ...metadata } }).pairings
+		: [];
+	const matchedPairing = matchFontPairing(metadata);
+	const pairing = pairings.some((option) => option.id === matchedPairing) ? matchedPairing : null;
 	const density = matchDensity(metadata);
 	const size = metadata.typography.body.fontSize;
 	const { heading, body } = metadata.typography;
@@ -89,7 +98,7 @@ export function TypeGroup({ onCustomFonts }: TypeGroupProps) {
 					onValueChange={(value) => write("pairing", (draft) => applyFontPairing(draft, value as FontPairingId), true)}
 					className="grid gap-1"
 				>
-					{FONT_PAIRINGS.map((option) => (
+					{pairings.map((option) => (
 						<Radio.Root
 							key={option.id}
 							value={option.id}
@@ -112,7 +121,7 @@ export function TypeGroup({ onCustomFonts }: TypeGroupProps) {
 							<Trans>Custom</Trans>
 						</span>
 						<span className="truncate text-xs text-ink-3">
-							{pairing ? <Trans>Any font, in Advanced</Trans> : familiesLabel(heading.fontFamily, body.fontFamily)}
+							{pairing ? <Trans>Tested fonts, in Advanced</Trans> : familiesLabel(heading.fontFamily, body.fontFamily)}
 						</span>
 						<Icon name="arrow-down" size={18} className="ms-auto text-ink-3" />
 					</button>

@@ -22,7 +22,7 @@ test("counts a visitor's PDF download without counting the preview", async ({ br
 		await expect(anonymous.getByRole("button", { name: "Download PDF" }).first()).toBeVisible();
 		await expect.poll(readStatistics).toMatchObject({ views: 1, downloads: 0, lastDownloadedAt: null });
 
-		const downloaded = anonymous.waitForEvent("download");
+		const downloaded = anonymous.waitForEvent("download", { timeout: 60_000 });
 		await anonymous.getByRole("button", { name: "Download PDF" }).first().click();
 		const download = await downloaded;
 		expect(await download.failure()).toBeNull();
@@ -40,8 +40,7 @@ test("counts a visitor's PDF download without counting the preview", async ({ br
 		const sharedEndpoint = `/api/openapi/resumes${new URL(publicUrl).pathname}`;
 		expect((await anonymous.request.get(`/api/openapi/resumes/${resumeId}`)).status()).toBe(401);
 		expect((await anonymous.request.get(statisticsUrl)).status()).toBe(401);
-		await page.getByRole("switch", { name: "Public link" }).click();
-		await expect(page.getByRole("switch", { name: "Public link" })).not.toBeChecked();
+		await expect(await page.request.put(`/api/openapi/resumes/${resumeId}`, { data: { isPublic: false } })).toBeOK();
 		expect((await anonymous.request.get(sharedEndpoint)).status()).toBe(404);
 		expect((await anonymous.request.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(404);
 	} finally {

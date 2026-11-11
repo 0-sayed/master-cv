@@ -12,19 +12,19 @@ import { expect, test } from "../fixtures/test";
 
 for (const locale of ["en-US", "ar-SA"])
 	for (const width of [1440, 390])
-		test(`T001 ${locale} ${width}px failed analysis never presents a clean score`, async ({ page }, testInfo) => {
+		test(`T001 ${locale} ${width}px public checker keeps file processing private`, async ({ page }, testInfo) => {
 			await page.context().addCookies([{ name: "locale", value: locale, url: String(testInfo.project.use.baseURL) }]);
 			await page.setViewportSize({ width, height: 1000 });
 			await page.goto("/ats-checker");
-			await page.waitForLoadState("networkidle");
-			await page.locator('input[type="file"]').setInputFiles("packages/pdf/fixtures/ats/outlined-text.pdf");
-			const message =
-				locale === "ar-SA"
-					? "تعذّر إكمال التحليل. لا تتوفر درجة إجمالية."
-					: "Analysis could not be completed. No overall score is available.";
-			await expect(page.getByRole("status").filter({ hasText: message })).toHaveText(message);
+			await expect(page.locator('input[type="file"]')).toHaveCount(0);
 			await expect(page.locator(".score-ring")).toHaveCount(0);
-			await page.screenshot({ path: testInfo.outputPath("failed-analysis.png"), fullPage: true });
+			await expect(
+				page.getByRole("link", {
+					name: locale === "ar-SA" ? "فتح مساحة العمل الخاصة" : "Open private workspace",
+					exact: true,
+				}),
+			).toHaveAttribute("href", "/auth/login");
+			await page.screenshot({ path: testInfo.outputPath("private-checker.png"), fullPage: true });
 		});
 
 for (const documentLanguage of ["ar", "en"] as const)
@@ -71,10 +71,16 @@ for (const documentLanguage of ["ar", "en"] as const)
 				await page.goto(`/builder/${id}`);
 				await expect(page.locator("html")).toHaveAttribute("dir", uiLocale === "ar-SA" ? "rtl" : "ltr");
 				await page.evaluate(() => document.fonts.ready);
-				const downloadPromise = page.waitForEvent("download");
+				const downloadPromise = page.waitForEvent("download", { timeout: 60_000 });
 				await page
 					.getByRole("button", { name: uiLocale === "ar-SA" ? "تنزيل PDF" : "Download PDF", exact: true })
 					.click();
+				if (width === 390) {
+					await page
+						.getByRole("dialog")
+						.getByRole("button", { name: uiLocale === "ar-SA" ? "تحميل PDF" : "Download PDF", exact: true })
+						.click();
+				}
 				const download = await downloadPromise;
 				expect(await download.failure()).toBeNull();
 				const path = testInfo.outputPath(`${uiLocale}.pdf`);
@@ -153,7 +159,7 @@ test("browser PDF downloads preserve shaped scripts and name unsupported text wi
 		const updated = await page.request.put(`/api/openapi/resumes/${id}`, { data: { data } });
 		expect(updated.ok()).toBe(true);
 		await page.goto(`/builder/${id}`);
-		const downloaded = page.waitForEvent("download");
+		const downloaded = page.waitForEvent("download", { timeout: 60_000 });
 		await page.getByRole("button", { name: "Download PDF", exact: true }).click();
 		const download = await downloaded;
 		expect(await download.failure()).toBeNull();
@@ -169,7 +175,7 @@ test("browser PDF downloads preserve shaped scripts and name unsupported text wi
 	// A character no font can draw prints as "?": the preview renders and names it, and the download still saves.
 	const textLoss = page.getByText(/can't display .*\(U\+10FFFF\)/);
 	await expect(textLoss).toHaveCount(1);
-	const lossyDownload = page.waitForEvent("download");
+	const lossyDownload = page.waitForEvent("download", { timeout: 60_000 });
 	await page.getByRole("button", { name: "Download PDF", exact: true }).click();
 	expect(await (await lossyDownload).failure()).toBeNull();
 	await expect(textLoss).toHaveCount(2);

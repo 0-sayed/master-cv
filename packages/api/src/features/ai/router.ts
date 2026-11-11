@@ -5,10 +5,10 @@ import { resumeDataSchema } from "@reactive-resume/schema/resume/data";
 import { protectedProcedure } from "../../context";
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
 import { aiProvidersService } from "../ai-providers/service";
-import { atsReviewInputSchema, atsReviewOutputSchema, reviewResumeText } from "./ats-review";
+import { atsReviewInputSchema, atsReviewOutputSchema } from "./ats-review";
 import { improveInputSchema, improveLine, improveOutputSchema } from "./improve";
 import { reportAiContent } from "./reports";
-import { aiService, fileInputSchema } from "./service";
+import { fileInputSchema } from "./service";
 
 /**
  * Every AI procedure fails the same ways: no ENCRYPTION_SECRET, a bad base URL, the provider erroring (its cause kept
@@ -52,27 +52,17 @@ export const aiRouter = {
 			tags: ["AI"],
 			operationId: "parseResumePdf",
 			summary: "Parse a PDF file into resume data",
-			description:
-				"Extracts structured resume data from a PDF file with one of the user's saved AI providers: the one named by `aiProviderId`, or their default. Send the file as a base64-encoded string. Returns a complete ResumeData object and saves nothing.",
+			description: "Unavailable: original CV attachments cannot be sent to a model. Use native PDF import and review.",
 			successDescription: "The PDF was successfully parsed into structured resume data.",
 		})
 		.input(z.object({ aiProviderId: z.string().optional(), file: fileInputSchema }))
 		.use(aiRequestRateLimit)
 		.errors(aiErrors)
 		.output(resumeDataSchema)
-		.handler(async ({ context, input }) => {
-			try {
-				const provider = await getRunnableProvider(context.user.id, input.aiProviderId);
-				return await aiService.parsePdf({
-					provider: provider.provider,
-					model: provider.model,
-					apiKey: provider.apiKey,
-					baseURL: provider.baseURL ?? "",
-					file: input.file,
-				});
-			} catch (error) {
-				rethrowAiError(error, "Invalid resume data structure");
-			}
+		.handler(() => {
+			throw new ORPCError("FORBIDDEN", {
+				message: "Attachment processing by AI is unavailable. Use native PDF import and review.",
+			});
 		}),
 
 	parseDocx: protectedProcedure
@@ -82,8 +72,7 @@ export const aiRouter = {
 			tags: ["AI"],
 			operationId: "parseResumeDocx",
 			summary: "Parse a DOCX file into resume data",
-			description:
-				"Extracts structured resume data from a DOCX or DOC file with one of the user's saved AI providers: the one named by `aiProviderId`, or their default. Send the file as a base64-encoded string with the document's media type. Returns a complete ResumeData object and saves nothing.",
+			description: "Word import is not available. Use native PDF import or manual entry.",
 			successDescription: "The DOCX was successfully parsed into structured resume data.",
 		})
 		.input(
@@ -99,20 +88,10 @@ export const aiRouter = {
 		.use(aiRequestRateLimit)
 		.errors(aiErrors)
 		.output(resumeDataSchema)
-		.handler(async ({ context, input }) => {
-			try {
-				const provider = await getRunnableProvider(context.user.id, input.aiProviderId);
-				return await aiService.parseDocx({
-					provider: provider.provider,
-					model: provider.model,
-					apiKey: provider.apiKey,
-					baseURL: provider.baseURL ?? "",
-					mediaType: input.mediaType,
-					file: input.file,
-				});
-			} catch (error) {
-				rethrowAiError(error, "Invalid resume data structure");
-			}
+		.handler(() => {
+			throw new ORPCError("FORBIDDEN", {
+				message: "Attachment processing by AI is unavailable. Use native PDF import and review.",
+			});
 		}),
 
 	atsReview: protectedProcedure
@@ -123,27 +102,15 @@ export const aiRouter = {
 			operationId: "atsReview",
 			summary: "Review extracted resume text",
 			description:
-				"Reviews the plain text extracted from a resume PDF and returns qualitative feedback: a summary, rewrite suggestions, strengths, and — when a job description is supplied — how the candidate's experience lines up with the role. Deliberately returns no score: the deterministic ATS report owns the only number in this feature. Requires authentication and AI credentials.",
+				"Unavailable until approved consent, model routing and payload minimization are implemented in T005/T006.",
 			successDescription: "Qualitative review returned successfully.",
 		})
 		.input(atsReviewInputSchema)
 		.use(aiRequestRateLimit)
 		.output(atsReviewOutputSchema)
 		.errors(aiErrors)
-		.handler(async ({ context, input }) => {
-			try {
-				const provider = await getRunnableProvider(context.user.id, input.aiProviderId);
-
-				return await reviewResumeText({
-					...input,
-					provider: provider.provider,
-					model: provider.model,
-					apiKey: provider.apiKey,
-					baseURL: provider.baseURL ?? "",
-				});
-			} catch (error) {
-				rethrowAiError(error, "Invalid ATS review structure");
-			}
+		.handler(() => {
+			throw new ORPCError("FORBIDDEN", { message: "AI writing review is not available." });
 		}),
 
 	improve: protectedProcedure

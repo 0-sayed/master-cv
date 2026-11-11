@@ -1,10 +1,10 @@
 import type { VersionSummary } from "./format";
-import type { Resume } from "@/features/resume/builder/draft";
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	DropdownMenu,
@@ -32,6 +32,9 @@ type HistoryVersion = Pick<VersionSummary, "id" | "kind" | "name" | "createdAt">
 export type HistorySource = {
 	versions: HistoryVersion[] | undefined;
 	loading: boolean;
+	loadError: boolean;
+	retrying: boolean;
+	retry: () => void;
 	/** Locked documents can't be restored over. */
 	locked: boolean;
 	/** "The resume as it is", under Now. */
@@ -44,6 +47,7 @@ export type HistorySource = {
 	remove: (versionId: string) => Promise<void>;
 	/** How a failure reads. */
 	errorMessage: (error: unknown) => string;
+	preparePreview?: () => Promise<void>;
 };
 
 /** History for the resume in the editor. */
@@ -55,17 +59,30 @@ function useResumeHistory(): HistorySource {
 	const resume = useCurrentResume();
 	const queryClient = useQueryClient();
 	const listKey = orpc.resume.listVersions.queryKey({ input: { resumeId: resume.id } });
-	const { data: versions, isPending: loading } = useQuery(
-		orpc.resume.listVersions.queryOptions({ input: { resumeId: resume.id } }),
-	);
+	const {
+		data: versions,
+		isPending: loading,
+		isError: loadError,
+		isFetching: retrying,
+		refetch,
+	} = useQuery(orpc.resume.listVersions.queryOptions({ input: { resumeId: resume.id } }));
 	const refresh = () => queryClient.invalidateQueries({ queryKey: listKey });
 
 	return {
 		versions,
 		loading,
+		loadError,
+		retrying,
+		retry: () => {
+			void refetch();
+		},
 		locked: resume.isLocked,
 		nowDetail: t`The resume as it is`,
 		errorMessage: getResumeErrorMessage,
+		preparePreview: async () => {
+			if (!(await savePendingChanges(resume.id)))
+				throw new Error(t`Couldn't save your changes. Try again before continuing.`);
+		},
 		save: async (name) => {
 			if (!(await savePendingChanges(resume.id)))
 				throw new Error(t`Couldn't save your changes. Try again before continuing.`);
@@ -75,12 +92,8 @@ function useResumeHistory(): HistorySource {
 		restore: async (versionId) => {
 			if (!(await savePendingChanges(resume.id)))
 				throw new Error(t`Couldn't save your changes. Try again before continuing.`);
-			const restored = await orpc.resume.restoreVersion.call({ resumeId: resume.id, versionId });
-			useResumeStore.getState().replaceResumeFromServer(restored as Resume);
-			queryClient.setQueryData(orpc.resume.getById.queryKey({ input: { id: resume.id } }), {
-				...restored,
-				applicationId: resume.applicationId ?? null,
-			});
+			await useResumeStore.getState().restoreVersion(versionId);
+			void queryClient.invalidateQueries({ queryKey: orpc.resume.getById.queryKey({ input: { id: resume.id } }) });
 			void refresh();
 		},
 		rename: async (versionId, name) => {
@@ -110,6 +123,7 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 	const when = (version: HistoryVersion) => formatVersionTime(version.createdAt, i18n.locale);
 
 	const run = async (action: () => Promise<void>) => {
+		if (busy) return;
 		setBusy(true);
 		try {
 			await action();
@@ -174,6 +188,7 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 						<Button
 							size="sm"
 							variant="ghost"
+							disabled={busy}
 							className="text-bg underline underline-offset-[3px] hover:bg-transparent hover:text-bg"
 							onClick={() => setVersion(null)}
 						>
@@ -183,32 +198,62 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 				</div>
 			)}
 
-			<QuerySkeleton loading={loading} shape="rows">
-				<ol className="grid" aria-label={t`Versions`}>
-					<TimelineItem
-						title={t`Now`}
-						detail={source.nowDetail}
-						selected={!selected}
-						current
-						last={!versions?.length}
-						onSelect={() => setVersion(null)}
-					/>
-					{versions?.map((version, index) => (
+			{source.loadError && (
+				<Alert variant="error">
+					<Icon name="warning-circle" />
+					<AlertTitle>
+						<Trans>Couldn't load version history</Trans>
+					</AlertTitle>
+					<AlertDescription>
+						<p>
+							<Trans>Your CV is preserved. Check your connection and try again.</Trans>
+						</p>
+						<Button variant="secondary" disabled={source.retrying} loading={source.retrying} onClick={source.retry}>
+							{source.retrying ? <Trans>Retrying…</Trans> : <Trans>Try again</Trans>}
+						</Button>
+					</AlertDescription>
+				</Alert>
+			)}
+			{(!source.loadError || versions !== undefined) && (
+				<QuerySkeleton loading={loading && !versions} shape="rows">
+					<ol className="grid" aria-label={t`Versions`}>
 						<TimelineItem
-							key={version.id}
-							title={getVersionTitle(version)}
-							detail={`${when(version)} · ${getVersionDetail(version)}`}
-							named={version.kind === "named"}
-							selected={version.id === selectedId}
-							last={index === versions.length - 1}
-							onSelect={() => setVersion(version.id)}
-							menu={version.kind === "named" ? <NamedVersionMenu version={version} source={source} /> : null}
+							title={t`Now`}
+							detail={source.nowDetail}
+							selected={!selected}
+							disabled={busy}
+							current
+							last={!versions?.length}
+							onSelect={() => setVersion(null)}
 						/>
-					))}
-				</ol>
-			</QuerySkeleton>
+						{versions?.map((version, index) => (
+							<TimelineItem
+								key={version.id}
+								title={getVersionTitle(version)}
+								detail={`${when(version)} · ${getVersionDetail(version)}`}
+								named={version.kind === "named"}
+								selected={version.id === selectedId}
+								disabled={busy}
+								last={index === versions.length - 1}
+								onSelect={() => {
+									if (!busy)
+										void run(async () => {
+											await source.preparePreview?.();
+											setVersion(version.id);
+										});
+								}}
+								menu={
+									version.kind === "named" ? (
+										<NamedVersionMenu version={version} source={source} disabled={busy} />
+									) : null
+								}
+							/>
+						))}
+					</ol>
+				</QuerySkeleton>
+			)}
 
-			{!loading && (versions?.length ?? 0) <= 1 && (
+			{!loading && !source.loadError && versions !== undefined && versions.length <= 1 && (
 				<p className="text-[13px] leading-[19px] text-ink-2">
 					<Trans>Only one version so far. Every editing session adds one automatically.</Trans>
 				</p>
@@ -230,12 +275,13 @@ type TimelineItemProps = {
 	selected: boolean;
 	last: boolean;
 	onSelect: () => void;
+	disabled: boolean;
 	current?: boolean;
 	named?: boolean;
 	menu?: React.ReactNode;
 };
 
-function TimelineItem({ title, detail, selected, last, onSelect, current, named, menu }: TimelineItemProps) {
+function TimelineItem({ title, detail, selected, last, onSelect, disabled, current, named, menu }: TimelineItemProps) {
 	return (
 		<li className="grid grid-cols-[20px_minmax(0,1fr)] gap-2.5">
 			<span aria-hidden="true" className="flex flex-col items-center">
@@ -256,6 +302,7 @@ function TimelineItem({ title, detail, selected, last, onSelect, current, named,
 				<button
 					type="button"
 					aria-pressed={selected}
+					disabled={disabled}
 					onClick={onSelect}
 					className="flex min-w-0 flex-1 flex-col items-start gap-0.5 px-2.5 py-[9px] text-start"
 				>
@@ -272,7 +319,9 @@ function TimelineItem({ title, detail, selected, last, onSelect, current, named,
 }
 
 /** Named versions are the user's own: they can be renamed or deleted. The rest expire on their own. */
-function NamedVersionMenu({ version, source }: { version: HistoryVersion; source: HistorySource }) {
+type NamedVersionMenuProps = { version: HistoryVersion; source: HistorySource; disabled: boolean };
+
+function NamedVersionMenu({ version, source, disabled }: NamedVersionMenuProps) {
 	const prompt = usePrompt();
 	const confirm = useConfirm();
 	const selectedId = useEditorStore((state) => state.historyVersionId);
@@ -290,6 +339,7 @@ function NamedVersionMenu({ version, source }: { version: HistoryVersion; source
 		const confirmed = await confirm(t`Delete “${title}”?`, {
 			description: t`Named versions are kept until you delete them. This can't be undone.`,
 			confirmText: t`Delete`,
+			variant: "danger",
 		});
 		if (!confirmed) return;
 		try {
@@ -304,6 +354,7 @@ function NamedVersionMenu({ version, source }: { version: HistoryVersion; source
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger
+				disabled={disabled}
 				render={
 					<IconButton
 						icon="dots-three"

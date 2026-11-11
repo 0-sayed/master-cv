@@ -10,7 +10,8 @@
 		"./normalize": "./src/normalize.ts",
 		"./plain-text": "./src/plain-text.ts",
 		"./reactive-resume-json": "./src/reactive-resume-json.tsx",
-		"./reactive-resume-v4-json": "./src/reactive-resume-v4-json.tsx"
+		"./reactive-resume-v4-json": "./src/reactive-resume-v4-json.tsx",
+		"./career-facts": "./src/career-facts.ts"
 	},
 	"scripts": {
 		"typecheck": "tsrs --noEmit",

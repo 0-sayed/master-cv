@@ -128,7 +128,8 @@ function periodFindings(
 	if (!value) return PERIOD_REQUIRED_TYPES.has(type) ? [finding("EMPTY_PERIOD", pointer)] : [];
 
 	const structured = readItemDates(dates);
-	const parsed = structured ? resumeDatesToPeriod(structured) : parsePeriod(value, context.locale);
+	const parsed =
+		(structured && resumeDatesToPeriod(structured)) ?? parsePeriod(structured?.raw ?? value, context.locale);
 	if (!parsed) return [finding("UNPARSEABLE_PERIOD", pointer, { value })];
 
 	const findings: AtsRuleFinding[] = [];

@@ -186,7 +186,13 @@ function useLetterHistory(open: boolean): HistorySource {
 	const letter = useLetterEditorStore((state) => state.letter);
 	const locked = useLetterEditorStore((state) => state.letter?.isLocked ?? false);
 	const id = letter?.id ?? "";
-	const { data: versions, isPending: loading } = useQuery({
+	const {
+		data: versions,
+		isPending: loading,
+		isError: loadError,
+		isFetching: retrying,
+		refetch,
+	} = useQuery({
 		...orpc.coverLetters.listVersions.queryOptions({ input: { id } }),
 		enabled: Boolean(id) && open,
 	});
@@ -196,6 +202,11 @@ function useLetterHistory(open: boolean): HistorySource {
 	return {
 		versions,
 		loading,
+		loadError,
+		retrying,
+		retry: () => {
+			void refetch();
+		},
 		locked,
 		nowDetail: t`The letter as it is`,
 		errorMessage: (error) => getOrpcErrorMessage(error, { fallback: t`Something went wrong. Try again.` }),

@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { getProposalState } from "@reactive-resume/resume/proposals";
+import { CountBadge } from "@reactive-resume/ui/components/badge";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
@@ -169,20 +170,19 @@ export function CheckPageLayer({ pageIndex, pageMap }: CheckPageLayerProps) {
 							/>
 							{stack === 0 && <div className="wavy-underline absolute inset-x-0 -bottom-1 h-1" />}
 						</div>
-						<button
-							type="button"
+						<CountBadge
+							variant="warn-solid"
+							shape="circle"
+							render={<button type="button" />}
 							data-issue-pin={issue.key}
 							aria-label={t`Issue ${issue.number}: ${issue.title}`}
 							aria-pressed={isSelected}
 							onClick={() => pickIssue(issue)}
 							style={marginStyle(node, page, stack)}
-							className={cn(
-								"pointer-events-auto absolute grid size-[22px] place-items-center rounded-full border-2 border-white bg-warn text-[11px] font-bold text-[oklch(0.22_0.03_80)] shadow-[0_1px_3px_oklch(0_0_0/0.25)]",
-								isSelected && "outline-2 outline-offset-1 outline-warn",
-							)}
+							className={cn("pointer-events-auto absolute", isSelected && "outline-2 outline-offset-1 outline-warn")}
 						>
 							{issue.number}
-						</button>
+						</CountBadge>
 					</div>
 				);
 			})}
@@ -219,39 +219,6 @@ export function CheckPageLayer({ pageIndex, pageMap }: CheckPageLayerProps) {
 				</span>
 			))}
 		</div>
-	);
-}
-
-/** "What a person sees / What a parser reads", floating over the canvas in Check. Switching is instant. */
-export function PageViewToggle() {
-	const view = useEditorStore((state) => state.pageView);
-	const setView = useEditorStore((state) => state.setPageView);
-	const options = [
-		{ value: "page", label: t`What a person sees`, icon: "file-text" },
-		{ value: "parser", label: t`What a parser reads`, icon: "brackets-curly" },
-	] as const;
-
-	return (
-		<fieldset className="absolute top-3.5 left-1/2 z-10 flex -translate-x-1/2 gap-0.5 rounded-[10px] border border-line bg-raised p-[3px] shadow-e1">
-			<legend className="sr-only">
-				<Trans>Page view</Trans>
-			</legend>
-			{options.map((option) => (
-				<button
-					key={option.value}
-					type="button"
-					aria-pressed={view === option.value}
-					onClick={() => setView(option.value)}
-					className={cn(
-						"flex h-[30px] items-center gap-1.5 rounded-[7px] px-3 text-[13px] font-medium whitespace-nowrap max-sm:px-2",
-						view === option.value ? "bg-ink text-bg" : "text-ink-2 hover:bg-hover",
-					)}
-				>
-					<Icon name={option.icon} size={18} />
-					<span className="max-sm:sr-only">{option.label}</span>
-				</button>
-			))}
-		</fieldset>
 	);
 }
 

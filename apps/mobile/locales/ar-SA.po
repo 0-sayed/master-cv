@@ -73,14 +73,14 @@ msgstr "{0, plural, one {تظهر «{1}» مرة واحدة في إعلان ال
 #. placeholder {2}: value.report.passedChecks
 #: src/features/check/parser.tsx
 msgid "{0, plural, one {{1} of # exported PDF check passes.} other {{2} of # exported PDF checks pass.}}"
-msgstr "{0, plural, one {فحوص PDF المصدّر الناجحة: {1} من #.} other {فحوص PDF المصدّر الناجحة: {2} من #.} zero {فحوص PDF المصدّر الناجحة: {2} من #.} two {فحوص PDF المصدّر الناجحة: {2} من #.} few {فحوص PDF المصدّر الناجحة: {2} من #.} many {فحوص PDF المصدّر الناجحة: {2} من #.}}"
+msgstr "{0, plural, zero {لا فحوص لملف PDF المصدّر.} one {نجح {1} من فحص واحد لملف PDF المصدّر.} two {نجح {2} من فحصين لملف PDF المصدّر.} few {نجح {2} من # فحوص لملف PDF المصدّر.} many {نجح {2} من # فحصًا لملف PDF المصدّر.} other {نجح {2} من # فحص لملف PDF المصدّر.}}"
 
 #. placeholder {0}: match.total
 #. placeholder {1}: match.found.length
 #. placeholder {2}: match.found.length
 #: src/features/check/job-match.tsx
 msgid "{0, plural, one {{1} of # posting term covered} other {{2} of # posting terms covered}}"
-msgstr "{0, plural, one {الكلمات المفتاحية المشمولة من الإعلان: {1} من #} other {الكلمات المفتاحية المشمولة من الإعلان: {2} من #} zero {الكلمات المفتاحية المشمولة من الإعلان: {2} من #} two {الكلمات المفتاحية المشمولة من الإعلان: {2} من #} few {الكلمات المفتاحية المشمولة من الإعلان: {2} من #} many {الكلمات المفتاحية المشمولة من الإعلان: {2} من #}}"
+msgstr "{0, plural, zero {لا كلمات مفتاحية في إعلان الوظيفة.} one {تمت تغطية {1} من كلمة مفتاحية واحدة في الإعلان} two {تمت تغطية {2} من كلمتين مفتاحيتين في الإعلان} few {تمت تغطية {2} من # كلمات مفتاحية في الإعلان} many {تمت تغطية {2} من # كلمة مفتاحية في الإعلان} other {تمت تغطية {2} من # كلمة مفتاحية في الإعلان}}"
 
 #. placeholder {0}: data.answers.length
 #: src/features/workspace/tabs/saved.tsx
@@ -165,7 +165,7 @@ msgstr "تم العثور على {0, plural, one {قسم واحد (#)} two {قس
 #. placeholder {0}: selected.length
 #: src/features/documents/library.tsx
 msgid "{0, plural, one {# selected} other {# selected}}"
-msgstr "{0, plural, one {تم تحديد #} other {تم تحديد #}}"
+msgstr "{0, plural, zero {لم يُحدَّد أي عنصر} one {تم تحديد عنصر واحد} two {تم تحديد عنصرين} few {تم تحديد # عناصر} many {تم تحديد # عنصرًا} other {تم تحديد # عنصر}}"
 
 #. placeholder {0}: report.findings.length
 #: src/features/check/score.tsx
@@ -230,7 +230,7 @@ msgstr "{0, plural, zero {غير مستخدمة في أي عنصر محفوظ} o
 #. placeholder {0}: profile.noticeWeeks
 #: src/features/career/offers.tsx
 msgid "{0, plural, one {Your notice period: # week.} other {Your notice period: # weeks.}}"
-msgstr "{0, plural, one {فترة الإشعار: # أسبوع.} other {فترة الإشعار: # أسبوع.} zero {فترة الإشعار: # أسبوع.} two {فترة الإشعار: أسبوعان (#).} few {فترة الإشعار: # أسابيع.} many {فترة الإشعار: # أسبوع.}}"
+msgstr "{0, plural, zero {لا فترة إشعار.} one {فترة الإشعار أسبوع واحد.} two {فترة الإشعار أسبوعان.} few {فترة الإشعار # أسابيع.} many {فترة الإشعار # أسبوعًا.} other {فترة الإشعار # أسبوع.}}"
 
 #. placeholder {0}: characters.length
 #: src/features/share/messages.ts
@@ -623,7 +623,7 @@ msgstr "{toCheck, plural, one {حقل # يحتاج إلى نظرة.} other {حق
 
 #: src/features/write/outline.tsx
 msgid "{toCheck, plural, one {# to check} other {# to check}}"
-msgstr "{toCheck, plural, one {# للتحقق} other {# للتحقق}}"
+msgstr "{toCheck, plural, zero {لا عناصر للتحقق} one {عنصر واحد للتحقق} two {عنصران للتحقق} few {# عناصر للتحقق} many {# عنصرًا للتحقق} other {# عنصر للتحقق}}"
 
 #: src/features/letters/write.tsx
 #: src/features/workspace/tabs/apply.tsx

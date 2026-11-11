@@ -1,4 +1,6 @@
 import type { ProxyOptions } from "vite-plus";
+import { createHash } from "node:crypto";
+import { globSync } from "node:fs";
 import { readFileSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -15,6 +17,18 @@ const rootPackageJson = JSON.parse(readFileSync(rootPackageJsonPath, "utf-8")) a
 const appVersion = JSON.stringify(rootPackageJson.version ?? "0.0.0");
 const workspaceRoot = fileURLToPath(new URL("../..", import.meta.url));
 
+const fingerprint = (pattern: string) => {
+	const hash = createHash("sha256");
+	for (const path of globSync(pattern, { cwd: workspaceRoot }).sort())
+		hash.update(path).update(readFileSync(`${workspaceRoot}/${path}`));
+	return hash.digest("hex");
+};
+const pdfPackage = JSON.parse(readFileSync(`${workspaceRoot}/packages/pdf/package.json`, "utf8"));
+const pdfBuild = {
+	renderer: `${pdfPackage.dependencies["@formepdf/core"]}:${fingerprint("packages/pdf/src/**/*.{ts,tsx}")}`,
+	template: fingerprint("packages/pdf/src/**/*.{ts,tsx}"),
+	fonts: fingerprint("packages/fonts/src/*"),
+};
 const webRoot = fileURLToPath(new URL(".", import.meta.url));
 const prerenderBundleDir = `${webRoot}node_modules/.prerender`;
 // Outside dist/, so the static server and the CDN never serve these pages at their own addresses.
@@ -85,6 +99,7 @@ export default defineConfig({
 
 	define: {
 		__APP_VERSION__: appVersion,
+		__PDF_BUILD__: JSON.stringify(pdfBuild),
 	},
 
 	// `vp build` builds the app, then the marketing pages' server entry, then prerenders the pages with it.

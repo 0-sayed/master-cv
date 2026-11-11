@@ -11,7 +11,10 @@ import { NewDocumentDialog } from "./new-document-dialog";
 import { applicationsListQueryKey } from "@/features/applications/queries";
 import { orpc } from "@/libs/orpc/client";
 
-vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
+vi.mock("@tanstack/react-router", () => ({
+	useNavigate: () => vi.fn(),
+	useRouteContext: () => ({ session: { user: { id: "owner" } } }),
+}));
 
 it("explains a missing source resume and offers import or creation when copying directly from an application", () => {
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
@@ -37,10 +40,7 @@ it("explains a missing source resume and offers import or creation when copying 
 	expect(screen.getByText(/You don't have a resume to copy yet/)).toBeVisible();
 	expect(screen.getByRole("button", { name: "Create and open" })).toBeDisabled();
 	fireEvent.click(screen.getByRole("button", { name: "Import or create a resume" }));
-	expect(screen.getByRole("heading", { name: "New document" })).toBeVisible();
-	expect(screen.getByRole("button", { name: /^Import a resume/ })).toBeEnabled();
-	expect(screen.getByRole("button", { name: /^Start blank/ })).toBeEnabled();
-
-	fireEvent.click(screen.getByRole("button", { name: /^Copy for a job/ }));
-	expect(screen.getByRole("button", { name: "ABOUT YOU" })).toHaveAttribute("aria-pressed", "true");
+	expect(screen.getByRole("heading", { name: "How would you like to start?" })).toBeVisible();
+	expect(screen.getByRole("button", { name: /^Upload an existing CV/ })).toBeEnabled();
+	expect(screen.getByRole("button", { name: /^Write from scratch/ })).toBeEnabled();
 });

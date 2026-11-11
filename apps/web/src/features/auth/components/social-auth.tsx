@@ -1,21 +1,23 @@
 import type { RouterOutput } from "@/libs/orpc/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AppleLogoIcon, GithubLogoIcon, GoogleLogoIcon, LinkedinLogoIcon } from "@phosphor-icons/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearch } from "@tanstack/react-router";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
-import { getAuthRedirectOptions, getOAuthPasskeyOptions, getOAuthSignInOptions, isOAuthRedirect } from "../redirect";
+import { getAuthRedirectOptions, getOAuthPasskeyOptions, isOAuthRedirect } from "../redirect";
 import { authClient } from "@/libs/auth/client";
 import { ENTER_CLASS } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
 import { sessionQueryKey } from "@/libs/root-context";
 
-export function SocialAuth() {
-	const { data: providers = {}, isLoading } = useQuery(orpc.auth.providers.list.queryOptions());
+export function SocialAuth({ intent = "sign-in" }: { intent?: "sign-in" | "sign-up" }) {
+	const { data: discovered = {}, isLoading } = useQuery(orpc.auth.providers.list.queryOptions());
+	// Keep launch advertising constrained even when discovery comes from an older server.
+	const providers: SocialAuthButtonsProps["providers"] =
+		intent === "sign-in" && discovered.passkey ? { passkey: discovered.passkey } : {};
 	// Available providers have no known shape before discovery. Do not invent workspace-loading content in auth.
 	if (isLoading || Object.keys(providers).length === 0) return null;
 
@@ -31,7 +33,7 @@ export function SocialAuth() {
 				<hr className="flex-1" />
 			</div>
 
-			<SocialAuthButtons providers={providers} />
+			<SocialAuthButtons />
 		</>
 	);
 }
@@ -40,7 +42,7 @@ type SocialAuthButtonsProps = {
 	providers: RouterOutput["auth"]["providers"]["list"];
 };
 
-function SocialAuthButtons({ providers }: SocialAuthButtonsProps) {
+function SocialAuthButtons() {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const { callbackURL } = useSearch({ from: "/auth" });
@@ -72,112 +74,16 @@ function SocialAuthButtons({ providers }: SocialAuthButtonsProps) {
 	};
 
 	return (
-		<div className={cn(ENTER_CLASS, "grid grid-cols-1 gap-4")}>
-			<Button
-				size="lg"
-				onClick={() =>
-					runSignIn(() =>
-						authClient.signIn.social({
-							provider: "apple",
-							callbackURL: callbackURL ?? "/dashboard",
-							...getOAuthSignInOptions(callbackURL),
-						}),
-					)
-				}
-				className={cn("hidden flex-1 bg-black text-white hover:bg-black/80", "apple" in providers && "inline-flex")}
-			>
-				<AppleLogoIcon />
-				<Trans comment="Brand name label for Apple social sign-in button">Apple</Trans>
-			</Button>
-
-			<Button
-				size="lg"
-				variant="secondary"
-				onClick={() =>
-					runSignIn(() =>
-						authClient.signIn.social({
-							provider: "custom",
-							callbackURL: callbackURL ?? "/dashboard",
-							...getOAuthSignInOptions(callbackURL),
-						}),
-					)
-				}
-				className={cn("hidden", "custom" in providers && "inline-flex")}
-			>
-				<Icon name="key" size={16} />
-				{providers.custom}
-			</Button>
-
+		<div className={cn(ENTER_CLASS, "grid gap-4")}>
 			<Button
 				size="lg"
 				variant="secondary"
 				onClick={() =>
 					runSignIn(() => authClient.signIn.passkey({ autoFill: false, ...getOAuthPasskeyOptions(callbackURL) }), true)
 				}
-				className={cn("hidden", "passkey" in providers && "inline-flex")}
 			>
-				<Icon name="fingerprint" size={16} />
+				<Icon name="fingerprint" />
 				<Trans comment="Label for passkey sign-in button">Passkey</Trans>
-			</Button>
-
-			<Button
-				size="lg"
-				onClick={() =>
-					runSignIn(() =>
-						authClient.signIn.social({
-							provider: "google",
-							callbackURL: callbackURL ?? "/dashboard",
-							...getOAuthSignInOptions(callbackURL),
-						}),
-					)
-				}
-				className={cn(
-					"hidden flex-1 bg-[#4285F4] text-white hover:bg-[#4285F4]/80",
-					"google" in providers && "inline-flex",
-				)}
-			>
-				<GoogleLogoIcon />
-				<Trans comment="Brand name label for Google social sign-in button">Google</Trans>
-			</Button>
-
-			<Button
-				size="lg"
-				onClick={() =>
-					runSignIn(() =>
-						authClient.signIn.social({
-							provider: "github",
-							callbackURL: callbackURL ?? "/dashboard",
-							...getOAuthSignInOptions(callbackURL),
-						}),
-					)
-				}
-				className={cn(
-					"hidden flex-1 bg-[#2b3137] text-white hover:bg-[#2b3137]/80",
-					"github" in providers && "inline-flex",
-				)}
-			>
-				<GithubLogoIcon />
-				<Trans comment="Brand name label for GitHub social sign-in button">GitHub</Trans>
-			</Button>
-
-			<Button
-				size="lg"
-				onClick={() =>
-					runSignIn(() =>
-						authClient.signIn.social({
-							provider: "linkedin",
-							callbackURL: callbackURL ?? "/dashboard",
-							...getOAuthSignInOptions(callbackURL),
-						}),
-					)
-				}
-				className={cn(
-					"hidden flex-1 bg-[#0A66C2] text-white hover:bg-[#0A66C2]/80",
-					"linkedin" in providers && "inline-flex",
-				)}
-			>
-				<LinkedinLogoIcon />
-				<Trans comment="Brand name label for LinkedIn social sign-in button">LinkedIn</Trans>
 			</Button>
 		</div>
 	);

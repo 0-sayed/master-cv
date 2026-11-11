@@ -135,21 +135,10 @@ describe("OAuth callback after sign-in", () => {
 		},
 	);
 
-	it.each([
-		["Google", "google"],
-		["GitHub", "github"],
-		["LinkedIn", "linkedin"],
-		["SSO", "custom"],
-	])("passes the callback to %s sign-in", async (label, provider) => {
+	it.each(["Google", "GitHub", "LinkedIn", "SSO"])("keeps unapproved %s sign-in hidden", (label) => {
 		renderLogin();
-		fireEvent.click(screen.getByRole("button", { name: label }));
-		await waitFor(() =>
-			expect(mocks.social).toHaveBeenCalledWith({
-				provider,
-				callbackURL: mocks.callbackURL,
-				oauth_query: mocks.callbackURL.split("?")[1],
-			}),
-		);
+		expect(screen.queryByRole("button", { name: label })).toBeNull();
+		expect(mocks.social).not.toHaveBeenCalled();
 	});
 
 	it("resumes the callback after passkey sign-in", async () => {
@@ -264,7 +253,11 @@ describe("OAuth account creation", () => {
 			if (!input) throw new Error(`Missing ${name} field`);
 			fireEvent.change(input, { target: { value } });
 		}
-		fireEvent.click(screen.getByRole("checkbox"));
+		// happy-dom does not activate the native input for Base UI's forwarded PointerEvent.
+		const consent = container.querySelector<HTMLInputElement>('input[name="consent"]');
+		if (!consent) throw new Error("Missing native consent control");
+		fireEvent.click(consent);
+		expect(consent.checked).toBe(true);
 		const form = container.querySelector("form");
 		if (!form) throw new Error("Missing registration form");
 		fireEvent.submit(form);
@@ -294,7 +287,11 @@ describe("OAuth account creation", () => {
 			if (!input) throw new Error(`Missing ${name} field`);
 			fireEvent.change(input, { target: { value } });
 		}
-		fireEvent.click(screen.getByRole("checkbox"));
+		// happy-dom does not activate the native input for Base UI's forwarded PointerEvent.
+		const consent = container.querySelector<HTMLInputElement>('input[name="consent"]');
+		if (!consent) throw new Error("Missing native consent control");
+		fireEvent.click(consent);
+		expect(consent.checked).toBe(true);
 		const form = container.querySelector("form");
 		if (!form) throw new Error("Missing registration form");
 		fireEvent.submit(form);

@@ -15,6 +15,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@reactive-resume/utils/style";
 import { DEFAULT_PDF_PAGE_SIZE, getPreviewCanvasScale, getScaledPreviewPageSize } from "./preview.shared.utils";
+import { useDevicePixelRatio } from "./use-device-pixel-ratio";
 
 GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/legacy/build/pdf.worker.min.mjs", import.meta.url).toString();
 
@@ -113,6 +114,7 @@ export function PdfCanvasPage({
 	// The document and page whose bitmap the canvas holds.
 	const drawnRef = useRef<{ document: PDFDocumentProxy; pageNumber: number } | null>(null);
 	const scaledPageSize = getScaledPreviewPageSize(pageSize, pageScale);
+	const devicePixelRatio = useDevicePixelRatio();
 
 	useEffect(() => {
 		onLoadSuccessRef.current = onLoadSuccess;
@@ -134,9 +136,8 @@ export function PdfCanvasPage({
 
 			onLoadSuccessRef.current(pageNumber, pageSize);
 
-			const width = baseViewport.width * pageScale;
-			const height = baseViewport.height * pageScale;
-			const renderScale = getPreviewCanvasScale(width, height);
+			const { width, height } = getScaledPreviewPageSize(pageSize, pageScale);
+			const renderScale = getPreviewCanvasScale(width, height, devicePixelRatio);
 			// Drawn off-screen and copied over in one step, so the page never shows a blank frame between renders.
 			const buffer = globalThis.document.createElement("canvas");
 			const bufferContext = buffer.getContext("2d");
@@ -151,7 +152,8 @@ export function PdfCanvasPage({
 			bufferContext.direction = "ltr";
 
 			const viewport = page.getViewport({ scale: pageScale });
-			const transform = [renderScale, 0, 0, renderScale, 0, 0];
+			// Include integer backing/CSS rounding in the transform so the full page fits without clipping.
+			const transform = [buffer.width / viewport.width, 0, 0, buffer.height / viewport.height, 0, 0];
 
 			renderTask = page.render({
 				canvas: buffer,
@@ -201,7 +203,7 @@ export function PdfCanvasPage({
 			window.clearTimeout(timeoutId);
 			renderTask?.cancel();
 		};
-	}, [document, pageNumber, pageScale]);
+	}, [document, pageNumber, pageScale, devicePixelRatio]);
 
 	return (
 		<figure className="shrink-0">

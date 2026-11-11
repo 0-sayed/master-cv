@@ -150,7 +150,7 @@ const createResumeRow = (data: ResumeData, updatedAt = new Date()) => ({
 
 const createRestoreHarness = (currentData: ResumeData, restoredData: ResumeData) => {
 	const currentRow = createResumeRow(currentData);
-	dbMock.select.mockReturnValueOnce(createSelectChain([currentRow]));
+
 	versionHistoryMock.getVersion.mockImplementationOnce(async () => ({ data: parseStoredResumeData(restoredData) }));
 
 	const lockedSelect = createLockedSelectChain([
@@ -240,7 +240,7 @@ describe("update", () => {
 				expect(publishResumeUpdatedMock).not.toHaveBeenCalled();
 			} else {
 				await expect(resumeService.update(input)).resolves.toMatchObject({ id: "r1" });
-				expect(update.set).toHaveBeenCalledWith({ name: "Saved", autoName: false });
+				expect(update.set).toHaveBeenCalledWith({ name: "Saved", autoName: false, updatedAt: expect.any(Date) });
 			}
 		},
 	);
@@ -256,7 +256,7 @@ describe("update", () => {
 			from: "old-address",
 			to: "new-address",
 		});
-		expect(update.set).toHaveBeenCalledWith({ slug: "new-address" });
+		expect(update.set).toHaveBeenCalledWith({ slug: "new-address", updatedAt: expect.any(Date) });
 	});
 
 	it("rejects a new slug outside the pattern, but accepts an unchanged legacy one", async () => {
@@ -269,7 +269,12 @@ describe("update", () => {
 		const { update } = updateHarness({ slug: "Legacy_Slug" });
 		await resumeService.update({ id: "r1", userId: "u1", name: "Renamed", slug: "Legacy_Slug" });
 		// A name typed by hand also ends automatic naming.
-		expect(update.set).toHaveBeenCalledWith({ name: "Renamed", autoName: false, slug: "Legacy_Slug" });
+		expect(update.set).toHaveBeenCalledWith({
+			name: "Renamed",
+			autoName: false,
+			slug: "Legacy_Slug",
+			updatedAt: expect.any(Date),
+		});
 		expect(recordSlugChangeMock).not.toHaveBeenCalled();
 	});
 
@@ -342,6 +347,7 @@ describe("patch", () => {
 			operations: [{ op: "replace", path: "/basics/name", value: "Ada" }],
 		});
 		expect(update.set).toHaveBeenCalledWith({
+			updatedAt: expect.any(Date),
 			data: expect.objectContaining({
 				basics: expect.objectContaining({ name: "Ada" }),
 				metadata: expect.objectContaining({ page: expect.objectContaining({ marginX: 14 }) }),

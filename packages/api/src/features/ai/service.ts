@@ -1,6 +1,5 @@
 import type { AIProvider } from "@reactive-resume/ai/types";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
-import type { ModelMessage } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createCerebras } from "@ai-sdk/cerebras";
 import { createCohere } from "@ai-sdk/cohere";
@@ -14,54 +13,14 @@ import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createPerplexity } from "@ai-sdk/perplexity";
 import { createTogetherAI } from "@ai-sdk/togetherai";
 import { createXai } from "@ai-sdk/xai";
+import { ORPCError } from "@orpc/server";
 import { APICallError, createGateway, generateText, LoadAPIKeyError, NoSuchModelError } from "ai";
-import { strFromU8, unzipSync } from "fflate";
 import { createOllama } from "ollama-ai-provider-v2";
 import { match } from "ts-pattern";
 import { z } from "zod";
-import {
-	docxParserSystemPrompt,
-	docxParserUserPrompt,
-	pdfParserSystemPrompt,
-	pdfParserUserPrompt,
-} from "@reactive-resume/ai/prompts";
-import { buildAiExtractionTemplate } from "@reactive-resume/ai/resume/extraction-template";
-import { sanitizeAndParseResumeJson } from "@reactive-resume/ai/resume/sanitize";
 import { AI_PROVIDER_DEFAULT_BASE_URLS, AI_PROVIDER_DISPLAY_NAMES, aiProviderSchema } from "@reactive-resume/ai/types";
-import { normalizeImportedText } from "@reactive-resume/import/normalize";
 import { isDirectOpenAIProvider } from "./capabilities";
 import { resolveAiBaseUrl } from "./url-policy";
-
-const aiExtractionTemplate = buildAiExtractionTemplate();
-
-function logAndRethrow(context: string, error: unknown): never {
-	if (error instanceof Error) {
-		console.error(`${context}:`, error);
-		throw error;
-	}
-
-	console.error(`${context}:`, error);
-	throw new Error(`An unknown error occurred during ${context}.`);
-}
-
-function parseAndValidateResumeJson(resultText: string): ResumeData {
-	const { data, diagnostics } = sanitizeAndParseResumeJson(resultText);
-
-	if (diagnostics.coercions.length === 0 && diagnostics.droppedSectionItems.length === 0) return data;
-
-	const droppedBySection = diagnostics.droppedSectionItems.reduce<Record<string, number>>((acc, item) => {
-		acc[item.section] = (acc[item.section] ?? 0) + 1;
-		return acc;
-	}, {});
-
-	console.info("AI resume sanitization diagnostics", {
-		coercions: diagnostics.coercions.length,
-		droppedBySection,
-		salvageApplied: diagnostics.salvageApplied,
-	});
-
-	return data;
-}
 
 type GetModelInput = {
 	provider: AIProvider;
@@ -86,7 +45,6 @@ const TEST_CONNECTION_TIMEOUT_MS = z.coerce
 	.max(MAX_ABORT_SIGNAL_TIMEOUT_MS)
 	.catch(30_000)
 	.parse(process.env.AI_TEST_TIMEOUT_MS?.trim() || undefined);
-const DOCX_DOCUMENT_XML_PATH = "word/document.xml";
 
 export function getModel(input: GetModelInput) {
 	const { provider, model, apiKey } = input;
@@ -277,127 +235,18 @@ type ParsePdfInput = z.infer<typeof aiCredentialsSchema> & {
 	file: z.infer<typeof fileInputSchema>;
 };
 
-type BuildResumeParsingMessagesInput = {
-	userPrompt: string;
-	file: z.infer<typeof fileInputSchema>;
-	mediaType: string;
-};
-
-function buildResumeParsingSystemPrompt(systemPrompt: string): string {
-	return `${systemPrompt}\n\nIMPORTANT: You must return ONLY raw valid JSON. Do not return markdown, do not return explanations. Just the JSON object. Use the following JSON as a template and fill in the extracted values. For arrays, you MUST use the exact key names shown in the template (e.g. use 'description' instead of 'summary', 'website' instead of 'url'):\n\n${JSON.stringify(aiExtractionTemplate, null, 2)}`;
-}
-
-function buildResumeParsingMessages({ userPrompt, file, mediaType }: BuildResumeParsingMessagesInput): ModelMessage[] {
-	return [
-		{
-			role: "user",
-			content: [
-				{ type: "text", text: userPrompt },
-				{ type: "file", data: file.data, mediaType, filename: file.name },
-			],
-		},
-	];
-}
-
-function buildResumeParsingTextMessages({ userPrompt, text }: { userPrompt: string; text: string }): ModelMessage[] {
-	return [
-		{
-			role: "user",
-			content: [
-				{
-					type: "text",
-					text: `${userPrompt}\n\nThe Microsoft Word file has been converted to plain text below.\n\n${text}`,
-				},
-			],
-		},
-	];
-}
-
-async function parsePdf(input: ParsePdfInput): Promise<ResumeData> {
-	const model = getModel(input);
-
-	const result = await generateText({
-		model,
-		system: buildResumeParsingSystemPrompt(pdfParserSystemPrompt),
-		messages: buildResumeParsingMessages({
-			userPrompt: pdfParserUserPrompt,
-			file: input.file,
-			mediaType: "application/pdf",
-		}),
-	}).catch((error: unknown) => logAndRethrow("Failed to generate the text with the model", error));
-
-	return parseAndValidateResumeJson(result.text);
-}
-
-type ParseDocxInput = z.infer<typeof aiCredentialsSchema> & {
-	file: z.infer<typeof fileInputSchema>;
+type ParseDocxInput = ParsePdfInput & {
 	mediaType: "application/msword" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 };
-
-function readDocumentXml(data: string): string {
-	let entries: Record<string, Uint8Array>;
-	try {
-		entries = unzipSync(Buffer.from(data, "base64"), { filter: (file) => file.name === DOCX_DOCUMENT_XML_PATH });
-	} catch {
-		throw new Error("Invalid DOCX archive.");
-	}
-	const xml = entries[DOCX_DOCUMENT_XML_PATH];
-	if (!xml) throw new Error("DOCX document content not found.");
-	return strFromU8(xml);
-}
-
-function decodeXmlEntities(value: string): string {
-	return value.replace(/&(#x[\da-f]+|#\d+|amp|lt|gt|quot|apos);/gi, (entity, token: string) => {
-		if (token === "amp") return "&";
-		if (token === "lt") return "<";
-		if (token === "gt") return ">";
-		if (token === "quot") return '"';
-		if (token === "apos") return "'";
-		if (token.toLowerCase().startsWith("#x")) return String.fromCodePoint(Number.parseInt(token.slice(2), 16));
-		if (token.startsWith("#")) return String.fromCodePoint(Number.parseInt(token.slice(1), 10));
-		return entity;
+// oxlint-disable-next-line require-await -- Keep the asynchronous service contract while attachment processing is gated.
+async function parsePdf(_input: ParsePdfInput): Promise<ResumeData> {
+	throw new ORPCError("FORBIDDEN", {
+		message: "Attachment processing by AI is unavailable. Use native PDF import and review.",
 	});
 }
-
-function extractDocxText(file: z.infer<typeof fileInputSchema>): string {
-	const documentXml = readDocumentXml(file.data);
-	// ponytail: minimal OOXML body-text extraction; add a DOCX parser dependency if tracked changes matter.
-	const text = normalizeImportedText(
-		decodeXmlEntities(
-			documentXml
-				.replace(/<w:tab\b[^>]*\/>/g, "\t")
-				.replace(/<w:br\b[^>]*\/>/g, "\n")
-				.replace(/<\/w:p>/g, "\n")
-				.replace(/<[^>]+>/g, ""),
-		),
-	)
-		.replace(/\r/g, "")
-		.replace(/[ \t]+\n/g, "\n")
-		.replace(/\n{3,}/g, "\n\n")
-		.trim();
-
-	if (!text) throw new Error("DOCX document content is empty.");
-	return text;
-}
-
-async function parseDocx(input: ParseDocxInput): Promise<ResumeData> {
-	const model = getModel(input);
-	const messages =
-		input.mediaType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-			? buildResumeParsingTextMessages({ userPrompt: docxParserUserPrompt, text: extractDocxText(input.file) })
-			: buildResumeParsingMessages({
-					userPrompt: docxParserUserPrompt,
-					file: input.file,
-					mediaType: input.mediaType,
-				});
-
-	const result = await generateText({
-		model,
-		system: buildResumeParsingSystemPrompt(docxParserSystemPrompt),
-		messages,
-	}).catch((error: unknown) => logAndRethrow("Failed to generate the text with the model", error));
-
-	return parseAndValidateResumeJson(result.text);
+// oxlint-disable-next-line require-await -- Keep the asynchronous service contract while attachment processing is gated.
+async function parseDocx(_input: ParseDocxInput): Promise<ResumeData> {
+	throw new ORPCError("FORBIDDEN", { message: "Word import is not available." });
 }
 
 export const aiService = {

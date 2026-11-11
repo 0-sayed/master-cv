@@ -9,6 +9,7 @@ import { produce } from "immer";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { assignChanged, useResumeWebMcpTools } from "./webmcp";
 import { useResumeStore } from "@/features/resume/builder/draft";
+import { clearPersonalStorage } from "@/libs/browser-storage";
 
 const updateResume = vi.hoisted(() => vi.fn());
 const toastMocks = vi.hoisted(() => ({ add: vi.fn(), close: vi.fn() }));
@@ -78,7 +79,7 @@ function mountTools(resume: Resume) {
 		value: { registerTool: (tool: WebMcpTool) => void tools.set(tool.name, tool) },
 		configurable: true,
 	});
-	useResumeStore.getState().initialize(resume);
+	useResumeStore.getState().initialize(resume, "alice");
 	routerParams.value = { resumeId: resume.id };
 	renderHook(() => useResumeWebMcpTools(resume.id));
 
@@ -97,6 +98,7 @@ describe("resume editor WebMCP tools", () => {
 		updateResume.mockImplementation(async (input: { data: Resume["data"] }) => ({ ...makeResume(), ...input }));
 		toastMocks.add.mockClear();
 		useResumeStore.getState().reset();
+		clearPersonalStorage();
 	});
 
 	afterEach(() => {

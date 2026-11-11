@@ -84,7 +84,10 @@ const relativeTimeFormatters = new Map<string, Intl.RelativeTimeFormat>();
 function getRelativeTimeFormatter(locale: string) {
 	let formatter = relativeTimeFormatters.get(locale);
 	if (!formatter) {
-		formatter = new Intl.RelativeTimeFormat(new Intl.Locale(locale, { numberingSystem: "latn" }), { numeric: "auto" });
+		formatter = new Intl.RelativeTimeFormat(new Intl.Locale(locale, { numberingSystem: "latn" }), {
+			style: "long",
+			numeric: "auto",
+		});
 		relativeTimeFormatters.set(locale, formatter);
 	}
 	return formatter;
@@ -102,9 +105,9 @@ export function formatRelativeTime(value: Date | string, locale: string) {
 		: formatRelativeTimeUnit(0, "second", locale);
 }
 
-/** Keep the localized duration together, including Arabic number/unit inflections and Latin digits. */
+/** Preserve Arabic number/unit inflections and Latin digits while allowing normal text wrapping. */
 export function formatRelativeTimeUnit(value: number, unit: Intl.RelativeTimeFormatUnit, locale: string) {
-	return getRelativeTimeFormatter(locale).format(value, unit).replaceAll(" ", "\u00a0");
+	return getRelativeTimeFormatter(locale).format(value, unit);
 }
 
 export const getLocale = (saved?: unknown) =>

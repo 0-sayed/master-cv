@@ -2,9 +2,11 @@ import type { PageMapTarget } from "@reactive-resume/pdf/page-map";
 import type { AtsCategory, AtsFinding, AtsReport } from "@reactive-resume/resume/ats";
 import type { ResumeData, SectionType } from "@reactive-resume/schema/resume/data";
 import type { IconName } from "@reactive-resume/ui/components/icon";
+import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { atsRuleCategory } from "@reactive-resume/resume/ats";
 import { describeEntry, findEntry, getSectionObject, resolveSection } from "../write/model";
+import { formatPageNumberInSentence } from "@/libs/page-number";
 import { getSectionTitle } from "@/libs/resume/section";
 
 /** How a card fixes its issue: in one step on the resume (with undo), or by opening the entry in Write. */
@@ -26,24 +28,6 @@ export type CheckIssue = {
 	/** The block on the page the issue is about, for its pin; null for page-wide settings. */
 	target: PageMapTarget | null;
 };
-
-export const getCategoryName = (category: AtsCategory) =>
-	({
-		contact: t`Contact details`,
-		dates: t`Dates`,
-		layout: t`Layout`,
-		headings: t`Section headings`,
-		writing: t`Writing`,
-	})[category];
-
-export const getCategoryDescription = (category: AtsCategory) =>
-	({
-		contact: t`Name, email, phone and location are found, and links are full addresses.`,
-		dates: t`Every entry has dates in a form systems read, in order, and none in the future.`,
-		layout: t`Text comes out in the order a person reads it, at a size and spacing that survive.`,
-		headings: t`Sections use headings systems recognise, and work experience shows.`,
-		writing: t`Every role says what you did. Opinions on wording live in the Writing tab.`,
-	})[category];
 
 const decodeToken = (token: string) => token.replace(/~1/g, "/").replace(/~0/g, "~");
 
@@ -212,14 +196,15 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 			};
 		case "SECTION_MISSING_FROM_LAYOUT": {
 			const name = getSectionName(data, section);
+			const page = formatPageNumberInSentence(1, i18n.locale);
 			return {
 				title: t`${name} never prints`,
 				body: t`It has entries but isn't placed on a page.`,
 				fix: {
 					kind: "apply",
-					label: t`Add it to page 1`,
+					label: t`Add it to page ${page}`,
 					icon: "plus",
-					done: t`${name} added to page 1`,
+					done: t`${name} added to page ${page}`,
 					apply: (draft) => {
 						const [page] = draft.metadata.layout.pages;
 						if (page) page.main.push(section);

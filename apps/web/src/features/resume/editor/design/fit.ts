@@ -1,3 +1,4 @@
+import type { EditorIdentity } from "../store";
 import type { FitStep } from "./presets";
 import type { PageMap } from "@reactive-resume/pdf/page-map";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
@@ -5,25 +6,37 @@ import type { WritableDraft } from "immer";
 import { t } from "@lingui/core/macro";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useEditorStore } from "../store";
+import { captureUndoAction } from "../undo-action";
 import { applyDensity, applyMargins, applyTextSize, fitToPages, matchDensity, matchMargins } from "./presets";
 import { useResumeStore } from "@/features/resume/builder/draft";
 
 const RENDER_TIMEOUT_MS = 8000;
 
-/** Resolves once a render newer than `version` is on screen (or after a timeout, so Fit never hangs). */
-function waitForRender(version: number) {
-	return new Promise<void>((resolve) => {
-		if (useEditorStore.getState().rendered.version > version) return resolve();
-		const timer = setTimeout(() => {
-			unsubscribe();
-			resolve();
-		}, RENDER_TIMEOUT_MS);
-		const unsubscribe = useEditorStore.subscribe((state) => {
-			if (state.rendered.version <= version) return;
+export type FitOutcome = "rendered" | "timed-out" | "cancelled";
+const sameGeneration = (a: EditorIdentity | null | undefined, b: EditorIdentity) =>
+	Boolean(a && a.ownerId === b.ownerId && a.resumeId === b.resumeId && a.editGeneration === b.editGeneration);
+
+/** An acknowledgement may advance the baseline; only the requested content generation can satisfy Fit. */
+export function waitForRender(identity: EditorIdentity): Promise<FitOutcome> {
+	return new Promise((resolve) => {
+		const outcome = (): FitOutcome | undefined => {
+			const state = useEditorStore.getState();
+			if (!sameGeneration(state.identity, identity) || state.previewTemplate || state.historyVersionId)
+				return "cancelled";
+			if (state.rendered.file && sameGeneration(state.rendered.identity, identity)) return "rendered";
+		};
+		const immediate = outcome();
+		if (immediate) return resolve(immediate);
+		const finish = (result: FitOutcome) => {
 			clearTimeout(timer);
 			unsubscribe();
-			resolve();
+			resolve(result);
+		};
+		const unsubscribe = useEditorStore.subscribe(() => {
+			const result = outcome();
+			if (result) finish(result);
 		});
+		const timer = setTimeout(() => finish("timed-out"), RENDER_TIMEOUT_MS);
 	});
 }
 
@@ -62,28 +75,58 @@ export function measureOverflow(data: ResumeData, rendered: { pageCount: number;
  * to re-render after each step. The whole run is one undo step.
  */
 export async function runFit() {
-	const { resume, updateResumeData, undo } = useResumeStore.getState();
-	if (!resume) return;
+	const { resume, updateResumeData } = useResumeStore.getState();
+	let identity = useEditorStore.getState().identity;
+	if (!resume || !identity || identity.resumeId !== resume.id) return "cancelled" as const;
 	const { metadata } = resume.data;
 	const authored = Math.max(1, metadata.layout.pages.length);
 	const key = `design.fit:${Date.now()}`;
-	let version = useEditorStore.getState().rendered.version;
+	let interrupted: FitOutcome | undefined;
 	let applied = false;
 
-	const result = await fitToPages(
-		{ density: matchDensity(metadata), margins: matchMargins(metadata), size: metadata.typography.body.fontSize },
-		(step) => {
-			version = useEditorStore.getState().rendered.version;
-			applied = true;
-			updateResumeData((draft) => applyStep(draft.metadata, step), { coalesceKey: key, sameStep: true });
-		},
-		async () => {
-			if (applied) await waitForRender(version);
-			return useEditorStore.getState().rendered.pageCount <= authored;
-		},
-	);
-
-	const undoAction = { children: t`Undo`, onClick: undo };
+	const stopped = Symbol("fit-stopped");
+	let result: Awaited<ReturnType<typeof fitToPages>>;
+	try {
+		result = await fitToPages(
+			{ density: matchDensity(metadata), margins: matchMargins(metadata), size: metadata.typography.body.fontSize },
+			(step) => {
+				if (!identity || !sameGeneration(useEditorStore.getState().identity, identity)) {
+					interrupted = "cancelled";
+					throw stopped;
+				}
+				applied = true;
+				updateResumeData((draft) => applyStep(draft.metadata, step), { coalesceKey: key, sameStep: true });
+				identity = useEditorStore.getState().identity;
+				if (!identity) {
+					interrupted = "cancelled";
+					throw stopped;
+				}
+			},
+			async () => {
+				if (!identity) {
+					interrupted = "cancelled";
+					throw stopped;
+				}
+				const outcome = await waitForRender(identity);
+				if (outcome !== "rendered") {
+					interrupted = outcome;
+					throw stopped;
+				}
+				return useEditorStore.getState().rendered.pageCount <= authored;
+			},
+		);
+	} catch (error) {
+		if (error !== stopped) throw error;
+		if (applied && interrupted === "timed-out") {
+			toast.add({
+				type: "error",
+				description: t`The resume preview could not be updated. The last valid preview is still shown.`,
+				actionProps: { children: t`Undo`, onClick: captureUndoAction() },
+			});
+		}
+		return interrupted ?? "cancelled";
+	}
+	const undoAction = { children: t`Undo`, onClick: captureUndoAction() };
 	if (!result.fits) {
 		const pages = useEditorStore.getState().rendered.pageCount;
 		toast.add({
@@ -91,9 +134,9 @@ export async function runFit() {
 			description: t`Still ${pages} pages at 9 pt. Hide a section or shorten entries.`,
 			...(applied ? { actionProps: undoAction } : {}),
 		});
-		return;
+		return "rendered" as const;
 	}
-	if (!applied) return;
+	if (!applied) return "rendered" as const;
 
 	const { density, margins, size } = result.state;
 	const details = [density ? densityLabel()[density] : null, margins ? marginsLabel()[margins] : null, t`${size} pt`]
@@ -103,4 +146,5 @@ export async function runFit() {
 		description: authored === 1 ? t`Fits on one page: ${details}` : t`Fits on ${authored} pages: ${details}`,
 		actionProps: undoAction,
 	});
+	return "rendered" as const;
 }

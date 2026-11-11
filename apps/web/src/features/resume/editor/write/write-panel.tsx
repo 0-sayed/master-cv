@@ -7,6 +7,7 @@ import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Kbd } from "@reactive-resume/ui/components/kbd";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { CareerReuseNotice } from "../../import/career-reuse";
 import { useEditorStore } from "../store";
 import { AddSectionMenu, StartSuggestions } from "./add-section";
 import { BasicsCard } from "./basics-card";
@@ -27,6 +28,7 @@ import { orpc } from "@/libs/orpc/client";
  * section. Every field saves as you type; a locked resume shows the same panel read-only.
  */
 export function WritePanel() {
+	const resumeId = useCurrentBuilderResumeSelector((resume) => resume.id);
 	const locked = useIsResumeLocked();
 	const locale = useCurrentBuilderResumeSelector((resume) => resume.data.metadata.page.locale);
 	// The selector hook reads `undefined` as "no resume yet", so optional values need a fallback.
@@ -41,6 +43,7 @@ export function WritePanel() {
 		<div className="grid gap-4 p-4">
 			{locked && <LockedNote />}
 			<ImportedNote />
+			<CareerReuseNotice key={resumeId} available={isEmpty && !locked} />
 
 			<BasicsCard locked={locked} />
 

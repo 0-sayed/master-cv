@@ -10,7 +10,10 @@ import { normalizeNumericDigits } from "@reactive-resume/utils/string";
 
 const MONTH_WORD = String.raw`[\p{L}\p{M}]{3,12}\.?`;
 const ENDPOINT = String.raw`(?:${MONTH_WORD}\s*'?\d{2,4}|\d{1,2}[/.\-]\d{2,4}|\d{4})`;
-const ONGOING = String.raw`(?:present|current|currently|now|ongoing|to\s?date|today|حتى\s+الآن|الآن|الحاضر)`;
+const ARABIC_ONGOING = (ONGOING_TOKENS_BY_LANGUAGE.ar ?? [])
+	.map((token) => token.split(/\s+/u).join(String.raw`\s+`))
+	.join("|");
+const ONGOING = String.raw`(?:present|current|currently|now|ongoing|to\s?date|today|${ARABIC_ONGOING})`;
 const SEPARATOR = String.raw`\s*(?:[-–—~]|to|through|until)\s*`;
 
 const RANGE_PATTERN = new RegExp(`(?=(${ENDPOINT}${SEPARATOR}(?:${ENDPOINT}|${ONGOING})))`, "giu");

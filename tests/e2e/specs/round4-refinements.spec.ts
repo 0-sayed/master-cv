@@ -185,7 +185,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		expect(Math.max(...actions) - Math.min(...actions)).toBeLessThanOrEqual(1);
 	});
 
-	test(`${locale} document choices use short balanced copy and equal cards`, async ({ authPage: page, baseURL }) => {
+	test(`${locale} document choices describe PDF review and manual creation`, async ({ authPage: page, baseURL }) => {
 		if (!baseURL) throw new Error("Browser baseURL missing");
 		await expect(
 			await page.request.post("/api/auth/update-user", { headers: { origin: baseURL }, data: { uiLocale: locale } }),
@@ -194,28 +194,23 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await page.setViewportSize({ width: 1440, height: 1024 });
 		await page.goto("/dashboard");
 		await settleScreen(page);
-		await page.getByRole("button", { name: locale === "ar-SA" ? "اختر ملفًا" : "Choose a file", exact: true }).click();
+		await page.getByRole("button", { name: locale === "ar-SA" ? "سيرة ذاتية جديدة" : "New CV", exact: true }).click();
 		const dialog = page.getByRole("dialog");
 		await expect(dialog).toBeVisible();
-		const copy = dialog.getByRole("button", { name: locale === "ar-SA" ? /^نسخة لوظيفة/ : /^Copy for a job/ });
-		const blank = dialog.getByRole("button", { name: locale === "ar-SA" ? /^البدء بسيرة فارغة/ : /^Start blank/ });
-		await expect(copy).toBeVisible();
-		expect((await copy.boundingBox())?.height).toBe((await blank.boundingBox())?.height);
-		for (const choice of [copy, blank]) {
+		const upload = dialog.getByRole("button", {
+			name: locale === "ar-SA" ? /^رفع سيرة ذاتية موجودة/ : /^Upload an existing CV/,
+		});
+		const blank = dialog.getByRole("button", {
+			name: locale === "ar-SA" ? /^الكتابة من الصفر/ : /^Write from scratch/,
+		});
+		for (const choice of [upload, blank]) {
+			await expect(choice).toBeVisible();
 			const title = choice.locator('[data-slot="action-choice-title"]');
-			expect(await title.evaluate((el) => el.getBoundingClientRect().height)).toBeLessThanOrEqual(26);
-			expect(
-				await title.locator("xpath=following-sibling::span").evaluate((el) => el.getBoundingClientRect().height),
-			).toBeLessThanOrEqual(26);
+			expect(await title.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
 		}
+		await expect(dialog.getByRole("radio")).toHaveCount(2);
 		await expect(
-			dialog.getByRole("button", { name: locale === "ar-SA" ? "جرّب بسيرة نموذجية" : "Try a sample CV", exact: true }),
-		).toBeVisible();
-		await expect(
-			dialog.getByRole("button", {
-				name: locale === "ar-SA" ? "أو أنشئ خطاب تقديم" : "Or create a cover letter",
-				exact: true,
-			}),
+			dialog.getByRole("button", { name: locale === "ar-SA" ? "إلغاء" : "Cancel", exact: true }),
 		).toBeVisible();
 	});
 }

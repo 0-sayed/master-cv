@@ -6,7 +6,7 @@
 **Companions:** [Coding-agent handoff](figma-handoff.md) · [Verified Figma map](figma-map.json) · [Requirements](../business/requirements.md) · [Architecture](../technical/architecture.md) · [Security](../technical/security.md) · [Decisions](../decisions.md) · [Index](../README.md)
 **Launch contract (owner decided 2026-11-04):** In Arabic and English, launch uses email + password sign-up, email verification and email password recovery. Mobile sign-up, SMS verification/reset, password-recovery codes and S37-S39 are a later T014 increment, off at launch until company registration, sender approval and A14-A16. D20/D21 retain that increment's Phase 1/Phase 2 contracts; no implementation or gate approval is implied.
 
-**MVP visual authority:** [D35 (owner decided 2026-11-09)](../decisions.md) makes existing shared code components with T002 brand tokens authoritative for visual details. Figma governs screens, states, dialogs, elements, content, icons, flows and order; pixel parity is not required. Do not tune per-screen sizes to imitate a mock. Shared-component brand polish is post-MVP. Differences from Figma geometry are allowed; inconsistent geometry within the app is a defect, not deferred brand polish.
+**MVP visual authority:** [D35 (owner decided 2026-11-09)](../decisions.md) makes existing shared code components with T002 brand tokens authoritative for visual details. Figma supplies the starting screen/state/dialog/content inventory. D36 supersedes its layout and flow-order authority: code may improve layout/UX and order when the owning task records each divergence and reason; requirements and release gates still govern behavior. Pixel parity is not required. Do not tune per-screen sizes to imitate a mock. Shared-component brand polish is post-MVP. Differences from Figma geometry are allowed; inconsistent geometry within the app is a defect, not deferred brand polish.
 
 ## 1. Decision in plain language
 
@@ -23,6 +23,8 @@ This is the design of the **personal product**: candidate onboarding, career inf
 **Launch, AR/EN:** email + password sign-up, email verification and email password recovery. Mobile/password signup, SMS verification/reset, recovery codes and S37-S39 are later T014 work, off until company registration, sender approval and A14-A16. The [OTP contract](specs/otp-spec.md) retains the later increment's Phase 1/Phase 2 details.
 
 ## 2. Reference and implementation boundaries
+
+**[D36](../decisions.md):** Figma is the starting screen/state/dialog/content inventory; implemented code owns layout/UX, so the Figma order/layout and map-update guidance below permits improvements without Figma updates when each divergence and its reason are recorded in one line in the owning task's evidence; requirements, security, approval gates, copy-deck/A13, shared components and T002 tokens (D35) remain unchanged.
 
 The primary reference is **Reactive Resume Desk & Paper**, pinned to `14fb49b7149f6f13bdb1fff3659feec5200bf4df` (v6.0.4); inspect actual components before reuse.
 

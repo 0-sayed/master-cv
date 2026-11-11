@@ -14,6 +14,7 @@ import { SwitchRow } from "@reactive-resume/ui/components/switch";
 import { TemplateThumbnail } from "@reactive-resume/ui/components/template-thumbnail";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { getTemplateImageUrl, templates } from "@/dialogs/resume/template/data";
+import { letterPageData, useLetterWords } from "@/features/letters/compose";
 import { useLetterEditorStore } from "@/features/letters/store";
 import { ColorGroup, DesignSourceProvider, PageGroup, TypeGroup } from "@/features/resume/editor/design/style-groups";
 import { useEditorStore } from "@/features/resume/editor/store";
@@ -38,10 +39,12 @@ const updateDesign = (changes: { designLinked?: boolean; template?: Template }) 
 
 /** The letter's own type, colors and page, edited like the resume's and saved with what's typed. */
 function useLetterDesignSource() {
-	const metadata = useLetterEditorStore((state) => state.letter?.style.metadata);
+	const letter = useLetterEditorStore((state) => state.letter);
+	const words = useLetterWords(letter?.style.metadata.page.locale ?? "en-US");
 	return useMemo<DesignSource>(
 		() => ({
-			metadata,
+			metadata: letter?.style.metadata,
+			fontPolicyData: letter ? letterPageData(letter, words) : undefined,
 			write: (_key, mutate) => {
 				const { letter, edit } = useLetterEditorStore.getState();
 				if (!letter || letter.isLocked) return;
@@ -49,7 +52,7 @@ function useLetterDesignSource() {
 				edit({ metadata: { typography, design, page } });
 			},
 		}),
-		[metadata],
+		[letter, words],
 	);
 }
 

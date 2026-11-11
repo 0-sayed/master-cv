@@ -3,6 +3,7 @@ import type z from "zod";
 import { Trans } from "@lingui/react/macro";
 import { useSelector } from "@tanstack/react-form";
 import { typographySchema } from "@reactive-resume/schema/resume/data";
+import { getDocumentFontChoices } from "@reactive-resume/schema/resume/font-policy";
 import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
 import { InputGroup, InputGroupAddon, InputGroupText } from "@reactive-resume/ui/components/input-group";
 import { Separator } from "@reactive-resume/ui/components/separator";
@@ -46,6 +47,7 @@ type TypographyForm = ReturnType<typeof useTypographyForm>;
 function TypographySectionForm() {
 	const resume = useCurrentResume();
 	const typography = resume.data.metadata.typography;
+	const { families } = getDocumentFontChoices(resume.data);
 	const updateResumeData = useUpdateResumeData();
 
 	const persist = (data: FormValues) => {
@@ -72,9 +74,9 @@ function TypographySectionForm() {
 			}}
 		>
 			<TypographyFieldGroup label={<Trans context="Body Text (paragraphs, lists, etc.)">Body</Trans>} />
-			<TypographyGroupFields form={form} prefix="body" handleAutoSave={handleAutoSave} />
+			<TypographyGroupFields families={families} form={form} prefix="body" handleAutoSave={handleAutoSave} />
 			<TypographyFieldGroup label={<Trans context="Headings or Titles (H1, H2, H3, H4, H5, H6)">Heading</Trans>} />
-			<TypographyGroupFields form={form} prefix="heading" handleAutoSave={handleAutoSave} />
+			<TypographyGroupFields families={families} form={form} prefix="heading" handleAutoSave={handleAutoSave} />
 			<form.Field name="hyphenation">
 				{(field) => (
 					<FormItem className="col-span-full mt-2">
@@ -106,11 +108,12 @@ function TypographySectionForm() {
 
 type TypographyGroupFieldsProps = {
 	form: TypographyForm;
+	families: string[];
 	prefix: TypographyPrefix;
 	handleAutoSave: () => void;
 };
 
-function TypographyGroupFields({ form, prefix, handleAutoSave }: TypographyGroupFieldsProps) {
+function TypographyGroupFields({ form, families, prefix, handleAutoSave }: TypographyGroupFieldsProps) {
 	const fontFamily = useSelector(form.store, (s) => s.values[prefix].fontFamily);
 
 	return (
@@ -127,6 +130,7 @@ function TypographyGroupFields({ form, prefix, handleAutoSave }: TypographyGroup
 						<FormControl
 							render={
 								<FontFamilyCombobox
+									families={families}
 									value={field.state.value}
 									className="text-base"
 									onValueChange={(value: string | null) => {

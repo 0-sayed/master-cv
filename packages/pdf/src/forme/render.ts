@@ -20,6 +20,7 @@ import { extractPageMap, NODE_CONTENT_PREFIX, NODE_SOURCE_PREFIX, parseResumeNod
 import { loadFonts } from "./fonts";
 import { loadIcons } from "./icons";
 import { imageSources, loadImages } from "./images";
+import { paginationBreaks, shortEntries, widowAdjustments } from "./pagination";
 import { renderHostTree } from "./reconciler";
 import { FIXED_SOURCE, FREE_FORM_MEASURE_HEIGHT, LIST_ROLE, NO_WRAP_SOURCE, toFormeDocument } from "./to-forme";
 
@@ -240,6 +241,9 @@ export async function renderResumeElement(
 
 	const breakBeforeListItems = new Set<number>();
 	const breakBeforeNodes = new Set<string>();
+	let keepWholeNodes = new Set<string>();
+	let measuredPagination = false;
+	const widowLines = new Map<string, number>();
 	const noWrapFontSizes = new Map<number, number>();
 	// Every pass draws the same text, so the fonts are prepared once, from the first pass's document.
 	let formeFonts: typeof fonts | undefined;
@@ -250,6 +254,8 @@ export async function renderResumeElement(
 				keepNestedRowsWhole,
 				breakBeforeListItems,
 				breakBeforeNodes,
+				keepWholeNodes,
+				widowLines,
 				freeFormHeights,
 				noWrapFontSizes,
 			});
@@ -268,6 +274,15 @@ export async function renderResumeElement(
 		};
 		let converted = convert();
 		let result = await render(converted);
+		if (!measuredPagination && result.layout.pages.length > converted.document.children.length) {
+			measuredPagination = true;
+			const measured = await render(toFormeDocument(tree, { images, measurePagination: true, noWrapFontSizes }));
+			keepWholeNodes = shortEntries(measured.layout, result.layout);
+			if (keepWholeNodes.size > 0) {
+				converted = convert();
+				result = await render(converted);
+			}
+		}
 		// Measure the actual font and existing box. URL punctuation cannot be replaced with no-break characters.
 		for (let pass = 0; pass < 2; pass++) {
 			let changed = false;
@@ -307,26 +322,49 @@ export async function renderResumeElement(
 		return { result, warnings: converted.warnings };
 	};
 
-	// Explicit breaks keep markers with their first line and restore rows lost when an item moves to a new page.
-	// Breaks move what follows, so a few passes settle it; each item is repaired at most once.
+	// Repair the earliest marker first: repairing adjacent candidates together can create
+	// a page containing only one bullet. Each index is repaired at most once.
 	const layOut = async (keepNestedRowsWhole: boolean) => {
-		for (let pass = 0; ; pass++) {
+		for (;;) {
 			const laidOut = await layOutOnce(keepNestedRowsWhole);
 			const needsBreak = listItemsNeedingBreak(laidOut.result.layout).filter((item) => !breakBeforeListItems.has(item));
-			if (needsBreak.length === 0 || pass === 3) return laidOut;
-			for (const item of needsBreak) breakBeforeListItems.add(item);
+			const first = needsBreak[0];
+			if (first === undefined) return laidOut;
+			breakBeforeListItems.add(first);
 		}
 	};
 
 	let { result, warnings } = await layOut(false);
-	if (misplacesABox(result)) ({ result, warnings } = await layOut(true));
+	let needsNestedRowRepair = misplacesABox(result);
+	if (needsNestedRowRepair) ({ result, warnings } = await layOut(true));
 	// ponytail: three repairs cap rendering cost; remove this workaround when Forme fixes nested pagination.
 	for (let pass = 0; pass < 3; pass++) {
 		const first = unplacedBlocks(result.layout).find((key) => !breakBeforeNodes.has(key));
 		if (!first) break;
 		// Retry the first failed block from a fresh page; later failures may recover without extra breaks.
 		breakBeforeNodes.add(first);
+		needsNestedRowRepair = true;
 		({ result, warnings } = await layOut(true));
+	}
+	// Each pass advances one opening. Re-evaluate after reflow so earlier sections cannot strand later headings.
+	for (;;) {
+		const key = paginationBreaks(result.layout).find((node) => !breakBeforeNodes.has(node));
+		let changed = false;
+		for (const [node, minimum] of widowAdjustments(result.layout)) {
+			if (minimum <= (widowLines.get(node) ?? 2)) continue;
+			widowLines.set(node, minimum);
+			changed = true;
+		}
+		if (!key && !changed) break;
+		if (key) breakBeforeNodes.add(key);
+		// Marker repairs describe the preceding layout. Keeping them after moving an entry
+		// strands its second bullet on a new page even when the whole opening now fits.
+		breakBeforeListItems.clear();
+		({ result, warnings } = await layOut(needsNestedRowRepair));
+		if (!needsNestedRowRepair && misplacesABox(result)) {
+			needsNestedRowRepair = true;
+			({ result, warnings } = await layOut(true));
+		}
 	}
 	if (misplacesABox(result))
 		warnings.push("render defect: the engine couldn't place a box; a page may be laid out wrong");

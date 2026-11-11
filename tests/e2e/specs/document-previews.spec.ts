@@ -39,7 +39,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 
 for (const locale of ["ar-SA", "en-US"] as const)
 	for (const width of [1440, 1920]) {
-		test(`${locale} ${width} every CV has an honest preview and single-line metadata in grid and list`, async ({
+		test(`${locale} ${width} every CV has an honest preview and readable metadata in grid and list`, async ({
 			authPage: page,
 		}) => {
 			test.setTimeout(60_000);
@@ -77,7 +77,9 @@ for (const locale of ["ar-SA", "en-US"] as const)
 					).toBe(true);
 				const meta = card.locator('[data-slot="document-meta"]');
 				await expect(meta).toHaveAttribute("title", await meta.innerText());
-				await expect(meta).toHaveCSS("white-space", "nowrap");
+				// Owner-approved card timestamps may wrap; they must still fit the card.
+				await expect(meta).toHaveCSS("white-space", "normal");
+				await expect.poll(() => meta.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
 				if (locale === "ar-SA") {
 					await expect(meta).toContainText("عُدّلت");
 					await expect(meta).not.toContainText("تم تحرير");

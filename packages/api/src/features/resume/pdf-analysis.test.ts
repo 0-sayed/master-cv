@@ -1,10 +1,10 @@
 import { expect, it, vi } from "vite-plus/test";
-import { call } from "@orpc/server";
 vi.mock("@reactive-resume/auth/config", () => ({
 	auth: { api: { getSession: vi.fn().mockResolvedValue(null) } },
 	verifyOAuthToken: vi.fn(),
 }));
-const { checkPdf } = await import("./checks");
+const { extractPdf } = await import("./pdf-analysis");
+const { analyzePdfResume, buildExtractedDocument } = await import("@reactive-resume/resume/ats-pdf");
 
 // A complete, tiny one-page PDF; no network fonts, renderer, database or mocked PDF reader.
 function pdfFile() {
@@ -27,13 +27,10 @@ function pdfFile() {
 	return new File([text], "resume.pdf", { type: "application/pdf" });
 }
 
-it("checks an anonymous PDF upload with the real reader and rejects non-PDF bytes", async () => {
-	const context = { locale: "en-US" as const, reqHeaders: new Headers(), trustedClient: "127.0.0.1" };
-	const report = await call(checkPdf, { file: pdfFile() }, { context });
+it("extracts native PDF bytes with the real reader and rejects non-PDF bytes", async () => {
+	const raw = await extractPdf(pdfFile());
+	const report = analyzePdfResume(raw);
 	expect(report.document).toMatchObject({ pageCount: 1, truncated: false, wordCount: 4 });
-	expect(report.file.magicBytesOk).toBe(true);
-	expect(report.fullText).toContain("Ada Lovelace analytical engines");
-	await expect(call(checkPdf, { file: new File(["not a PDF"], "resume.pdf") }, { context })).rejects.toMatchObject({
-		code: "BAD_REQUEST",
-	});
+	expect(buildExtractedDocument(raw).fullText).toContain("Ada Lovelace analytical engines");
+	await expect(extractPdf(new File(["not a PDF"], "resume.pdf"))).rejects.toMatchObject({ code: "BAD_REQUEST" });
 });

@@ -140,6 +140,23 @@ describe("contact rules", () => {
 });
 
 describe("date rules", () => {
+	it.each(["حتى الآن", "الآن", "حاليًا", "حالياً", "حاليا", "حتى اليوم"])(
+		"reads an Arabic ongoing marker retained in raw dates: %s",
+		(marker) => {
+			const period = `2020 - ${marker}`;
+			const data = makeResume((resume) => {
+				resume.metadata.page.locale = "ar-SA";
+				resume.sections.experience.items = [
+					experienceItem({ period, dates: { start: null, end: null, present: false, raw: period } }),
+				];
+			});
+			const before = structuredClone(data);
+			expect(codesOf(data)).not.toContain("UNPARSEABLE_PERIOD");
+			expect(codesOf(data)).not.toContain("REVERSED_PERIOD");
+			expect(data).toEqual(before);
+		},
+	);
+
 	it("flags an unreadable period at the offending item", () => {
 		const data = makeResume((resume) => {
 			resume.sections.experience.items = [experienceItem({ period: "a while back" })];

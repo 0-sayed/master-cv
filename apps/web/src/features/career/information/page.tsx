@@ -11,8 +11,14 @@ import { Button } from "@reactive-resume/ui/components/button";
 import { SectionCollection } from "@reactive-resume/ui/components/collection-grid";
 import { FactChip } from "@reactive-resume/ui/components/fact-chip";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { SectionCard, SectionCardHeader, SectionCardRow } from "@reactive-resume/ui/components/section-card";
+import {
+	SectionCard,
+	SectionCardEmpty,
+	SectionCardHeader,
+	SectionCardRow,
+} from "@reactive-resume/ui/components/section-card";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
+import { ProfileSectionsSkeleton } from "@reactive-resume/ui/components/skeleton-content";
 import { SuccessTick } from "@reactive-resume/ui/components/success-tick";
 import { cn } from "@reactive-resume/utils/style";
 import { useCareerCopy } from "../copy.generated";
@@ -53,7 +59,15 @@ export function CareerInformationPage() {
 				description={copy("editor.career.subtitle")}
 			/>
 			{loading.pending ? (
-				<QuerySkeleton shape="profile-sections" />
+				<QuerySkeleton
+					fallback={
+						<ProfileSectionsSkeleton
+							emptyLabel={copy("editor.career.emptyTitle")}
+							noticeLabel={copy("editor.certificates.empty")}
+							noticeHint={copy("editor.certificates.hint")}
+						/>
+					}
+				/>
 			) : query.isError && !data ? (
 				<CareerLoadError retrying={query.isFetching} onRetry={() => void query.refetch()} />
 			) : data ? (
@@ -104,18 +118,7 @@ export function CareerInformationPage() {
 		const titleKey = section === "certifications" ? "editor.certificates.title" : (`editor.${section}.title` as const);
 		const addKey = section === "certifications" ? "editor.certificates.add" : (`editor.${section}.add` as const);
 		return (
-			<SectionCard
-				key={section}
-				capacity={
-					section === "experience"
-						? "entries"
-						: section === "education"
-							? "entry"
-							: section === "certifications"
-								? "notice"
-								: "chips"
-				}
-			>
+			<SectionCard key={section}>
 				<SectionCardHeader>
 					<Icon
 						name={icons[section]}
@@ -147,10 +150,10 @@ export function CareerInformationPage() {
 						))}
 					</div>
 				) : (
-					<div className="rounded-lg border border-dashed border-line p-3 type-body text-ink-3">
+					<SectionCardEmpty>
 						<p>{section === "certifications" ? copy("editor.certificates.empty") : copy("editor.career.emptyTitle")}</p>
 						{section === "certifications" && <p>{copy("editor.certificates.hint")}</p>}
-					</div>
+					</SectionCardEmpty>
 				)}
 				<Button
 					variant="link"

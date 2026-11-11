@@ -41,6 +41,8 @@ it("extracts each document and each reopened render independently", async () => 
 	open("A", "Resume Alpha");
 	const view = render(ui);
 	await screen.findByText("Resume Alpha");
+	expect(screen.queryByRole("group", { name: "Page view" })).toBeNull();
+	expect(screen.queryByRole("radiogroup", { name: "Page view" })).toBeNull();
 	view.unmount();
 	open("B", "Resume Beta");
 	const second = render(ui);

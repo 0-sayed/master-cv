@@ -5,6 +5,17 @@ import { buildExtractedDocument } from "./extract";
 import { analyzePdfResume } from "./index";
 import { makeRawExtraction } from "./test-fixtures";
 const now = new Date("2024-06-15T00:00:00Z");
+it.each(["حتى الآن", "الآن", "حاليًا", "حالياً", "حاليا", "حتى اليوم"])(
+	"recognizes an Arabic current-role range in extracted PDF text: %s",
+	(marker) => {
+		const text = `2020 - ${marker}`;
+		const result = analyzeDates(buildExtractedDocument(makeRawExtraction({ lines: [text] })), "ar-SA", now);
+		expect(result.tokens).toEqual([
+			expect.objectContaining({ raw: text, parsed: true, startYear: 2020, endYear: null, ongoing: true }),
+		]);
+		expect(result.unparseableRanges).toEqual([]);
+	},
+);
 it("recognizes Arabic headings without enabling English role heuristics", () => {
 	const raw = makeRawExtraction({
 		lines: [

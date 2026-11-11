@@ -25,15 +25,15 @@ export function pdfDateDisplayData(data: ResumeData): ResumeData {
 	return display;
 }
 
-/** Display only: the text primitive places the start at the right in RTL documents. */
+/** Display only: closed numeric ranges share one compact LTR run in either document language. */
 export function dateDisplay(value: string, locale: string): DateDisplay {
 	const text = normalizeNumericDigits(value);
-	if (!isRTL(locale)) return { text };
 	const closed = range.exec(text);
 	if (closed?.[1] && closed[2]) {
 		const endpoints = [displayEndpoint(closed[1]), displayEndpoint(closed[2])] as const;
-		return { text: endpoints.join(" - ") };
+		return { text: endpoints.join("-") };
 	}
+	if (!isRTL(locale)) return { text };
 	const open = ongoing.exec(text);
 	if (open?.[1] && open[2] && /^(?:حتى الآن|حالياً|حاليا|الآن|الحاضر)$/u.test(open[2])) {
 		const endpoints = [displayEndpoint(open[1]), open[2]] as const;

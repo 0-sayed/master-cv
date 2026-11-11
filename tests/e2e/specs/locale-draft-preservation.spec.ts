@@ -77,7 +77,7 @@ for (const initialLocale of ["en-US", "ar-SA"] as const) {
 	test(`a pending ${initialLocale} switch preserves an open dialog's unsaved value and focus`, async ({
 		authPage: page,
 	}) => {
-		await page.goto(`/dashboard?locale=${initialLocale}`);
+		await page.goto(`/dashboard/career/information?locale=${initialLocale}`);
 		let release: () => void = () => {};
 		let reached: () => void = () => {};
 		const held = new Promise<void>((resolve) => {
@@ -98,16 +98,10 @@ for (const initialLocale of ["en-US", "ar-SA"] as const) {
 			.click();
 		await started;
 		try {
-			await page.locator('button[aria-keyshortcuts="N"]').first().click();
+			await page.getByRole("button", { name: arabic ? "إضافة مهارة" : "Add skill", exact: true }).click();
 			const dialog = page.getByRole("dialog");
 			await expect(dialog).toBeVisible();
-			await dialog
-				.getByRole("button", {
-					name: arabic ? "نسخة لوظيفة" : "Copy for a job",
-					exact: false,
-				})
-				.click();
-			const input = dialog.getByRole("textbox");
+			const input = dialog.locator('input[name="name"]');
 			await input.fill("مسودة Unsaved Draft ٠١٢");
 			await input.evaluate((element) => {
 				element.setAttribute("data-dialog-preservation", "mounted");

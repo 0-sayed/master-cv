@@ -66,3 +66,39 @@ it("preserves explicitly LTR numeric islands on an untagged Arabic line", () => 
 	for (const item of items.slice(0, 2)) item.dir = "ltr";
 	expect(buildExtractedDocument(raw).lines[0]?.text).toBe("الهاتف 123 456");
 });
+
+it.each(["Forme (Master CV logical dates v1)", "External ATS fixture"])(
+	"uses ordinary geometry regardless of producer: %s",
+	(producer) => {
+		const raw = makeRawExtraction({
+			lines: [
+				{ text: "2015", x: 180, y: 60 },
+				{ text: "-", x: 165, y: 60 },
+				{ text: "2019", x: 135, y: 60 },
+				{ text: "مهندس", x: 230, y: 60 },
+			],
+		});
+		for (const item of raw.pages[0]?.items ?? []) item.dir = /[0-9-]/u.test(item.str) ? "ltr" : "rtl";
+		raw.metadata.producer = producer;
+		expect(buildExtractedDocument(raw).lines[0]?.text.replace(/\s/gu, "")).toBe("مهندس2019-2015");
+	},
+);
+
+it("keeps ordinary PDF geometry rules without a producer date-order declaration", () => {
+	const raw = makeRawExtraction({
+		lines: [
+			{ text: "2015", x: 180, y: 60 },
+			{ text: "-", x: 165, y: 60 },
+			{ text: "2019", x: 135, y: 60 },
+		],
+	});
+	expect(buildExtractedDocument(raw).lines[0]?.text.replace(/\s/gu, "")).toBe("2019-2015");
+});
+
+it("preserves a compact authored descending range without inferring chronology", () => {
+	const raw = makeRawExtraction({
+		lines: [{ text: "2019-2015", x: 135, y: 60 }],
+	});
+	for (const item of raw.pages[0]?.items ?? []) item.dir = "ltr";
+	expect(buildExtractedDocument(raw).lines[0]?.text.replace(/\s/gu, "")).toBe("2019-2015");
+});

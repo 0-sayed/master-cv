@@ -28,7 +28,7 @@ const UNITS = [
 	{ unit: "year", ms: 365 * DAY_MS, below: Number.POSITIVE_INFINITY },
 ] as const;
 
-/** Time since a moment in the largest whole unit, using the UI's unbreakable relative-time phrase. */
+/** Time since a moment in the largest whole unit, using the interface locale's long relative-time phrase. */
 export function formatTimeSince(date: Date, locale: string, now = Date.now()) {
 	const elapsed = Math.max(0, now - date.getTime());
 	const { unit, ms } = UNITS.find(({ ms, below }) => elapsed / ms < below) ?? UNITS[4];

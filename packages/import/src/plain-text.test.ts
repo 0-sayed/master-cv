@@ -129,7 +129,7 @@ describe("parseResumeText edge cases", () => {
 
 	it("keeps unclassified header parts in the description rather than dropping them", () => {
 		const data = parseResumeText("EXPERIENCE\nAcme  Engineer  Berlin  Remote  Contract\n2020 - 2022\n");
-		expect(data.sections.experience.items[0]?.description).toContain("Remote");
+		expect(data.sections.experience.items[0]?.location).toBe("Berlin · Remote");
 		expect(data.sections.experience.items[0]?.description).toContain("Contract");
 	});
 
@@ -326,3 +326,28 @@ it("keeps uppercase employers in experience when entry lookahead has Arabic mont
 	]);
 	expect(data.customSections).toHaveLength(0);
 });
+
+it.each(["\n", " ", "  ", "\t"])("stops phone extraction before a digit-leading email after %j", (separator) => {
+	const data = parseResumeText(`Sara Example\n+20 106 449 4638${separator}2sayed.5ashraf@example.test`);
+	expect(data.basics.phone).toBe("+20 106 449 4638");
+	expect(data.basics.email).toBe("2sayed.5ashraf@example.test");
+});
+it("does not consume a digit-leading URL token as part of a phone", () => {
+	const data = parseResumeText("Sara Example\n+20 106 449 4638 2example.test/profile");
+	expect(data.basics.phone).toBe("+20 106 449 4638");
+});
+
+it.each(["Acme, Software Engineer, London", "Software Engineer, Acme, London", "شركة ألف، مهندس برمجيات، الرياض"])(
+	"recognizes the role segment in comma-separated experience headers: %s",
+	(header) => {
+		const arabic = header.startsWith("شركة");
+		const data = parseResumeText(`Sara Example\nEXPERIENCE\n${header}\n2020 - 2024`, {
+			locale: arabic ? "ar-SA" : "en-US",
+		});
+		expect(data.sections.experience.items[0]).toMatchObject({
+			company: arabic ? "شركة ألف" : "Acme",
+			position: arabic ? "مهندس برمجيات" : "Software Engineer",
+			location: arabic ? "الرياض" : "London",
+		});
+	},
+);

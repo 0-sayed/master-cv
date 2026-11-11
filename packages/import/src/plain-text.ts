@@ -7,6 +7,12 @@ import { generateId, normalizeNumericDigits } from "@reactive-resume/utils/strin
 import { BULLET_PATTERN, toHtml } from "./html";
 import { normalizeImportedText } from "./normalize";
 
+export type ImportReviewIssue = {
+	field: "name" | "headline" | "location" | "position" | "company" | "phone";
+	source: string;
+};
+type ImportOptions = { locale?: string; onUncertain?: (issue: ImportReviewIssue) => void };
+
 type SectionKey = SectionType | "summary";
 
 type Segment = {
@@ -111,12 +117,16 @@ const SECTION_ALIASES: Readonly<Record<string, SectionKey>> = {
 
 const EMAIL_PATTERN = /[\w.+-]+@[\w-]+\.[\w.-]*\w/;
 const URL_PATTERN = /\b(?:https?:\/\/|www\.)[^\s,;|•·]+/gi;
-const PHONE_CANDIDATE = /[+(]?\p{Nd}[\p{Nd}\s().+-]{5,}\p{Nd}/gu;
+const PHONE_CANDIDATE = /[+(]?\p{Nd}[\p{Nd} \t().+-]{5,}\p{Nd}/gu;
 const URL_TEST = /\b(?:https?:\/\/|www\.)\S+/i;
 const HEADER_SCAN_LINES = 6;
 const ENTRY_PREAMBLE_LOOKAHEAD = 4;
-const PERIOD_CANDIDATE =
-	/(?:\p{L}{3,}\.?\s+)?(?:\p{Nd}{1,2}[/.])?\p{Nd}{4}\s*(?:[-–—~]|to|until|through)\s*(?:(?:\p{L}{3,}\.?\s+)?(?:\p{Nd}{1,2}[/.])?\p{Nd}{4}|حتى\s+الآن|\p{L}+)/giu;
+// Match complete endpoints before their shared prefixes (2026-07 must not become 2026).
+const DATE_ENDPOINT = String.raw`(?:(?:\p{L}{3,}\.?\s+)?(?:\p{Nd}{1,2}[/.])?\p{Nd}{4}(?:-\p{Nd}{1,2})?)`;
+const PERIOD_CANDIDATE = new RegExp(
+	String.raw`${DATE_ENDPOINT}\s*(?:[-–—~]|to|until|through)\s*(?:${DATE_ENDPOINT}|حتى\s+(?:الآن|اليوم)|to\s+date|\p{L}+)`,
+	"giu",
+);
 const STRONG_SEPARATOR = /\s*[|•·]\s*|\s{2,}|\s+[–—]\s+/;
 const SENTENCE_END = /[.!?]$/;
 const TRAILING_DATES = [/(?:\p{L}{3,}\.?\s+)?(?:\d{1,2}[/.])?(?:19|20)\d{2}$/u, /(?:\d{1,2}[/.])?(?:19|20)\d{2}$/];
@@ -198,7 +208,10 @@ function findSingleDate(text: string, locale = "en-US"): string {
 }
 
 function extractPhone(text: string): string {
-	for (const candidate of text.match(PHONE_CANDIDATE) ?? []) {
+	// Remove entire contact tokens before scanning, so a digit-leading email or URL cannot
+	// contribute a numeric prefix. Preserve line boundaries and the phone's original grouping.
+	const phoneText = text.replace(/\S*@\S*|\S*(?:[\p{L}]\.[\p{L}]|:\/\/|\/)[^\s]*/gu, " ");
+	for (const candidate of phoneText.match(PHONE_CANDIDATE) ?? []) {
 		const digits = normalizeNumericDigits(candidate).replace(/\D/g, "");
 		if (digits.length < MIN_PHONE_DIGITS || digits.length > MAX_PHONE_DIGITS) continue;
 		if (parsePeriod(candidate)) continue;
@@ -340,7 +353,87 @@ const baseItem = () => ({ id: generateId(), hidden: false });
 
 const emptyWebsite = { url: "", label: "", inlineLink: false };
 
-function buildSectionItems(key: SectionKey, lines: string[], locale: string): unknown[] {
+// Recognition hints, not a title generator. Unrecognized fields stay reviewable.
+const ROLE_WORD =
+	/\b(?:engineer|developer|designer|manager|director|analyst|accountant|consultant|specialist|officer|lead|architect|administrator|coordinator|technician|teacher|researcher|intern|founder)\b|(?:مهندس|مهندسة|مطور|مطورة|مدير|مديرة|مصمم|مصممة|محلل|محللة|محاسب|محاسبة|استشاري|أخصائي|مسؤول|معلم|باحث)/iu;
+const WORK_MODE = /^(?:remote|hybrid|on[- ]site|عن بعد|هجين|حضوري)$/iu;
+const PLACE =
+	/^(?:Saudi Arabia|Egypt|United Arab Emirates|UAE|UK|United Kingdom|United States|USA|Germany|France|Canada|India|Berlin|London|Cairo|Riyadh|Dubai|السعودية|مصر|الإمارات|الرياض|القاهرة|جدة|دبي|المملكة العربية السعودية)$/iu;
+
+function looksLikeRole(value: string): boolean {
+	return (
+		ROLE_WORD.test(value) &&
+		value.split(/\s+/).length <= MAX_ENTRY_HEADER_WORDS &&
+		!/[.!?•]/u.test(value) &&
+		!/\b(?:built|reduced|developed|led|delivered|improved)\b/iu.test(value)
+	);
+}
+
+function looksLikeLocation(value: string): boolean {
+	return !looksLikeRole(value) && (WORK_MODE.test(value) || PLACE.test(value) || /[,،]/u.test(value));
+}
+
+function credibleLocation(value: string): boolean {
+	return (
+		!/[!?;:]/u.test(value) &&
+		value.split(/[,،·]/u).every((part) => {
+			const words = part.trim().split(/\s+/);
+			if (words.length > 3) return false;
+			// A recognized place followed by unexplained text has crossed a field boundary.
+			return !words.some((_word, index) => index < words.length - 1 && PLACE.test(words.slice(0, index + 1).join(" ")));
+		})
+	);
+}
+
+function experienceFields(entry: RawEntry, options: ImportOptions) {
+	let parts = [...entry.headerParts];
+	const first = parts[0] ?? "";
+	const at = /^(.+?)\s+(?:at|@|لدى|في)\s+(.+)$/iu.exec(first);
+	if (at?.[1] && at[2] && looksLikeRole(at[1])) parts = [at[2], at[1], ...parts.slice(1)];
+	else if (looksLikeRole(first)) {
+		const comma = first.split(/[,،]\s*/u);
+		if (comma.length >= 2)
+			parts = [
+				...(looksLikeRole(comma[0] ?? "") ? [comma[1] ?? "", comma[0] ?? ""] : comma.slice(0, 2)),
+				comma.slice(2).join(first.includes("،") ? "، " : ", "),
+				...parts.slice(1),
+			].filter(Boolean);
+		else if (parts[1] && !looksLikeLocation(parts[1]) && !looksLikeRole(parts[1]))
+			parts = [parts[1], first, ...parts.slice(2)];
+	}
+	const company = parts.shift() ?? "";
+	let position = "";
+	const locations: string[] = [];
+	const unused: string[] = [];
+	for (const part of parts) {
+		if (!position && looksLikeRole(part)) position = part;
+		else if (looksLikeLocation(part)) locations.push(part);
+		else unused.push(part);
+	}
+	const body = [...entry.body];
+	// A role below the dated company/location row is a header, not the first achievement.
+	const next = body[0];
+	if (!position && next && !BULLET_PATTERN.test(next)) {
+		const [title, ...bullets] = next.split(/\s+[•◦‣]\s+/u);
+		if (title && looksLikeRole(title)) {
+			position = title;
+			body.shift();
+			body.unshift(...bullets.map((bullet) => `• ${bullet}`));
+		}
+	}
+	if (!position)
+		options.onUncertain?.({ field: "position", source: unused.join(" | ") || entry.headerParts.join(" | ") });
+	const location = locations.join(" · ");
+	if (location && !credibleLocation(location)) options.onUncertain?.({ field: "location", source: location });
+	return {
+		company,
+		position,
+		location: credibleLocation(location) ? location : "",
+		description: toHtml([...unused, ...body]),
+	};
+}
+
+function buildSectionItems(key: SectionKey, lines: string[], locale: string, options: ImportOptions): unknown[] {
 	if (key === "skills" || key === "interests") {
 		return splitList(lines).map((name) => ({
 			...baseItem(),
@@ -390,12 +483,9 @@ function buildSectionItems(key: SectionKey, lines: string[], locale: string): un
 	if (key === "experience") {
 		return entries.map((entry) => ({
 			...baseItem(),
-			company: entry.headerParts[0] ?? "",
-			position: entry.headerParts[1] ?? "",
-			location: entry.headerParts[2] ?? "",
+			...experienceFields(entry, options),
 			period: entry.period,
 			website: emptyWebsite,
-			description: entryDescription(entry, 3),
 			roles: [],
 		}));
 	}
@@ -495,6 +585,7 @@ function segment(lines: string[], locale: string): { header: string[]; segments:
 		// a dated custom section that opens the body from being swallowed into the contact header.
 		const unknown =
 			key === null &&
+			!(current?.key === "experience" && looksLikeRole(line)) &&
 			index > boundary &&
 			(looksLikeHeading(line) || isolatedTitleCase) &&
 			(current === null || isolatedTitleCase || !introducesEntry(cleaned, index, true, locale));
@@ -514,43 +605,75 @@ function segment(lines: string[], locale: string): { header: string[]; segments:
 	return { header, segments };
 }
 
-function parseHeader(lines: string[]) {
-	const joined = lines.join(" ");
-	const email = joined.match(EMAIL_PATTERN)?.[0] ?? "";
-	const phone = extractPhone(joined);
-	const urls = joined.match(URL_PATTERN) ?? [];
-
-	const strip = (value: string) => {
-		let result = value;
-		if (email) result = result.replace(email, " ");
-		if (phone) result = result.replace(phone, " ");
-		for (const url of urls) result = result.replace(url, " ");
-		return result.replace(/\s+/g, " ").trim();
+function parseHeader(lines: string[], options: ImportOptions) {
+	// Split geometry-delimited fields BEFORE normalizing spaces; never scan across a line/column.
+	const fields = lines
+		.flatMap((line) => line.split(/\s*[|•]\s*/))
+		.flatMap((field) => {
+			const value = field.replace(/^(?:phone|tel|الهاتف)\s*[:：]\s*/iu, "").trim();
+			// A standalone phone may deliberately use wide digit grouping. Keep its exact spacing.
+			return value && extractPhone(value) === value ? [field] : field.split(/[ \t]{2,}/);
+		})
+		.map((field) => field.trim())
+		.filter(Boolean);
+	const email = fields.map((field) => field.match(EMAIL_PATTERN)?.[0]).find(Boolean) ?? "";
+	const phone = fields.map(extractPhone).find(Boolean) ?? "";
+	const urls = fields.flatMap((field) => field.match(URL_PATTERN) ?? []);
+	const remaining: string[] = [];
+	const labelled: Partial<Record<"name" | "headline" | "location", string>> = {};
+	const labels: Record<string, "name" | "headline" | "location"> = {
+		name: "name",
+		"full name": "name",
+		الاسم: "name",
+		"الاسم الكامل": "name",
+		headline: "headline",
+		title: "headline",
+		"job title": "headline",
+		"المسمى الوظيفي": "headline",
+		location: "location",
+		"city and country": "location",
+		"المدينة والدولة": "location",
+		الموقع: "location",
 	};
-
-	const remaining = lines.map(strip).filter(Boolean);
-	const name = remaining[0] ?? "";
-	const rest = remaining.slice(1).flatMap(splitHeaderParts).filter(Boolean);
-	const locationIndex = rest.findIndex((part) => /,/.test(part) && !/\d{4}/.test(part));
-
-	return {
-		name,
-		headline: locationIndex === 0 ? (rest[1] ?? "") : (rest[0] ?? ""),
-		location: locationIndex === -1 ? "" : (rest[locationIndex] ?? ""),
-		email,
-		phone,
-		website: urls[0] ?? "",
-	};
+	for (const field of fields) {
+		const label = /^([^:：]+)[:：]\s*(.*)$/u.exec(field);
+		const key = label?.[1] ? labels[label[1].toLowerCase()] : undefined;
+		if (key) {
+			labelled[key] = label?.[2] ?? "";
+			continue;
+		}
+		let value = field;
+		if (email) value = value.replace(email, " ");
+		if (phone) value = value.replace(phone, " ");
+		for (const url of urls) value = value.replace(url, " ");
+		// Contact labels on otherwise empty fields aren't candidate facts.
+		value = value
+			.replace(/^(?:e-?mail|phone|tel|website|البريد الإلكتروني|الهاتف|الموقع الإلكتروني)\s*[:：]\s*/iu, "")
+			.trim();
+		if (value && /\p{L}/u.test(value)) remaining.push(value);
+	}
+	const name = labelled.name ?? remaining.shift() ?? "";
+	const locationIndex = remaining.findIndex(looksLikeLocation);
+	const locationSource = labelled.location ?? (locationIndex >= 0 ? (remaining.splice(locationIndex, 1)[0] ?? "") : "");
+	let location = locationSource;
+	if (location && !credibleLocation(location)) {
+		options.onUncertain?.({ field: "location", source: location });
+		location = "";
+	}
+	const headlineSource = labelled.headline ?? remaining[0] ?? "";
+	const headline = looksLikeRole(headlineSource) ? headlineSource : "";
+	if (headlineSource && !headline) options.onUncertain?.({ field: "headline", source: headlineSource });
+	return { name, headline, location, email, phone, website: urls[0] ?? "" };
 }
 
-export function parseResumeText(text: string, options: { locale?: string } = {}): ResumeData {
+export function parseResumeText(text: string, options: ImportOptions = {}): ResumeData {
 	// Some native PDFs map shaped glyphs to Arabic presentation forms. Decode only those
 	// compatibility glyphs; retain the raw extraction separately and never fold Arabic letters.
 	const editableText = normalizeImportedText(text);
 	const lines = editableText.replace(/\r\n?/g, "\n").split("\n");
 	const locale = options.locale ?? defaultResumeData.metadata.page.locale;
 	const { header, segments } = segment(lines, locale);
-	const contact = parseHeader(header);
+	const contact = parseHeader(header, options);
 
 	const data: ResumeData = structuredClone(defaultResumeData);
 	const order: string[] = [];
@@ -590,7 +713,7 @@ export function parseResumeText(text: string, options: { locale?: string } = {})
 			continue;
 		}
 
-		const items = buildSectionItems(item.key, item.lines, data.metadata.page.locale);
+		const items = buildSectionItems(item.key, item.lines, data.metadata.page.locale, options);
 		if (items.length === 0) continue;
 
 		const section = data.sections[item.key];

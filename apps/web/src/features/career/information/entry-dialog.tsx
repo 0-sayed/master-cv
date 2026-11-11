@@ -26,7 +26,7 @@ export function fieldLabel(field: string): string {
 	const labels: Record<string, string> = {
 		company: t`Company`,
 		position: t`Position`,
-		location: t`Location`,
+		location: t({ context: "workplace", message: "Location" }),
 		description: t`Description`,
 		school: t`School`,
 		degree: t`Degree`,
@@ -249,7 +249,7 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 							<Button variant="secondary" disabled={pending} onClick={() => setRemoving(false)}>
 								<Trans>Cancel</Trans>
 							</Button>
-							<Button loading={pending} onClick={() => void remove()}>
+							<Button variant="danger" loading={pending} onClick={() => void remove()}>
 								<Trans>Remove entry</Trans>
 							</Button>
 						</TaskOverlayFooter>

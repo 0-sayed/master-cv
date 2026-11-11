@@ -13,7 +13,7 @@ import { cn } from "@reactive-resume/utils/style";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { templates } from "@/dialogs/resume/template/data";
 import { useCurrentBuilderResumeSelector, useResumeData } from "@/features/resume/builder/draft";
-import { CheckPageLayer, PageViewToggle } from "@/features/resume/editor/check/page-layer";
+import { CheckPageLayer } from "@/features/resume/editor/check/page-layer";
 import { ParserView } from "@/features/resume/editor/check/parser-view";
 import { CanvasStatusPill, usePageScale, ZoomBar } from "@/features/resume/editor/chrome";
 import { measureOverflow, runFit } from "@/features/resume/editor/design/fit";
@@ -25,6 +25,7 @@ import { revealSelectionInPanel } from "@/features/resume/editor/write/reveal";
 import { ResumePreview } from "@/features/resume/preview/preview";
 import { formatVersionTime, getVersionTitle } from "@/features/resume/share/format";
 import { orpc } from "@/libs/orpc/client";
+import { formatPageNumberInSentence } from "@/libs/page-number";
 
 const NONE: readonly never[] = [];
 
@@ -34,6 +35,7 @@ const NONE: readonly never[] = [];
  */
 export function PageCanvas() {
 	const data = useResumeData();
+	const identity = useEditorStore((state) => state.identity);
 	const format = useCurrentBuilderResumeSelector((resume) => resume.data.metadata.page.format);
 	const select = useEditorStore((state) => state.select);
 	const setDrawerOpen = useEditorStore((state) => state.setDrawerOpen);
@@ -103,14 +105,10 @@ export function PageCanvas() {
 					if (breakpoint === "tablet") setDrawerOpen(false);
 					if (isPhone) select(null);
 				}}
-				className={cn(
-					"absolute inset-0 overflow-auto pb-24 outline-none",
-					// Check keeps room above the page for the page-view toggle.
-					mode === "check" && !viewing ? "pt-[68px]" : "pt-7",
-					isPhone ? "px-4" : "px-10",
-				)}
+				className={cn("absolute inset-0 overflow-auto pt-7 pb-24 outline-none", isPhone ? "px-4" : "px-10")}
 			>
 				<ResumePreview
+					identity={identity ?? undefined}
 					highlightEdits={!viewing && !previewTemplate}
 					data={previewData}
 					pageLayout="vertical"
@@ -122,7 +120,7 @@ export function PageCanvas() {
 						parser && "hidden",
 					)}
 					pageClassName={cn("rounded-none shadow-page", viewing && "outline-2 outline-offset-4 outline-ink")}
-					onRender={setRendered}
+					onRender={previewData ? undefined : setRendered}
 					renderPageCaption={({ pageNumber }) => (
 						<ResumePageCaption
 							pageNumber={pageNumber}
@@ -146,7 +144,6 @@ export function PageCanvas() {
 				{parser && <ParserView />}
 			</section>
 
-			{mode === "check" && !viewing && <PageViewToggle />}
 			{!parser && <ZoomBar fitScale={fitScale} pageCount={Math.max(1, rendered.pageCount)} />}
 		</div>
 	);
@@ -230,7 +227,8 @@ type OverflowChipProps = { authored: number; lines: number | null };
 /** "Runs onto page 2 by about 6 lines" with Fit, which tightens the design until it fits (one undo step). */
 function OverflowChip({ authored, lines }: OverflowChipProps) {
 	const [fitting, setFitting] = useState(false);
-	const next = authored + 1;
+	const { i18n } = useLingui();
+	const next = formatPageNumberInSentence(authored + 1, i18n.locale);
 
 	return (
 		<span className="flex min-h-8 items-center gap-2 rounded-lg bg-warn-soft py-1 ps-3 pe-1.5 text-[13px] text-warn-text">

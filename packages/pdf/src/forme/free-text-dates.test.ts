@@ -4,8 +4,8 @@ import { freeTextDateRuns } from "./free-text-dates";
 it.each([
 	["١٤٤٠ هـ - ١٤٤١ هـ", ["1440", " هـ - ", "1441", " هـ"]],
 	["1440 هـ – 1441 هـ", ["1440", " هـ - ", "1441", " هـ"]],
-	["2010 - 2012", ["2010", " - ", "2012"]],
-	["2020-03-01 – 2021-04-02", ["01/03/2020", " - ", "02/04/2021"]],
+	["2010 - 2012", ["2010-2012"]],
+	["2020-03-01 – 2021-04-02", ["01/03/2020-02/04/2021"]],
 ])("recognizes only ordered date range %s", (source, expected) => {
 	expect(freeTextDateRuns(source).map((run) => run.text)).toEqual(expected);
 	expect(freeTextDateRuns(source).some((run) => run.numeric)).toBe(true);
@@ -61,17 +61,13 @@ it("keeps both Hijri abbreviations beside their natural RTL endpoints", () => {
 it("isolates a prose date range beside C++ without treating plus signs as a phone", () => {
 	expect(freeTextDateRuns("C++ خبرة 2010 - 2012")).toEqual([
 		{ text: "C++ خبرة " },
-		{ text: "2010", numeric: true },
-		{ text: " - " },
-		{ text: "2012", numeric: true },
+		{ text: "2010-2012", numeric: true },
 	]);
 });
 it.each([".", ",", ";", ":", "!", "?", "،", "؛", ")"])("isolates a sentence-final range before %s", (punctuation) => {
 	expect(freeTextDateRuns(`خبرة 2010 - 2012${punctuation}`)).toEqual([
 		{ text: "خبرة " },
-		{ text: "2010", numeric: true },
-		{ text: " - " },
-		{ text: "2012", numeric: true },
+		{ text: "2010-2012", numeric: true },
 		{ text: punctuation },
 	]);
 });

@@ -1,3 +1,4 @@
+import type { FixPreview } from "./check/fix-preview";
 import type { PageMap, PageMapTarget } from "@reactive-resume/pdf/page-map";
 import type { PdfAtsReport } from "@reactive-resume/resume/ats-pdf";
 import type { Proposal } from "@reactive-resume/resume/proposals";
@@ -5,13 +6,25 @@ import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { Template } from "@reactive-resume/schema/templates";
 import { create } from "zustand/react";
 
+export type EditorIdentity = { ownerId: string; resumeId: string; baseRevision: string; editGeneration: number };
+export const sameEditorIdentity = (a: EditorIdentity | null | undefined, b: EditorIdentity | null | undefined) =>
+	a === b ||
+	Boolean(
+		a &&
+		b &&
+		a.ownerId === b.ownerId &&
+		a.resumeId === b.resumeId &&
+		a.baseRevision === b.baseRevision &&
+		a.editGeneration === b.editGeneration,
+	);
+
 export const EDITOR_MODES = ["write", "design", "check"] as const;
 export type EditorMode = (typeof EDITOR_MODES)[number];
 
 /** The Share & export sheet's tabs; each entry point opens its own. */
 export type ShareTab = "link" | "download" | "history";
 
-export type CheckTab = "issues" | "match" | "writing";
+type CheckTab = "issues" | "match" | "writing";
 
 /** Phones show one view at a time: the page, or one mode's panel. */
 export type MobileView = "page" | EditorMode;
@@ -36,6 +49,10 @@ export const ZOOM_MAX = 1.5;
 export const ZOOM_STEP = 0.1;
 
 type EditorStore = {
+	checkFixPreview: FixPreview | null;
+	setCheckFixPreview: (preview: FixPreview | null) => void;
+	identity: EditorIdentity | null;
+	setIdentity: (identity: EditorIdentity | null) => void;
 	/** The mode just picked, shown while `?mode=` catches up (every navigation refetches the session first). */
 	pendingMode: EditorMode | null;
 	selection: EditorSelection | null;
@@ -76,7 +93,13 @@ type EditorStore = {
 	 * The render on screen: physical pages, the page map and the PDF (which Check's parser view reads). `version`
 	 * counts renders, so Fit can wait for one.
 	 */
-	rendered: { pageCount: number; pageMap: PageMap | undefined; file: Blob | undefined; version: number };
+	rendered: {
+		identity?: EditorIdentity | undefined;
+		pageCount: number;
+		pageMap: PageMap | undefined;
+		file: Blob | undefined;
+		version: number;
+	};
 	/** Phones: the view on screen; null until one is picked, which shows the current mode. */
 	mobileView: MobileView | null;
 	checkTab: CheckTab;
@@ -115,7 +138,12 @@ type EditorStore = {
 	setBasicsOpen: (open: boolean) => void;
 	setPreviewTemplate: (template: Template | null) => void;
 	setStyleHighlight: (keys: readonly string[]) => void;
-	setRendered: (render: { pageCount: number; pageMap: PageMap | undefined; file: Blob }) => void;
+	setRendered: (render: {
+		identity?: EditorIdentity | undefined;
+		pageCount: number;
+		pageMap: PageMap | undefined;
+		file: Blob;
+	}) => void;
 	setMobileView: (view: MobileView) => void;
 	setCheckTab: (tab: CheckTab) => void;
 	setCheckIssue: (key: string | null) => void;
@@ -142,6 +170,8 @@ export const isSameSelection = (a: EditorSelection | null, b: EditorSelection | 
 };
 
 const initialState = {
+	checkFixPreview: null,
+	identity: null,
 	pendingMode: null,
 	selection: null,
 	zoom: "fit",
@@ -176,6 +206,22 @@ const initialState = {
 
 export const useEditorStore = create<EditorStore>()((set) => ({
 	...initialState,
+	setCheckFixPreview: (checkFixPreview) => set({ checkFixPreview }),
+	setIdentity: (identity) =>
+		set((state) => {
+			if (sameEditorIdentity(state.identity, identity)) return state;
+			const switched = state.identity?.ownerId !== identity?.ownerId || state.identity?.resumeId !== identity?.resumeId;
+			return {
+				...(switched ? initialState : {}),
+				identity,
+				checkFixPreview: null,
+				exportCheck: null,
+				exportReportOpen: false,
+				proposals: [],
+				writingReview: null,
+				rendered: { ...initialState.rendered, version: state.rendered.version + 1 },
+			};
+		}),
 	select: (selection) => set({ selection }),
 	setZoom: (zoom) => set({ zoom: zoom === "fit" ? "fit" : clampZoom(zoom) }),
 	setDrawerOpen: (drawerOpen) => set({ drawerOpen }),
@@ -203,7 +249,16 @@ export const useEditorStore = create<EditorStore>()((set) => ({
 	setBasicsOpen: (basicsOpen) => set({ basicsOpen }),
 	setPreviewTemplate: (previewTemplate) => set({ previewTemplate }),
 	setStyleHighlight: (styleHighlight) => set({ styleHighlight }),
-	setRendered: (render) => set((state) => ({ rendered: { ...render, version: state.rendered.version + 1 } })),
+	setRendered: (render) =>
+		set((state) => {
+			if (
+				!sameEditorIdentity(state.identity, render.identity ?? null) ||
+				state.previewTemplate ||
+				state.historyVersionId
+			)
+				return state;
+			return { rendered: { ...render, version: state.rendered.version + 1 } };
+		}),
 	setMobileView: (mobileView) => set({ mobileView }),
 	setCheckTab: (checkTab) => set({ checkTab }),
 	setCheckIssue: (checkIssue) => set({ checkIssue }),

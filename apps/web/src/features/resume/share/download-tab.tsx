@@ -1,29 +1,22 @@
-import type { Resume } from "@/features/resume/builder/draft";
 import type { ExportFormat } from "@/features/resume/export/use-resume-export";
 import type { IconName } from "@reactive-resume/ui/components/icon";
 import type { ReactNode } from "react";
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
 import { t } from "@lingui/core/macro";
-import { Plural, Trans } from "@lingui/react/macro";
-import { useQuery } from "@tanstack/react-query";
-import { useId, useState } from "react";
+import { Trans } from "@lingui/react/macro";
+import { useEffect, useId, useRef, useState } from "react";
 import { ActionFeedback } from "@reactive-resume/ui/components/action-feedback";
+import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
-import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
-import { cn } from "@reactive-resume/utils/style";
-import { applicationsListQueryOptions } from "@/features/applications/queries";
-import { createLetterFile, letterFileName } from "@/features/letters/export";
-import { useCurrentResume } from "@/features/resume/builder/draft";
+import { useCurrentResume, useResumeStore } from "@/features/resume/builder/draft";
 import { useOpenIssueCount } from "@/features/resume/editor/check/use-check";
 import { createExportFile, getDefaultFileName, sanitizeFileName } from "@/features/resume/export/use-resume-export";
 import { getReadableErrorMessage } from "@/libs/error-message";
-import { ENTER_CLASS } from "@/libs/motion";
-import { client } from "@/libs/orpc/client";
 
 export type DownloadFormat<Id extends string = ExportFormat> = {
 	id: Id;
@@ -41,35 +34,15 @@ export const getExportFormats = (): DownloadFormat[] => [
 		label: "PDF",
 		extension: ".pdf",
 		icon: "file-pdf",
-		description: t`Looks exactly like the page. Use it for applications and email.`,
+		description: t`For applications and printing, with selectable and searchable text.`,
 	},
 	{
 		id: "docx",
 		label: "Word",
 		extension: ".docx",
 		icon: "file-text",
-		description: t`For portals or recruiters who ask for Word. Layout is simplified.`,
-	},
-	{
-		id: "odt",
-		label: "OpenDocument",
-		extension: ".odt",
-		icon: "file-doc",
-		description: t`For LibreOffice and other open-source editors. Layout is simplified.`,
-	},
-	{
-		id: "md",
-		label: "Markdown",
-		extension: ".md",
-		icon: "text-align-left",
-		description: t`Plain text with headings. Paste into application forms and notes.`,
-	},
-	{
-		id: "json",
-		label: "JSON",
-		extension: ".json",
-		icon: "brackets-curly",
-		description: t`Complete data backup. Imports back into Master CV or JSON Resume tools.`,
+		description: t`Not available yet. Arabic and English Word integrity still requires approval.`,
+		disabled: true,
 	},
 ];
 
@@ -155,6 +128,7 @@ export function FileNameField({ value, extension, hint, onChange }: FileNameFiel
 export type DownloadState = "idle" | "busy" | "error" | "done";
 
 type DownloadActionsProps = {
+	disabled?: boolean;
 	state: DownloadState;
 	label: string;
 	onDownload: () => void;
@@ -166,202 +140,130 @@ type DownloadActionsProps = {
  * The failure alert (with PDF as the fallback) and the 44px button that shows its progress. After a download, a
  * one-line thank-you asks for a donation: the moment someone has what they came for is the one time it's fair to ask.
  */
-export function DownloadActions({ state, label, onDownload, onDownloadPdf }: DownloadActionsProps) {
+export function DownloadActions({ state, label, onDownload, onDownloadPdf, disabled }: DownloadActionsProps) {
 	return (
 		<>
 			{state === "error" && (
-				<div
-					role="alert"
-					className="flex flex-wrap items-start gap-2.5 rounded-[10px] bg-danger-soft px-3 py-2.5 text-[13px] leading-[19px] text-danger-text"
-				>
-					<Icon name="warning-circle" size={20} />
-					<span className="min-w-0 flex-1">
-						<Trans>The {label} file couldn't be generated. Try again, or download PDF instead.</Trans>
-					</span>
-					{onDownloadPdf && (
-						<Button size="sm" variant="secondary" onClick={onDownloadPdf}>
-							<Trans>Download PDF instead</Trans>
-						</Button>
-					)}
-				</div>
+				<Alert variant="error">
+					<Icon name="warning-circle" />
+					<AlertTitle>
+						<Trans>Download failed.</Trans>
+					</AlertTitle>
+					<AlertDescription>
+						<p>
+							<Trans>The {label} file couldn't be generated. Try again, or download PDF instead.</Trans>
+						</p>
+						<div className="mt-2 flex flex-wrap gap-2">
+							<Button variant="secondary" disabled={disabled} onClick={onDownload}>
+								<Trans>Try again</Trans>
+							</Button>
+							{onDownloadPdf && (
+								<Button variant="secondary" onClick={onDownloadPdf}>
+									<Trans>Download PDF instead</Trans>
+								</Button>
+							)}
+						</div>
+					</AlertDescription>
+				</Alert>
 			)}
 
-			<Button
-				size="toolbar"
-				aria-label={state !== "error" && label === "PDF" ? t`Download ${label}` : undefined}
-				aria-busy={state === "busy"}
-				disabled={state === "busy"}
-				onClick={onDownload}
-			>
-				{label === "PDF" && state !== "error" ? (
-					<ActionFeedback
-						state={state === "busy" ? "pending" : state === "done" ? "ready" : "idle"}
-						label={t`Download ${label}`}
-						pendingLabel={t`Preparing…`}
-						readyLabel={t`PDF ready`}
-					/>
-				) : state === "busy" ? (
-					<>
-						<Spinner decorative className="size-4" />
-						<Trans>Preparing {label} file…</Trans>
-					</>
-				) : state === "error" ? (
-					<>
-						<Icon name="arrow-clockwise" />
-						<Trans>Try again</Trans>
-					</>
-				) : (
-					<>
-						<Icon name="download-simple" />
-						<Trans>Download {label}</Trans>
-					</>
-				)}
-			</Button>
+			{state !== "error" && (
+				<Button
+					size="toolbar"
+					aria-label={label === "PDF" ? t`Download ${label}` : undefined}
+					aria-busy={state === "busy"}
+					disabled={disabled || state === "busy"}
+					onClick={onDownload}
+				>
+					{label === "PDF" ? (
+						<ActionFeedback
+							state={state === "busy" ? "pending" : state === "done" ? "ready" : "idle"}
+							label={t`Download ${label}`}
+							pendingLabel={t`Preparing…`}
+							readyLabel={t`PDF ready`}
+						/>
+					) : state === "busy" ? (
+						<>
+							<Spinner decorative className="size-4" />
+							<Trans>Preparing {label} file…</Trans>
+						</>
+					) : (
+						<>
+							<Icon name="download-simple" />
+							<Trans>Download {label}</Trans>
+						</>
+					)}
+				</Button>
+			)}
 
 			{state === "done" && (
-				<p className={cn(ENTER_CLASS, "flex items-start gap-2 text-[13px] leading-[19px] text-ink-2")}>
-					<Icon name="hand-heart" size={18} className="shrink-0 text-ink-3" />
-					<span>
-						<Trans>Good luck out there. Master CV stays free because people chip in.</Trans>{" "}
-						<a
-							href="https://opencollective.com/reactive-resume/donate"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="font-medium text-accent-text underline underline-offset-2 hover:text-accent-hover"
-						>
-							<Trans>Donate</Trans>
-						</a>
-					</span>
+				<p role="status" className="type-body text-ink-2">
+					<Trans>Your PDF is ready. The browser download has started; your original CV remains saved here.</Trans>
 				</p>
 			)}
 		</>
 	);
 }
 
-/** The letter written for this resume's application, which can be downloaded along with it. */
-function useLinkedLetter(resume: Resume) {
-	const { data: applications } = useQuery(applicationsListQueryOptions());
-	const application = applications?.find(
-		(item) => item.coverLetterId && (item.id === resume.applicationId || item.resumeId === resume.id),
-	);
-	return application?.coverLetterId ? { id: application.coverLetterId, company: application.company } : null;
-}
-
-type DownloadTabProps = {
-	/** Opens Check; the note about open issues links there. */
-	onReview: () => void;
-};
-
-/**
- * Download: every format explained by when to use it, the file name recruiters see, and a button that shows
- * its progress. Open Check issues are mentioned but never block. A failed file offers PDF instead. With a letter
- * written for the resume's application, that letter can come along as a second file.
- */
-export function DownloadTab({ onReview }: DownloadTabProps) {
+export function DownloadTab({ onReview }: { onReview: () => void }) {
 	const resume = useCurrentResume();
-	const issues = useOpenIssueCount();
-	const linkedLetter = useLinkedLetter(resume);
-	const headerId = useId();
-	const [format, setFormat] = useState<ExportFormat>("pdf");
-	const [withLetter, setWithLetter] = useState(false);
-	const [fileName, setFileName] = useState<string | null>(null);
-	const [state, setState] = useState<DownloadState>("idle");
-
+	const conflict = useResumeStore((state) => state.saveStatus === "conflict");
 	const formats = getExportFormats();
-	const selected = formats.find((option) => option.id === format) ?? (formats[0] as DownloadFormat);
-	const name = fileName ?? getDefaultFileName(resume);
-
-	const download = async (as: ExportFormat) => {
-		const extension = formats.find((option) => option.id === as)?.extension ?? ".pdf";
-		const file = `${sanitizeFileName(name) || getDefaultFileName(resume)}${extension}`;
-		const letterId = withLetter ? linkedLetter?.id : undefined;
+	const [name, setName] = useState(() => getDefaultFileName(resume));
+	const [state, setState] = useState<DownloadState>("idle");
+	const issues = useOpenIssueCount();
+	const active = useRef(true);
+	const inFlight = useRef(false);
+	useEffect(() => {
+		active.current = true;
+		return () => {
+			active.current = false;
+		};
+	}, []);
+	const download = async () => {
+		if (inFlight.current || useResumeStore.getState().saveStatus === "conflict") return;
+		inFlight.current = true;
 		setState("busy");
 		try {
-			const blob = await createExportFile(resume, as);
-			downloadWithAnchor(blob, file);
-			if (letterId) {
-				const letter = await client.coverLetters.getById({ id: letterId });
-				downloadWithAnchor(await createLetterFile(letter, as), `${letterFileName(letter)}${extension}`);
-				toast.add({ description: t`Downloaded ${file} and the cover letter` });
-			} else {
-				toast.add({ description: t`Downloaded ${file}` });
-			}
+			const blob = await createExportFile(resume, "pdf");
+			if (!active.current || useResumeStore.getState().saveStatus === "conflict") return;
+			downloadWithAnchor(blob, `${sanitizeFileName(name) || getDefaultFileName(resume)}.pdf`);
 			setState("done");
 		} catch (error) {
-			setState("error");
-			toast.add({ type: "error", description: getReadableErrorMessage(error, t`Download failed.`) });
+			if (active.current) {
+				setState("error");
+				toast.add({ type: "error", description: getReadableErrorMessage(error, t`Download failed.`) });
+			}
+		} finally {
+			inFlight.current = false;
 		}
 	};
-
 	return (
 		<div className="grid gap-4">
-			<FormatRadioGroup
-				formats={formats}
-				value={format}
-				onChange={(value) => {
-					setFormat(value);
-					setState("idle");
-				}}
-			/>
-
+			<FormatRadioGroup formats={formats} value="pdf" onChange={() => {}} />
 			<FileNameField
 				value={name}
-				extension={selected.extension}
-				hint={<Trans>Recruiters see this name. Your name plus “Resume” works well.</Trans>}
-				onChange={setFileName}
+				onChange={setName}
+				extension=".pdf"
+				hint={<Trans>Choose the file name you want to send.</Trans>}
 			/>
-
-			{linkedLetter && (
-				<div className="flex items-center gap-2.5 text-sm">
-					<Checkbox
-						id={`${headerId}-letter`}
-						checked={withLetter}
-						onCheckedChange={(checked) => setWithLetter(checked === true)}
-					/>
-					<label htmlFor={`${headerId}-letter`} className="cursor-pointer">
-						<Trans>Also download the {linkedLetter.company} cover letter</Trans>
-					</label>
-				</div>
-			)}
-
 			{issues > 0 && (
-				<div className="flex gap-2.5 rounded-[10px] bg-warn-soft px-3 py-2.5 text-[13px] leading-[19px] text-warn-text">
-					<Icon name="list-checks" size={20} />
-					<span>
-						<Plural
-							value={issues}
-							one="Check has # thing to review. You can still download."
-							other="Check has # things to review. You can still download."
-						/>{" "}
-						<button type="button" className="font-medium underline underline-offset-2" onClick={onReview}>
-							<Trans>Review</Trans>
-						</button>
-					</span>
-				</div>
+				<Alert variant="warn">
+					<Icon name="warning-circle" />
+					<AlertTitle>
+						<Trans>Review your CV</Trans>
+					</AlertTitle>
+					<AlertDescription>
+						<Trans>There is information to review. PDF download remains free and available.</Trans>
+						<div className="mt-2 flex flex-wrap gap-2">
+							<Button variant="secondary" onClick={onReview}>
+								<Trans>Review now</Trans>
+							</Button>
+						</div>
+					</AlertDescription>
+				</Alert>
 			)}
-
-			<DownloadActions
-				state={state}
-				label={selected.label}
-				onDownload={() => void download(format)}
-				onDownloadPdf={format === "pdf" ? undefined : () => void download("pdf")}
-			/>
-			{state === "done" && (
-				<div className="grid gap-1.5 rounded-[10px] border border-line p-3 text-[13px] leading-[19px]">
-					<a
-						href="https://discord.gg/9kAqrGcwn5"
-						target="_blank"
-						rel="noopener noreferrer"
-						className="flex items-center gap-2 font-medium text-accent-text underline underline-offset-2 hover:text-accent-hover"
-					>
-						<Icon name="chat-text" size={18} />
-						<Trans>Get resume feedback on Discord</Trans>
-					</a>
-					<p className="text-ink-2">
-						<Trans>Ask the community. Remove personal details before posting.</Trans>
-					</p>
-				</div>
-			)}
+			<DownloadActions disabled={conflict} state={state} label="PDF" onDownload={() => void download()} />
 		</div>
 	);
 }

@@ -4,8 +4,10 @@ import { t } from "@lingui/core/macro";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { useEditorStore } from "../store";
+import { captureUndoAction } from "../undo-action";
 import { useEditorMode } from "../use-editor-mode";
 import { getScrollBehavior, revealSelectionInPanel } from "../write/reveal";
+import { prepareFix } from "./fix-preview";
 import { useResumeStore } from "@/features/resume/builder/draft";
 
 /** The author's Check choices on a draft, created on first use. */
@@ -20,7 +22,7 @@ export function editWithUndo(edit: (draft: ResumeData) => void, message: string)
 	store.updateResumeData(edit, { newStep: true });
 	toast.add({
 		description: message,
-		actionProps: { children: t`Undo`, onClick: () => useResumeStore.getState().undo() },
+		actionProps: { children: t`Undo`, onClick: captureUndoAction() },
 	});
 }
 
@@ -50,8 +52,12 @@ export function useCheckActions() {
 
 	const fix = (issue: CheckIssue) => {
 		if (issue.fix.kind === "apply") {
-			editWithUndo(issue.fix.apply, t`${issue.fix.done}. Issue resolved.`);
-			useEditorStore.getState().setCheckIssue(null);
+			const editor = useEditorStore.getState();
+			const draft = useResumeStore.getState().resume;
+			if (editor.identity && draft) {
+				editor.setCheckFixPreview(prepareFix(editor.identity, draft.data, issue.fix.apply));
+				if (breakpoint === "mobile") editor.setMobileView("check");
+			}
 			return;
 		}
 

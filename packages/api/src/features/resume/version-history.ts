@@ -1,6 +1,7 @@
 import type { DbOrTx } from "@reactive-resume/db/client";
 import type { ResumeVersionKind } from "@reactive-resume/db/schema";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
+import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
 import { createVersionHistory } from "../documents/version-history";
 import { parseStoredResumeData, parseWritableResumeData } from "./resume-data-validation";
@@ -36,8 +37,8 @@ export const saveSessionVersion = (input: Owned & { data: ResumeData; sessionId?
 
 export const listVersions = (input: Owned) => history.list(ids(input));
 
-export const getVersion = async (input: Owned & { versionId: string }) => {
-	const version = await history.get({ ...ids(input), versionId: input.versionId });
+export const getVersion = async (input: Owned & { versionId: string }, client: DbOrTx = db) => {
+	const version = await history.get({ ...ids(input), versionId: input.versionId }, client);
 	return { ...version, data: parseStoredResumeData(version.data) };
 };
 

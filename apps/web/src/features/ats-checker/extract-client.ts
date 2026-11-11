@@ -24,21 +24,21 @@ export type ExtractOptions = {
 	operatorBudgetMs?: number;
 };
 
-export class PdfPasswordRequiredError extends Error {
+class PdfPasswordRequiredError extends Error {
 	constructor() {
 		super("This PDF is password protected.");
 		this.name = "PdfPasswordRequiredError";
 	}
 }
 
-export class PdfTooLargeError extends Error {
+class PdfTooLargeError extends Error {
 	constructor(readonly sizeBytes: number) {
 		super("This PDF is too large to check in the browser.");
 		this.name = "PdfTooLargeError";
 	}
 }
 
-export class PdfUnreadableError extends Error {
+class PdfUnreadableError extends Error {
 	constructor(cause?: unknown) {
 		super("This file could not be read as a PDF.");
 		this.name = "PdfUnreadableError";
@@ -59,6 +59,7 @@ function isPasswordException(error: unknown): boolean {
 }
 
 export async function extractPdf(file: File, options: ExtractOptions = {}): Promise<RawExtraction> {
+	options.signal?.throwIfAborted();
 	if (file.size > MAX_UPLOAD_BYTES) throw new PdfTooLargeError(file.size);
 
 	const magicBytesOk = await hasPdfMagicBytes(file);
@@ -77,7 +78,15 @@ export async function extractPdf(file: File, options: ExtractOptions = {}): Prom
 	// only honest source for Type 3 / invalid / non-embedded font facts.
 	const loadingTask = getDocument({ data, fontExtraProperties: true });
 
+	const signal = options.signal
+		? AbortSignal.any([options.signal, AbortSignal.timeout(45_000)])
+		: AbortSignal.timeout(45_000);
+	const cancel = () => {
+		void loadingTask.destroy().catch(() => {});
+	};
+	signal.addEventListener("abort", cancel, { once: true });
 	try {
+		signal.throwIfAborted();
 		const document = await loadingTask.promise;
 
 		return await harvestPdfDocument(document, {
@@ -85,12 +94,13 @@ export async function extractPdf(file: File, options: ExtractOptions = {}): Prom
 			maxPages: HARVEST_DEFAULTS.maxPages,
 			...(options.operatorBudgetMs === undefined ? {} : { operatorBudgetMs: options.operatorBudgetMs }),
 			...(options.onProgress ? { onProgress: options.onProgress } : {}),
-			...(options.signal ? { signal: options.signal } : {}),
+			signal,
 		});
 	} catch (error) {
 		if (isPasswordException(error)) throw new PdfPasswordRequiredError();
 		throw error;
 	} finally {
-		void loadingTask.destroy();
+		signal.removeEventListener("abort", cancel);
+		await loadingTask.destroy().catch(() => {});
 	}
 }

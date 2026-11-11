@@ -44,10 +44,12 @@ jobs:
       matrix:
         include:
           - { part: unit, label: "Unit and integration" }
-          - { part: browser, shard: 1, label: "Browser 1/4" }
-          - { part: browser, shard: 2, label: "Browser 2/4" }
-          - { part: browser, shard: 3, label: "Browser 3/4" }
-          - { part: browser, shard: 4, label: "Browser 4/4" }
+          - { part: browser, shard: 1, label: "Browser 1/6" }
+          - { part: browser, shard: 2, label: "Browser 2/6" }
+          - { part: browser, shard: 3, label: "Browser 3/6" }
+          - { part: browser, shard: 4, label: "Browser 4/6" }
+          - { part: browser, shard: 5, label: "Browser 5/6" }
+          - { part: browser, shard: 6, label: "Browser 6/6" }
 
     services:
       postgres:
@@ -99,10 +101,27 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Cache pinned document toolchain
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: .cache/document-toolchain
+          key: ${{ runner.os }}-${{ runner.arch }}-document-toolchain-${{ hashFiles('tooling/document-qualification/install-poppler.mjs', 'tooling/document-qualification/versions.json') }}
+
       - name: Install PDF Text Extractor
+        timeout-minutes: 6
         run: |
-          sudo apt-get update
-          sudo apt-get install -y poppler-utils libfontconfig1 libfreetype6 libjpeg8 liblcms2-2 libnspr4 libnss3 libopenjp2-7 libpng16-16 libstdc++6 libtiff5 zlib1g libcairo2
+          # Reader runtime libraries are preinstalled on ubuntu-22.04; apt only repairs missing ones.
+          missing=()
+          for package in libfontconfig1 libfreetype6 libjpeg8 liblcms2-2 libnspr4 libnss3 libopenjp2-7 libpng16-16 libstdc++6 libtiff5 zlib1g libcairo2; do
+            if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -qx 'install ok installed'; then
+              missing+=("$package")
+            fi
+          done
+          if (( ${#missing[@]} )); then
+            apt_options=(-o Acquire::Retries=5 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20)
+            sudo timeout 120 apt-get "${apt_options[@]}" update
+            sudo timeout 120 apt-get "${apt_options[@]}" install -y --no-install-recommends "${missing[@]}"
+          fi
           node tooling/document-qualification/install-poppler.mjs
           echo "$GITHUB_WORKSPACE/.cache/document-toolchain/bin" >> "$GITHUB_PATH"
 
@@ -113,7 +132,8 @@ jobs:
       - name: Install Playwright Browser
         if: matrix.part == 'browser'
         timeout-minutes: 10
-        run: pnpm exec playwright install --with-deps chromium
+        # ubuntu-22.04 already supplies Chromium runtime libraries; retain Playwright host validation.
+        run: pnpm exec playwright install chromium
 
       - name: Generate Test Secrets
         run: |
@@ -149,10 +169,10 @@ jobs:
         if: matrix.part == 'browser'
         run: pnpm build
 
-      # Specs are independent (fullyParallel), so Playwright splits them evenly across four runners.
+      # Discover the complete suite and balance measured spec durations across six runners.
       - name: Run E2E Tests
         if: matrix.part == 'browser'
-        run: pnpm exec playwright test --shard=${{ matrix.shard }}/4 --output test-results/browser
+        run: node tooling/local/e2e-partition.mjs ${{ matrix.shard }} 6 --output test-results/browser
 
       - name: Upload Playwright Report
         if: always() && matrix.part == 'browser'
@@ -194,11 +214,28 @@ jobs:
           cache: pnpm
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
+      - name: Cache pinned document toolchain
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: .cache/document-toolchain
+          key: ${{ runner.os }}-${{ runner.arch }}-document-toolchain-${{ hashFiles('tooling/document-qualification/install-poppler.mjs', 'tooling/document-qualification/versions.json') }}
+
       - name: Prepare pinned independent reader
+        timeout-minutes: 6
         id: reader
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libfontconfig1 libfreetype6 libjpeg8 liblcms2-2 libnspr4 libnss3 libopenjp2-7 libpng16-16 libstdc++6 libtiff5 zlib1g libcairo2
+          # Reader runtime libraries are preinstalled on ubuntu-22.04; apt only repairs missing ones.
+          missing=()
+          for package in libfontconfig1 libfreetype6 libjpeg8 liblcms2-2 libnspr4 libnss3 libopenjp2-7 libpng16-16 libstdc++6 libtiff5 zlib1g libcairo2; do
+            if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -qx 'install ok installed'; then
+              missing+=("$package")
+            fi
+          done
+          if (( ${#missing[@]} )); then
+            apt_options=(-o Acquire::Retries=5 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20)
+            sudo timeout 120 apt-get "${apt_options[@]}" update
+            sudo timeout 120 apt-get "${apt_options[@]}" install -y --no-install-recommends "${missing[@]}"
+          fi
           node tooling/document-qualification/install-poppler.mjs
           echo "$GITHUB_WORKSPACE/.cache/document-toolchain/bin" >> "$GITHUB_PATH"
       - name: Qualify 12 smoke cases

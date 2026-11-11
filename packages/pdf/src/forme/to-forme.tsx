@@ -66,6 +66,9 @@ type Context = {
 	rowParent: boolean;
 	keepNestedRowsWhole: boolean;
 	breakBeforeNodes: ReadonlySet<string>;
+	keepWholeNodes: ReadonlySet<string>;
+	measurePagination: boolean;
+	widowLines: ReadonlyMap<string, number>;
 	/** The parent's padding: Forme places absolute boxes inside it, react-pdf over it. */
 	parentPadding: Edges;
 	/** The opaque colour behind the element being converted (see `flattenAlpha`). */
@@ -95,7 +98,7 @@ const PADDING_KEYS = [
 const pageDimensions = (size: PageSize | undefined, freeFormHeight = FREE_FORM_MEASURE_HEIGHT) => {
 	if (size === "LETTER") return { width: 612, height: 792 };
 	if (size && typeof size === "object") return { width: size.width, height: size.height ?? freeFormHeight };
-	return DEFAULT_PAGE;
+	return { ...DEFAULT_PAGE };
 };
 
 const pageSizeProp = (size: PageSize | undefined, dimensions: { width: number; height: number }) => {
@@ -190,6 +193,9 @@ const flowStyle = (props: Record<string, unknown>, style: FormeStyle): FormeStyl
 	if (props.break === true) next.breakBefore = true;
 	if (typeof props.orphans === "number") next.minOrphanLines = props.orphans;
 	if (typeof props.widows === "number") next.minWidowLines = props.widows;
+	// Forme supports these as style properties, rather than react-pdf Text props.
+	next.minOrphanLines ??= 2;
+	next.minWidowLines ??= 2;
 	return next;
 };
 
@@ -491,10 +497,23 @@ function convertNode(node: HostNode, parentContext: Context, key: number): React
 	// D31/D33: normalize every display run, never saved content or link destinations.
 	if ("text" in node) {
 		const text = removeArabicDiacritics(normalizeNumericDigits(node.text));
-		if (parentContext.inLink || !parentContext.rtlDocument || parentContext.direction === "ltr") return text;
+		if (parentContext.inLink) return text;
 		const runs = freeTextDateRuns(node.text, parentContext.dateParagraph);
 		if (!runs.some((run) => run.numeric)) return text;
-		// Inline isolates preserve numeric order; only date labels bind with NBSP. Prose may still wrap.
+		if (
+			(!parentContext.rtlDocument || parentContext.direction === "ltr") &&
+			!runs.some((run) => run.numeric && run.text.includes("-"))
+		)
+			return text;
+		// Latin-font shaping must receive a real LTR run, not bidi-control glyphs: those
+		// controls otherwise displace the final digit in PDF.js's Noto Sans extraction.
+		if (!parentContext.rtlDocument)
+			return runs.map((run, index) =>
+				run.numeric
+					? createElement(FormeText, { key: index, style: { direction: "ltr" } }, run.text)
+					: removeArabicDiacritics(run.text),
+			);
+		// One isolate around the compact range; labelled endpoints retain their existing runs.
 		return removeArabicDiacritics(
 			runs
 				.map((run) =>
@@ -537,6 +556,8 @@ function convertNode(node: HostNode, parentContext: Context, key: number): React
 			const viewStyle = flowStyle(props, spread.style);
 			const nodeKey = props[RESUME_NODE_PROP];
 			if (typeof nodeKey === "string" && context.breakBeforeNodes.has(nodeKey)) viewStyle.breakBefore = true;
+			if (typeof nodeKey === "string" && (nodeKey.endsWith("/item-header") || context.keepWholeNodes.has(nodeKey)))
+				viewStyle.wrap = false;
 			if (context.listItem?.role === LIST_ROLE.item && context.lists.breakBefore.has(context.listItem.index))
 				viewStyle.breakBefore = true;
 			// Forme ignores a page break on an item of a row: the row takes it, as the item can't start a page without it.
@@ -650,6 +671,10 @@ function convertNode(node: HostNode, parentContext: Context, key: number): React
 					? ["\u2066", ...convertedRuns, "\u2069"]
 					: convertedRuns;
 			const textStyle: FormeStyle = { ...context.textDefaults, ...flowStyle(props, style) };
+			if (!context.inText && typeof ownKey === "string" && context.breakBeforeNodes.has(ownKey))
+				textStyle.breakBefore = true;
+			const widowLines = context.nodeKey ? context.widowLines.get(context.nodeKey) : undefined;
+			if (widowLines !== undefined) textStyle.minWidowLines = Math.max(textStyle.minWidowLines ?? 2, widowLines);
 			// Forme 0.25 loses the rest of the page (boxes at y -1.8e308) when a row with a text as a direct child breaks
 			// across pages. The text sits in a box that takes its place in the row; a text with a background, border or
 			// padding sits in a box that paints them (see `TEXT_BOX_KEYS`).
@@ -947,6 +972,8 @@ function tagNode(element: object, props: Record<string, unknown>, context: Conte
 function convertPage(page: HostElement, context: Context, key: number, freeFormHeight?: number): ReactNode {
 	const size = page.props.size as PageSize | undefined;
 	const dimensions = pageDimensions(size, freeFormHeight);
+	if (context.measurePagination) dimensions.height = FREE_FORM_MEASURE_HEIGHT;
+	const formeSize = context.measurePagination ? dimensions : pageSizeProp(size, dimensions);
 	const pageContext: Context = { ...context, pageWidth: dimensions.width, pageHeight: dimensions.height };
 	const flat = flattenStyle(page.props.style as StyleProp);
 	const margin = pageMargin(flat, pageContext);
@@ -985,12 +1012,7 @@ function convertPage(page: HostElement, context: Context, key: number, freeFormH
 		delete converted.style.backgroundColor;
 	}
 	if (!wrapContent)
-		return createElement(
-			FormePage,
-			{ key, size: pageSizeProp(size, dimensions), margin, style: converted.style },
-			...fixed,
-			...children,
-		);
+		return createElement(FormePage, { key, size: formeSize, margin, style: converted.style }, ...fixed, ...children);
 
 	// Forme lays repeated bands out with the page's other children, so on a row page they'd take a column's place.
 	// The page's own layout moves to a box around the flowing content, and the bands stay outside it.
@@ -1000,7 +1022,7 @@ function convertPage(page: HostElement, context: Context, key: number, freeFormH
 		(PAGE_LAYOUT_KEYS.has(property) ? layoutStyle : pageStyle)[property] = value;
 	return createElement(
 		FormePage,
-		{ key, size: pageSizeProp(size, dimensions), margin, style: pageStyle as FormeStyle },
+		{ key, size: formeSize, margin, style: pageStyle as FormeStyle },
 		...fixed,
 		createElement(
 			FormeView,
@@ -1044,6 +1066,12 @@ export type ConvertOptions = {
 	breakBeforeListItems?: ReadonlySet<number>;
 	/** Unplaced sections or items that need an explicit page break on a render retry. */
 	breakBeforeNodes?: ReadonlySet<string>;
+	/** Measured short entries that fit within one third of their page's content area. */
+	keepWholeNodes?: ReadonlySet<string>;
+	/** Measure natural entry heights at the actual column widths without page fragmentation. */
+	measurePagination?: boolean;
+	/** Reserve trailing lines at the first break; Forme 0.31 does not reapply widows on later breaks. */
+	widowLines?: ReadonlyMap<string, number>;
 	/** Measured heights of free-form pages, by page index; an unmeasured one is `FREE_FORM_MEASURE_HEIGHT` tall. */
 	freeFormHeights?: readonly (number | undefined)[] | undefined;
 };
@@ -1055,6 +1083,9 @@ export function toFormeDocument(
 		keepNestedRowsWhole = false,
 		breakBeforeListItems = new Set(),
 		breakBeforeNodes = new Set(),
+		keepWholeNodes = new Set(),
+		measurePagination = false,
+		widowLines = new Map(),
 		freeFormHeights = [],
 		noWrapFontSizes = new Map(),
 	}: ConvertOptions = {},
@@ -1076,6 +1107,9 @@ export function toFormeDocument(
 		rowParent: false,
 		keepNestedRowsWhole,
 		breakBeforeNodes,
+		keepWholeNodes,
+		measurePagination,
+		widowLines,
 		images,
 		backdrop: WHITE,
 		pageMargin: undefined,

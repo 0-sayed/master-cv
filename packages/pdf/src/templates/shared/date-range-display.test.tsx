@@ -34,7 +34,9 @@ it.each(
 	if (locale === "ar-SA") {
 		expect(doc).toContain("03/2020");
 		expect(doc).toContain("05/2021");
-		expect(doc.replace(/[\u2066-\u2069]/gu, "")).toContain("03/2020 - 05/2021");
+		expect(doc).toContain("\u206603/2020-05/2021\u2069");
+	} else if (format === "numeric" || format === "iso") {
+		expect(doc).toContain("03/2020-05/2021");
 	} else expect(doc).toContain(input.sections.projects.items[0]?.period);
 	expect(input).toEqual(snapshot);
 });
@@ -57,8 +59,6 @@ it.each(["1445 هـ - 1446 هـ", "من 2020 إلى 2024", "Mar 2020 – May 202
 	},
 );
 
-it.each(["ar-SA", "en-US"])("D33 scopes year-range display to document locale %s", (locale) => {
-	expect(dateDisplay("2015 – 2017", locale)).toEqual(
-		locale === "ar-SA" ? { text: "2015 - 2017" } : { text: "2015 – 2017" },
-	);
+it.each(["ar-SA", "en-US"])("D33 keeps closed numeric ranges compact in %s", (locale) => {
+	expect(dateDisplay("2015 – 2017", locale)).toEqual({ text: "2015-2017" });
 });

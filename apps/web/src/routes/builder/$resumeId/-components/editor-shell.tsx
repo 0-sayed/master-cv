@@ -16,21 +16,20 @@ import { useEditorHotkeys } from "./use-editor-hotkeys";
 import { MobileTabIndicator } from "@/components/layout/mobile-tab-indicator";
 import {
 	AssistantColumn,
-	AssistantOverlay,
 	AssistantReplace,
 	assistantGridTransition,
-	assistantPlaceFor,
 	columnsWithAssistant,
 	ResumeAssistant,
 } from "@/features/assistant/dock";
-import { openAssistantFrom } from "@/features/assistant/open";
-import { usePreviewPausedStore } from "@/features/resume/builder/draft";
+import { useResumeStore, usePreviewPausedStore } from "@/features/resume/builder/draft";
 import { IssueStepper } from "@/features/resume/editor/check/page-layer";
+import { useReadinessLifecycle } from "@/features/resume/editor/check/use-readiness";
 import { useIsLandscape } from "@/features/resume/editor/chrome";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { useEditorMode } from "@/features/resume/editor/use-editor-mode";
 import { useResumeWebMcpTools } from "@/features/resume/editor/webmcp";
 import { revealSelectionInPanel } from "@/features/resume/editor/write/reveal";
+import { clearPdfArtifacts } from "@/features/resume/export/pdf-artifact";
 
 /**
  * The editor: a 56px bar over a 400px panel and the page canvas (desktop). On tablets the panel is a 380px
@@ -38,6 +37,7 @@ import { revealSelectionInPanel } from "@/features/resume/editor/write/reveal";
  * Write · Page · Design · Check tabs.
  */
 export function EditorShell() {
+	useReadinessLifecycle();
 	const [mode, setMode] = useEditorMode();
 	const breakpoint = useBreakpoint();
 	const layout = breakpoint === "mobile" ? "mobile" : breakpoint === "tablet" ? "tablet" : "desktop";
@@ -45,12 +45,39 @@ export function EditorShell() {
 	const pinnable = layout === "tablet" && landscape;
 	const pinned = useEditorStore((state) => state.drawerPinned) && pinnable;
 	const resetEditor = useEditorStore((state) => state.reset);
-	const assistantPlace = assistantPlaceFor(breakpoint);
+	const assistantPlace = null;
 
+	useEffect(() => {
+		const sync = () => {
+			const state = useResumeStore.getState();
+			const identity =
+				state.ownerId && state.resumeId && state.acknowledgedUpdatedAt
+					? {
+							ownerId: state.ownerId,
+							resumeId: state.resumeId,
+							baseRevision: state.acknowledgedUpdatedAt.toISOString(),
+							editGeneration: state.editGeneration,
+						}
+					: null;
+			useEditorStore.getState().setIdentity(identity);
+			if (state.saveStatus === "conflict" || state.recoveryDraft) {
+				useEditorStore.getState().setDrawerOpen(true);
+				useEditorStore.getState().setMobileView("write");
+			}
+		};
+		sync();
+		return useResumeStore.subscribe(sync);
+	}, []);
 	// Selection, zoom and open sheets belong to one document.
-	useEffect(() => resetEditor, [resetEditor]);
+	useEffect(
+		() => () => {
+			clearPdfArtifacts();
+			resetEditor();
+		},
+		[resetEditor],
+	);
 	useOpenVersionFromUrl();
-	useOpenAssistantFromUrl();
+
 	useResumeWebMcpTools(routeApi.useParams().resumeId);
 
 	return (
@@ -74,12 +101,6 @@ export function EditorShell() {
 				)}
 				{layout === "tablet" && !pinned && <TabletBody mode={mode} />}
 				{layout === "mobile" && <MobileBody mode={mode} onModeChange={setMode} />}
-
-				{(assistantPlace === "drawer" || assistantPlace === "screen") && (
-					<AssistantOverlay place={assistantPlace}>
-						<ResumeAssistant />
-					</AssistantOverlay>
-				)}
 
 				<ShareSheet />
 				<EditorHotkeys onModeChange={setMode} />
@@ -107,26 +128,6 @@ function useOpenVersionFromUrl() {
 			replace: true,
 		});
 	}, [version, navigate]);
-}
-
-/** `?assistant=` or `?ask=` opens the assistant on that conversation or question, then leaves the URL. */
-function useOpenAssistantFromUrl() {
-	const { assistant, ask } = routeApi.useSearch();
-	const navigate = routeApi.useNavigate();
-
-	useEffect(() => {
-		if (!openAssistantFrom({ assistant, ask })) return;
-		void navigate({
-			to: ".",
-			resetScroll: false,
-			search: (current: ReturnType<typeof routeApi.useSearch>) => ({
-				...current,
-				assistant: undefined,
-				ask: undefined,
-			}),
-			replace: true,
-		});
-	}, [assistant, ask, navigate]);
 }
 
 function EditorHotkeys({ onModeChange }: { onModeChange: (mode: EditorMode) => void }) {
@@ -231,7 +232,9 @@ const MOBILE_TABS: { view: MobileView; icon: IconName }[] = [
 ];
 
 function MobileBody({ mode, onModeChange }: MobileBodyProps) {
-	const view = useEditorStore((state) => state.mobileView) ?? mode;
+	const needsRecovery = useResumeStore((state) => !!state.recoveryDraft || state.saveStatus === "conflict");
+	const requestedView = useEditorStore((state) => state.mobileView) ?? mode;
+	const view = needsRecovery ? "write" : requestedView;
 	const setView = useEditorStore((state) => state.setMobileView);
 	const setPreviewPaused = usePreviewPausedStore((state) => state.setPaused);
 	const labels: Record<MobileView, string> = { write: t`Write`, page: t`Page`, design: t`Design`, check: t`Check` };
@@ -285,6 +288,7 @@ function MobileBody({ mode, onModeChange }: MobileBodyProps) {
 							key={tab}
 							type="button"
 							aria-current={active ? "page" : undefined}
+							disabled={needsRecovery}
 							onClick={() => {
 								setView(tab);
 								if (tab !== "page") onModeChange(tab);

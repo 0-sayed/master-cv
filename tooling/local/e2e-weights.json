@@ -1,0 +1,246 @@
+{
+	"sourceRun": "42900521575",
+	"defaultTestSeconds": 5,
+	"specs": {
+		"account-controls.spec.ts": {
+			"seconds": 33.7,
+			"tests": 9
+		},
+		"account-menu-avatar.spec.ts": {
+			"seconds": 89.2,
+			"tests": 10
+		},
+		"ai-reports.spec.ts": {
+			"seconds": 3.0,
+			"tests": 1
+		},
+		"arabic-copy.spec.ts": {
+			"seconds": 10.5,
+			"tests": 2
+		},
+		"assistant.spec.ts": {
+			"seconds": 12.1,
+			"tests": 1
+		},
+		"auth.spec.ts": {
+			"seconds": 5.4,
+			"tests": 1
+		},
+		"bilingual-entry.spec.ts": {
+			"seconds": 50.5,
+			"tests": 16
+		},
+		"bilingual-shell.spec.ts": {
+			"seconds": 26.5,
+			"tests": 16
+		},
+		"brand-discovery.spec.ts": {
+			"seconds": 2.778,
+			"tests": 3
+		},
+		"brand-fidelity.spec.ts": {
+			"seconds": 50.4,
+			"tests": 21
+		},
+		"builder-save-navigation.spec.ts": {
+			"seconds": 14.4,
+			"tests": 2
+		},
+		"career-information.spec.ts": {
+			"seconds": 49.4,
+			"tests": 13
+		},
+		"career.spec.ts": {
+			"seconds": 7.7,
+			"tests": 2
+		},
+		"collection-toolbar.spec.ts": {
+			"seconds": 21.9,
+			"tests": 6
+		},
+		"control-sizing.spec.ts": {
+			"seconds": 5.1,
+			"tests": 2
+		},
+		"cross-shell-motion.spec.ts": {
+			"seconds": 492.0,
+			"tests": 2
+		},
+		"d35-contract.spec.ts": {
+			"seconds": 45.305,
+			"tests": 27
+		},
+		"dashboard-centering.spec.ts": {
+			"seconds": 12.8,
+			"tests": 3
+		},
+		"dashboard-consistency.spec.ts": {
+			"seconds": 92.5,
+			"tests": 14
+		},
+		"dashboard-density.spec.ts": {
+			"seconds": 57.8,
+			"tests": 8
+		},
+		"dashboard-header-motion.spec.ts": {
+			"seconds": 82.0,
+			"tests": 4
+		},
+		"dashboard-loading-motion.spec.ts": {
+			"seconds": 37.8,
+			"tests": 2
+		},
+		"dashboard-width.spec.ts": {
+			"seconds": 46.8,
+			"tests": 4
+		},
+		"design-foundations.spec.ts": {
+			"seconds": 12.6,
+			"tests": 5
+		},
+		"document-previews.spec.ts": {
+			"seconds": 27.7,
+			"tests": 6
+		},
+		"form-consistency.spec.ts": {
+			"seconds": 22.7,
+			"tests": 8
+		},
+		"header-search.spec.ts": {
+			"seconds": 26.7,
+			"tests": 6
+		},
+		"impeccable-polish.spec.ts": {
+			"seconds": 20.6,
+			"tests": 8
+		},
+		"implicit-state.spec.ts": {
+			"seconds": 30.7,
+			"tests": 6
+		},
+		"job-saving.spec.ts": {
+			"seconds": 15.0,
+			"tests": 4
+		},
+		"json-export-import.spec.ts": {
+			"seconds": 9.2,
+			"tests": 1
+		},
+		"keyboard-hints.spec.ts": {
+			"seconds": 14.9,
+			"tests": 4
+		},
+		"landing-shell-motion.spec.ts": {
+			"seconds": 46.1,
+			"tests": 2
+		},
+		"locale-draft-preservation.spec.ts": {
+			"seconds": 12.9,
+			"tests": 3
+		},
+		"locale-preference.spec.ts": {
+			"seconds": 1.6,
+			"tests": 1
+		},
+		"oauth-consent.spec.ts": {
+			"seconds": 2.3,
+			"tests": 1
+		},
+		"pdf-text.spec.ts": {
+			"seconds": 52.6,
+			"tests": 9
+		},
+		"private-ownership.spec.ts": {
+			"seconds": 1.2,
+			"tests": 1
+		},
+		"private-workspace.spec.ts": {
+			"seconds": 67.3,
+			"tests": 26
+		},
+		"product-brand.spec.ts": {
+			"seconds": 5.075,
+			"tests": 6
+		},
+		"public-sharing.spec.ts": {
+			"seconds": 11.7,
+			"tests": 1
+		},
+		"query-skeleton.spec.ts": {
+			"seconds": 40.5,
+			"tests": 18
+		},
+		"review-fidelity.spec.ts": {
+			"seconds": 34.2,
+			"tests": 12
+		},
+		"round4-refinements.spec.ts": {
+			"seconds": 24.2,
+			"tests": 6
+		},
+		"route-titles.spec.ts": {
+			"seconds": 80.0,
+			"tests": 10
+		},
+		"section-editing.spec.ts": {
+			"seconds": 14.5,
+			"tests": 2
+		},
+		"settings-stability.spec.ts": {
+			"seconds": 22.0,
+			"tests": 10
+		},
+		"share-history.spec.ts": {
+			"seconds": 9.2,
+			"tests": 1
+		},
+		"shared-controls.spec.ts": {
+			"seconds": 4.7,
+			"tests": 2
+		},
+		"shared-copy.spec.ts": {
+			"seconds": 9.9,
+			"tests": 6
+		},
+		"sharing-password.spec.ts": {
+			"seconds": 12.0,
+			"tests": 1
+		},
+		"shell-accessibility.spec.ts": {
+			"seconds": 15.7,
+			"tests": 4
+		},
+		"shell-brand-alignment.spec.ts": {
+			"seconds": 63.7,
+			"tests": 6
+		},
+		"shell-improvements.spec.ts": {
+			"seconds": 65.2,
+			"tests": 4
+		},
+		"shell-regressions.spec.ts": {
+			"seconds": 5.3,
+			"tests": 2
+		},
+		"shell-state-motion.spec.ts": {
+			"seconds": 44.7,
+			"tests": 4
+		},
+		"signature-motion.spec.ts": {
+			"seconds": 117.3,
+			"tests": 8
+		},
+		"template-previews.spec.ts": {
+			"seconds": 17.9,
+			"tests": 4
+		},
+		"ui-audit.spec.ts": {
+			"seconds": 107.0,
+			"tests": 10
+		},
+		"web-access.spec.ts": {
+			"seconds": 4.7,
+			"tests": 1
+		}
+	}
+}

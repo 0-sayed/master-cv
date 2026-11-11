@@ -79,6 +79,7 @@
 	--motion-brand-curve: 300ms;
 	--motion-brand-tick: 250ms;
 	--motion-brand-total: 550ms;
+	--motion-brand-rest: 1800ms;
 	--motion-acknowledge: 400ms;
 	--motion-edit-highlight: 600ms;
 	/* Static success hold, not an animation duration. */
@@ -246,7 +247,7 @@
 
 	html {
 		@apply font-sans;
-		scrollbar-gutter: stable;
+		overflow-y: auto;
 	}
 
 	body {
@@ -370,6 +371,7 @@
 		align-items: start;
 		& > [data-slot="collection-grid-group"] {
 			display: grid;
+			align-items: start;
 			gap: var(--space-16);
 		}
 		@media (width >= 64rem) {
@@ -397,6 +399,9 @@
 	}
 	&[data-width="narrow"] {
 		max-width: var(--dashboard-narrow-width);
+	}
+	&[data-align="center"] {
+		margin-inline: auto;
 	}
 }
 
@@ -460,20 +465,6 @@
 	padding-inline: calc(var(--app-nav-gutter) + (var(--app-nav-icon) - var(--app-brand-mark)) / 2);
 	@variant rtl {
 		padding-inline: var(--app-nav-gutter);
-	}
-}
-
-/* Reserve the same compact section capacities before and after the initial profile query. */
-@utility section-card-reserved {
-	min-block-size: calc(var(--space-64) * 3);
-	&[data-capacity="entries"] {
-		min-block-size: calc(var(--space-64) * 4 + var(--space-8));
-	}
-	&[data-capacity="entry"] {
-		min-block-size: calc(var(--space-64) * 3 + var(--space-8));
-	}
-	&[data-capacity="notice"] {
-		min-block-size: calc(var(--space-64) * 3 + var(--space-32));
 	}
 }
 
@@ -577,6 +568,7 @@
 	--type-metadata-size: 12px;
 	--type-metadata-line: 20px;
 	--type-metadata-weight: 400;
+	--type-count-line: 1;
 	--space-0: 0px;
 	--space-4: 4px;
 	--space-6: 6px;
@@ -661,6 +653,14 @@
 	font-size: var(--type-metadata-size);
 	line-height: var(--type-metadata-line);
 	font-weight: var(--type-metadata-weight);
+}
+
+/* Numeric markers must fit their circle even under Arabic's taller body line metrics. */
+@utility type-count {
+	font-family: var(--font-ui);
+	font-size: var(--type-metadata-size);
+	line-height: var(--type-count-line);
+	font-weight: 600;
 }
 
 @utility type-input {

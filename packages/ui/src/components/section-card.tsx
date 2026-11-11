@@ -1,23 +1,23 @@
 import type { ComponentProps } from "react";
 import { cn } from "@reactive-resume/utils/style";
 
-/** Shared dashboard sections use compact content spacing without shrinking interactive hit areas. */
-export type SectionCardCapacity = "entries" | "entry" | "chips" | "notice";
-
-function SectionCard({
-	className,
-	capacity,
-	...props
-}: ComponentProps<"section"> & { capacity?: SectionCardCapacity }) {
+/** Shared dashboard sections size to content without shrinking interactive hit areas. */
+function SectionCard({ className, ...props }: ComponentProps<"section">) {
 	return (
 		<section
 			data-slot="section-card"
-			data-capacity={capacity}
-			className={cn(
-				"grid content-start gap-3 rounded-xl border border-line bg-surface p-4",
-				capacity && "section-card-reserved",
-				className,
-			)}
+			className={cn("grid content-start gap-3 rounded-xl border border-line bg-surface p-4", className)}
+			{...props}
+		/>
+	);
+}
+
+/** Empty content and its loading placeholder share the same text and surface geometry. */
+function SectionCardEmpty({ className, ...props }: ComponentProps<"div">) {
+	return (
+		<div
+			data-slot="section-card-empty"
+			className={cn("rounded-lg border border-dashed border-line p-3 type-body text-ink-3", className)}
 			{...props}
 		/>
 	);
@@ -45,4 +45,4 @@ function SectionCardRow({
 	);
 }
 
-export { SectionCard, SectionCardHeader, SectionCardRow };
+export { SectionCard, SectionCardEmpty, SectionCardHeader, SectionCardRow };

@@ -2,7 +2,7 @@ import { createSampleCareer } from "../fixtures/career";
 import { expect, test } from "../fixtures/test";
 
 for (const locale of ["ar-SA", "en-US"] as const) {
-	for (const width of [1440, 390]) {
+	for (const width of [1440, 1920, 390]) {
 		for (const { path, populated } of [
 			{ path: "/dashboard", populated: false },
 			{ path: "/dashboard?view=list", populated: false },
@@ -56,7 +56,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 								.filter((el) => el.getBoundingClientRect().width > 1 && el.getBoundingClientRect().height > 1)
 								.map((el) => {
 									const r = el.getBoundingClientRect();
-									return [r.x, r.y, r.width];
+									return [r.x, r.y, r.width, innerWidth - document.documentElement.clientWidth] as const;
 								}),
 						);
 					expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -78,7 +78,17 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					const pendingCard = cardSelector ? await page.locator(cardSelector).boundingBox() : null;
 					release();
 					await expect(page.locator('main [data-slot="skeleton-region"]')).toHaveCount(0);
-					expect(await anchors()).toEqual(before);
+					const after = await anchors();
+					expect(after).toHaveLength(before.length);
+					for (const [index, ready] of after.entries()) {
+						const pending = before[index];
+						if (!pending) throw new Error("Missing pending content anchor");
+						// Native scrollbars may appear as unknown content arrives. Only that inline reflow is allowed.
+						const gutterChange = Math.abs(ready[3] - pending[3]);
+						expect(Math.abs(ready[0] - pending[0])).toBeLessThanOrEqual(gutterChange + 1);
+						expect(Math.abs(ready[2] - pending[2])).toBeLessThanOrEqual(gutterChange + 1);
+						expect(Math.abs(ready[1] - pending[1])).toBeLessThanOrEqual(1);
+					}
 					if (pendingSections.length) {
 						const readySections = await sectionBoxes();
 						await test.info().attach("career-card-geometry", {
@@ -89,10 +99,37 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 						for (const [index, ready] of readySections.entries()) {
 							const pending = pendingSections[index];
 							if (!pending) throw new Error("Missing pending career card");
-							for (const key of ["x", "y", "width", "height"] as const) {
-								expect(Math.abs(ready[key] - pending[key]), `Career card ${index} ${key}`).toBeLessThanOrEqual(1);
-							}
+							// Initial reads cannot know the number of saved entries. Empty cards match the skeleton;
+							// populated cards grow naturally instead of retaining a fictitious capacity.
+							if (!populated)
+								for (const key of ["x", "y", "width", "height"] as const)
+									expect(Math.abs(ready[key] - pending[key]), `Empty career card ${index} ${key}`).toBeLessThanOrEqual(
+										1,
+									);
 						}
+						expect(
+							await page.locator('main [data-slot="section-card"]').evaluateAll((cards) =>
+								cards.map((card) => {
+									const style = getComputedStyle(card);
+									const children = [...card.children];
+									const content = children.reduce((height, child) => height + child.getBoundingClientRect().height, 0);
+									const edges = [
+										style.paddingTop,
+										style.paddingBottom,
+										style.borderTopWidth,
+										style.borderBottomWidth,
+									].reduce((sum, value) => sum + Number.parseFloat(value), 0);
+									return (
+										Math.abs(
+											card.getBoundingClientRect().height -
+												content -
+												edges -
+												Number.parseFloat(style.rowGap) * (children.length - 1),
+										) <= 1
+									);
+								}),
+							),
+						).toEqual([true, true, true, true, true]);
 					}
 					if (pendingCard && cardSelector) {
 						const readyCard = await page.locator(cardSelector).boundingBox();

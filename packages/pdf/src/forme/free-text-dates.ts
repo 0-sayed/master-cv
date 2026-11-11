@@ -17,7 +17,7 @@ function order(value: string): number | undefined {
 	return y * 10000 + m * 100 + d;
 }
 
-/** Display only: isolate endpoints separately so a range reads naturally in an RTL paragraph. */
+/** Display only: closed numeric ranges form one LTR run; authored calendar labels stay separate. */
 export function freeTextDateRuns(source: string, paragraph = source): DateRun[] {
 	const text = normalizeNumericDigits(source);
 	const guard = normalizeNumericDigits(paragraph);
@@ -56,10 +56,13 @@ export function freeTextDateRuns(source: string, paragraph = source): DateRun[] 
 		if (match.index > cursor) runs.push({ text: text.slice(cursor, match.index) });
 		const display = (value: string) =>
 			value.replace(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/u, (_, y, m, d) => (d ? `${d}/${m}/${y}` : `${m}/${y}`));
-		runs.push({ text: display(start), numeric: true });
-		runs.push({ text: `${firstSuffix ? " هـ" : ""} - ` });
-		runs.push({ text: display(end), numeric: true });
-		if (lastSuffix) runs.push({ text: " هـ" });
+		if (!firstSuffix) runs.push({ text: `${display(start)}-${display(end)}`, numeric: true });
+		else {
+			runs.push({ text: display(start), numeric: true });
+			runs.push({ text: " هـ - " });
+			runs.push({ text: display(end), numeric: true });
+			if (lastSuffix) runs.push({ text: " هـ" });
+		}
 		cursor = match.index + match[0].length;
 	}
 	if (cursor < text.length || runs.length === 0) runs.push({ text: text.slice(cursor) });

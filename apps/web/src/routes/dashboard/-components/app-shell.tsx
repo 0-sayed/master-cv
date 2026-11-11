@@ -136,7 +136,9 @@ export function AppShell({ children }: AppShellProps) {
 					<LocaleSwitch />
 				</header>
 				<main id="main-content" className="min-w-0 flex-1">
-					<DashboardPage width="form">{children}</DashboardPage>
+					<DashboardPage centered width="form">
+						{children}
+					</DashboardPage>
 				</main>
 			</div>
 		);

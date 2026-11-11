@@ -23,7 +23,7 @@ function expiredResponse() {
 function errorStatus(error: unknown) {
 	const code = typeof error === "object" && error && "code" in error ? (error as { code?: unknown }).code : undefined;
 	if (code === "TOO_MANY_REQUESTS" || code === "RATE_LIMIT_EXCEEDED") return 429;
-	return code === "NOT_FOUND" ? 404 : 500;
+	return code === "NOT_FOUND" ? 404 : code === "CONFLICT" ? 409 : 500;
 }
 
 export async function handleResumePdfDownload(request: Request, id: string) {
@@ -39,13 +39,18 @@ export async function handleResumePdfDownload(request: Request, id: string) {
 
 	try {
 		const resHeaders = new Headers();
-		const download = await createResumePdfDownload({ id, userId: verification.userId, resHeaders });
+		const download = await createResumePdfDownload({
+			id,
+			userId: verification.userId,
+			expectedUpdatedAt: verification.expectedUpdatedAt,
+			resHeaders,
+		});
 
 		return new Response(download.body, {
 			headers: {
 				...Object.fromEntries(resHeaders),
 				"Content-Type": download.body.type || "application/pdf",
-				"Content-Disposition": download.headers["content-disposition"],
+				...download.headers,
 				...downloadHeaders,
 			},
 		});

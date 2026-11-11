@@ -161,8 +161,8 @@ export function createVersionHistory<TKind extends string, TData>(config: {
 			return versions as VersionSummary<TKind>[];
 		},
 
-		async get(input: Owned & { versionId: string }) {
-			const [version] = await db
+		async get(input: Owned & { versionId: string }, client: DbOrTx = db) {
+			const [version] = await client
 				.select({ ...summary, data: v.data })
 				.from(v.table)
 				.where(ownedVersion(input));

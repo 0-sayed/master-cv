@@ -29,7 +29,6 @@ import { LinkApplicationDialog, TagsDialog, useBatchActions } from "./document-a
 import { DocumentCard, DocumentRow } from "./document-card";
 import { collectTags, filterDocuments } from "./filter";
 import { LibraryError } from "./library-error";
-import { useStartDocument } from "./new-document-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { useDialogStore } from "@/dialogs/store";
@@ -384,46 +383,19 @@ function storeView(view: "grid" | "list") {
 /** The first visit: import is the filled button here, and only here. */
 function FirstRun({ onChooseFile }: { onChooseFile: () => void }) {
 	const copy = useDocumentsCopy();
-	const { startBlank, trySample, creating } = useStartDocument();
-
 	return (
-		<section className={cn("grid max-w-xl gap-4 pt-4", PAGE_ENTER_CLASS)}>
+		<section className="grid gap-4">
 			<h2 className="type-title-s">{copy("editor.documents.empty.title")}</h2>
 			<p className="type-body text-ink-2">
 				<Trans>
-					Import your current resume and we'll lay out every section for you to refine. Or start fresh. Start with your
-					name. Build from there.
+					Import a readable PDF or write from scratch. Review your information before saving. Word import is not
+					available.
 				</Trans>
 			</p>
-			<div className="flex flex-wrap items-center gap-3 rounded-xl border-2 border-dashed border-line-2 p-5">
-				<Icon name="file-arrow-up" size={24} className="text-ink-2" />
-				<span className="flex-1 type-body text-ink-2">
-					<Trans>Drop a PDF, Word or JSON file</Trans>
-				</span>
-				<Button aria-keyshortcuts="N" onClick={onChooseFile}>
-					<Trans>Choose a file</Trans>
-				</Button>
-			</div>
-			<div className="flex flex-wrap gap-4 type-body">
-				<Button
-					variant="link"
-					size="link-touch"
-					disabled={creating}
-					className="text-ink-2 underline underline-offset-2 hover:text-ink"
-					onClick={() => void startBlank()}
-				>
-					<Trans>Start blank</Trans>
-				</Button>
-				<Button
-					variant="link"
-					size="link-touch"
-					disabled={creating}
-					className="text-ink-2 underline underline-offset-2 hover:text-ink"
-					onClick={() => void trySample()}
-				>
-					<Trans>Try a sample</Trans>
-				</Button>
-			</div>
+			<Button className="w-fit" onClick={onChooseFile}>
+				<Icon name="plus" />
+				<Trans>New CV</Trans>
+			</Button>
 		</section>
 	);
 }

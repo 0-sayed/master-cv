@@ -67,9 +67,10 @@ its current AGENTS.md; do not blindly overwrite existing project guidance.
 - Compose UI from existing shared components and layout APIs. Fix missing shared layout behavior
   once in its owning layer. Do not duplicate containers or override shared typography, padding,
   radii or control heights at call sites.
-- Requirements/security/decisions govern behavior and release. Figma governs
-  screens, elements, content, icons, flows, order, dialogs and states; existing shared code components
-  and T002 CSS tokens govern visual details per D35. Pixel parity is not required.
+- Requirements/security/decisions govern behavior and release. Figma governs the inventory of
+  screens, states, dialogs and content as a starting design; implemented code is the layout/UX
+  reference per D36. Existing shared code components and T002 CSS tokens govern visual details
+  per D35. Pixel parity is not required.
 - Figma state frames are not a one-to-one list of application routes or tables.
   Review launchers and error-simulation controls are not public product features.
 - Prototype values and Start/Focus prices are fixtures, not approved production
@@ -91,10 +92,10 @@ its current AGENTS.md; do not blindly overwrite existing project guidance.
 ## Before completing a task
 
 1. Record requirement IDs and exact Figma frames; inspect adjacent recovery states.
-   Inventory the mapped shell, page, dialog, sheet and recovery-state elements before implementation. Render only the approved elements and exact icons/copy/order; do not retain an upstream action solely because it exists. Implement required behavior through shared components, not new lookalike controls. Record any requirement-driven exception and its decision.
+   Inventory the mapped shell, page, dialog, sheet and recovery-state elements before implementation; do not silently drop required screens, states or dialogs. Preserve approved copy and icons; layout/UX improvements may diverge per D36 when each change and its reason are noted in one line in the owning task's evidence. Do not retain an upstream action solely because it exists. Implement required behavior through shared components, not new lookalike controls. Record any requirement-driven exception and its decision.
 2. Implement in the actual fork using real validated state/services.
 3. Run available repository checks and browser/interaction tests appropriate to
-   the task; inspect AR/EN desktop/mobile output with correct fonts and direction.
+   the task; apply the UX checklist and inspect AR/EN desktop/mobile output with correct fonts and direction.
    Reject newly added raw UI font/color/spacing/radius values and control-size overrides outside shared definitions; require semantic roles and shared variants. Verify equal header/body start edges and invariant sidebar width across dashboard routes, matching toolbar heights, full select-label fit and avatar inset. Check AR/EN, narrow/wide layouts and every changed dialog/state; record evidence separately from functional smoke.
 4. Preserve A01–A16 gates as applicable. Figma renders cannot prove Arabic PDF/
    DOCX integrity, authorization, persistence or payment correctness.
@@ -103,16 +104,40 @@ its current AGENTS.md; do not blindly overwrite existing project guidance.
 6. Update affected docs when an agreed decision changes. Resolve material conflicts
    explicitly instead of silently inventing scope, fees, policies or data behavior.
 
+## UX checklist
+
+- Reuse shared controls and semantic variants; fix shared behavior in its owning component.
+- Use T002 type, color, spacing, radius and size tokens; avoid local control overrides.
+- Keep peer choices equivalent and group each action with its configuration and constraints.
+- Give task dialogs a direction-aware footer, one primary action and secondary Cancel.
+- Reserve danger styling for destructive commits; keep Cancel neutral.
+- Use shared warn/error notices with icon, title, explanation and visible recovery action.
+- Confirm logical units, preserve explicit approval scope and keep review order stable.
+- Use `dir="auto"` for user/generated content; keep interface and saved-content languages independent.
+- Keep actions discoverable on touch and keyboard with shared targets and visible focus.
+- Distinguish successful empty results from loading, stale and failed states.
+- Inspect changed screens/dialogs in AR/EN at 1440 and 390 for overflow, label fit and shell alignment.
+- Match copy/actions to approved capabilities; record D36 reasons and actual verification evidence.
+
 ## Validation tiers
 
 Step 3 above applies to what changed, not the whole app on every task.
 
-- **While iterating:** run only the tests for the changed files and screens (affected unit
-  tests, related browser specs, lint/typecheck on touched packages). Capture AR/EN, desktop/
-  mobile evidence for changed screens only.
-- **Before a commit:** run the full local suite once (`validate:static`, all `test:ci` units,
-  build, full browser suite).
-- **After a push:** CI is authoritative. Do not repeat the full suite locally unless CI fails.
+- **Light (after each edit):** format/lint only the changed files
+  (`pnpm exec vp fmt --check <files>`, `pnpm exec vp lint --deny-warnings <files>`) and run their
+  unit tests (e.g. `pnpm --filter web test <test-file>`). No browser suite.
+- **Normal (a piece of work is done):** `pnpm validate:static`, the affected workspace's units
+  (e.g. `pnpm --filter web test`) and only the affected browser specs
+  (`node --env-file=.env.test.local tooling/local/ci-browser.mjs <spec-files>`). Broaden specs only for shared shell/auth
+  changes. Capture AR/EN, desktop/mobile evidence for changed screens only.
+- **Deep (once, before a commit):** `pnpm validate:static`, `pnpm test:ci`,
+  and only the affected browser specs (`node --env-file=.env.test.local tooling/local/ci-browser.mjs <spec-files>`).
+  The full browser suite and `pnpm --filter @reactive-resume/tooling test:documents` run on the PR
+  in CI, which is authoritative.
+- **After a push:** On CI failures, fix, then rerun only the failed specs locally or let CI
+  rerun them.
+- Do not rerun a suite on unchanged source. After an infrastructure failure (disk full, server
+  loss), fix the cause and rerun only the failed cases.
 
 ## Existing repository guidance and reconciled scope
 

@@ -48,14 +48,14 @@ describe("REST boundary", () => {
 		expect(response.status).toBe(401);
 		expect(await response.json()).toMatchObject({ code: "UNAUTHORIZED", status: 401 });
 	});
-	it("decodes multipart public checks and returns structured errors for invalid PDF content", async () => {
+	it("denies anonymous multipart PDF checks before decoding private content", async () => {
 		const form = new FormData();
 		form.set("file", new File(["not a PDF"], "resume.pdf", { type: "application/pdf" }));
 		const response = await request("/pdf-checks", { method: "POST", body: form });
-		expect(response.status).toBe(400);
+		expect(response.status).toBe(401);
 		expect(await response.json()).toMatchObject({
-			code: "BAD_REQUEST",
-			message: "Provide a PDF no larger than 25 MB.",
+			code: "UNAUTHORIZED",
+			status: 401,
 		});
 	});
 	it("returns the same JSON error envelope for malformed JSON", async () => {

@@ -23,9 +23,11 @@ export default defineConfig({
 		: [["list"], ["html", { open: "never" }]],
 	use: {
 		baseURL,
+		actionTimeout: 15_000,
+		navigationTimeout: 30_000,
 		trace: "retain-on-failure",
 		screenshot: "only-on-failure",
-		video: "retain-on-failure",
+		video: isCI ? "off" : "retain-on-failure",
 	},
 	projects: [
 		{

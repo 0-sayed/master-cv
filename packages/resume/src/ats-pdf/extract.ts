@@ -404,8 +404,8 @@ function buildPage(page: RawPage, tolerance: number): PageGeometry {
 }
 
 /**
- * Derives page geometry from a raw extraction. Pure: the same bytes always produce the same
- * document, whatever order the reader happened to emit text items in.
+ * Derives page geometry from a raw extraction. Pure: an identical raw extraction always produces the
+ * same document. Inversion diagnostics retain the reader's original item-stream order.
  */
 export function buildExtractedDocument(raw: RawExtraction): ExtractedDocument {
 	const allFontSizes = raw.pages.flatMap((page) => page.items.filter((item) => item.str.trim()).map(fontSizeOf));

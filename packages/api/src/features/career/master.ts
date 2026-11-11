@@ -62,13 +62,17 @@ function read(userId: string): Promise<CareerMaster> {
 type Version = { id: string; expectedRevision: number; expectedDraftRevision: number };
 export const careerMasterService = {
 	read,
-	savePending: (userId: string, input: MasterFactInput & Partial<Version>) =>
+	savePending: (userId: string, input: MasterFactInput & Partial<Version>, reviewedResumeId?: string) =>
 		withOwnerDatabase(userId, async () => {
 			await lockProfile(userId);
 			const { id, expectedRevision, expectedDraftRevision, ...value } = input;
 			const proposed = masterFactInputSchema.parse(value);
 			// T003 manual forms cannot fabricate extracted provenance. T004 owns validated extraction.
-			if (proposed.source.kind !== "manual") throw new ORPCError("BAD_REQUEST");
+			if (
+				proposed.source.kind !== "manual" &&
+				!(reviewedResumeId && proposed.source.kind === "resume" && proposed.source.id === reviewedResumeId)
+			)
+				throw new ORPCError("BAD_REQUEST");
 			const requiredField = {
 				experience: "company",
 				education: "school",

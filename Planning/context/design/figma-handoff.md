@@ -7,6 +7,8 @@
 
 ## 1. What the coding agent should use
 
+**[D36](../decisions.md):** Figma is the starting screen/state/dialog/content inventory; implemented code owns layout/UX, so the Figma order/layout and map-update guidance below permits improvements without Figma updates when each divergence and its reason are recorded in one line in the owning task's evidence; requirements, security, approval gates, copy-deck/A13, shared components and T002 tokens (D35) remain unchanged.
+
 **Figma file:** [Master CV: Design (v1)](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni)  
 **File key:** `K3UTevGCFBhsoSLXH7BDni`  
 **Start:** [Cover](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=0-1) · **Developers:** [Dev Handoff](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=67-2) · **Desktop prototype:** [▶ flow 0](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=57-11289) · [demo](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=54-11651) · **Mobile prototype:** [▶ flow 0](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=58-4837) · [demo](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=58-2405) · **Website:** [desktop](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=60-16853) · [mobile](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=60-16858)

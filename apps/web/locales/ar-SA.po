@@ -94,7 +94,7 @@ msgstr "{0, plural, zero {لا طلبات} one {طلب واحد} two {طلبان
 #. placeholder {0}: state?.characters ?? 0
 #: src/features/resume/editor/write/rich-text-editor.tsx
 msgid "{0, plural, one {# character} other {# characters}}"
-msgstr "{0, plural, zero {عدد الأحرف: #} one {عدد الأحرف: #} two {عدد الأحرف: #} few {عدد الأحرف: #} many {عدد الأحرف: #} other {عدد الأحرف: #}}"
+msgstr "{0, plural, zero {لا أحرف} one {حرف واحد} two {حرفان} few {# أحرف} many {# حرفًا} other {# حرف}}"
 
 #. placeholder {0}: result.contactsSkipped
 #: src/features/applications/components/import-applications-sheet.tsx
@@ -104,7 +104,7 @@ msgstr "{0, plural, one {جهة اتصال واحدة بها بريد إلكتر
 #. placeholder {0}: outcomes.medianDaysToReply
 #: src/features/applications/components/insights-view.tsx
 msgid "{0, plural, one {# day} other {# days}}"
-msgstr "{0, plural, zero {عدد الأيام: #} one {عدد الأيام: #} two {عدد الأيام: #} few {عدد الأيام: #} many {عدد الأيام: #} other {عدد الأيام: #}}"
+msgstr "{0, plural, zero {لا أيام} one {يوم واحد} two {يومان} few {# أيام} many {# يومًا} other {# يوم}}"
 
 #. placeholder {0}: done.length
 #: src/features/documents/document-actions.tsx
@@ -114,7 +114,7 @@ msgstr "{0, plural, zero {لم يُنقل أي مستند إلى سلة المه
 #. placeholder {0}: output.skipped.length
 #: src/features/assistant/conversation.tsx
 msgid "{0, plural, one {# edit couldn't be placed: its text changed. Ask again to redo it.} other {# edits couldn't be placed: their text changed. Ask again to redo them.}}"
-msgstr "{0, plural, zero {عدد التعديلات التي تعذّر تطبيقها بسبب تغيّر نصها: #. اطلب تنفيذها مرة أخرى.} one {عدد التعديلات التي تعذّر تطبيقها بسبب تغيّر نصها: #. اطلب تنفيذها مرة أخرى.} two {عدد التعديلات التي تعذّر تطبيقها بسبب تغيّر نصها: #. اطلب تنفيذها مرة أخرى.} few {عدد التعديلات التي تعذّر تطبيقها بسبب تغيّر نصها: #. اطلب تنفيذها مرة أخرى.} many {عدد التعديلات التي تعذّر تطبيقها بسبب تغيّر نصها: #. اطلب تنفيذها مرة أخرى.} other {عدد التعديلات التي تعذّر تطبيقها بسبب تغيّر نصها: #. اطلب تنفيذها مرة أخرى.}}"
+msgstr "{0, plural, zero {لم يتعذّر تطبيق أي تعديل بسبب تغيّر نصه.} one {تعذّر تطبيق تعديل واحد بسبب تغيّر نصه. اطلب تنفيذه مرة أخرى.} two {تعذّر تطبيق تعديلين بسبب تغيّر نصهما. اطلب تنفيذهما مرة أخرى.} few {تعذّر تطبيق # تعديلات بسبب تغيّر نصها. اطلب تنفيذها مرة أخرى.} many {تعذّر تطبيق # تعديلًا بسبب تغيّر نصها. اطلب تنفيذها مرة أخرى.} other {تعذّر تطبيق # تعديل بسبب تغيّر نصها. اطلب تنفيذها مرة أخرى.}}"
 
 #. placeholder {0}: knowledge.active.length
 #. placeholder {0}: used.facts.length
@@ -123,21 +123,16 @@ msgstr "{0, plural, zero {عدد التعديلات التي تعذّر تطبي
 msgid "{0, plural, one {# fact} other {# facts}}"
 msgstr "{0, plural, zero {لا حقائق} one {حقيقة واحدة} two {حقيقتان} few {# حقائق} many {# حقيقة} other {# حقيقة}}"
 
-#. placeholder {0}: report.ignored.length
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "{0, plural, one {# issue is ignored.} other {# issues are ignored.}}"
-msgstr "{0, plural, zero {عدد المشكلات المتجاهلة: #} one {عدد المشكلات المتجاهلة: #} two {عدد المشكلات المتجاهلة: #} few {عدد المشكلات المتجاهلة: #} many {عدد المشكلات المتجاهلة: #} other {عدد المشكلات المتجاهلة: #}}"
-
 #. placeholder {0}: proposals.length
 #: src/features/assistant/conversation.tsx
 #: src/features/resume/editor/proposals/proposal-list.tsx
 msgid "{0, plural, one {# proposed edit} other {# proposed edits}}"
-msgstr "{0, plural, zero {عدد التعديلات المقترحة: #} one {عدد التعديلات المقترحة: #} two {عدد التعديلات المقترحة: #} few {عدد التعديلات المقترحة: #} many {عدد التعديلات المقترحة: #} other {عدد التعديلات المقترحة: #}}"
+msgstr "{0, plural, zero {لا تعديلات مقترحة} one {تعديل مقترح واحد} two {تعديلان مقترحان} few {# تعديلات مقترحة} many {# تعديلًا مقترحًا} other {# تعديل مقترح}}"
 
 #. placeholder {0}: result.skipped
 #: src/features/applications/components/import-applications-sheet.tsx
 msgid "{0, plural, one {# row has no company or role and will be skipped.} other {# rows have no company or role and will be skipped.}}"
-msgstr "{0, plural, zero {عدد الصفوف التي ستُتخطّى لعدم وجود شركة أو مسمى وظيفي: #} one {عدد الصفوف التي ستُتخطّى لعدم وجود شركة أو مسمى وظيفي: #} two {عدد الصفوف التي ستُتخطّى لعدم وجود شركة أو مسمى وظيفي: #} few {عدد الصفوف التي ستُتخطّى لعدم وجود شركة أو مسمى وظيفي: #} many {عدد الصفوف التي ستُتخطّى لعدم وجود شركة أو مسمى وظيفي: #} other {عدد الصفوف التي ستُتخطّى لعدم وجود شركة أو مسمى وظيفي: #}}"
+msgstr "{0, plural, zero {لا صفوف ستُتخطّى لعدم وجود شركة أو مسمى وظيفي.} one {سيُتخطّى صف واحد لعدم وجود شركة أو مسمى وظيفي.} two {سيُتخطّى صفان لعدم وجود شركة أو مسمى وظيفي.} few {ستُتخطّى # صفوف لعدم وجود شركة أو مسمى وظيفي.} many {سيُتخطّى # صفًا لعدم وجود شركة أو مسمى وظيفي.} other {سيُتخطّى # صف لعدم وجود شركة أو مسمى وظيفي.}}"
 
 #. placeholder {0}: offerIds.length
 #. placeholder {0}: used.offers.length
@@ -149,7 +144,7 @@ msgstr "{0, plural, zero {لا عروض محفوظة} one {عرض محفوظ و�
 #. placeholder {0}: ids.length
 #: src/features/applications/components/list-view.tsx
 msgid "{0, plural, one {# selected} other {# selected}}"
-msgstr "{0, plural, one {تم تحديد #} other {تم تحديد #}}"
+msgstr "{0, plural, zero {لم يُحدَّد أي عنصر} one {تم تحديد عنصر واحد} two {تم تحديد عنصرين} few {تم تحديد # عناصر} many {تم تحديد # عنصرًا} other {تم تحديد # عنصر}}"
 
 #. placeholder {0}: used.stories.length
 #: src/features/career/coach-thread.tsx
@@ -191,15 +186,10 @@ msgstr "{0, plural, zero {المعرفة · لا حقائق} one {المعرفة
 msgid "{0, plural, one {No reply in # day} other {No reply in # days}}"
 msgstr "{0, plural, zero {لا يوجد رد حتى الآن} one {لا يوجد رد منذ يوم واحد} two {لا يوجد رد منذ يومين} few {لا يوجد رد منذ # أيام} many {لا يوجد رد منذ # يومًا} other {لا يوجد رد منذ # يوم}}"
 
-#. placeholder {0}: passages.length
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "{0, plural, one {Reading # passage of your resume…} other {Reading # bullets and paragraphs of your resume…}}"
-msgstr "{0, plural, zero {جارٍ قراءة سيرتك الذاتية…} one {جارٍ قراءة مقطع واحد من سيرتك الذاتية…} two {جارٍ قراءة مقطعين من سيرتك الذاتية…} few {جارٍ قراءة النقاط والفقرات من سيرتك الذاتية، وعددها #…} many {جارٍ قراءة النقاط والفقرات من سيرتك الذاتية، وعددها #…} other {جارٍ قراءة النقاط والفقرات من سيرتك الذاتية، وعددها #…}}"
-
 #. placeholder {0}: items.length
 #: src/features/career/coach-thread.tsx
 msgid "{0, plural, one {Remember # fact?} other {Remember # facts?}}"
-msgstr "{0, plural, zero {هل تريد حفظ هذه المعلومات في المعرفة؟ عدد المعلومات: #} one {هل تريد حفظ هذه المعلومات في المعرفة؟ عدد المعلومات: #} two {هل تريد حفظ هذه المعلومات في المعرفة؟ عدد المعلومات: #} few {هل تريد حفظ هذه المعلومات في المعرفة؟ عدد المعلومات: #} many {هل تريد حفظ هذه المعلومات في المعرفة؟ عدد المعلومات: #} other {هل تريد حفظ هذه المعلومات في المعرفة؟ عدد المعلومات: #}}"
+msgstr "{0, plural, zero {لا معلومات لحفظها في المعرفة} one {هل تريد حفظ معلومة واحدة في المعرفة؟} two {هل تريد حفظ معلومتين في المعرفة؟} few {هل تريد حفظ # معلومات في المعرفة؟} many {هل تريد حفظ # معلومة في المعرفة؟} other {هل تريد حفظ # معلومة في المعرفة؟}}"
 
 #. placeholder {0}: fact.usedBy.savedItems
 #: src/features/career/knowledge/facts.tsx
@@ -389,11 +379,6 @@ msgstr "{0}، البند {1} من أصل {count}"
 msgid "{0}, not one of your places"
 msgstr "{0}، ليس من أماكنك"
 
-#. placeholder {0}: issue.fix.done
-#: src/features/resume/editor/check/actions.ts
-msgid "{0}. Issue resolved."
-msgstr "{0}. تم حل المشكلة."
-
 #. placeholder {0}: proposals.length
 #: src/features/assistant/conversation.tsx
 msgid "{accepted} of {0} applied"
@@ -407,13 +392,17 @@ msgstr "{applicationCount, plural, zero {لا طلبات} one {طلب واحد} 
 msgid "{base} (copy)"
 msgstr "{base} (نسخة)"
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "{blockers} blockers · {warnings} warnings"
+msgstr "{blockers} مشكلات تمنع القراءة · {warnings} تنبيهات"
+
 #: src/features/career/workspace/apply.tsx
 msgid "{characters, plural, one {# character} other {# characters}}"
 msgstr "{characters, plural, zero {لا أحرف} one {حرف واحد} two {حرفان} few {# أحرف} many {# حرفًا} other {# حرف}}"
 
 #: src/features/resume/editor/write/section-row.tsx
 msgid "{column, plural, one {# column} other {# columns}}"
-msgstr "{column, plural, zero {عدد الأعمدة: #} one {عدد الأعمدة: #} two {عدد الأعمدة: #} few {عدد الأعمدة: #} many {عدد الأعمدة: #} other {عدد الأعمدة: #}}"
+msgstr "{column, plural, zero {لا أعمدة} one {عمود واحد} two {عمودان} few {# أعمدة} many {# عمودًا} other {# عمود}}"
 
 #: src/features/career/knowledge/facts.tsx
 msgid "{company} only"
@@ -429,7 +418,7 @@ msgstr "لم يستجب {connection}."
 
 #: src/features/resume/editor/write/section-row.tsx
 msgid "{count, plural, one {# entry} other {# entries}}"
-msgstr "{count, plural, zero {عدد البنود: #} one {عدد البنود: #} two {عدد البنود: #} few {عدد البنود: #} many {عدد البنود: #} other {عدد البنود: #}}"
+msgstr "{count, plural, zero {لا بنود} one {بند واحد} two {بندان} few {# بنود} many {# بندًا} other {# بند}}"
 
 #: src/features/career/workspace/messages.tsx
 msgid "{count, plural, one {Apply # change} other {Apply # changes}}"
@@ -457,7 +446,7 @@ msgstr "{days, plural, zero {لا أيام في المكتب، وهو حدّك} 
 
 #: src/features/settings/account/data.tsx
 msgid "{documents, plural, one {# document} other {# documents}}"
-msgstr "{documents, plural, zero {عدد المستندات: #} one {عدد المستندات: #} two {عدد المستندات: #} few {عدد المستندات: #} many {عدد المستندات: #} other {عدد المستندات: #}}"
+msgstr "{documents, plural, zero {لا مستندات} one {مستند واحد} two {مستندان} few {# مستندات} many {# مستندًا} other {# مستند}}"
 
 #: src/features/documents/document-actions.tsx
 msgid "{done, plural, one {# document updated} other {# documents updated}}"
@@ -482,7 +471,7 @@ msgstr "{earlier} · مكتوبة"
 
 #: src/features/resume/editor/write/write-panel.tsx
 msgid "{entries, plural, one {# entry} other {# entries}}"
-msgstr "{entries, plural, zero {عدد البنود: #} one {عدد البنود: #} two {عدد البنود: #} few {عدد البنود: #} many {عدد البنود: #} other {عدد البنود: #}}"
+msgstr "{entries, plural, zero {لا بنود} one {بند واحد} two {بندان} few {# بنود} many {# بندًا} other {# بند}}"
 
 #: src/features/resume/editor/check/issues.ts
 msgid "{entry} doesn't say when. Dates place it on your timeline."
@@ -500,25 +489,13 @@ msgstr "{factCount, plural, zero {لا حقائق} one {حقيقة واحدة} t
 msgid "{facts, plural, one {# fact} other {# facts}}"
 msgstr "{facts, plural, zero {لا حقائق} one {حقيقة واحدة} two {حقيقتان} few {# حقائق} many {# حقيقة} other {# حقيقة}}"
 
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "{failing, plural, one {# to review} other {# to review}}"
-msgstr "{failing, plural, one {# للمراجعة} other {# للمراجعة}}"
-
 #: src/features/career/knowledge/stories.tsx
 msgid "{filled} of 5 parts"
 msgstr "{filled} من 5 أجزاء"
 
-#: src/features/ats-checker/checker.tsx
-msgid "{issues, plural, one {# issue could cost you a match.} other {# issues could cost you a match.}}"
-msgstr "{issues, plural, zero {عدد المشكلات التي قد تقلّل توافق سيرتك مع الوظيفة: #} one {عدد المشكلات التي قد تقلّل توافق سيرتك مع الوظيفة: #} two {عدد المشكلات التي قد تقلّل توافق سيرتك مع الوظيفة: #} few {عدد المشكلات التي قد تقلّل توافق سيرتك مع الوظيفة: #} many {عدد المشكلات التي قد تقلّل توافق سيرتك مع الوظيفة: #} other {عدد المشكلات التي قد تقلّل توافق سيرتك مع الوظيفة: #}}"
-
-#: src/features/resume/share/download-tab.tsx
-msgid "{issues, plural, one {Check has # thing to review. You can still download.} other {Check has # things to review. You can still download.}}"
-msgstr "{issues, plural, zero {عدد العناصر التي تحتاج إلى مراجعة في الفحص: #. لا يزال بإمكانك التنزيل.} one {عدد العناصر التي تحتاج إلى مراجعة في الفحص: #. لا يزال بإمكانك التنزيل.} two {عدد العناصر التي تحتاج إلى مراجعة في الفحص: #. لا يزال بإمكانك التنزيل.} few {عدد العناصر التي تحتاج إلى مراجعة في الفحص: #. لا يزال بإمكانك التنزيل.} many {عدد العناصر التي تحتاج إلى مراجعة في الفحص: #. لا يزال بإمكانك التنزيل.} other {عدد العناصر التي تحتاج إلى مراجعة في الفحص: #. لا يزال بإمكانك التنزيل.}}"
-
 #: src/features/settings/account/data.tsx
 msgid "{keyCount, plural, one {# API key} other {# API keys}}"
-msgstr "{keyCount, plural, zero {عدد مفاتيح API: #} one {عدد مفاتيح API: #} two {عدد مفاتيح API: #} few {عدد مفاتيح API: #} many {عدد مفاتيح API: #} other {عدد مفاتيح API: #}}"
+msgstr "{keyCount, plural, zero {لا مفاتيح API} one {مفتاح API واحد} two {مفتاحا API} few {# مفاتيح API} many {# مفتاحًا لـ API} other {# مفتاح لـ API}}"
 
 #: src/features/applications/next-step.ts
 #: src/features/career/today.tsx
@@ -535,7 +512,7 @@ msgstr "{length} د"
 
 #: src/routes/builder/$resumeId/-components/page-canvas.tsx
 msgid "{lines, plural, one {Runs onto page {next} by about # line} other {Runs onto page {next} by about # lines}}"
-msgstr "{lines, plural, zero {يمتد إلى الصفحة {next}؛ عدد الأسطر الإضافية: #} one {يمتد إلى الصفحة {next}؛ عدد الأسطر الإضافية: #} two {يمتد إلى الصفحة {next}؛ عدد الأسطر الإضافية: #} few {يمتد إلى الصفحة {next}؛ عدد الأسطر الإضافية: #} many {يمتد إلى الصفحة {next}؛ عدد الأسطر الإضافية: #} other {يمتد إلى الصفحة {next}؛ عدد الأسطر الإضافية: #}}"
+msgstr "{lines, plural, zero {يتجاوز إلى الصفحة {next} قليلًا} one {يتجاوز إلى الصفحة {next} بنحو سطر واحد} two {يتجاوز إلى الصفحة {next} بنحو سطرين} few {يتجاوز إلى الصفحة {next} بنحو # أسطر} many {يتجاوز إلى الصفحة {next} بنحو # سطرًا} other {يتجاوز إلى الصفحة {next} بنحو # سطر}}"
 
 #: src/features/career/offers.tsx
 msgid "{minimum} minimum"
@@ -558,8 +535,8 @@ msgid "{monthCount} interviews"
 msgstr "عدد المقابلات: {monthCount}"
 
 #: src/features/resume/editor/check/issues.ts
-msgid "{name} added to page 1"
-msgstr "تمت إضافة {name} إلى الصفحة 1"
+msgid "{name} added to page {page}"
+msgstr "تمت إضافة {name} إلى الصفحة {page}"
 
 #: src/features/career/hooks.ts
 msgid "{name} didn't respond. Nothing was changed; try again."
@@ -593,38 +570,30 @@ msgstr "تظهر الأقسام {names} في نهاية النص. تتعرّف �
 msgid "{now} · typed"
 msgstr "{now} · مكتوبة"
 
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "{open, plural, one {# thing to review.} other {# things to review.}}"
-msgstr "{open, plural, zero {عدد العناصر التي تحتاج إلى مراجعة: #} one {عدد العناصر التي تحتاج إلى مراجعة: #} two {عدد العناصر التي تحتاج إلى مراجعة: #} few {عدد العناصر التي تحتاج إلى مراجعة: #} many {عدد العناصر التي تحتاج إلى مراجعة: #} other {عدد العناصر التي تحتاج إلى مراجعة: #}}"
-
 #: src/features/resume/editor/chrome.tsx
 #: src/routes/builder/$resumeId/-components/document-details.tsx
 msgid "{pageCount, plural, one {# page} other {# pages}}"
-msgstr "{pageCount, plural, zero {عدد الصفحات: #} one {عدد الصفحات: #} two {عدد الصفحات: #} few {عدد الصفحات: #} many {عدد الصفحات: #} other {عدد الصفحات: #}}"
+msgstr "{pageCount, plural, zero {لا صفحات} one {صفحة واحدة} two {صفحتان} few {# صفحات} many {# صفحة} other {# صفحة}}"
 
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "{pairing} type"
 msgstr "نوع {pairing}"
 
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "{passed} of {total}"
-msgstr "{passed} من {total}"
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "{passedRules} of {totalRules} checks pass."
-msgstr "اجتاز المستند {passedRules} من أصل {totalRules} من الفحوصات"
-
 #: src/routes/builder/$resumeId/-components/page-canvas.tsx
 msgid "{pendingOnPage, plural, one {# proposed edit on this page · nothing changes until you accept} other {# proposed edits on this page · nothing changes until you accept}}"
-msgstr "{pendingOnPage, plural, zero {عدد التعديلات المقترحة على هذه الصفحة: # · لن يتغيّر شيء حتى تقبلها} one {عدد التعديلات المقترحة على هذه الصفحة: # · لن يتغيّر شيء حتى تقبلها} two {عدد التعديلات المقترحة على هذه الصفحة: # · لن يتغيّر شيء حتى تقبلها} few {عدد التعديلات المقترحة على هذه الصفحة: # · لن يتغيّر شيء حتى تقبلها} many {عدد التعديلات المقترحة على هذه الصفحة: # · لن يتغيّر شيء حتى تقبلها} other {عدد التعديلات المقترحة على هذه الصفحة: # · لن يتغيّر شيء حتى تقبلها}}"
+msgstr "{pendingOnPage, plural, zero {لا تعديلات مقترحة على هذه الصفحة} one {تعديل مقترح واحد على هذه الصفحة · لن يتغيّر شيء حتى تقبله} two {تعديلان مقترحان على هذه الصفحة · لن يتغيّر شيء حتى تقبلهما} few {# تعديلات مقترحة على هذه الصفحة · لن يتغيّر شيء حتى تقبلها} many {# تعديلًا مقترحًا على هذه الصفحة · لن يتغيّر شيء حتى تقبلها} other {# تعديل مقترح على هذه الصفحة · لن يتغيّر شيء حتى تقبلها}}"
 
 #: src/features/resume/editor/write/section-row.tsx
 msgid "{proposed, plural, one {# proposed} other {# proposed}}"
-msgstr "{proposed, plural, zero {عدد المقترحات: #} one {عدد المقترحات: #} two {عدد المقترحات: #} few {عدد المقترحات: #} many {عدد المقترحات: #} other {عدد المقترحات: #}}"
+msgstr "{proposed, plural, zero {لا مقترحات} one {مقترح واحد} two {مقترحان} few {# مقترحات} many {# مقترحًا} other {# مقترح}}"
+
+#: src/features/resume/import/review.tsx
+msgid "{reviewedCount} of {total} sections reviewed"
+msgstr "تمت مراجعة {reviewedCount} من {total} أقسام"
 
 #: src/features/resume/editor/write/write-panel.tsx
 msgid "{sections, plural, one {# section} other {# sections}}"
-msgstr "{sections, plural, zero {عدد الأقسام: #} one {عدد الأقسام: #} two {عدد الأقسام: #} few {عدد الأقسام: #} many {عدد الأقسام: #} other {عدد الأقسام: #}}"
+msgstr "{sections, plural, zero {لا أقسام} one {قسم واحد} two {قسمان} few {# أقسام} many {# قسمًا} other {# قسم}}"
 
 #: src/features/applications/components/application-detail-sheet.tsx
 msgid "{since, plural, =0 {since today} one {for # day} other {for # days}}"
@@ -673,21 +642,20 @@ msgstr "{title} متوقف مؤقتًا"
 
 #: src/features/resume/editor/write/write-panel.tsx
 msgid "{toCheck, plural, one {# field needs a look.} other {# fields need a look.}}"
-msgstr "{toCheck, plural, zero {عدد الحقول التي تحتاج إلى مراجعة: #} one {عدد الحقول التي تحتاج إلى مراجعة: #} two {عدد الحقول التي تحتاج إلى مراجعة: #} few {عدد الحقول التي تحتاج إلى مراجعة: #} many {عدد الحقول التي تحتاج إلى مراجعة: #} other {عدد الحقول التي تحتاج إلى مراجعة: #}}"
+msgstr "{toCheck, plural, zero {لا حقول تحتاج إلى مراجعة.} one {حقل واحد يحتاج إلى مراجعة.} two {حقلان يحتاجان إلى مراجعة.} few {# حقول تحتاج إلى مراجعة.} many {# حقلًا يحتاج إلى مراجعة.} other {# حقل يحتاج إلى مراجعة.}}"
 
 #: src/features/resume/editor/write/section-row.tsx
 msgid "{toCheck, plural, one {# to check} other {# to check}}"
-msgstr "{toCheck, plural, one {# للتحقق} other {# للتحقق}}"
+msgstr "{toCheck, plural, zero {لا عناصر للتحقق} one {عنصر واحد للتحقق} two {عنصران للتحقق} few {# عناصر للتحقق} many {# عنصرًا للتحقق} other {# عنصر للتحقق}}"
 
 #. placeholder {0}: daysLeftInTrash(document.trashedAt)
 #: src/features/documents/document-card.tsx
 msgid "{type} · {0} days left"
 msgstr "{type} · عدد الأيام المتبقية: {0}"
 
-#. placeholder {0}: formatRelativeTime(document.updatedAt, i18n.locale)
 #: src/features/documents/document-card.tsx
-msgid "{type} · Edited {0}"
-msgstr "{type} · عُدّلت {0}"
+msgid "{type} · Edited {relativeTime}"
+msgstr "{type} · عُدّلت {relativeTime}"
 
 #: src/features/career/offers.tsx
 msgid "{value} a month"
@@ -704,7 +672,7 @@ msgstr "{value} في الساعة"
 #: src/features/career/workspace/apply.tsx
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "{words, plural, one {# word} other {# words}}"
-msgstr "{words, plural, zero {عدد الكلمات: #} one {عدد الكلمات: #} two {عدد الكلمات: #} few {عدد الكلمات: #} many {عدد الكلمات: #} other {عدد الكلمات: #}}"
+msgstr "{words, plural, zero {لا كلمات} one {كلمة واحدة} two {كلمتان} few {# كلمات} many {# كلمة} other {# كلمة}}"
 
 #: src/features/career/knowledge/preferences.tsx
 msgid "/ hour"
@@ -729,10 +697,6 @@ msgstr "زيادة التفعيل بمقدار 13 نقطة مئوية"
 #: src/features/resume/editor/proposals/proposal-list.tsx
 msgid "<0/> accepts and <1/> rejects the focused edit. <2/> and <3/> move between edits."
 msgstr "اضغط <0/> لقبول التعديل المحدد أو <1/> لرفضه. استخدم <2/> و<3/> للتنقل بين التعديلات."
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "<0>Nothing to fix.</0> Every check passes."
-msgstr "<0>لا يوجد ما يحتاج إلى إصلاح.</0> اجتاز المستند جميع الفحوصات."
 
 #. placeholder {0}: day(application.appliedAt)
 #. placeholder {1}: application.company
@@ -926,10 +890,6 @@ msgstr "الرابط ليس عنوانًا كاملاً"
 msgid "A link points somewhere other than the address it shows."
 msgstr "رابط يشير إلى مكان مختلف عن العنوان الذي يعرضه."
 
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "A model's opinion, not a verdict. It can be wrong."
-msgstr "رأي نموذج ذكاء اصطناعي، وليس حكمًا نهائيًا. قد يكون خاطئًا."
-
 #: src/features/settings/account/security.tsx
 msgid "A name helps you tell passkeys apart, like \"Work laptop\"."
 msgstr "يساعدك الاسم على التمييز بين مفاتيح المرور، مثل \"كمبيوتر محمول للعمل\"."
@@ -958,13 +918,13 @@ msgstr "الدور ليس له وصف"
 msgid "A saved offer"
 msgstr "عرض محفوظ"
 
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "A second opinion on your wording"
-msgstr "رأي ثانٍ في صياغتك"
-
 #: src/features/homepage/sections.tsx
 msgid "A second pair of eyes."
 msgstr "عينٌ ثانية."
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "A selected job and reviewed evidence are required. Job comparison is not available yet."
+msgstr "يلزم اختيار وظيفة ومراجعة الأدلة. المقارنة بوظيفة غير متاحة بعد."
 
 #: src/features/applications/next-step.ts
 msgid "A short follow-up is usually fine now"
@@ -1007,6 +967,10 @@ msgstr "قبول"
 #: src/features/resume/editor/proposals/proposal-list.tsx
 msgid "Accept all"
 msgstr "قبول الكل"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Accept change"
+msgstr "قبول التغيير"
 
 #: src/features/homepage/write.tsx
 msgid "Accepted"
@@ -1160,10 +1124,6 @@ msgstr "أضف قسمًا بعنوان \"Experience\" أو \"Work Experience\" (
 msgid "Add a story"
 msgstr "أضف قصة"
 
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "Add a summary or describe a role first; there's nothing to review yet."
-msgstr "قم بإضافة ملخص أو وصف الدور أولاً؛ لا يوجد شيء لمراجعته بعد."
-
 #: src/features/applications/components/application-detail-sheet.tsx
 msgid "Add a tag"
 msgstr "إضافة وسم"
@@ -1278,8 +1238,8 @@ msgid "Add interest"
 msgstr "إضافة اهتمام"
 
 #: src/features/resume/editor/check/issues.ts
-msgid "Add it to page 1"
-msgstr "أضفه إلى الصفحة 1"
+msgid "Add it to page {page}"
+msgstr "أضفه إلى الصفحة {page}"
 
 #: src/components/input/chip-input.tsx
 msgid "Add keyword"
@@ -1457,6 +1417,10 @@ msgstr "إعلانات"
 msgid "Advanced"
 msgstr "متقدم"
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Advice about clarity and missing information. These notes do not predict acceptance."
+msgstr "نصائح عن الوضوح والمعلومات الناقصة. لا تتنبأ هذه الملاحظات بالقبول."
+
 #: src/features/ats-checker/messages.ts
 msgid "Advice for the person reading it. None of this affects the score."
 msgstr "نصيحة للشخص الذي يقرأها. لا شيء من هذا يؤثر على النتيجة."
@@ -1473,6 +1437,10 @@ msgstr "آفاق للتصميم (مثال) · الرياض"
 #: src/libs/locale.ts
 msgid "Afrikaans"
 msgstr "الأفريقانس"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "After"
+msgstr "بعد"
 
 #: src/features/career/workspace/debrief.tsx
 msgid "After the behavioral interview"
@@ -1506,6 +1474,10 @@ msgstr "بعد مراجعتك الأولى، تظهر هنا خطة خفيفة �
 msgid "Against your requirements"
 msgstr "مقارنةً بمتطلباتك"
 
+#: src/features/homepage/faq.tsx
+msgid "AI assistance requires your explicit opt-in and approval of each proposed change."
+msgstr "تتطلب المساعدة بالذكاء الاصطناعي موافقتك الصريحة على استخدامها وعلى كل تغيير مقترح."
+
 #: src/features/career/schedule-sheet.tsx
 msgid "AI connection"
 msgstr "اتصال الذكاء الاصطناعي"
@@ -1529,10 +1501,6 @@ msgstr "تحرير الذكاء الاصطناعي"
 #: src/features/settings/ai/providers.tsx
 msgid "AI providers"
 msgstr "مزوّدو الذكاء الاصطناعي"
-
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "AI providers are unavailable until ENCRYPTION_SECRET is configured."
-msgstr "مزوّدو الذكاء الاصطناعي غير متاحين إلى أن يتم تكوين ENCRYPTION_SECRET."
 
 #: src/features/settings/ai/providers.tsx
 msgid "AI providers aren't available on this server until ENCRYPTION_SECRET is set."
@@ -1608,15 +1576,6 @@ msgstr "لديك حساب بالفعل؟"
 #: src/features/applications/components/add-application-dialog.tsx
 msgid "Already interviewing"
 msgstr "المقابلات جارية بالفعل"
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Also check the exported PDF"
-msgstr "تحقق أيضًا من PDF الذي تم تصديره"
-
-#. placeholder {0}: linkedLetter.company
-#: src/features/resume/share/download-tab.tsx
-msgid "Also download the {0} cover letter"
-msgstr "تنزيل خطاب التقديم {0} أيضًا"
 
 #. placeholder {0}: user?.email ?? ""
 #: src/features/career/schedule-sheet.tsx
@@ -1709,10 +1668,6 @@ msgstr "Anthropic وGemini وOllama وخدمات متوافقة مع OpenAI"
 msgid "Any"
 msgstr "أي"
 
-#: src/features/resume/editor/design/style-groups.tsx
-msgid "Any font, in Advanced"
-msgstr "أي خط، في المتقدم"
-
 #: src/features/resume/builder/password-dialog.tsx
 msgid "Anyone who opens the public URL will need this password."
 msgstr "سيحتاج كل من يفتح الرابط العام إلى كلمة المرور هذه."
@@ -1777,8 +1732,6 @@ msgid "Appears on the page once it has an organization."
 msgstr "يظهر في الصفحة بعد إدخال اسم المؤسسة."
 
 #. Authentication provider display name in account settings
-#. Brand name label for Apple social sign-in button
-#: src/features/auth/components/social-auth.tsx
 #: src/features/settings/account/auth-hooks.ts
 msgid "Apple"
 msgstr "Apple"
@@ -1786,10 +1739,6 @@ msgstr "Apple"
 #: src/features/settings/account/data.tsx
 msgid "Apple revocation instructions"
 msgstr "تعليمات إلغاء وصول Apple"
-
-#: src/features/ats-checker/checker.tsx
-msgid "Applicant tracking systems turn your PDF into plain text before anyone reads it. The checker does the same, with the PDF.js library in your browser, then scores how much of your resume survives: 0 to 100, from how reliably the text comes out, not from your chances of getting the job."
-msgstr "تحوّل أنظمة تتبّع المتقدمين ملف PDF إلى نص عادي قبل أن يقرأه أي شخص. يفعل الفاحص الشيء نفسه باستخدام مكتبة PDF.js في متصفحك، ثم يمنح الملف درجة بحسب مدى سلامة استخراج نص سيرتك الذاتية: من 0 إلى 100. تقيس الدرجة موثوقية استخراج النص، لا فرصك في الحصول على الوظيفة."
 
 #: src/features/applications/components/interview-dialog.tsx
 #: src/features/career/schedule-sheet.tsx
@@ -1928,6 +1877,7 @@ msgstr "التقديم · صِف تحسينًا في منتج قُدته."
 msgid "Apply 1 change"
 msgstr "طبّق تغييرًا واحدًا"
 
+#: src/features/resume/import/start.tsx
 #: src/libs/locale.ts
 msgid "Arabic"
 msgstr "العربية"
@@ -1942,12 +1892,9 @@ msgstr "هل أنت متأكد من أنك تريد إغلاق هذه الناف
 
 #: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Area of study"
 msgstr "مجال الدراسة"
-
-#: src/features/ats-checker/checker.tsx
-msgid "As software reads it"
-msgstr "كما يقرأها البرنامج"
 
 #: src/features/command-palette/pages/ask.tsx
 #: src/features/resume/editor/write/improve.tsx
@@ -2002,10 +1949,6 @@ msgstr "طلب تضمينه في السيرة من المساعد"
 #: src/features/career/workspace/shell.tsx
 msgid "Ask the coach"
 msgstr "اسأل المدرّب"
-
-#: src/features/resume/share/download-tab.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "اسأل المجتمع. احذف بياناتك الشخصية قبل النشر."
 
 #: src/features/settings/ai/web-access.tsx
 msgid "Ask your server administrator to enable credential encryption or configure a shared web connection."
@@ -2129,6 +2072,7 @@ msgid "Avoid heavy letter-spacing effects, then re-export."
 msgstr "تجنّب تأثيرات التباعد الكبير بين الأحرف، ثم أعد التصدير."
 
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Awarder"
 msgstr "الجهة المانحة"
 
@@ -2167,6 +2111,7 @@ msgstr "العودة إلى الحالي"
 #: src/features/documents/new-document-dialog.tsx
 #: src/features/documents/trash-page.tsx
 #: src/features/resume/editor/chrome.tsx
+#: src/routes/dashboard/import/$flowId.tsx
 msgid "Back to documents"
 msgstr "العودة إلى المستندات"
 
@@ -2225,10 +2170,19 @@ msgstr "الراتب الأساسي"
 msgid "Base URL"
 msgstr "عنوان URL الأساسي"
 
+#: src/features/resume/editor/save-conflict.tsx
+#: src/features/resume/import/review.tsx
+msgid "Basic information"
+msgstr "المعلومات الأساسية"
+
 #: src/features/resume/editor/write/basics-card.tsx
 #: src/libs/resume/section.tsx
 msgid "Basics"
 msgstr "الأساسيات"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Before"
+msgstr "قبل"
 
 #: src/features/resume/share/format.ts
 msgid "Before restore"
@@ -2359,7 +2313,6 @@ msgid "Bulgarian"
 msgstr "البلغارية"
 
 #: src/features/assistant/document.ts
-#: src/features/resume/editor/check/writing-tab.tsx
 msgid "bullet {n}"
 msgstr "إدخال القائمة {n}"
 
@@ -2376,6 +2329,10 @@ msgstr "من المجتمع وللمجتمع."
 msgid "Calendar"
 msgstr "تقويم"
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Can a hiring system read the text and order in this PDF?"
+msgstr "هل يستطيع نظام التوظيف قراءة النص وترتيبه في ملف PDF هذا؟"
+
 #: src/features/homepage/faq.tsx
 msgid "Can I host it myself?"
 msgstr "هل يمكنني استضافتها بنفسي؟"
@@ -2388,12 +2345,9 @@ msgstr "هل يمكنني استيراد السيرة الذاتية التي أ
 msgid "Can it help me prepare for interviews?"
 msgstr "هل يمكنه مساعدتي في التحضير للمقابلات؟"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Can software read your resume?"
-msgstr "هل يستطيع البرنامج قراءة سيرتك الذاتية؟"
-
 #. Secondary action button to close two-factor setup dialog
 #: src/dialogs/auth/enable-two-factor.tsx
+#: src/dialogs/resume/index.tsx
 #: src/features/applications/components/application-form-sheet.tsx
 #: src/features/applications/components/detail/activity.tsx
 #: src/features/applications/components/detail/close-dialog.tsx
@@ -2409,7 +2363,10 @@ msgstr "هل يستطيع البرنامج قراءة سيرتك الذاتية�
 #: src/features/documents/new-document-dialog.tsx
 #: src/features/resume/builder/password-dialog.tsx
 #: src/features/resume/editor/check/job-match.tsx
+#: src/features/resume/editor/design/font-replacement.tsx
 #: src/features/resume/editor/write/picture-settings.tsx
+#: src/features/resume/import/review.tsx
+#: src/features/resume/import/start.tsx
 #: src/features/settings/ai/api-keys.tsx
 #: src/features/settings/ai/web-access.tsx
 #: src/hooks/use-confirm.tsx
@@ -2456,11 +2413,14 @@ msgid "Certifications"
 msgstr "الشهادات"
 
 #: src/features/resume/editor/check/job-match.tsx
-#: src/features/resume/editor/check/writing-tab.tsx
 #: src/features/settings/account/security.tsx
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "Change"
 msgstr "تغيير"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Change accepted"
+msgstr "تم قبول التغيير"
 
 #: src/features/career/coach-thread.tsx
 #: src/features/settings/ai/web-access.tsx
@@ -2520,6 +2480,10 @@ msgstr "غيّرت رأيك؟ أعد تسمية سيرتك الذاتية إلى
 msgid "Changes section titles and date words only, not your content."
 msgstr "يغير عناوين الأقسام وكلمات التاريخ فقط، وليس المحتوى الخاص بك."
 
+#: src/features/resume/import/review.tsx
+msgid "Changes to reused facts stay in this CV. Update your career information separately."
+msgstr "تبقى تعديلات المعلومات المعاد استخدامها في هذه السيرة فقط. حدّث معلوماتك المهنية بشكل منفصل."
+
 #: src/features/settings/account/profile.tsx
 msgid "Changing it sends a confirmation to the new address. Your username is part of every public link."
 msgstr "يؤدي تغييره إلى إرسال تأكيد إلى العنوان الجديد. اسم المستخدم الخاص بك هو جزء من كل رابط عام."
@@ -2540,25 +2504,17 @@ msgstr "فحص"
 msgid "Check a PDF"
 msgstr "تحقق من PDF"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Check a sample file"
-msgstr "التحقق من ملف عينة"
-
 #: src/features/career/workspace/fit.tsx
 msgid "Check again"
 msgstr "تحقّق مرة أخرى"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Check another file"
-msgstr "التحقق من ملف آخر"
-
-#: src/features/homepage/check.tsx
-msgid "Check any PDF, no account needed"
-msgstr "تحقق من أي PDF، لا حاجة لحساب"
-
 #: src/features/career/workspace/apply.tsx
 msgid "Check every claim, date and result against your experience."
 msgstr "تحقّق من كل ادعاء وتاريخ ونتيجة مقابل خبرتك."
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Check failed"
+msgstr "تعذّر الفحص"
 
 #: src/features/career/workspace/fit.tsx
 msgid "Check fit"
@@ -2572,10 +2528,6 @@ msgstr "تأكد من دقتها."
 msgid "check numbers and names before using it"
 msgstr "تحقّق من الأرقام والأسماء قبل استخدامه"
 
-#: src/features/homepage/check.tsx
-msgid "Check reads your resume the way hiring software does and explains what to fix in plain words. It runs in your browser, so the file stays with you: 0 uploads."
-msgstr "تقرأ ميزة «الفحص» سيرتك الذاتية بالطريقة التي تقرؤها بها برامج التوظيف، وتشرح ما يحتاج إلى إصلاح بكلمات بسيطة. تعمل ميزة «الفحص» في متصفحك، فيبقى الملف على جهازك دون أي عمليات رفع."
-
 #: src/features/career/workspace/prepare.tsx
 msgid "Check the details"
 msgstr "تحقّق من التفاصيل"
@@ -2584,26 +2536,30 @@ msgstr "تحقّق من التفاصيل"
 msgid "Check the exported file contains everything you expect, and that all of it is selectable text."
 msgstr "تحقق من أن الملف المُصدَّر يحتوي على كل ما تتوقعه، وأن كل النص فيه قابل للتحديد."
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Check the PDF again"
+msgstr "فحص ملف PDF مجددًا"
+
+#: src/features/resume/import/review.tsx
+msgid "Check this information"
+msgstr "تحقق من هذه المعلومة"
+
 #: src/features/career/workspace/fit.tsx
 msgid "Check this role against your evidence"
 msgstr "تحقّق من هذه الوظيفة مقابل أدلتك"
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Check views"
-msgstr "طرق عرض الفحص"
-
-#: src/libs/seo.ts
-msgid "Check whether software can read your resume PDF. Runs entirely in your browser, so your file is never uploaded."
-msgstr "تحقق مما إذا كان البرنامج يمكنه قراءة سيرتك الذاتية PDF. يتم تشغيله بالكامل في متصفحك، لذلك لا يتم تحميل ملفك أبدًا."
 
 #: src/components/query-list-state.tsx
 #: src/features/documents/library-error.tsx
 msgid "Check your connection and try again."
 msgstr "تحقق من اتصالك وحاول مرة أخرى."
 
+#: src/features/ats-checker/page.tsx
+msgid "Check your CV in your private workspace"
+msgstr "افحص سيرتك الذاتية في مساحة عملك الخاصة"
+
 #: src/features/settings/account/profile.tsx
 msgid "Check your email"
-msgstr "إغلاق"
+msgstr "تحقّق من بريدك الإلكتروني"
 
 #: src/features/auth/copy.generated.ts
 msgctxt "auth.reset.sentTitle"
@@ -2619,26 +2575,29 @@ msgctxt "auth.verifyEmail.deliveryHint"
 msgid "Check your spam folder or request a new link after a minute."
 msgstr "تحقق من مجلد الرسائل غير المرغوب فيها، أو اطلب رابطًا جديدًا بعد دقيقة."
 
-#. placeholder {0}: file.name
-#: src/features/ats-checker/checker.tsx
-msgid "Checking {0}"
-msgstr "التحقق من {0}"
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Checked"
+msgstr "تم الفحص"
 
 #: src/features/career/shared.tsx
 msgid "Checking against Knowledge"
 msgstr "جارٍ التحقق مقابل المعرفة"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Checking layout and content"
-msgstr "التحقق من التخطيط والمحتوى"
+#: src/features/homepage/check.tsx
+msgid "Checking requires an account. Review PDF readability and writing notes separately in your private workspace, without an overall score or hiring prediction."
+msgstr "يتطلب الفحص حسابًا. راجع قابلية قراءة PDF وملاحظات الكتابة كلًا على حدة في مساحتك الخاصة، دون درجة إجمالية أو توقع للتوظيف."
 
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Checking the exported PDF…"
-msgstr "جارٍ التحقق من PDF المُصدَّر..."
+#: src/libs/seo.ts
+msgid "Checking requires an account. Review PDF readability and writing notes separately in your private workspace."
+msgstr "يتطلب الفحص حسابًا. راجع قابلية قراءة PDF وملاحظات الكتابة كلًا على حدة في مساحتك الخاصة."
 
 #: src/features/career/shared.tsx
 msgid "Checking your preferences"
 msgstr "جارٍ التحقق من تفضيلاتك"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Checking…"
+msgstr "جارٍ الفحص…"
 
 #: src/features/resume/share/link-tab.tsx
 msgid "Checking… Copy is available after saving."
@@ -2647,10 +2606,6 @@ msgstr "جارٍ التحقق... يتاح نسخ الرابط بعد الحفظ.
 #: src/features/career/workspace/apply.tsx
 msgid "Checklist progress"
 msgstr "تقدّم قائمة التحقق"
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Checks by category"
-msgstr "الفحوصات حسب الفئة"
 
 #: src/features/assistant/assistant-panel.tsx
 msgid "Checks every bullet for action and result"
@@ -2664,11 +2619,22 @@ msgstr "الصينية (المبسطة)"
 msgid "Chinese (Traditional)"
 msgstr "الصينية (التقليدية)"
 
-#: src/features/documents/documents-page.tsx
+#: src/features/resume/editor/save-conflict.tsx
+msgctxt "editor.conflict.chooseHint"
+msgid "Choose a copy before continuing to the editor or version history."
+msgstr "اختر إحدى النسختين أولًا للمتابعة إلى المحرر أو سجل النسخ."
+
+#: src/features/resume/import/start.tsx
+msgid "Choose a file"
+msgstr "اختر ملفًا"
+
+#: src/features/resume/import/start.tsx
+msgctxt "onboarding.upload.chooseFile"
 msgid "Choose a file"
 msgstr "اختر ملفًا"
 
 #: src/features/documents/new-document-dialog.tsx
+#: src/features/resume/import/start.tsx
 msgid "Choose a file to import"
 msgstr "اختر ملفًا لاستيراده"
 
@@ -2676,6 +2642,10 @@ msgstr "اختر ملفًا لاستيراده"
 msgctxt "auth.password.newHint"
 msgid "Choose a password you have not used here before. We will sign you out on other devices after saving."
 msgstr "اختر كلمة مرور لم تستخدمها هنا من قبل. سنخرجك من الأجهزة الأخرى بعد الحفظ."
+
+#: src/features/resume/import/start.tsx
+msgid "Choose a readable PDF. Word import is not available."
+msgstr "اختر ملف PDF قابلًا للقراءة. استيراد Word غير متاح."
 
 #: src/routes/builder/letter/-components/design-panel.tsx
 msgid "Choose a resume in Write to match its design. Until then, the letter has its own."
@@ -2700,6 +2670,10 @@ msgstr "اختر ملفًا آخر"
 #: src/components/input/color-picker.tsx
 msgid "Choose color"
 msgstr "اختر اللون"
+
+#: src/features/resume/share/download-tab.tsx
+msgid "Choose the file name you want to send."
+msgstr "اختر اسم الملف الذي تريد إرساله."
 
 #: src/components/level/combobox.tsx
 msgid "Circle"
@@ -2726,6 +2700,10 @@ msgstr "مسح"
 #: src/features/resume/editor/write/rich-text-editor.tsx
 msgid "Clear formatting"
 msgstr "مسح التنسيق"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Clear notes for each area, without an overall score or hiring prediction."
+msgstr "ملاحظات واضحة لكل جانب، دون درجة إجمالية أو تنبؤ بالتوظيف."
 
 #: src/routes/dashboard/applications/index.tsx
 msgid "Clear search"
@@ -2865,6 +2843,7 @@ msgstr "مضغوط"
 #: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/check/job-match.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "Company"
 msgstr "الشركة"
@@ -2890,10 +2869,6 @@ msgstr "مقارنةً بقصصك وبإعلان الوظيفة."
 msgid "Compares your resume with the posting"
 msgstr "يقارن سيرتك الذاتية مع إعلان الوظيفة"
 
-#: src/features/resume/share/download-tab.tsx
-msgid "Complete data backup. Imports back into Master CV or JSON Resume tools."
-msgstr "نسخة احتياطية كاملة للبيانات. يمكن استيرادها مجددًا في Master CV أو أدوات JSON Resume."
-
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
 msgstr "اضغط الصور الكبيرة أو احذفها لإبقاء عمليات الرفع سريعة."
@@ -2903,6 +2878,14 @@ msgstr "اضغط الصور الكبيرة أو احذفها لإبقاء عمل
 msgid "Confirm"
 msgstr "تأكيد"
 
+#: src/features/resume/import/review.tsx
+msgid "Confirm all remaining"
+msgstr "تأكيد بقية المعلومات"
+
+#: src/features/resume/import/review.tsx
+msgid "Confirm an entry or section to add its supported facts to your career information. Unreviewed information stays in this CV only."
+msgstr "أكّد عنصرًا أو قسمًا لإضافة حقائقه المدعومة إلى معلوماتك المهنية. تبقى المعلومات التي لم تراجعها في هذه السيرة فقط."
+
 #: src/features/applications/components/application-detail-sheet.tsx
 msgid "Confirm applied"
 msgstr "تأكيد التقديم"
@@ -2910,6 +2893,10 @@ msgstr "تأكيد التقديم"
 #: src/features/career/information/entry-dialog.tsx
 msgid "Confirm changes"
 msgstr "تأكيد التغييرات"
+
+#: src/features/resume/import/review.tsx
+msgid "Confirm entry"
+msgstr "تأكيد العنصر"
 
 #: src/features/auth/copy.generated.ts
 msgctxt "auth.password.confirmLabel"
@@ -2919,6 +2906,10 @@ msgstr "تأكيد كلمة المرور"
 #: src/features/resume/builder/password-dialog.tsx
 msgid "Confirm Password"
 msgstr "تأكيد كلمة المرور"
+
+#: src/features/resume/import/review.tsx
+msgid "Confirm section"
+msgstr "تأكيد القسم"
 
 #: src/features/applications/components/application-detail-sheet.tsx
 msgid "Confirm submission and choose the documents you actually sent. Their current versions will be saved."
@@ -2939,6 +2930,11 @@ msgstr "أكّد الموعد والرابط ومن ستقابل. ألقِ نظ�
 #: src/features/career/shared.tsx
 msgid "Confirm this change"
 msgstr "تأكيد هذا التغيير"
+
+#: src/features/resume/import/review.tsx
+msgctxt "review.fact.status.confirmed"
+msgid "Confirmed"
+msgstr "مؤكد"
 
 #: src/features/homepage/prepare.tsx
 msgid "Confirms {time} today, by video."
@@ -2985,10 +2981,6 @@ msgstr "ربط آخر…"
 msgid "Connect the tools you use for writing, job search and working with your resumes."
 msgstr "قم بتوصيل الأدوات التي تستخدمها للكتابة والبحث عن وظيفة والعمل مع سيرتك الذاتية."
 
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "Connect your own AI provider to have a language model read your bullets and suggest rewrites. Issues and Job match need no provider."
-msgstr "قم بتوصيل مزود الذكاء الاصطناعي الخاص بك للحصول على نموذج لغة يقرأ إدخالات قائمتك ويقترح إعادة كتابتها. المشكلات والمطابقة الوظيفية لا تحتاج إلى مزود."
-
 #: src/features/settings/account/security.tsx
 #: src/features/settings/ai/providers.tsx
 msgid "Connected"
@@ -3019,7 +3011,6 @@ msgid "Contact"
 msgstr "جهة الاتصال"
 
 #: src/features/ats-checker/messages.ts
-#: src/features/resume/editor/check/issues.ts
 msgid "Contact details"
 msgstr "بيانات التواصل"
 
@@ -3056,6 +3047,7 @@ msgstr "جهات الاتصال"
 msgid "Contain"
 msgstr "إظهار الصورة كاملة"
 
+#: src/features/resume/import/review.tsx
 #: src/routes/builder/$resumeId/-components/editor-shell.tsx
 msgid "Content"
 msgstr "المحتوى"
@@ -3124,7 +3116,6 @@ msgstr "المحادثات حول وظيفة واحدة توجد في مساحة
 msgid "Cooking"
 msgstr "جارٍ الإعداد"
 
-#: src/features/homepage/share.tsx
 #: src/features/resume/share/copy-link-button.tsx
 #: src/features/settings/ai/api-keys.tsx
 #: src/features/settings/ai/mcp.tsx
@@ -3176,7 +3167,6 @@ msgstr "نسخ لوظيفة..."
 msgid "Copy it now. For your security, it won't be shown again."
 msgstr "انسخه الآن. حرصًا على أمانك، لن يتم عرضه مرة أخرى."
 
-#: src/features/homepage/share.tsx
 #: src/features/resume/public/public-resume.tsx
 msgid "Copy link"
 msgstr "نسخ الوصلة"
@@ -3230,6 +3220,10 @@ msgstr "صحّح هذه الحقيقة"
 msgid "Corrected {correctedOn} · original kept"
 msgstr "صُحِّحت في {correctedOn} · الأصل محفوظ"
 
+#: src/routes/dashboard/import/$flowId.tsx
+msgid "Could not close this review. Try again."
+msgstr "تعذر إغلاق هذه المراجعة. حاول مجددًا."
+
 #: src/features/auth/pages/consent.tsx
 msgid "Could not complete this connection. Restart the connection from your client and try again."
 msgstr "لا يمكن إكمال هذا الاتصال. أعد تشغيل الاتصال من العميل وحاول مرة أخرى."
@@ -3251,6 +3245,18 @@ msgstr "تعذر إنشاء Markdown. يرجى المحاولة مرة أخرى.
 msgid "Could not generate the PDF. Please try again."
 msgstr "تعذّر إنشاء ملف PDF. يرجى المحاولة مرة أخرى."
 
+#: src/features/resume/import/review.tsx
+msgid "Could not keep this review on this device. Try again."
+msgstr "تعذر الاحتفاظ بهذه المراجعة على هذا الجهاز. حاول مجددًا."
+
+#: src/features/resume/import/career-reuse.tsx
+msgid "Could not load career information. Try again."
+msgstr "تعذر تحميل المعلومات المهنية. حاول مجددًا."
+
+#: src/features/resume/import/review.tsx
+msgid "Could not load career information. Your review is still here."
+msgstr "تعذّر تحميل المعلومات المهنية. مراجعتك محفوظة هنا."
+
 #: src/features/settings/ai/connected-apps.tsx
 msgid "Could not load connected applications."
 msgstr "لا يمكن تحميل التطبيقات المتصلة."
@@ -3267,10 +3273,18 @@ msgstr "لا يمكن إلغاء هذا الاتصال. حاول ثانية."
 msgid "Could not save your choice. Please try again."
 msgstr "تعذر حفظ اختيارك. حاول مجددًا."
 
+#: src/features/resume/import/career-reuse.tsx
+msgid "Could not save your CV. Retry to finish using your career information."
+msgstr "تعذر حفظ سيرتك. أعد المحاولة لإكمال استخدام معلوماتك المهنية."
+
 #: src/features/career/copy.generated.ts
 msgctxt "editor.save.error.localCopy"
 msgid "Could not save. Your edits are kept on this device."
 msgstr "تعذّر الحفظ. تعديلاتك محفوظة على هذا الجهاز."
+
+#: src/features/resume/import/review.tsx
+msgid "Could not save. Your review is still here. Try again."
+msgstr "تعذّر الحفظ. مراجعتك موجودة هنا. حاول مجددًا."
 
 #: src/dialogs/auth/enable-two-factor.tsx
 msgid "Could not set up two-factor authentication."
@@ -3347,6 +3361,7 @@ msgid "Couldn't copy to the clipboard."
 msgstr "تعذّر النسخ إلى الحافظة."
 
 #: src/features/documents/new-document-dialog.tsx
+#: src/features/resume/import/start.tsx
 msgid "Couldn't create the document."
 msgstr "تعذر إنشاء المستند."
 
@@ -3410,10 +3425,6 @@ msgstr "تعذّر إخفاء هذه الوظيفة."
 msgid "Couldn't import"
 msgstr "تعذر الاستيراد"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Couldn't import the file. Try again from Documents."
-msgstr "تعذر استيراد الملف. حاول مرة أخرى من المستندات."
-
 #: src/features/resume/editor/check/job-match.tsx
 msgid "Couldn't link the application."
 msgstr "لا يمكن ربط طلب الوظيفة."
@@ -3438,15 +3449,15 @@ msgstr "تعذر تحميل المستندات"
 msgid "Couldn't load interviews. Retry"
 msgstr "تعذّر تحميل المقابلات. أعد المحاولة"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Couldn't load the sample file. Try again."
-msgstr "تعذر تحميل ملف العينة. حاول ثانية."
-
 #: src/features/career/load-state.tsx
 #: src/features/command-palette/pages/resumes.tsx
 #: src/features/documents/document-actions.tsx
 msgid "Couldn't load this. Your saved data hasn't changed."
 msgstr "تعذّر تحميل هذا. لم تتغيّر بياناتك المحفوظة."
+
+#: src/features/resume/share/history-tab.tsx
+msgid "Couldn't load version history"
+msgstr "تعذّر تحميل سجل النسخ"
 
 #: src/features/settings/ai/providers.tsx
 msgid "Couldn't make it the default."
@@ -3468,10 +3479,6 @@ msgstr "تعذر اقتراح هذه التعديلات: {0}"
 #: src/features/documents/new-document-dialog.tsx
 msgid "Couldn't reach the AI provider. Try again in a moment."
 msgstr "تعذر الوصول إلى مزوّد الذكاء الاصطناعي. حاول مرة أخرى بعد قليل."
-
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "Couldn't reach your AI provider. Its key may have expired."
-msgstr "تعذر الوصول إلى مزود الذكاء الاصطناعي الخاص بك. ربما انتهت صلاحية مفتاحه."
 
 #: src/features/applications/components/import-applications-sheet.tsx
 msgid "Couldn't read that file."
@@ -3575,6 +3582,7 @@ msgid "Couldn't save your changes. Please try again."
 msgstr "لم يتم حفظ التغييرات. يرجى المحاولة مرة أخرى."
 
 #: src/features/letters/store.ts
+#: src/features/resume/builder/draft.ts
 #: src/features/resume/share/history-tab.tsx
 #: src/routes/builder/letter/-components/letter-bar.tsx
 #: src/routes/builder/letter/-components/share-sheet.tsx
@@ -3751,6 +3759,15 @@ msgstr "إنشاء وتغيير المستندات وطلبات العمل ال�
 msgid "Create and open"
 msgstr "إنشاء وفتح"
 
+#: src/libs/seo.ts
+msgid "Create and review your CV in a private account with Master CV. Download PDF for free. Word downloads and public sharing are not available."
+msgstr "أنشئ سيرتك الذاتية وراجعها في حساب خاص مع Master CV. نزّل PDF مجانًا. تنزيل Word والمشاركة العامة غير متاحين."
+
+#: src/features/resume/import/review.tsx
+msgctxt "review.import.saveAndContinue"
+msgid "Create CV and open editor"
+msgstr "إنشاء السيرة وفتح المحرر"
+
 #: src/features/settings/ai/api-keys.tsx
 msgid "Create key"
 msgstr "إنشاء مفتاح"
@@ -3770,6 +3787,10 @@ msgstr "تم إنشاء \"{finalName}\""
 #: src/features/documents/new-document-dialog.tsx
 msgid "Created and linked to {0}"
 msgstr "تم إنشاؤها وربطها بـ {0}"
+
+#: src/features/resume/import/start.tsx
+msgid "Creating your CV"
+msgstr "جارٍ إنشاء سيرتك الذاتية"
 
 #: src/features/resume/editor/write/picture-settings.tsx
 msgid "Crop and Upload"
@@ -3837,6 +3858,14 @@ msgstr "أنماط مخصصة"
 msgid "Custom styles aren't applied. Fix these errors to apply them:"
 msgstr "لا يتم تطبيق الأنماط المخصصة. قم بإصلاح هذه الأخطاء لتطبيقها:"
 
+#: src/features/resume/import/review.tsx
+msgid "CV"
+msgstr "السيرة الذاتية"
+
+#: src/features/resume/import/start.tsx
+msgid "CV language"
+msgstr "لغة السيرة الذاتية"
+
 #: src/features/documents/copy.generated.ts
 msgctxt "editor.documents.cvsTab"
 msgid "CVs"
@@ -3882,9 +3911,9 @@ msgstr "تنسيق التاريخ"
 
 #: src/features/ats-checker/messages.ts
 #: src/features/career/information/entry-dialog.tsx
-#: src/features/resume/editor/check/issues.ts
 #: src/features/resume/editor/check/parser-view.tsx
 #: src/features/resume/editor/write/dates-field.tsx
+#: src/features/resume/import/review.tsx
 msgid "Dates"
 msgstr "التواريخ"
 
@@ -3933,6 +3962,7 @@ msgstr "الافتراضي"
 
 #: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Degree"
 msgstr "الدرجة"
 
@@ -4100,6 +4130,7 @@ msgstr "وصف الدور"
 
 #: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Description"
 msgstr "الوصف"
 
@@ -4139,7 +4170,6 @@ msgid "Design systems"
 msgstr "أنظمة التصميم"
 
 #: src/features/career/workspace/shell.tsx
-#: src/routes/builder/$resumeId/-components/document-menu.tsx
 msgid "Details"
 msgstr "تفاصيل"
 
@@ -4147,6 +4177,10 @@ msgstr "تفاصيل"
 #: src/features/auth/pages/error.tsx
 msgid "Details from the provider:"
 msgstr "تفاصيل من المزوّد:"
+
+#: src/features/resume/editor/check/writing-tab.tsx
+msgid "Deterministic content checks remain available. AI suggestions require approved consent and private processing."
+msgstr "تبقى فحوصات المحتوى متاحة. تتطلب اقتراحات الذكاء الاصطناعي موافقة معتمدة ومعالجة خاصة."
 
 #: src/features/career/workspace/practise.tsx
 msgid "Dictation started"
@@ -4203,6 +4237,10 @@ msgstr "تجاهل التغييرات؟"
 msgid "Discard draft"
 msgstr "تجاهل المسودة"
 
+#: src/features/resume/editor/recovery-prompt.tsx
+msgid "Discard local changes"
+msgstr "تجاهل التغييرات المحلية"
+
 #: src/features/settings/account/security.tsx
 msgid "Disconnect"
 msgstr "قطع الاتصال"
@@ -4212,6 +4250,10 @@ msgstr "قطع الاتصال"
 #: src/routes/dashboard/applications/index.tsx
 msgid "Dismiss"
 msgstr "رفض"
+
+#: src/routes/builder/$resumeId/-components/design-panel.tsx
+msgid "Document font changed"
+msgstr "تم تغيير خط المستند"
 
 #: src/features/resume/editor/chrome.tsx
 msgid "Document menu: {name}"
@@ -4246,7 +4288,6 @@ msgid "Don't send {0}"
 msgstr "لا ترسل {0}"
 
 #: src/components/ui/donation-toast.tsx
-#: src/features/resume/share/download-tab.tsx
 msgid "Donate"
 msgstr "تبرّع"
 
@@ -4268,6 +4309,7 @@ msgstr "جارٍ التحقق المزدوج"
 #: src/dialogs/auth/enable-two-factor.tsx
 #: src/features/career/workspace/apply.tsx
 #: src/features/career/workspace/practise.tsx
+#: src/features/homepage/share.tsx
 #: src/routes/builder/$resumeId/-components/editor-bar.tsx
 #: src/routes/builder/$resumeId/-components/share-sheet.tsx
 #: src/routes/builder/letter/-components/letter-bar.tsx
@@ -4310,14 +4352,17 @@ msgstr "قم بتنزيلها"
 msgid "Download totals can include repeat clicks."
 msgstr "يمكن أن تتضمن إجماليات التنزيل نقرات متكررة."
 
-#: src/features/resume/share/download-tab.tsx
+#: src/features/homepage/faq.tsx
+msgid "Download your CV as PDF for free. Word (DOCX) is not available."
+msgstr "نزّل سيرتك الذاتية بصيغة PDF مجانًا. Word (DOCX) غير متاح."
+
+#: src/features/homepage/share.tsx
+msgid "Download your CV as PDF for free. Your CV stays private in your account. Word downloads and public sharing are not available."
+msgstr "نزّل سيرتك الذاتية بصيغة PDF مجانًا. تبقى سيرتك خاصة في حسابك. تنزيل Word والمشاركة العامة غير متاحين."
+
 #: src/routes/builder/letter/-components/share-sheet.tsx
 msgid "Downloaded {file}"
 msgstr "تم تحميل {file}"
-
-#: src/features/resume/share/download-tab.tsx
-msgid "Downloaded {file} and the cover letter"
-msgstr "تم تنزيل {file} وخطاب التقديم"
 
 #: src/routes/builder/letter/-components/share-sheet.tsx
 msgid "Downloaded your resume and this letter"
@@ -4417,14 +4462,6 @@ msgstr "اسحب أو اضغط {keys} لإعادة الترتيب"
 msgid "Drag to reposition and use the slider to zoom before uploading."
 msgstr "اسحب لإعادة التموضع واستخدم شريط التمرير للتكبير قبل التحميل."
 
-#: src/features/ats-checker/checker.tsx
-msgid "Drop a PDF here or choose a file"
-msgstr "قم بإسقاط PDF هنا أو اختر ملفًا"
-
-#: src/features/documents/documents-page.tsx
-msgid "Drop a PDF, Word or JSON file"
-msgstr "قم بإسقاط ملف PDF أو Word أو JSON"
-
 #: src/features/documents/new-document-dialog.tsx
 msgid "Drop a PDF, Word or JSON file, or browse."
 msgstr "أفلت ملف PDF أو Word أو JSON، أو تصفّح."
@@ -4488,6 +4525,7 @@ msgstr "الرسائل السابقة في هذه المحادثة"
 #: src/features/career/knowledge/stories.tsx
 #: src/features/career/workspace/shell.tsx
 #: src/features/resume/editor/write/basics-card.tsx
+#: src/features/resume/import/review.tsx
 #: src/features/settings/ai/providers.tsx
 msgid "Edit"
 msgstr "تعديل"
@@ -4581,6 +4619,10 @@ msgstr "تعديل…"
 msgid "Edited"
 msgstr "تم تحريره"
 
+#: src/features/documents/document-card.tsx
+msgid "Edited {relativeTime}"
+msgstr "عُدّلت {relativeTime}"
+
 #: src/features/resume/editor/page-overlay.tsx
 msgid "Editing"
 msgstr "التحرير"
@@ -4621,6 +4663,7 @@ msgstr "التعليم"
 
 #: src/features/resume/editor/check/parser-view.tsx
 #: src/features/resume/editor/write/basics-card.tsx
+#: src/features/resume/import/review.tsx
 #: src/features/settings/account/profile.tsx
 msgid "Email"
 msgstr "البريد الإلكتروني"
@@ -4679,6 +4722,7 @@ msgstr "تاريخ الانتهاء"
 msgid "End date must follow start date."
 msgstr "يجب أن يكون تاريخ الانتهاء بعد تاريخ البدء."
 
+#: src/features/resume/import/start.tsx
 #: src/libs/locale.ts
 msgid "English"
 msgstr "الإنجليزية"
@@ -4783,22 +4827,6 @@ msgstr "كل 3 أيام"
 msgid "Every day"
 msgstr "كل يوم"
 
-#: src/features/resume/editor/check/issues.ts
-msgid "Every entry has dates in a form systems read, in order, and none in the future."
-msgstr "يحتوي كل بند على تواريخ بصيغة تقرؤها الأنظمة، مرتبة ترتيبًا صحيحًا، ولا يقع أي منها في المستقبل."
-
-#: src/features/resume/editor/check/issues.ts
-msgid "Every role says what you did. Opinions on wording live in the Writing tab."
-msgstr "كل دور يقول ما فعلته. توجد آراء حول الصياغة في علامة التبويب \"الكتابة\"."
-
-#: src/features/homepage/faq.tsx
-msgid "Every template exports a text-based PDF with the words in reading order, which is what applicant tracking systems (ATS) need to parse a resume. To test any PDF, including one made elsewhere, the free ATS checker shows the text software extracts and what to fix."
-msgstr "يقوم كل قالب بتصدير PDF القائم على النص مع الكلمات بترتيب القراءة، وهو ما تحتاجه أنظمة تتبع مقدم الطلب (ATS) لتحليل السيرة الذاتية. لاختبار أي PDF، بما في ذلك ما تم تصنيعه في مكان آخر، يعرض مدقق ATS المجاني النص الذي تستخرجه البرامج وما يجب إصلاحه."
-
-#: src/features/ats-checker/checker.tsx
-msgid "Every term the posting stresses is already there."
-msgstr "كل مصطلح يشدد عليه الإعلان الوظيفي موجود بالفعل."
-
 #: src/features/career/schedule-sheet.tsx
 msgid "Every week"
 msgstr "كل أسبوع"
@@ -4816,6 +4844,10 @@ msgstr "كل ما كتبه المدرّب لـ {0}، الأحدث أولًا."
 #: src/features/homepage/hero.tsx
 msgid "Everything you’ve done, on one page."
 msgstr "كل ما قمت به، في صفحة واحدة."
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Evidence for a selected job"
+msgstr "أدلة لوظيفة محددة"
 
 #: src/features/homepage/sections.tsx
 msgid "Exchange resume feedback and ask questions in the upstream community."
@@ -4861,6 +4893,10 @@ msgstr "التصفّح أولًا"
 msgid "Export"
 msgstr "تصدير"
 
+#: src/routes/builder/$resumeId/-components/share-sheet.tsx
+msgid "Export and history"
+msgstr "التصدير والسجل"
+
 #: src/features/applications/components/export-applications-sheet.tsx
 msgid "Export applications"
 msgstr "تصدير الطلبات"
@@ -4893,14 +4929,6 @@ msgstr "صدّر السيرة الذاتية كملف PDF نصي بدلاً من
 msgid "Export to CSV…"
 msgstr "تصدير إلى CSV..."
 
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Exported PDF checked: {problems} more to look at."
-msgstr "تم فحص ملف PDF المُصدَّر؛ عدد المشكلات المتبقية للمراجعة: {problems}"
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Exported PDF checked: it reads cleanly too."
-msgstr "تم فحص ملف PDF المُصدَّر؛ يمكن قراءة النص بوضوح أيضًا."
-
 #. placeholder {0}: getPdfFindingMessage(finding.code).title
 #: src/features/resume/editor/check/page-layer.tsx
 msgid "Exported PDF: {0}"
@@ -4917,6 +4945,10 @@ msgstr "قم باستخراج أرشيف الحساب هذا، ثم قم باس�
 #: src/features/resume/editor/check/parser-view.tsx
 msgid "Extracted from the PDF on the page · reading order"
 msgstr "مستخرج من PDF الموجود بالصفحة · ترتيب القراءة"
+
+#: src/features/resume/import/review.tsx
+msgid "Extracted information"
+msgstr "المعلومات المستخرجة"
 
 #: src/features/homepage/remember.tsx
 msgid "Fact · Accomplishment"
@@ -5023,7 +5055,7 @@ msgstr "Fieldnote"
 
 #: src/features/homepage/tailor.tsx
 msgid "Fieldnote · Remote, EU"
-msgstr "Fieldnote · جهاز التحكم عن بعد، الاتحاد الأوروبي"
+msgstr "Fieldnote · عمل عن بُعد، الاتحاد الأوروبي"
 
 #: src/features/homepage/hero.tsx
 msgid "Figma"
@@ -5039,7 +5071,6 @@ msgid "File name"
 msgstr "اسم الملف"
 
 #: src/features/documents/new-document-dialog.tsx
-#: src/features/resume/import/read-file.ts
 msgid "file read"
 msgstr "تمت قراءة الملف"
 
@@ -5125,7 +5156,7 @@ msgstr "ضبط عدد الصفحات على {authored}"
 
 #: src/routes/builder/$resumeId/-components/page-canvas.tsx
 msgid "Fit to one page"
-msgstr "ضبط المحتوى في صفحة واحدة"
+msgstr "اجعلها في صفحة واحدة"
 
 #: src/features/resume/editor/design/fit.ts
 msgid "Fits on {authored} pages: {details}"
@@ -5143,14 +5174,6 @@ msgstr "إصلاح التاريخ"
 msgid "Fix the dates"
 msgstr "إصلاح التواريخ"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Fix these in a few minutes"
-msgstr "إصلاح هذه في بضع دقائق"
-
-#: src/features/ats-checker/checker.tsx
-msgid "Fix these in the editor"
-msgstr "إصلاح هذه في المحرر"
-
 #: src/features/applications/components/import-applications-sheet.tsx
 msgid "Fix these values in the CSV, or leave their columns out, before importing."
 msgstr "أصلح هذه القيم في ملف CSV، أو احذف أعمدتها، قبل الاستيراد."
@@ -5165,6 +5188,7 @@ msgstr "سطّح النموذج ليصبح النص جزءًا من الصفحة
 
 #: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Fluency"
 msgstr "الطلاقة"
 
@@ -5225,6 +5249,10 @@ msgstr "تعذّر تحميل الخطوط. حاول مرة أخرى."
 msgid "For"
 msgstr "ل"
 
+#: src/features/resume/share/download-tab.tsx
+msgid "For applications and printing, with selectable and searchable text."
+msgstr "للتقديم والطباعة، بنص قابل للتحديد والبحث."
+
 #: src/features/career/workspace/prepare.tsx
 msgid "For each: situation, task, your action, result, reflection. Leave out numbers you're unsure of."
 msgstr "لكلٍّ منها: الموقف، المهمة، ما فعلته، النتيجة، التأمّل. اترك الأرقام التي لست متأكدًا منها."
@@ -5237,14 +5265,6 @@ msgstr "على سبيل المثال، دوّن الشركات التي أرسل
 #: src/features/career/workspace/fit.tsx
 msgid "For example: “{0}: I did … at … in 2024, and it led to …”"
 msgstr "مثلًا: “{0}: قمتُ بـ … في … عام 2024، وأدى ذلك إلى …”"
-
-#: src/features/resume/share/download-tab.tsx
-msgid "For LibreOffice and other open-source editors. Layout is simplified."
-msgstr "لبرنامج LibreOffice ومحررات المصدر المفتوح الأخرى. تم تبسيط التخطيط."
-
-#: src/features/resume/share/download-tab.tsx
-msgid "For portals or recruiters who ask for Word. Layout is simplified."
-msgstr "للبوابات أو مسؤولي التوظيف الذين يطلبون Word. تم تبسيط التخطيط."
 
 #: src/features/settings/ai/api-keys.tsx
 msgid "For scripts, extensions and MCP clients. Keys act as you and can read and edit your documents."
@@ -5310,10 +5330,6 @@ msgstr "مدقق السيرة الذاتية ATS مجانًا"
 msgid "Free-form"
 msgstr "حر الشكل"
 
-#: src/libs/seo.ts
-msgid "Free, open-source resume builder. Create, update, and share your resume, with PDF and Word downloads, no ads and no paywall."
-msgstr "منشئ السيرة الذاتية مجاني ومفتوح المصدر. قم بإنشاء سيرتك الذاتية وتحديثها ومشاركتها، من خلال تنزيلات PDF وWord، بدون إعلانات وبلا اشتراط اشتراك مدفوع."
-
 #: src/libs/locale.ts
 msgid "French"
 msgstr "الفرنسية"
@@ -5361,6 +5377,7 @@ msgid "From your resume"
 msgstr "من سيرتك الذاتية"
 
 #: src/features/resume/editor/write/basics-card.tsx
+#: src/features/resume/import/review.tsx
 msgid "Full name"
 msgstr "الاسم الكامل"
 
@@ -5403,10 +5420,6 @@ msgstr "يرسل “احصل على ملاحظات” السؤال وإجابت�
 msgid "Get new roles here every morning"
 msgstr "احصل على وظائف جديدة هنا كل صباح"
 
-#: src/features/resume/share/download-tab.tsx
-msgid "Get resume feedback on Discord"
-msgstr "احصل على ملاحظات حول سيرتك الذاتية على Discord"
-
 #: src/features/homepage/footer.tsx
 msgid "Get started"
 msgstr "ابدأ"
@@ -5421,8 +5434,6 @@ msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "أصبح الخطاب طويلًا. جرّب «أقصر»، أو اختصر الفقرة الأقل تحديدًا."
 
 #. Authentication provider display name in account settings
-#. Brand name label for GitHub social sign-in button
-#: src/features/auth/components/social-auth.tsx
 #: src/features/settings/account/auth-hooks.ts
 msgid "GitHub"
 msgstr "جيثب"
@@ -5458,19 +5469,18 @@ msgstr "الذهاب إلى لوحة التحكم"
 msgid "Go to…"
 msgstr "انتقل إلى…"
 
-#: src/features/resume/share/download-tab.tsx
-msgid "Good luck out there. Master CV stays free because people chip in."
-msgstr "بالتوفيق. يظل Master CV مجانيًا بفضل مساهمات الداعمين"
-
 #. Authentication provider display name in account settings
-#. Brand name label for Google social sign-in button
-#: src/features/auth/components/social-auth.tsx
 #: src/features/settings/account/auth-hooks.ts
 msgid "Google"
 msgstr "جوجل"
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Got it"
+msgstr "فهمت"
+
 #: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Grade"
 msgstr "التقدير"
 
@@ -5497,11 +5507,6 @@ msgstr "الشبكة"
 #: src/features/homepage/remember.tsx
 msgid "Happy to walk you through it on our call."
 msgstr "يسعدني أن أشرحه لك بالتفصيل خلال مكالمتنا."
-
-#: src/features/ats-checker/checker.tsx
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Hard for software to read"
-msgstr "من الصعب قراءة البرامج"
 
 #: src/features/resume/editor/write/add-section.tsx
 msgid "Have a resume already? <0>Import it</0>"
@@ -5533,8 +5538,9 @@ msgid "Heading changed"
 msgstr "تم تغيير العنوان"
 
 #: src/features/resume/editor/write/basics-card.tsx
+#: src/features/resume/import/review.tsx
 msgid "Headline"
-msgstr "العنوان"
+msgstr "المسمى الوظيفي"
 
 #: src/features/career/workspace/practise.tsx
 #: src/features/homepage/prepare.tsx
@@ -5543,7 +5549,7 @@ msgstr "استمع إليه"
 
 #: src/features/applications/components/insights-view.tsx
 msgid "heard back"
-msgstr "سمعت مرة أخرى"
+msgstr "تلقّت ردًا"
 
 #: src/libs/locale.ts
 msgid "Hebrew"
@@ -5602,7 +5608,7 @@ msgstr "إخفاء الأيقونات"
 
 #: src/routes/builder/$resumeId/-sidebar/right/sections/page.tsx
 msgid "Hide Link Underline"
-msgstr "إخفاء الرابط (تسطير)"
+msgstr "إخفاء تسطير الروابط"
 
 #: src/features/resume/editor/chrome.tsx
 msgid "Hide panel"
@@ -5625,13 +5631,13 @@ msgstr "إخفاء أيقونات الأقسام"
 msgid "Hide the photo"
 msgstr "إخفاء الصورة"
 
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "High"
-msgstr "عالي"
-
 #: src/features/resume/editor/write/rich-text-editor.tsx
 msgid "Highlight"
 msgstr "تمييز"
+
+#: src/features/resume/import/review.tsx
+msgid "Highlighted information needs a separate review."
+msgstr "تحتاج المعلومات المظللة إلى مراجعة منفصلة."
 
 #: src/libs/locale.ts
 msgid "Hindi"
@@ -5690,13 +5696,14 @@ msgstr "كم يوم إجازة تأتي معه؟"
 msgid "How often"
 msgstr "كم مرة"
 
-#: src/features/ats-checker/checker.tsx
-msgid "How to show the file"
-msgstr "كيفية إظهار الملف"
-
 #: src/features/assistant/assistant-panel.tsx
 msgid "How well do I fit this role?"
 msgstr "إلى أي درجة أتناسب مع هذا الدور؟"
+
+#: src/features/resume/import/start.tsx
+msgctxt "onboarding.method.title"
+msgid "How would you like to start?"
+msgstr "كيف تحب أن تبدأ؟"
 
 #: src/libs/locale.ts
 msgid "Hungarian"
@@ -5774,10 +5781,6 @@ msgstr "إذا لم يتم فتح التطبيق، حاول مرة أخرى عل
 msgid "If you used Sign in with Apple and Master CV is still listed in your Apple Account after deletion, remove its access there too."
 msgstr "إذا استخدمت تسجيل الدخول باستخدام Apple وظل Master CV مدرجًا في حساب Apple الخاص بك بعد الحذف، فأزل إذن الوصول إليه من هناك أيضًا."
 
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Ignore"
-msgstr "تجاهل"
-
 #: src/features/resume/editor/check/actions.ts
 msgid "Ignored issues are back"
 msgstr "المشكلات التي تجاهلتها عادت"
@@ -5790,6 +5793,14 @@ msgstr "تغطي الصور معظم الصفحة."
 msgid "Import"
 msgstr "استيراد"
 
+#: src/features/homepage/faq.tsx
+msgid "Import a readable PDF or write from scratch, then review the information before saving. Scanned files and Word import are not available."
+msgstr "استورد ملف PDF قابلًا للقراءة أو اكتب من البداية، ثم راجع المعلومات قبل الحفظ. الملفات الممسوحة ضوئيًا واستيراد Word غير متاحين."
+
+#: src/features/documents/documents-page.tsx
+msgid "Import a readable PDF or write from scratch. Review your information before saving. Word import is not available."
+msgstr "استورد ملف PDF قابلًا للقراءة أو ابدأ الكتابة. راجع معلوماتك قبل الحفظ. استيراد Word غير متاح."
+
 #: src/features/documents/new-document-dialog.tsx
 msgid "Import a resume"
 msgstr "استيراد السيرة الذاتية"
@@ -5797,6 +5808,10 @@ msgstr "استيراد السيرة الذاتية"
 #: src/features/documents/new-document-dialog.tsx
 msgid "Import a resume, copy one for a job, or start blank."
 msgstr "استورد سيرة ذاتية، أو انسخ سيرة لوظيفة محددة، أو ابدأ بسيرة فارغة"
+
+#: src/features/ats-checker/page.tsx
+msgid "Import and review your CV, then check the exact PDF from its editor. No public file upload is available."
+msgstr "استورد سيرتك وراجعها، ثم افحص ملف PDF نفسه من المحرر. رفع الملفات للعامة غير متاح."
 
 #: src/features/applications/components/import-applications-sheet.tsx
 msgid "Import failed. Check the CSV and try again."
@@ -5827,14 +5842,6 @@ msgstr "تقدم الاستيراد"
 msgid "Import steps"
 msgstr "خطوات الاستيراد"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Import this file into a free Master CV. Every issue is waiting for you in Check."
-msgstr "قم باستيراد هذا الملف إلى ملف Master CV المجاني. كل قضية في انتظاركم في الاختيار."
-
-#: src/features/documents/documents-page.tsx
-msgid "Import your current resume and we'll lay out every section for you to refine. Or start fresh. Start with your name. Build from there."
-msgstr "استورد سيرتك الذاتية الحالية وسنرتّب أقسامها لتراجعها وتحسّنها. أو ابدأ من الصفر: أضف اسمك، ثم أكمل بقية المعلومات."
-
 #: src/features/documents/new-document-dialog.tsx
 #: src/features/resume/share/format.ts
 msgid "Imported"
@@ -5857,10 +5864,6 @@ msgstr "مستورد من {imported}."
 #: src/features/documents/new-document-dialog.tsx
 msgid "Importing"
 msgstr "جارٍ الاستيراد"
-
-#: src/features/ats-checker/checker.tsx
-msgid "Importing it into your new resume…"
-msgstr "استيرادها إلى سيرتك الذاتية الجديدة ..."
 
 #: src/features/resume/editor/write/rich-text-editor.tsx
 msgid "Improve"
@@ -5919,6 +5922,10 @@ msgstr "لغة الواجهة"
 #: src/features/homepage/tailor.tsx
 msgid "Interview"
 msgstr "مقابلة"
+
+#: src/features/homepage/faq.tsx
+msgid "Interview coaching is planned and is not available in the current CV workspace."
+msgstr "التدريب على المقابلات مخطط له وغير متاح في مساحة السيرة الذاتية الحالية."
 
 #: src/features/career/workspace/debrief.tsx
 msgid "Interview debrief"
@@ -6020,11 +6027,6 @@ msgid "Issue {0} of {1}"
 msgstr "المشكلة {0} من {1}"
 
 #. placeholder {0}: issue.number
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Issue {0}:"
-msgstr "المشكلة {0}:"
-
-#. placeholder {0}: issue.number
 #. placeholder {1}: issue.title
 #: src/features/resume/editor/check/page-layer.tsx
 msgid "Issue {0}: {1}"
@@ -6036,16 +6038,9 @@ msgstr "تم تجاهل المشكلة"
 
 #: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Issuer"
 msgstr "الجهة المُصدِّرة"
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Issues"
-msgstr "مشاكل"
-
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "Issues and Job match still work without AI."
-msgstr "لا تزال المشكلات ومطابقة الوظائف تعمل بدون الذكاء الاصطناعي."
 
 #: src/features/resume/editor/check/issues.ts
 msgid "It has entries but isn't placed on a page."
@@ -6122,17 +6117,12 @@ msgid "Job link or posting text"
 msgstr "رابط الوظيفة أو نص إعلان الوظيفة"
 
 #: src/features/homepage/tailor.tsx
-#: src/features/resume/editor/check/check-panel.tsx
 msgid "Job match"
 msgstr "مطابقة الوظيفة"
 
 #: src/features/resume/editor/check/job-match.tsx
 msgid "Job posting"
 msgstr "إعلان وظيفة"
-
-#: src/features/ats-checker/checker.tsx
-msgid "Job posting <0>· optional, adds a keyword match</0>"
-msgstr "إعلان الوظيفة <0>· اختياري، يضيف مقارنة للكلمات المفتاحية</0>"
 
 #: src/features/applications/components/application-form-sheet.tsx
 msgid "Job posting link"
@@ -6170,7 +6160,6 @@ msgstr "ضبط"
 msgid "Kannada"
 msgstr "الكانادا"
 
-#: src/features/resume/editor/check/check-panel.tsx
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "Keep"
 msgstr "احتفاظ"
@@ -6186,6 +6175,10 @@ msgstr "الاحتفاظ بإمكانية الوصول إلى حسابك حتى 
 #: src/features/settings/account/data.tsx
 msgid "Keep account"
 msgstr "احتفظ بالحساب"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Keep as it is"
+msgstr "الإبقاء كما هو"
 
 #: src/features/career/schedule-sheet.tsx
 msgid "Keep editing"
@@ -6287,6 +6280,7 @@ msgid "Keyword layout"
 msgstr "تخطيط الكلمات الرئيسية"
 
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Keywords"
 msgstr "الكلمات المفتاحية"
 
@@ -6332,6 +6326,7 @@ msgstr "أفقي"
 #: src/features/command-palette/pages/preferences/language.tsx
 #: src/features/resume/editor/design/style-groups.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 #: src/routes/builder/$resumeId/-components/document-details.tsx
 msgid "Language"
 msgstr "اللّغة"
@@ -6375,7 +6370,6 @@ msgid "Lay the text out horizontally. Rotated runs are often dropped or misplace
 msgstr "رتّب النص أفقيًا. غالبًا ما يتم إسقاط النصوص المُدوَّرة أو تشويش موضعها."
 
 #: src/features/ats-checker/messages.ts
-#: src/features/resume/editor/check/issues.ts
 #: src/libs/resume/section.tsx
 msgid "Layout"
 msgstr "التخطيط"
@@ -6397,16 +6391,20 @@ msgstr "ابدأ بالنتيجة ووضّح حجم أثرها"
 
 #: src/features/assistant/assistant-panel.tsx
 msgid "Leads with why you fit"
-msgstr "يؤدي إلى سبب ملاءمتك"
+msgstr "يبدأ بأسباب ملاءمتك للوظيفة"
 
 #: src/features/career/offers.tsx
 msgid "Learning budget"
 msgstr "ميزانية التعلّم"
 
-#: src/features/career/offers.tsx
 #: src/hooks/use-form-blocker.tsx
 msgid "Leave"
 msgstr "مغادرة"
+
+#: src/features/career/offers.tsx
+msgctxt "Employment benefit: time off work"
+msgid "Leave"
+msgstr "الإجازات"
 
 #: src/features/ats-checker/messages.ts
 msgid "Leave at least half an inch around the page."
@@ -6438,7 +6436,7 @@ msgstr "قاد البحث لإعادة تصميم التهيئة؛ ارتفع ا
 
 #: src/features/resume/editor/design/template-group.tsx
 msgid "Left"
-msgstr "غادر"
+msgstr "يسار"
 
 #: src/features/resume/import/read-file.ts
 msgid "Legacy Word files aren't supported. Open the file in Word and save it as .docx first."
@@ -6555,12 +6553,12 @@ msgstr "أسطر النص متقاربة جدًا"
 
 #: src/features/resume/editor/check/issues.ts
 msgid "Lines this close can run together when read. Use at least {minimum}."
-msgstr "يمكن للأسطر القريبة من هذا أن تعمل معًا عند قراءتها. استخدم {minimum} على الأقل."
+msgstr "قد تتداخل الأسطر عند قراءتها إذا كان التباعد بينها ضيقًا هكذا. استخدم {minimum} على الأقل."
 
 #: src/features/applications/components/import-applications-sheet.tsx
 #: src/features/resume/editor/write/fields.tsx
 #: src/features/resume/editor/write/rich-text-editor.tsx
-#: src/routes/builder/$resumeId/-components/share-sheet.tsx
+#: src/features/resume/import/review.tsx
 msgid "Link"
 msgstr "وصلة"
 
@@ -6638,8 +6636,6 @@ msgid "Linked. Name, email, phone and city update when the resume does."
 msgstr "مرتبط. يتم تحديث الاسم والبريد الإلكتروني والهاتف والمدينة عند تحديث السيرة الذاتية."
 
 #. Authentication provider display name in account settings
-#. Brand name label for LinkedIn social sign-in button
-#: src/features/auth/components/social-auth.tsx
 #: src/features/settings/account/auth-hooks.ts
 msgid "LinkedIn"
 msgstr "لينكد إن"
@@ -6676,10 +6672,6 @@ msgstr "جارٍ الاستماع… توقّف عندما تنتهي."
 #: src/libs/locale.ts
 msgid "Lithuanian"
 msgstr "اللتوانية"
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Live · updates as you edit"
-msgstr "مباشر · التحديثات أثناء التحرير"
 
 #. placeholder {0}: url.replace(/^https?:\/\//, "")
 #: src/features/resume/share/link-tab.tsx
@@ -6744,10 +6736,14 @@ msgstr "جارٍ تحميل السير الذاتية…"
 msgid "Loading saved version…"
 msgstr "جارٍ تحميل النسخة المحفوظة…"
 
+#: src/features/documents/documents-page.tsx
 #: src/features/homepage/sections.tsx
+#: src/features/settings/account/data.tsx
+#: src/routes/dashboard/-components/app-shell.tsx
 msgid "Loading the total"
 msgstr "تحميل المجموع"
 
+#: src/components/query-skeleton.tsx
 #: src/dialogs/manager.tsx
 #: src/features/career/workspace/shell.tsx
 msgid "Loading workspace…"
@@ -6757,12 +6753,19 @@ msgstr "جارٍ تحميل مساحة العمل…"
 #: src/features/applications/components/application-form-sheet.tsx
 #: src/features/applications/components/import-applications-sheet.tsx
 #: src/features/applications/components/interview-dialog.tsx
-#: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/check/parser-view.tsx
 #: src/features/resume/editor/write/basics-card.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Location"
-msgstr "الموقع"
+msgstr "المدينة والدولة"
+
+#: src/features/career/information/entry-dialog.tsx
+#: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
+msgctxt "workplace"
+msgid "Location"
+msgstr "مكان العمل"
 
 #: src/features/career/coach-thread.tsx
 msgid "Locations"
@@ -6791,18 +6794,10 @@ msgstr "مقاطع طويلة مكتوبة بأحرف كبيرة."
 msgid "Look for"
 msgstr "ابحث عن"
 
-#: src/features/resume/share/download-tab.tsx
-msgid "Looks exactly like the page. Use it for applications and email."
-msgstr "يطابق شكل الصفحة تمامًا. استخدمه لطلبات التقديم والبريد الإلكتروني"
-
 #. Link to backup-code verification flow when authenticator app is unavailable
 #: src/features/auth/pages/verify-2fa.tsx
 msgid "Lost access to your authenticator?"
 msgstr "هل فقدت إمكانية الوصول إلى تطبيق المصادقة؟"
-
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "Low"
-msgstr "قليل"
 
 #: src/routes/builder/$resumeId/-components/design-panel.tsx
 msgid "Lower the design sheet"
@@ -7007,10 +7002,6 @@ msgstr "خادم MCP"
 msgid "median to first reply"
 msgstr "الوسيط الزمني حتى أول رد"
 
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "Medium"
-msgstr "متوسط"
-
 #: src/features/homepage/prepare.tsx
 msgid "Mentor other designers"
 msgstr "توجيه مصممين آخرين"
@@ -7047,6 +7038,10 @@ msgstr "الحد الأدنى للراتب الأساسي"
 #: src/features/homepage/prepare.tsx
 msgid "Missing evidence means your notes don’t show it yet, not that you lack it."
 msgstr "الدليل المفقود يعني أن ملاحظاتك لا تُظهره بعد، لا أنك تفتقر إليه."
+
+#: src/features/resume/import/review.tsx
+msgid "Missing information"
+msgstr "معلومة ناقصة"
 
 #: src/features/homepage/footer.tsx
 msgid "MIT License"
@@ -7135,11 +7130,6 @@ msgstr "يقرأ معظم القائمين على التوظيف ما بين 180
 #: src/features/resume/editor/check/issues.ts
 msgid "Most systems file candidates by email address."
 msgstr "تصنّف معظم الأنظمة المرشحين حسب عنوان البريد الإلكتروني"
-
-#: src/features/ats-checker/checker.tsx
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Mostly readable"
-msgstr "قابلة للقراءة في الغالب"
 
 #: src/features/ats-checker/messages.ts
 msgid "Move all content inside the page boundaries and re-export."
@@ -7254,6 +7244,7 @@ msgstr "كانت مهمتي اكتشاف السبب، دون إضافة عمل �
 #: src/features/documents/trash-page.tsx
 #: src/features/resume/editor/check/parser-view.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 #: src/features/settings/account/profile.tsx
 #: src/features/settings/ai/api-keys.tsx
 #: src/features/settings/ai/providers.tsx
@@ -7289,10 +7280,6 @@ msgstr "قم بتسمية مفتاح المرور هذا"
 msgid "Name this version"
 msgstr "اسم هذا الإصدار"
 
-#: src/features/resume/editor/check/issues.ts
-msgid "Name, email, phone and location are found, and links are full addresses."
-msgstr "تم العثور على الاسم والبريد الإلكتروني والهاتف والموقع، والروابط هي العناوين الكاملة."
-
 #: src/features/resume/share/format.ts
 msgid "named"
 msgstr "اسمه"
@@ -7322,6 +7309,7 @@ msgid "Needs you"
 msgstr "بانتظارك"
 
 #: src/features/career/copy.generated.ts
+#: src/features/resume/editor/save-conflict.tsx
 msgctxt "editor.conflict.preservedHint"
 msgid "Neither set of edits was replaced. Both are kept until you choose."
 msgstr "لم نستبدل أيًا من التعديلين، وكلاهما محفوظ حتى تختار."
@@ -7331,6 +7319,7 @@ msgid "Nepali"
 msgstr "النيبالية"
 
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Network"
 msgstr "الشبكة"
 
@@ -7363,6 +7352,10 @@ msgstr "طلب جديد"
 #: src/features/career/workspace/coach-sheet.tsx
 msgid "New conversation"
 msgstr "محادثة جديدة"
+
+#: src/features/documents/documents-page.tsx
+msgid "New CV"
+msgstr "سيرة ذاتية جديدة"
 
 #: src/features/command-palette/pages/navigation.tsx
 #: src/features/documents/new-document-dialog.tsx
@@ -7426,6 +7419,10 @@ msgstr "المشكلة التالية"
 #: src/features/applications/components/calendar-view.tsx
 msgid "Next month"
 msgstr "الشهر المقبل"
+
+#: src/features/resume/import/source-preview.tsx
+msgid "Next page"
+msgstr "الصفحة التالية"
 
 #: src/features/career/workspace/practise.tsx
 msgid "Next question"
@@ -7495,6 +7492,10 @@ msgstr "لا حاجة إلى تغيير. الطلب بالفعل في {stage}."
 #: src/features/command-palette/index.tsx
 msgid "No commands match that search."
 msgstr "لا توجد أوامر تطابق هذا البحث."
+
+#: src/features/resume/import/career-reuse.tsx
+msgid "No confirmed career information yet."
+msgstr "لا توجد معلومات مهنية مؤكدة بعد."
 
 #: src/features/settings/ai/connected-apps.tsx
 msgid "No connected applications."
@@ -7610,10 +7611,6 @@ msgstr "لا وظائف جديدة. يعمل الاكتشاف مجددًا غد�
 msgid "No offers to compare yet"
 msgstr "لا توجد عروض للمقارنة بعد"
 
-#: src/routes/builder/$resumeId/-components/editor-bar.tsx
-msgid "No open issues"
-msgstr "لا توجد مشكلات مفتوحة"
-
 #: src/features/ats-checker/report/report-view.tsx
 msgid "No overall score is available."
 msgstr "لا تتوفر درجة إجمالية."
@@ -7683,7 +7680,6 @@ msgstr "لا توجد وسوم بعد"
 msgid "No terms stood out in this posting."
 msgstr "لم يبرز أي مصطلح في إعلان الوظيفة هذا."
 
-#: src/features/ats-checker/checker.tsx
 #: src/features/ats-checker/messages.ts
 msgid "No text could be read from this file."
 msgstr "تعذّرت قراءة أي نص من هذا الملف."
@@ -7736,6 +7732,14 @@ msgstr "لم يتم التطبيق"
 msgid "Not applied yet"
 msgstr "لم يتم التقديم بعد"
 
+#: src/features/resume/share/download-tab.tsx
+msgid "Not available yet. Arabic and English Word integrity still requires approval."
+msgstr "غير متاح بعد. سلامة ملفات Word بالعربية والإنجليزية ما زالت تتطلب اعتمادًا."
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Not checked"
+msgstr "لم يُفحص"
+
 #: src/features/settings/account/security.tsx
 msgid "Not connected"
 msgstr "غير متصل"
@@ -7747,11 +7751,6 @@ msgstr "ليست لي"
 #: src/features/resume/editor/check/parser-view.tsx
 msgid "not found"
 msgstr "لم يتم العثور عليه"
-
-#. placeholder {0}: report.jd.missingTerms.join(", ")
-#: src/features/ats-checker/checker.tsx
-msgid "Not found: {0}"
-msgstr "لم يتم العثور على: {0}"
 
 #: src/features/career/offers.tsx
 msgid "Not in either offer yet"
@@ -7786,6 +7785,11 @@ msgstr "لم يتم حفظها"
 #: src/features/career/coach-thread.tsx
 msgid "Not saved — this fact was forgotten before."
 msgstr "لم يُحفظ — نُسيت هذه الحقيقة من قبل."
+
+#: src/features/resume/editor/save-conflict.tsx
+msgctxt "editor.conflict.localStatus"
+msgid "Not saved yet"
+msgstr "غير محفوظة بعد"
 
 #: src/features/resume/editor/check/job-match.tsx
 msgid "not scored"
@@ -7831,14 +7835,13 @@ msgstr "ملاحظة"
 #: src/features/applications/components/application-notes.tsx
 #: src/features/applications/components/import-applications-sheet.tsx
 #: src/libs/resume/section.tsx
-#: src/routes/builder/$resumeId/-components/document-menu.tsx
 #: src/routes/builder/$resumeId/-sidebar/right/sections/notes.tsx
 msgid "Notes"
 msgstr "ملاحظات"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Nothing here should cost you a match."
-msgstr "لا توجد هنا مشكلات يُفترض أن تقلّل فرص التوافق."
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Nothing changes without your approval. PDF readability checks the actual file; writing notes are advice. Arabic parsing can vary between hiring systems."
+msgstr "لا يتغير شيء دون موافقتك. يفحص اختبار PDF الملف الفعلي، وملاحظات الكتابة نصائح. قد تختلف قراءة العربية بين أنظمة التوظيف."
 
 #: src/features/career/today.tsx
 msgid "Nothing is applied for or created until you choose."
@@ -7880,10 +7883,6 @@ msgstr "لا شيء لإصلاحه هنا."
 #: src/features/ats-checker/messages.ts
 msgid "Nothing to fix. The remaining pages were simply not covered by this report."
 msgstr "لا شيء لإصلاحه. الصفحات المتبقية لم يشملها هذا التقرير ببساطة."
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Nothing to review."
-msgstr "لا شيء للمراجعة."
 
 #: src/features/ats-checker/report/report-view.tsx
 msgid "Nothing to suggest."
@@ -8015,10 +8014,6 @@ msgstr "السماح فقط بالتطبيقات التي تثق بها. سيك�
 msgid "Only applies when the section fits on a single page."
 msgstr "ينطبق هذا فقط عندما يتناسب القسم مع صفحة واحدة."
 
-#: src/features/homepage/faq.tsx
-msgid "Only if you want it to. Add your own key from OpenAI, Anthropic, Google Gemini, OpenRouter, Ollama or another provider for sharper lines, tailoring to a job posting, coaching for applications and interviews, and reading Word files. Without a key, nothing is sent to an AI service."
-msgstr "فقط إذا أردت ذلك. أضف مفتاحك الخاص من OpenAI أو Anthropic أو Google Gemini أو OpenRouter أو Ollama أو مزوّد آخر للحصول على صياغات أدق، وتكييف سيرتك مع إعلان وظيفة، وتدريب على الطلبات والمقابلات، وقراءة ملفات Word. بدون مفتاح، لا يُرسل أي شيء إلى خدمة ذكاء اصطناعي."
-
 #: src/features/ats-checker/messages.ts
 msgid "Only one recognisable section heading was found."
 msgstr "لم يُعثر إلا على عنوان قسم واحد قابل للتمييز."
@@ -8026,6 +8021,10 @@ msgstr "لم يُعثر إلا على عنوان قسم واحد قابل للت
 #: src/features/resume/share/history-tab.tsx
 msgid "Only one version so far. Every editing session adds one automatically."
 msgstr "نسخة واحدة فقط حتى الآن. تضيف كل جلسة تحرير واحدة تلقائيًا."
+
+#: src/features/resume/import/review.tsx
+msgid "Only part of this file could be read. Review every section and add missing information before saving."
+msgstr "أمكنت قراءة جزء من الملف فقط. راجع كل قسم وأضف المعلومات الناقصة قبل الحفظ."
 
 #: src/features/settings/ai/providers.tsx
 msgid "Only providers that pass their test can be turned on."
@@ -8036,11 +8035,6 @@ msgstr "يمكن تشغيل مقدمي الخدمة الذين اجتازوا ا
 msgid "Only the first {0} pages were checked, so this report does not cover the whole file."
 msgstr "تم فحص أول {0} صفحات فقط، لذا لا يشمل هذا التقرير الملف بأكمله."
 
-#. placeholder {0}: report.document.pageCount
-#: src/features/ats-checker/checker.tsx
-msgid "Only the first {0} pages were checked."
-msgstr "تم فحص الصفحات الأولى فقط، وعددها {0}"
-
 #: src/features/applications/components/import-applications-sheet.tsx
 msgid "Only the first {MAX_IMPORT} rows import at once, leaving out {overflow}. Split the file to import the rest."
 msgstr "يُستورد أول {MAX_IMPORT} صف فقط في المرة الواحدة، مع استبعاد {overflow}. قسّم الملف لاستيراد الباقي."
@@ -8049,13 +8043,13 @@ msgstr "يُستورد أول {MAX_IMPORT} صف فقط في المرة الوا�
 msgid "Only the first pages were checked."
 msgstr "تم فحص الصفحات الأولى فقط."
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Only this CV changes when you accept. Your career information stays unchanged."
+msgstr "عند القبول تتغير هذه السيرة فقط. تبقى معلوماتك المهنية كما هي."
+
 #: src/features/resume/share/link-tab.tsx
 msgid "Only you see these"
 msgstr "أنت فقط ترى هذه"
-
-#: src/features/homepage/faq.tsx
-msgid "Only you, until you share it. A resume can stay private, go live at a public link, or be protected with a password, and you can change that at any time. Deleting your account deletes your resumes with it."
-msgstr "أنت فقط، حتى تشاركه. يمكن أن تظل السيرة الذاتية خاصة، أو يتم نشرها عبر رابط عام، أو تكون محمية بكلمة مرور، ويمكنك تغيير ذلك في أي وقت. يؤدي حذف حسابك إلى حذف سيرتك الذاتية معه."
 
 #: src/features/applications/components/interview-dialog.tsx
 msgid "Onsite"
@@ -8072,7 +8066,6 @@ msgstr "افتح"
 msgid "Open {title}"
 msgstr "افتح {title}"
 
-#: src/features/resume/editor/check/writing-tab.tsx
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "Open AI settings"
 msgstr "افتح إعدادات الذكاء الاصطناعي"
@@ -8103,17 +8096,22 @@ msgstr "افتح المحرر"
 msgid "Open in Offers"
 msgstr "افتح في العروض"
 
-#: src/routes/builder/$resumeId/-components/editor-bar.tsx
-msgid "open issues"
-msgstr "مشكلات مفتوحة"
-
 #: src/features/career/coach-thread.tsx
 msgid "Open Preferences"
 msgstr "افتح التفضيلات"
 
+#: src/features/ats-checker/page.tsx
+msgid "Open private workspace"
+msgstr "فتح مساحة العمل الخاصة"
+
 #: src/features/resume/share/link-tab.tsx
 msgid "Open public page"
 msgstr "افتح الصفحة العامة"
+
+#: src/features/resume/editor/save-conflict.tsx
+msgctxt "editor.conflict.openSaved"
+msgid "Open saved copy"
+msgstr "فتح النسخة المحفوظة"
 
 #: src/features/career/workspace/prepare.tsx
 msgid "Open story"
@@ -8140,10 +8138,6 @@ msgstr "افتح مساحة العمل"
 #: src/features/homepage/remember.tsx
 msgid "Opening"
 msgstr "الافتتاحية"
-
-#: src/features/ats-checker/checker.tsx
-msgid "Opening the file"
-msgstr "فتح الملف"
 
 #: src/features/career/workspace/messages.tsx
 msgid "Opens in Career → Offers."
@@ -8218,12 +8212,14 @@ msgid "Orange"
 msgstr "برتقالي"
 
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Organization"
 msgstr "المنظمة"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Original page"
-msgstr "الصفحة الأصلية"
+#: src/features/resume/import/review.tsx
+#: src/features/resume/import/source-preview.tsx
+msgid "Original PDF"
+msgstr "ملف PDF الأصلي"
 
 #: src/features/resume/editor/write/rich-text-editor.tsx
 msgid "Original table formatting is preserved. This content is read-only because it cannot be edited safely."
@@ -8250,6 +8246,10 @@ msgstr "مستندات أخرى · {0}"
 msgid "out of 100"
 msgstr "من أصل 100"
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Out of date"
+msgstr "يحتاج إلى تحديث"
+
 #: src/features/resume/editor/proposals/proposal-list.tsx
 msgid "Out of date: the text has changed since."
 msgstr "قديم: لقد تغير النص منذ ذلك الحين."
@@ -8271,14 +8271,19 @@ msgid "Page"
 msgstr "صفحة"
 
 #. Layout editor page label with 1-based page number
+#. placeholder {0}: finding.evidence.page
 #. placeholder {0}: pageIndex + 1
 #. placeholder {0}: row.page + 1
-#. placeholder {0}: targetPageIndex + 1
+#: src/features/resume/editor/check/check-panel.tsx
 #: src/features/resume/editor/write/entry-card.tsx
 #: src/features/resume/editor/write/outline.tsx
 #: src/routes/builder/$resumeId/-sidebar/right/sections/layout/pages.tsx
 msgid "Page {0}"
 msgstr "صفحة {0}"
+
+#: src/features/resume/import/source-preview.tsx
+msgid "Page {page} of {total}"
+msgstr "الصفحة {page} من {total}"
 
 #: src/routes/builder/$resumeId/-components/page-canvas.tsx
 #: src/routes/builder/letter/-components/letter-page.tsx
@@ -8298,7 +8303,7 @@ msgstr "الصفحة 1 · {formatLabel}"
 msgid "Page reading didn't finish."
 msgstr "لم تنتهِ قراءة الصفحة"
 
-#: src/features/resume/editor/check/page-layer.tsx
+#: src/features/resume/editor/check/check-panel.tsx
 msgid "Page view"
 msgstr "عرض الصفحة"
 
@@ -8316,9 +8321,12 @@ msgid "Paragraph"
 msgstr "فقرة"
 
 #: src/features/assistant/document.ts
-#: src/features/resume/editor/check/writing-tab.tsx
 msgid "paragraph {n}"
 msgstr "الفقرة {n}"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Partially checked"
+msgstr "فُحص جزئيًا"
 
 #: src/features/career/shared.tsx
 #: src/features/homepage/prepare.tsx
@@ -8345,7 +8353,6 @@ msgstr "مفاتيح المرور"
 #: src/features/auth/pages/login.tsx
 #: src/features/auth/pages/resume-password.tsx
 #: src/features/command-palette/pages/navigation.tsx
-#: src/features/homepage/share.tsx
 #: src/features/resume/builder/password-dialog.tsx
 #: src/features/settings/account/auth-hooks.ts
 #: src/features/settings/account/security.tsx
@@ -8424,10 +8431,6 @@ msgstr "الصق البريد الإلكتروني أو الرسالة، دون 
 msgid "Paste the full job description here…"
 msgstr "الصق وصف الوظيفة كاملاً هنا…"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Paste the posting to see which of its terms your resume already has."
-msgstr "الصق إعلان الوظيفة لمعرفة أي من مصطلحاته تحتوي عليها سيرتك الذاتية بالفعل."
-
 #: src/features/career/workspace/apply.tsx
 msgid "Paste the question from the form"
 msgstr "الصق السؤال من النموذج"
@@ -8465,10 +8468,30 @@ msgstr "الجداول المتوقفة مؤقتًا تحتفظ بإعدادات
 msgid "Pay period"
 msgstr "فترة الدفع"
 
+#: src/features/homepage/share.tsx
+msgid "PDF downloads are available"
+msgstr "تنزيل PDF متاح"
+
+#: src/features/homepage/faq.tsx
+msgid "PDF downloads are free. Other features depend on availability and usage limits. Word downloads are not available."
+msgstr "تنزيل ملفات PDF مجاني. تعتمد الميزات الأخرى على توفرها وحدود الاستخدام. تنزيل ملفات Word غير متاح."
+
 #: src/features/career/copy.generated.ts
 msgctxt "auth.welcome.export.description"
 msgid "PDF now, with a tailored copy for each job whenever you need it."
 msgstr "PDF الآن، ونسخة مخصصة لكل وظيفة متى احتجت."
+
+#: src/features/resume/import/review.tsx
+msgid "PDF page {page}"
+msgstr "صفحة PDF {page}"
+
+#: src/features/resume/import/source-preview.tsx
+msgid "PDF preview"
+msgstr "معاينة PDF"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "PDF readability"
+msgstr "قابلية قراءة PDF"
 
 #: src/features/resume/public/public-resume.tsx
 #: src/features/resume/share/download-tab.tsx
@@ -8480,10 +8503,6 @@ msgstr "ملف PDF جاهز"
 #: src/features/resume/stylesheet/editor.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
 msgstr "تدعم أنماط PDF مجموعة فرعية من CSS. يتم تجاهل التدوير والحدود المتقطعة والمنقطة وبعض خصائص التخطيط."
-
-#: src/features/homepage/faq.tsx
-msgid "PDF, Word (DOCX), Markdown and JSON. The JSON export imports back into any Master CV, including one you host yourself, so your data is never locked in."
-msgstr "PDF وWord (DOCX) وMarkdown وJSON. يمكن استيراد ملف JSON المُصدَّر إلى أي نسخة من Master CV، بما فيها النسخة التي تستضيفها بنفسك، لذا تظل بياناتك قابلة للنقل دائمًا."
 
 #: src/features/documents/documents-page.tsx
 msgid "PDF, Word or JSON. We'll build a resume from it."
@@ -8504,6 +8523,7 @@ msgstr "الفارسية"
 #: src/features/resume/editor/check/parser-view.tsx
 #: src/features/resume/editor/write/basics-card.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Phone"
 msgstr "الهاتف"
 
@@ -8558,10 +8578,6 @@ msgstr "تدفق المسار"
 #: src/features/career/workspace/apply.tsx
 msgid "Plain text (.txt)"
 msgstr "نص عادي (.txt)"
-
-#: src/features/resume/share/download-tab.tsx
-msgid "Plain text with headings. Paste into application forms and notes."
-msgstr "نص عادي مع العناوين. الصق في نماذج طلبات العمل والملاحظات."
 
 #: src/features/career/workspace/prepare.tsx
 msgid "Plan again"
@@ -8623,8 +8639,9 @@ msgstr "البرتغالية (البرتغال)"
 
 #: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Position"
-msgstr "المنصب"
+msgstr "المسمى الوظيفي"
 
 #: src/features/career/workspace/saved.tsx
 msgid "posting"
@@ -8771,16 +8788,28 @@ msgstr "الإعدادات المسبقة"
 
 #: src/components/input/chip-input.tsx
 msgid "Press <0/> or <1/> to add or save the current keyword."
-msgstr ""
+msgstr "اضغط <0/> أو <1/> لإضافة الكلمة المفتاحية الحالية أو حفظها."
 
 #: src/components/input/chip-input.tsx
 msgid "Press <0/> to add or save the current keyword."
-msgstr ""
+msgstr "اضغط <0/> لإضافة الكلمة المفتاحية الحالية أو حفظها."
 
 #. Command palette hint that pressing Enter opens the selected resume
 #: src/features/command-palette/pages/resumes.tsx
 msgid "Press <0/> to open"
-msgstr ""
+msgstr "اضغط <0/> للفتح"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Preview fix"
+msgstr "معاينة التعديل"
+
+#: src/features/resume/editor/design/font-replacement.tsx
+msgid "Preview font replacement"
+msgstr "معاينة تغيير الخط"
+
+#: src/features/resume/editor/design/font-replacement.tsx
+msgid "Preview replacement"
+msgstr "معاينة الخط البديل"
 
 #: src/features/documents/resume-thumbnail.tsx
 msgid "Preview unavailable"
@@ -8804,13 +8833,13 @@ msgstr "يتم أيضًا إرسال الرسائل السابقة، بما في
 msgid "Previous month"
 msgstr "الشهر السابق"
 
+#: src/features/resume/import/source-preview.tsx
+msgid "Previous page"
+msgstr "الصفحة السابقة"
+
 #: src/routes/builder/$resumeId/-sidebar/right/sections/design.tsx
 msgid "Primary Color"
 msgstr "اللون الأساسي"
-
-#: src/routes/builder/$resumeId/-components/document-menu.tsx
-msgid "Print"
-msgstr "طباعة"
 
 #: src/features/ats-checker/messages.ts
 msgid "Print or export the form to a flat PDF before sending it."
@@ -8819,10 +8848,6 @@ msgstr "اطبع النموذج أو صدّره إلى PDF مسطّح قبل إ�
 #: src/features/resume/public/public-resume.tsx
 msgid "Printing is turned off for this resume."
 msgstr "تم إيقاف الطباعة لهذه السيرة الذاتية."
-
-#: src/features/homepage/share.tsx
-msgid "Private"
-msgstr "خاص"
 
 #: src/routes/builder/$resumeId/-components/document-details.tsx
 msgid "Private. Only you can see it."
@@ -8849,6 +8874,7 @@ msgstr "الشهادات المهنية والدورات المعتمدة، إن
 
 #: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Proficiency"
 msgstr "مدى الإتقان"
 
@@ -8919,9 +8945,7 @@ msgstr "المزوّد"
 
 #: src/features/documents/document-card.tsx
 #: src/features/documents/documents-page.tsx
-#: src/features/homepage/share.tsx
 #: src/routes/builder/$resumeId/-components/document-details.tsx
-#: src/routes/builder/$resumeId/-components/editor-bar.tsx
 msgid "Public"
 msgstr "عام"
 
@@ -8943,6 +8967,7 @@ msgid "Publications"
 msgstr "المنشورات"
 
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Publisher"
 msgstr "الناشر"
 
@@ -9118,20 +9143,20 @@ msgstr "القراءة والكتابة والحذف"
 msgid "Readability"
 msgstr "قابلية القراءة"
 
-#. placeholder {0}: report.score
-#: src/features/ats-checker/checker.tsx
-msgid "Readability score: {0} out of 100"
-msgstr "درجة سهولة القراءة: {0} من 100"
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Readability score: {score} out of 100"
-msgstr "درجة سهولة القراءة: {score} من 100"
+#: src/features/resume/import/start.tsx
+msgid "Readable PDFs up to 25 MB and 30 pages. Scanned files are not supported. Partial reading requires review."
+msgstr "ملفات PDF قابلة للقراءة، حتى 25 MB و30 صفحة. الملفات الممسوحة ضوئيًا غير مدعومة. القراءة الجزئية تتطلب مراجعة."
 
 #: src/features/assistant/conversation.tsx
 msgid "Reading page…"
 msgstr "جارٍ قراءة الصفحة…"
 
 #: src/features/documents/new-document-dialog.tsx
+msgid "Reading the file"
+msgstr "قراءة الملف"
+
+#: src/features/resume/import/start.tsx
+msgctxt "onboarding.import.reading"
 msgid "Reading the file"
 msgstr "قراءة الملف"
 
@@ -9161,17 +9186,9 @@ msgstr "جارٍ قراءة الإعلان…"
 msgid "Reading the question"
 msgstr "جارٍ قراءة السؤال"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Reading the text"
-msgstr "قراءة النص"
-
 #: src/features/career/shared.tsx
 msgid "Reading what you shared"
 msgstr "جارٍ قراءة ما شاركته"
-
-#: src/features/resume/import/read-file.ts
-msgid "Reading Word files needs an AI provider. Set one up in Settings, or import a PDF or JSON file instead."
-msgstr "تحتاج قراءة ملفات Word إلى مزوّد AI. قم بإعداد واحد في الإعدادات، أو قم باستيراد ملف PDF أو JSON بدلاً من ذلك."
 
 #: src/features/settings/ai/web-access.tsx
 msgid "Reading works"
@@ -9184,11 +9201,6 @@ msgstr "جارٍ قراءة إجابتك"
 #: src/features/career/shared.tsx
 msgid "Reading your notes"
 msgstr "جارٍ قراءة ملاحظاتك"
-
-#: src/features/ats-checker/checker.tsx
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Reads cleanly"
-msgstr "يمكن قراءة النص بوضوح"
 
 #: src/features/settings/ai/web-access.tsx
 msgid "Reads supported public job pages. No account needed."
@@ -9255,10 +9267,6 @@ msgstr "رد مسؤول التوظيف"
 msgid "Recruiters see this name. Your name plus “Cover Letter” works well."
 msgstr "يرى مسؤولو التوظيف هذا الاسم. اسمك بالإضافة إلى \"خطاب التقديم\" يعمل بشكل جيد."
 
-#: src/features/resume/share/download-tab.tsx
-msgid "Recruiters see this name. Your name plus “Resume” works well."
-msgstr "يرى مسؤولو التوظيف هذا الاسم. اسمك بالإضافة إلى \"السيرة الذاتية\" يعمل بشكل جيد."
-
 #: src/components/level/combobox.tsx
 msgid "Rectangle"
 msgstr "مستطيل"
@@ -9293,6 +9301,10 @@ msgstr "أحالني…، نقاط ينبغي إبرازها، إلخ."
 msgid "Reflection"
 msgstr "التأمّل"
 
+#: src/features/resume/import/review.tsx
+msgid "Refresh career information for review"
+msgstr "تحديث المعلومات المهنية للمراجعة"
+
 #: src/features/career/workspace/prepare.tsx
 msgid "Refresh the briefing 2 hours before"
 msgstr "حدّث الإحاطة قبل ساعتين"
@@ -9317,6 +9329,7 @@ msgstr "تمرّن على إجابة واحدة بصوت عالٍ"
 msgid "Rehearse one disagreement with engineering and how it ended."
 msgstr "تمرّن بصوت عالٍ على خلاف واحد مع فريق الهندسة وكيف انتهى."
 
+#: src/features/resume/editor/check/check-panel.tsx
 #: src/features/resume/editor/proposals/proposal-list.tsx
 msgid "Reject"
 msgstr "رفض"
@@ -9374,6 +9387,7 @@ msgid "Remote, Hybrid, a city…"
 msgstr "عن بُعد، هجين، مدينة…"
 
 #: src/features/resume/editor/write/picture-settings.tsx
+#: src/features/resume/import/review.tsx
 #: src/features/resume/share/link-tab.tsx
 #: src/features/settings/account/profile.tsx
 #: src/features/settings/account/security.tsx
@@ -9576,6 +9590,10 @@ msgstr "استعادة"
 msgid "Restore draft"
 msgstr "استعادة المسودة"
 
+#: src/features/resume/editor/recovery-prompt.tsx
+msgid "Restore local changes"
+msgstr "استعادة التغييرات المحلية"
+
 #: src/features/resume/share/history-tab.tsx
 msgid "Restore this version"
 msgstr "استعادة هذا الإصدار"
@@ -9588,10 +9606,6 @@ msgstr "تمت استعادة \"{0}\""
 #: src/features/resume/share/format.ts
 msgid "Restored a version"
 msgstr "تمت استعادة نسخة"
-
-#: src/features/resume/builder/draft.ts
-msgid "Restored changes that hadn't been saved yet."
-msgstr "تمت استعادة التغييرات التي لم يتم حفظها بعد."
 
 #. placeholder {0}: formatVersionMoment(version.createdAt, i18n.locale)
 #: src/features/resume/share/history-tab.tsx
@@ -9691,10 +9705,12 @@ msgstr "تم الاسترجاع {0}. حداثة المصدر غير معروفة
 #: src/features/assistant/conversation.tsx
 #: src/features/career/knowledge/preferences.tsx
 #: src/features/career/shared.tsx
-#: src/features/resume/editor/check/writing-tab.tsx
+#: src/features/resume/editor/save-conflict.tsx
 #: src/features/resume/editor/save-status.tsx
+#: src/features/resume/import/career-reuse.tsx
 #: src/routes/builder/letter/-components/letter-bar.tsx
 #: src/routes/dashboard/applications/index.tsx
+#: src/routes/dashboard/import/$flowId.tsx
 msgid "Retry"
 msgstr "إعادة المحاولة"
 
@@ -9709,12 +9725,12 @@ msgstr "أعد محاولة الحفظ"
 
 #: src/components/query-list-state.tsx
 #: src/features/documents/library-error.tsx
+#: src/features/resume/share/history-tab.tsx
 msgid "Retrying…"
 msgstr "جارٍ إعادة المحاولة..."
 
 #: src/features/career/today.tsx
 #: src/features/career/workspace/debrief.tsx
-#: src/features/resume/share/download-tab.tsx
 msgid "Review"
 msgstr "مراجعة"
 
@@ -9726,9 +9742,32 @@ msgstr "مراجعة التغييرات"
 msgid "Review draft"
 msgstr "راجع المسودة"
 
+#: src/features/homepage/check.tsx
+msgid "Review each area"
+msgstr "راجع كل جانب"
+
 #: src/features/resume/editor/write/write-panel.tsx
 msgid "Review each section before using this resume."
 msgstr "قم بمراجعة كل قسم قبل استخدام هذه السيرة الذاتية."
+
+#: src/features/resume/import/review.tsx
+msgctxt "review.import.subtitle"
+msgid "Review each section beside the original PDF. Highlighted information needs checking."
+msgstr "راجع كل قسم بجانب ملف PDF الأصلي. تحتاج المعلومات المظللة إلى التحقق."
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Review extracted text"
+msgstr "مراجعة النص المستخرج"
+
+#: src/features/resume/import/review.tsx
+#: src/routes/dashboard/import/$flowId.tsx
+msgctxt "review.import.title"
+msgid "Review imported information"
+msgstr "راجع المعلومات المستوردة"
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Review information"
+msgstr "مراجعة المعلومات"
 
 #: src/features/career/workspace/debrief.tsx
 msgid "Review my answer"
@@ -9738,21 +9777,51 @@ msgstr "راجع إجابتي"
 msgid "Review my answer sends the question, what you said, this posting and your Knowledge to {providerName}."
 msgstr "يرسل “راجع إجابتي” السؤال وما قلته وإعلان الوظيفة هذا ومعرفتك إلى {providerName}."
 
+#: src/features/resume/import/review.tsx
+#: src/features/resume/share/download-tab.tsx
+msgid "Review now"
+msgstr "مراجعة الآن"
+
+#: src/features/resume/import/review.tsx
+msgid "Review progress"
+msgstr "تقدم المراجعة"
+
 #: src/features/career/workspace/apply.tsx
 msgid "Review required form answers and remove unsupported claims."
 msgstr "راجع إجابات النموذج المطلوبة وأزل الادعاءات غير المدعومة."
+
+#: src/features/resume/import/review.tsx
+msgid "Review sections"
+msgstr "أقسام المراجعة"
+
+#: src/features/resume/editor/design/font-replacement.tsx
+msgid "Review the PDF before applying. Your text stays unchanged; you can undo the font change."
+msgstr "راجع ملف PDF قبل التطبيق. لن يتغير نصك، ويمكنك التراجع عن تغيير الخط."
 
 #: src/features/career/workspace/apply.tsx
 msgid "Review the selected resume and cover letter in their editors."
 msgstr "راجع السيرة الذاتية وخطاب التقديم المحدّدين في محرريهما."
 
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "Review writing"
-msgstr "مراجعة الكتابة"
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Review this change"
+msgstr "راجع هذا التغيير"
 
 #: src/features/career/information/entry-dialog.tsx
 msgid "Review your changes"
 msgstr "راجع تغييراتك"
+
+#: src/features/resume/editor/check/check-panel.tsx
+#: src/features/resume/share/download-tab.tsx
+msgid "Review your CV"
+msgstr "راجع سيرتك الذاتية"
+
+#: src/features/resume/editor/design/font-replacement.tsx
+msgid "Review your document font"
+msgstr "راجع خط المستند"
+
+#: src/features/resume/editor/recovery-prompt.tsx
+msgid "Review your local changes before restoring them."
+msgstr "راجع تغييراتك المحلية قبل استعادتها."
 
 #: src/features/career/workspace/debrief.tsx
 msgid "Reviewing needs an AI connection. <0>Add one in Settings</0>. What you write here stays in this browser until then."
@@ -9833,6 +9902,7 @@ msgid "Role, company or location"
 msgstr "الدور أو الشركة أو الموقع"
 
 #: src/features/career/coach-thread.tsx
+#: src/features/resume/import/review.tsx
 msgid "Roles"
 msgstr "الوظائف"
 
@@ -9861,10 +9931,6 @@ msgstr "التدوير غير مدعوم من خلال عرض PDF."
 #: src/features/applications/components/import-applications-sheet.tsx
 msgid "Row {row}, {0}: “{value}” is invalid."
 msgstr "الصف {row}، {0}: “{value}” غير صالح."
-
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "Run again"
-msgstr "تشغيل مرة أخرى"
 
 #: src/features/homepage/prepare.tsx
 msgid "Run research with customers"
@@ -9961,6 +10027,11 @@ msgstr "حفظ التغييرات"
 msgid "Save Changes"
 msgstr "حفظ التّغييرات"
 
+#: src/features/resume/editor/save-status.tsx
+msgctxt "editor.save.status.conflict"
+msgid "Save conflict"
+msgstr "تعارض في الحفظ"
+
 #: src/features/settings/ai/web-access.tsx
 msgid "Save connection"
 msgstr "حفظ الاتصال"
@@ -9986,6 +10057,11 @@ msgstr "احفظ المقابلة"
 #: src/routes/dashboard/applications/index.tsx
 msgid "Save job"
 msgstr "حفظ الوظيفة"
+
+#: src/features/resume/editor/save-conflict.tsx
+msgctxt "editor.conflict.saveAsCopy"
+msgid "Save my edits as a new copy"
+msgstr "حفظ تعديلاتي كنسخة جديدة"
 
 #: src/features/auth/copy.generated.ts
 msgctxt "auth.password.save"
@@ -10069,6 +10145,11 @@ msgstr "تم حفظ قصة: {0}"
 msgid "Saved as an application and linked"
 msgstr "تم حفظه كطلب وظيفة وربطه"
 
+#: src/features/resume/editor/save-conflict.tsx
+msgctxt "editor.conflict.savedTitle"
+msgid "Saved copy"
+msgstr "النسخة المحفوظة"
+
 #: src/features/applications/components/add-application-dialog.tsx
 msgid "Saved description"
 msgstr "الوصف المحفوظ"
@@ -10113,7 +10194,7 @@ msgstr "يستغرق الحفظ وقتًا أطول من المتوقع. لا ت
 
 #: src/features/career/shared.tsx
 msgid "Saving..."
-msgstr "إغلاق"
+msgstr "جارٍ الحفظ…"
 
 #: src/features/career/knowledge/preferences.tsx
 #: src/features/resume/editor/save-status.tsx
@@ -10169,6 +10250,7 @@ msgstr "الجداول"
 
 #: src/features/career/information/entry-dialog.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "School"
 msgstr "المدرسة"
 
@@ -10283,10 +10365,6 @@ msgstr "البحث في الويب…"
 msgid "Secret copied to clipboard."
 msgstr "تم نسخ السر إلى الحافظة."
 
-#: src/features/resume/editor/check/issues.ts
-msgid "Section headings"
-msgstr "عناوين الأقسام"
-
 #: src/features/ats-checker/messages.ts
 #: src/features/resume/editor/check/parser-view.tsx
 msgid "Sections"
@@ -10295,10 +10373,6 @@ msgstr "الأقسام"
 #: src/features/resume/editor/write/write-panel.tsx
 msgid "Sections · print order"
 msgstr "الأقسام · ترتيب الطباعة"
-
-#: src/features/resume/editor/check/issues.ts
-msgid "Sections use headings systems recognise, and work experience shows."
-msgstr "تستخدم الأقسام عناوين تتعرف عليها الأنظمة، وتظهر خبرة العمل."
 
 #: src/features/career/workspace/prepare.tsx
 msgid "See below"
@@ -10403,12 +10477,6 @@ msgstr "يرسل رسالتك إلى {provider} مع المفتاح الخاص �
 msgid "Sends your message, this application (posting, notes, documents sent) and Knowledge that's switched on to {connection}."
 msgstr "يرسل رسالتك، وهذا الطلب (إعلان الوظيفة، الملاحظات، المستندات المرسلة) والمعرفة المفعّلة إلى {connection}."
 
-#. placeholder {0}: provider?.label
-#. placeholder {1}: provider?.model
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "Sends your resume's text only to {0} · {1}, with your key."
-msgstr "يرسل نص سيرتك الذاتية فقط إلى {0} · {1} باستخدام مفتاحك."
-
 #: src/features/homepage/check.tsx
 #: src/features/homepage/sheet.tsx
 #: src/features/homepage/tailor.tsx
@@ -10484,25 +10552,14 @@ msgid "Shadow Width"
 msgstr "عرض الظل"
 
 #: src/features/homepage/header.tsx
-#: src/features/homepage/share.tsx
 #: src/features/resume/public/public-resume.tsx
-#: src/routes/builder/$resumeId/-components/editor-bar.tsx
 #: src/routes/builder/letter/-components/letter-bar.tsx
 msgid "Share"
 msgstr "مشاركة"
 
-#: src/routes/builder/$resumeId/-components/share-sheet.tsx
 #: src/routes/builder/letter/-components/share-sheet.tsx
 msgid "Share & export"
 msgstr "مشاركة وتصدير"
-
-#: src/features/homepage/share.tsx
-msgid "Share a public link, add a password or keep it private. Choose from 3 visibility options. Export to PDF or Word, or take all your data with you as JSON."
-msgstr "شارك رابطًا عامًا أو أضف كلمة مرور أو احتفظ به خاصًا. اختر من بين 3 خيارات للرؤية. قم بالتصدير إلى PDF أو Word، أو صدّر جميع بياناتك بصيغة JSON."
-
-#: src/routes/builder/$resumeId/-components/editor-bar.tsx
-msgid "Share public resume"
-msgstr "مشاركة السيرة الذاتية العامة"
 
 #: src/routes/builder/$resumeId/-components/share-sheet.tsx
 #: src/routes/builder/letter/-components/share-sheet.tsx
@@ -10551,10 +10608,6 @@ msgstr "اختصر الأسئلة إلى 2,000 حرف والإجابات إلى 
 msgid "Shorter"
 msgstr "أقصر"
 
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Show"
-msgstr "إظهار"
-
 #. placeholder {0}: Math.min(remaining, COLUMN_PAGE_SIZE)
 #. placeholder {0}: visible.length - shown.length
 #: src/features/applications/components/board.tsx
@@ -10592,7 +10645,6 @@ msgid "Show link in title"
 msgstr "إظهار الرابط في العنوان"
 
 #: src/features/resume/editor/check/check-panel.tsx
-#: src/features/resume/editor/check/writing-tab.tsx
 #: src/features/resume/editor/write/entry-card.tsx
 msgid "Show on page"
 msgstr "عرض على الصفحة"
@@ -10613,10 +10665,6 @@ msgstr "عرض الصورة"
 #: src/features/resume/editor/design/template-group.tsx
 msgid "Show templates"
 msgstr "إظهار القوالب"
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "Show them again"
-msgstr "إظهارها مرة أخرى"
 
 #: src/features/applications/components/interview-dialog.tsx
 msgid "Shown in your timezone."
@@ -10660,6 +10708,18 @@ msgstr "تسجيل الدخول"
 msgctxt "common.navigation.signIn"
 msgid "Sign in"
 msgstr "تسجيل الدخول"
+
+#: src/features/homepage/check.tsx
+msgid "Sign in to check your CV"
+msgstr "سجّل الدخول لفحص سيرتك الذاتية"
+
+#: src/features/homepage/faq.tsx
+msgid "Sign in to check your CV in your private workspace. Review PDF readability and writing notes separately, without an overall score or a guarantee of acceptance."
+msgstr "سجّل الدخول لفحص سيرتك الذاتية في مساحتك الخاصة. راجع قابلية قراءة PDF وملاحظات الكتابة كلًا على حدة، دون درجة إجمالية أو ضمان للقبول."
+
+#: src/features/resume/import/start.tsx
+msgid "Sign in to continue"
+msgstr "سجّل الدخول للمتابعة"
 
 #: src/features/settings/account/security.tsx
 msgid "Sign in with your fingerprint, face or device PIN"
@@ -10815,6 +10875,10 @@ msgstr "تجاوز إلى المحتوى الرئيسي"
 msgid "Skip to the page"
 msgstr "انتقل إلى الصفحة"
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Skipped"
+msgstr "تم تخطيه"
+
 #: src/libs/locale.ts
 msgid "Slovak"
 msgstr "السلوفاكية"
@@ -10859,6 +10923,10 @@ msgstr "تعذّرت قراءة بعض تفاصيل الوظيفة. املأ ا�
 msgid "Some lines are stored out of reading order."
 msgstr "بعض الأسطر مُخزَّنة خارج ترتيب القراءة."
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Some pages or checks could not be read completely. This result does not cover the whole file."
+msgstr "تعذّرت قراءة بعض الصفحات أو إكمال بعض الفحوصات. لا تغطي هذه النتيجة الملف كاملًا."
+
 #: src/features/resume/editor/check/issues.ts
 msgid "Some systems mishandle images, and photos are discouraged in some countries."
 msgstr "تسيء بعض الأنظمة التعامل مع الصور، ولا يُنصح باستخدام الصور في بعض البلدان."
@@ -10877,6 +10945,8 @@ msgstr "بعض النص مُدوَّر."
 
 #: src/components/layout/error-screen.tsx
 #: src/dialogs/manager.tsx
+#: src/features/resume/import/review.tsx
+#: src/features/resume/import/start.tsx
 #: src/features/resume/preview/preview.browser.tsx
 msgid "Something went wrong"
 msgstr "حدث خطأ ما"
@@ -10884,10 +10954,6 @@ msgstr "حدث خطأ ما"
 #: src/features/documents/new-document-dialog.tsx
 msgid "Something went wrong while importing. Try again, or start blank."
 msgstr "حدث خطأ ما أثناء الاستيراد. حاول مرة أخرى، أو ابدأ بسيرة فارغة."
-
-#: src/features/ats-checker/checker.tsx
-msgid "Something went wrong while reading that file. Try again."
-msgstr "حدث خطأ ما أثناء قراءة هذا الملف. حاول ثانية."
 
 #: src/features/auth/pages/error.tsx
 msgid "Something went wrong while signing you in. Please try again."
@@ -11038,14 +11104,9 @@ msgstr "تاريخ البدء"
 msgid "Start a debrief"
 msgstr "ابدأ مراجعة ما بعد المقابلة"
 
-#: src/features/documents/documents-page.tsx
 #: src/features/documents/new-document-dialog.tsx
 msgid "Start blank"
 msgstr "البدء بسيرة فارغة"
-
-#: src/features/career/welcome.tsx
-msgid "Start by adding your career information yourself. File import and AI assistance are not enabled yet."
-msgstr "ابدأ بإضافة معلوماتك المهنية بنفسك. استيراد الملفات والمساعدة بالذكاء الاصطناعي غير مفعّلين بعد."
 
 #: src/features/career/copy.generated.ts
 msgctxt "editor.career.emptyHint"
@@ -11100,6 +11161,11 @@ msgstr "ابدأ الكتابة، أو أنشئ مسودة اعتمادًا عل
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
 msgstr "ابدأ بالكتابة. لصياغة واحدة، قم بربط السيرة الذاتية أو طلب وظيفة أولاً."
+
+#: src/features/resume/import/start.tsx
+msgctxt "onboarding.method.startHint"
+msgid "Start with a blank CV, or review a PDF before creating your CV."
+msgstr "ابدأ بسيرة فارغة، أو راجع ملف PDF قبل إنشاء سيرتك."
 
 #: src/features/resume/editor/write/add-section.tsx
 msgid "Start with the sections most resumes have."
@@ -11268,7 +11334,9 @@ msgstr "يقترح اختصار النص، ولا يحذف أبدًا من تل�
 msgid "Summaries of your open applications"
 msgstr "ملخصات طلباتك المفتوحة"
 
+#: src/features/resume/editor/save-conflict.tsx
 #: src/features/resume/editor/write/summary-editor.tsx
+#: src/features/resume/import/review.tsx
 #: src/libs/resume/section-title.ts
 #: src/libs/resume/section.tsx
 msgid "Summary"
@@ -11483,10 +11551,6 @@ msgstr "القوالب"
 msgid "Templates × {templates}"
 msgstr "القوالب × {templates}"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Terms from the posting"
-msgstr "مصطلحات من إعلان الوظيفة"
-
 #: src/features/settings/ai/providers.tsx
 msgid "Test"
 msgstr "اختبار"
@@ -11494,6 +11558,10 @@ msgstr "اختبار"
 #: src/features/settings/ai/web-access.tsx
 msgid "Test connection"
 msgstr "اختبار الاتصال"
+
+#: src/features/resume/editor/design/style-groups.tsx
+msgid "Tested fonts, in Advanced"
+msgstr "خطوط مختبرة في الإعدادات المتقدمة"
 
 #: src/features/settings/ai/web-access.tsx
 msgid "Tested with {connectedProvider}. Only this service was tested."
@@ -11527,10 +11595,6 @@ msgstr "لون النص"
 #: src/features/resume/editor/write/rich-text-editor.tsx
 msgid "Text colour"
 msgstr "لون النص"
-
-#: src/features/resume/editor/check/issues.ts
-msgid "Text comes out in the order a person reads it, at a size and spacing that survive."
-msgstr "يخرج النص بالترتيب الذي يقرأه به الشخص، مع الحفاظ على حجم النص وتباعده."
 
 #: src/features/homepage/check.tsx
 msgid "Text is selectable"
@@ -11584,14 +11648,6 @@ msgstr "شكرا لك على إبقائها مجانية."
 msgid "Thanks, Sam. Here’s one: at Afaq Design (example) I led the onboarding redesign, from 14 customer interviews to a shorter setup."
 msgstr "شكرًا يا Sam. إليك مثالًا: في آفاق للتصميم (مثال) قُدت إعادة تصميم التهيئة، من 14 مقابلة مع العملاء إلى إعداد أقصر."
 
-#: src/features/ats-checker/checker.tsx
-msgid "That file couldn't be read as a PDF."
-msgstr "لا يمكن قراءة هذا الملف باعتباره PDF."
-
-#: src/features/ats-checker/checker.tsx
-msgid "That file is too large to check. PDFs up to 25 MB work."
-msgstr "هذا الملف كبير جدًا للفحص. يمكن فحص ملفات PDF حتى 25 MB."
-
 #: src/features/applications/components/add-application-dialog.tsx
 msgid "That link couldn't be read. Paste the posting text instead."
 msgstr "تعذّرت قراءة هذا الرابط. الصق نص إعلان الوظيفة بدلاً من ذلك."
@@ -11624,10 +11680,6 @@ msgstr "لا يمكن إنشاء الملف {label}. حاول مرة أخرى، 
 msgid "The 13-point activation lift. Your Knowledge has the before and after."
 msgstr "زيادة التفعيل بمقدار 13 نقطة. معرفتك تتضمن القيم قبل وبعد."
 
-#: src/features/homepage/faq.tsx
-msgid "The app is translated into {languages} languages by volunteers, and a resume can be written in any language, including right-to-left scripts like Arabic and Hebrew."
-msgstr "تتم ترجمة التطبيق إلى {languages} لغة بواسطة متطوعين، ويمكن كتابة السيرة الذاتية بأي لغة، بما في ذلك النصوص المكتوبة من اليمين إلى اليسار مثل العربية والعبرية."
-
 #: src/features/auth/pages/error.tsx
 msgid "The application that sent you here made an invalid authorization request."
 msgstr "أرسل التطبيق الذي أحضرك إلى هنا طلب تفويض غير صالح."
@@ -11647,10 +11699,6 @@ msgstr "يستخدم المساعد المفتاح الخاص بك. لا يتم 
 #: src/features/settings/ai/web-access.tsx
 msgid "The built-in reader remains active."
 msgstr "يظل القارئ المدمج نشطًا."
-
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "The checks are mechanical. This asks a language model how a reader might react to your bullets and suggests rewrites. It isn't part of the score."
-msgstr "الفحوصات آلية. يسأل هذا الخيار نموذجًا لغويًا عن كيفية تفاعل القارئ مع نقاط سيرتك، ويقترح إعادة صياغتها. ولا يدخل في حساب الدرجة."
 
 #: src/features/career/knowledge/facts.tsx
 msgid "The coach doesn't remember anything from your messages."
@@ -11676,17 +11724,22 @@ msgstr "يحفظ المدرّب الحقائق التي تذكرها، ويخب�
 msgid "The copy is linked to the application, so Check and the assistant use its posting."
 msgstr "يتم ربط النسخة بطلب الوظيفة، لذا يستخدم الفحص والمساعد إعلان الوظيفة الخاص به."
 
+#: src/features/resume/editor/design/font-replacement.tsx
+msgid "The document changed. Close this preview and try again."
+msgstr "تغير المستند. أغلق هذه المعاينة وحاول مرة أخرى."
+
+#: src/features/resume/builder/draft.ts
+#: src/features/resume/export/use-resume-export.ts
+msgid "The document changed. Try again."
+msgstr "تغير المستند. حاول مجددًا."
+
 #: src/features/resume/editor/write/dates-field.tsx
 msgid "The end is before the start."
 msgstr "النهاية هي قبل البداية."
 
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "The exported PDF"
-msgstr "ملف PDF المُصدَّر"
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "The exported PDF couldn't be checked. Try again."
-msgstr "لا يمكن التحقق من PDF الذي تم تصديره. حاول ثانية."
+#: src/features/resume/import/start.tsx
+msgid "The file could not be read."
+msgstr "تعذّرت قراءة الملف."
 
 #: src/features/documents/new-document-dialog.tsx
 msgid "The file couldn't be read as a resume."
@@ -11695,6 +11748,10 @@ msgstr "لا يمكن قراءة الملف كسيرة ذاتية."
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "The greeting follows the name."
 msgstr "التحية تتبع الاسم."
+
+#: src/features/homepage/faq.tsx
+msgid "The interface is available in Arabic and English. Switching interface language does not translate or replace your saved CV content."
+msgstr "الواجهة متاحة بالعربية والإنجليزية. تغيير لغة الواجهة لا يترجم محتوى سيرتك المحفوظ ولا يستبدله."
 
 #: src/features/settings/ai/api-keys.tsx
 msgid "the key"
@@ -11777,6 +11834,10 @@ msgstr "الصفحات عبارة عن صور، بلا نص خلفها."
 msgid "The password you entered is incorrect"
 msgstr "كلمة المرور التي أدخلتها غير صحيحة"
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "The PDF could not be checked. Your CV is preserved; retry or keep editing."
+msgstr "تعذّر فحص ملف PDF. سيرتك محفوظة؛ أعد المحاولة أو واصل التحرير."
+
 #: src/features/resume/editor/check/job-match.tsx
 msgid "The posting asks for “{label}”. If it's true for me, work it into my resume where it fits. Ask me first."
 msgstr "يطلب إعلان الوظيفة \"{label}\". إذا كان هذا صحيحًا بالنسبة لي، فأضفه إلى سيرتي الذاتية حيثما يناسب. اسألني أولًا."
@@ -11809,10 +11870,6 @@ msgstr "لم يشارك المزوّد عنوان بريد إلكتروني، و
 msgid "The provider rejected this sign-in attempt. Please start again."
 msgstr "رفض المزوّد محاولة تسجيل الدخول هذه. يُرجى البدء من جديد."
 
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "The provider returned a review that couldn't be read. Try again."
-msgstr "أعاد المزوّد مراجعة لا يمكن قراءتها. حاول ثانية."
-
 #: src/features/auth/pages/error.tsx
 msgid "The provider's response could not be verified. Please start again."
 msgstr "تعذّر التحقق من استجابة المزوّد. يُرجى البدء من جديد."
@@ -11834,10 +11891,6 @@ msgstr "السيرة الذاتية كما هي"
 msgid "The resume preview could not be updated. The last valid preview is still shown."
 msgstr "تعذر تحديث معاينة السيرة الذاتية. لا تزال آخر معاينة صالحة معروضة."
 
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "The review couldn't finish. Try again."
-msgstr "لا يمكن أن تنتهي المراجعة. حاول ثانية."
-
 #: src/features/ats-checker/messages.ts
 msgid "The same line repeats on every page."
 msgstr "يتكرر السطر نفسه في كل صفحة."
@@ -11846,18 +11899,10 @@ msgstr "يتكرر السطر نفسه في كل صفحة."
 msgid "The saved provider key can't be decrypted. Enter the key again in Settings → AI & developer."
 msgstr "لا يمكن فك تشفير مفتاح المزوّد المحفوظ. أدخل المفتاح مرة أخرى في الإعدادات ← الذكاء الاصطناعي والمطوّر."
 
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "The score counts how reliably software reads your resume. It doesn't predict whether you'll be shortlisted."
-msgstr "تحسب الدرجة مدى موثوقية قراءة البرامج لسيرتك الذاتية، ولا تتنبأ بانتقالك إلى القائمة المختصرة."
-
 #. placeholder {0}: getPdfFindingMessage(cap).title
 #: src/features/ats-checker/report/score-header.tsx
 msgid "The score is capped because of a blocking problem: {0}"
 msgstr "النتيجة محدودة بحد أقصى بسبب مشكلة معطِّلة: {0}"
-
-#: src/features/ats-checker/checker.tsx
-msgid "The score reflects how reliably text is extracted, not your chances."
-msgstr "تعكس النتيجة مدى موثوقية استخراج النص، وليس فرصك."
 
 #: src/features/settings/ai/web-access.tsx
 msgid "The service did not respond in time."
@@ -11900,6 +11945,10 @@ msgstr "بعد ذلك، أدخِل الرمز المكوَّن من 6 أرقام
 #: src/features/ats-checker/messages.ts
 msgid "There is a gap between two dated roles."
 msgstr "توجد فجوة بين دورين مؤرَّخين."
+
+#: src/features/resume/share/download-tab.tsx
+msgid "There is information to review. PDF download remains free and available."
+msgstr "توجد معلومات تحتاج إلى مراجعة. يبقى تنزيل PDF مجانيًا ومتاحًا."
 
 #: src/features/ats-checker/messages.ts
 msgid "There is no link to a profile, portfolio or repository."
@@ -11962,6 +12011,11 @@ msgstr "لا يمكن فتح هذه المحادثة."
 msgctxt "editor.conflict.title"
 msgid "This copy changed on another device"
 msgstr "تغيّرت هذه النسخة من جهاز آخر"
+
+#: src/features/resume/editor/save-conflict.tsx
+msgctxt "editor.conflict.remoteChangeHint"
+msgid "This copy was edited on another device"
+msgstr "عُدّلت هذه النسخة من جهاز آخر"
 
 #: src/features/resume/editor/write/dates-field.tsx
 msgid "This date hasn't been saved. Use a month and year, like Mar 2022, or just a year. The resume keeps the last valid date."
@@ -12031,6 +12085,14 @@ msgstr "يستخدم هذا الملف عددًا كبيرًا من الخطوط
 msgid "This file uses Type 3 fonts, which carry drawings instead of characters."
 msgstr "يستخدم هذا الملف خطوط Type 3، التي تحمل رسومات بدلاً من أحرف."
 
+#: src/features/resume/editor/design/font-replacement.tsx
+msgid "This font can't display some of your text — switch to {recommended}?"
+msgstr "لا يستطيع هذا الخط عرض بعض النصوص — هل تريد التبديل إلى {recommended}؟"
+
+#: src/routes/dashboard/import/$flowId.tsx
+msgid "This import review has expired or is unavailable on this device. Choose your file again."
+msgstr "انتهت صلاحية مراجعة الاستيراد أو أنها غير متاحة على هذا الجهاز. اختر ملفك مجددًا."
+
 #: src/features/ats-checker/messages.ts
 msgid "This is a PDF Portfolio: the visible page is only a cover."
 msgstr "هذا ملف PDF Portfolio: الصفحة المرئية هي مجرد غلاف."
@@ -12084,12 +12146,8 @@ msgid "This PDF has no text layer, so a parser reads nothing from it."
 msgstr "لا يحتوي ملف PDF هذا على طبقة نصية، لذا لا يقرأ محلّل الملفات أي شيء منه."
 
 #: src/features/resume/import/read-file.ts
-msgid "This PDF is a scanned image. There's no text to read. Try the Word version, or start blank and paste sections in."
-msgstr "ملف PDF هذا صورة ممسوحة ضوئيًا، ولا يحتوي على نص يمكن قراءته. جرّب نسخة Word، أو ابدأ بمستند فارغ والصق الأقسام فيه."
-
-#: src/features/ats-checker/checker.tsx
-msgid "This PDF is password protected. Save an unprotected copy and try again."
-msgstr "ملف PDF هذا محمي بكلمة مرور. احفظ نسخة غير محمية وحاول مرة أخرى."
+msgid "This PDF is a scanned image. There's no text to read. Start blank and enter your information manually."
+msgstr "هذا الملف صورة ممسوحة ضوئيًا دون نص قابل للقراءة. ابدأ بسيرة فارغة وأدخل معلوماتك يدويًا."
 
 #: src/features/resume/builder/draft.ts
 msgid "This resume is locked and cannot be updated."
@@ -12212,6 +12270,7 @@ msgstr "نصيحة"
 
 #: src/features/career/knowledge/stories.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 msgid "Title"
 msgstr "العنوان"
 
@@ -12313,10 +12372,6 @@ msgstr "الوثوق بهذا الجهاز لمدة 30 يومًا"
 msgid "Try {0}"
 msgstr "جرب {0}"
 
-#: src/features/documents/documents-page.tsx
-msgid "Try a sample"
-msgstr "جرب عينة"
-
 #: src/features/documents/new-document-dialog.tsx
 msgid "Try a sample CV"
 msgstr "جرّب بسيرة نموذجية"
@@ -12329,8 +12384,11 @@ msgstr "جرّب بسيرة نموذجية"
 #: src/features/career/workspace/shell.tsx
 #: src/features/documents/library-error.tsx
 #: src/features/resume/editor/write/improve.tsx
+#: src/features/resume/import/review.tsx
+#: src/features/resume/import/start.tsx
 #: src/features/resume/preview/preview.browser.tsx
 #: src/features/resume/share/download-tab.tsx
+#: src/features/resume/share/history-tab.tsx
 #: src/features/settings/ai/web-access.tsx
 #: src/features/settings/integrations/ai-provider-load-state.tsx
 #: src/routes/builder/letter/-components/write-panel.tsx
@@ -12505,6 +12563,7 @@ msgstr "تسطير الروابط"
 #: src/features/resume/editor/webmcp.ts
 #: src/features/resume/editor/write/entry-card.tsx
 #: src/features/resume/editor/write/section-row.tsx
+#: src/features/resume/import/review.tsx
 #: src/features/settings/ai/api-keys.tsx
 #: src/routes/builder/$resumeId/-components/design-panel.tsx
 #: src/routes/builder/$resumeId/-components/document-menu.tsx
@@ -12554,16 +12613,25 @@ msgstr "افتحه أولاً"
 msgid "Unnamed passkey"
 msgstr "مفتاح مرور غير مسمى"
 
+#: src/features/resume/editor/recovery-prompt.tsx
+msgid "Unsaved changes on this device"
+msgstr "تغييرات غير محفوظة على هذا الجهاز"
+
 #: src/features/resume/editor/write/entry-card.tsx
 #: src/features/resume/stylesheet/targets.ts
 msgid "Untitled"
 msgstr "بدون عنوان"
+
+#: src/features/resume/import/review.tsx
+msgid "Untitled entry"
+msgstr "عنصر بلا عنوان"
 
 #: src/features/documents/new-document-dialog.tsx
 msgid "Untitled letter"
 msgstr "خطاب بلا عنوان"
 
 #: src/features/documents/new-document-dialog.tsx
+#: src/features/resume/import/start.tsx
 msgid "Untitled resume"
 msgstr "سيرة ذاتية بدون عنوان"
 
@@ -12574,10 +12642,6 @@ msgstr "حتى دقيقتين. أو <0>اختر ملفًا صوتيًا</0> بح
 #: src/features/career/workspace/practise.tsx
 msgid "Up to 2 minutes. Your words appear as you speak."
 msgstr "حتى دقيقتين. تظهر كلماتك أثناء حديثك."
-
-#: src/features/ats-checker/checker.tsx
-msgid "Up to 25 MB · checked in your browser, never uploaded"
-msgstr "حتى 25 MB · يُفحص الملف في متصفحك ولا يُرفع إلى الخادم"
 
 #: src/features/applications/components/calendar-view.tsx
 msgid "Upcoming interviews"
@@ -12625,9 +12689,10 @@ msgstr "جارٍ تحديث سيرتك الذاتية..."
 msgid "Upload .csv"
 msgstr "قم بتحميل ملف CSV"
 
-#: src/features/ats-checker/checker.tsx
-msgid "Upload a PDF and see the text an applicant tracking system extracts: what's missing, what's out of order, and how to fix it. Free, no account needed."
-msgstr "قم بتحميل PDF وشاهد النص الذي يستخرجه نظام تتبع مقدم الطلب: ما هو مفقود، وما هو خارج الترتيب، وكيفية إصلاحه. مجاني، لا حاجة لحساب."
+#: src/features/resume/import/start.tsx
+msgctxt "onboarding.upload.title"
+msgid "Upload an existing CV"
+msgstr "رفع سيرة ذاتية موجودة"
 
 #: src/features/resume/editor/write/picture-settings.tsx
 msgid "Upload picture"
@@ -12703,6 +12768,11 @@ msgstr "يجب أن يتراوح عدد الأحرف بين 6 و64 حرفًا."
 msgid "Use color {color}"
 msgstr "استخدام اللون {color}"
 
+#: src/features/resume/import/career-reuse.tsx
+#: src/features/resume/import/review.tsx
+msgid "Use confirmed career information"
+msgstr "استخدام المعلومات المهنية المؤكدة"
+
 #: src/routes/builder/letter/-components/write-panel.tsx
 msgid "Use default"
 msgstr "استخدام الافتراضي"
@@ -12752,6 +12822,10 @@ msgstr "استخدم هذه الإجابات"
 msgid "Use this device's timezone ({device})"
 msgstr "استخدم المنطقة الزمنية لهذا الجهاز ({device})"
 
+#: src/features/resume/editor/design/font-replacement.tsx
+msgid "Use this font"
+msgstr "استخدام هذا الخط"
+
 #: src/features/settings/ai/providers.tsx
 msgid "Use this provider"
 msgstr "استخدم هذا المزود"
@@ -12793,6 +12867,7 @@ msgstr "بحث المستخدمين"
 
 #: src/features/auth/pages/register.tsx
 #: src/features/resume/editor/write/entries.tsx
+#: src/features/resume/import/review.tsx
 #: src/features/settings/account/profile.tsx
 msgid "Username"
 msgstr "اسم المستخدم"
@@ -12956,6 +13031,11 @@ msgctxt "editor.conflict.hint"
 msgid "View the latest copy first. We will not replace your work without your approval."
 msgstr "اعرض أحدث نسخة أولًا. لن نستبدل عملك دون موافقتك."
 
+#: src/features/resume/editor/save-conflict.tsx
+msgctxt "editor.conflict.viewHistory"
+msgid "View version history"
+msgstr "عرض سجل النسخ"
+
 #. placeholder {0}: formatVersionTime(viewing.createdAt, i18n.locale)
 #. placeholder {0}: when(selected)
 #. placeholder {1}: getVersionTitle(selected)
@@ -12973,10 +13053,6 @@ msgstr "المشاهدات · 30 يومًا"
 #: src/features/resume/share/link-tab.tsx
 msgid "Views and downloads"
 msgstr "المشاهدات والتنزيلات"
-
-#: src/features/homepage/share.tsx
-msgid "Visibility"
-msgstr "الرؤية"
 
 #: src/features/resume/share/link-tab.tsx
 msgid "Visitors can download the PDF"
@@ -13033,6 +13109,11 @@ msgstr "لم نتمكن من قراءة \"{0}\". أدخل التواريخ بح�
 #: src/features/auth/pages/error.tsx
 msgid "We couldn't read your profile from the provider."
 msgstr "تعذّر علينا قراءة ملفك الشخصي من المزوّد."
+
+#: src/features/resume/import/start.tsx
+msgctxt "onboarding.method.writeHint"
+msgid "We guide you section by section: basic information, experience, education and skills."
+msgstr "نرشدك قسمًا بعد قسم: المعلومات الأساسية، والخبرات، والتعليم، والمهارات."
 
 #. placeholder {0}: dates.raw
 #: src/features/resume/editor/write/dates-field.tsx
@@ -13110,11 +13191,11 @@ msgstr "مرحبًا {name}، لنبدأ بسيرتك"
 msgid "Went well"
 msgstr "سارت جيدًا"
 
-#: src/features/resume/editor/check/page-layer.tsx
+#: src/features/resume/editor/check/check-panel.tsx
 msgid "What a parser reads"
 msgstr "ما يقرأه المحلِّل"
 
-#: src/features/resume/editor/check/page-layer.tsx
+#: src/features/resume/editor/check/check-panel.tsx
 msgid "What a person sees"
 msgstr "ما يراه الشخص"
 
@@ -13167,10 +13248,6 @@ msgstr "كم تساوي الأسهم اليوم: سعر التنفيذ، وآخ�
 msgid "What it asks for"
 msgstr "ما يطلبه"
 
-#: src/features/ats-checker/checker.tsx
-msgid "What it checks"
-msgstr "ما الذي يفحصه؟"
-
 #: src/features/career/coach-thread.tsx
 msgid "What matters"
 msgstr "ما يهم"
@@ -13198,10 +13275,6 @@ msgstr "ما تقرؤه البرامج"
 #: src/features/career/workspace/prepare.tsx
 msgid "What success looks like, which challenge matters most, and the next step."
 msgstr "كيف يبدو النجاح، وأي التحديات أهم، والخطوة التالية."
-
-#: src/features/resume/editor/check/check-panel.tsx
-msgid "What the file-level check found in the PDF you'd send. It ran in this tab; nothing was uploaded."
-msgstr "نتائج فحص الملف في نسخة PDF التي سترسلها. أُجري الفحص في علامة التبويب هذه، ولم يُرفع أي شيء."
 
 #: src/features/applications/components/interview-dialog.tsx
 msgid "What they asked you to prepare"
@@ -13248,10 +13321,6 @@ msgstr "ما تبحث عنه"
 #: src/features/settings/ai/api-keys.tsx
 msgid "What's it for?"
 msgstr "ما الغرض منه؟"
-
-#: src/features/resume/editor/check/writing-tab.tsx
-msgid "What's working"
-msgstr "نقاط القوة"
 
 #: src/features/career/offers.tsx
 msgid "When do they need your answer?"
@@ -13350,6 +13419,22 @@ msgstr "خلال ربع سنة، ارتفع التفعيل من 31% إلى 44%."
 msgid "Without one, you fill in the recipient yourself and drafting uses only your resume."
 msgstr "بدون واحد، يمكنك ملء المستلم بنفسك والصياغة تستخدم سيرتك الذاتية فقط."
 
+#: src/features/homepage/share.tsx
+msgid "Word — not available"
+msgstr "Word — غير متاح"
+
+#: src/features/homepage/share.tsx
+msgid "Word downloads and public sharing are not available. Sign in to create your CV and download PDF."
+msgstr "تنزيل Word والمشاركة العامة غير متاحين. سجّل الدخول لإنشاء سيرتك الذاتية وتنزيل PDF."
+
+#: src/features/resume/export/use-resume-export.ts
+msgid "Word export is not available."
+msgstr "تصدير Word غير متاح."
+
+#: src/features/resume/import/read-file.ts
+msgid "Word import is not available. Import a readable PDF or enter your information manually."
+msgstr "استيراد Word غير متاح. استورد PDF قابلًا للقراءة أو أدخل معلوماتك يدويًا."
+
 #: src/features/ats-checker/messages.ts
 msgid "Words run together when the text is extracted."
 msgstr "تندمج الكلمات معًا عند استخراج النص."
@@ -13400,6 +13485,11 @@ msgstr "دوّن ما سألوه ما دام حاضرًا في ذهنك. يقا�
 msgid "Write each role as a clear title and company line, with the dates alongside."
 msgstr "اكتب كل دور كسطر واضح للمسمى الوظيفي والشركة، مع التواريخ بجانبه."
 
+#: src/features/resume/import/start.tsx
+msgctxt "onboarding.method.write"
+msgid "Write from scratch"
+msgstr "الكتابة من الصفر"
+
 #: src/features/ats-checker/messages.ts
 msgid "Write it as one uninterrupted piece, with no special spacing."
 msgstr "اكتبه كقطعة واحدة متصلة، بلا تباعد خاص."
@@ -13442,8 +13532,6 @@ msgid "Write your answer, or draft one from your Knowledge."
 msgstr "اكتب إجابتك، أو صُغ واحدة من معرفتك."
 
 #: src/features/ats-checker/messages.ts
-#: src/features/resume/editor/check/check-panel.tsx
-#: src/features/resume/editor/check/issues.ts
 msgid "Writing"
 msgstr "الكتابة"
 
@@ -13451,9 +13539,17 @@ msgstr "الكتابة"
 msgid "Writing an answer…"
 msgstr "جارٍ كتابة إجابة…"
 
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "Writing and content"
+msgstr "الكتابة والمحتوى"
+
 #: src/features/settings/ai/providers.tsx
 msgid "Writing help, tailored suggestions and the assistant. The default provider is used wherever you don't pick one. Your keys stay encrypted."
 msgstr "مساعدة في الكتابة، واقتراحات مخصّصة، والمساعد. يُستخدم المزوّد الافتراضي حيثما لا تختار واحدًا. تبقى مفاتيحك مشفّرة."
+
+#: src/features/resume/editor/check/writing-tab.tsx
+msgid "Writing suggestions are not available yet"
+msgstr "اقتراحات الكتابة غير متاحة بعد"
 
 #: src/features/homepage/sections.tsx
 msgid "writing, tailoring and sending"
@@ -13467,18 +13563,6 @@ msgstr "عرض مكتوب"
 msgctxt "auth.verifyEmail.wrongAddress"
 msgid "Wrong email?"
 msgstr "البريد غير صحيح؟"
-
-#: src/features/homepage/faq.tsx
-msgid "Yes. Every feature is free: all {templates} templates, PDF and Word downloads, the ATS checker, cover letters and the job tracker. There are no ads, no tracking and no paid tier. Donations pay for hosting and development."
-msgstr "نعم. جميع الميزات مجانية: القوالب البالغ عددها {templates}، والتنزيل بصيغتي PDF وWord، وفحص ATS، وخطابات التقديم، وتتبع طلبات التوظيف. لا توجد إعلانات أو تتبع أو باقة مدفوعة. تُغطّي التبرعات تكاليف الاستضافة والتطوير."
-
-#: src/features/homepage/faq.tsx
-msgid "Yes. Every job you track gets its own workspace: check your fit against the posting, draft answers from stories you wrote once, get a short plan before the interview, practise out loud with feedback and debrief afterwards. When offers arrive, compare them side by side. The coaching uses your own AI key; the comparison doesn’t need one."
-msgstr "نعم. تحصل كل وظيفة تتابعها على مساحة عمل خاصة بها: تحقّق من ملاءمتك لإعلان الوظيفة، وصُغ إجابات من قصص كتبتها مرة واحدة، واحصل على خطة قصيرة قبل المقابلة، وتمرّن بصوت عالٍ مع ملاحظات، وراجع ما جرى بعد المقابلة. وعندما تصل العروض، قارن بينها جنبًا إلى جنب. يستخدم التدريب مفتاح الذكاء الاصطناعي الخاص بك؛ أما المقارنة فلا تحتاج إليه."
-
-#: src/features/homepage/faq.tsx
-msgid "Yes. Import a PDF, a LinkedIn data export, a JSON Resume file or a Master CV export, then pick up where it left off. With an AI provider set up, Word documents work too."
-msgstr "نعم. قم باستيراد ملف PDF، أو تصدير بيانات LinkedIn، أو ملف JSON Resume، أو تصدير Master CV، ثم تابع من حيث توقفت. مع إعداد مزوّد الذكاء الاصطناعي، تعمل مستندات Word أيضًا."
 
 #: src/features/homepage/faq.tsx
 msgid "Yes. Master CV is open source under the MIT License and ships as a Docker image, so it runs on your own server with your own database and storage."
@@ -13510,9 +13594,13 @@ msgstr "أجبت: {answer}"
 msgid "You can also sign in with your username."
 msgstr "يمكنك أيضًا تسجيل الدخول باسم المستخدم."
 
+#: src/features/resume/import/career-reuse.tsx
+msgid "You can fill this CV from your confirmed career information. Changes here stay in this CV."
+msgstr "يمكنك تعبئة هذه السيرة من معلوماتك المهنية المؤكدة. تبقى التغييرات هنا في هذه السيرة فقط."
+
 #: src/features/resume/editor/save-status.tsx
-msgid "You can keep editing. Changes sync when you're back online. Download and Share need a connection."
-msgstr "يمكنك الاستمرار في التحرير. تتم مزامنة التغييرات عند معاودة الاتصال بالإنترنت. التنزيل والمشاركة بحاجة إلى اتصال."
+msgid "You can keep editing. Reconnect to save your changes to your account."
+msgstr "يمكنك متابعة التعديل. أعد الاتصال لحفظ تغييراتك في حسابك."
 
 #: src/features/career/workspace/apply.tsx
 msgid "You can keep up to 30 application questions."
@@ -13542,6 +13630,10 @@ msgstr "وصلت إلى الحد المسموح للسير الأصلية. ما 
 #: src/hooks/use-form-blocker.tsx
 msgid "You have unsaved changes that will be lost."
 msgstr "لديك تغييرات غير محفوظة ستُفقد."
+
+#: src/features/resume/editor/check/check-panel.tsx
+msgid "You make the decision"
+msgstr "أنت صاحب القرار"
 
 #: src/features/homepage/prepare.tsx
 msgid "You partnered with engineering. How you led the work isn’t described yet."
@@ -13673,10 +13765,31 @@ msgstr "يتم حفظ تغييراتك تلقائيًا."
 msgid "Your contact details are not on the first page."
 msgstr "بيانات التواصل الخاصة بك ليست في الصفحة الأولى."
 
+#: src/features/resume/import/start.tsx
+msgctxt "onboarding.upload.privateHint"
+msgid "Your CV and career information are saved after review. This device keeps an unfinished review for 24 hours."
+msgstr "نحفظ سيرتك ومعلوماتك المهنية بعد المراجعة. يحتفظ هذا الجهاز بالمراجعة غير المكتملة لمدة 24 ساعة."
+
 #: src/features/career/copy.generated.ts
 msgctxt "auth.welcome.privacy.title"
 msgid "Your CV belongs to you"
 msgstr "سيرتك تخصّك"
+
+#: src/features/resume/import/career-reuse.tsx
+msgid "Your CV changed while loading. Try again to use your career information."
+msgstr "تغيرت سيرتك أثناء التحميل. حاول مجددًا لاستخدام معلوماتك المهنية."
+
+#: src/features/resume/share/history-tab.tsx
+msgid "Your CV is preserved. Check your connection and try again."
+msgstr "سيرتك الذاتية محفوظة. تحقّق من اتصالك وحاول مجددًا."
+
+#: src/features/homepage/faq.tsx
+msgid "Your CV stays in your private account. Public links and password-protected sharing are not available."
+msgstr "تبقى سيرتك الذاتية في حسابك الخاص. الروابط العامة والمشاركة المحمية بكلمة مرور غير متاحة."
+
+#: src/features/homepage/share.tsx
+msgid "Your CV stays private"
+msgstr "سيرتك الذاتية تبقى خاصة"
 
 #: src/features/auth/copy.generated.ts
 msgctxt "auth.promo.title"
@@ -13699,6 +13812,11 @@ msgstr "تغيرت التفاصيل الخاصة بك في السيرة الذا
 msgid "Your donation supports the open-source project that Master CV builds on."
 msgstr "يدعم تبرعك المشروع المفتوح المصدر الذي يعتمد عليه Master CV."
 
+#: src/features/resume/editor/save-conflict.tsx
+msgctxt "editor.conflict.localTitle"
+msgid "Your edits on this device"
+msgstr "تعديلاتك على هذا الجهاز"
+
 #: src/routes/builder/letter/-components/letter-shell.tsx
 msgid "Your email address changed on the resume. The letter updated too."
 msgstr "تم تغيير عنوان بريدك الإلكتروني في السيرة الذاتية. تم تحديث الرسالة أيضًا."
@@ -13718,10 +13836,6 @@ msgstr "يمكن إرسال حقائقك وقصصك وتفضيلاتك المف�
 #: src/features/career/workspace/fit.tsx
 msgid "Your evidence"
 msgstr "أدلتك"
-
-#: src/features/ats-checker/checker.tsx
-msgid "Your file"
-msgstr "الملف الخاص بك"
 
 #: src/features/career/workspace/prepare.tsx
 msgid "Your focus"
@@ -13799,6 +13913,10 @@ msgstr "افتتاحيتك، والقصص التي ستحضرها والأسئل
 msgid "Your password has been updated."
 msgstr "تم تحديث كلمة مرورك."
 
+#: src/features/resume/share/download-tab.tsx
+msgid "Your PDF is ready. The browser download has started; your original CV remains saved here."
+msgstr "ملف PDF جاهز. بدأ التنزيل عبر المتصفح، وتبقى سيرتك الأصلية محفوظة هنا."
+
 #: src/routes/builder/letter/-components/letter-shell.tsx
 msgid "Your phone number changed on the resume. The letter updated too."
 msgstr "لقد تغير رقم هاتفك في السيرة الذاتية. تم تحديث الرسالة أيضًا."
@@ -13810,6 +13928,10 @@ msgstr "رقم هاتفك مكتوب بصيغة غير معتادة."
 #: src/features/career/coach.tsx
 msgid "your preferences"
 msgstr "تفضيلاتك"
+
+#: src/features/homepage/share.tsx
+msgid "Your private workspace"
+msgstr "مساحتك الخاصة"
 
 #: src/features/assistant/assistant-panel.tsx
 msgid "your provider"
@@ -13843,10 +13965,6 @@ msgstr "تم تحديث سيرتك الذاتية."
 #: src/features/ats-checker/messages.ts
 msgid "Your resume uses \"I\" and \"my\"."
 msgstr "تستخدم سيرتك الذاتية ضمائر المتكلم الإنجليزية «I» و«my»"
-
-#: src/features/homepage/share.tsx
-msgid "Your resume, live at"
-msgstr "سيرتك الذاتية متاحة على"
 
 #: src/features/auth/copy.generated.ts
 msgctxt "auth.session.expiredHint"

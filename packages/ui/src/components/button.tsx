@@ -22,6 +22,7 @@ const buttonVariants = cva(
 				ghost: "text-ink hover:bg-hover active:bg-press disabled:text-ink-3 aria-expanded:bg-hover",
 				danger:
 					"bg-danger text-on-danger hover:brightness-[0.92] focus-visible:outline-danger disabled:bg-sunken disabled:text-ink-3",
+				"metadata-link": "h-auto! border-0 px-0! type-metadata text-ink-3 underline-offset-4 hover:underline",
 				link: "h-auto! border-0 px-0! text-accent-text underline-offset-4 hover:underline",
 			},
 			size: {

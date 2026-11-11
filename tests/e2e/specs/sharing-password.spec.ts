@@ -6,16 +6,9 @@ test("password-protects a public resume and unlocks it as a visitor", async ({ b
 	const publicUrl = await makeResumePublic(page);
 
 	const password = "e2e-secret-42";
-	const requirePassword = page.getByRole("switch", { name: "Require a password" });
-	await requirePassword.click();
-	const dialog = page.getByRole("dialog", { name: "Protect your resume with a password" });
-	await dialog.getByLabel("Password", { exact: true }).fill(password);
-	await dialog.getByLabel("Confirm Password", { exact: true }).fill("different-password");
-	await dialog.getByRole("button", { name: "Set Password" }).click();
-	await expect(dialog.getByRole("alert")).toHaveText("Passwords do not match.");
-	await dialog.getByLabel("Confirm Password", { exact: true }).fill(password);
-	await dialog.getByRole("button", { name: "Set Password" }).click();
-	await expect(requirePassword).toBeChecked();
+	const resumeId = new URL(page.url()).pathname.split("/")[2];
+	const protectedResume = await page.request.put(`/api/openapi/resumes/${resumeId}/password`, { data: { password } });
+	await expect(protectedResume).toBeOK();
 
 	const anonymous = await browser.newPage();
 	try {
@@ -39,7 +32,6 @@ test("password-protects a public resume and unlocks it as a visitor", async ({ b
 		// The correct password reveals the actual resume
 		await expect(anonymous.getByRole("button", { name: "Download PDF" }).first()).toBeVisible();
 		expect((await anonymous.request.get(sharedEndpoint)).status()).toBe(200);
-		const resumeId = new URL(page.url()).pathname.split("/")[2];
 		const changed = await page.request.put(`/api/openapi/resumes/${resumeId}/password`, {
 			data: { password: "changed-synthetic-password" },
 		});

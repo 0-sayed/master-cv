@@ -110,8 +110,10 @@ export const extractPageMap = (layout: LayoutInfo): PageMap => {
 			if (finite && (file?.startsWith(NODE_SOURCE_PREFIX) || file?.startsWith(NODE_CONTENT_PREFIX))) {
 				// Content counts toward its block and every block around it: keys are paths.
 				let key = file.slice(file.indexOf(":") + 1);
-				tagged.add(key);
 				while (key) {
+					// A splitting View may disappear from Forme's layout. Its tagged heading/paragraph
+					// still proves the semantic item and section ancestors exist on this page.
+					tagged.add(key);
 					const current = contents.get(key);
 					contents.set(key, current ? union(current, box) : box);
 					key = key.slice(0, Math.max(0, key.lastIndexOf("/")));

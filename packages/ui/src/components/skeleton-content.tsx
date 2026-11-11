@@ -1,7 +1,7 @@
 import { buttonVariants } from "./button";
 import { CollectionGrid, CollectionGridGroup, SectionCollection } from "./collection-grid";
 import { documentCardLayout } from "./document-card-layout";
-import { SectionCard, SectionCardHeader, SectionCardRow } from "./section-card";
+import { SectionCard, SectionCardEmpty, SectionCardHeader, SectionCardRow } from "./section-card";
 import { Skeleton, SkeletonText } from "./skeleton";
 
 export type SkeletonShape =
@@ -14,13 +14,51 @@ export type SkeletonShape =
 	| "form"
 	| "conversation"
 	| "sections"
-	| "profile-sections"
 	| "documents"
 	| "document-rows"
 	| "board"
 	| "insights"
 	| "editor"
 	| "preview";
+
+type ProfileSectionsSkeletonProps = {
+	emptyLabel: string;
+	noticeLabel: string;
+	noticeHint: string;
+};
+
+/** Use localized empty copy for natural wrapping, without reserving fictitious entries. */
+export function ProfileSectionsSkeleton({ emptyLabel, noticeLabel, noticeHint }: ProfileSectionsSkeletonProps) {
+	return (
+		<SectionCollection>
+			{Array.from({ length: 5 }, (_, index) => (
+				<SectionCard key={index}>
+					<SectionCardHeader>
+						<Skeleton className="box-content size-4.5 p-2" />
+						<Skeleton className="h-lh w-1/2 type-section" />
+					</SectionCardHeader>
+					<SectionCardEmpty>
+						<p>
+							<Skeleton as="span" className="text-transparent">
+								{index === 4 ? noticeLabel : emptyLabel}
+							</Skeleton>
+						</p>
+						{index === 4 && (
+							<p>
+								<Skeleton as="span" className="text-transparent">
+									{noticeHint}
+								</Skeleton>
+							</p>
+						)}
+					</SectionCardEmpty>
+					<div className={buttonVariants({ variant: "link", size: "link-compact", className: "justify-start" })}>
+						<Skeleton className="h-lh w-1/3" />
+					</div>
+				</SectionCard>
+			))}
+		</SectionCollection>
+	);
+}
 
 /** Shapes share the actual collection/card layout owners, never screen-specific pixel geometry. */
 export function SkeletonContent({
@@ -71,21 +109,6 @@ export function SkeletonContent({
 					))}
 				</tbody>
 			</table>
-		);
-	if (shape === "profile-sections")
-		return (
-			<SectionCollection>
-				{(["entries", "entry", "chips", "chips", "notice"] as const).map((capacity, index) => (
-					<SectionCard key={index} capacity={capacity}>
-						<SectionCardHeader>
-							<Skeleton className="size-9" />
-							<Skeleton className="h-6 w-1/2" />
-						</SectionCardHeader>
-						<SkeletonText lines={capacity === "entries" ? 3 : 2} />
-						<Skeleton className="h-9 w-1/3" />
-					</SectionCard>
-				))}
-			</SectionCollection>
 		);
 	if (shape === "sections") {
 		const cards = Array.from({ length: count }, (_, index) => (

@@ -9,7 +9,6 @@ import { useEditorStore } from "@/features/resume/editor/store";
 import { useEditorMode } from "@/features/resume/editor/use-editor-mode";
 import { DownloadTab } from "@/features/resume/share/download-tab";
 import { HistoryTab } from "@/features/resume/share/history-tab";
-import { LinkTab } from "@/features/resume/share/link-tab";
 import { useClosingValue } from "@/hooks/use-closing-value";
 
 /**
@@ -38,12 +37,12 @@ export function ShareSheet() {
 			>
 				<SheetHeader className="px-5 pt-3.5 pb-2.5">
 					<SheetTitle>
-						<Trans>Share & export</Trans>
+						<Trans>Export and history</Trans>
 					</SheetTitle>
 				</SheetHeader>
 
 				<Tabs
-					value={shownTab ?? "link"}
+					value={shownTab === "history" ? "history" : "download"}
 					onValueChange={(value) => {
 						// The page shows a version only while History is open.
 						if (value !== "history") setHistoryVersion(null);
@@ -52,9 +51,6 @@ export function ShareSheet() {
 					className="min-h-0 flex-1 gap-0"
 				>
 					<TabsList variant="line" aria-label={t`Share sections`} className="w-full justify-start gap-5 px-5">
-						<TabsTrigger value="link">
-							<Trans>Link</Trans>
-						</TabsTrigger>
 						<TabsTrigger value="download">
 							<Trans>Download</Trans>
 						</TabsTrigger>
@@ -62,9 +58,6 @@ export function ShareSheet() {
 							<Trans>History</Trans>
 						</TabsTrigger>
 					</TabsList>
-					<TabsContent value="link" className="overflow-y-auto p-5">
-						<LinkTab />
-					</TabsContent>
 					<TabsContent value="download" className="overflow-y-auto p-5">
 						<DownloadTab
 							onReview={() => {

@@ -16,6 +16,7 @@ describe("resume PDF signed download URLs", () => {
 		const result = createResumePdfDownloadUrl({
 			resumeId: "resume-1",
 			userId: "user-1",
+			expectedUpdatedAt: "2026-06-01T09:00:00.000Z",
 			now,
 		});
 
@@ -39,6 +40,7 @@ describe("resume PDF signed download URLs", () => {
 			ok: true,
 			resumeId: "resume-1",
 			userId: "user-1",
+			expectedUpdatedAt: "2026-06-01T09:00:00.000Z",
 			expiresAt: "2026-06-01T10:10:00.000Z",
 		});
 	});
@@ -47,6 +49,7 @@ describe("resume PDF signed download URLs", () => {
 		const result = createResumePdfDownloadUrl({
 			resumeId: "resume-1",
 			userId: "user-1",
+			expectedUpdatedAt: "2026-06-01T09:00:00.000Z",
 			now: new Date("2026-06-01T10:00:00.000Z"),
 		});
 		const token = new URL(result.url).searchParams.get("token");

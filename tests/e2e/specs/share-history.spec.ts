@@ -1,18 +1,15 @@
-import { createSampleResumeFromDashboard, getPublicUrl, makeResumePublic } from "../fixtures/resume";
+import { createSampleResumeFromDashboard, makeResumePublic } from "../fixtures/resume";
 import { expect, test } from "../fixtures/test";
 
 test("renames the public address and keeps the old one redirecting", async ({ browser, authPage: page }, testInfo) => {
 	await createSampleResumeFromDashboard(page, testInfo);
 	const oldUrl = await makeResumePublic(page);
-	const sheet = page.getByRole("dialog", { name: "Share & export" });
-	const address = sheet.getByRole("textbox", { name: "Address" });
-
-	await address.fill("not_valid!");
-	await expect(sheet.getByText("Use lowercase letters, numbers and single dashes.")).toBeVisible();
-
-	await address.fill("renamed-address");
-	await expect(sheet.getByText(/^Live at .*\/renamed-address$/)).toBeVisible();
-	expect(await getPublicUrl(page)).toMatch(/\/renamed-address$/);
+	const resumeId = new URL(page.url()).pathname.split("/")[2];
+	const invalid = await page.request.put(`/api/openapi/resumes/${resumeId}`, { data: { slug: "not_valid!" } });
+	expect(invalid.status()).toBe(400);
+	const renamed = await page.request.put(`/api/openapi/resumes/${resumeId}`, { data: { slug: "renamed-address" } });
+	await expect(renamed).toBeOK();
+	expect((await renamed.json()).slug).toBe("renamed-address");
 
 	const visitor = await browser.newPage();
 	try {

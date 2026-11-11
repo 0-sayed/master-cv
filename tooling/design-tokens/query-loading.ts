@@ -14,6 +14,10 @@ const actionSpinners: Record<string, { maximum: number; reason: string }> = {
 	"features/career/coach-thread.tsx": { maximum: 1, reason: "AI reply streaming." },
 	"features/career/workspace/practise.tsx": { maximum: 1, reason: "Recording/transcription action." },
 	"features/documents/new-document-dialog.tsx": { maximum: 1, reason: "File upload/import action." },
+	"features/resume/import/start.tsx": {
+		maximum: 1,
+		reason: "User-initiated native PDF reading action; not query loading.",
+	},
 	"features/settings/ai/providers.tsx": { maximum: 1, reason: "Explicit connection test mutation." },
 	"features/resume/share/download-tab.tsx": { maximum: 1, reason: "PDF/DOCX export action." },
 	"features/resume/editor/save-status.tsx": { maximum: 1, reason: "Pending autosave mutation." },
@@ -30,6 +34,7 @@ export function queryLoadingViolations(source: string, path: string): string[] {
 			ts.isIdentifier(node) &&
 			node.getText(file) === "LoadingScreen" &&
 			path !== "router.tsx" &&
+			path !== "startup.tsx" &&
 			path !== "components/layout/loading-screen.tsx"
 		)
 			errors.push(`${path}: LoadingScreen is reserved for the unknown boot/auth destination; use a query skeleton.`);

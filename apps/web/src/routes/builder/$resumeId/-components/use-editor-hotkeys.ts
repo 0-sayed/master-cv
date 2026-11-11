@@ -18,7 +18,7 @@ export function useEditorHotkeys(setMode: (mode: EditorMode) => void) {
 	const redo = useResumeStore((state) => state.redo);
 	const resume = useCurrentResume();
 	const { onDownloadPDF } = useResumeExport(resume);
-	const isOnline = () => useResumeStore.getState().saveStatus !== "offline";
+	const canExport = () => useResumeStore.getState().saveStatus !== "conflict";
 
 	useHotkey("1", () => switchModeInstantly(() => setMode("write")));
 	useHotkey("2", () => switchModeInstantly(() => setMode("design")));
@@ -35,22 +35,19 @@ export function useEditorHotkeys(setMode: (mode: EditorMode) => void) {
 	});
 
 	useHotkey("Mod+P", () => {
-		if (isOnline()) void onDownloadPDF();
+		if (canExport()) void onDownloadPDF();
 	});
 	useHotkey(
 		"Mod+Shift+S",
 		() => {
-			if (isOnline()) useEditorStore.getState().setShareTab("link");
+			if (canExport()) useEditorStore.getState().setShareTab("download");
 		},
 		{ ignoreInputs: true },
 	);
 	useHotkey("Mod+Shift+E", () => {
-		if (isOnline()) useEditorStore.getState().setShareTab("download");
+		if (canExport()) useEditorStore.getState().setShareTab("download");
 	});
-	useHotkey("Mod+J", () => {
-		const { assistantOpen, setAssistantOpen } = useEditorStore.getState();
-		setAssistantOpen(!assistantOpen, true);
-	});
+
 	useHotkey(
 		"Escape",
 		() => {
