@@ -16,7 +16,13 @@ import { DesignSectionBuilder } from "../-sidebar/right/sections/design";
 import { LayoutSectionBuilder } from "../-sidebar/right/sections/layout";
 import { PageSectionBuilder } from "../-sidebar/right/sections/page";
 import { TypographySectionBuilder } from "../-sidebar/right/sections/typography";
-import { useIsResumeLocked, useResumeData, useResumeStore, useUpdateResumeData } from "@/features/resume/builder/draft";
+import {
+	replaceResumeFonts,
+	useIsResumeLocked,
+	useResumeData,
+	useResumeStore,
+	useUpdateResumeData,
+} from "@/features/resume/builder/draft";
 import { FontReplacementNotice } from "@/features/resume/editor/design/font-replacement";
 import { ColorGroup, PageGroup, TypeGroup } from "@/features/resume/editor/design/style-groups";
 import { TemplateGroup } from "@/features/resume/editor/design/template-group";
@@ -296,20 +302,12 @@ function AdvancedGroup({ open, onOpenChange }: AdvancedGroupProps) {
 
 function FontReplacement() {
 	const data = useResumeData();
-	const update = useUpdateResumeData();
 	if (!data) return null;
 	return (
 		<FontReplacementNotice
 			data={data}
 			onAccept={(before, after) => {
-				const current = useResumeStore.getState();
-				if (!current.resume || current.resume.isLocked || current.resume.data !== before) return;
-				update(
-					(draft) => {
-						draft.metadata.typography = after.metadata.typography;
-					},
-					{ newStep: true },
-				);
+				if (!replaceResumeFonts(before, after)) return;
 				const accepted = useResumeStore.getState().resume?.data;
 				toast.add({
 					description: t`Document font changed`,

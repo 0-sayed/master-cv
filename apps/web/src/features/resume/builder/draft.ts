@@ -191,6 +191,27 @@ function readRecoveryDraft(id: string, ownerId: string, baseRevision: string) {
 		},
 	);
 }
+/** Applies the exact font preview only while its originating draft remains editable. */
+export function replaceResumeFonts(before: ResumeData, after: ResumeData): boolean {
+	const current = useResumeStore.getState();
+	if (
+		!current.resume ||
+		current.resume.isLocked ||
+		current.recoveryDraft ||
+		current.saveStatus === "conflict" ||
+		current.resume.data !== before ||
+		isEqual(before.metadata.typography, after.metadata.typography)
+	)
+		return false;
+	current.updateResumeData(
+		(draft) => {
+			draft.metadata.typography = after.metadata.typography;
+		},
+		{ newStep: true },
+	);
+	return true;
+}
+
 export function readUnsavedResumeData(id: string): ResumeData | undefined {
 	const state = useResumeStore.getState();
 	if (!state.ownerId) return;
@@ -456,14 +477,18 @@ export const useResumeStore = create<ResumeStore>()(
 			for (const id of runtimes.keys()) cleanupRuntime(id, "discard");
 			resetHistoryRuntime();
 			if (resume) setRuntimeBaseline(resume);
-			const recoveryDraft = resume ? readRecoveryDraft(resume.id, ownerId, resume.updatedAt.toISOString()) : undefined;
+			let recoveryDraft = resume ? readRecoveryDraft(resume.id, ownerId, resume.updatedAt.toISOString()) : undefined;
+			if (resume && recoveryDraft && isEqual(recoveryDraft.value, resume.data)) {
+				clearUnsavedResume(resume.id);
+				recoveryDraft = undefined;
+			}
 			set((state) => {
 				state.resume = resume;
 				state.editGeneration += 1;
 				state.resumeId = resume?.id;
 				state.ownerId = ownerId;
 				state.acknowledgedUpdatedAt = resume?.updatedAt ?? null;
-				state.recoveryDraft = recoveryDraft && !isEqual(recoveryDraft.value, resume?.data) ? recoveryDraft : undefined;
+				state.recoveryDraft = recoveryDraft;
 				state.isReady = resume !== null;
 				state.saveStatus = "idle";
 				state.undoStack = [];

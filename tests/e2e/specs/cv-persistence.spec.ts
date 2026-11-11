@@ -17,7 +17,13 @@ test("reload keeps unsaved changes for explicit recovery and persists only after
 	await expect(page.getByRole("status").filter({ hasText: "Not saved" })).toBeVisible();
 	await page.unroute("**/api/rpc/resume/update");
 	await page.reload();
+	await page.setViewportSize({ width: 390, height: 844 });
 	await expect(page.getByText("Unsaved changes on this device", { exact: true })).toBeVisible();
+	for (const name of ["Write", "Page", "Design", "Check"]) {
+		await expect(
+			page.getByRole("navigation", { name: "Editor views" }).getByRole("button", { name, exact: true }),
+		).toBeDisabled();
+	}
 	await expect(page.getByLabel("Full name", { exact: true })).not.toBeVisible();
 	const untouched = await page.request.get(`/api/openapi/resumes/${id}`);
 	expect((await untouched.json()).data.basics.name).toBe(saved.data.basics.name);
@@ -60,7 +66,13 @@ test("two tabs resolve a stale save without overwriting either draft", async ({ 
 		.poll(async () => (await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.basics.name)
 		.toBe("Synthetic remote draft");
 	release();
+	await page.setViewportSize({ width: 390, height: 844 });
 	await expect(page.getByRole("button", { name: "Save my edits as a new copy", exact: true })).toBeVisible();
+	for (const name of ["Write", "Page", "Design", "Check"]) {
+		await expect(
+			page.getByRole("navigation", { name: "Editor views" }).getByRole("button", { name, exact: true }),
+		).toBeDisabled();
+	}
 	await expect(page.getByRole("button", { name: "Download PDF", exact: true })).toBeDisabled();
 	expect((await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.basics.name).toBe(
 		"Synthetic remote draft",

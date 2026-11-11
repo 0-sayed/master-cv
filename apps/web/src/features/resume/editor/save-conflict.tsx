@@ -121,6 +121,23 @@ function ChangedSections({ value, other }: ChangedSectionsProps) {
 	const sections = Object.entries(value.data.sections).filter(
 		([key, section]) => !isEqual(section, other.data.sections[key as keyof typeof other.data.sections]),
 	);
+	const metadataLabels = {
+		template: getSectionTitle("template"),
+		layout: getSectionTitle("layout"),
+		page: getSectionTitle("page"),
+		design: getSectionTitle("design"),
+		typography: getSectionTitle("typography"),
+		notes: getSectionTitle("notes"),
+		styleRules: getSectionTitle("styles"),
+		stylesheet: getSectionTitle("styles"),
+		check: t`Check`,
+	} satisfies Record<keyof Resume["data"]["metadata"], string>;
+	const extraLabels = new Set<string>();
+	if (!isEqual(value.data.picture, other.data.picture)) extraLabels.add(getSectionTitle("picture"));
+	if (!isEqual(value.data.customSections, other.data.customSections)) extraLabels.add(getSectionTitle("custom"));
+	for (const key of Object.keys(metadataLabels) as (keyof typeof metadataLabels)[]) {
+		if (!isEqual(value.data.metadata[key], other.data.metadata[key])) extraLabels.add(metadataLabels[key]);
+	}
 	const basics = !isEqual(value.data.basics, other.data.basics);
 	const summary = !isEqual(value.data.summary, other.data.summary);
 	return (
@@ -137,6 +154,12 @@ function ChangedSections({ value, other }: ChangedSectionsProps) {
 					<span dir="auto">{value.data.summary.title || t`Summary`}</span>
 				</li>
 			)}
+			{Array.from(extraLabels, (label) => (
+				<li key={label} className="flex gap-2">
+					<Icon name="pencil" />
+					<span>{label}</span>
+				</li>
+			))}
 			{sections.map(([key, section]) => (
 				<li key={key} className="flex gap-2">
 					<Icon name="pencil" />

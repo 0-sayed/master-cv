@@ -10,6 +10,7 @@ import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { applyFontPairing, getRecommendedFontPairing } from "../editor/design/presets";
 import {
 	readUnsavedResumeData,
+	replaceResumeFonts,
 	savePendingChanges,
 	useBuilderResumeUpdateSubscription,
 	useResumeCleanup,
@@ -152,6 +153,31 @@ async function flushMicrotasks() {
 }
 
 describe("builder resume autosave", () => {
+	it("removes an already-saved recovery backup before a later server revision", () => {
+		const initial = makeResume("equal-backup");
+		const key = storageKey("resumeBackup", initial.id);
+		writeStoredDraft(
+			"local",
+			key,
+			{
+				ownerId: "alice",
+				documentId: initial.id,
+				baseRevision: initial.updatedAt.toISOString(),
+			},
+			initial.data,
+		);
+		useResumeStore.getState().initialize(initial, "alice");
+		expect(useResumeStore.getState().recoveryDraft).toBeUndefined();
+		expect(browserStorage.local.getItem(key)).toBeNull();
+		useResumeStore.getState().initialize(
+			{
+				...withBasicsName(initial, "Newer server copy"),
+				updatedAt: new Date(initial.updatedAt.getTime() + 1),
+			},
+			"alice",
+		);
+		expect(useResumeStore.getState().recoveryDraft).toBeUndefined();
+	});
 	it("preserves pending recovery until an explicit restore or discard", async () => {
 		const initial = makeResume("unanswered-recovery");
 		const backup = withBasicsName(initial, "Recover this original draft");
@@ -707,6 +733,57 @@ describe("builder resume undo/redo", () => {
 		useResumeStore.getState().reset();
 	});
 
+	it.each(["recovery", "conflict", "locked", "stale"] as const)(
+		"rejects font replacement when the preview becomes %s",
+		(reason) => {
+			const initial = makeResume(`font-${reason}`);
+			useResumeStore.getState().initialize(initial, "alice");
+			const before = useResumeStore.getState().resume?.data;
+			assert(before);
+			const after = cloneResumeData(before);
+			after.metadata.typography.body.fontFamily = "IBM Plex Sans Arabic";
+			if (reason === "recovery") {
+				writeStoredDraft(
+					"local",
+					storageKey("resumeBackup", initial.id),
+					{
+						ownerId: "alice",
+						documentId: initial.id,
+						baseRevision: initial.updatedAt.toISOString(),
+					},
+					withBasicsName(initial, "Recovered edits").data,
+				);
+				useResumeStore.getState().initialize(initial, "alice");
+			}
+			if (reason === "conflict") useResumeStore.getState().setSaveStatus("conflict");
+			if (reason === "locked")
+				useResumeStore.getState().patchResume((resume) => {
+					resume.isLocked = true;
+				});
+			if (reason === "stale")
+				useResumeStore.getState().patchResume((resume) => {
+					resume.data.basics.name = "Newer edit";
+				});
+			const current = useResumeStore.getState().resume?.data;
+			expect(replaceResumeFonts(before, after)).toBe(false);
+			expect(useResumeStore.getState().resume?.data).toBe(current);
+			expect(useResumeStore.getState().canUndo).toBe(false);
+		},
+	);
+	it("accepts a font preview as one reversible edit and rejects an unchanged pairing", () => {
+		const initial = makeResume("accepted-font");
+		useResumeStore.getState().initialize(initial, "alice");
+		const before = useResumeStore.getState().resume?.data;
+		assert(before);
+		expect(replaceResumeFonts(before, before)).toBe(false);
+		const after = cloneResumeData(before);
+		after.metadata.typography.body.fontFamily = "IBM Plex Sans Arabic";
+		expect(replaceResumeFonts(before, after)).toBe(true);
+		expect(useResumeStore.getState().resume?.data.metadata.typography).toEqual(after.metadata.typography);
+		expect(useResumeStore.getState().undoStack).toHaveLength(1);
+		useResumeStore.getState().undo();
+		expect(useResumeStore.getState().resume?.data).toEqual(before);
+	});
 	it("keeps an existing unsuitable font until accepted and restores it with undo", () => {
 		const store = useResumeStore.getState;
 		const resume = makeResume("font-replacement");
@@ -1055,6 +1132,7 @@ describe("resume update stream subscription", () => {
 		expect(useResumeStore.getState().resume?.data.basics.name).toBe("Local Name");
 	});
 	it("retries a conflict copy with one immutable confirmation flow", async () => {
+		orpcMocks.confirmImport.mockReset();
 		const initial = makeResume("copy-retry");
 		useResumeStore.getState().initialize(initial, "alice");
 		orpcMocks.updateResume.mockRejectedValue(new ORPCError("RESUME_VERSION_CONFLICT", { status: 409 }));
@@ -1067,6 +1145,10 @@ describe("resume update stream subscription", () => {
 			.mockResolvedValueOnce({ resumeId: "one-copy" });
 		await expect(useResumeStore.getState().resolveConflict("save-copy")).rejects.toThrow("Lost response");
 		expect(await useResumeStore.getState().resolveConflict("save-copy")).toBe("one-copy");
+		expect(orpcMocks.confirmImport).toHaveBeenCalledTimes(2);
+		expect(orpcMocks.confirmImport.mock.calls[0]?.[0]).toMatchObject({
+			data: { basics: { name: "Keep these edits" } },
+		});
 		expect(orpcMocks.confirmImport.mock.calls[0]?.[0]).toEqual(orpcMocks.confirmImport.mock.calls[1]?.[0]);
 		expect(orpcMocks.importResume).not.toHaveBeenCalled();
 	});

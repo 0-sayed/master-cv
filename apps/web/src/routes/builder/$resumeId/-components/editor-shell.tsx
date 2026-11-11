@@ -232,7 +232,9 @@ const MOBILE_TABS: { view: MobileView; icon: IconName }[] = [
 ];
 
 function MobileBody({ mode, onModeChange }: MobileBodyProps) {
-	const view = useEditorStore((state) => state.mobileView) ?? mode;
+	const needsRecovery = useResumeStore((state) => !!state.recoveryDraft || state.saveStatus === "conflict");
+	const requestedView = useEditorStore((state) => state.mobileView) ?? mode;
+	const view = needsRecovery ? "write" : requestedView;
 	const setView = useEditorStore((state) => state.setMobileView);
 	const setPreviewPaused = usePreviewPausedStore((state) => state.setPaused);
 	const labels: Record<MobileView, string> = { write: t`Write`, page: t`Page`, design: t`Design`, check: t`Check` };
@@ -286,6 +288,7 @@ function MobileBody({ mode, onModeChange }: MobileBodyProps) {
 							key={tab}
 							type="button"
 							aria-current={active ? "page" : undefined}
+							disabled={needsRecovery}
 							onClick={() => {
 								setView(tab);
 								if (tab !== "page") onModeChange(tab);
