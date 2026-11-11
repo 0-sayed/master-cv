@@ -123,6 +123,7 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 	const when = (version: HistoryVersion) => formatVersionTime(version.createdAt, i18n.locale);
 
 	const run = async (action: () => Promise<void>) => {
+		if (busy) return;
 		setBusy(true);
 		try {
 			await action();
@@ -187,6 +188,7 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 						<Button
 							size="sm"
 							variant="ghost"
+							disabled={busy}
 							className="text-bg underline underline-offset-[3px] hover:bg-transparent hover:text-bg"
 							onClick={() => setVersion(null)}
 						>
@@ -219,6 +221,7 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 							title={t`Now`}
 							detail={source.nowDetail}
 							selected={!selected}
+							disabled={busy}
 							current
 							last={!versions?.length}
 							onSelect={() => setVersion(null)}
@@ -230,6 +233,7 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 								detail={`${when(version)} · ${getVersionDetail(version)}`}
 								named={version.kind === "named"}
 								selected={version.id === selectedId}
+								disabled={busy}
 								last={index === versions.length - 1}
 								onSelect={() => {
 									if (!busy)
@@ -238,7 +242,11 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 											setVersion(version.id);
 										});
 								}}
-								menu={version.kind === "named" ? <NamedVersionMenu version={version} source={source} /> : null}
+								menu={
+									version.kind === "named" ? (
+										<NamedVersionMenu version={version} source={source} disabled={busy} />
+									) : null
+								}
 							/>
 						))}
 					</ol>
@@ -267,12 +275,13 @@ type TimelineItemProps = {
 	selected: boolean;
 	last: boolean;
 	onSelect: () => void;
+	disabled: boolean;
 	current?: boolean;
 	named?: boolean;
 	menu?: React.ReactNode;
 };
 
-function TimelineItem({ title, detail, selected, last, onSelect, current, named, menu }: TimelineItemProps) {
+function TimelineItem({ title, detail, selected, last, onSelect, disabled, current, named, menu }: TimelineItemProps) {
 	return (
 		<li className="grid grid-cols-[20px_minmax(0,1fr)] gap-2.5">
 			<span aria-hidden="true" className="flex flex-col items-center">
@@ -293,6 +302,7 @@ function TimelineItem({ title, detail, selected, last, onSelect, current, named,
 				<button
 					type="button"
 					aria-pressed={selected}
+					disabled={disabled}
 					onClick={onSelect}
 					className="flex min-w-0 flex-1 flex-col items-start gap-0.5 px-2.5 py-[9px] text-start"
 				>
@@ -309,7 +319,9 @@ function TimelineItem({ title, detail, selected, last, onSelect, current, named,
 }
 
 /** Named versions are the user's own: they can be renamed or deleted. The rest expire on their own. */
-function NamedVersionMenu({ version, source }: { version: HistoryVersion; source: HistorySource }) {
+type NamedVersionMenuProps = { version: HistoryVersion; source: HistorySource; disabled: boolean };
+
+function NamedVersionMenu({ version, source, disabled }: NamedVersionMenuProps) {
 	const prompt = usePrompt();
 	const confirm = useConfirm();
 	const selectedId = useEditorStore((state) => state.historyVersionId);
@@ -342,6 +354,7 @@ function NamedVersionMenu({ version, source }: { version: HistoryVersion; source
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger
+				disabled={disabled}
 				render={
 					<IconButton
 						icon="dots-three"

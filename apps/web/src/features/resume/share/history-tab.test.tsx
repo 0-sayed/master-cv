@@ -132,3 +132,41 @@ it("keeps cached versions visible after a refresh failure and disables duplicate
 	expect(screen.getByRole("button", { name: "Retrying…" })).toBeDisabled();
 	expect(screen.queryByText(/Only one version/)).toBeNull();
 });
+
+it("disables navigation to Now and other versions while saving before a preview", async () => {
+	let finish: () => void = () => {};
+	const preparePreview = vi.fn(
+		() =>
+			new Promise<void>((resolve) => {
+				finish = resolve;
+			}),
+	);
+	useEditorStore.getState().setHistoryVersion("first");
+	render(
+		<I18nProvider i18n={i18n}>
+			<HistoryTimeline
+				source={source({
+					loadError: false,
+					versions: [
+						{ id: "first", kind: "named", name: "First", createdAt: new Date() },
+						{ id: "second", kind: "named", name: "Second", createdAt: new Date() },
+					],
+					preparePreview,
+				})}
+			/>
+		</I18nProvider>,
+	);
+	fireEvent.click(screen.getByRole("button", { name: /^Second/ }));
+	expect(screen.getByRole("button", { name: /^Now/ })).toBeDisabled();
+	expect(screen.getByRole("button", { name: "Back to now" })).toBeDisabled();
+	expect(screen.getByRole("button", { name: /^First/ })).toBeDisabled();
+	expect(screen.getByRole("button", { name: /^Second/ })).toBeDisabled();
+	expect(screen.getByRole("button", { name: "Options for First" })).toBeDisabled();
+	fireEvent.click(screen.getByRole("button", { name: /^Now/ }));
+	fireEvent.click(screen.getByRole("button", { name: /^First/ }));
+	expect(preparePreview).toHaveBeenCalledOnce();
+	expect(useEditorStore.getState().historyVersionId).toBe("first");
+	finish();
+	await waitFor(() => expect(useEditorStore.getState().historyVersionId).toBe("second"));
+	expect(screen.getByRole("button", { name: /^Now/ })).toBeEnabled();
+});
