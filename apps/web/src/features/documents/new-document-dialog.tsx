@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useId, useRef, useState } from "react";
 import { ActionChoice } from "@reactive-resume/ui/components/action-choice";
+import { Alert, AlertDescription } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@reactive-resume/ui/components/dialog";
 import { Icon } from "@reactive-resume/ui/components/icon";
@@ -23,7 +24,7 @@ import { applicationsListQueryOptions } from "@/features/applications/queries";
 import { detectImportKind, ImportError, readResumeFile, summarizeImport } from "@/features/resume/import/read-file";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
-import { getOrpcErrorMessage } from "@/libs/error-message";
+import { getOrpcErrorMessage, getResumeErrorMessage } from "@/libs/error-message";
 import { formatRelativeTime } from "@/libs/locale";
 import { ENTER_CLASS, POP_CLASS } from "@/libs/motion";
 import { client, orpc } from "@/libs/orpc/client";
@@ -552,6 +553,7 @@ type CopyForJobProps = {
 
 /** Pick a resume and a job; the copy is named from both and linked to the application. */
 function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyForJobProps) {
+	const [copyError, setCopyError] = useState<string | null>(null);
 	const { i18n } = useLingui();
 	const nameId = useId();
 	const { data: documents } = useQuery(orpc.documents.list.queryOptions({ input: { trashed: false } }));
@@ -578,11 +580,12 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 		};
 		const message = job ? t`Created and linked to ${job.company}` : t`Created “${finalName}”`;
 		try {
+			setCopyError(null);
 			const resumeId = await copyForJob(input);
 			toast.add({ description: message });
 			onCreated(resumeId, Boolean(job));
 		} catch (error) {
-			toast.add({ type: "error", description: getOrpcErrorMessage(error, { fallback: t`Couldn't copy the resume.` }) });
+			setCopyError(getResumeErrorMessage(error));
 		}
 	};
 
@@ -685,6 +688,12 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 				</span>
 			</div>
 
+			{copyError && (
+				<Alert variant="error">
+					<Icon name="warning-circle" />
+					<AlertDescription>{copyError}</AlertDescription>
+				</Alert>
+			)}
 			<div className="flex flex-wrap justify-end gap-2">
 				<Button variant="ghost" onClick={onBack}>
 					{documents && resumes.length === 0 ? <Trans>Import or create a resume</Trans> : <Trans>Back</Trans>}

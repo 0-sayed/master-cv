@@ -1,7 +1,8 @@
 import type { ChatAttachment, MessageContext } from "./chat";
 import type { AssistantDocument } from "./document";
-import type { ProposeEditsOutput } from "@reactive-resume/ai/tools/agent-tool-contracts";
+import type { AgentUIMessage, ProposeEditsOutput } from "@reactive-resume/ai/tools/agent-tool-contracts";
 import type { Proposal } from "@reactive-resume/resume/proposals";
+import type { OperationView } from "@reactive-resume/schema/ai-operation";
 import type { IconName } from "@reactive-resume/ui/components/icon";
 import type { UIMessage } from "ai";
 import type { ReactNode } from "react";
@@ -11,6 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { lastAssistantMessageIsCompleteWithToolCalls } from "ai";
 import { useEffect, useEffectEvent, useId, useMemo, useRef, useState } from "react";
 import { agentWebSources, readPageOutputSchema } from "@reactive-resume/ai/tools/agent-tool-contracts";
+import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
@@ -19,7 +21,9 @@ import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { attachmentPart, fileToBase64, transcriptOf, useAssistantChat } from "./chat";
+import { useAssistantCopy } from "./copy.generated";
 import { AssistantMarkdown } from "./markdown";
+import { confirmedCancellation } from "./operation-state";
 import { ChangeSet } from "@/features/resume/editor/proposals/proposal-list";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { getOrpcErrorMessage } from "@/libs/error-message";
@@ -42,6 +46,7 @@ type ConversationProps = {
 	initialMessages: UIMessage[];
 	/** A reply was still streaming when the conversation opened. */
 	activeRun: boolean;
+	operationId?: string | null;
 	document: AssistantDocument;
 	readOnly: boolean;
 	providerLabel: string;
@@ -55,12 +60,22 @@ type ConversationProps = {
 
 /** One conversation: the thread (role="log"), change sets and questions in it, and the composer. */
 export function Conversation(props: ConversationProps) {
+	const copy = useAssistantCopy();
 	const { threadId, document, readOnly } = props;
 	const queryClient = useQueryClient();
 	const setAssistantProposals = useEditorStore((state) => state.setAssistantProposals);
 	const [context, setContext] = useState<MessageContext>(props.initialContext);
 	const [statuses, setStatuses] = useState<ReadonlyMap<string, EditStatus>>(new Map());
 	const [stopped, setStopped] = useState(false);
+	const [stopState, setStopState] = useState<"idle" | "requested" | "failed">("idle");
+	const stopAttempt = useRef<AbortController | null>(null);
+	const pendingDecisions = useRef(new Set<string>());
+	const [pendingDecisionCount, setPendingDecisionCount] = useState(0);
+	const [decisionFailure, setDecisionFailure] = useState<{ retry: () => void } | null>(null);
+	const [operation, setOperation] = useState<OperationView | null>(null);
+	const [resumeFailed, setResumeFailed] = useState(false);
+	const [resumeAttempt, setResumeAttempt] = useState(0);
+	useEffect(() => () => stopAttempt.current?.abort(), []);
 	const scroller = useRef<HTMLDivElement>(null);
 	// Messages already in the thread when it opens are history; only new ones rise in.
 	const [initialIds] = useState(() => new Set(props.initialMessages.map((message) => message.id)));
@@ -69,14 +84,53 @@ export function Conversation(props: ConversationProps) {
 		void queryClient.invalidateQueries({
 			queryKey: orpc.agent.threads.list.key(),
 		});
-	const { messages, sendMessage, status, error, clearError, regenerate, stop, addToolOutput } = useAssistantChat({
-		threadId,
-		initialMessages: props.initialMessages,
-		resume: props.activeRun,
-		context,
-		onFinish: refresh,
-	});
-	const streaming = status === "submitted" || status === "streaming";
+	const { messages, setMessages, sendMessage, status, error, clearError, regenerate, stop, addToolOutput } =
+		useAssistantChat({
+			threadId,
+			initialMessages: props.initialMessages,
+			resume: props.activeRun && !props.operationId,
+			context,
+			onFinish: refresh,
+		});
+	const streaming =
+		status === "submitted" ||
+		status === "streaming" ||
+		Boolean(operation && ["queued", "running", "cancel_requested"].includes(operation.state));
+	useEffect(() => {
+		if (!props.operationId) return;
+		const controller = new AbortController();
+		const recover = async () => {
+			try {
+				let outcome;
+				do {
+					outcome = await client.agent.messages.operationStatus({ threadId }, { signal: controller.signal });
+					if (controller.signal.aborted) return;
+					setOperation(outcome.operation);
+					setResumeFailed(false);
+					if (!["queued", "running", "cancel_requested"].includes(outcome.operation.state)) break;
+					await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+				} while (!controller.signal.aborted);
+				if (controller.signal.aborted) return;
+				if (outcome.operation.resultId) {
+					const result = await client.agent.messages.operationResult({ threadId }, { signal: controller.signal });
+					if (controller.signal.aborted) return;
+					const recovered: AgentUIMessage = {
+						id: outcome.operation.id,
+						role: "assistant",
+						parts: [{ type: "text", text: typeof result.text === "string" ? result.text : JSON.stringify(result) }],
+					};
+					setMessages((current) =>
+						current.some((message) => message.id === recovered.id) ? current : [...current, recovered],
+					);
+				}
+				setStopped(confirmedCancellation(outcome.operation));
+			} catch {
+				if (!controller.signal.aborted) setResumeFailed(true);
+			}
+		};
+		void recover();
+		return () => controller.abort();
+	}, [props.operationId, threadId, resumeAttempt, setMessages]);
 
 	const send = (text: string, attachments: ChatAttachment[] = []) => {
 		if (streaming || readOnly) return;
@@ -110,10 +164,29 @@ export function Conversation(props: ConversationProps) {
 		else void regenerate();
 	};
 
-	const stopReply = () => {
-		setStopped(true);
-		void client.agent.messages.stop({ threadId }).catch(() => undefined);
-		void stop();
+	const stopReply = async () => {
+		if (stopState === "requested") return;
+		const controller = new AbortController();
+		stopAttempt.current?.abort();
+		stopAttempt.current = controller;
+		setStopState("requested");
+		try {
+			let operation = await client.agent.messages.stopOperation({ threadId }, { signal: controller.signal });
+			while (["queued", "running", "cancel_requested"].includes(operation.state)) {
+				await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+				controller.signal.throwIfAborted();
+				operation = (await client.agent.messages.operationStatus({ threadId }, { signal: controller.signal }))
+					.operation;
+			}
+			if (controller.signal.aborted) return;
+			setOperation(operation);
+			setStopped(confirmedCancellation(operation));
+			setStopState("idle");
+			await stop();
+			refresh();
+		} catch {
+			if (!controller.signal.aborted) setStopState("failed");
+		}
 	};
 
 	// Every proposed edit in the conversation, with what the user did with it: marked on the page while pending.
@@ -129,17 +202,28 @@ export function Conversation(props: ConversationProps) {
 	useEffect(() => () => setAssistantProposals([]), [setAssistantProposals]);
 
 	const record = (message: UIMessage, part: ToolPart, changed: readonly Proposal[], next: EditStatus) => {
-		setStatuses((current) => new Map([...current, ...changed.map((proposal) => [proposal.id, next] as const)]));
 		if (!part.toolCallId) return;
+		const key = `${message.id}:${part.toolCallId}:${changed.map((proposal) => proposal.id).join(",")}:${next}`;
+		if (pendingDecisions.current.has(key)) return;
+		pendingDecisions.current.add(key);
+		setPendingDecisionCount((count) => count + 1);
+		setDecisionFailure(null);
 		void client.agent.messages
 			.setEditStatus({
 				threadId,
 				messageId: message.id,
 				toolCallId: part.toolCallId,
-				edits: changed.map((proposal) => ({ id: proposal.id, status: next })),
+				edits: changed.map((proposal) => ({ id: proposal.id, status: next, expectedStatus: proposal.status })),
 			})
-			.then(refresh)
-			.catch(() => undefined);
+			.then(() => {
+				setStatuses((current) => new Map([...current, ...changed.map((proposal) => [proposal.id, next] as const)]));
+				refresh();
+			})
+			.catch(() => setDecisionFailure({ retry: () => record(message, part, changed, next) }))
+			.finally(() => {
+				pendingDecisions.current.delete(key);
+				setPendingDecisionCount((count) => count - 1);
+			});
 	};
 
 	const recordUndone = useEffectEvent(record);
@@ -186,7 +270,7 @@ export function Conversation(props: ConversationProps) {
 						message={message}
 						streaming={streaming && index === messages.length - 1}
 						enter={!initialIds.has(message.id)}
-						readOnly={readOnly}
+						readOnly={readOnly || pendingDecisionCount > 0}
 						statuses={statuses}
 						document={document}
 						onAnswer={(toolCallId, answer) =>
@@ -207,6 +291,60 @@ export function Conversation(props: ConversationProps) {
 					</p>
 				)}
 
+				{stopState === "requested" && (
+					<Alert variant="info">
+						<Icon name="stop-circle" />
+						<AlertTitle>
+							<Trans>Stop requested</Trans>
+						</AlertTitle>
+						<AlertDescription>
+							<Trans>Waiting for the server to confirm cancellation.</Trans>
+						</AlertDescription>
+					</Alert>
+				)}
+				{resumeFailed && (
+					<Alert variant="warn">
+						<Icon name="warning-circle" />
+						<AlertTitle>{copy("review.assistant.error.unavailableTitle")}</AlertTitle>
+						<AlertDescription>
+							<Button variant="secondary" onClick={() => setResumeAttempt((attempt) => attempt + 1)}>
+								<Trans>Retry</Trans>
+							</Button>
+						</AlertDescription>
+					</Alert>
+				)}
+				{stopState === "failed" && (
+					<Alert variant="error">
+						<Icon name="warning-circle" />
+						<AlertTitle>
+							<Trans>Couldn't stop the assistant. Work may still be active.</Trans>
+						</AlertTitle>
+						<AlertDescription>
+							<Button variant="secondary" onClick={() => void stopReply()}>
+								<Trans>Retry stop</Trans>
+							</Button>
+						</AlertDescription>
+					</Alert>
+				)}
+				{decisionFailure && (
+					<Alert variant="error">
+						<Icon name="warning-circle" />
+						<AlertTitle>
+							<Trans>Your decision wasn't saved</Trans>
+						</AlertTitle>
+						<AlertDescription>
+							<Trans>The previous confirmed decision is kept.</Trans>
+							<Button variant="secondary" onClick={decisionFailure.retry}>
+								<Trans>Retry saving decision</Trans>
+							</Button>
+						</AlertDescription>
+					</Alert>
+				)}
+				{pendingDecisionCount > 0 && (
+					<p role="status" className="type-meta text-ink-2">
+						<Trans>Saving decision…</Trans>
+					</p>
+				)}
 				{stopped && !streaming && !proposedInLast && (
 					<p className="flex items-center gap-2 text-sm text-ink-2 transition-opacity duration-standard ease-enter starting:opacity-0">
 						<Icon name="stop-circle" size={18} className="text-ink-3" />
@@ -267,7 +405,7 @@ export function Conversation(props: ConversationProps) {
 				disabled={readOnly}
 				threadId={threadId}
 				onSend={send}
-				onStop={stopReply}
+				onStop={() => void stopReply()}
 			/>
 		</div>
 	);
@@ -714,6 +852,9 @@ export function Composer(props: ComposerProps) {
 
 	return (
 		<div className="grid gap-2 border-t border-line bg-surface px-3 pt-2.5 pb-3">
+			<p className="type-meta text-ink-2">
+				<Trans>This task uses 1 assistant operation when its result is saved.</Trans>
+			</p>
 			{(chips.length > 0 || attachments.length > 0) && (
 				<div className="flex flex-wrap gap-1.5">
 					{chips.map((chip) => (

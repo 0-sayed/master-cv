@@ -255,6 +255,502 @@
 	],
 	"entries": [
 		{
+			"key": "review.runtime.decisionPending",
+			"messages": {
+				"ar-SA": "جارٍ حفظ القرار…",
+				"en-US": "Saving decision…"
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Saving decision…",
+				"msgctxt": "",
+				"runtimeId": "V-gzfP",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.operationCost",
+			"messages": {
+				"ar-SA": "تستخدم هذه المهمة 1 من عمليات المساعد عند حفظ نتيجتها.",
+				"en-US": "This task uses 1 assistant operation when its result is saved."
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "This task uses 1 assistant operation when its result is saved.",
+				"msgctxt": "",
+				"runtimeId": "ECHrpM",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.jobLimit",
+			"messages": {
+				"ar-SA": "لديك نسخة مخصصة لوظيفة من هذه السيرة الأصلية. اختياراتك محفوظة.",
+				"en-US": "You already have a job copy for this base CV. Your selections are kept."
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "You already have a job copy for this base CV. Your selections are kept.",
+				"msgctxt": "",
+				"runtimeId": "t6ROYM",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.languageLimit",
+			"messages": {
+				"ar-SA": "لديك نسخة لغة من هذه السيرة الأصلية. اختياراتك محفوظة.",
+				"en-US": "You already have a language copy for this base CV. Your selections are kept."
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "You already have a language copy for this base CV. Your selections are kept.",
+				"msgctxt": "",
+				"runtimeId": "iOpT0F",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.stopRequested",
+			"messages": {
+				"ar-SA": "طُلب الإيقاف",
+				"en-US": "Stop requested"
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Stop requested",
+				"msgctxt": "",
+				"runtimeId": "L62mKR",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.stopPending",
+			"messages": {
+				"ar-SA": "بانتظار تأكيد الخادم لإلغاء العملية.",
+				"en-US": "Waiting for the server to confirm cancellation."
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Waiting for the server to confirm cancellation.",
+				"msgctxt": "",
+				"runtimeId": "_DRm75",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.stopFailed",
+			"messages": {
+				"ar-SA": "تعذّر إيقاف المساعد. قد تكون العملية ما زالت جارية.",
+				"en-US": "Couldn't stop the assistant. Work may still be active."
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Couldn't stop the assistant. Work may still be active.",
+				"msgctxt": "",
+				"runtimeId": "e2wt1g",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.retryStop",
+			"messages": {
+				"ar-SA": "إعادة محاولة الإيقاف",
+				"en-US": "Retry stop"
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Retry stop",
+				"msgctxt": "",
+				"runtimeId": "uw54xh",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.decisionFailed",
+			"messages": {
+				"ar-SA": "لم يُحفظ قرارك",
+				"en-US": "Your decision wasn't saved"
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Your decision wasn't saved",
+				"msgctxt": "",
+				"runtimeId": "650Inc",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.decisionPreserved",
+			"messages": {
+				"ar-SA": "القرار المؤكد السابق محفوظ.",
+				"en-US": "The previous confirmed decision is kept."
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "The previous confirmed decision is kept.",
+				"msgctxt": "",
+				"runtimeId": "l6NnoZ",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.retryDecision",
+			"messages": {
+				"ar-SA": "إعادة محاولة حفظ القرار",
+				"en-US": "Retry saving decision"
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Retry saving decision",
+				"msgctxt": "",
+				"runtimeId": "YOWI9D",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.loading",
+			"messages": {
+				"ar-SA": "جارٍ التحقق من توفر المساعد…",
+				"en-US": "Loading assistant availability…"
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": [
+					"Hidden query-skeleton accessibility status; pending A13 owner review; no processing approval."
+				]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Loading assistant availability…",
+				"msgctxt": "",
+				"runtimeId": "p1SqT4",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
+				"verification": "Hidden query-skeleton status; pending A13 owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
+			"key": "review.runtime.busy",
+			"messages": {
+				"ar-SA": "هناك عملية جارية بالفعل. كتابتك محفوظة.",
+				"en-US": "An operation is already in progress. Your writing is kept."
+			},
+			"context": {
+				"surfaces": ["messages:t005Runtime"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Operational status copy pending owner review; no processing approval."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "An operation is already in progress. Your writing is kept.",
+				"msgctxt": "",
+				"runtimeId": "zVN6eJ",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/assistant",
+				"verification": "Synthetic runtime states; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T005 / 2026-11-11"
+				}
+			}
+		},
+		{
 			"key": "common.brand.name",
 			"messages": {
 				"ar-SA": "Master CV",
@@ -79045,6 +79541,21 @@
 		}
 	},
 	"messages": {
+		"t005Runtime": [
+			"review.runtime.stopRequested",
+			"review.runtime.stopPending",
+			"review.runtime.stopFailed",
+			"review.runtime.retryStop",
+			"review.runtime.decisionFailed",
+			"review.runtime.decisionPreserved",
+			"review.runtime.retryDecision",
+			"review.runtime.loading",
+			"review.runtime.busy",
+			"review.runtime.decisionPending",
+			"review.runtime.operationCost",
+			"review.runtime.jobLimit",
+			"review.runtime.languageLimit"
+		],
 		"validation": [
 			"auth.mobile.error.invalid",
 			"review.fact.mobileDigitsHint.compact",

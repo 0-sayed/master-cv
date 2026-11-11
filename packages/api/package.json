@@ -4,6 +4,8 @@
 	"type": "module",
 	"private": true,
 	"exports": {
+		"./features/ai/operation-worker": "./src/features/ai/operation-worker.ts",
+		"./features/ai/route-policy": "./src/features/ai/route-policy.ts",
 		"./context": "./src/context.ts",
 		"./features/agent/runs": "./src/features/agent/runs.ts",
 		"./features/agent/streams": "./src/features/agent/streams.ts",

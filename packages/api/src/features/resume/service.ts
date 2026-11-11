@@ -1,6 +1,7 @@
 import type { ResumeUpdatedEvent } from "./events";
-import type { DbOrTx } from "@reactive-resume/db/client";
+import type { DbOrTx, OwnerTransaction } from "@reactive-resume/db/client";
 import type { JsonPatchOperation } from "@reactive-resume/resume/patch";
+import type { ResumeCreationKind } from "@reactive-resume/schema/ai-usage";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { Locale } from "@reactive-resume/utils/locale";
 import { ORPCError } from "@orpc/client";
@@ -13,6 +14,7 @@ import { detachEmbeddedLetters } from "@reactive-resume/resume/cover-letter";
 import { applyResumePatches, ResumePatchError } from "@reactive-resume/resume/patch";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { generateId } from "@reactive-resume/utils/string";
+import { admitResumeCreation, resolveResumeCreation } from "../ai/usage";
 import { adoptEmbeddedLetters } from "../cover-letters/embedded";
 import { lockDocumentOwner } from "../documents/ownership";
 import { getStorageService } from "../storage/service";
@@ -37,6 +39,49 @@ function resumeVersionConflict(updatedAt: Date) {
 		message: "The resume changed after this patch was generated.",
 		data: { updatedAt: updatedAt.toISOString() },
 	});
+}
+
+export type ResumeCreateInput = {
+	id?: string;
+	userId: string;
+	name: string;
+	slug?: string;
+	tags: string[];
+	locale: Locale;
+	data?: ResumeData;
+	origin?: "created" | "import";
+	autoName?: boolean;
+	creation?: ResumeCreationKind;
+};
+
+/** Creation, allowance and the first history snapshot are one owner-locked transaction. */
+export async function createResumeInTransaction(
+	tx: OwnerTransaction,
+	input: ResumeCreateInput,
+	options?: { reservationOperationId?: string },
+): Promise<string> {
+	await lockDocumentOwner(tx, input.userId);
+	const creation = await resolveResumeCreation(tx, input.userId, input.creation ?? { variantKind: "base" });
+	await admitResumeCreation(tx, input.userId, creation, options?.reservationOperationId);
+	const id = input.id ?? generateId();
+	const data = parseWritableResumeData(structuredClone(input.data ?? defaultResumeData));
+	data.metadata.page.locale = input.locale;
+	const stored = structuredClone(data);
+	detachEmbeddedLetters(stored);
+	await tx.insert(schema.resume).values({
+		id,
+		userId: input.userId,
+		name: input.name,
+		slug: input.slug ?? (await findFreeSlug(tx, input.userId, input.name)),
+		tags: input.tags,
+		autoName: input.autoName ?? false,
+		data: stored,
+		variantKind: creation.variantKind,
+		baseResumeId: creation.variantKind === "base" ? null : creation.baseResumeId,
+	});
+	await adoptEmbeddedLetters(tx, { userId: input.userId, resumeId: id, resumeName: input.name, data });
+	await writeVersion(tx, { resumeId: id, userId: input.userId, data, kind: input.origin ?? "created" });
+	return id;
 }
 
 function assertResumeVersion(updatedAt: Date, expectedUpdatedAt?: Date) {
@@ -680,49 +725,9 @@ export const resumeService = {
 		return toSharedResumeResponse(redactResumeForViewer(current, isOwner(current, viewer)), resume.hasPassword);
 	},
 
-	create: async (
-		input: {
-			id?: string;
-			userId: string;
-			name: string;
-			/** Generated from the name, and made unique among the user's resumes, when omitted. */
-			slug?: string;
-			tags: string[];
-			locale: Locale;
-			data?: ResumeData;
-			/** The first version in History: "created", or "import" for an imported document. */
-			origin?: "created" | "import";
-			/** The name follows the headline until someone renames the resume. */
-			autoName?: boolean;
-		},
-		options: { atomicConfirmation?: boolean } = {},
-	) => {
-		const id = input.id ?? generateId();
-		const data = parseWritableResumeData(structuredClone(input.data ?? defaultResumeData));
-		data.metadata.page.locale = input.locale;
-
+	create: async (input: ResumeCreateInput, options: { atomicConfirmation?: boolean } = {}) => {
 		try {
-			const slug = input.slug ?? (await findFreeSlug(db, input.userId, input.name));
-			await db.transaction(async (tx) => {
-				// The resume row comes first: letters an imported file carried are saved linked to it.
-				const stored = structuredClone(data);
-				detachEmbeddedLetters(stored);
-				await tx.insert(schema.resume).values({
-					id,
-					name: input.name,
-					autoName: input.autoName ?? false,
-					slug,
-					tags: input.tags,
-					userId: input.userId,
-					data: stored,
-				});
-				await adoptEmbeddedLetters(tx, { userId: input.userId, resumeId: id, resumeName: input.name, data });
-			});
-
-			const initialVersion = () =>
-				writeVersion(db, { resumeId: id, userId: input.userId, data, kind: input.origin ?? "created" });
-			if (options.atomicConfirmation) await initialVersion();
-			else await initialVersion().catch(() => console.warn("Failed to save the first version"));
+			const id = await withOwnerDatabase(input.userId, (tx) => createResumeInTransaction(tx, input));
 			if (!options.atomicConfirmation)
 				await notifyResumeUpdated({
 					type: "resume.updated",
@@ -734,6 +739,7 @@ export const resumeService = {
 
 			return id;
 		} catch (error) {
+			if (error instanceof ORPCError) throw error;
 			const constraint = uniqueConstraint(error);
 
 			if (constraint === "resume_slug_user_id_unique") {

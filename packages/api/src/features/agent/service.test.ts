@@ -1,3 +1,11 @@
+vi.mock("@reactive-resume/db/owner-scope", () => ({
+	withOwnerDatabase: (_id: string, work: (tx: unknown) => unknown) => work(dbMock),
+}));
+// Exercise retained internals with synthetic transports; egress-policy tests cover the unmocked release gate.
+vi.mock("../ai/route-policy", async (original) => ({
+	...(await original<typeof import("../ai/route-policy")>()),
+	assertLegacyAiDenied: () => undefined,
+}));
 import type { UIMessage, UIMessageChunk } from "ai";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { streamToEventIterator } from "@orpc/server";

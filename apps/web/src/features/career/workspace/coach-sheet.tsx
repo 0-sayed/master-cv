@@ -21,7 +21,7 @@ import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { CoachThread, connectionName, deleteConversation, titleFor, useConversationDate } from "../coach-thread";
 import { PrivacyLine, tabLabel } from "../shared";
 import { QuerySkeleton } from "@/components/query-skeleton";
-import { useConversationConnection } from "@/features/assistant/chat";
+import { selectConversationProvider } from "@/features/assistant/operation-state";
 import { ProviderSetup } from "@/features/assistant/provider-setup";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
@@ -124,9 +124,8 @@ function CoachSheetBody({
 	const threadId = summary?.id ?? null;
 	const usable = providers.usableProviders;
 	const tabName = tabLabel(tab);
-	const provider = usable.find((item) => item.id === summary?.aiProviderId) ?? usable[0];
+	const provider = selectConversationProvider(usable, summary, null);
 	const connection = connectionName(provider?.label ?? summary?.providerLabel ?? t`Your AI`);
-	useConversationConnection(summary, provider);
 
 	const open = (next: CoachConversation) => {
 		setSession((current) => current + 1);

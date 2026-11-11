@@ -1,5 +1,6 @@
 import type { UIMessageChunk } from "ai";
 import type { ResumableStreamContext } from "resumable-stream/ioredis";
+import { ORPCError } from "@orpc/client";
 import { JsonToSseTransformStream } from "ai";
 import { createResumableStreamContext } from "resumable-stream/ioredis";
 import { getRedis, redisKey } from "@reactive-resume/db/redis";
@@ -61,12 +62,13 @@ export function createAgentStreamLifecycle(options: AgentStreamLifecycleOptions)
 		},
 
 		async resume(streamId: string | null | undefined) {
-			if (!streamId) return emptyAgentStream();
+			if (!streamId) throw new ORPCError("PRECONDITION_FAILED", { data: { reason: "AI_RESUME_EXPIRED" } });
 			const context = options.getContext();
-			if (!context) return emptyAgentStream();
+			if (!context) throw new ORPCError("PRECONDITION_FAILED", { data: { reason: "AI_RESUME_UNSUPPORTED" } });
 
 			const stream = await context.resumeExistingStream(streamId);
-			return stream ?? emptyAgentStream();
+			if (!stream) throw new ORPCError("PRECONDITION_FAILED", { data: { reason: "AI_RESUME_EXPIRED" } });
+			return stream;
 		},
 	};
 }

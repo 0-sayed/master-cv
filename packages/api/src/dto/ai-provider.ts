@@ -12,6 +12,7 @@ export const aiProviderResponseSchema = z.object({
 	/** Used whenever no connection is chosen, while it's switched on and tested. */
 	isDefault: z.boolean(),
 	testStatus: z.string(),
+	configRevision: z.string(),
 	testError: z.string().nullable(),
 	apiKeyPreview: z.string(),
 	apiKeyFingerprint: z.string(),

@@ -60,6 +60,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("CV persistence", (
 		await migration.query(`GRANT USAGE ON SCHEMA public TO "${role}"`);
 		await migration.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO "${role}"`);
 		await migration.query(`REVOKE UPDATE,DELETE ON career_fact_revision FROM "${role}"`);
+		await migration.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_usage_ledger FROM "${role}"`);
+		await migration.query(`REVOKE ALL ON ai_platform_budget FROM "${role}"`);
 		url.username = role;
 		url.password = password;
 		runtime = new Pool({ connectionString: url.toString(), max: 4 });
@@ -148,6 +150,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("CV persistence", (
 	});
 	it("confirms more than 30 facts atomically and deduplicates concurrent flow retries", async () => {
 		const { confirmImport } = await import("./import-review");
+		// Prior persistence fixtures deliberately retain many bases; this case needs an empty creation slot.
+		await migration.query("DELETE FROM resume WHERE user_id='alice'");
 		const { buildCareerFactCandidates } = await import("@reactive-resume/import/career-facts");
 		const inputData = data("Reviewed");
 		inputData.sections.skills.items = Array.from({ length: 35 }, (_, i) => ({
@@ -190,6 +194,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("CV persistence", (
 	});
 	it("rolls back the CV and master facts when confirmation fails", async () => {
 		const { confirmImport } = await import("./import-review");
+		// Prior persistence fixtures deliberately retain many bases; this case needs an empty creation slot.
+		await migration.query("DELETE FROM resume WHERE user_id='alice'");
 		const profile =
 			(await migration.query("SELECT profile_revision FROM career_profile WHERE user_id='alice'")).rows[0]
 				?.profile_revision ?? 0;
@@ -223,6 +229,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("CV persistence", (
 		"rolls back an attempted %s master link after creating the CV",
 		async (kind) => {
 			const { confirmImport } = await import("./import-review");
+			// Prior persistence fixtures deliberately retain many bases; this case needs an empty creation slot.
+			await migration.query("DELETE FROM resume WHERE user_id='alice'");
 			const { careerMasterService } = await import("../career/master");
 			const master = await owned(() => careerMasterService.read("alice"));
 			const saved = master.facts.find((f) => f.structured?.section === "skills");
@@ -269,6 +277,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("CV persistence", (
 
 	it("cannot replace a reused master fact by labelling its changed value new", async () => {
 		const { confirmImport } = await import("./import-review");
+		// Prior persistence fixtures deliberately retain many bases; this case needs an empty creation slot.
+		await migration.query("DELETE FROM resume WHERE user_id='alice'");
 		const { careerMasterService } = await import("../career/master");
 		const master = await owned(() => careerMasterService.read("alice"));
 		const saved = master.facts.find((f) => f.structured?.section === "skills" && f.structured.field === "name");
@@ -306,6 +316,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("CV persistence", (
 	});
 	it("rolls back confirmation when its first snapshot fails after the CV insert", async () => {
 		const { confirmImport } = await import("./import-review");
+		// Prior persistence fixtures deliberately retain many bases; this case needs an empty creation slot.
+		await migration.query("DELETE FROM resume WHERE user_id='alice'");
 		const flowId = randomUUID();
 		const expectedProfileRevision =
 			(await migration.query("SELECT profile_revision FROM career_profile WHERE user_id='alice'")).rows[0]

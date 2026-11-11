@@ -277,6 +277,7 @@ export const documentsService = {
 		const id = await resumeService.create({
 			userId: input.userId,
 			name: input.name ?? suggestCopyName(source.name, application?.company),
+			creation: { variantKind: "job", baseResumeId: source.id },
 			tags: source.tags,
 			locale: source.data.metadata.page.locale as never,
 			data: source.data,

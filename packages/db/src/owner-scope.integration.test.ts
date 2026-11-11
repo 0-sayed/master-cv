@@ -44,6 +44,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 			`GRANT USAGE ON SCHEMA public TO "${role}"; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO "${role}"`,
 		);
 		await fixture.query(`REVOKE UPDATE,DELETE ON career_fact_revision FROM "${role}"`);
+		await fixture.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_usage_ledger FROM "${role}"`);
+		await fixture.query(`REVOKE ALL ON ai_platform_budget FROM "${role}"`);
 		await fixture.query(
 			`INSERT INTO "user" (id,name,email,username,display_username) VALUES ('alice','Alice','alice@example.test','alice','alice'),('bob','Bob','bob@example.test','bob','bob')`,
 		);
@@ -83,6 +85,36 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 			await withOwnerDatabase("alice", (tx) => tx.execute(sql`UPDATE resume SET name='Saved' WHERE id='alice-resume'`));
 		});
 		expect((await fixture.query(`SELECT name FROM resume WHERE id='alice-resume'`)).rows).toEqual([{ name: "Saved" }]);
+	});
+
+	it("isolates AI operations and forbids rewriting usage history or foreign attempts", async () => {
+		await fixture.query(
+			`INSERT INTO ai_operation(id,user_id,request_key,fingerprint,kind,sources,route,consent_version,prompt_version,schema_version) VALUES ('op-alice','alice','req','fp','review','[]','{}','1','1','1')`,
+		);
+		expect((await runtime.query("SELECT id FROM ai_operation")).rows).toEqual([]);
+		await withDatabasePool(runtime, () =>
+			withOwnerDatabase("bob", async (tx) => {
+				expect((await tx.execute(sql`SELECT id FROM ai_operation`)).rows).toEqual([]);
+				await expect(
+					tx.execute(
+						sql`INSERT INTO ai_operation_attempt(id,user_id,operation_id,ordinal,step_id) VALUES ('forged','bob','op-alice',1,'step')`,
+					),
+				).rejects.toThrow();
+			}),
+		);
+		await withDatabasePool(runtime, () =>
+			withOwnerDatabase("alice", async (tx) => {
+				await tx.execute(
+					sql`INSERT INTO ai_usage_ledger(id,user_id,operation_id,kind) VALUES ('reserve-alice','alice','op-alice','reserve')`,
+				);
+			}),
+		);
+		for (const mutation of [
+			"UPDATE ai_usage_ledger SET units=1",
+			"DELETE FROM ai_usage_ledger",
+			"TRUNCATE ai_usage_ledger",
+		])
+			await expect(runtime.query(mutation)).rejects.toMatchObject({ code: "42501" });
 	});
 
 	it("clears identity after rollback and reuses a single connection for nested same-owner transactions", async () => {

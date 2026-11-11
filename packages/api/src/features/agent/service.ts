@@ -22,6 +22,7 @@ import * as schema from "@reactive-resume/db/schema";
 import { generateId } from "@reactive-resume/utils/string";
 import { aiProvidersService } from "../ai-providers/service";
 import { assertAgentEnvironment } from "../ai/credentials";
+import { assertLegacyAiDenied } from "../ai/route-policy";
 import { getAgentModel } from "../ai/service";
 import { careerService, requireCareerApplication } from "../career/service";
 import { buildCareerTools, buildCareerInstructions } from "../career/tools";
@@ -32,6 +33,7 @@ import { webAccessService } from "../web-access/credentials";
 import { readPage, searchWeb } from "../web-access/service";
 import { isRunAlive, monitorRunCancellation, requestRunCancellation } from "./cancellation";
 import { pruneAgentModelContext } from "./context";
+import { recordEditDecision } from "./decisions";
 import { documentOf, documentView, findPosting, loadDocument, resolveEdits } from "./document";
 import { mergeClientToolResponses } from "./messages-merge";
 import {
@@ -40,12 +42,11 @@ import {
 	findUserMessageRow,
 	insertDraftAssistantMessage,
 	nextMessageSequence,
-	proposedEditsOf,
 	touchThread,
 	upsertAssistantUiMessage,
 	withAccumulatedUsageMetadata,
-	withEditStatuses,
 } from "./messages-persistence";
+import { assistantOperations } from "./operations";
 import { repairAgentToolCall } from "./repair";
 import { claimActiveAgentRun, clearActiveAgentRunIfCurrent, isStaleAgentRun, reapStaleAgentRun } from "./runs";
 import { agentStreamLifecycle } from "./streams";
@@ -152,6 +153,8 @@ function toThreadSummary(row: ThreadSummaryRow) {
 		editsProposed: row.editsProposed,
 		editsAccepted: row.editsAccepted,
 		activeRunId: row.activeRunId,
+		activeOperationId: row.activeOperationId,
+		routeBinding: row.routeBinding,
 		lastMessageAt: row.lastMessageAt,
 		archivedAt: row.archivedAt,
 		deletedAt: row.deletedAt,
@@ -906,6 +909,8 @@ const threadSummarySelection = {
 	editsProposed: schema.agentThread.editsProposed,
 	editsAccepted: schema.agentThread.editsAccepted,
 	activeRunId: schema.agentThread.activeRunId,
+	activeOperationId: schema.agentThread.activeOperationId,
+	routeBinding: schema.agentThread.routeBinding,
 	activeStreamId: schema.agentThread.activeStreamId,
 	activeRunStartedAt: schema.agentThread.activeRunStartedAt,
 	lastMessageAt: schema.agentThread.lastMessageAt,
@@ -1128,6 +1133,7 @@ export const agentService = {
 
 	messages: {
 		send: async (input: SendMessageInput) => {
+			assertLegacyAiDenied();
 			assertAgentEnvironment();
 
 			const thread = await getThread({
@@ -1537,6 +1543,10 @@ export const agentService = {
 				id: input.threadId,
 				userId: input.userId,
 			});
+			if (thread.activeOperationId) {
+				await assistantOperations.stop(input.userId, input.threadId);
+				return;
+			}
 			const activeRunId = thread.activeRunId;
 			if (!activeRunId) return;
 			// A live owner releases the claim after persisting the terminal transcript.
@@ -1564,45 +1574,7 @@ export const agentService = {
 		 * Records what the user did with proposed edits (accepted, rejected, or pending again after an undo) in the
 		 * message that proposed them, and recounts the conversation's accepted edits.
 		 */
-		setEditStatus: async (input: {
-			userId: string;
-			threadId: string;
-			messageId: string;
-			toolCallId: string;
-			edits: Array<{ id: string; status: "pending" | "accepted" | "rejected" }>;
-		}) => {
-			assertAgentEnvironment();
-			await getThread({ id: input.threadId, userId: input.userId });
-
-			const rows = await listThreadMessages({
-				threadId: input.threadId,
-				userId: input.userId,
-			});
-			const row = rows.find((candidate) => toMessage(candidate).id === input.messageId);
-			if (!row) throw new ORPCError("NOT_FOUND");
-
-			const statuses = new Map(input.edits.map((edit) => [edit.id, edit.status]));
-			const message = withEditStatuses(toMessage(row), input.toolCallId, statuses);
-			await db
-				.update(schema.agentMessage)
-				.set({ uiMessage: message as never })
-				.where(and(eq(schema.agentMessage.id, row.id), eq(schema.agentMessage.userId, input.userId)));
-
-			const accepted = rows
-				.map((candidate) => (candidate.id === row.id ? message : toMessage(candidate)))
-				.flatMap(proposedEditsOf)
-				.filter((edit) => edit.status === "accepted").length;
-			const [thread] = await db
-				.update(schema.agentThread)
-				.set({ editsAccepted: accepted })
-				.where(and(eq(schema.agentThread.id, input.threadId), eq(schema.agentThread.userId, input.userId)))
-				.returning({
-					editsProposed: schema.agentThread.editsProposed,
-					editsAccepted: schema.agentThread.editsAccepted,
-				});
-			if (!thread) throw new ORPCError("NOT_FOUND");
-			return thread;
-		},
+		setEditStatus: recordEditDecision,
 	},
 
 	attachments: {

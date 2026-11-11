@@ -78,13 +78,22 @@ test("two tabs resolve a stale save without overwriting either draft", async ({ 
 		"Synthetic remote draft",
 	);
 	await page.getByRole("button", { name: "Save my edits as a new copy", exact: true }).click();
-	await expect(page).not.toHaveURL(url);
-	const copyId = new URL(page.url()).pathname.split("/").at(-1)!;
-	expect((await (await page.request.get(`/api/openapi/resumes/${copyId}`)).json()).data.basics.name).toBe(
-		"Synthetic local draft",
-	);
+	await expect(page.getByRole("alert").filter({ hasText: "You have reached the limit for base CVs" })).toBeVisible();
+	await expect(page).toHaveURL(url);
+	// Denied copy creation keeps the local recovery draft and leaves the saved CV untouched.
 	expect((await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.basics.name).toBe(
 		"Synthetic remote draft",
 	);
+	await page.reload();
+	await expect(page.getByRole("button", { name: "Restore local changes", exact: true })).toBeVisible();
+	await page.getByRole("button", { name: "Restore local changes", exact: true }).click();
+	await expect(page.getByRole("button", { name: "Save my edits as a new copy", exact: true })).toBeVisible();
+	// Explicitly reconcile with the saved baseline, then manually recover the desired local value.
+	await page.getByRole("button", { name: "Open saved copy", exact: true }).click();
+	await expect(page.getByLabel("Full name", { exact: true })).toHaveValue("Synthetic remote draft");
+	await page.getByLabel("Full name", { exact: true }).fill("Synthetic local draft");
+	await expect
+		.poll(async () => (await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.basics.name)
+		.toBe("Synthetic local draft");
 	await second.close();
 });

@@ -15,6 +15,7 @@ import { careerTranscript } from "@reactive-resume/db/schema";
 import { protectedProcedure } from "../../context";
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
 import { aiProvidersService } from "../ai-providers/service";
+import { assertLegacyAiDenied } from "../ai/route-policy";
 import { resolveAiBaseUrl } from "../ai/url-policy";
 import { requireCareerApplication } from "./service";
 
@@ -22,6 +23,7 @@ const procedure = protectedProcedure.use(aiRequestRateLimit);
 
 /** The connection for one voice job, refused unless it offers that model (see `AI_VOICE_MODELS`). */
 async function voiceConnection(userId: string, id: string, kind: "transcription" | "speech", model: string) {
+	assertLegacyAiDenied();
 	const provider = await aiProvidersService.getRunnableById({ userId, id });
 	if (provider.id !== id || !AI_VOICE_MODELS[provider.provider]?.[kind].includes(model))
 		throw new ORPCError("BAD_REQUEST", {

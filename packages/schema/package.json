@@ -4,6 +4,8 @@
 	"type": "module",
 	"private": true,
 	"exports": {
+		"./ai-operation": "./src/ai-operation.ts",
+		"./ai-usage": "./src/ai-usage.ts",
 		"./career": "./src/career.ts",
 		"./career-master": "./src/career-master.ts",
 		"./cover-letter/data": "./src/cover-letter/data.ts",

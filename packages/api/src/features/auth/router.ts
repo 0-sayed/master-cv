@@ -4,6 +4,7 @@ import { createSelectSchema } from "drizzle-zod";
 import z from "zod";
 import { accountAuth, auth } from "@reactive-resume/auth/config";
 import * as schema from "@reactive-resume/db/schema";
+import { routeBindingSchema } from "@reactive-resume/schema/ai-operation";
 import { careerProfileDataSchema, careerWorkspaceSchema } from "@reactive-resume/schema/career";
 import { coverLetterSchema } from "@reactive-resume/schema/cover-letter/data";
 import { timezoneSchema } from "@reactive-resume/utils/timezone";
@@ -233,7 +234,7 @@ export const authRouter = {
 					artifacts: z.array(savedItemSchema),
 					schedules: z.array(careerScheduleSchema),
 					notifications: z.array(careerNotificationSchema),
-					threads: z.array(createSelectSchema(schema.agentThread)),
+					threads: z.array(createSelectSchema(schema.agentThread, { routeBinding: routeBindingSchema.nullable() })),
 					messages: z.array(
 						createSelectSchema(schema.agentMessage, {
 							// Preserve historical SDK/tool message fields in their original export form.

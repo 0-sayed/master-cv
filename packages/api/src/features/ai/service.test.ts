@@ -1,3 +1,8 @@
+// Exercise retained internals with synthetic transports; egress-policy tests cover the unmocked release gate.
+vi.mock("./route-policy", async (original) => ({
+	...(await original<typeof import("./route-policy")>()),
+	assertLegacyAiDenied: () => undefined,
+}));
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { generateText } from "ai";
 import { buildAgentTools } from "../agent/tools";

@@ -22,6 +22,7 @@ import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { detectImportKind, readResumeFile } from "./read-file";
 import { createReviewState, saveReviewDraft } from "./review-draft";
 import { useDialogStore } from "@/dialogs/store";
+import { isBaseCvLimit } from "@/features/documents/creation-error";
 import { useNewDocumentsStore } from "@/features/documents/new-documents";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { client, orpc } from "@/libs/orpc/client";
@@ -81,7 +82,11 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 		} catch (error) {
 			if (!controller.signal.aborted) {
 				setFailedAction("create");
-				setError(getOrpcErrorMessage(error, { fallback: t`Couldn't create the document.` }));
+				setError(
+					isBaseCvLimit(error)
+						? t`You have reached the limit for base CVs. Your existing documents remain available to edit and download.`
+						: getOrpcErrorMessage(error, { fallback: t`Couldn't create the document.` }),
+				);
 			}
 		} finally {
 			if (!controller.signal.aborted) setBusy(null);

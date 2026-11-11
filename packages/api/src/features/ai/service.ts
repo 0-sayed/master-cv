@@ -20,6 +20,7 @@ import { match } from "ts-pattern";
 import { z } from "zod";
 import { AI_PROVIDER_DEFAULT_BASE_URLS, AI_PROVIDER_DISPLAY_NAMES, aiProviderSchema } from "@reactive-resume/ai/types";
 import { isDirectOpenAIProvider } from "./capabilities";
+import { assertLegacyAiDenied } from "./route-policy";
 import { resolveAiBaseUrl } from "./url-policy";
 
 type GetModelInput = {
@@ -47,6 +48,7 @@ const TEST_CONNECTION_TIMEOUT_MS = z.coerce
 	.parse(process.env.AI_TEST_TIMEOUT_MS?.trim() || undefined);
 
 export function getModel(input: GetModelInput) {
+	assertLegacyAiDenied();
 	const { provider, model, apiKey } = input;
 	const baseURL = resolveAiBaseUrl(input);
 
@@ -81,6 +83,7 @@ export function getModel(input: GetModelInput) {
 }
 
 export function getAgentModel(input: GetModelInput) {
+	assertLegacyAiDenied();
 	if (!isDirectOpenAIProvider(input)) return getModel(input);
 
 	// Direct OpenAI assistants use Responses for reasoning with function tools.
