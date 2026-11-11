@@ -9,4 +9,4 @@ Sign in, choose **New CV**, and import a readable PDF or enter information manua
 
 The editor reads the selected PDF locally and does not retain extracted text in readiness state. The server PDF-check endpoint requires authentication, ownership and a current saved revision; it recomputes the submitted file's SHA-256 and stores neither the file nor extracted text. A server report identifies submitted bytes and does not prove they were generated from the CV.
 
-Original PDF/Word attachments and contact-bearing legacy full-text reviews are blocked from AI processing. Word import and export remain unavailable. No public score or hiring-success prediction is shown.
+Native CV import does not send original PDF/Word attachments to AI, and contact-bearing legacy full-text review actions are blocked. This guarantee applies to native CV import; attachments sent through other assistant surfaces follow their configured provider processing. Word import and export remain unavailable. No public score or hiring-success prediction is shown.

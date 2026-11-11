@@ -128,7 +128,7 @@ Step 3 above applies to what changed, not the whole app on every task.
   unit tests (e.g. `pnpm --filter web test <test-file>`). No browser suite.
 - **Normal (a piece of work is done):** `pnpm validate:static`, the affected workspace's units
   (e.g. `pnpm --filter web test`) and only the affected browser specs
-  (`node tooling/local/ci-browser.mjs <spec-files>`). Broaden specs only for shared shell/auth
+  (`node --env-file=.env.test.local tooling/local/ci-browser.mjs <spec-files>`). Broaden specs only for shared shell/auth
   changes. Capture AR/EN, desktop/mobile evidence for changed screens only.
 - **Deep (once, before a commit):** `pnpm validate:static`, `pnpm test:ci`,
   and only the affected browser specs (`node --env-file=.env.test.local tooling/local/ci-browser.mjs <spec-files>`).
