@@ -1,3 +1,4 @@
+import type { EditorIdentity } from "../editor/store";
 import type { ResolvedResumePreviewProps } from "./preview.shared";
 import type { PreviewPageSize } from "./preview.shared.utils";
 import type { PageMapTarget } from "@reactive-resume/pdf/page-map";
@@ -23,11 +24,14 @@ import { queuePreviewLayer } from "./preview-layers";
 import { ResumePreviewLoader } from "./preview.shared";
 import { getResumePreviewGapValue, getResumePreviewPageCount } from "./preview.shared.utils";
 import { ResumeAccessibleText } from "./resume-accessible-text";
+import { UPDATE_DEBOUNCE_MS, TYPING_DEBOUNCE_MS } from "./timing";
+import { getPdfArtifact } from "@/features/resume/export/pdf-artifact";
 import { createResumePdfBlob } from "@/features/resume/export/pdf-document";
 import { getLostCharactersMessage, getReadableErrorMessage } from "@/libs/error-message";
 import { EASE } from "@/libs/motion";
 
 type PreviewPdf = {
+	identity: EditorIdentity | undefined;
 	data: ResumeData;
 	renderKey: string;
 	highlights: PageMapTarget[];
@@ -41,10 +45,9 @@ type PreviewPdf = {
 	template: Template;
 };
 
-const UPDATE_DEBOUNCE_MS = 100;
 // While a field has focus the page waits for a pause in typing, so rendering (about 230 ms for two pages,
 // on the main thread) doesn't compete with keystrokes.
-const TYPING_DEBOUNCE_MS = 250;
+
 // Incoming layer fades in over the old one; the old layer holds at full opacity until the incoming one is opaque,
 // then drops out. Fading both at once dips the page towards the background mid-swap.
 const INCOMING_TRANSITION = { duration: 0.15, ease: EASE };
@@ -61,7 +64,9 @@ const createPreviewPdf = (
 	data: ResumeData,
 	highlights: PageMapTarget[],
 	renderKey: string,
+	identity: EditorIdentity | undefined,
 ): PreviewPdf => ({
+	identity,
 	data,
 	renderKey,
 	highlights,
@@ -124,6 +129,7 @@ const markPreviewPageRendered = (layers: PreviewPdf[], layerId: number, pageNumb
 const removePreviewLayer = (layers: PreviewPdf[], layerId: number) => layers.filter((layer) => layer.id !== layerId);
 
 export function ResumePreviewClient({
+	identity,
 	className,
 	data,
 	pageGap = 16,
@@ -172,14 +178,22 @@ export function ResumePreviewClient({
 				if (stale()) return;
 				let pageMap: PageMap | undefined;
 				let lost: string[] | null = null;
-				const blob = await createResumePdfBlob(resumeData, undefined, renderOptions, {
-					onPageMap: (map) => {
-						pageMap = map;
-					},
-					onLostCharacters: (characters) => {
-						lost = characters;
-					},
-				});
+				const artifact =
+					identity && !includeCoverLetterHeader ? await getPdfArtifact({ identity, data: resumeData }) : null;
+				const blob = artifact
+					? artifact.blob
+					: await createResumePdfBlob(resumeData, undefined, renderOptions, {
+							onPageMap: (map) => {
+								pageMap = map;
+							},
+							onLostCharacters: (characters) => {
+								lost = characters;
+							},
+						});
+				if (artifact) {
+					pageMap = artifact.pageMap;
+					lost = artifact.lostCharacters;
+				}
 
 				if (!stale()) {
 					const nextPdf = createPreviewPdf(
@@ -190,6 +204,7 @@ export function ResumePreviewClient({
 						resumeData,
 						highlightEdits ? changedPreviewTargets(publishedData.current, resumeData) : [],
 						renderKey,
+						identity,
 					);
 
 					hasPreviewRef.current = true;
@@ -222,7 +237,7 @@ export function ResumePreviewClient({
 			cancelled = true;
 			window.clearTimeout(timeoutId);
 		};
-	}, [paused, resumeData, includeCoverLetterHeader, attempt, highlightEdits]);
+	}, [paused, resumeData, includeCoverLetterHeader, attempt, highlightEdits, identity]);
 
 	const activeLayer = getActivePreviewLayer(previewLayers);
 	const activePageCount = activeLayer?.numPages ?? 0;
@@ -234,8 +249,13 @@ export function ResumePreviewClient({
 	}, [activeData]);
 	useEffect(() => {
 		if (activePageCount > 0 && activeFile)
-			onRender?.({ pageCount: activePageCount, pageMap: activePageMap, file: activeFile });
-	}, [activePageCount, activePageMap, activeFile, onRender]);
+			onRender?.({
+				identity: activeLayer?.identity,
+				pageCount: activePageCount,
+				pageMap: activePageMap,
+				file: activeFile,
+			});
+	}, [activePageCount, activePageMap, activeFile, activeLayer?.identity, onRender]);
 
 	const initialPreviewLoading = useSkeletonLoading(!getActivePreviewLayer(previewLayers) && !failure);
 	if (!resumeData) return null;

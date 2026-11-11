@@ -3,14 +3,17 @@ import type { ResumeExportTarget } from "@reactive-resume/resume/export-sections
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { ActionFeedbackState } from "@reactive-resume/ui/components/action-feedback";
 import { t } from "@lingui/core/macro";
+import { isEqual } from "es-toolkit";
 import { useCallback, useRef, useState } from "react";
-import { buildDocx } from "@reactive-resume/docx";
 import { buildOdt } from "@reactive-resume/odt";
 import { getResumeSectionTitle } from "@reactive-resume/pdf/section-title";
 import { getResumeExportData } from "@reactive-resume/resume/export-sections";
 import { buildMarkdown } from "@reactive-resume/resume/markdown";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
+import { useResumeStore } from "../builder/draft";
+import { useEditorStore, sameEditorIdentity } from "../editor/store";
+import { getPdfArtifact } from "./pdf-artifact";
 import { createResumePdfBlob } from "./pdf-document";
 import { resolvePublicResumePdfBlob } from "@/features/resume/public/public-pdf";
 import { getLostCharactersMessage, getReadableErrorMessage } from "@/libs/error-message";
@@ -79,8 +82,30 @@ export async function createExportFile(
 		return new Blob([JSON.stringify(resume.data, null, 2)], { type: "application/json" });
 	}
 
+	if (format === "docx") throw new Error(t`Word export is not available.`);
 	const data = getResumeExportData(resume.data, target);
 	if (format === "pdf") {
+		const active = useResumeStore.getState();
+		if (target === "resume" && active.resumeId === resume.id && active.saveStatus === "conflict")
+			throw new Error(t`The document changed. Try again.`);
+		if (target === "resume" && active.ownerId && active.resumeId && active.resumeId === resume.id) {
+			if (!active.acknowledgedUpdatedAt || !isEqual(active.resume?.data, resume.data))
+				throw new Error(t`The document changed. Try again.`);
+			const identity = {
+				ownerId: active.ownerId,
+				resumeId: active.resumeId,
+				baseRevision: active.acknowledgedUpdatedAt.toISOString(),
+				editGeneration: active.editGeneration,
+			};
+			const artifact = await getPdfArtifact({ identity, data: resume.data });
+			if (
+				!sameEditorIdentity(identity, useEditorStore.getState().identity) ||
+				useResumeStore.getState().saveStatus === "conflict"
+			)
+				throw new Error(t`The document changed. Try again.`);
+			if (artifact.lostCharacters) warnLostCharacters(artifact.lostCharacters);
+			return artifact.blob;
+		}
 		return createResumePdfBlob(data, undefined, target === "cover-letter" ? options : undefined, {
 			onLostCharacters: warnLostCharacters,
 		});
@@ -89,7 +114,7 @@ export async function createExportFile(
 	const resolveTitle = await createSectionTitleResolver(data);
 	if (format === "md") return new Blob([buildMarkdown(data, resolveTitle)], { type: "text/markdown" });
 	if (format === "odt") return buildOdt(data, resolveTitle);
-	return buildDocx(data, resolveTitle);
+	throw new Error(t`Word export is not available.`);
 }
 
 /** Prints a PDF blob through a hidden iframe; if the browser blocks that, opens it in a new tab instead. */
@@ -196,7 +221,7 @@ export function useResumeExport(resume: ExportableResume | undefined, exportOpti
 		const makeBlob = () =>
 			exportOptions.publicResumePdf
 				? resolvePublicResumePdfBlob({ data: resume.data, ...exportOptions.publicResumePdf })
-				: createResumePdfBlob(resume.data, undefined, undefined, { onLostCharacters: warnLostCharacters });
+				: createExportFile(resume, "pdf");
 		try {
 			printPdf(await makeBlob());
 		} catch (error) {

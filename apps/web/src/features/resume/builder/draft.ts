@@ -1,4 +1,6 @@
+import type { StoredDraft } from "@/libs/stored-draft";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
+import type { ImportReviewInput } from "@reactive-resume/schema/resume/import-review";
 import type { QueryClient, QueryKey } from "@tanstack/react-query";
 import type { WritableDraft } from "immer";
 import { t } from "@lingui/core/macro";
@@ -9,11 +11,13 @@ import { debounce, isEqual } from "es-toolkit";
 import { useCallback, useEffect, useState } from "react";
 import { immer } from "zustand/middleware/immer";
 import { create } from "zustand/react";
+import { resumeDataSchema } from "@reactive-resume/schema/resume/data";
 import { syncResumeDates } from "@reactive-resume/schema/resume/dates";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { generateId } from "@reactive-resume/utils/string";
 import { storageKey as registeredStorageKey, browserStorage, onPersonalStorageCleared } from "@/libs/browser-storage";
 import { orpc, streamClient } from "@/libs/orpc/client";
+import { readStoredDraft, writeStoredDraft } from "@/libs/stored-draft";
 
 export type Resume = {
 	id: string;
@@ -40,7 +44,7 @@ type ResumeUpdateEvent = { mutation: ResumeUpdateMutation };
  * `error`: the server rejected or couldn't be reached while online; changes are kept on this device
  * and the editor offers Retry.
  */
-type SaveStatus = "idle" | "saving" | "saved" | "offline" | "error";
+type SaveStatus = "idle" | "saving" | "saved" | "offline" | "error" | "conflict";
 
 type UpdateResumeDataOptions = {
 	/**
@@ -59,6 +63,11 @@ type UpdateResumeDataOptions = {
 
 type ResumeStoreState = {
 	resume: Resume | null;
+	ownerId: string | null;
+	editGeneration: number;
+	localRecoveryAvailable: boolean;
+	acknowledgedUpdatedAt: Date | null;
+	recoveryDraft: StoredDraft<ResumeData> | undefined;
 	resumeId?: string | undefined;
 	isReady: boolean;
 	saveStatus: SaveStatus;
@@ -71,10 +80,14 @@ type ResumeStoreState = {
 };
 
 type ResumeStoreActions = {
-	initialize: (resume: Resume | null) => void;
+	initialize: (resume: Resume | null, ownerId: string) => void;
+	restoreLocalDraft: () => void;
+	discardLocalDraft: () => void;
+	resolveConflict: (choice: "save-copy" | "open-saved") => Promise<string | undefined>;
+	restoreVersion: (versionId: string) => Promise<Resume>;
 	reset: () => void;
 	replaceResumeDraft: (resume: Resume) => void;
-	replaceResumeFromServer: (resume: Resume) => void;
+	replaceResumeFromServer: (resume: Resume, expectedGeneration?: number) => boolean;
 	updateResumeData: (fn: (draft: WritableDraft<ResumeData>) => void, options?: UpdateResumeDataOptions) => void;
 	patchResume: (fn: (draft: WritableDraft<Resume>) => void) => void;
 	mergeResumeMetadata: (resume: Resume) => void;
@@ -88,7 +101,10 @@ type ResumeStoreActions = {
 type ResumeStore = ResumeStoreState & ResumeStoreActions;
 
 type Runtime = {
+	conflictCopy?: ImportReviewInput | undefined;
 	abortController: AbortController;
+	baseline?: Date;
+	conflict: boolean;
 	queryClient?: QueryClient;
 	hasPendingLocalChanges: boolean;
 	isSaving: boolean;
@@ -145,33 +161,40 @@ function shouldCoalesceEdit(
 
 // Unsaved changes survive a reload or a closed tab: they're kept on this device until a save succeeds.
 function storeUnsavedResume(resume: Resume) {
-	try {
-		browserStorage.local.setItem(
-			registeredStorageKey("resumeBackup", resume.id),
-			JSON.stringify({ data: resume.data, storedAt: Date.now() }),
-		);
-	} catch {
-		// Storage can be full or blocked; the in-memory copy still retries.
-	}
+	const state = useResumeStore.getState();
+	const baseline = runtimes.get(resume.id)?.baseline;
+	if (!state.ownerId || state.resumeId !== resume.id || !baseline) return;
+	const stored = writeStoredDraft(
+		"local",
+		registeredStorageKey("resumeBackup", resume.id),
+		{ ownerId: state.ownerId, documentId: resume.id, baseRevision: baseline.toISOString() },
+		resume.data,
+	);
+	if (useResumeStore.getState().localRecoveryAvailable !== stored)
+		useResumeStore.setState({ localRecoveryAvailable: stored });
 }
-
 function clearUnsavedResume(id: string) {
 	try {
 		browserStorage.local.removeItem(registeredStorageKey("resumeBackup", id));
 	} catch {
-		// Nothing to clear.
+		/* Live state survives blocked storage. */
 	}
 }
-
+function readRecoveryDraft(id: string, ownerId: string, baseRevision: string) {
+	return readStoredDraft(
+		"local",
+		registeredStorageKey("resumeBackup", id),
+		{ ownerId, documentId: id, baseRevision },
+		(value) => {
+			const parsed = resumeDataSchema.safeParse(value);
+			return parsed.success ? parsed.data : undefined;
+		},
+	);
+}
 export function readUnsavedResumeData(id: string): ResumeData | undefined {
-	try {
-		const raw = browserStorage.local.getItem(registeredStorageKey("resumeBackup", id));
-		if (!raw) return undefined;
-		const parsed = JSON.parse(raw) as { data?: ResumeData };
-		return parsed.data;
-	} catch {
-		return undefined;
-	}
+	const state = useResumeStore.getState();
+	if (!state.ownerId) return;
+	return readRecoveryDraft(id, state.ownerId, state.acknowledgedUpdatedAt?.toISOString() ?? "")?.value;
 }
 
 function isBrowserOffline() {
@@ -221,13 +244,13 @@ function applyDeferredRemoteResume(id: string) {
 	// The user may have started editing again while the update was deferred; local edits win.
 	if (runtime.hasPendingLocalChanges) return;
 
-	useResumeStore.getState().replaceResumeFromServer(resume);
-	notifyExternalUpdate("update");
+	if (useResumeStore.getState().replaceResumeFromServer(resume)) notifyExternalUpdate("update");
 }
 
 // #54: don't overwrite a focused field mid-keystroke; stash the remote resume and apply it on blur.
 function deferRemoteResumeUntilBlur(id: string, resume: Resume) {
 	const runtime = getRuntime(id);
+	if (runtime.deferredRemoteResume && runtime.deferredRemoteResume.updatedAt > resume.updatedAt) return;
 	runtime.deferredRemoteResume = resume;
 
 	if (runtime.deferredFocusHandler) return;
@@ -235,6 +258,7 @@ function deferRemoteResumeUntilBlur(id: string, resume: Resume) {
 	const handler = () => {
 		// Let focus settle (e.g. tabbing between fields) before deciding editing has ended.
 		window.setTimeout(() => {
+			if (runtimes.get(id) !== runtime || runtime.abortController.signal.aborted) return;
 			if (isEditableElementFocused()) return;
 			applyDeferredRemoteResume(id);
 		}, 0);
@@ -248,11 +272,13 @@ function setRuntimeBaseline(resume: Resume) {
 	const runtime = getRuntime(resume.id);
 	runtime.hasPendingLocalChanges = false;
 	runtime.pendingResume = undefined;
+	runtime.baseline = resume.updatedAt;
+	runtime.conflict = false;
 }
 
 async function flushResumeSave(id: string) {
 	const runtime = runtimes.get(id);
-	if (!runtime || runtime.isSaving || !runtime.pendingResume) return;
+	if (!runtime || runtime.conflict || runtime.isSaving || !runtime.pendingResume || !runtime.baseline) return;
 
 	const submitted = runtime.pendingResume;
 	const submittedData = structuredClone(submitted.data);
@@ -261,11 +287,14 @@ async function flushResumeSave(id: string) {
 
 	try {
 		const updated = (await orpc.resume.update.call(
-			{ id: submitted.id, data: submittedData, sessionId: runtime.sessionId },
+			{ id: submitted.id, data: submittedData, sessionId: runtime.sessionId, expectedUpdatedAt: runtime.baseline },
 			{ signal: runtime.abortController.signal },
 		)) as Resume;
 
 		if (runtime.abortController.signal.aborted) return;
+		runtime.baseline = updated.updatedAt;
+		if (useResumeStore.getState().resumeId === id)
+			useResumeStore.setState({ acknowledgedUpdatedAt: updated.updatedAt });
 		runtime.queryClient?.setQueryData(getResumeQueryKey(submitted.id), updated);
 
 		const currentResume = useResumeStore.getState().resume;
@@ -283,6 +312,8 @@ async function flushResumeSave(id: string) {
 			useResumeStore.getState().setSaveStatus("saved");
 		} else {
 			runtime.hasPendingLocalChanges = true;
+			storeUnsavedResume(currentResume ?? submitted);
+			useResumeStore.getState().setSaveStatus("saving");
 			useResumeStore.getState().mergeResumeMetadata(updated);
 
 			if (!runtime.pendingResume && currentResume?.id === submitted.id && !isEqual(currentResume.data, submittedData)) {
@@ -302,7 +333,8 @@ async function flushResumeSave(id: string) {
 		runtime.saveFailed = true;
 		storeUnsavedResume(useResumeStore.getState().resume ?? submitted);
 		// The editor bar shows the state ("Offline · saved on this device" or "Not saved · Retry").
-		useResumeStore.getState().setSaveStatus(isBrowserOffline() ? "offline" : "error");
+		runtime.conflict = error instanceof ORPCError && (error.code === "RESUME_VERSION_CONFLICT" || error.status === 409);
+		useResumeStore.getState().setSaveStatus(runtime.conflict ? "conflict" : isBrowserOffline() ? "offline" : "error");
 	} finally {
 		if (runtime.slowSaveToastId !== undefined) {
 			toast.close(runtime.slowSaveToastId);
@@ -316,6 +348,7 @@ async function flushResumeSave(id: string) {
 
 function queueResumeSave(resume: Resume) {
 	const runtime = getRuntime(resume.id);
+	if (runtime.conflict) return;
 	runtime.pendingResume = structuredClone(resume);
 	runtime.hasPendingLocalChanges = true;
 	runtime.saveFailed = false;
@@ -335,6 +368,7 @@ function createRuntime(): Runtime {
 
 	const runtime: Runtime = {
 		abortController,
+		conflict: false,
 		hasPendingLocalChanges: false,
 		isSaving: false,
 		saveFailed: false,
@@ -347,7 +381,7 @@ function createRuntime(): Runtime {
 	// Changes made offline are sent as soon as the connection comes back.
 	runtime.onlineHandler = () => {
 		const current = useResumeStore.getState().resume;
-		if (!runtime.hasPendingLocalChanges || !current) return;
+		if (runtime.conflict || !runtime.hasPendingLocalChanges || !current) return;
 		queueResumeSave(current);
 	};
 	window.addEventListener("online", runtime.onlineHandler);
@@ -398,12 +432,18 @@ function syncCurrentResume(id: string) {
 	const resume = useResumeStore.getState().resume;
 	if (!resume || resume.id !== id) return;
 
-	getRuntime(id).syncResume(resume);
+	storeUnsavedResume(resume);
+	if (!getRuntime(id).conflict) getRuntime(id).syncResume(resume);
 }
 
 export const useResumeStore = create<ResumeStore>()(
 	immer((set, get) => ({
 		resume: null,
+		ownerId: null,
+		editGeneration: 0,
+		localRecoveryAvailable: false,
+		acknowledgedUpdatedAt: null,
+		recoveryDraft: undefined,
 		resumeId: undefined,
 		isReady: false,
 		saveStatus: "idle",
@@ -412,40 +452,133 @@ export const useResumeStore = create<ResumeStore>()(
 		canUndo: false,
 		canRedo: false,
 
-		initialize: (resume) => {
-			if (resume) setRuntimeBaseline(resume);
+		initialize: (resume, ownerId) => {
+			for (const id of runtimes.keys()) cleanupRuntime(id, "discard");
 			resetHistoryRuntime();
-
-			// Changes that couldn't be saved last time (offline, closed tab) come back and are sent again.
-			const unsaved = resume ? readUnsavedResumeData(resume.id) : undefined;
-			const restored = resume && unsaved && !isEqual(unsaved, resume.data) ? { ...resume, data: unsaved } : null;
-			if (resume && unsaved && !restored) clearUnsavedResume(resume.id);
-
+			if (resume) setRuntimeBaseline(resume);
+			const recoveryDraft = resume ? readRecoveryDraft(resume.id, ownerId, resume.updatedAt.toISOString()) : undefined;
 			set((state) => {
-				state.resume = restored ?? resume;
+				state.resume = resume;
+				state.editGeneration += 1;
 				state.resumeId = resume?.id;
+				state.ownerId = ownerId;
+				state.acknowledgedUpdatedAt = resume?.updatedAt ?? null;
+				state.recoveryDraft = recoveryDraft && !isEqual(recoveryDraft.value, resume?.data) ? recoveryDraft : undefined;
 				state.isReady = resume !== null;
+				state.saveStatus = "idle";
 				state.undoStack = [];
 				state.redoStack = [];
 				state.canUndo = false;
 				state.canRedo = false;
 			});
-
-			if (restored) {
-				toast.add({
-					type: "info",
-					description: t`Restored changes that hadn't been saved yet.`,
-					id: "resume-restored-unsaved",
-				});
-				queueResumeSave(restored);
+		},
+		restoreLocalDraft: () => {
+			const { resume, recoveryDraft } = get();
+			if (!resume || !recoveryDraft) return;
+			const stale = recoveryDraft.baseRevision !== get().acknowledgedUpdatedAt?.toISOString();
+			get().replaceResumeDraft({ ...resume, data: recoveryDraft.value });
+			const runtime = getRuntime(resume.id);
+			runtime.hasPendingLocalChanges = true;
+			runtime.conflict = stale;
+			if (stale) runtime.baseline = new Date(recoveryDraft.baseRevision);
+			set((state) => {
+				state.recoveryDraft = undefined;
+				state.localRecoveryAvailable = false;
+				state.saveStatus = stale ? "conflict" : "saving";
+			});
+			const recovered = get().resume;
+			if (!stale && recovered) queueResumeSave(recovered);
+		},
+		discardLocalDraft: () => {
+			const { resume } = get();
+			if (resume) clearUnsavedResume(resume.id);
+			set((state) => {
+				state.recoveryDraft = undefined;
+				state.localRecoveryAvailable = false;
+			});
+		},
+		restoreVersion: async (versionId) => {
+			const { resume, ownerId } = get();
+			if (!resume || get().recoveryDraft || !(await savePendingChanges(resume.id)))
+				throw new Error(t`Couldn't save your changes. Try again before continuing.`);
+			if (get().ownerId !== ownerId || get().resumeId !== resume.id)
+				throw new Error(t`The document changed. Try again.`);
+			const runtime = getRuntime(resume.id);
+			const generation = get().editGeneration;
+			const signal = runtime.abortController.signal;
+			const restored = (await orpc.resume.restoreVersion.call(
+				{ resumeId: resume.id, versionId, expectedUpdatedAt: get().acknowledgedUpdatedAt ?? resume.updatedAt },
+				{ signal },
+			)) as Resume;
+			signal.throwIfAborted();
+			if (
+				runtimes.get(resume.id) !== runtime ||
+				get().ownerId !== ownerId ||
+				!get().replaceResumeFromServer(restored, generation)
+			)
+				throw new Error(t`The document changed. Try again.`);
+			return restored;
+		},
+		resolveConflict: async (choice) => {
+			const { resume, ownerId } = get();
+			if (!resume || !ownerId) return;
+			const runtime = getRuntime(resume.id);
+			if (!runtime.conflict) return;
+			const local = structuredClone(resume.data);
+			const signal = runtime.abortController.signal;
+			if (choice === "save-copy" && (!runtime.conflictCopy || !isEqual(runtime.conflictCopy.data, local))) {
+				const master = await orpc.career.master.read.call({}, { signal });
+				signal.throwIfAborted();
+				runtime.conflictCopy = {
+					flowId: crypto.randomUUID(),
+					name: resume.name,
+					data: local,
+					expectedProfileRevision: master.profileRevision,
+					acceptedFacts: [],
+				};
 			}
+			let result: string | Resume;
+			try {
+				result =
+					choice === "save-copy"
+						? (await orpc.resume.confirmImport.call(runtime.conflictCopy as ImportReviewInput, { signal })).resumeId
+						: ((await orpc.resume.getById.call({ id: resume.id }, { signal })) as Resume);
+			} catch (error) {
+				// This code guarantees rollback. Unknown outcomes retain their identical retry payload.
+				if (error instanceof ORPCError && error.code === "IMPORT_REVIEW_CONFLICT") runtime.conflictCopy = undefined;
+				throw error;
+			}
+
+			if (
+				signal.aborted ||
+				get().ownerId !== ownerId ||
+				get().resumeId !== resume.id ||
+				!isEqual(get().resume?.data, local)
+			)
+				return;
+			if (choice === "open-saved") {
+				get().replaceResumeFromServer(result as Resume);
+				get().setSaveStatus("saved");
+			} else {
+				runtime.hasPendingLocalChanges = false;
+				runtime.pendingResume = undefined;
+			}
+			clearUnsavedResume(resume.id);
+			return choice === "save-copy" ? (result as string) : undefined;
 		},
 
 		reset: () => {
+			for (const id of runtimes.keys()) cleanupRuntime(id, "discard");
 			resetHistoryRuntime();
 
 			set((state) => {
 				state.resume = null;
+				state.editGeneration += 1;
+				state.ownerId = null;
+				state.recoveryDraft = undefined;
+				state.localRecoveryAvailable = false;
+				state.acknowledgedUpdatedAt = null;
+				state.saveStatus = "idle";
 				state.resumeId = undefined;
 				state.isReady = false;
 				state.undoStack = [];
@@ -460,6 +593,7 @@ export const useResumeStore = create<ResumeStore>()(
 
 			set((state) => {
 				state.resume = resume;
+				state.editGeneration += 1;
 				state.resumeId = resume.id;
 				state.isReady = true;
 				state.undoStack = [];
@@ -469,7 +603,20 @@ export const useResumeStore = create<ResumeStore>()(
 			});
 		},
 
-		replaceResumeFromServer: (resume) => {
+		replaceResumeFromServer: (resume, expectedGeneration) => {
+			const currentState = get();
+			if (currentState.resumeId !== resume.id || currentState.recoveryDraft) return false;
+			if (currentState.acknowledgedUpdatedAt && resume.updatedAt < currentState.acknowledgedUpdatedAt) return false;
+			if (expectedGeneration !== undefined && currentState.editGeneration !== expectedGeneration) {
+				const runtime = getRuntime(resume.id);
+				runtime.conflict = true;
+				runtime.syncResume.cancel();
+				if (currentState.resume) storeUnsavedResume(currentState.resume);
+				set((state) => {
+					state.saveStatus = "conflict";
+				});
+				return false;
+			}
 			setRuntimeBaseline(resume);
 
 			// This runs both for the echo of our own autosave (identical data → keep history) and for
@@ -480,6 +627,8 @@ export const useResumeStore = create<ResumeStore>()(
 
 			set((state) => {
 				state.resume = resume;
+				if (isRebase) state.editGeneration += 1;
+				state.acknowledgedUpdatedAt = resume.updatedAt;
 				state.resumeId = resume.id;
 				state.isReady = true;
 
@@ -490,6 +639,7 @@ export const useResumeStore = create<ResumeStore>()(
 					state.canRedo = false;
 				}
 			});
+			return true;
 		},
 
 		patchResume: (fn) => {
@@ -508,6 +658,7 @@ export const useResumeStore = create<ResumeStore>()(
 		mergeResumeMetadata: (resume) => {
 			set((state) => {
 				if (!state.resume || state.resume.id !== resume.id) return;
+				if (resume.updatedAt < state.resume.updatedAt) return;
 
 				state.resume.name = resume.name;
 				state.resume.slug = resume.slug;
@@ -522,7 +673,7 @@ export const useResumeStore = create<ResumeStore>()(
 
 		updateResumeData: (fn, options = {}) => {
 			const currentResume = get().resume;
-			if (!currentResume) return;
+			if (!currentResume || get().recoveryDraft) return;
 
 			if (currentResume.isLocked) {
 				lockedToastId = toast.add({
@@ -560,10 +711,11 @@ export const useResumeStore = create<ResumeStore>()(
 				}
 
 				fn(state.resume.data as WritableDraft<ResumeData>);
+				state.editGeneration += 1;
 				// The server writes the date text from the dates on save; doing the same here keeps its echo
 				// identical to the draft, so an autosave never reads as an outside change.
 				syncResumeDates(state.resume.data as ResumeData);
-				state.saveStatus = "saving";
+				state.saveStatus = getRuntime(currentResume.id).conflict ? "conflict" : "saving";
 				state.canUndo = state.undoStack.length > 0;
 				state.canRedo = state.redoStack.length > 0;
 			});
@@ -582,7 +734,7 @@ export const useResumeStore = create<ResumeStore>()(
 
 		retrySave: () => {
 			const current = get().resume;
-			if (!current) return;
+			if (!current || getRuntime(current.id).conflict) return;
 			set((state) => {
 				state.saveStatus = "saving";
 			});
@@ -599,7 +751,7 @@ type StoreGet = () => ResumeStore;
 function applyHistoryStep(get: StoreGet, set: ImmerSet, direction: "undo" | "redo") {
 	const state = get();
 	const currentResume = state.resume;
-	if (!currentResume) return;
+	if (!currentResume || state.recoveryDraft) return;
 
 	if (currentResume.isLocked) {
 		lockedToastId = toast.add({
@@ -630,7 +782,8 @@ function applyHistoryStep(get: StoreGet, set: ImmerSet, direction: "undo" | "red
 		if (to.length > MAX_HISTORY_ENTRIES) to.shift();
 
 		draft.resume.data = snapshot;
-		draft.saveStatus = "saving";
+		draft.editGeneration += 1;
+		draft.saveStatus = getRuntime(currentResume.id).conflict ? "conflict" : "saving";
 		draft.canUndo = draft.undoStack.length > 0;
 		draft.canRedo = draft.redoStack.length > 0;
 	});
@@ -753,7 +906,13 @@ export function useBuilderResumeUpdateSubscription() {
 			if (!resumeId) return;
 
 			bindRuntimeQueryClient(resumeId, queryClient);
-			const resume = (await orpc.resume.getById.call({ id: resumeId })) as Resume;
+			const runtime = getRuntime(resumeId);
+			const signal = runtime.abortController.signal;
+			const resume = (await orpc.resume.getById.call({ id: resumeId }, { signal })) as Resume;
+			if (signal.aborted || runtimes.get(resumeId) !== runtime || useResumeStore.getState().resumeId !== resumeId)
+				return;
+			const acknowledged = useResumeStore.getState().acknowledgedUpdatedAt;
+			if (acknowledged && resume.updatedAt < acknowledged) return;
 
 			queryClient.setQueryData(getResumeQueryKey(resumeId), resume);
 
@@ -779,8 +938,7 @@ export function useBuilderResumeUpdateSubscription() {
 			}
 
 			// #53: attribute cross-tab / AI-agent edits instead of silently swapping the document.
-			replaceResumeFromServer(resume);
-			notifyExternalUpdate(event.mutation);
+			if (replaceResumeFromServer(resume)) notifyExternalUpdate(event.mutation);
 		},
 		[queryClient, replaceResumeFromServer, resumeId],
 	);
@@ -801,6 +959,7 @@ export function savePendingChanges(id: string): boolean | Promise<boolean> {
 	const runtime = runtimes.get(id);
 	const current = useResumeStore.getState().resume;
 	if (!runtime?.hasPendingLocalChanges || current?.id !== id) return true;
+	if (runtime.conflict) return false;
 
 	runtime.syncResume.cancel();
 	runtime.pendingResume = structuredClone(current);
@@ -820,7 +979,12 @@ export function savePendingChanges(id: string): boolean | Promise<boolean> {
 			resolve(saved);
 		};
 		const unsubscribe = useResumeStore.subscribe((state) => {
-			if (state.resume?.id !== id || state.saveStatus === "error" || state.saveStatus === "offline") {
+			if (
+				state.resume?.id !== id ||
+				state.saveStatus === "error" ||
+				state.saveStatus === "offline" ||
+				state.saveStatus === "conflict"
+			) {
 				finish(false);
 			} else if (state.saveStatus === "saved" && !runtime.hasPendingLocalChanges) {
 				finish(true);

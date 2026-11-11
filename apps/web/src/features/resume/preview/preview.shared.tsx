@@ -1,3 +1,4 @@
+import type { EditorIdentity } from "../editor/store";
 import type { PageMap } from "@reactive-resume/pdf/page-map";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { CSSProperties, ReactNode } from "react";
@@ -7,6 +8,7 @@ import { DEFAULT_PDF_PAGE_SIZE, getResumePreviewGapValue, getScaledPreviewPageSi
 import { QuerySkeleton } from "@/components/query-skeleton";
 
 export type ResumePreviewProps = {
+	identity?: EditorIdentity | undefined;
 	className?: string;
 	/** Editor-only feedback, excluded from exports and public previews. */
 	highlightEdits?: boolean;
@@ -24,7 +26,14 @@ export type ResumePreviewProps = {
 	renderPageOverlay?: (page: { pageIndex: number; pageMap: PageMap | undefined }) => ReactNode;
 	/** Called whenever the render on screen changes, with its physical page count and page map. */
 	/** Each render on screen: its page count, page map and the PDF itself. */
-	onRender?: (render: { pageCount: number; pageMap: PageMap | undefined; file: Blob }) => void;
+	onRender?:
+		| ((render: {
+				identity?: EditorIdentity | undefined;
+				pageCount: number;
+				pageMap: PageMap | undefined;
+				file: Blob;
+		  }) => void)
+		| undefined;
 };
 
 export type ResolvedResumePreviewProps = ResumePreviewProps & {

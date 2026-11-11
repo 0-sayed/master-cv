@@ -187,7 +187,7 @@ function ComparisonTable({ offers, left, right, onChoose }: ComparisonTableProps
 		{ key: "variable", label: t`Bonus` },
 		{ key: "equity", label: t`Equity` },
 		{ key: "location", label: t`Where you work` },
-		{ key: "leave", label: t`Leave` },
+		{ key: "leave", label: t({ message: "Leave", context: "Employment benefit: time off work" }) },
 		{ key: "learning", label: t`Learning budget` },
 		{ key: "other", label: t`Other benefits` },
 		{ key: "respondBy", label: t`Respond by` },

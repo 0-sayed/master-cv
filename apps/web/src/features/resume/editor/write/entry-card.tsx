@@ -119,15 +119,15 @@ export function EntryCard({ section, entryId, index, count, page, locked, onMove
 		>
 			<div className="flex items-center gap-0.5 pe-1">
 				{!locked && (
-					<button
-						type="button"
-						aria-label={t`Reorder ${title || t`Untitled`}`}
-						className="-ms-px flex h-10 w-5 shrink-0 cursor-grab items-center justify-center text-ink-3 opacity-0 transition-opacity duration-quick group-hover/entry:opacity-100 focus-visible:opacity-100 active:cursor-grabbing"
+					<IconButton
+						icon="dots-six-vertical"
+						size="icon-compact"
+						disclosure="hover"
+						label={t`Reorder ${title || t`Untitled`}`}
+						className="cursor-grab text-ink-3 active:cursor-grabbing"
 						{...attributes}
 						{...listeners}
-					>
-						<Icon name="dots-six-vertical" size={16} />
-					</button>
+					/>
 				)}
 				<button
 					type="button"

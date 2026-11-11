@@ -1,35 +1,29 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { WritableDraft } from "immer";
+import { DOCUMENT_FONT_PAIRINGS } from "@reactive-resume/schema/resume/font-policy";
 import { contrastOnWhite } from "@reactive-resume/utils/color";
 
 type Data = ResumeData | WritableDraft<ResumeData>;
 /** The design a resume and a letter share. */
 type Metadata = Pick<Data["metadata"], "typography" | "design" | "page">;
 
-/**
- * Five traditional resume faces, set in Regular and Bold. Families that aren't a pairing leave the control with no
- * selection; any other font is chosen in Advanced.
- */
-export const FONT_PAIRINGS = [
-	{ id: "classic", label: "Classic", heading: "EB Garamond", body: "EB Garamond", headingWeight: "600" },
-	{ id: "traditional", label: "Traditional", heading: "Tinos", body: "Tinos", headingWeight: "700" },
-	{ id: "balanced", label: "Balanced", heading: "Source Serif 4", body: "Source Sans 3", headingWeight: "600" },
-	{ id: "professional", label: "Professional", heading: "Carlito", body: "Carlito", headingWeight: "700" },
-	{ id: "clean", label: "Clean", heading: "Lato", body: "Lato", headingWeight: "700" },
-] as const;
-
-export type FontPairingId = (typeof FONT_PAIRINGS)[number]["id"];
+export {
+	FONT_PAIRINGS,
+	getDocumentFontChoices,
+	getRecommendedFontPairing,
+} from "@reactive-resume/schema/resume/font-policy";
+export type FontPairingId = (typeof DOCUMENT_FONT_PAIRINGS)[number]["id"];
 
 export function matchFontPairing(metadata: Pick<Metadata, "typography">): FontPairingId | null {
 	const { heading, body } = metadata.typography;
 	return (
-		FONT_PAIRINGS.find((pairing) => pairing.heading === heading.fontFamily && pairing.body === body.fontFamily)?.id ??
-		null
+		DOCUMENT_FONT_PAIRINGS.find((pairing) => pairing.heading === heading.fontFamily && pairing.body === body.fontFamily)
+			?.id ?? null
 	);
 }
 
 export function applyFontPairing(metadata: WritableDraft<Metadata>, id: FontPairingId) {
-	const pairing = FONT_PAIRINGS.find((candidate) => candidate.id === id);
+	const pairing = DOCUMENT_FONT_PAIRINGS.find((candidate) => candidate.id === id);
 	if (!pairing) return;
 	metadata.typography.heading.fontFamily = pairing.heading;
 	metadata.typography.heading.fontWeights = [pairing.headingWeight];

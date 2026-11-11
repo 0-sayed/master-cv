@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect, it, vi, afterEach } from "vite-plus/test";
 import { setupI18n } from "@lingui/core";
 // @vitest-environment happy-dom
 import Cookies from "js-cookie";
-import { getLocale, getLocaleMessages, getUiLocaleMessages } from "./locale";
+import { formatRelativeTime, getLocale, getLocaleMessages, getUiLocaleMessages } from "./locale";
 import { themeMap } from "./theme";
 
 describe("web UI locale resolution", () => {
@@ -40,3 +40,22 @@ describe("web UI locale resolution", () => {
 		expect(getLocale()).toBe("ar-SA");
 	});
 });
+
+afterEach(() => vi.useRealTimers());
+it.each(["ar-SA", "en-US"])(
+	"formats full relative durations with locale inflections and Latin digits (%s)",
+	(locale) => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date("2026-11-11T12:00:00Z"));
+		const formatter = new Intl.RelativeTimeFormat(new Intl.Locale(locale, { numberingSystem: "latn" }), {
+			style: "long",
+			numeric: "auto",
+		});
+		for (const hours of [1, 2, 3, 11]) {
+			const result = formatRelativeTime(new Date(Date.now() - hours * 3600000), locale);
+			expect(result).toBe(formatter.format(-hours, "hour"));
+			expect(result).not.toMatch(/[٠-٩]/);
+		}
+		expect(formatRelativeTime(new Date(Date.now() - 86400000), locale)).toBe(formatter.format(-1, "day"));
+	},
+);

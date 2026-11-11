@@ -39,7 +39,8 @@ function useDocumentMeta(document: DocumentSummary) {
 	const { i18n } = useLingui();
 	const type = document.type === "resume" ? t`Resume` : t`Letter`;
 	if (document.trashedAt) return t`${type} · ${daysLeftInTrash(document.trashedAt)} days left`;
-	return t`${type} · Edited ${formatRelativeTime(document.updatedAt, i18n.locale)}`;
+	const relativeTime = formatRelativeTime(document.updatedAt, i18n.locale);
+	return document.type === "resume" ? t`Edited ${relativeTime}` : t`${type} · Edited ${relativeTime}`;
 }
 
 /** Opens the document in its editor: resumes and letters share the editor shell. */
@@ -225,7 +226,7 @@ export function DocumentCard({
 								{document.name}
 							</h2>
 						)}
-						<span data-slot="document-meta" title={meta} className="truncate type-metadata text-ink-3">
+						<span data-slot="document-meta" title={meta} className="type-metadata text-ink-3">
 							{meta}
 						</span>
 						{document.application && (

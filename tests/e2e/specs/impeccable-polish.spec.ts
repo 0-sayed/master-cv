@@ -136,7 +136,7 @@ test("document cards follow the page heading without skipping a level", async ({
 	await expect(page.getByRole("heading", { level: 2, name, exact: true })).toBeVisible();
 });
 
-test("document metadata keeps Arabic time units together and exposes truncated copy", async ({
+test("document metadata gives full Arabic relative time its own wrapping line", async ({
 	authPage: page,
 }, testInfo) => {
 	const name = await createSampleResumeFromDashboard(page, testInfo);
@@ -150,13 +150,13 @@ test("document metadata keeps Arabic time units together and exposes truncated c
 			.locator('[data-slot="document-meta"]');
 		await expect(meta).toContainText("3");
 		await settleScreen(page);
-		await expect(meta).toHaveCSS("white-space", "nowrap");
+		await expect(meta).toHaveCSS("white-space", "normal");
 		const fullText = await meta.textContent();
-		expect(fullText).toMatch(/3\u00a0ساعات/);
-		expect(fullText).not.toMatch(/3 ساعات/);
-		if (await meta.evaluate((element) => element.scrollWidth > element.clientWidth)) {
-			await expect(meta).toHaveAttribute("title", fullText ?? "");
-			await expect(meta).toHaveCSS("text-overflow", "ellipsis");
-		}
+		expect(fullText).toMatch(/3 ساعات/);
+		expect(fullText).not.toMatch(/سيرة ذاتية/);
+		await expect(meta).not.toHaveCSS("text-overflow", "ellipsis");
+		const heading = page.getByRole("heading", { level: 2, name, exact: true });
+		const [titleBox, timeBox] = await Promise.all([heading.boundingBox(), meta.boundingBox()]);
+		expect(timeBox?.y).toBeGreaterThanOrEqual((titleBox?.y ?? 0) + (titleBox?.height ?? 0));
 	}
 });

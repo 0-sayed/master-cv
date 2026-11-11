@@ -17,6 +17,7 @@ import { LayoutSectionBuilder } from "../-sidebar/right/sections/layout";
 import { PageSectionBuilder } from "../-sidebar/right/sections/page";
 import { TypographySectionBuilder } from "../-sidebar/right/sections/typography";
 import { useIsResumeLocked, useResumeData, useResumeStore, useUpdateResumeData } from "@/features/resume/builder/draft";
+import { FontReplacementNotice } from "@/features/resume/editor/design/font-replacement";
 import { ColorGroup, PageGroup, TypeGroup } from "@/features/resume/editor/design/style-groups";
 import { TemplateGroup } from "@/features/resume/editor/design/template-group";
 import { OfflineBanner } from "@/features/resume/editor/save-status";
@@ -95,6 +96,7 @@ export function DesignPanel() {
 					<TemplateGroup />
 				</Group>
 				<Group id="type" title={<Trans>Type</Trans>}>
+					<FontReplacement />
 					<TypeGroup onCustomFonts={() => jumpTo(TYPOGRAPHY_ID, advanced, true)} />
 				</Group>
 				<Group id="color" title={<Trans>Color</Trans>}>
@@ -151,15 +153,18 @@ export function DesignSheet() {
 
 				<fieldset disabled={locked} className="m-0 min-h-0 min-w-0 flex-1 overflow-y-auto border-0 p-4">
 					<OfflineBanner className="mb-4" />
+					<FontReplacement />
 					{tab === "template" && <TemplateGroup layout="strip" />}
 					{tab === "type" && (
-						<TypeGroup
-							onCustomFonts={() => {
-								// Advanced lives under Page, so from here it isn't mounted yet: switching mounts it, then it opens.
-								setTab("page");
-								jumpTo(TYPOGRAPHY_ID, { open: false, setOpen: setAdvancedOpen }, true);
-							}}
-						/>
+						<>
+							<TypeGroup
+								onCustomFonts={() => {
+									// Advanced lives under Page, so from here it isn't mounted yet: switching mounts it, then it opens.
+									setTab("page");
+									jumpTo(TYPOGRAPHY_ID, { open: false, setOpen: setAdvancedOpen }, true);
+								}}
+							/>
+						</>
 					)}
 					{tab === "color" && <ColorGroup />}
 					{tab === "page" && (
@@ -286,5 +291,37 @@ function AdvancedGroup({ open, onOpenChange }: AdvancedGroupProps) {
 				</div>
 			</CollapsibleContent>
 		</Collapsible>
+	);
+}
+
+function FontReplacement() {
+	const data = useResumeData();
+	const update = useUpdateResumeData();
+	if (!data) return null;
+	return (
+		<FontReplacementNotice
+			data={data}
+			onAccept={(before, after) => {
+				const current = useResumeStore.getState();
+				if (!current.resume || current.resume.isLocked || current.resume.data !== before) return;
+				update(
+					(draft) => {
+						draft.metadata.typography = after.metadata.typography;
+					},
+					{ newStep: true },
+				);
+				const accepted = useResumeStore.getState().resume?.data;
+				toast.add({
+					description: t`Document font changed`,
+					actionProps: {
+						children: t`Undo`,
+						onClick: () => {
+							const latest = useResumeStore.getState();
+							if (latest.resume?.data === accepted) latest.undo();
+						},
+					},
+				});
+			}}
+		/>
 	);
 }

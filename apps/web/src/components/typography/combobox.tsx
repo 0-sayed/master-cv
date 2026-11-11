@@ -20,10 +20,16 @@ const FONT_FAMILY_OPTIONS = fontList.map((font) => ({
 	),
 }));
 
-type FontFamilyComboboxProps = Omit<SingleComboboxProps, "options">;
+type FontFamilyComboboxProps = Omit<SingleComboboxProps, "options"> & { families: readonly string[] };
 
-export function FontFamilyCombobox({ className, ...props }: FontFamilyComboboxProps) {
-	return <Combobox {...props} options={FONT_FAMILY_OPTIONS} className={cn("w-full", className)} />;
+export function FontFamilyCombobox({ className, families, ...props }: FontFamilyComboboxProps) {
+	const options: SingleComboboxProps["options"][number][] = FONT_FAMILY_OPTIONS.filter((option) =>
+		families.includes(option.value),
+	);
+	if (props.value && !families.includes(props.value)) {
+		options.push({ value: props.value, keywords: [props.value], label: props.value, disabled: true });
+	}
+	return <Combobox {...props} options={options} className={cn("w-full", className)} />;
 }
 
 type FontWeightComboboxProps = Omit<MultiComboboxProps, "options" | "multiple"> & {

@@ -5,7 +5,7 @@ import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEditorStore } from "../editor/store";
-import { HistoryTab } from "./history-tab";
+import { HistoryTab, HistoryTimeline, type HistorySource } from "./history-tab";
 
 const mocks = vi.hoisted(() => ({
 	save: vi.fn(),
@@ -79,4 +79,56 @@ it.each(["name", "restore"])("stops History %s after the save barrier fails", as
 		);
 	else expect(useEditorStore.getState().historyVersionId).toBe("version");
 	client.clear();
+});
+
+const source = (overrides: Partial<HistorySource> = {}): HistorySource => ({
+	versions: undefined,
+	loading: false,
+	loadError: true,
+	retrying: false,
+	retry: vi.fn(),
+	locked: false,
+	nowDetail: "Current CV",
+	save: vi.fn(),
+	restore: vi.fn(),
+	rename: vi.fn(),
+	remove: vi.fn(),
+	errorMessage: String,
+	...overrides,
+});
+it("distinguishes failed history from a successful empty list and retries", () => {
+	const retry = vi.fn();
+	const view = render(
+		<I18nProvider i18n={i18n}>
+			<HistoryTimeline source={source({ retry })} />
+		</I18nProvider>,
+	);
+	expect(screen.getByRole("alert")).toHaveTextContent("Couldn't load version history");
+	expect(screen.queryByRole("list", { name: "Versions" })).toBeNull();
+	expect(screen.queryByText(/Only one version/)).toBeNull();
+	fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+	expect(retry).toHaveBeenCalledOnce();
+	view.rerender(
+		<I18nProvider i18n={i18n}>
+			<HistoryTimeline source={source({ loadError: false, versions: [] })} />
+		</I18nProvider>,
+	);
+	expect(screen.queryByRole("alert")).toBeNull();
+	expect(screen.getByRole("list", { name: "Versions" })).toHaveTextContent("Now");
+});
+it("keeps cached versions visible after a refresh failure and disables duplicate retries", () => {
+	render(
+		<I18nProvider i18n={i18n}>
+			<HistoryTimeline
+				source={source({
+					retrying: true,
+					versions: [{ id: "cached", kind: "named", name: "Cached checkpoint", createdAt: new Date() }],
+				})}
+			/>
+		</I18nProvider>,
+	);
+	expect(screen.getByRole("alert")).toBeInTheDocument();
+	expect(screen.getByRole("list", { name: "Versions" })).toHaveTextContent("Cached checkpoint");
+	expect(screen.getByRole("button", { name: "Retrying…" })).toBeDisabled();
+	expect(screen.queryByText(/Only one version/)).toBeNull();
 });

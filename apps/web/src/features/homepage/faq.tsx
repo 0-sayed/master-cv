@@ -1,10 +1,7 @@
 import type { CSSProperties } from "react";
 import { t } from "@lingui/core/macro";
-import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
-import { templateSchema } from "@reactive-resume/schema/templates";
-import { localeSchema } from "@reactive-resume/utils/locale";
 import { cn } from "@reactive-resume/utils/style";
 import { SCENE } from "./scroll";
 import { Doodle, labelClass } from "./ui";
@@ -19,47 +16,42 @@ type Question = {
 };
 
 function useQuestions(): Question[] {
-	const { i18n } = useLingui();
-	const templates = i18n.number(templateSchema.options.length);
-	// Every locale but Lingui's pseudo-locale, which only exists to test layouts.
-	const languages = i18n.number(localeSchema.options.length - 1);
-
 	return [
 		{
 			id: "free",
 			question: t`Is Master CV really free?`,
-			answer: t`Yes. Every feature is free: all ${templates} templates, PDF and Word downloads, the ATS checker, cover letters and the job tracker. There are no ads, no tracking and no paid tier. Donations pay for hosting and development.`,
+			answer: t`PDF downloads are free. Other features depend on availability and usage limits. Word downloads are not available.`,
 		},
 		{
 			id: "ats",
 			question: t`Will my resume get past applicant tracking systems?`,
-			answer: t`Every template exports a text-based PDF with the words in reading order, which is what applicant tracking systems (ATS) need to parse a resume. To test any PDF, including one made elsewhere, the free ATS checker shows the text software extracts and what to fix.`,
+			answer: t`Sign in to check your CV in your private workspace. Review PDF readability and writing notes separately, without an overall score or a guarantee of acceptance.`,
 			link: { label: t`Try the ATS checker`, to: "/ats-checker" },
 		},
 		{
 			id: "privacy",
 			question: t`Who can see my resume?`,
-			answer: t`Only you, until you share it. A resume can stay private, go live at a public link, or be protected with a password, and you can change that at any time. Deleting your account deletes your resumes with it.`,
+			answer: t`Your CV stays in your private account. Public links and password-protected sharing are not available.`,
 		},
 		{
 			id: "import",
 			question: t`Can I import a resume I already have?`,
-			answer: t`Yes. Import a PDF, a LinkedIn data export, a JSON Resume file or a Master CV export, then pick up where it left off. With an AI provider set up, Word documents work too.`,
+			answer: t`Import a readable PDF or write from scratch, then review the information before saving. Scanned files and Word import are not available.`,
 		},
 		{
 			id: "export",
 			question: t`What formats can I download?`,
-			answer: t`PDF, Word (DOCX), Markdown and JSON. The JSON export imports back into any Master CV, including one you host yourself, so your data is never locked in.`,
+			answer: t`Download your CV as PDF for free. Word (DOCX) is not available.`,
 		},
 		{
 			id: "ai",
 			question: t`Does it use AI?`,
-			answer: t`Only if you want it to. Add your own key from OpenAI, Anthropic, Google Gemini, OpenRouter, Ollama or another provider for sharper lines, tailoring to a job posting, coaching for applications and interviews, and reading Word files. Without a key, nothing is sent to an AI service.`,
+			answer: t`AI assistance requires your explicit opt-in and approval of each proposed change.`,
 		},
 		{
 			id: "interviews",
 			question: t`Can it help me prepare for interviews?`,
-			answer: t`Yes. Every job you track gets its own workspace: check your fit against the posting, draft answers from stories you wrote once, get a short plan before the interview, practise out loud with feedback and debrief afterwards. When offers arrive, compare them side by side. The coaching uses your own AI key; the comparison doesn’t need one.`,
+			answer: t`Interview coaching is planned and is not available in the current CV workspace.`,
 		},
 		{
 			id: "self-host",
@@ -70,7 +62,7 @@ function useQuestions(): Question[] {
 		{
 			id: "languages",
 			question: t`Which languages does it speak?`,
-			answer: t`The app is translated into ${languages} languages by volunteers, and a resume can be written in any language, including right-to-left scripts like Arabic and Hebrew.`,
+			answer: t`The interface is available in Arabic and English. Switching interface language does not translate or replace your saved CV content.`,
 		},
 	];
 }

@@ -122,6 +122,7 @@ export function useDocumentActions() {
 			const confirmed = await confirm(t`Delete “${document.name}” now?`, {
 				description: t`It will be deleted for good and can't be restored.`,
 				confirmText: t`Delete now`,
+				variant: "danger",
 				cancelText: t`Keep in Trash`,
 			});
 			if (!confirmed) return;

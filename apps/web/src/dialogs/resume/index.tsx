@@ -79,7 +79,7 @@ export function UpdateResumeDialog({ data }: DialogProps<"resume.update">) {
 		},
 	});
 
-	useFormBlocker(form);
+	const { requestClose } = useFormBlocker(form);
 
 	return (
 		<DialogContent>
@@ -104,6 +104,9 @@ export function UpdateResumeDialog({ data }: DialogProps<"resume.update">) {
 				<ResumeForm form={form} />
 
 				<DialogFooter>
+					<Button variant="secondary" disabled={isPending} onClick={() => void requestClose()}>
+						<Trans>Cancel</Trans>
+					</Button>
 					<Button type="submit" disabled={isPending}>
 						<Trans>Save Changes</Trans>
 					</Button>
@@ -143,7 +146,7 @@ export function DuplicateResumeDialog({ data }: DialogProps<"resume.duplicate">)
 		},
 	});
 
-	useFormBlocker(form);
+	const { requestClose } = useFormBlocker(form);
 
 	return (
 		<DialogContent>
@@ -168,6 +171,9 @@ export function DuplicateResumeDialog({ data }: DialogProps<"resume.duplicate">)
 				<ResumeForm form={form} />
 
 				<DialogFooter>
+					<Button variant="secondary" disabled={isPending} onClick={() => void requestClose()}>
+						<Trans>Cancel</Trans>
+					</Button>
 					<Button type="submit" disabled={isPending}>
 						<Trans>Duplicate</Trans>
 					</Button>

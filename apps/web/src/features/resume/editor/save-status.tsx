@@ -10,6 +10,7 @@ import { ENTER_CLASS } from "@/libs/motion";
 
 /** The save state under the document name: Saved, Saving…, Offline · saved on this device, or Not saved · Retry. */
 export function SaveStatus() {
+	const localRecoveryAvailable = useResumeStore((state) => state.localRecoveryAvailable);
 	const status = useResumeStore((state) => state.saveStatus);
 	const retrySave = useResumeStore((state) => state.retrySave);
 
@@ -31,8 +32,13 @@ export function SaveStatus() {
 				<span className={cn(ENTER_CLASS, "flex min-w-0 items-center gap-1.5 text-warn-text")}>
 					<Icon name="cloud-slash" size={16} />
 					<span className="truncate">
-						<Trans>Offline · saved on this device</Trans>
+						{localRecoveryAvailable ? <Trans>Offline · saved on this device</Trans> : <Trans>Not saved</Trans>}
 					</span>
+				</span>
+			)}
+			{status === "conflict" && (
+				<span className="text-danger-text">
+					<Trans context="editor.save.status.conflict">Save conflict</Trans>
 				</span>
 			)}
 			{status === "error" && (
@@ -54,7 +60,7 @@ export function SaveStatus() {
 	);
 }
 
-/** Shown at the top of the panel while offline: editing carries on, Download and Share wait for a connection. */
+/** Offline edits remain local until the server acknowledges them. */
 export function OfflineBanner({ className }: { className?: string }) {
 	const offline = useResumeStore((state) => state.saveStatus === "offline");
 	if (!offline) return null;
@@ -63,7 +69,7 @@ export function OfflineBanner({ className }: { className?: string }) {
 		<Alert variant="warn" role="status" className={cn(ENTER_CLASS, className)}>
 			<Icon name="wifi-slash" size={20} />
 			<AlertDescription>
-				<Trans>You can keep editing. Changes sync when you're back online. Download and Share need a connection.</Trans>
+				<Trans>You can keep editing. Reconnect to save your changes to your account.</Trans>
 			</AlertDescription>
 		</Alert>
 	);

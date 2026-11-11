@@ -6,6 +6,7 @@ import { produce } from "immer";
 import { lintResumeForAts } from "@reactive-resume/resume/ats";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { buildIssues } from "./issues";
+import { getUiLocaleMessages } from "@/libs/locale";
 
 const NOW = new Date("2026-09-28T00:00:00Z");
 
@@ -100,4 +101,20 @@ describe("buildIssues", () => {
 		expect(fixed.metadata.layout.pages).toEqual([{ fullWidth: true, main: ["experience", "skills"], sidebar: [] }]);
 		expect(issuesOf(fixed)).toEqual([]);
 	});
+});
+
+it.each([
+	["ar-SA", "أضفه إلى الصفحة الأولى", "تمت إضافة"],
+	["en-US", "Add it to page 1", "added to page 1"],
+] as const)("formats the missing-section page action and confirmation in %s", async (locale, label, confirmation) => {
+	i18n.loadAndActivate(await getUiLocaleMessages(locale));
+	const data = makeResume((resume) => {
+		resume.metadata.layout.pages = [];
+	});
+	const issue = only(data, "SECTION_MISSING_FROM_LAYOUT");
+	expect(issue.fix.label).toBe(label);
+	if (issue.fix.kind !== "apply") throw new Error("Missing apply action");
+	expect(issue.fix.done).toContain(confirmation);
+	if (locale === "ar-SA") expect(issue.fix.done).toContain("إلى الصفحة الأولى");
+	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 });

@@ -2,11 +2,13 @@
 
 import { render } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import { FontWeightCombobox } from "./combobox";
+import { FontFamilyCombobox, FontWeightCombobox } from "./combobox";
 import { getNextWeights } from "./get-next-weights";
 
 const comboboxMock = vi.hoisted(() => ({
-	props: undefined as { onValueChange?: (value: string[] | null) => void } | undefined,
+	props: undefined as
+		| { options?: { value: string; disabled?: boolean }[]; onValueChange?: (value: string[] | null) => void }
+		| undefined,
 }));
 
 type ComboboxProps = {
@@ -44,4 +46,10 @@ describe("FontWeightCombobox", () => {
 
 		expect(onValueChange).toHaveBeenCalledWith(["400", "600", "800"]);
 	});
+});
+
+it("Advanced offers only tested families and retains an unsuitable saved family as disabled", () => {
+	render(<FontFamilyCombobox families={["IBM Plex Sans Arabic", "Cairo"]} value="Lato" />);
+	expect(comboboxMock.props?.options?.map((o) => o.value)).toEqual(["Cairo", "IBM Plex Sans Arabic", "Lato"]);
+	expect(comboboxMock.props?.options?.find((o) => o.value === "Lato")?.disabled).toBe(true);
 });

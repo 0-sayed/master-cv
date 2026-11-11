@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { act, renderHook } from "@testing-library/react";
+import { act, renderHook, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { ConfirmDialogProvider, useConfirm } from "./use-confirm";
@@ -36,4 +36,13 @@ describe("useConfirm", () => {
 
 		await expect(promise).resolves.toBe(false);
 	});
+});
+
+it("reserves danger for an explicitly destructive commit and leaves Cancel secondary", async () => {
+	const { result } = renderHook(() => useConfirm(), { wrapper });
+	await act(() => {
+		void result.current("Delete checkpoint?", { confirmText: "Delete", variant: "danger" });
+	});
+	expect(screen.getByRole("button", { name: "Delete" })).toHaveClass("bg-danger");
+	expect(screen.getByRole("button", { name: "Cancel" })).toHaveClass("bg-surface");
 });

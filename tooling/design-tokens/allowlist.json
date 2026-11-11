@@ -1931,366 +1931,6 @@
 			"reason": "Inherited provider mark or UI occurrence from b617646fa; preserve approved upstream data."
 		},
 		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:button@className",
-			"literal": "text-base",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:dd@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:dd@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:div@className",
-			"literal": "border-[1.5px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:div@className",
-			"literal": "max-w-[640px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:div@className",
-			"literal": "rounded-[14px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:dt@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:h1@className",
-			"literal": "leading-10",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:h1@className",
-			"literal": "sm:leading-[48px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:h1@className",
-			"literal": "sm:text-[44px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:h1@className",
-			"literal": "text-[34px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:h2@className",
-			"literal": "leading-7",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:h2@className",
-			"literal": "text-[22px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:label@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:p@className",
-			"literal": "leading-[21px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:p@className",
-			"literal": "leading-[25px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:p@className",
-			"literal": "max-w-[520px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:p@className",
-			"literal": "text-base",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:p@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Idle/jsx:span@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Progress/jsx:b@className",
-			"literal": "text-[15px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Progress/jsx:div@className",
-			"literal": "max-w-[420px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Progress/jsx:div@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Progress/jsx:span@className",
-			"literal": "border-[1.5px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:b@className",
-			"literal": "text-[15px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:b@className",
-			"literal": "text-base",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:Button@className",
-			"literal": "h-10",
-			"kind": "control-override",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:button@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:div@className",
-			"literal": "bg-white",
-			"kind": "color",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:div@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:div@className",
-			"literal": "max-lg:pb-[max(1rem,env(safe-area-inset-bottom))]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:div@className",
-			"literal": "max-w-[612px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:div@className",
-			"literal": "min-h-[calc(100svh-5rem)]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:div@className",
-			"literal": "size-[84px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:div@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:pre@className",
-			"literal": "leading-[21px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:pre@className",
-			"literal": "max-w-[612px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:pre@className",
-			"literal": "rounded-[10px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:pre@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:span@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:span@className",
-			"literal": "size-[70px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:span@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:span@className",
-			"literal": "text-[26px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/checker.tsx",
-			"context": "function:Result/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
 			"file": "apps/web/src/features/ats-checker/report/analysis-status.tsx",
 			"context": "function:AnalysisStatus/jsx:p@className",
 			"literal": "text-sm",
@@ -2505,78 +2145,6 @@
 			"kind": "typography",
 			"count": 1,
 			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/auth/components/social-auth.tsx",
-			"context": "function:SocialAuthButtons/jsx:Button@className",
-			"literal": "bg-[#0A66C2]",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected provider brand colors from d34de15d4; exact color/count, no feature exemption."
-		},
-		{
-			"file": "apps/web/src/features/auth/components/social-auth.tsx",
-			"context": "function:SocialAuthButtons/jsx:Button@className",
-			"literal": "bg-[#2b3137]",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected provider brand colors from d34de15d4; exact color/count, no feature exemption."
-		},
-		{
-			"file": "apps/web/src/features/auth/components/social-auth.tsx",
-			"context": "function:SocialAuthButtons/jsx:Button@className",
-			"literal": "bg-[#4285F4]",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected provider brand colors from d34de15d4; exact color/count, no feature exemption."
-		},
-		{
-			"file": "apps/web/src/features/auth/components/social-auth.tsx",
-			"context": "function:SocialAuthButtons/jsx:Button@className",
-			"literal": "bg-black",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected provider brand colors from d34de15d4; exact color/count, no feature exemption."
-		},
-		{
-			"file": "apps/web/src/features/auth/components/social-auth.tsx",
-			"context": "function:SocialAuthButtons/jsx:Button@className",
-			"literal": "hover:bg-[#0A66C2]/80",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected provider brand colors from d34de15d4; exact color/count, no feature exemption."
-		},
-		{
-			"file": "apps/web/src/features/auth/components/social-auth.tsx",
-			"context": "function:SocialAuthButtons/jsx:Button@className",
-			"literal": "hover:bg-[#2b3137]/80",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected provider brand colors from d34de15d4; exact color/count, no feature exemption."
-		},
-		{
-			"file": "apps/web/src/features/auth/components/social-auth.tsx",
-			"context": "function:SocialAuthButtons/jsx:Button@className",
-			"literal": "hover:bg-[#4285F4]/80",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected provider brand colors from d34de15d4; exact color/count, no feature exemption."
-		},
-		{
-			"file": "apps/web/src/features/auth/components/social-auth.tsx",
-			"context": "function:SocialAuthButtons/jsx:Button@className",
-			"literal": "hover:bg-black/80",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected provider brand colors from d34de15d4; exact color/count, no feature exemption."
-		},
-		{
-			"file": "apps/web/src/features/auth/components/social-auth.tsx",
-			"context": "function:SocialAuthButtons/jsx:Button@className",
-			"literal": "text-white",
-			"kind": "color",
-			"count": 4,
-			"reason": "Protected provider brand colors from d34de15d4; exact color/count, no feature exemption."
 		},
 		{
 			"file": "apps/web/src/features/career/coach-thread.tsx",
@@ -7149,23 +6717,7 @@
 		{
 			"file": "apps/web/src/features/homepage/check.tsx",
 			"context": "function:Check/jsx:span@className",
-			"literal": "leading-[.9]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/check.tsx",
-			"context": "function:Check/jsx:span@className",
 			"literal": "leading-none",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/check.tsx",
-			"context": "function:Check/jsx:span@className",
-			"literal": "min-[900px]:text-[clamp(52px,5vw,92px)]",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
@@ -7197,22 +6749,6 @@
 		{
 			"file": "apps/web/src/features/homepage/check.tsx",
 			"context": "function:Check/jsx:span@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/check.tsx",
-			"context": "function:Check/jsx:span@className",
-			"literal": "text-[48px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/check.tsx",
-			"context": "function:Check/jsx:span@className",
 			"literal": "text-[oklch(0.88_0.09_150)]",
 			"kind": "color",
 			"count": 1,
@@ -7223,7 +6759,7 @@
 			"context": "function:Check/jsx:span@className",
 			"literal": "tracking-[-.03em]",
 			"kind": "typography",
-			"count": 2,
+			"count": 1,
 			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
 		},
 		{
@@ -11492,30 +11028,6 @@
 		},
 		{
 			"file": "apps/web/src/features/homepage/share.tsx",
-			"context": "function:Share/jsx:button@className",
-			"literal": "px-[18px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/share.tsx",
-			"context": "function:Share/jsx:button@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/share.tsx",
-			"context": "function:Share/jsx:div@className",
-			"literal": "[transform:translateY(calc((1-var(--ui))*16px))]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/share.tsx",
 			"context": "function:Share/jsx:div@className",
 			"literal": "bg-[linear-gradient(to_bottom,oklch(0.78_0.05_255),oklch(0.93_0.05_65))]",
 			"kind": "color",
@@ -11687,54 +11199,6 @@
 			"context": "function:Share/jsx:path@stroke",
 			"literal": "oklch(0.8 0.12 150)",
 			"kind": "color",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/share.tsx",
-			"context": "function:Share/jsx:SegmentedControl@className",
-			"literal": "h-auto",
-			"kind": "control-override",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/share.tsx",
-			"context": "function:Share/jsx:SegmentedControl@className",
-			"literal": "p-1",
-			"kind": "control-override",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/share.tsx",
-			"context": "function:Share/jsx:SegmentedControl@className",
-			"literal": "rounded-full",
-			"kind": "control-override",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/share.tsx",
-			"context": "function:Share/jsx:SegmentedControlItem@className",
-			"literal": "h-[34px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/share.tsx",
-			"context": "function:Share/jsx:SegmentedControlItem@className",
-			"literal": "px-3.5",
-			"kind": "control-override",
-			"count": 1,
-			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/homepage/share.tsx",
-			"context": "function:Share/jsx:SegmentedControlItem@className",
-			"literal": "rounded-full",
-			"kind": "control-override",
 			"count": 1,
 			"reason": "Inherited homepage paper/illustration or interface literal from b617646fa; exact D35 baseline, no new occurrences."
 		},
@@ -13307,238 +12771,6 @@
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
 		},
 		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:CategoryRows/jsx:button@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:CategoryRows/jsx:h3@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:CategoryRows/jsx:p@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:CategoryRows/jsx:p@className",
-			"literal": "ps-[42px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:CategoryRows/jsx:p@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:CategoryRows/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:CheckPanel/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:CheckPanel/jsx:TabsList@className",
-			"literal": "h-[38px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssueCard/jsx:div@className",
-			"literal": "[&_button]:max-sm:text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssueCard/jsx:div@className",
-			"literal": "gap-[3px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssueCard/jsx:h3@className",
-			"literal": "leading-5",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssueCard/jsx:h3@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssueCard/jsx:p@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssueCard/jsx:p@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssueCard/jsx:span@className",
-			"literal": "size-[22px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssueCard/jsx:span@className",
-			"literal": "text-[11px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssueCard/jsx:span@className",
-			"literal": "text-[12px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssueCard/jsx:span@className",
-			"literal": "text-[oklch(0.22_0.03_80)]",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssuesTab/jsx:div@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssuesTab/jsx:div@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssuesTab/jsx:p@className",
-			"literal": "leading-[17px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:IssuesTab/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:ScoreSummary/jsx:div@className",
-			"literal": "size-[84px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:ScoreSummary/jsx:span@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:ScoreSummary/jsx:span@className",
-			"literal": "size-[70px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:ScoreSummary/jsx:span@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:ScoreSummary/jsx:span@className",
-			"literal": "text-[26px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:ScoreSummary/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/check-panel.tsx",
-			"context": "function:ScoreSummary/jsx:strong@className",
-			"literal": "text-[15px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
 			"file": "apps/web/src/features/resume/editor/check/job-match.tsx",
 			"context": "function:JobMatchTab/jsx:button@className",
 			"literal": "bg-[#F2DE8C]",
@@ -13743,7 +12975,7 @@
 			"context": "function:CheckPageLayer/jsx:button@className",
 			"literal": "border-white",
 			"kind": "color",
-			"count": 2,
+			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
 		},
 		{
@@ -13751,22 +12983,6 @@
 			"context": "function:CheckPageLayer/jsx:button@className",
 			"literal": "size-[22px]",
 			"kind": "geometry",
-			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:button@className",
-			"literal": "text-[11px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:button@className",
-			"literal": "text-[oklch(0.22_0.03_80)]",
-			"kind": "color",
 			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
 		},
@@ -13891,46 +13107,6 @@
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
 		},
 		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:PageViewToggle/jsx:button@className",
-			"literal": "h-[30px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:PageViewToggle/jsx:button@className",
-			"literal": "rounded-[7px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:PageViewToggle/jsx:button@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:PageViewToggle/jsx:fieldset@className",
-			"literal": "p-[3px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:PageViewToggle/jsx:fieldset@className",
-			"literal": "rounded-[10px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
 			"file": "apps/web/src/features/resume/editor/check/parser-view.tsx",
 			"context": "function:IssueChip/jsx:span@className",
 			"literal": "h-[18px]",
@@ -14014,158 +13190,6 @@
 			"file": "apps/web/src/features/resume/editor/check/parser-view.tsx",
 			"context": "function:ParserView/jsx:p@className",
 			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingNoteCard/jsx:article@className",
-			"literal": "rounded-[10px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingNoteCard/jsx:p@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingNoteCard/jsx:p@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingNoteCard/jsx:span@className",
-			"literal": "h-[18px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingNoteCard/jsx:span@className",
-			"literal": "leading-[18px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingNoteCard/jsx:span@className",
-			"literal": "text-[11px]",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:div@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:div@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:div@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:div@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:h3@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:p@className",
-			"literal": "leading-[17px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:p@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 3,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:p@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 3,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 3,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:strong@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:ul@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:ul@className",
-			"literal": "ps-[18px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/writing-tab.tsx",
-			"context": "function:WritingTab/jsx:ul@className",
-			"literal": "text-[13px]",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
@@ -15500,7 +14524,7 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/import/read-file.test.ts",
-			"context": "property:height/property:items/property:pages",
+			"context": "const:nativeFixture/property:height/property:items/property:pages",
 			"literal": "10",
 			"kind": "geometry",
 			"count": 1,
@@ -15508,7 +14532,7 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/import/read-file.test.ts",
-			"context": "property:height/property:pages",
+			"context": "const:nativeFixture/property:height/property:pages",
 			"literal": "842",
 			"kind": "geometry",
 			"count": 1,
@@ -15532,7 +14556,7 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/import/read-file.test.ts",
-			"context": "property:width/property:items/property:pages",
+			"context": "const:nativeFixture/property:width/property:items/property:pages",
 			"literal": "400",
 			"kind": "geometry",
 			"count": 1,
@@ -15540,7 +14564,7 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/import/read-file.test.ts",
-			"context": "property:width/property:pages",
+			"context": "const:nativeFixture/property:width/property:pages",
 			"literal": "595",
 			"kind": "geometry",
 			"count": 1,
@@ -15942,78 +14966,6 @@
 			"file": "apps/web/src/features/resume/public/resume-reflow.tsx",
 			"context": "function:ResumeReflow/jsx:Tag@className",
 			"literal": "text-[14px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:DownloadActions/jsx:div@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:DownloadActions/jsx:div@className",
-			"literal": "rounded-[10px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:DownloadActions/jsx:div@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:DownloadActions/jsx:p@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:DownloadActions/jsx:p@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:DownloadTab/jsx:div@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:DownloadTab/jsx:div@className",
-			"literal": "rounded-[10px]",
-			"kind": "geometry",
-			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:DownloadTab/jsx:div@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:DownloadTab/jsx:div@className",
-			"literal": "text-sm",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
@@ -16827,62 +15779,6 @@
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/document-menu.tsx",
-			"context": "function:DocumentMenu/jsx:DialogContent@className",
-			"literal": "sm:max-w-[440px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/document-menu.tsx",
-			"context": "function:DocumentMenu/jsx:DialogContent@className",
-			"literal": "sm:max-w-[560px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/editor-bar.tsx",
-			"context": "function:CheckBadge/jsx:span@className",
-			"literal": "h-[18px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/editor-bar.tsx",
-			"context": "function:CheckBadge/jsx:span@className",
-			"literal": "min-w-[18px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/editor-bar.tsx",
-			"context": "function:CheckBadge/jsx:span@className",
-			"literal": "px-[5px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/editor-bar.tsx",
-			"context": "function:CheckBadge/jsx:span@className",
-			"literal": "text-[11px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/editor-bar.tsx",
-			"context": "function:ShareButton/jsx:Button@className",
-			"literal": "px-2",
-			"kind": "control-override",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
 			"file": "apps/web/src/routes/builder/$resumeId/-components/editor-shell.tsx",
 			"context": "function:EditorShell/jsx:a@className",
 			"literal": "text-sm",
@@ -16950,14 +15846,6 @@
 			"file": "apps/web/src/routes/builder/$resumeId/-components/page-canvas.tsx",
 			"context": "function:PageCanvas/jsx:ResumePreview@className",
 			"literal": "rtl:translate-x-[120px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/page-canvas.tsx",
-			"context": "function:PageCanvas/jsx:section@className",
-			"literal": "pt-[68px]",
 			"kind": "geometry",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."

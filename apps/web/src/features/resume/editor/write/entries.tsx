@@ -317,7 +317,7 @@ export function EntryFields({
 				<>
 					<Text {...props} field="position" label={<Trans>Position</Trans>} autoFocus={autoFocus} />
 					<Text {...props} field="company" label={<Trans>Company</Trans>} />
-					<Text {...props} field="location" label={<Trans>Location</Trans>} wide />
+					<Text {...props} field="location" label={<Trans context="workplace">Location</Trans>} wide />
 					<Dates {...props} />
 					<Link {...props} />
 					<Description {...props} />
@@ -412,7 +412,7 @@ export function EntryFields({
 			return (
 				<>
 					<Text {...props} field="organization" label={<Trans>Organization</Trans>} autoFocus={autoFocus} />
-					<Text {...props} field="location" label={<Trans>Location</Trans>} />
+					<Text {...props} field="location" label={<Trans context="workplace">Location</Trans>} />
 					<Dates {...props} />
 					<Link {...props} />
 					<Description {...props} />

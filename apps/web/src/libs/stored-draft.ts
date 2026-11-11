@@ -55,7 +55,9 @@ export function writeStoredDraft<T>(
 				value,
 			} satisfies StoredDraft<T>),
 		);
+		return true;
 	} catch {
+		return false;
 		/* The live draft remains usable when storage is blocked. */
 	}
 }
