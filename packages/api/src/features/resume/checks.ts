@@ -1,16 +1,11 @@
 import z from "zod";
 import { ATS_CATEGORIES, ATS_RULE_CODES, lintResumeForAts } from "@reactive-resume/resume/ats";
-import {
-	analyzePdfResume,
-	buildExtractedDocument,
-	matchJobDescription,
-	surfaceFormsOf,
-} from "@reactive-resume/resume/ats-pdf";
+import { matchJobDescription, surfaceFormsOf } from "@reactive-resume/resume/ats-pdf";
 import { buildMarkdown } from "@reactive-resume/resume/markdown";
-import { publicProcedure, protectedProcedure } from "../../context";
+import { protectedProcedure } from "../../context";
 import { jobTermSchema, pdfCheckSchema } from "../../dto/pdf-check";
 import { pdfAnalysisRateLimit } from "../../middleware/rate-limit";
-import { extractPdf } from "./pdf-analysis";
+import { checkOwnedPdf, ownedPdfCheckInput } from "./check-owned-pdf";
 import { resumeService } from "./service";
 
 const finding = z.object({
@@ -46,30 +41,32 @@ export const checkResume = protectedProcedure
 		lintResumeForAts((await resumeService.getById({ id: input.id, userId: context.user.id })).data),
 	);
 
-export const checkPdf = publicProcedure
+export const checkPdf = protectedProcedure
 	.route({
 		method: "POST",
 		path: "/pdf-checks",
 		tags: ["Checks"],
 		operationId: "createPdfCheck",
-		summary: "Check a PDF for ATS readability",
+		summary: "Check an owned CV PDF",
 		description:
-			"Multipart PDF upload, up to 25 MB. Processes at most 30 pages, reports truncation and skipped checks, and stores nothing. Rate limited per client address. No authentication required.",
+			"Authenticated native PDF checking for a current owned, non-trashed CV revision. Up to 25 MB and 30 pages. Partial coverage stays partial. No extracted text or file is stored.",
 	})
-	.input(z.object({ file: z.file().max(25_000_000), jobDescription: z.string().max(20_000).optional() }))
+	.input(ownedPdfCheckInput)
 	.output(
 		pdfCheckSchema.extend({
-			fullText: z.string().describe("Extracted text in reading order, for the optional AI review."),
+			source: z.object({
+				ownerId: z.string(),
+				resumeId: z.string(),
+				baseRevision: z.string(),
+				editGeneration: z.number(),
+				contentHash: z.string(),
+				bytesHash: z.string(),
+				versions: ownedPdfCheckInput.shape.artifact.shape.versions,
+			}),
 		}),
 	)
 	.use(pdfAnalysisRateLimit)
-	.handler(async ({ input, signal }) => {
-		const raw = await extractPdf(input.file, signal);
-		return {
-			...analyzePdfResume(raw, input.jobDescription ? { jobDescription: input.jobDescription } : {}),
-			fullText: buildExtractedDocument(raw).fullText,
-		};
-	});
+	.handler(({ input, context, signal }) => checkOwnedPdf(context.user.id, input, signal));
 
 export const matchResume = protectedProcedure
 	.route({

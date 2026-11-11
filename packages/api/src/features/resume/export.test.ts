@@ -21,7 +21,9 @@ vi.mock("../../context", async () => {
 	const { os } = await import("@orpc/server");
 	return { protectedProcedure: os.$context<{ user: { id: string }; resHeaders?: Headers }>() };
 });
-vi.mock("./service", () => ({ resumeService: { getById: async () => ({ name: "Resume", data: {} }) } }));
+vi.mock("./service", () => ({
+	resumeService: { getById: async () => ({ name: "Resume", updatedAt: new Date("2026-11-11"), data: {} }) },
+}));
 vi.mock("./resume-data-validation", () => ({ parseStoredResumeData: (data: unknown) => data }));
 vi.mock("@reactive-resume/pdf/server", () => ({ createResumePdfFile: render }));
 
@@ -33,4 +35,12 @@ it("limits direct and signed-link PDF rendering at the shared export owner", asy
 	for (let count = 0; count < 5; count++) await createResumePdfDownload(input);
 	await expect(createResumePdfDownload(input)).rejects.toMatchObject({ code: "TOO_MANY_REQUESTS" });
 	expect(render).toHaveBeenCalledTimes(5);
+});
+
+it("rejects a signed revision that no longer matches before rendering", async () => {
+	const before = render.mock.calls.length;
+	await expect(
+		createResumePdfDownload({ id: "cv", userId: "alice", expectedUpdatedAt: "2026-11-10T00:00:00.000Z" }),
+	).rejects.toMatchObject({ code: "CONFLICT" });
+	expect(render.mock.calls).toHaveLength(before);
 });

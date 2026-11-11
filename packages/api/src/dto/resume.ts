@@ -4,6 +4,7 @@ import * as schema from "@reactive-resume/db/schema";
 import { jsonPatchOperationSchema } from "@reactive-resume/resume/patch";
 import { resumeDataSchema } from "@reactive-resume/schema/resume/data";
 import { writableResumeDataSchema } from "@reactive-resume/schema/resume/write";
+import { localeSchema } from "@reactive-resume/utils/locale";
 import { paginationShape } from "../pagination";
 
 const resumeSchema = createSelectSchema(schema.resume, {
@@ -22,7 +23,15 @@ const resumeSchema = createSelectSchema(schema.resume, {
 })
 	// Trash and automatic naming stay internal to the documents API. getById exposes the application link
 	// explicitly because the editor uses it to select the application a tailored copy belongs to.
-	.omit({ applicationId: true, trashedAt: true, autoName: true, baseResumeId: true, variantKind: true });
+	.omit({
+		importFlowId: true,
+		importFlowHash: true,
+		applicationId: true,
+		trashedAt: true,
+		autoName: true,
+		baseResumeId: true,
+		variantKind: true,
+	});
 
 const versionSchema = z.object({
 	id: z.string().describe("The ID of the version."),
@@ -80,6 +89,8 @@ export const resumeDto = {
 				.optional()
 				.describe("The slug of the resume. Generated from the name, and made unique, when omitted."),
 			withSampleData: z.boolean().default(false),
+			locale: localeSchema.optional().describe("Document language, independent of interface language."),
+			empty: z.boolean().optional().describe("Start without prefilled account content."),
 		}),
 		output: z.string().describe("The ID of the created resume."),
 	},
@@ -218,6 +229,7 @@ export const resumeDto = {
 		input: z.object({
 			resumeId: z.string().describe("The ID of the resume to restore."),
 			versionId: z.string().describe("The ID of the version snapshot to restore."),
+			expectedUpdatedAt: z.coerce.date().optional(),
 		}),
 		output: resumeSchema.omit({ password: true, userId: true }).extend({ hasPassword: z.boolean() }),
 	},

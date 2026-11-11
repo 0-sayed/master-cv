@@ -106,6 +106,7 @@ export const versionsRouter = {
 			resumeService.versions.restore({
 				resumeId: input.resumeId,
 				versionId: input.versionId,
+				...(input.expectedUpdatedAt ? { expectedUpdatedAt: input.expectedUpdatedAt } : {}),
 				userId: context.user.id,
 			}),
 		),

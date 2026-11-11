@@ -6,9 +6,10 @@ import { safeEquals } from "./access";
 const TTL_SECONDS = 10 * 60;
 
 type PdfDownloadTokenPayload = {
-	v: 1;
+	v: 2;
 	resumeId: string;
 	userId: string;
+	expectedUpdatedAt: string;
 	expiresAt: number;
 	issuedAt: number;
 };
@@ -16,6 +17,7 @@ type PdfDownloadTokenPayload = {
 type CreateResumePdfDownloadUrlInput = {
 	resumeId: string;
 	userId: string;
+	expectedUpdatedAt: string;
 	now?: Date;
 };
 
@@ -30,6 +32,7 @@ type VerifyResumePdfDownloadTokenResult =
 			ok: true;
 			resumeId: string;
 			userId: string;
+			expectedUpdatedAt: string;
 			expiresAt: string;
 	  }
 	| {
@@ -53,22 +56,30 @@ function parsePayload(value: unknown): PdfDownloadTokenPayload | null {
 	if (!value || typeof value !== "object") return null;
 
 	const payload = value as Partial<PdfDownloadTokenPayload>;
-	if (payload.v !== 1) return null;
+	if (payload.v !== 2) return null;
 	if (typeof payload.resumeId !== "string" || payload.resumeId.length === 0) return null;
 	if (typeof payload.userId !== "string" || payload.userId.length === 0) return null;
+	if (typeof payload.expectedUpdatedAt !== "string" || !Number.isFinite(Date.parse(payload.expectedUpdatedAt)))
+		return null;
 	if (typeof payload.expiresAt !== "number" || !Number.isFinite(payload.expiresAt)) return null;
 	if (typeof payload.issuedAt !== "number" || !Number.isFinite(payload.issuedAt)) return null;
 
 	return payload as PdfDownloadTokenPayload;
 }
 
-export function createResumePdfDownloadUrl({ resumeId, userId, now = new Date() }: CreateResumePdfDownloadUrlInput) {
+export function createResumePdfDownloadUrl({
+	resumeId,
+	userId,
+	expectedUpdatedAt,
+	now = new Date(),
+}: CreateResumePdfDownloadUrlInput) {
 	const expiresInSeconds = TTL_SECONDS;
 	const expiresAt = new Date(now.getTime() + expiresInSeconds * 1000);
 	const payload = encodeJson({
-		v: 1,
+		v: 2,
 		resumeId,
 		userId,
+		expectedUpdatedAt,
 		expiresAt: expiresAt.getTime(),
 		issuedAt: now.getTime(),
 	} satisfies PdfDownloadTokenPayload);
@@ -102,6 +113,7 @@ export function verifyResumePdfDownloadToken({
 			ok: true,
 			resumeId: parsed.resumeId,
 			userId: parsed.userId,
+			expectedUpdatedAt: parsed.expectedUpdatedAt,
 			expiresAt: new Date(parsed.expiresAt).toISOString(),
 		};
 	} catch {

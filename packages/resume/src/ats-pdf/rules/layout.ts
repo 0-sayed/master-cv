@@ -1,4 +1,5 @@
-import type { PageGeometry, PdfCheck, PdfCheckContext } from "../types";
+import type { PageGeometry, PdfCheck, PdfCheckContext, TextLine } from "../types";
+import { columnSegments } from "../extract";
 import { check, fail, failIf, hasNoText, pass, roundRatio, skip, snippet } from "./helpers";
 import { THRESHOLDS } from "./thresholds";
 
@@ -78,14 +79,22 @@ function tableLikeLineCount(context: PdfCheckContext): number {
 }
 
 /** Median gap between consecutive baselines, used to spot lines packed tight enough to merge. */
-function medianLineGap(page: PageGeometry): number | null {
-	const sorted = [...page.lines].sort((a, b) => a.y - b.y);
+function medianLineGap(lines: readonly TextLine[]): number | null {
+	const sorted = [...lines].sort((a, b) => a.y - b.y);
 	const gaps: number[] = [];
 
 	for (let index = 1; index < sorted.length; index += 1) {
-		const previous = sorted[index - 1];
 		const line = sorted[index];
-		if (!previous || !line) continue;
+		if (!line) continue;
+		// A neighbouring baseline in a different horizontal region is not this line's spacing.
+		const previous = sorted
+			.slice(0, index)
+			.findLast(
+				(candidate) =>
+					line.y - candidate.y > 0.5 &&
+					Math.min(candidate.x + candidate.width, line.x + line.width) > Math.max(candidate.x, line.x),
+			);
+		if (!previous) continue;
 
 		const gap = line.y - previous.y;
 		if (gap > 0.5) gaps.push(gap);
@@ -95,6 +104,22 @@ function medianLineGap(page: PageGeometry): number | null {
 
 	gaps.sort((a, b) => a - b);
 	return gaps[Math.floor(gaps.length / 2)] ?? null;
+}
+
+function regionLineGaps(page: PageGeometry): number[] {
+	const lines = page.lines.flatMap(columnSegments);
+	const regions: TextLine[][] = [[], [], []];
+	for (const line of lines) {
+		const region = !page.gutter
+			? 0
+			: line.x + line.width <= page.gutter.x
+				? 0
+				: line.x >= page.gutter.x + page.gutter.width
+					? 1
+					: 2;
+		regions[region]?.push(line);
+	}
+	return regions.map(medianLineGap).filter((gap): gap is number => gap !== null);
 }
 
 export const layoutChecks: readonly PdfCheck[] = [
@@ -188,7 +213,7 @@ export const layoutChecks: readonly PdfCheck[] = [
 		const modal = context.doc.modalFontSize;
 		if (!modal || hasNoText(context)) return skip("insufficient-data");
 
-		const gaps = context.doc.pages.map(medianLineGap).filter((gap): gap is number => gap !== null);
+		const gaps = context.doc.pages.flatMap(regionLineGaps);
 		if (gaps.length === 0) return skip("insufficient-data");
 
 		const tightest = Math.min(...gaps);

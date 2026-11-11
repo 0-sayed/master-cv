@@ -106,7 +106,11 @@ export function registerTools(
 			const user = authentication?.user ?? (await resolveUserFromRequestHeaders(requestHeaders));
 			if (!user) throw new ORPCError("UNAUTHORIZED");
 
-			const signedUrl = createResumePdfDownloadUrl({ resumeId: id, userId: user.id });
+			const signedUrl = createResumePdfDownloadUrl({
+				resumeId: id,
+				userId: user.id,
+				expectedUpdatedAt: resume.updatedAt.toISOString(),
+			});
 
 			return json({
 				resumeId: id,

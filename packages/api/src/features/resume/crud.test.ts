@@ -68,4 +68,26 @@ describe("resume write route validation", () => {
 			}),
 		);
 	});
+	it.each(["ar-SA", "en-US"] as const)(
+		"creates an empty %s document owned by the authenticated user",
+		async (locale) => {
+			const client = createRouterClient(crudRouter, {
+				context: { locale: "en-US", reqHeaders: new Headers(), user: { id: "user-id", name: "Account name" } } as never,
+			});
+			await expect(
+				client.create({ name: "Untitled resume", tags: [], withSampleData: false, empty: true, locale }),
+			).resolves.toBe("resume-id");
+			expect(mocks.create).toHaveBeenCalledWith(
+				expect.objectContaining({
+					userId: "user-id",
+					locale,
+					data: expect.objectContaining({
+						basics: expect.objectContaining({ name: "" }),
+						metadata: expect.objectContaining({ page: expect.objectContaining({ locale }) }),
+						sections: expect.objectContaining({ experience: expect.objectContaining({ items: [] }) }),
+					}),
+				}),
+			);
+		},
+	);
 });

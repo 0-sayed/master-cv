@@ -19,6 +19,8 @@ export const resume = pg.pgTable.withRLS(
 			.$defaultFn(() => generateId()),
 		name: pg.text("name").notNull(),
 		baseResumeId: pg.text("base_resume_id"),
+		importFlowId: pg.text("import_flow_id"),
+		importFlowHash: pg.text("import_flow_hash"),
 		variantKind: pg
 			.text("variant_kind", { enum: ["base", "language", "job"] })
 			.notNull()
@@ -54,6 +56,8 @@ export const resume = pg.pgTable.withRLS(
 	},
 	(t) => [
 		ownerPolicy(t.userId),
+		pg.unique("resume_import_flow_unique").on(t.userId, t.importFlowId),
+		pg.check("resume_import_flow_pair", sql`(${t.importFlowId} IS NULL) = (${t.importFlowHash} IS NULL)`),
 		pg.pgPolicy("shared_read", {
 			for: "select",
 			using: sql`${t.isPublic} = true AND ${t.trashedAt} IS NULL`,

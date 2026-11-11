@@ -1,7 +1,6 @@
+import type { getModel } from "./service";
+import { ORPCError } from "@orpc/server";
 import { z } from "zod";
-import { atsReviewSystemPrompt, atsReviewUserPromptTemplate } from "@reactive-resume/ai/prompts";
-import { generateJson } from "./generate-json";
-import { getModel } from "./service";
 
 /** Roughly a very long resume. The client truncates the extracted text to this before sending. */
 const MAX_EXTRACTED_TEXT_CHARS = 50_000;
@@ -94,57 +93,8 @@ type AtsReviewServiceInput = AtsReviewInput & {
 	baseURL: string;
 };
 
-function renderFindings(findings: AtsReviewInput["findings"]): string {
-	if (findings.length === 0) return "None reported.";
-	return findings.map((finding) => `- [${finding.severity}] ${finding.code}: ${finding.message}`).join("\n");
-}
-
-function renderJobDescriptionSection(jobDescription: string | undefined): string {
-	if (!jobDescription) return "";
-
-	return [
-		"",
-		"## Job description",
-		"",
-		"<<<JOB_DESCRIPTION_START>>>",
-		jobDescription,
-		"<<<JOB_DESCRIPTION_END>>>",
-	].join("\n");
-}
-
-function renderPassagesSection(passages: AtsReviewInput["passages"]): string {
-	if (passages.length === 0) return "";
-
-	return [
-		"",
-		"## Passages you may rewrite",
-		"",
-		"Each line is `[id] where: text`. When a suggestion rewrites one of these, set `passageId` to its id and `rewrite` to the whole new passage.",
-		"",
-		"<<<PASSAGES_START>>>",
-		...passages.map((passage) => `[${passage.id}] ${passage.where}: ${passage.text.replace(/\s+/g, " ")}`),
-		"<<<PASSAGES_END>>>",
-	].join("\n");
-}
-
-function buildUserPrompt(input: AtsReviewServiceInput): string {
-	// One pass over the template, so text inside the resume that happens to look like a placeholder stays as it is.
-	const sections: Record<string, string> = {
-		EXTRACTED_TEXT: input.extractedText,
-		FINDINGS: renderFindings(input.findings),
-		JOB_DESCRIPTION_SECTION: renderJobDescriptionSection(input.jobDescription),
-		PASSAGES_SECTION: renderPassagesSection(input.passages ?? []),
-	};
-
-	return atsReviewUserPromptTemplate.replace(
-		/\{\{([A-Z_]+)\}\}/g,
-		(placeholder, name: string) => sections[name] ?? placeholder,
-	);
-}
-
-/** Qualitative review of the writing. Never returns a score — see {@link atsReviewOutputSchema}. */
-export function reviewResumeText(input: AtsReviewServiceInput): Promise<AtsReviewOutput> {
-	const model = getModel(input);
-
-	return generateJson(model, { system: atsReviewSystemPrompt, prompt: buildUserPrompt(input) }, atsReviewOutputSchema);
+/** Unavailable until approved consent, routing and minimized payloads land in T005/T006. */
+// oxlint-disable-next-line require-await -- Keep the asynchronous service contract while private AI review is gated.
+export async function reviewResumeText(_input: AtsReviewServiceInput): Promise<AtsReviewOutput> {
+	throw new ORPCError("FORBIDDEN", { message: "AI writing review is not available." });
 }

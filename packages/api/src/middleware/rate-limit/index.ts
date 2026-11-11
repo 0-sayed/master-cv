@@ -127,5 +127,5 @@ export const resumeMutationRateLimit = createRatelimitMiddleware<ContextWithHead
 const pdfAnalysisLimiter = createRateLimiter("pdfAnalysisLimiter", rateLimitConfig.orpc.pdfExport);
 export const pdfAnalysisRateLimit = createRatelimitMiddleware<ContextWithHeaders, unknown>({
 	limiter: productionLimiter(pdfAnalysisLimiter),
-	key: ({ context }) => `pdf-analysis:${getClientKey(context.trustedClient)}`,
+	key: ({ context }) => `pdf-analysis:${getUserKey(context)}`,
 });

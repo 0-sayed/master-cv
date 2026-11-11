@@ -12,7 +12,7 @@ export const importResumeFile = protectedProcedure
 		operationId: "importResumeFile",
 		summary: "Import a PDF, resume JSON or LinkedIn archive",
 		description:
-			"Multipart form with file and format fields. PDF imports read the text layer without AI. For AI-assisted PDF and Word imports, use the AI parsing endpoints then create a resume import.",
+			"Multipart form with file and format fields. PDF imports read the text layer without AI. Original attachments cannot be processed by AI. Word import is unavailable.",
 	})
 	.input(
 		z.object({

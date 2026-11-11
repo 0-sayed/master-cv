@@ -82,6 +82,35 @@ describe("parseability checks", () => {
 });
 
 describe("layout checks", () => {
+	it.each(["ar-SA", "en-US"])("measures staggered two-column baselines independently in %s", (language) => {
+		const raw = makeRawExtraction({
+			metadata: { language },
+			lines: [56, 340].flatMap((x, column) =>
+				Array.from({ length: 12 }, (_, index) => ({
+					text: "Readable body text",
+					x,
+					y: 60 + index * 18 + column * 9,
+					size: 10,
+				})),
+			),
+		});
+		expect(statusOf(report(raw), "TIGHT_LINE_SPACING")).toBe("pass");
+	});
+
+	it.each([false, true])("still warns about tight baselines in a column (with sidebar: %s)", (sidebar) => {
+		const raw = makeRawExtraction({
+			lines: [56, ...(sidebar ? [340] : [])].flatMap((x, column) =>
+				Array.from({ length: 12 }, (_, index) => ({
+					text: "Readable body text",
+					x,
+					y: 60 + index * (column === 0 ? 9 : 22),
+					size: 10,
+				})),
+			),
+		});
+		expect(statusOf(report(raw), "TIGHT_LINE_SPACING")).toBe("fail");
+	});
+
 	it("warns about geometric ordering risk without claiming proven factual loss", () => {
 		const result = report(twoColumnResume());
 

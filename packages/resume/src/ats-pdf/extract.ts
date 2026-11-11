@@ -405,7 +405,7 @@ function buildPage(page: RawPage, tolerance: number): PageGeometry {
 
 /**
  * Derives page geometry from a raw extraction. Pure: the same bytes always produce the same
- * document, whatever order the reader happened to emit text items in.
+ * document, regardless of producer identity.
  */
 export function buildExtractedDocument(raw: RawExtraction): ExtractedDocument {
 	const allFontSizes = raw.pages.flatMap((page) => page.items.filter((item) => item.str.trim()).map(fontSizeOf));
