@@ -7,7 +7,14 @@ import { I18nProvider } from "@lingui/react";
 import { useEditorStore } from "../store";
 import { CheckPanel } from "./check-panel";
 
-const documentState = vi.hoisted(() => ({ locale: "en-US", pdfState: "not-checked", findings: false }));
+const documentState = vi.hoisted(() => ({
+	locale: "en-US",
+	pdfState: "not-checked",
+	findings: false,
+	ignored: [] as string[],
+	locked: false,
+	restoreIgnored: vi.fn(),
+}));
 
 vi.mock("@/features/resume/builder/draft", async () => {
 	const { defaultResumeData } = await import("@reactive-resume/schema/resume/default");
@@ -17,9 +24,10 @@ vi.mock("@/features/resume/builder/draft", async () => {
 			metadata: {
 				...defaultResumeData.metadata,
 				page: { ...defaultResumeData.metadata.page, locale: documentState.locale },
+				check: { ignored: documentState.ignored, hiddenTerms: [] },
 			},
 		}),
-		useIsResumeLocked: () => false,
+		useIsResumeLocked: () => documentState.locked,
 		useResumeStore: { getState: () => ({ resume: null }) },
 	};
 });
@@ -41,7 +49,10 @@ vi.mock("./use-readiness", async () => {
 		}),
 	};
 });
-vi.mock("./actions", () => ({ useCheckActions: () => ({}), editWithUndo: vi.fn() }));
+vi.mock("./actions", () => ({
+	useCheckActions: () => ({ restoreIgnored: documentState.restoreIgnored }),
+	editWithUndo: vi.fn(),
+}));
 vi.mock("./writing-tab", () => ({ WritingTab: () => null }));
 
 beforeEach(() => {
@@ -49,6 +60,9 @@ beforeEach(() => {
 	documentState.locale = "en-US";
 	documentState.pdfState = "not-checked";
 	documentState.findings = false;
+	documentState.ignored = [];
+	documentState.locked = false;
+	documentState.restoreIgnored.mockReset();
 	i18n.load("en", {});
 	i18n.activate("en");
 });
@@ -122,4 +136,23 @@ it("reveals extracted text outside the tablet drawer", async () => {
 	expect(useEditorStore.getState().drawerOpen).toBe(false);
 	expect(useEditorStore.getState().pageView).toBe("parser");
 	expect(useEditorStore.getState().mobileView).toBe("page");
+});
+
+it("offers a counted recovery action for notes ignored in the saved document", async () => {
+	documentState.ignored = ["MISSING_EMAIL:/basics/email", "MISSING_PHONE:/basics/phone"];
+	panel();
+	const writing = screen.getByRole("region", { name: "Writing and content" });
+	const restore = within(writing).getByRole("button", { name: "Show again (2)" });
+	await userEvent.click(restore);
+	expect(documentState.restoreIgnored).toHaveBeenCalledOnce();
+});
+it("does not offer restoration without ignored notes", () => {
+	panel();
+	expect(screen.queryByRole("button", { name: /^Show again/ })).not.toBeInTheDocument();
+});
+it("disables restoring ignored notes in a locked document", () => {
+	documentState.ignored = ["MISSING_EMAIL:/basics/email"];
+	documentState.locked = true;
+	panel();
+	expect(screen.getByRole("button", { name: "Show again (1)" })).toBeDisabled();
 });

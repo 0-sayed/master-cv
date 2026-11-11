@@ -1,5 +1,6 @@
 import { loginViaUi } from "../fixtures/auth";
 import { createSampleResumeFromDashboard, openSidebarSection } from "../fixtures/resume";
+import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
 test("history restore survives sign-out and fresh sign-in without changing the other language CV", async ({
@@ -105,3 +106,79 @@ test("entry hover reveals its reorder handle", async ({ authPage: page }, testIn
 	await entry.hover();
 	await expect(entry.getByRole("button", { name: /^Reorder / })).toHaveCSS("opacity", "1");
 });
+
+test("ignored writing notes can be restored after reloading on mobile", async ({ authPage: page }) => {
+	await page.setViewportSize({ width: 390, height: 844 });
+	await page.goto("/dashboard");
+	await page.getByRole("button", { name: "New CV", exact: true }).click();
+	await page.getByRole("button", { name: /^Write from scratch/u }).click();
+	await expect(page).toHaveURL(/\/builder\//);
+	const id = new URL(page.url()).pathname.split("/").at(-1);
+	await page
+		.getByRole("navigation", { name: "Editor views" })
+		.getByRole("button", { name: "Check", exact: true })
+		.click();
+	const key = "MISSING_EMAIL:/basics/email";
+	const note = page.locator(`[data-issue-card="${key}"]`);
+	await note.getByRole("button", { name: "Keep as it is", exact: true }).click();
+	await expect
+		.poll(
+			async () =>
+				(await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.metadata.check?.ignored ?? [],
+		)
+		.toContain(key);
+	await page.reload();
+	await page
+		.getByRole("navigation", { name: "Editor views" })
+		.getByRole("button", { name: "Check", exact: true })
+		.click();
+	await expect(note).not.toBeVisible();
+	await page.getByRole("button", { name: "Show again (1)", exact: true }).click();
+	await expect(note).toBeVisible();
+	await expect
+		.poll(async () => (await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.metadata.check.ignored)
+		.toHaveLength(0);
+});
+
+for (const locale of ["en-US", "ar-SA"] as const) {
+	test(`mobile page fixes require visible approval (${locale})`, async ({ authPage: page, baseURL }, testInfo) => {
+		const ar = locale === "ar-SA";
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.request.post("/api/auth/update-user", {
+			headers: { origin: baseURL ?? "http://localhost:3030" },
+			data: { uiLocale: locale },
+		});
+		const created = await page.request.post("/api/openapi/resumes", {
+			data: { name: "Synthetic mobile fix", tags: [], locale: "en-US", withSampleData: false },
+		});
+		expect(created.ok()).toBe(true);
+		const id = await created.json();
+		const read = async () => (await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data;
+		const data = await read();
+		data.basics.name = "Synthetic approval author";
+		data.basics.website.url = "example.com";
+		expect((await page.request.put(`/api/openapi/resumes/${id}`, { data: { data } })).ok()).toBe(true);
+		await page.goto(`/builder/${id}?locale=${locale}`);
+		await page
+			.getByRole("navigation", { name: ar ? "طرق عرض المحرر" : "Editor views" })
+			.getByRole("button", { name: ar ? "فحص" : "Check", exact: true })
+			.click();
+		const issue = page.locator('[data-issue-card="MALFORMED_URL:/basics/website/url"]');
+		await issue.getByRole("button", { name: ar ? "عرض على الصفحة" : "Show on page", exact: true }).click();
+		await page.getByRole("button", { name: /https:\/\/example.com/ }).click();
+		const dialog = page.getByRole("dialog", { name: ar ? "راجع هذا التغيير" : "Review this change", exact: true });
+		await expect(dialog.getByText("example.com", { exact: true })).toBeVisible();
+		await expect(dialog.getByText("https://example.com", { exact: true })).toBeVisible();
+		expect((await read()).basics.website.url).toBe("example.com");
+		await settleScreen(page);
+		await page.screenshot({ path: testInfo.outputPath("mobile-fix-review.png") });
+		await dialog.getByRole("button", { name: ar ? "رفض" : "Reject", exact: true }).click();
+		await expect(dialog).not.toBeVisible();
+		expect((await read()).basics.website.url).toBe("example.com");
+		await issue.getByRole("button", { name: ar ? "عرض على الصفحة" : "Show on page", exact: true }).click();
+		await page.getByRole("button", { name: /https:\/\/example.com/ }).click();
+		await dialog.getByRole("button", { name: ar ? "قبول التغيير" : "Accept change", exact: true }).click();
+		await expect(dialog).not.toBeVisible();
+		await expect.poll(async () => (await read()).basics.website.url).toBe("https://example.com");
+	});
+}

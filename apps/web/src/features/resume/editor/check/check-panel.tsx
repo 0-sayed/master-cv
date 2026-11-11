@@ -35,6 +35,8 @@ const readinessStateLabel = (state: string) =>
 /** Each result answers a separate question. Counts describe findings, never hiring likelihood. */
 export function CheckPanel() {
 	const check = useCheck();
+	const { restoreIgnored } = useCheckActions();
+	const locked = useIsResumeLocked();
 	const { results, pdfReport, requestRetry, introduced, setIntroduced } = useReadiness();
 	const preview = useEditorStore((state) => state.checkFixPreview);
 	const setPreview = useEditorStore((state) => state.setCheckFixPreview);
@@ -193,6 +195,12 @@ export function CheckPanel() {
 						<IssueCard key={issue.key} issue={issue} />
 					))}
 				</ul>
+				{check.report.ignored.length > 0 && (
+					<Button variant="secondary" disabled={locked} onClick={restoreIgnored}>
+						<Icon name="arrow-counter-clockwise" />
+						<Trans>Show again</Trans> ({check.report.ignored.length})
+					</Button>
+				)}
 				<WritingTab data={check.data} issues={check.issues} />
 			</SectionCard>
 			<SectionCard aria-label={t`Evidence for a selected job`}>

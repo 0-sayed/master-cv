@@ -54,7 +54,10 @@ export function useCheckActions() {
 		if (issue.fix.kind === "apply") {
 			const editor = useEditorStore.getState();
 			const draft = useResumeStore.getState().resume;
-			if (editor.identity && draft) editor.setCheckFixPreview(prepareFix(editor.identity, draft.data, issue.fix.apply));
+			if (editor.identity && draft) {
+				editor.setCheckFixPreview(prepareFix(editor.identity, draft.data, issue.fix.apply));
+				if (breakpoint === "mobile") editor.setMobileView("check");
+			}
 			return;
 		}
 

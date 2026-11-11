@@ -63,6 +63,16 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await expect(page.locator("[data-pdf-bytes-hash]")).toHaveCount(0);
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("check.png") });
+			const ignoredNote = page.locator('[data-issue-card="MISSING_EMAIL:/basics/email"]');
+			await ignoredNote.getByRole("button", { name: ar ? "الإبقاء كما هو" : "Keep as it is", exact: true }).click();
+			const showAgain = page.getByRole("button", { name: ar ? "اعرض مرة أخرى (1)" : "Show again (1)", exact: true });
+			await expect(showAgain).toBeVisible();
+			await showAgain.scrollIntoViewIfNeeded();
+			await settleScreen(page);
+			await page.screenshot({ path: testInfo.outputPath("ignored-notes.png") });
+			await showAgain.click();
+			await expect(ignoredNote).toBeVisible();
+
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 			if (width === 1440) {
 				await page
