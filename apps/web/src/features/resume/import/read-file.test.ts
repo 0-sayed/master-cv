@@ -6,51 +6,79 @@ import { detectImportKind, detectJsonImportKind, parseResumeJson, readResumeFile
 const pdf = vi.hoisted(() => ({ extract: vi.fn() }));
 vi.mock("@/features/ats-checker/extract-client", () => ({ extractPdf: pdf.extract }));
 
+const lines = [
+	"أحمد العتيبي",
+	"synthetic@example.test",
+	"الخبرة العملية",
+	"شركة الأفق | مهندس برمجيات",
+	"يناير ٢٠٢٠ - مارس ٢٠٢٢",
+	"التعليم",
+	"جامعة الملك سعود | علوم الحاسب",
+	"٢٠١٦ - ٢٠٢٠",
+];
+
+const nativeFixture = {
+	version: 1,
+	file: { name: "ar.pdf", sizeBytes: 1, magicBytesOk: true },
+	pageCount: 1,
+	truncated: false,
+	fonts: [],
+	links: [],
+	operatorsAvailable: false,
+	metadata: { language: "ar-SA" },
+	pages: [
+		{
+			pageNumber: 1,
+			width: 595,
+			height: 842,
+			rotation: 0,
+			operators: null,
+			items: lines.map((str, index) => ({
+				str,
+				width: 400,
+				height: 10,
+				dir: /[\u0600-\u06ff]/u.test(str) ? "rtl" : "ltr",
+				transform: [10, 0, 0, 10, 60, 780 - index * 20],
+				fontRef: "font",
+				hasEOL: true,
+			})),
+		},
+	],
+};
+
 it("imports Arabic month dates using the source PDF language while the interface is English", async () => {
-	const lines = [
-		"أحمد العتيبي",
-		"synthetic@example.test",
-		"الخبرة العملية",
-		"شركة الأفق | مهندس برمجيات",
-		"يناير ٢٠٢٠ - مارس ٢٠٢٢",
-		"التعليم",
-		"جامعة الملك سعود | علوم الحاسب",
-		"٢٠١٦ - ٢٠٢٠",
-	];
-	pdf.extract.mockResolvedValue({
-		version: 1,
-		file: { name: "ar.pdf", sizeBytes: 1, magicBytesOk: true },
-		pageCount: 1,
-		truncated: false,
-		fonts: [],
-		links: [],
-		operatorsAvailable: false,
-		metadata: { language: "ar-SA" },
-		pages: [
-			{
-				pageNumber: 1,
-				width: 595,
-				height: 842,
-				rotation: 0,
-				operators: null,
-				items: lines.map((str, index) => ({
-					str,
-					width: 400,
-					height: 10,
-					dir: /[\u0600-\u06ff]/u.test(str) ? "rtl" : "ltr",
-					transform: [10, 0, 0, 10, 60, 780 - index * 20],
-					fontRef: "font",
-					hasEOL: true,
-				})),
-			},
-		],
-	});
+	pdf.extract.mockResolvedValue(nativeFixture);
 	const data = await readResumeFile(new File(["%PDF-"], "ar.pdf"), "pdf", { aiAvailable: false });
 	expect(data.metadata.page.locale).toBe("ar-SA");
 	expect(data.sections.experience.items[0]?.dates).toMatchObject({ start: "2020-01", end: "2022-03" });
 });
 
 beforeAll(() => i18n.loadAndActivate({ locale: "en-US", messages: {} }));
+
+it("sends uncertain native fields to review without populating a guessed position", async () => {
+	const onUncertain = vi.fn();
+	const page = nativeFixture.pages[0];
+	const item = page?.items[0];
+	if (!page || !item) throw new Error("Missing synthetic PDF fixture");
+	pdf.extract.mockResolvedValue({
+		...nativeFixture,
+		pages: [
+			{
+				...page,
+				items: [
+					"Taylor Example",
+					"taylor@example.test",
+					"EXPERIENCE",
+					"Example Labs | Remote | 2024 – Present",
+					"• Built a service.",
+				].map((str, index) => ({ ...item, str, dir: "ltr", transform: [10, 0, 0, 10, 60, 780 - index * 20] })),
+			},
+		],
+	});
+	const data = await readResumeFile(new File(["%PDF-"], "synthetic.pdf"), "pdf", { aiAvailable: false, onUncertain });
+	expect(data.sections.experience.items[0]?.position).toBe("");
+	expect(onUncertain).toHaveBeenCalledWith(expect.objectContaining({ field: "position" }));
+});
 
 describe("detectJsonImportKind", () => {
 	it("detects JSON Resume by a top-level basics without Reactive Resume sections/metadata", () => {
@@ -120,4 +148,12 @@ it("rejects legacy Word before it reaches the OOXML parser", async () => {
 		type: "application/msword",
 	});
 	await expect(detectImportKind(file)).rejects.toThrow("save it as .docx");
+});
+
+it("keeps PDF native even with a provider, and refuses Word without selecting a model", async () => {
+	pdf.extract.mockResolvedValue(nativeFixture);
+	await expect(readResumeFile(new File(["%PDF-"], "cv.pdf"), "pdf", { aiAvailable: true })).resolves.toBeDefined();
+	await expect(readResumeFile(new File(["PK"], "cv.docx"), "docx", { aiAvailable: true })).rejects.toThrow(
+		"not available",
+	);
 });

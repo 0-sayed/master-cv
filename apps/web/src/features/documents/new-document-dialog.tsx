@@ -15,6 +15,7 @@ import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { generateRandomName } from "@reactive-resume/utils/string";
 import { cn } from "@reactive-resume/utils/style";
+import { StartCvDialog } from "../resume/import/start";
 import { isBaseCvLimit } from "./creation-error";
 import { useNewDocumentsStore } from "./new-documents";
 import { useDialogStore } from "@/dialogs/store";
@@ -157,7 +158,7 @@ function useResumeImport(
  * New: import a file, copy a resume for a job, or start blank; no name, slug or tags are asked for first.
  * Importing shows three labelled steps rather than a spinner, so a slow parse still looks like progress.
  */
-export function NewDocumentDialog({ data }: { data?: NewDocumentDialogData | undefined }) {
+function LegacyNewDocumentDialog({ data, onStart }: { data?: NewDocumentDialogData | undefined; onStart: () => void }) {
 	const navigate = useNavigate();
 	const providerState = useHasUsableAiProvider();
 	const { hasUsableProvider } = providerState;
@@ -231,7 +232,7 @@ export function NewDocumentDialog({ data }: { data?: NewDocumentDialogData | und
 					<CopyForJob
 						initialSourceId={data?.sourceResumeId}
 						initialJobId={data?.applicationId}
-						onBack={() => setStep({ name: "choose" })}
+						onBack={onStart}
 						onCreated={(resumeId, forJob) => {
 							markNew(resumeId);
 							void refreshDocuments();
@@ -415,7 +416,7 @@ function ImportStep({ step, creating, onCancel, onStartBlank, onChooseFile, onCl
 }
 
 /** Start blank, try a sample, or a new letter: each creates the document at once and opens it. */
-export function useStartDocument(applicationId?: string) {
+function useStartDocument(applicationId?: string) {
 	const [baseCvLimit, setBaseCvLimit] = useState(false);
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -693,5 +694,21 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 				</Button>
 			</div>
 		</>
+	);
+}
+
+export function NewDocumentDialog({ data }: { data?: NewDocumentDialogData | undefined }) {
+	const [start, setStart] = useState(false);
+	return data?.step === "copy" && !start ? (
+		<LegacyNewDocumentDialog
+			onStart={() => setStart(true)}
+			data={{
+				step: "copy",
+				...(data.sourceResumeId ? { sourceResumeId: data.sourceResumeId } : {}),
+				...(data.applicationId ? { applicationId: data.applicationId } : {}),
+			}}
+		/>
+	) : (
+		<StartCvDialog data={data} />
 	);
 }

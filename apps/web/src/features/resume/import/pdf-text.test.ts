@@ -1,5 +1,6 @@
 import type { RawExtraction } from "@reactive-resume/resume/ats-pdf";
 import { describe, expect, it } from "vite-plus/test";
+import { parseResumeText } from "@reactive-resume/import/plain-text";
 import { buildExtractedDocument } from "@reactive-resume/resume/ats-pdf";
 import { documentToLines } from "./pdf-text";
 
@@ -53,6 +54,30 @@ function rawExtraction(pages: FixtureItem[][]): RawExtraction {
 const linesOf = (...pages: FixtureItem[][]) => documentToLines(buildExtractedDocument(rawExtraction(pages)));
 
 describe("documentToLines", () => {
+	it("retains location column boundaries through native basics parsing", () => {
+		const lines = linesOf([
+			{ text: "Taylor Example", x: 40, y: 30 },
+			{ text: "Senior Engineer", x: 40, y: 50 },
+			{ text: "Cairo, Egypt", x: 40, y: 70 },
+			{ text: "Egyptian Employer-specific", x: 160, y: 70 },
+			{ text: "taylor@example.test", x: 40, y: 90 },
+		]);
+		expect(parseResumeText(lines.join("\n")).basics.location).toBe("Cairo, Egypt");
+	});
+
+	it("keeps phone digit groups in visual LTR order rather than PDF stream order", () => {
+		const lines = linesOf([
+			{ text: "Taylor Example", x: 40, y: 30 },
+			{ text: "5678", x: 105, y: 50 },
+			{ text: "+20", x: 40, y: 50 },
+			{ text: "234", x: 85, y: 50 },
+			{ text: "101", x: 65, y: 50 },
+			{ text: "2", x: 40, y: 70 },
+			{ text: "taylor@example.test", x: 40, y: 90 },
+		]);
+		expect(lines[1]).toBe("+20 101 234 5678");
+		expect(parseResumeText(lines.join("\n")).basics.phone).toBe("+20 101 234 5678");
+	});
 	it("groups items on the same baseline into one line", () => {
 		expect(
 			linesOf([

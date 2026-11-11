@@ -46,6 +46,7 @@ import { Route as DashboardCareerIndexRouteImport } from "./routes/dashboard/car
 import { Route as DashboardCareerInformationRouteImport } from "./routes/dashboard/career/information";
 import { Route as DashboardCareerKnowledgeRouteRouteImport } from "./routes/dashboard/career/knowledge/route";
 import { Route as DashboardCareerOffersRouteImport } from "./routes/dashboard/career/offers";
+import { Route as DashboardImportFlowIdRouteImport } from "./routes/dashboard/import/$flowId";
 import { Route as DashboardResumesIndexRouteImport } from "./routes/dashboard/resumes/index";
 import { Route as DashboardSettingsIndexRouteImport } from "./routes/dashboard/settings/index";
 import { Route as DashboardSettingsAccountRouteImport } from "./routes/dashboard/settings/account";
@@ -250,6 +251,11 @@ const DashboardCareerOffersRoute = DashboardCareerOffersRouteImport.update({
   path: "/offers",
   getParentRoute: () => DashboardCareerRouteRoute,
 } as any);
+const DashboardImportFlowIdRoute = DashboardImportFlowIdRouteImport.update({
+  id: "/import/$flowId",
+  path: "/import/$flowId",
+  getParentRoute: () => DashboardRouteRoute,
+} as any);
 const DashboardResumesIndexRoute = DashboardResumesIndexRouteImport.update({
   id: "/resumes/",
   path: "/resumes/",
@@ -373,6 +379,7 @@ export interface FileRoutesByFullPath {
   "/builder/letter/$coverLetterId": typeof BuilderLetterCoverLetterIdRoute;
   "/dashboard/career/information": typeof DashboardCareerInformationRoute;
   "/dashboard/career/offers": typeof DashboardCareerOffersRoute;
+  "/dashboard/import/$flowId": typeof DashboardImportFlowIdRoute;
   "/dashboard/settings/account": typeof DashboardSettingsAccountRoute;
   "/dashboard/settings/ai": typeof DashboardSettingsAiRoute;
   "/dashboard/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
@@ -420,6 +427,7 @@ export interface FileRoutesByTo {
   "/builder/letter/$coverLetterId": typeof BuilderLetterCoverLetterIdRoute;
   "/dashboard/career/information": typeof DashboardCareerInformationRoute;
   "/dashboard/career/offers": typeof DashboardCareerOffersRoute;
+  "/dashboard/import/$flowId": typeof DashboardImportFlowIdRoute;
   "/dashboard/settings/account": typeof DashboardSettingsAccountRoute;
   "/dashboard/settings/ai": typeof DashboardSettingsAiRoute;
   "/dashboard/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
@@ -475,6 +483,7 @@ export interface FileRoutesById {
   "/builder/letter/$coverLetterId": typeof BuilderLetterCoverLetterIdRoute;
   "/dashboard/career/information": typeof DashboardCareerInformationRoute;
   "/dashboard/career/offers": typeof DashboardCareerOffersRoute;
+  "/dashboard/import/$flowId": typeof DashboardImportFlowIdRoute;
   "/dashboard/settings/account": typeof DashboardSettingsAccountRoute;
   "/dashboard/settings/ai": typeof DashboardSettingsAiRoute;
   "/dashboard/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
@@ -530,6 +539,7 @@ export interface FileRouteTypes {
     | "/builder/letter/$coverLetterId"
     | "/dashboard/career/information"
     | "/dashboard/career/offers"
+    | "/dashboard/import/$flowId"
     | "/dashboard/settings/account"
     | "/dashboard/settings/ai"
     | "/dashboard/settings/api-keys"
@@ -577,6 +587,7 @@ export interface FileRouteTypes {
     | "/builder/letter/$coverLetterId"
     | "/dashboard/career/information"
     | "/dashboard/career/offers"
+    | "/dashboard/import/$flowId"
     | "/dashboard/settings/account"
     | "/dashboard/settings/ai"
     | "/dashboard/settings/api-keys"
@@ -631,6 +642,7 @@ export interface FileRouteTypes {
     | "/builder/letter/$coverLetterId"
     | "/dashboard/career/information"
     | "/dashboard/career/offers"
+    | "/dashboard/import/$flowId"
     | "/dashboard/settings/account"
     | "/dashboard/settings/ai"
     | "/dashboard/settings/api-keys"
@@ -922,6 +934,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardCareerOffersRouteImport;
       parentRoute: typeof DashboardCareerRouteRoute;
     };
+    "/dashboard/import/$flowId": {
+      id: "/dashboard/import/$flowId";
+      path: "/import/$flowId";
+      fullPath: "/dashboard/import/$flowId";
+      preLoaderRoute: typeof DashboardImportFlowIdRouteImport;
+      parentRoute: typeof DashboardRouteRoute;
+    };
     "/dashboard/resumes/": {
       id: "/dashboard/resumes/";
       path: "/resumes";
@@ -1174,6 +1193,7 @@ interface DashboardRouteRouteChildren {
   DashboardTrashRoute: typeof DashboardTrashRoute;
   DashboardWelcomeRoute: typeof DashboardWelcomeRoute;
   DashboardIndexRoute: typeof DashboardIndexRoute;
+  DashboardImportFlowIdRoute: typeof DashboardImportFlowIdRoute;
   DashboardApplicationsIndexRoute: typeof DashboardApplicationsIndexRoute;
   DashboardResumesIndexRoute: typeof DashboardResumesIndexRoute;
   DashboardApplicationsApplicationIdChar123TabChar125Route: typeof DashboardApplicationsApplicationIdChar123TabChar125Route;
@@ -1186,6 +1206,7 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardTrashRoute: DashboardTrashRoute,
   DashboardWelcomeRoute: DashboardWelcomeRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardImportFlowIdRoute: DashboardImportFlowIdRoute,
   DashboardApplicationsIndexRoute: DashboardApplicationsIndexRoute,
   DashboardResumesIndexRoute: DashboardResumesIndexRoute,
   DashboardApplicationsApplicationIdChar123TabChar125Route:

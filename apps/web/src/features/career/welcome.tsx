@@ -1,5 +1,4 @@
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
@@ -50,17 +49,6 @@ export function WelcomePage() {
 						</p>
 					</section>
 				))}
-			</div>
-			<div className="rounded-xl bg-info-soft p-4 text-info-text">
-				<h2 className="mb-1 flex items-center gap-1.5 type-label">
-					<Icon name="info" size={16} />
-					{copy("auth.welcome.privacy.title")}
-				</h2>
-				<p className="type-body">
-					<Trans>
-						Start by adding your career information yourself. File import and AI assistance are not enabled yet.
-					</Trans>
-				</p>
 			</div>
 			<AuthErrorSummary message={error} />
 			<div className="flex flex-col gap-3 lg:flex-row">
