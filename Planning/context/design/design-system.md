@@ -24,6 +24,8 @@ This is the design of the **personal product**: candidate onboarding, career inf
 
 ## 2. Reference and implementation boundaries
 
+**[D36](../decisions.md):** Figma is the starting screen/state/dialog/content inventory; implemented code owns layout/UX, so the Figma order/layout and map-update guidance below permits improvements without Figma updates when each divergence and its reason are recorded in one line in the owning task's evidence; requirements, security, approval gates, copy-deck/A13, shared components and T002 tokens (D35) remain unchanged.
+
 The primary reference is **Reactive Resume Desk & Paper**, pinned to `14fb49b7149f6f13bdb1fff3659feec5200bf4df` (v6.0.4); inspect actual components before reuse.
 
 Preserve facts-first entry, evidence, original/proposed text and explicit accept/keep-original actions. Provide upload and manual entry with visible availability limits; test complete mobile flows. Isolate mixed-direction values, measure contrast and targets, and test actual Arabic font rendering.

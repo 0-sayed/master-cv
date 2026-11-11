@@ -130,6 +130,14 @@ They create isolated schemas/databases; OAuth needs its own migrated database, s
 The migration integration suite verifies clean creation, legacy-data preservation, retries and rollback.
 The CI workflow documents the full service/test environment. No Testcontainers layer is needed to duplicate it.
 
+For `node tooling/local/ci-browser.mjs`, explicitly load an ignored `.env.test.local` with
+`node --env-file=.env.test.local tooling/local/ci-browser.mjs`. Set `E2E_DATABASE_ADMIN_URL` to a
+working loopback admin connection; the runner creates its own fresh synthetic database and restricted role.
+For API database tests, load the same file with the three test URLs above pointing at disposable local
+databases (OAuth must already be migrated). These commands do not automatically load `.env.local`.
+If authentication fails with `28P01`, verify credentials against the existing container's original
+infrastructure configuration; correct the ignored file, never rotate the running database password.
+
 Build before running browser tests against the production server. For a running development worktree, use
 `pnpm exec dotenvx run --ignore=MISSING_ENV_FILE -f .env.local -- playwright test tests/e2e/specs/auth.spec.ts`.
 The default uses Playwright Chromium; install it with `pnpm exec playwright install --with-deps chromium`.
