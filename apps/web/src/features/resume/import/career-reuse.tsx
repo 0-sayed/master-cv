@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
-import { Alert, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { reuseConfirmedFacts } from "./reuse-master";
@@ -83,6 +83,11 @@ export function CareerReuseNotice({ available }: CareerReuseNoticeProps) {
 	return (
 		<Alert variant={error ? "error" : "info"}>
 			<Icon name={error ? "warning-circle" : "info"} />
+			{error && (
+				<AlertTitle>
+					<Trans>Something went wrong</Trans>
+				</AlertTitle>
+			)}
 			<AlertDescription className="grid gap-3">
 				<p>
 					<Trans>You can fill this CV from your confirmed career information. Changes here stay in this CV.</Trans>

@@ -1,11 +1,12 @@
 // @vitest-environment happy-dom
 import type { ReviewDraft } from "./review-draft";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { createReviewState } from "./review-draft";
+import { getUiLocaleMessages } from "@/libs/locale";
 import { Route } from "@/routes/dashboard/import/$flowId";
 
 const mocks = vi.hoisted(() => ({
@@ -159,3 +160,53 @@ it("switching flow resets the checkpoint session instead of overwriting the prev
 		initial: { basics: { name: "Second import" } },
 	});
 });
+
+it.each(["en-US", "ar-SA"] as const)(
+	"gives unavailable reviews a translated title and working recovery (%s)",
+	async (locale) => {
+		i18n.loadAndActivate(await getUiLocaleMessages(locale));
+		mocks.draft = null;
+		render(page());
+		const recovery = screen.getByRole("button");
+		const alert = recovery.closest('[data-slot="alert"]');
+		expect(alert?.querySelector('[data-slot="alert-title"]')).toHaveTextContent(
+			locale === "ar-SA" ? "راجع المعلومات المستوردة" : "Review imported information",
+		);
+		expect(alert).toHaveTextContent(
+			locale === "ar-SA"
+				? "انتهت صلاحية مراجعة الاستيراد أو أنها غير متاحة على هذا الجهاز. اختر ملفك مجددًا."
+				: "This import review has expired or is unavailable on this device. Choose your file again.",
+		);
+		expect(recovery).toBeEnabled();
+		fireEvent.click(recovery);
+		await waitFor(() => expect(mocks.navigate).toHaveBeenCalledWith({ to: "/dashboard", replace: true }));
+	},
+);
+
+it.each(["en-US", "ar-SA"] as const)(
+	"gives cleanup errors a translated title and working recovery (%s)",
+	async (locale) => {
+		i18n.loadAndActivate(await getUiLocaleMessages(locale));
+		mocks.remove.mockRejectedValueOnce(new Error("Local storage unavailable")).mockResolvedValueOnce(undefined);
+		render(page());
+		fireEvent.click(screen.getByRole("button", { name: "Finish review" }));
+		const alert = await screen.findByRole("alert");
+		expect(alert.querySelector('[data-slot="alert-title"]')).toHaveTextContent(
+			locale === "ar-SA" ? "حدث خطأ ما" : "Something went wrong",
+		);
+		expect(alert).toHaveTextContent(
+			locale === "ar-SA" ? "تعذر إغلاق هذه المراجعة. حاول مجددًا." : "Could not close this review. Try again.",
+		);
+		const recovery = within(alert).getByRole("button");
+		expect(recovery).toBeEnabled();
+		fireEvent.click(recovery);
+		await waitFor(() =>
+			expect(mocks.navigate).toHaveBeenCalledWith({
+				to: "/builder/$resumeId",
+				params: { resumeId: "created-cv" },
+				search: { mode: "write" },
+				replace: true,
+			}),
+		);
+	},
+);

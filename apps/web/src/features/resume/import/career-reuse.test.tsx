@@ -1,11 +1,12 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 // @vitest-environment happy-dom
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { CareerReuseNotice } from "./career-reuse";
+import { getUiLocaleMessages } from "@/libs/locale";
 const mocks = vi.hoisted(() => ({
 	read: vi.fn(),
 	link: vi.fn(),
@@ -137,3 +138,27 @@ it("finishes an already-applied reuse retry when the CV is no longer empty", asy
 	expect(mocks.update).toHaveBeenCalledOnce();
 	expect(mocks.read).toHaveBeenCalledOnce();
 });
+
+it.each(["en-US", "ar-SA"] as const)(
+	"gives reuse errors a translated title and working recovery (%s)",
+	async (locale) => {
+		i18n.loadAndActivate(await getUiLocaleMessages(locale));
+		mocks.read.mockRejectedValueOnce(new Error("offline")).mockResolvedValue({ facts: [fact] });
+		render(
+			<I18nProvider i18n={i18n}>
+				<CareerReuseNotice available />
+			</I18nProvider>,
+		);
+		fireEvent.click(screen.getByRole("button"));
+		const alert = await screen.findByRole("alert");
+		expect(alert.querySelector('[data-slot="alert-title"]')).toHaveTextContent(
+			locale === "ar-SA" ? "حدث خطأ ما" : "Something went wrong",
+		);
+		expect(within(alert).getByText("offline")).toBeVisible();
+		const recovery = within(alert).getByRole("button");
+		expect(recovery).toBeEnabled();
+		fireEvent.click(recovery);
+		await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
+		expect(mocks.state.resume.data.sections.skills.items).toMatchObject([{ id: "skill", name: "TypeScript" }]);
+	},
+);

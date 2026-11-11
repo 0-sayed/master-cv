@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { useNewDocumentsStore } from "@/features/documents/new-documents";
@@ -88,6 +88,9 @@ function ReviewSession({ draft }: { draft: ReviewDraft | null }) {
 			{error && (
 				<Alert variant="error">
 					<Icon name="warning-circle" />
+					<AlertTitle>
+						<Trans>Something went wrong</Trans>
+					</AlertTitle>
 					<AlertDescription>
 						<Trans>Could not close this review. Try again.</Trans>
 						<Button variant="secondary" onClick={() => void leave()}>
@@ -114,6 +117,9 @@ function ReviewSession({ draft }: { draft: ReviewDraft | null }) {
 			) : (
 				<Alert variant="warn">
 					<Icon name="warning-circle" />
+					<AlertTitle>
+						<Trans context="review.import.title">Review imported information</Trans>
+					</AlertTitle>
 					<AlertDescription>
 						<Trans>This import review has expired or is unavailable on this device. Choose your file again.</Trans>
 						<Button variant="secondary" onClick={() => void leave()}>
