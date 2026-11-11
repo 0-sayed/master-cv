@@ -6,7 +6,8 @@ export function scheduleReadiness<T>(
 ) {
 	const controller = new AbortController();
 	const timer = setTimeout(() => {
-		void run(controller.signal)
+		void Promise.resolve()
+			.then(() => run(controller.signal))
 			.then((value) => {
 				if (!controller.signal.aborted) publish(value);
 			})

@@ -25,3 +25,17 @@ it("cancels delayed and already-running work without publishing superseded resul
 	await vi.advanceTimersByTimeAsync(250);
 	expect(run).toHaveBeenCalledTimes(1);
 });
+
+it("contains synchronous failures before a readiness promise is returned", async () => {
+	vi.useFakeTimers();
+	const publish = vi.fn();
+	scheduleReadiness(
+		() => {
+			throw new Error("readiness unavailable");
+		},
+		publish,
+		1,
+	);
+	await vi.advanceTimersByTimeAsync(1);
+	expect(publish).not.toHaveBeenCalled();
+});

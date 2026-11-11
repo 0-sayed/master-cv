@@ -154,6 +154,7 @@ export function CheckPanel() {
 												<Button
 													variant="secondary"
 													onClick={() => {
+														useEditorStore.getState().setDrawerOpen(false);
 														useEditorStore.getState().setPageView("parser");
 														useEditorStore.getState().setMobileView("page");
 													}}

@@ -7,7 +7,7 @@ import { I18nProvider } from "@lingui/react";
 import { useEditorStore } from "../store";
 import { CheckPanel } from "./check-panel";
 
-const documentState = vi.hoisted(() => ({ locale: "en-US", pdfState: "not-checked" }));
+const documentState = vi.hoisted(() => ({ locale: "en-US", pdfState: "not-checked", findings: false }));
 
 vi.mock("@/features/resume/builder/draft", async () => {
 	const { defaultResumeData } = await import("@reactive-resume/schema/resume/default");
@@ -32,7 +32,9 @@ vi.mock("./use-readiness", async () => {
 				writing: emptyReadiness("writing"),
 				job: emptyReadiness("job"),
 			},
-			pdfReport: null,
+			pdfReport: documentState.findings
+				? { findings: [{ code: "NO_TEXT_LAYER", severity: "blocker", evidence: { page: 1 } }], tips: [] }
+				: null,
 			requestRetry: vi.fn(),
 			introduced: true,
 			setIntroduced: vi.fn(),
@@ -46,6 +48,7 @@ beforeEach(() => {
 	useEditorStore.getState().reset();
 	documentState.locale = "en-US";
 	documentState.pdfState = "not-checked";
+	documentState.findings = false;
 	i18n.load("en", {});
 	i18n.activate("en");
 });
@@ -108,4 +111,15 @@ it.each(["failed", "partial"])("gives %s checks a titled recovery notice", (stat
 		state === "failed" ? "Check failed" : "Partially checked",
 	);
 	expect(within(notice).getByRole("button", { name: "Check the PDF again" })).toBeEnabled();
+});
+
+it("reveals extracted text outside the tablet drawer", async () => {
+	documentState.pdfState = "complete";
+	documentState.findings = true;
+	useEditorStore.getState().setDrawerOpen(true);
+	panel();
+	await userEvent.click(screen.getByRole("button", { name: "Review extracted text" }));
+	expect(useEditorStore.getState().drawerOpen).toBe(false);
+	expect(useEditorStore.getState().pageView).toBe("parser");
+	expect(useEditorStore.getState().mobileView).toBe("page");
 });
