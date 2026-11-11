@@ -165,7 +165,7 @@ export function AppShell({ children }: AppShellProps) {
 			{breakpoint !== "mobile" && (rail ? <Rail toggle={desktop ? toggle : undefined} /> : <Sidebar toggle={toggle} />)}
 			<main
 				id="main-content"
-				className="min-h-0 min-w-0 [scrollbar-gutter:stable_both-edges] overflow-y-auto max-sm:[scrollbar-width:none]"
+				className="min-h-0 min-w-0 [scrollbar-gutter:stable_both-edges] overflow-y-auto max-lg:[scrollbar-width:none]"
 			>
 				{!mobileWorkspace && (
 					<DashboardHeader
