@@ -15,9 +15,14 @@ test("retained API round-trips JSON and splits a legacy letter while JSON contro
 
 	// A name only this file carries, so a builder that opens anything but the imported resume fails.
 	exportedData.basics.name = `Imported ${Date.now()}`;
+	await expect(await page.request.delete(`/api/openapi/resumes/${resumeId}`)).toBeOK();
+	await expect(
+		await page.request.post("/api/openapi/documents/purge", { data: { type: "resume", id: resumeId } }),
+	).toBeOK();
 	const imported = await page.request.post("/api/openapi/resumes/import", { data: { data: exportedData } });
 	await expect(imported).toBeOK();
-	await page.goto(`/builder/${await imported.json()}`);
+	const importedId = await imported.json();
+	await page.goto(`/builder/${importedId}`);
 
 	await openSidebarSection(page, "Basics");
 	await expect(page.getByRole("textbox", { name: "Full name", exact: true })).toHaveValue(exportedData.basics.name);
@@ -35,6 +40,10 @@ test("retained API round-trips JSON and splits a legacy letter while JSON contro
 		items: [{ id: "old-letter-item", hidden: false, recipient: "<p>Globex</p>", content: "<p>Dear Globex team,</p>" }],
 	});
 	exportedData.metadata.layout.pages.push({ fullWidth: true, main: ["old-letter"], sidebar: [] });
+	await expect(await page.request.delete(`/api/openapi/resumes/${importedId}`)).toBeOK();
+	await expect(
+		await page.request.post("/api/openapi/documents/purge", { data: { type: "resume", id: importedId } }),
+	).toBeOK();
 	const legacy = await page.request.post("/api/openapi/resumes/import", { data: { data: exportedData } });
 	await expect(legacy).toBeOK();
 	await page.goto(`/builder/${await legacy.json()}`);

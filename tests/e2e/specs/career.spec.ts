@@ -1,14 +1,7 @@
 import type { Page } from "@playwright/test";
+import { Pool } from "pg";
 import { startAiStub } from "../fixtures/ai-stub";
 import { expect, test } from "../fixtures/test";
-
-let stub: Awaited<ReturnType<typeof startAiStub>>;
-test.beforeAll(async () => {
-	stub = await startAiStub();
-});
-test.afterAll(async () => {
-	await stub?.close();
-});
 
 async function createApplication(page: Page) {
 	const response = await page.request.post("/api/openapi/applications", {
@@ -46,17 +39,57 @@ test("knowledge corrections persist and the workspace opens without an AI provid
 	await expect(page.getByRole("link", { name: "Connect an AI provider in Settings" })).toBeVisible();
 });
 
-test("a fit check's missing evidence is saved to Knowledge from the table", async ({ authPage: page }) => {
-	test.skip(process.env.FLAG_ALLOW_UNSAFE_AI_BASE_URL !== "true", "Needs FLAG_ALLOW_UNSAFE_AI_BASE_URL=true");
+test("a saved fit check's missing evidence is saved to Knowledge while legacy AI stays disabled", async ({
+	authPage: page,
+}) => {
 	const applicationId = await createApplication(page);
-	const provider = await page.request.post("/api/openapi/ai-providers", {
-		data: { label: "Stub", provider: "openai-compatible", model: "stub", baseURL: stub.baseURL, apiKey: "stub-key" },
-	});
-	await expect(provider).toBeOK();
-	await expect(await page.request.post(`/api/openapi/ai-providers/${(await provider.json()).id}/test`)).toBeOK();
-
+	const stub = await startAiStub();
+	try {
+		const provider = await page.request.post("/api/openapi/ai-providers", {
+			data: { label: "Stub", provider: "openai-compatible", model: "stub", baseURL: stub.baseURL, apiKey: "stub-key" },
+		});
+		await expect(provider).toBeOK();
+		const denied = await page.request.post(`/api/openapi/ai-providers/${(await provider.json()).id}/test`);
+		expect(denied.status()).toBe(412);
+		expect(await denied.json()).toMatchObject({ data: { reason: "AI_NOT_ENABLED" } });
+	} finally {
+		await stub.close();
+	}
+	const session = await (await page.request.get("/api/auth/get-session")).json();
+	const pool = new Pool({ connectionString: process.env.DATABASE_MIGRATION_URL ?? process.env.DATABASE_URL });
+	try {
+		// Previously delivered work stays usable without enabling a provider or making a new AI request.
+		await pool.query(
+			"INSERT INTO career_artifact(id,user_id,application_id,title,data,evidence,input_version) VALUES ($1,$2,$3,$4,$5,$6,'synthetic')",
+			[
+				crypto.randomUUID(),
+				session.user.id,
+				applicationId,
+				"Synthetic saved fit check",
+				JSON.stringify({
+					kind: "fit",
+					headline: "A relevant role, with one question to resolve",
+					summary: "Synthetic saved assessment",
+					requirements: [
+						{
+							text: "Enterprise onboarding",
+							origin: "posting",
+							status: "missing",
+							evidence: "Your Knowledge doesn't say this yet.",
+							factIds: [],
+						},
+					],
+					checks: [],
+					ask: null,
+				}),
+				JSON.stringify({ factIds: [], storyIds: [] }),
+			],
+		);
+	} finally {
+		await pool.end();
+	}
 	await page.goto(`/dashboard/applications/${applicationId}/fit`);
-	await page.getByRole("button", { name: "Check fit" }).click();
+
 	await expect(page.getByText("A relevant role, with one question to resolve")).toBeVisible({ timeout: 30_000 });
 	await page.getByRole("button", { name: "Add evidence" }).click();
 	const evidence = "I onboarded 40 enterprise accounts in 2024.";

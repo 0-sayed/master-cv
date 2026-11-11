@@ -1,4 +1,6 @@
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
+import { createSampleResumeData } from "@reactive-resume/schema/resume/sample";
+import { seedExistingResume } from "../fixtures/existing-inventory";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
@@ -43,22 +45,12 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			authPage: page,
 		}) => {
 			test.setTimeout(60_000);
-			for (const withSampleData of [false, true])
-				await expect(
-					await page.request.post("/api/openapi/resumes", {
-						data: { name: withSampleData ? "Sample CV" : "Empty CV", tags: [], withSampleData },
-					}),
-				).toBeOK();
-			await expect(
-				await page.request.post("/api/openapi/resumes/import", {
-					data: {
-						data: {
-							...defaultResumeData,
-							basics: { ...defaultResumeData.basics, name: "Imported CV", headline: "Software engineer" },
-						},
-					},
-				}),
-			).toBeOK();
+			await seedExistingResume(page, "Empty CV", defaultResumeData);
+			await seedExistingResume(page, "Sample CV", createSampleResumeData());
+			await seedExistingResume(page, "Imported CV", {
+				...defaultResumeData,
+				basics: { ...defaultResumeData.basics, name: "Imported CV", headline: "Software engineer" },
+			});
 			await page.setViewportSize({ width, height: 1024 });
 			await page.goto(`/dashboard?locale=${locale}`);
 			await settleScreen(page);

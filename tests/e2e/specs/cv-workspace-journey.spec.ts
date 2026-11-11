@@ -1,4 +1,6 @@
+import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { loginViaUi } from "../fixtures/auth";
+import { seedExistingResume } from "../fixtures/existing-inventory";
 import { createSampleResumeFromDashboard, openSidebarSection } from "../fixtures/resume";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
@@ -16,11 +18,10 @@ test("history restore survives sign-out and fresh sign-in without changing the o
 	await expect(page).toHaveURL(/\/builder\//);
 	const url = page.url();
 	const id = new URL(url).pathname.split("/").at(-1);
-	const other = await page.request.post("/api/openapi/resumes", {
-		data: { name: "Arabic isolation fixture", tags: [], withSampleData: false, locale: "ar-SA" },
+	const otherId = await seedExistingResume(page, "Arabic isolation fixture", {
+		...defaultResumeData,
+		metadata: { ...defaultResumeData.metadata, page: { ...defaultResumeData.metadata.page, locale: "ar-SA" } },
 	});
-	expect(other.ok()).toBe(true);
-	const otherId = await other.json();
 	const otherData = (await (await page.request.get(`/api/openapi/resumes/${otherId}`)).json()).data;
 	const master = await (await page.request.get("/api/openapi/career/master")).json();
 	await expect
