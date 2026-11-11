@@ -40,7 +40,11 @@ type Metadata = Pick<ResumeData["metadata"], "typography" | "design" | "page">;
 /** Edits the design; `key` names the control, so dragging a slider is one undo step. */
 type DesignWriter = (key: string, mutate: (metadata: WritableDraft<Metadata>) => void, discrete?: boolean) => void;
 
-export type DesignSource = { metadata: Metadata | undefined; write: DesignWriter };
+export type DesignSource = {
+	metadata: Metadata | undefined;
+	fontPolicyData: ResumeData | undefined;
+	write: DesignWriter;
+};
 
 const DesignSourceContext = createContext<DesignSource | null>(null);
 
@@ -54,6 +58,7 @@ function useDesign(): DesignSource {
 	if (source) return source;
 	return {
 		metadata: data?.metadata,
+		fontPolicyData: data,
 		write: (key, mutate, discrete = false) =>
 			updateResumeData(
 				(draft) => mutate(draft.metadata),
@@ -71,13 +76,12 @@ type TypeGroupProps = {
 
 /** Type: five font pairings (or any font, in Advanced), the text size (9–12.5 pt) and density. */
 export function TypeGroup({ onCustomFonts }: TypeGroupProps) {
-	const { metadata, write } = useDesign();
-	const data = useResumeData();
+	const { metadata, fontPolicyData, write } = useDesign();
 	const sizeLabelId = useId();
 	if (!metadata) return null;
 
-	const pairings = data
-		? getDocumentFontChoices({ ...data, metadata: { ...data.metadata, ...metadata } }).pairings
+	const pairings = fontPolicyData
+		? getDocumentFontChoices({ ...fontPolicyData, metadata: { ...fontPolicyData.metadata, ...metadata } }).pairings
 		: [];
 	const matchedPairing = matchFontPairing(metadata);
 	const pairing = pairings.some((option) => option.id === matchedPairing) ? matchedPairing : null;

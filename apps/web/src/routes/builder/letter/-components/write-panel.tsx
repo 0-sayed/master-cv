@@ -10,6 +10,7 @@ import { Link } from "@tanstack/react-router";
 import { useReducedMotion } from "motion/react";
 import { useId, useRef, useState } from "react";
 import { coverLetterTextToHtml, defaultCoverLetterSignOff, greetingName } from "@reactive-resume/resume/cover-letter";
+import { DOCUMENT_FONT_PAIRINGS } from "@reactive-resume/schema/resume/font-policy";
 import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import {
 	DropdownMenu,
@@ -33,7 +34,7 @@ import { useLetterWords } from "@/features/letters/compose";
 import { countWords, LETTER_LENGTH, letterLength } from "@/features/letters/length";
 import { discardLetterDraft, startLetterDraft, useLetterEditorStore } from "@/features/letters/store";
 import { useLetterMode } from "@/features/letters/use-letter-mode";
-import { ACCENTS, FONT_PAIRINGS, matchFontPairing, rgbaToHex } from "@/features/resume/editor/design/presets";
+import { ACCENTS, matchFontPairing, rgbaToHex } from "@/features/resume/editor/design/presets";
 import { RichTextEditor } from "@/features/resume/editor/write/rich-text-editor";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
@@ -679,7 +680,7 @@ function LengthSection({ content }: { content: string }) {
 function DesignNote({ letter }: { letter: CoverLetter }) {
 	const [, setMode] = useLetterMode();
 	const { metadata } = letter.style;
-	const pairing = FONT_PAIRINGS.find((option) => option.id === matchFontPairing(metadata))?.label;
+	const pairing = DOCUMENT_FONT_PAIRINGS.find((option) => option.id === matchFontPairing(metadata))?.label;
 	const accent = ACCENTS.find((option) => option.hex === rgbaToHex(metadata.design.colors.primary))?.label;
 	const summary = [templates[metadata.template].name, pairing && t`${pairing} type`, accent].filter(Boolean).join(", ");
 
