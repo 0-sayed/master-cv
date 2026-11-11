@@ -66,6 +66,14 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 				{ signal: controller.signal },
 			);
 			controller.signal.throwIfAborted();
+			if (initial?.applicationId) {
+				await client.documents.linkApplication(
+					{ type: "resume", id: resumeId, applicationId: initial.applicationId },
+					{ signal: controller.signal },
+				);
+				controller.signal.throwIfAborted();
+				void queryClient.invalidateQueries({ queryKey: orpc.applications.key() });
+			}
 			void queryClient.invalidateQueries({ queryKey: orpc.documents.key() });
 			useNewDocumentsStore.getState().markNew(resumeId);
 			close();

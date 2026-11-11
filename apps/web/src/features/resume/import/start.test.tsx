@@ -7,14 +7,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Dialog } from "@reactive-resume/ui/components/dialog";
 import { StartCvDialog } from "./start";
 import { useDialogStore } from "@/dialogs/store";
-const mocks = vi.hoisted(() => ({ create: vi.fn(), navigate: vi.fn() }));
+const mocks = vi.hoisted(() => ({ create: vi.fn(), linkApplication: vi.fn(), navigate: vi.fn() }));
 vi.mock("@tanstack/react-router", () => ({
 	useNavigate: () => mocks.navigate,
 	useRouteContext: () => ({ session: { user: { id: "owner" } } }),
 }));
 vi.mock("@/libs/orpc/client", () => ({
-	client: { resume: { create: mocks.create } },
-	orpc: { documents: { key: () => ["documents"] } },
+	client: { resume: { create: mocks.create }, documents: { linkApplication: mocks.linkApplication } },
+	orpc: { documents: { key: () => ["documents"] }, applications: { key: () => ["applications"] } },
 }));
 beforeEach(() => {
 	vi.resetAllMocks();
@@ -119,4 +119,26 @@ it("blocks dialog dismissal while manual creation is pending and opens the creat
 		}),
 	);
 	expect(useDialogStore.getState().open).toBe(false);
+});
+
+it("links a manually created CV to the application that opened the chooser before navigating", async () => {
+	mocks.create.mockResolvedValue("new-cv");
+	mocks.linkApplication.mockImplementation(async () => {
+		expect(mocks.navigate).not.toHaveBeenCalled();
+	});
+	render(
+		<I18nProvider i18n={i18n}>
+			<QueryClientProvider client={new QueryClient()}>
+				<Dialog open>
+					<StartCvDialog data={{ applicationId: "saved-job" }} />
+				</Dialog>
+			</QueryClientProvider>
+		</I18nProvider>,
+	);
+	fireEvent.click(screen.getByRole("button", { name: /^Write from scratch/ }));
+	await waitFor(() => expect(mocks.navigate).toHaveBeenCalled());
+	expect(mocks.linkApplication).toHaveBeenCalledWith(
+		{ type: "resume", id: "new-cv", applicationId: "saved-job" },
+		expect.anything(),
+	);
 });

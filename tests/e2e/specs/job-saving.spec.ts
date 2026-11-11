@@ -12,7 +12,7 @@ test("fresh account prepares a linked blank resume and selects only submitted at
 	await save.getByLabel("Company", { exact: true }).fill("Fresh Company");
 	await save.getByRole("button", { name: "Save and prepare resume", exact: true }).click();
 	await page.getByRole("button", { name: "Import or create a resume" }).click();
-	await page.getByRole("button", { name: /^Start blank/ }).click();
+	await page.getByRole("button", { name: /^Write from scratch/ }).click();
 	await page.waitForURL(/\/builder\//);
 	await expect(page.getByRole("textbox", { name: "Full name", exact: true })).toBeVisible();
 	const resumeId = new URL(page.url()).pathname.split("/").at(-1);
