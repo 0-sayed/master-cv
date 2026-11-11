@@ -37,10 +37,12 @@ vi.mock("@/libs/orpc/client", () => ({
 }));
 
 import { NewDocumentDialog } from "./new-document-dialog";
+import { useDialogStore } from "@/dialogs/store";
 
 let queryClient: QueryClient;
 beforeEach(() => {
 	vi.clearAllMocks();
+	useDialogStore.getState().openDialog("document.new", undefined);
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 	api.providers.mockRejectedValue(new Error("Provider lookup offline"));
