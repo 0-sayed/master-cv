@@ -144,14 +144,6 @@ export function SearchScreen() {
 			onPress: () => go(routes.trash()),
 		},
 		{
-			key: "ats",
-			icon: "seal-check",
-			title: t`ATS Checker`,
-			keywords: [t`Check a PDF`],
-			root: true,
-			onPress: () => go(routes.atsChecker()),
-		},
-		{
 			key: "new-application",
 			icon: "briefcase",
 			title: t`New Application`,
