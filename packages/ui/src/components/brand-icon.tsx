@@ -4,11 +4,21 @@ import { cn } from "@reactive-resume/utils/style";
 type Props = React.ComponentProps<"img"> & {
 	variant?: "logo" | "icon";
 	approveOnMount?: boolean;
+	/** Repeat the approval motion with a quiet interval while a screen is loading. */
+	loop?: boolean;
 	/** Landing story surfaces can change without changing the global theme. */
 	tone?: "light" | "dark" | undefined;
 };
 
-export function BrandIcon({ variant = "logo", className, alt, approveOnMount = false, tone, ...props }: Props) {
+export function BrandIcon({
+	variant = "logo",
+	className,
+	alt,
+	approveOnMount = false,
+	loop = false,
+	tone,
+	...props
+}: Props) {
 	const ref = useRef<HTMLSpanElement>(null);
 	const locked = useRef(false);
 	const [playing, setPlaying] = useState(false);
@@ -18,28 +28,46 @@ export function BrandIcon({ variant = "logo", className, alt, approveOnMount = f
 		if (!element) return;
 		const target = element.closest("a, button") ?? element;
 		const media = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
+		let repeat: ReturnType<typeof setTimeout> | undefined;
 		const play = () => {
 			if (locked.current || media?.matches) return;
+			clearTimeout(repeat);
 			locked.current = true;
 			setPlaying(true);
 		};
 		const stop = () => {
 			if (media?.matches) {
+				clearTimeout(repeat);
 				locked.current = false;
 				setPlaying(false);
+			} else if (loop) {
+				play();
 			}
 		};
+		const ended = (event: AnimationEvent) => {
+			if (event.animationName !== "brand-approved") return;
+			locked.current = false;
+			setPlaying(false);
+			if (loop && !media?.matches) {
+				const token = getComputedStyle(element).getPropertyValue("--motion-brand-rest").trim();
+				const rest = Number.parseFloat(token) * (token.endsWith("ms") ? 1 : 1000);
+				repeat = setTimeout(play, rest);
+			}
+		};
+		element.addEventListener("animationend", ended);
 		media?.addEventListener?.("change", stop);
 		target.addEventListener("pointerenter", play);
 		target.addEventListener("focus", play);
-		const frame = approveOnMount ? requestAnimationFrame(play) : undefined;
+		const frame = approveOnMount || loop ? requestAnimationFrame(play) : undefined;
 		return () => {
+			clearTimeout(repeat);
 			if (frame !== undefined) cancelAnimationFrame(frame);
+			element.removeEventListener("animationend", ended);
 			target.removeEventListener("pointerenter", play);
 			target.removeEventListener("focus", play);
 			media?.removeEventListener?.("change", stop);
 		};
-	}, [approveOnMount]);
+	}, [approveOnMount, loop]);
 	const mark = (
 		<span ref={ref} dir="ltr" data-slot="brand-mark" data-playing={playing} data-tone={tone} className="brand-mark">
 			<img
@@ -54,17 +82,7 @@ export function BrandIcon({ variant = "logo", className, alt, approveOnMount = f
 				className={cn("brand-light size-8 max-w-none shrink-0 object-contain", className)}
 				{...props}
 			/>
-			<svg
-				aria-hidden="true"
-				className="brand-approval"
-				viewBox="0 0 32 32"
-				fill="none"
-				onAnimationEnd={(event) => {
-					if (event.animationName !== "brand-approved") return;
-					locked.current = false;
-					setPlaying(false);
-				}}
-			>
+			<svg aria-hidden="true" className="brand-approval" viewBox="0 0 32 32" fill="none">
 				<defs>
 					<mask id={`${id}-c`} maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
 						<path

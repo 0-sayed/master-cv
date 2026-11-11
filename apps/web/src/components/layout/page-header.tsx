@@ -7,6 +7,8 @@ type DashboardPageProps = {
 	/** Phone application workspaces start at their own header, without a shell bar. */
 	fullScreenOnMobile?: boolean;
 	width?: DashboardWidth;
+	/** Pages without a sidebar centre their column instead of aligning it with the shell start edge. */
+	centered?: boolean;
 };
 
 /** Shell controls share the centered dashboard canvas. */
@@ -45,7 +47,7 @@ export function DashboardHeader({
 }
 
 /** Center one canvas in the shell; narrower content stays at its inline start. */
-export function DashboardPage({ children, fullScreenOnMobile, width = "default" }: DashboardPageProps) {
+export function DashboardPage({ centered, children, fullScreenOnMobile, width = "default" }: DashboardPageProps) {
 	return (
 		<div
 			data-slot="dashboard-page"
@@ -55,6 +57,7 @@ export function DashboardPage({ children, fullScreenOnMobile, width = "default" 
 			<div
 				data-slot="dashboard-content"
 				data-width={width}
+				data-align={centered ? "center" : undefined}
 				className={cn(
 					"dashboard-content grid w-full content-start gap-6 py-8 max-sm:gap-4 max-sm:py-5",
 					fullScreenOnMobile && "max-sm:pt-0",

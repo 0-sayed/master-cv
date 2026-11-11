@@ -29,7 +29,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					const canvas = await authPage.locator("main").locator("..").boundingBox();
 					if (!aside || !canvas) throw new Error("Dashboard navigation or canvas missing");
 					expect(aside?.width).toBe(236);
-					// The root reserves a stable scrollbar gutter outside the application canvas.
+					// Navigation stays on the canvas edge with normal browser scrolling.
 					expect(aside.x).toBe(locale === "ar-SA" ? canvas.x + canvas.width - aside.width : canvas.x);
 				}
 				const family = locale === "ar-SA" ? "Noto Sans Arabic" : "Noto Sans";

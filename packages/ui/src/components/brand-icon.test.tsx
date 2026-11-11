@@ -69,3 +69,49 @@ it("plays the landing approval once on mount, not on later renders", () => {
 	expect(mark).toHaveAttribute("data-playing", "false");
 	expect(frames).toHaveLength(1);
 });
+
+it.each(["1800ms", "1.8s"])(
+	"repeats after the shared rest interval (%s) and stops for reduced motion",
+	async (rest) => {
+		vi.useFakeTimers();
+		const media = Object.assign(new EventTarget(), { matches: false });
+		vi.stubGlobal("matchMedia", () => media);
+		const { container, unmount } = render(<BrandIcon loop />);
+		const mark = container.querySelector('[data-slot="brand-mark"]');
+		assert(mark);
+		(mark as HTMLElement).style.setProperty("--motion-brand-rest", rest);
+		await act(async () => {
+			await vi.advanceTimersToNextFrame();
+		});
+		expect(mark).toHaveAttribute("data-playing", "true");
+		const svg = mark.querySelector("svg");
+		assert(svg);
+		fireEvent.animationEnd(svg, { animationName: "brand-approved" });
+		expect(mark).toHaveAttribute("data-playing", "false");
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(1799);
+		});
+		expect(mark).toHaveAttribute("data-playing", "false");
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(1);
+		});
+		expect(mark).toHaveAttribute("data-playing", "true");
+		media.matches = true;
+		act(() => {
+			media.dispatchEvent(new Event("change"));
+		});
+		expect(mark).toHaveAttribute("data-playing", "false");
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(3600);
+		});
+		expect(mark).toHaveAttribute("data-playing", "false");
+		media.matches = false;
+		act(() => {
+			media.dispatchEvent(new Event("change"));
+		});
+		expect(mark).toHaveAttribute("data-playing", "true");
+		unmount();
+		expect(vi.getTimerCount()).toBe(0);
+		vi.useRealTimers();
+	},
+);

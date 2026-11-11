@@ -8,6 +8,7 @@ it("rejects query spinners and visible loading copy but allows explicit action i
 	expect(queryLoadingViolations("if (query.isPending) return <Spinner />;", "page.tsx")).not.toEqual([]);
 	expect(queryLoadingViolations("if (query.isPending) return <LoadingScreen />;", "page.tsx")).not.toEqual([]);
 	expect(queryLoadingViolations("const route = { pendingComponent: LoadingScreen };", "route.tsx")).not.toEqual([]);
+	expect(queryLoadingViolations("render(<LoadingScreen />);", "startup.tsx")).toEqual([]);
 	expect(
 		queryLoadingViolations("return isLoading ? <p><Trans>Loading records…</Trans></p> : <List />;", "panel.tsx"),
 	).not.toEqual([]);
