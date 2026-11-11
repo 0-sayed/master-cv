@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
+import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { Input } from "@reactive-resume/ui/components/input";
 import { AuthErrorSummary } from "../components/auth-error-summary";
 import { AuthHeading } from "../components/auth-heading";
@@ -129,13 +130,13 @@ export function RegisterPage({ disableEmailAuth }: { disableEmailAuth: boolean }
 						</span>
 					</label>
 					<label className="flex min-h-11 items-center gap-2 type-body text-ink-2">
-						<input type="checkbox" required className="size-4 accent-accent" />
+						<Checkbox required name="consent" />
 						{copy("auth.signUp.consent")}
 					</label>
 					<Button type="submit" loading={pending} size="lg" className="w-full">{t`Sign up`}</Button>
 				</form>
 			)}
-			<SocialAuth />
+			<SocialAuth intent="sign-up" />
 			<p className="type-body text-ink-2">
 				<Trans>Already have an account?</Trans>{" "}
 				<Link

@@ -1,10 +1,8 @@
 import type { AuthProvider } from "@reactive-resume/auth/types";
 import { ORPCError } from "@orpc/client";
 import { and, eq } from "drizzle-orm";
-import { isCustomOAuthProviderEnabled } from "@reactive-resume/auth/config";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
-import { env } from "@reactive-resume/env/server";
 import { careerService } from "../career/service";
 import { coverLetterService } from "../cover-letters/service";
 import { getStorageService } from "../storage/service";
@@ -14,15 +12,8 @@ type ProviderList = Partial<Record<AuthProvider, string>>;
 
 const providers = {
 	list: (): ProviderList => {
-		const providers: ProviderList = { credential: "Password", passkey: "Passkey" };
-
-		if (env.APPLE_CLIENT_ID && env.APPLE_CLIENT_SECRET) providers.apple = "Apple";
-		if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET) providers.google = "Google";
-		if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET) providers.github = "GitHub";
-		if (env.LINKEDIN_CLIENT_ID && env.LINKEDIN_CLIENT_SECRET) providers.linkedin = "LinkedIn";
-		if (isCustomOAuthProviderEnabled()) providers.custom = env.OAUTH_PROVIDER_NAME ?? "Custom OAuth";
-
-		return providers;
+		// Email-first launch. Retained OAuth implementations do not authorize advertising them.
+		return { credential: "Password", passkey: "Passkey" };
 	},
 };
 
