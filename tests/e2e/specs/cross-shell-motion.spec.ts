@@ -36,7 +36,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		authPage: page,
 		baseURL,
 	}, info) => {
-		test.setTimeout(600_000);
+		test.setTimeout(360_000);
 		if (!baseURL) throw new Error("Browser baseURL missing");
 		await page.setViewportSize({ width: 1440, height: 900 });
 		await createSampleResumeFromDashboard(page, info);

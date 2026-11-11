@@ -22,7 +22,7 @@ test("counts a visitor's PDF download without counting the preview", async ({ br
 		await expect(anonymous.getByRole("button", { name: "Download PDF" }).first()).toBeVisible();
 		await expect.poll(readStatistics).toMatchObject({ views: 1, downloads: 0, lastDownloadedAt: null });
 
-		const downloaded = anonymous.waitForEvent("download");
+		const downloaded = anonymous.waitForEvent("download", { timeout: 60_000 });
 		await anonymous.getByRole("button", { name: "Download PDF" }).first().click();
 		const download = await downloaded;
 		expect(await download.failure()).toBeNull();

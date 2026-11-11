@@ -71,7 +71,7 @@ for (const documentLanguage of ["ar", "en"] as const)
 				await page.goto(`/builder/${id}`);
 				await expect(page.locator("html")).toHaveAttribute("dir", uiLocale === "ar-SA" ? "rtl" : "ltr");
 				await page.evaluate(() => document.fonts.ready);
-				const downloadPromise = page.waitForEvent("download");
+				const downloadPromise = page.waitForEvent("download", { timeout: 60_000 });
 				await page
 					.getByRole("button", { name: uiLocale === "ar-SA" ? "تنزيل PDF" : "Download PDF", exact: true })
 					.click();
@@ -159,7 +159,7 @@ test("browser PDF downloads preserve shaped scripts and name unsupported text wi
 		const updated = await page.request.put(`/api/openapi/resumes/${id}`, { data: { data } });
 		expect(updated.ok()).toBe(true);
 		await page.goto(`/builder/${id}`);
-		const downloaded = page.waitForEvent("download");
+		const downloaded = page.waitForEvent("download", { timeout: 60_000 });
 		await page.getByRole("button", { name: "Download PDF", exact: true }).click();
 		const download = await downloaded;
 		expect(await download.failure()).toBeNull();
@@ -175,7 +175,7 @@ test("browser PDF downloads preserve shaped scripts and name unsupported text wi
 	// A character no font can draw prints as "?": the preview renders and names it, and the download still saves.
 	const textLoss = page.getByText(/can't display .*\(U\+10FFFF\)/);
 	await expect(textLoss).toHaveCount(1);
-	const lossyDownload = page.waitForEvent("download");
+	const lossyDownload = page.waitForEvent("download", { timeout: 60_000 });
 	await page.getByRole("button", { name: "Download PDF", exact: true }).click();
 	expect(await (await lossyDownload).failure()).toBeNull();
 	await expect(textLoss).toHaveCount(2);
