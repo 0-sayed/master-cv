@@ -19,9 +19,25 @@ import {
 import { buildModelPayload } from "./payload";
 import { getOperationHandler, resolveApprovedRoute } from "./route-policy";
 
+async function prepareInput<T>(signal: AbortSignal, work: () => Promise<T>): Promise<T> {
+	signal.throwIfAborted();
+	let abort: () => void = () => undefined;
+	try {
+		return await new Promise<T>((resolve, reject) => {
+			abort = () => reject(signal.reason);
+			signal.addEventListener("abort", abort, { once: true });
+			work().then(resolve, reject);
+		});
+	} finally {
+		signal.removeEventListener("abort", abort);
+	}
+}
+
 async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Promise<void> {
 	const controller = new AbortController();
 	let heartbeat = Promise.resolve();
+	let deadlineAt: number | undefined;
+	let preparingInput = false;
 	const timer = setInterval(() => {
 		heartbeat = heartbeat
 			.then(() => heartbeatOperation(lease))
@@ -31,6 +47,8 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 	}, 15000);
 	try {
 		const operation = await withOperationLease(lease, (_tx, row) => Promise.resolve(row));
+		deadlineAt = operation.deadlineAt.getTime();
+		const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(Math.max(1, deadlineAt - Date.now()))]);
 		const request = operationRequest(operation);
 		const handler = getOperationHandler(operation.kind);
 		if (handler.promptVersion !== operation.promptVersion || handler.schemaVersion !== operation.schemaVersion)
@@ -42,6 +60,19 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 				.where(eq(aiOperationAttempt.operationId, lease.operationId))
 				.orderBy(asc(aiOperationAttempt.ordinal)),
 		);
+		const recoveryRoute = await resolveApprovedRoute(lease.ownerId, request);
+		let consumedMicros = previous.reduce(
+			(sum, attempt) => sum + (attempt.costMicros ?? recoveryRoute.maxCallCostMicros),
+			0,
+		);
+		if (
+			recoveryRoute.requestCapMicros !== operation.reservedMicros ||
+			consumedMicros > operation.reservedMicros ||
+			previous.some((attempt) => attempt.costMicros !== null && attempt.costMicros > recoveryRoute.maxCallCostMicros)
+		) {
+			await failOperation(lease, "AI_REQUEST_COST_LIMIT");
+			return;
+		}
 		const completed = previous.find((a) => a.outcome === "valid" && a.finishedAt && a.output);
 		if (completed?.output) {
 			await deliverOperation(lease, completed.output);
@@ -52,11 +83,6 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 			await failOperation(lease, "AI_RECOVERED_TERMINAL");
 			return;
 		}
-		const recoveryRoute = await resolveApprovedRoute(lease.ownerId, request);
-		let consumedMicros = previous.reduce(
-			(sum, attempt) => sum + (attempt.costMicros ?? recoveryRoute.maxCallCostMicros),
-			0,
-		);
 		let repairs = previous.filter((a) => a.stepId === "repair").length;
 		let nextStep = previous.at(-1)?.outcome === "invalid" ? "repair" : "generate";
 		if (previous.at(-1)?.stepId === "repair") {
@@ -65,7 +91,8 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 		}
 		for (let ordinal = previous.length + 1; ordinal <= 3; ordinal++) {
 			const route = await resolveApprovedRoute(lease.ownerId, request);
-			if (ordinal > route.maxCalls || Date.now() >= operation.deadlineAt.getTime()) break;
+			if (Date.now() >= operation.deadlineAt.getTime()) throw new Error("AI_DEADLINE");
+			if (ordinal > route.maxCalls) break;
 			if (
 				route.requestCapMicros !== operation.reservedMicros ||
 				consumedMicros + route.maxCallCostMicros > operation.reservedMicros
@@ -73,7 +100,13 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 				await failOperation(lease, "AI_REQUEST_COST_LIMIT");
 				return;
 			}
-			const payload = buildModelPayload(await handler.buildInput(lease.ownerId, request));
+			preparingInput = true;
+			const inputSignal = shutdown ? AbortSignal.any([signal, shutdown]) : signal;
+			const payload = buildModelPayload(
+				await prepareInput(inputSignal, () => handler.buildInput(lease.ownerId, request, inputSignal)),
+			);
+			preparingInput = false;
+			if (shutdown?.aborted) return;
 			if (Date.now() >= operation.deadlineAt.getTime()) {
 				await failOperation(lease, "AI_DEADLINE");
 				return;
@@ -96,11 +129,6 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 				if (!row) throw new Error("AI_ATTEMPT_UNAVAILABLE");
 				return row;
 			});
-			const signal = AbortSignal.any([
-				controller.signal,
-				...(shutdown ? [shutdown] : []),
-				AbortSignal.timeout(Math.max(1, operation.deadlineAt.getTime() - Date.now())),
-			]);
 			const outcome = await executeApprovedStep({
 				route,
 				operationId: lease.operationId,
@@ -127,7 +155,10 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 				}
 			});
 			consumedMicros += outcome.costMicros ?? route.maxCallCostMicros;
-			if (outcome.costMicros !== null && outcome.costMicros > route.maxCallCostMicros) {
+			if (
+				(outcome.costMicros !== null && outcome.costMicros > route.maxCallCostMicros) ||
+				consumedMicros > operation.reservedMicros
+			) {
 				await failOperation(lease, "AI_REQUEST_COST_LIMIT");
 				return;
 			}
@@ -150,8 +181,13 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 		}
 		await failOperation(lease, "AI_CALL_LIMIT");
 	} catch {
+		// Shutdown interrupts preparation before egress; the expired lease can safely be reclaimed.
+		if (preparingInput && shutdown?.aborted && deadlineAt !== undefined && Date.now() < deadlineAt) return;
 		// Public/diagnostic outcomes are bounded codes; never attach SDK exceptions or content.
-		await failOperation(lease, "AI_EXECUTION_FAILED").catch(() => {
+		await failOperation(
+			lease,
+			deadlineAt !== undefined && Date.now() >= deadlineAt ? "AI_DEADLINE" : "AI_EXECUTION_FAILED",
+		).catch(() => {
 			/* A recovered/cancelled worker owns the final state. */
 		});
 	} finally {

@@ -146,7 +146,7 @@ export async function executeApprovedStep(input: ApprovedStepInput): Promise<App
 				outcome:
 					error.statusCode === 400
 						? "unsupported"
-						: error.statusCode === 429 || (error.statusCode ?? 0) >= 500
+						: error.statusCode === 408 || error.statusCode === 429 || (error.statusCode ?? 0) >= 500
 							? "transient"
 							: "unknown",
 			};

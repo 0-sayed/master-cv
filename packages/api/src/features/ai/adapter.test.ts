@@ -127,6 +127,7 @@ it.each([400, 401, 402, 403, 408, 429, 500, 502, 503])(
 				}),
 		);
 		expect(result.costMicros).toBe(0);
+		if (status === 408) expect(result.outcome).toBe("transient");
 		expect(result.output).toBeNull();
 	},
 );

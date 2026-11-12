@@ -33,7 +33,7 @@ export type OperationHandler = {
 	schemaVersion: string;
 	parameters: z.ZodType<Record<string, unknown>>;
 	output: z.ZodType<Record<string, unknown>>;
-	buildInput: (ownerId: string, request: OperationRequest) => Promise<ModelPayloadInput>;
+	buildInput: (ownerId: string, request: OperationRequest, signal?: AbortSignal) => Promise<ModelPayloadInput>;
 	copyClaim?: (request: OperationRequest) => ResumeCreationKind;
 	createCopy?: (output: Record<string, unknown>) => Pick<ResumeCreateInput, "name" | "locale" | "data">;
 	resultState: "waiting_review" | "succeeded";

@@ -330,6 +330,7 @@ export function withOperationLease<T>(
 export async function heartbeatOperation(lease: OperationLease): Promise<void> {
 	await withOperationLease(lease, async (tx, operation) => {
 		if (operation.state === "cancel_requested") throw new Error("AI_CANCELLED");
+		if (Date.now() >= operation.deadlineAt.getTime()) throw new Error("AI_DEADLINE");
 		await tx
 			.update(aiOperation)
 			.set({ leaseUntil: new Date(Date.now() + 60000) })
