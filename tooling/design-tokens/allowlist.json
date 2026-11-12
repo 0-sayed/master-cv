@@ -18020,14 +18020,6 @@
 		},
 		{
 			"file": "packages/ui/src/styles/globals.css",
-			"context": ":root/--dashboard-narrow-width",
-			"literal": "720px",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Owner-approved shared density tokens (2026-11-09): anchored 1120/720/640 widths and script-aware Arabic readability roles."
-		},
-		{
-			"file": "packages/ui/src/styles/globals.css",
 			"context": ":root:lang(ar)/--type-body-size",
 			"literal": "16px",
 			"kind": "geometry",

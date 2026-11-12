@@ -10,6 +10,7 @@ test("opening saved copy after conflict keeps the remote version across reload",
 	const url = page.url();
 	const second = await page.context().newPage();
 	await second.goto(url);
+	await expect(second.getByLabel("Full name", { exact: true })).toBeVisible();
 	let release!: () => void;
 	const held = new Promise<void>((resolve) => {
 		release = resolve;

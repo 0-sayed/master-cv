@@ -57,6 +57,7 @@ describe.skipIf(!process.env.INTEGRATIONS_TEST_DATABASE_URL)("integration creden
 				.filter((statement) => !owned || owned.test(statement.trim()));
 			await pool.query(statements.join("\n").replaceAll('"public".', ""));
 		}
+		await pool.query("ALTER TABLE ai_providers ADD COLUMN config_revision text NOT NULL DEFAULT 'legacy'");
 		web = (await import("./credentials")).webAccessService;
 		ai = (await import("../ai-providers/service")).aiProvidersService;
 	});
@@ -134,7 +135,7 @@ describe.skipIf(!process.env.INTEGRATIONS_TEST_DATABASE_URL)("integration creden
 		expect(await web.resolve("alice")).toEqual({ provider: "exa", apiKey: "personal-exa" });
 	});
 
-	it("routes AI through server credentials, keeps thread references valid, and restores personal providers when disabled", async () => {
+	it("preserves selected providers and never treats environment credentials as processing approval", async () => {
 		const personal = await ai.create({
 			userId: "alice",
 			label: "Personal",
@@ -150,24 +151,21 @@ describe.skipIf(!process.env.INTEGRATIONS_TEST_DATABASE_URL)("integration creden
 			AI_BASE_URL: "https://ai.example.com/v1",
 			ENCRYPTION_SECRET: "",
 		});
-		const global = await ai.getRunnableById({ userId: "alice", id: personal.id });
-		expect(global).toMatchObject({
-			managed: true,
-			provider: "openai",
-			model: "server-model",
-			apiKey: "server-secret",
-			baseURL: "https://ai.example.com/v1",
+		await expect(ai.getRunnableById({ userId: "alice", id: personal.id })).rejects.toMatchObject({
+			code: "BAD_REQUEST",
 		});
-		expect((await ai.getDefaultRunnable({ userId: "alice" }))?.id).toBe(global.id);
+		expect(await ai.getDefaultRunnable({ userId: "alice" })).toBeNull();
 		const listed = await ai.list({ userId: "alice" });
 		expect(listed).toHaveLength(1);
-		expect(listed[0]).toMatchObject({ managed: true, enabled: true });
+		expect(listed[0]).toMatchObject({ managed: true, enabled: false, testStatus: "untested" });
+		const global = listed[0];
+		if (!global) throw new Error("Missing managed provider");
+		await expect(ai.getRunnableById({ userId: "alice", id: global.id })).rejects.toMatchObject({
+			code: "PRECONDITION_FAILED",
+		});
 		expect(JSON.stringify(listed)).not.toContain("server-secret");
 		expect(JSON.stringify((await pool.query("SELECT * FROM ai_providers")).rows)).not.toContain("server-secret");
-		await pool.query(
-			"INSERT INTO agent_threads (id,user_id,ai_provider_id,title) VALUES ('thread','alice',$1,'Server AI')",
-			[global.id],
-		);
+
 		for (const action of [
 			() => ai.create({ userId: "alice", label: "Override", provider: "openai", model: "other", apiKey: "other" }),
 			() => ai.update({ userId: "alice", id: personal.id, apiKey: "override" }),

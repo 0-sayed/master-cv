@@ -3,7 +3,7 @@ import { expect, test } from "../fixtures/test";
 
 for (const locale of ["ar-SA", "en-US"] as const)
 	for (const width of [1440, 390])
-		test(`${locale} ${width} native scrolling, centered welcome and viewport editors`, async ({
+		test(`${locale} ${width} content scrolling, centered welcome and viewport editors`, async ({
 			authPage: page,
 			baseURL,
 		}, info) => {
@@ -32,12 +32,13 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			await settleScreen(page);
 			await page.screenshot({ path: info.outputPath("career-empty.png"), fullPage: true });
 
-			// The existing settings surface scrolls the document, so sticky chrome and history use that same owner.
+			// Dashboard overflow belongs to main; chrome and the document stay at the viewport origin.
 			await page.setViewportSize({ width, height: 480 });
 			await page.goto("/dashboard/settings/account");
 			await settleScreen(page);
-			await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-			await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+			await page.locator("main").evaluate((main) => main.scrollTo(0, main.scrollHeight));
+			await expect.poll(() => page.locator("main").evaluate((main) => main.scrollTop)).toBeGreaterThan(0);
+			expect(await page.evaluate(() => scrollY)).toBe(0);
 			const header = await page.locator("main > header").boundingBox();
 			expect(header?.y).toBe(0);
 			if (width === 1440) {
@@ -45,14 +46,14 @@ for (const locale of ["ar-SA", "en-US"] as const)
 				expect(sidebar?.y).toBe(0);
 				expect(sidebar?.width).toBe(236);
 			}
-			const savedScroll = await page.evaluate(() => scrollY);
+			const savedScroll = await page.locator("main").evaluate((main) => main.scrollTop);
 			await page.screenshot({ path: info.outputPath("dashboard-scrolled.png"), fullPage: false });
 			await page.locator('a[href="/dashboard/career/information"]').filter({ visible: true }).first().click();
 			await settleScreen(page);
-			await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
+			await expect.poll(() => page.locator("main").evaluate((main) => main.scrollTop)).toBe(0);
 			await page.goBack();
 			await expect
-				.poll(() => page.evaluate((offset) => Math.abs(scrollY - offset), savedScroll))
+				.poll(() => page.locator("main").evaluate((main, offset) => Math.abs(main.scrollTop - offset), savedScroll))
 				.toBeLessThanOrEqual(1);
 
 			await page.setViewportSize({ width, height: 900 });
@@ -82,5 +83,53 @@ for (const locale of ["ar-SA", "en-US"] as const)
 					})),
 				).toEqual({ height: 900, viewport: 900, scroll: 0 });
 				await page.screenshot({ path: info.outputPath(`${name}.png`), fullPage: false });
+			}
+		});
+
+for (const locale of ["ar-SA", "en-US"] as const)
+	for (const width of [1440, 1780, 390])
+		test(`${locale} ${width} settings preserve dashboard chrome without document scrolling`, async ({
+			authPage: page,
+			baseURL,
+		}, info) => {
+			test.setTimeout(90_000);
+			await page.setViewportSize({ width, height: 900 });
+			await page.context().addCookies([{ name: "locale", value: locale, url: baseURL ?? "http://localhost:3030" }]);
+			let baseline: unknown;
+			for (const route of [
+				"/dashboard/applications",
+				"/dashboard/settings",
+				"/dashboard/settings/account",
+				"/dashboard/settings/preferences",
+			]) {
+				await page.goto(`${route}?locale=${locale}`);
+				await expect(page.locator("main h1").first()).toBeVisible();
+				await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar-SA" ? "rtl" : "ltr");
+				await settleScreen(page);
+				const geometry = await page.evaluate(() => {
+					const box = (selector: string) => {
+						const element = document.querySelector(selector);
+						if (!element) return null;
+						const { x, y, width, height } = element.getBoundingClientRect();
+						return { x, y, width, height };
+					};
+					return {
+						header: box("main > header"),
+						actions: [...document.querySelectorAll('[data-slot="dashboard-header-controls"] button')].map((button) => {
+							const { x, y, width, height } = button.getBoundingClientRect();
+							return { x, y, width, height };
+						}),
+						search: box('[data-slot="dashboard-header-search"]'),
+						sidebar: box("aside"),
+						bottom: box('[data-slot="app-bottom-nav"]'),
+					};
+				});
+				baseline ??= geometry;
+				expect.soft(geometry, route).toEqual(baseline);
+				expect.soft(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight), route).toBe(true);
+				expect.soft(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), route).toBe(true);
+				await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+				expect.soft(await page.evaluate(() => scrollY), route).toBe(0);
+				await page.screenshot({ path: info.outputPath(`${route.split("/").at(-1)}.png`) });
 			}
 		});

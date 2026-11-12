@@ -15,7 +15,9 @@ for (const locale of ["en-US", "ar-SA"]) {
 			message &&
 			!message.obsolete &&
 			message.origin?.some(([path]) =>
-				/src\/(features\/(auth|career|documents|resume|ats-checker)|routes\/(auth|dashboard|builder))\//.test(path),
+				/src\/(?:(features\/(auth|assistant|career|documents|resume|ats-checker)|routes\/(auth|dashboard|builder))\/|libs\/error-message\.tsx?$)/.test(
+					path,
+				),
 			)
 		)
 			message.translation = entry.messages[locale] ?? "";

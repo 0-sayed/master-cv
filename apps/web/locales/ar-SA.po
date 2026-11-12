@@ -796,6 +796,11 @@ msgstr "30 يوما"
 msgid "40% faster reviews"
 msgstr "مراجعات أسرع بنسبة 40%"
 
+#: src/features/assistant/copy.generated.ts
+msgctxt "billing.usage.startOperationsHint"
+msgid "5 free operations to try the assistant. They do not renew."
+msgstr "5 عمليات مجانية للتجربة، لا تتجدد."
+
 #: src/features/homepage/faq.tsx
 msgid "9 short answers to what people ask before they start. Anything else, ask on <0>Discord</0>."
 msgstr "9 إجابات قصيرة عمّا يسأل عنه الناس قبل أن يبدؤوا. لأي سؤال آخر، اسأل على <0>Discord</0>."
@@ -1605,6 +1610,10 @@ msgstr "خطأ"
 #: src/features/homepage/hero.tsx
 msgid "An open-source resume builder"
 msgstr "منشئ السيرة الذاتية مفتوح المصدر"
+
+#: src/features/resume/editor/check/writing-tab.tsx
+msgid "An operation is already in progress. Your writing is kept."
+msgstr "هناك عملية جارية بالفعل. كتابتك محفوظة."
 
 #: src/components/layout/error-screen.tsx
 msgid "An unexpected error stopped this page from loading. You can try again or head back."
@@ -2495,6 +2504,7 @@ msgstr "تغيير لغة الواجهة لا يترجم سيرك ولا يغي�
 
 #: src/features/homepage/check.tsx
 #: src/features/homepage/header.tsx
+#: src/features/resume/editor/save-conflict.tsx
 #: src/routes/builder/$resumeId/-components/editor-bar.tsx
 #: src/routes/builder/$resumeId/-components/editor-shell.tsx
 msgid "Check"
@@ -3348,10 +3358,6 @@ msgstr "تعذّرت المتابعة كضيف. يُرجى المحاولة مر
 msgid "Couldn't copy the questions. Select the text and copy it manually."
 msgstr "تعذّر نسخ الأسئلة. حدّد النص وانسخه يدويًا."
 
-#: src/features/documents/new-document-dialog.tsx
-msgid "Couldn't copy the resume."
-msgstr "لا يمكن نسخ السيرة الذاتية."
-
 #: src/features/assistant/conversation.tsx
 msgid "Couldn't copy the transcript."
 msgstr "تعذر نسخ النص."
@@ -3620,6 +3626,10 @@ msgstr "تعذّر بدء التسجيل. اختر ملفًا صوتيًا، أ�
 #: src/features/career/coach-thread.tsx
 msgid "Couldn't start the conversation. Try again."
 msgstr "تعذر بدء المحادثة. حاول ثانية."
+
+#: src/features/assistant/conversation.tsx
+msgid "Couldn't stop the assistant. Work may still be active."
+msgstr "تعذّر إيقاف المساعد. قد تكون العملية ما زالت جارية."
 
 #: src/features/career/coach.tsx
 msgid "Couldn't switch connections."
@@ -5320,6 +5330,11 @@ msgstr "عُثر عليها اليوم"
 msgid "Found yesterday"
 msgstr "عُثر عليها أمس"
 
+#: src/features/assistant/copy.generated.ts
+msgctxt "billing.usage.startOperationsLabel"
+msgid "Free assistant operations"
+msgstr "عمليات المساعد المجانية"
+
 #: src/libs/seo.ts
 msgid "Free ATS resume checker"
 msgstr "مدقق السيرة الذاتية ATS مجانًا"
@@ -6691,6 +6706,10 @@ msgstr "جارٍ تحميل اتصالات الذكاء الاصطناعي…"
 msgid "Loading applications…"
 msgstr "جارٍ تحميل الطلبات…"
 
+#: src/features/resume/editor/check/writing-tab.tsx
+msgid "Loading assistant availability…"
+msgstr "جارٍ التحقق من توفر المساعد…"
+
 #: src/features/auth/pages/consent.tsx
 msgid "Loading connection request..."
 msgstr "جارٍ تحميل طلب الاتصال..."
@@ -7842,6 +7861,11 @@ msgstr "ملاحظات"
 #: src/features/resume/editor/check/check-panel.tsx
 msgid "Nothing changes without your approval. PDF readability checks the actual file; writing notes are advice. Arabic parsing can vary between hiring systems."
 msgstr "لا يتغير شيء دون موافقتك. يفحص اختبار PDF الملف الفعلي، وملاحظات الكتابة نصائح. قد تختلف قراءة العربية بين أنظمة التوظيف."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "review.assistant.error.unavailableHint"
+msgid "Nothing in your CV changed. No operation was deducted from your allowance. Keep writing yourself and try again later."
+msgstr "لم نغيّر شيئًا في سيرتك، ولم نحتسب العملية من رصيدك. يمكنك متابعة الكتابة بنفسك والمحاولة لاحقًا."
 
 #: src/features/career/today.tsx
 msgid "Nothing is applied for or created until you choose."
@@ -9705,6 +9729,7 @@ msgstr "تم الاسترجاع {0}. حداثة المصدر غير معروفة
 #: src/features/assistant/conversation.tsx
 #: src/features/career/knowledge/preferences.tsx
 #: src/features/career/shared.tsx
+#: src/features/resume/editor/check/writing-tab.tsx
 #: src/features/resume/editor/save-conflict.tsx
 #: src/features/resume/editor/save-status.tsx
 #: src/features/resume/import/career-reuse.tsx
@@ -9722,6 +9747,14 @@ msgstr "أعد محاولة الحفظ"
 #: src/routes/builder/letter/-components/letter-bar.tsx
 msgid "Retry saving"
 msgstr "أعد محاولة الحفظ"
+
+#: src/features/assistant/conversation.tsx
+msgid "Retry saving decision"
+msgstr "إعادة محاولة حفظ القرار"
+
+#: src/features/assistant/conversation.tsx
+msgid "Retry stop"
+msgstr "إعادة محاولة الإيقاف"
 
 #: src/components/query-list-state.tsx
 #: src/features/documents/library-error.tsx
@@ -10188,6 +10221,10 @@ msgstr "تم الحفظ في المحفوظات · تمرين"
 msgid "Saving {0}/{username}/{slug}… Copy is available after saving."
 msgstr "حفظ {0}/{username}/{slug}... يتاح نسخ الرابط بعد الحفظ."
 
+#: src/features/assistant/conversation.tsx
+msgid "Saving decision…"
+msgstr "جارٍ حفظ القرار…"
+
 #: src/features/resume/builder/draft.ts
 msgid "Saving is taking longer than expected. Your changes are still open."
 msgstr "يستغرق الحفظ وقتًا أطول من المتوقع. لا تزال تغييراتك مفتوحة."
@@ -10624,6 +10661,7 @@ msgstr "اعرض {0} مقروءة"
 msgid "Show {title} on the page"
 msgstr "إظهار {title} على الصفحة"
 
+#: src/features/resume/editor/check/check-panel.tsx
 #: src/features/resume/editor/check/job-match.tsx
 msgid "Show again"
 msgstr "اعرض مرة أخرى"
@@ -10945,9 +10983,11 @@ msgstr "بعض النص مُدوَّر."
 
 #: src/components/layout/error-screen.tsx
 #: src/dialogs/manager.tsx
+#: src/features/resume/import/career-reuse.tsx
 #: src/features/resume/import/review.tsx
 #: src/features/resume/import/start.tsx
 #: src/features/resume/preview/preview.browser.tsx
+#: src/routes/dashboard/import/$flowId.tsx
 msgid "Something went wrong"
 msgstr "حدث خطأ ما"
 
@@ -11227,6 +11267,10 @@ msgstr "أوقف الصوت"
 #: src/features/career/workspace/practise.tsx
 msgid "Stop recording"
 msgstr "أوقف التسجيل"
+
+#: src/features/assistant/conversation.tsx
+msgid "Stop requested"
+msgstr "طُلب الإيقاف"
 
 #: src/features/career/workspace/practise.tsx
 msgid "Stop when you're done. Nothing is sent until then."
@@ -11688,6 +11732,11 @@ msgstr "أرسل التطبيق الذي أحضرك إلى هنا طلب تفو�
 msgid "The application this letter is for."
 msgstr "طلب التقديم الذي خُصّص له هذا الخطاب"
 
+#: src/features/assistant/copy.generated.ts
+msgctxt "review.assistant.error.unavailableTitle"
+msgid "The assistant is unavailable now"
+msgstr "المساعد غير متاح الآن"
+
 #: src/features/assistant/assistant-panel.tsx
 msgid "The assistant isn't set up on this server. Whoever runs it needs to set ENCRYPTION_SECRET. Everything else works without it."
 msgstr "لم يتم إعداد المساعد على هذا الخادم. من يقوم بتشغيله يحتاج إلى ضبط ENCRYPTION_SECRET. كل شيء آخر يعمل بدونه."
@@ -11850,6 +11899,10 @@ msgstr "لا يمكن قراءة إعلان الوظيفة. املأ الدور 
 msgid "The posting saved with this application."
 msgstr "تم حفظ إعلان الوظيفة مع طلب الوظيفة هذا."
 
+#: src/features/assistant/conversation.tsx
+msgid "The previous confirmed decision is kept."
+msgstr "القرار المؤكد السابق محفوظ."
+
 #: src/features/settings/ai/providers.tsx
 msgid "The provider didn't answer."
 msgstr "لم يُجب المزوّد."
@@ -11887,6 +11940,7 @@ msgstr "السيرة الذاتية"
 msgid "The resume as it is"
 msgstr "السيرة الذاتية كما هي"
 
+#: src/features/resume/editor/design/fit.ts
 #: src/features/resume/preview/preview.browser.tsx
 msgid "The resume preview could not be updated. The last valid preview is still shown."
 msgstr "تعذر تحديث معاينة السيرة الذاتية. لا تزال آخر معاينة صالحة معروضة."
@@ -12202,6 +12256,10 @@ msgstr "انتهت صلاحية محاولة تسجيل الدخول هذه أو
 #: src/features/career/workspace/practise.tsx
 msgid "This story is unavailable or uses facts that are switched off."
 msgstr "هذه القصة غير متاحة أو تستخدم حقائق متوقفة."
+
+#: src/features/assistant/conversation.tsx
+msgid "This task uses 1 assistant operation when its result is saved."
+msgstr "تستخدم هذه المهمة 1 من عمليات المساعد عند حفظ نتيجتها."
 
 #: src/features/applications/components/interview-dialog.tsx
 msgid "This time does not exist in the selected timezone. Choose another time."
@@ -13071,6 +13129,10 @@ msgstr "إعدادات الصوت"
 msgid "Volunteer"
 msgstr "التطوع"
 
+#: src/features/assistant/conversation.tsx
+msgid "Waiting for the server to confirm cancellation."
+msgstr "بانتظار تأكيد الخادم لإلغاء العملية."
+
 #: src/features/career/workspace/messages.tsx
 msgid "Waiting for you"
 msgstr "بانتظارك"
@@ -13581,6 +13643,14 @@ msgstr "أمس {time}"
 msgid "You"
 msgstr "أنت"
 
+#: src/libs/error-message.ts
+msgid "You already have a job copy for this base CV. Your selections are kept."
+msgstr "لديك نسخة مخصصة لوظيفة من هذه السيرة الأصلية. اختياراتك محفوظة."
+
+#: src/libs/error-message.ts
+msgid "You already have a language copy for this base CV. Your selections are kept."
+msgstr "لديك نسخة لغة من هذه السيرة الأصلية. اختياراتك محفوظة."
+
 #. placeholder {0}: result.takenBy
 #: src/features/resume/share/link-tab.tsx
 msgid "You already use this for “{0}”."
@@ -13624,12 +13694,19 @@ msgid "You forgot this before, so it wasn't saved again."
 msgstr "سبق أن طلبت نسيان هذه المعلومة، لذا لم تُحفظ مرة أخرى"
 
 #: src/features/documents/new-document-dialog.tsx
+#: src/features/resume/import/start.tsx
+#: src/libs/error-message.ts
 msgid "You have reached the limit for base CVs. Your existing documents remain available to edit and download."
 msgstr "وصلت إلى الحد المسموح للسير الأصلية. ما زال بإمكانك تعديل مستنداتك الحالية وتنزيلها."
 
 #: src/hooks/use-form-blocker.tsx
 msgid "You have unsaved changes that will be lost."
 msgstr "لديك تغييرات غير محفوظة ستُفقد."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "billing.usage.startOperationsLimitHint"
+msgid "You have used all your free assistant operations. They do not renew. You can continue editing manually and download a PDF."
+msgstr "استخدمت كل عمليات المساعد المجانية. لا تتجدد هذه العمليات، ويمكنك متابعة التحرير بنفسك وتنزيل ملف PDF."
 
 #: src/features/resume/editor/check/check-panel.tsx
 msgid "You make the decision"
@@ -13803,6 +13880,10 @@ msgstr "البيانات الخاصة بك"
 #: src/features/ats-checker/messages.ts
 msgid "Your dates are written several different ways."
 msgstr "تواريخك مكتوبة بعدة طرق مختلفة."
+
+#: src/features/assistant/conversation.tsx
+msgid "Your decision wasn't saved"
+msgstr "لم يُحفظ قرارك"
 
 #: src/routes/builder/letter/-components/letter-shell.tsx
 msgid "Your details changed on the resume. The letter updated too."

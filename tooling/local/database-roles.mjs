@@ -25,6 +25,12 @@ export async function provisionRuntimeRole(migrationUrl, role = "master_cv_runti
 		await pool.query(`GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO "${role}"`);
 		await pool.query(`GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO "${role}"`);
 		await pool.query(`REVOKE UPDATE,DELETE ON career_fact_revision FROM "${role}"`);
+		await pool.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_usage_ledger FROM "${role}"`);
+		await pool.query(`REVOKE ALL ON ai_platform_budget FROM "${role}"`);
+		await pool.query(`REVOKE DELETE ON ai_operation,ai_operation_attempt FROM "${role}"`);
+		await pool.query(
+			`GRANT EXECUTE ON FUNCTION master_cv_ai_queue_owners(),master_cv_ai_admit_budget(text,bigint,bigint),master_cv_ai_reconcile_budget(text) TO "${role}"`,
+		);
 		await pool.query(`GRANT EXECUTE ON FUNCTION master_cv_queue_owners() TO "${role}"`);
 		await pool.query(`GRANT EXECUTE ON FUNCTION master_cv_stale_agent_owners() TO "${role}"`);
 		await pool.query("COMMIT");

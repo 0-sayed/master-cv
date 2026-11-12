@@ -1,17 +1,38 @@
 // @vitest-environment happy-dom
 import type { AssistantDocument } from "./document";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 
-const mocks = vi.hoisted(() => ({ chat: vi.fn(), send: vi.fn(), attach: vi.fn(), publish: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+	chat: vi.fn(),
+	send: vi.fn(),
+	attach: vi.fn(),
+	publish: vi.fn(),
+	cancel: vi.fn(),
+	legacyStop: vi.fn(),
+	operationStatus: vi.fn(),
+	decision: vi.fn(),
+	operationResult: vi.fn(),
+}));
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => ({ invalidateQueries: vi.fn() }) }));
 vi.mock("@/features/resume/editor/store", () => ({
 	useEditorStore: (select: (state: unknown) => unknown) => select({ setAssistantProposals: mocks.publish }),
 }));
 vi.mock("@/libs/orpc/client", () => ({
-	client: { agent: { attachments: { create: mocks.attach } } },
+	client: {
+		agent: {
+			messages: {
+				stopOperation: mocks.cancel,
+				stop: mocks.legacyStop,
+				operationStatus: mocks.operationStatus,
+				operationResult: mocks.operationResult,
+				setEditStatus: mocks.decision,
+			},
+			attachments: { create: mocks.attach },
+		},
+	},
 	orpc: { agent: { threads: { list: { key: () => ["threads"] } } } },
 }));
 vi.mock("@reactive-resume/ui/components/toast", () => ({ toast: { add: vi.fn() } }));
@@ -45,7 +66,10 @@ beforeEach(() => {
 	mocks.chat.mockReturnValue({ messages: [], sendMessage: mocks.send, status: "ready", clearError: vi.fn() });
 	mocks.attach.mockResolvedValue({ id: "file-1", filename: "posting.txt", mediaType: "text/plain" });
 });
-afterEach(cleanup);
+afterEach(() => {
+	cleanup();
+	vi.useRealTimers();
+});
 
 it("uploads a file in the initial composer before sending its first message", async () => {
 	const ensureThread = vi.fn(async () => "draft-thread");
@@ -173,3 +197,190 @@ it("reopens native and custom web results with sources, clipping and failed or u
 		"https://careers.example/role",
 	);
 });
+
+it("keeps work active when Stop fails and only confirms cancellation after server acknowledgment", async () => {
+	let resolve!: (value: { state: string }) => void;
+	let reject!: (cause: Error) => void;
+	const promise = new Promise<{ state: string }>((accept, fail) => {
+		resolve = accept;
+		reject = fail;
+	});
+	const response = { promise, resolve, reject };
+	const localStop = vi.fn();
+	mocks.legacyStop.mockReturnValueOnce(response.promise).mockResolvedValueOnce(undefined);
+	mocks.chat.mockReturnValue({
+		messages: [],
+		sendMessage: mocks.send,
+		status: "streaming",
+		clearError: vi.fn(),
+		stop: localStop,
+	});
+	render(
+		<I18nProvider i18n={i18n}>
+			<Conversation
+				document={document}
+				threadId="thread-1"
+				initialMessages={[]}
+				activeRun={true}
+				readOnly={false}
+				providerLabel="Local"
+				initialContext={{ document: true, posting: true }}
+				prompt={null}
+				promptAttachments={[]}
+				onPromptSent={() => {}}
+				onSwitchModel={() => {}}
+			/>
+		</I18nProvider>,
+	);
+	fireEvent.click(screen.getByRole("button", { name: /Stop/ }));
+	expect(localStop).not.toHaveBeenCalled();
+	response.reject(new Error("Offline"));
+	await waitFor(() => expect(screen.getByText("Couldn't stop the assistant. Work may still be active.")).toBeDefined());
+	expect(localStop).not.toHaveBeenCalled();
+	fireEvent.click(screen.getByRole("button", { name: "Retry stop" }));
+	await waitFor(() => expect(localStop).toHaveBeenCalledTimes(1));
+	expect(mocks.legacyStop).toHaveBeenCalledTimes(2);
+	expect(mocks.cancel).not.toHaveBeenCalled();
+});
+
+it("recovers a persisted bounded result without attempting a Redis stream", async () => {
+	const setMessages = vi.fn();
+	mocks.chat.mockReturnValue({ messages: [], status: "ready", setMessages, clearError: vi.fn(), stop: vi.fn() });
+	mocks.operationStatus.mockResolvedValue({
+		capability: "completed",
+		operation: { id: "operation", state: "waiting_review", resultId: "operation", failureCode: null },
+	});
+	mocks.operationResult.mockResolvedValue({ text: "Recovered private result" });
+	render(
+		<I18nProvider i18n={i18n}>
+			<Conversation
+				document={document}
+				threadId="thread-1"
+				operationId="operation"
+				initialMessages={[]}
+				activeRun={true}
+				readOnly={false}
+				providerLabel="Local"
+				initialContext={{ document: true, posting: false }}
+				prompt={null}
+				promptAttachments={[]}
+				onPromptSent={() => {}}
+				onSwitchModel={() => {}}
+			/>
+		</I18nProvider>,
+	);
+	await waitFor(() => expect(mocks.operationResult).toHaveBeenCalledWith({ threadId: "thread-1" }, expect.anything()));
+	expect(mocks.chat.mock.calls.at(-1)?.[0].resume).toBe(false);
+	expect(setMessages).toHaveBeenCalled();
+	const update = setMessages.mock.calls.at(-1)?.[0];
+	expect(update([])).toEqual([
+		{ id: "operation", role: "assistant", parts: [{ type: "text", text: "Recovered private result" }] },
+	]);
+});
+
+it("keeps a failed decision unconfirmed across rerenders and confirms only after a successful retry", async () => {
+	let reject!: (error: Error) => void;
+	mocks.decision
+		.mockReturnValueOnce(
+			new Promise((_resolve, fail) => {
+				reject = fail;
+			}),
+		)
+		.mockResolvedValueOnce({});
+	const messages = [
+		{
+			id: "message",
+			role: "assistant",
+			parts: [
+				{
+					type: "tool-propose_edits",
+					toolCallId: "tool",
+					state: "output-available",
+					output: {
+						edits: [
+							{
+								id: "edit",
+								target: { sectionId: "summary", field: "content" },
+								location: "Summary",
+								before: "Old",
+								after: "New",
+								why: "Clearer",
+								status: "pending",
+							},
+						],
+						skipped: [],
+					},
+				},
+			],
+		},
+	];
+	mocks.chat.mockReturnValue({ messages, status: "ready", sendMessage: mocks.send, clearError: vi.fn() });
+	const view = (
+		<I18nProvider i18n={i18n}>
+			<Conversation
+				document={{ ...document, stateOf: (proposal) => proposal.status }}
+				threadId="thread-1"
+				initialMessages={[]}
+				activeRun={false}
+				readOnly={false}
+				providerLabel="Local"
+				initialContext={{ document: true, posting: false }}
+				prompt={null}
+				promptAttachments={[]}
+				onPromptSent={() => {}}
+				onSwitchModel={() => {}}
+			/>
+		</I18nProvider>
+	);
+	const { rerender } = render(view);
+	fireEvent.click(screen.getByRole("button", { name: /^Reject$/ }));
+	expect(screen.getByText("Saving decision…")).toBeDefined();
+	expect(screen.queryByText("Rejected", { exact: true })).toBeNull();
+	reject(new Error("Offline"));
+	await waitFor(() => expect(screen.getByText("Your decision wasn't saved")).toBeDefined());
+	rerender(view);
+	expect(screen.queryByText("Rejected", { exact: true })).toBeNull();
+	fireEvent.click(screen.getByRole("button", { name: "Retry saving decision" }));
+	await waitFor(() => expect(screen.getByText("Rejected", { exact: true })).toBeDefined());
+	expect(mocks.decision).toHaveBeenLastCalledWith({
+		threadId: "thread-1",
+		messageId: "message",
+		toolCallId: "tool",
+		edits: [{ id: "edit", status: "rejected", expectedStatus: "pending" }],
+	});
+});
+
+for (const action of ["stop", "recovery"] as const) {
+	it(`offers retry when bounded ${action} polling does not finish`, async () => {
+		vi.useFakeTimers();
+		const setMessages = vi.fn();
+		mocks.chat.mockReturnValue({ messages: [], status: "streaming", setMessages, clearError: vi.fn(), stop: vi.fn() });
+		mocks.operationStatus.mockResolvedValue({ operation: { id: "operation", state: "running", resultId: null } });
+		mocks.cancel.mockResolvedValue({ id: "operation", state: "cancel_requested", resultId: null });
+		render(
+			<I18nProvider i18n={i18n}>
+				<Conversation
+					document={document}
+					threadId="thread-1"
+					operationId="operation"
+					initialMessages={[]}
+					activeRun={true}
+					readOnly={false}
+					providerLabel="Local"
+					initialContext={{ document: true, posting: false }}
+					prompt={null}
+					promptAttachments={[]}
+					onPromptSent={() => {}}
+					onSwitchModel={() => {}}
+				/>
+			</I18nProvider>,
+		);
+		await act(async () => {});
+		if (action === "stop") fireEvent.click(screen.getByRole("button", { name: "Stop" }));
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(action === "stop" ? 30_000 : 120_000);
+		});
+		expect(screen.getByRole("button", { name: action === "stop" ? "Retry stop" : "Retry" })).toBeDefined();
+		expect(mocks.send).not.toHaveBeenCalled();
+	});
+}

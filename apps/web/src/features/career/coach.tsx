@@ -42,7 +42,8 @@ import {
 import { CareerLoadError } from "./load-state";
 import { ContextChip, Eyebrow, PrivacyLine } from "./shared";
 import { QuerySkeleton } from "@/components/query-skeleton";
-import { transcriptOf, useConversationConnection } from "@/features/assistant/chat";
+import { transcriptOf } from "@/features/assistant/chat";
+import { selectConversationProvider } from "@/features/assistant/operation-state";
 import { ProviderSetup } from "@/features/assistant/provider-setup";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
@@ -114,6 +115,7 @@ export function CoachPage({ conversationId, offerIds: routeOfferIds }: CoachPage
 	const knowledge = useCoachKnowledge(null);
 	const [railOpen, setRailOpen] = useState(false);
 	const [modelMenuOpen, setModelMenuOpen] = useState(false);
+	const [switchingProvider, setSwitchingProvider] = useState(false);
 	const [providerId, setProviderId] = useState<string | null>(null);
 	const [hidden, setHidden] = useState<ReadonlySet<string>>(() => new Set());
 	const created = useRef<ThreadSummary | null>(null);
@@ -152,9 +154,11 @@ export function CoachPage({ conversationId, offerIds: routeOfferIds }: CoachPage
 	const conversations = (threads.data ?? []).filter((thread) => thread.scope === "career" && !hidden.has(thread.id));
 	const summary = threads.data?.find((thread) => thread.id === threadId);
 	const usable = providers.usableProviders;
-	// A conversation runs on its own connection; one switched off or removed moves to the default.
-	const provider = usable.find((item) => item.id === (summary ? summary.aiProviderId : providerId)) ?? usable[0];
-	useConversationConnection(summary, provider);
+	const provider = selectConversationProvider(
+		usable,
+		threadId ? (summary ?? { aiProviderId: null }) : undefined,
+		providerId,
+	);
 	const label = provider?.label ?? summary?.providerLabel ?? t`Your AI`;
 	const connection = connectionName(label);
 
@@ -197,23 +201,24 @@ export function CoachPage({ conversationId, offerIds: routeOfferIds }: CoachPage
 	};
 
 	const chooseProvider = async (id: string) => {
-		setProviderId(id);
+		if (switchingProvider) return;
 		// A draft created for an attachment exists before the URL names it.
 		const target = threadId ?? created.current?.id;
-		if (!target) return;
-		const chosen = usable.find((item) => item.id === id);
-		queryClient.setQueryData(listKey, (old) =>
-			old?.map((thread) =>
-				thread.id === target ? { ...thread, aiProviderId: id, providerLabel: chosen?.label ?? null } : thread,
-			),
-		);
+		if (!target) {
+			setProviderId(id);
+			return;
+		}
+		setSwitchingProvider(true);
 		try {
 			await client.agent.threads.update({ id: target, aiProviderId: id });
+			setProviderId(id);
 		} catch (error) {
 			toast.add({
 				type: "error",
 				description: getOrpcErrorMessage(error, { fallback: t`Couldn't switch connections.` }),
 			});
+		} finally {
+			setSwitchingProvider(false);
 		}
 		void queryClient.invalidateQueries({ queryKey: orpc.agent.threads.list.key() });
 	};
@@ -330,6 +335,7 @@ export function CoachPage({ conversationId, offerIds: routeOfferIds }: CoachPage
 					providers={usable}
 					current={provider}
 					label={label}
+					pending={switchingProvider}
 					onChoose={(id) => void chooseProvider(id)}
 				/>
 			)}
@@ -502,10 +508,11 @@ type ModelChipProps = {
 	current: UsableProvider | undefined;
 	label: string;
 	onChoose: (id: string) => void;
+	pending?: boolean;
 };
 
 /** "Demo AI · gpt-4.1-mini": the connection this conversation uses; the menu switches it. */
-function ModelChip({ open, onOpenChange, providers, current, label, onChoose }: ModelChipProps) {
+function ModelChip({ open, onOpenChange, providers, current, label, onChoose, pending }: ModelChipProps) {
 	const navigate = useNavigate();
 	const text = current ? `${current.label} · ${current.model}` : label;
 	return (
@@ -514,6 +521,8 @@ function ModelChip({ open, onOpenChange, providers, current, label, onChoose }: 
 				render={
 					<button
 						type="button"
+						disabled={pending}
+						aria-busy={pending}
 						aria-label={t`Connection: ${text}`}
 						className="flex h-7 max-w-[50%] min-w-0 items-center rounded-sm bg-sunken px-2 font-mono text-xs text-ink-2 transition-colors duration-quick hover:text-ink aria-expanded:text-ink"
 					/>

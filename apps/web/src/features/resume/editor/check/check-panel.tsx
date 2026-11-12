@@ -201,7 +201,7 @@ export function CheckPanel() {
 						<Trans>Show again</Trans> ({check.report.ignored.length})
 					</Button>
 				)}
-				<WritingTab data={check.data} issues={check.issues} />
+				<WritingTab />
 			</SectionCard>
 			<SectionCard aria-label={t`Evidence for a selected job`}>
 				<SectionCardHeader>

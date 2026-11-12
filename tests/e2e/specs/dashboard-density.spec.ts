@@ -76,9 +76,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 						path: `${evidence}/${process.env.DENSITY_CAPTURE_PHASE ?? "after"}-${name}-${width}.png`,
 					});
 				}
-				expect
-					.soft(measured.contentWidth, `${route} at ${width}`)
-					.toBeLessThanOrEqual(route.includes("settings") ? 720 : width >= 1600 ? 1360 : 1120);
+				expect.soft(measured.contentWidth, `${route} at ${width}`).toBeLessThanOrEqual(width >= 1600 ? 1360 : 1120);
 				expect.soft(Math.abs(measured.edge - measured.headerEdge), route).toBeLessThanOrEqual(1);
 				if (width >= 640) expect.soft(Math.abs(measured.titleEdge - measured.headerEdge), route).toBeLessThanOrEqual(1);
 				expect.soft(measured.body, route).toBe(locale === "ar-SA" ? "16px" : "14px");

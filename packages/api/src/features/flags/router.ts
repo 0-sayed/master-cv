@@ -1,6 +1,8 @@
 import z from "zod";
 import { env } from "@reactive-resume/env/server";
+import { aiAvailabilitySchema, type AiAvailability } from "@reactive-resume/schema/ai-operation";
 import { publicProcedure } from "../../context";
+import { getAiAvailability } from "../ai/route-policy";
 import { isCareerSchedulingEnabled } from "../career/runner";
 
 export type FeatureFlags = {
@@ -9,6 +11,7 @@ export type FeatureFlags = {
 	allowGuestLogin: boolean;
 	smtpEnabled: boolean;
 	careerSchedulingEnabled?: boolean;
+	aiAvailability?: AiAvailability;
 };
 
 // Mirrors isSmtpEnabled() in packages/email/src/transport.ts (kept local to avoid an api -> email dependency).
@@ -29,6 +32,7 @@ export const flagsRouter = {
 		.input(z.object({}).optional())
 		.output(
 			z.object({
+				aiAvailability: aiAvailabilitySchema,
 				disableSignups: z.boolean().describe("Whether new user signups are disabled on this instance."),
 				disableEmailAuth: z.boolean().describe("Whether email-based authentication is disabled on this instance."),
 				allowGuestLogin: z.boolean().describe("Whether visitors can continue as a guest on this instance."),
@@ -39,6 +43,7 @@ export const flagsRouter = {
 			}),
 		)
 		.handler(() => ({
+			aiAvailability: getAiAvailability(),
 			disableSignups: env.FLAG_DISABLE_SIGNUPS,
 			disableEmailAuth: env.FLAG_DISABLE_EMAIL_AUTH,
 			allowGuestLogin: env.FLAG_ENABLE_GUEST_LOGIN && !env.FLAG_DISABLE_SIGNUPS,

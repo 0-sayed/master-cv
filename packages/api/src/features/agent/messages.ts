@@ -1,13 +1,56 @@
 import { eventIterator } from "@orpc/server";
 import z from "zod";
+import { operationRequestSchema, operationViewSchema, resumeOutcomeSchema } from "@reactive-resume/schema/ai-operation";
 import { workspaceTabSchema } from "@reactive-resume/schema/career";
 import { protectedProcedure } from "../../context";
 import { uiMessageSchema } from "../../dto/agent";
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
+import { assistantOperations } from "./operations";
 import { mapAgentEnvironmentError } from "./routing";
 import { agentService } from "./service";
 
 export const messagesRouter = {
+	startOperation: protectedProcedure
+		.route({
+			method: "POST",
+			path: "/agent/messages/operation",
+			tags: ["Agent"],
+			operationId: "startAssistantOperation",
+		})
+		.input(z.strictObject({ threadId: z.string().min(1).max(200), request: operationRequestSchema }))
+		.use(aiRequestRateLimit)
+		.output(operationViewSchema)
+		.handler(({ context, input }) => assistantOperations.start(context.user.id, input.threadId, input.request)),
+	operationStatus: protectedProcedure
+		.route({
+			method: "GET",
+			path: "/agent/messages/operation-status",
+			tags: ["Agent"],
+			operationId: "assistantOperationStatus",
+		})
+		.input(z.strictObject({ threadId: z.string().min(1).max(200) }))
+		.output(resumeOutcomeSchema)
+		.handler(({ context, input }) => assistantOperations.status(context.user.id, input.threadId)),
+	stopOperation: protectedProcedure
+		.route({
+			method: "POST",
+			path: "/agent/messages/operation-stop",
+			tags: ["Agent"],
+			operationId: "stopAssistantOperation",
+		})
+		.input(z.strictObject({ threadId: z.string().min(1).max(200) }))
+		.output(operationViewSchema)
+		.handler(({ context, input }) => assistantOperations.stop(context.user.id, input.threadId)),
+	operationResult: protectedProcedure
+		.route({
+			method: "GET",
+			path: "/agent/messages/operation-result",
+			tags: ["Agent"],
+			operationId: "assistantOperationResult",
+		})
+		.input(z.strictObject({ threadId: z.string().min(1).max(200) }))
+		.output(z.record(z.string(), z.unknown()))
+		.handler(({ context, input }) => assistantOperations.result(context.user.id, input.threadId)),
 	send: protectedProcedure
 		.route({
 			method: "POST",
@@ -117,7 +160,13 @@ export const messagesRouter = {
 				messageId: z.string(),
 				toolCallId: z.string(),
 				edits: z
-					.array(z.object({ id: z.string(), status: z.enum(["pending", "accepted", "rejected"]) }))
+					.array(
+						z.object({
+							id: z.string(),
+							status: z.enum(["pending", "accepted", "rejected"]),
+							expectedStatus: z.enum(["pending", "accepted", "rejected"]).optional(),
+						}),
+					)
 					.min(1)
 					.max(50),
 			}),

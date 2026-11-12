@@ -1,4 +1,9 @@
 {
 	"extends": ["//"],
-	"tags": ["runtime:server", "role:infra"]
+	"tags": ["runtime:server", "role:infra"],
+	"tasks": {
+		"test:ci": {
+			"env": ["$TURBO_EXTENDS$", "COVER_LETTER_TEST_DATABASE_URL"]
+		}
+	}
 }

@@ -3,11 +3,10 @@ import type { WorkspaceTab } from "@reactive-resume/schema/career";
 import type { ChatTransport, FileUIPart, UIMessage } from "ai";
 import { useChat } from "@ai-sdk/react";
 import { eventIteratorToUnproxiedDataStream } from "@orpc/client";
-import { useQueryClient } from "@tanstack/react-query";
 import { lastAssistantMessageIsCompleteWithToolCalls, parseJsonEventStream, uiMessageChunkSchema } from "ai";
-import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { agentMessageMetadataSchema, agentWebSources } from "@reactive-resume/ai/tools/agent-tool-contracts";
-import { client, orpc, streamClient } from "@/libs/orpc/client";
+import { streamClient } from "@/libs/orpc/client";
 
 /** What a message shares with the model; each context chip turns one off. The career coach uses the last four. */
 export type MessageContext = {
@@ -133,24 +132,4 @@ export function useAssistantChat({ threadId, initialMessages, resume, context, o
 		sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
 		onFinish,
 	});
-}
-
-/**
- * A conversation whose connection was switched off or removed continues on `provider` (the default, which its privacy
- * line names), rather than failing on send.
- */
-export function useConversationConnection(
-	summary: { id: string; aiProviderId: string | null } | undefined,
-	provider: { id: string } | undefined,
-) {
-	const queryClient = useQueryClient();
-	const staleId = summary && provider && summary.aiProviderId !== provider.id ? summary.id : null;
-	const providerId = provider?.id;
-	useEffect(() => {
-		if (!staleId || !providerId) return;
-		void client.agent.threads
-			.update({ id: staleId, aiProviderId: providerId })
-			.then(() => queryClient.invalidateQueries({ queryKey: orpc.agent.threads.key() }))
-			.catch(() => undefined);
-	}, [staleId, providerId, queryClient]);
 }

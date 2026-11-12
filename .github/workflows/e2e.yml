@@ -174,6 +174,10 @@ jobs:
         if: matrix.part == 'browser'
         run: node tooling/local/e2e-partition.mjs ${{ matrix.shard }} 6 --output test-results/browser
 
+      - name: Run Bounded AI Runtime Browser Test
+        if: matrix.part == 'browser' && matrix.shard == 6
+        run: pnpm exec playwright test --config tests/e2e/t005-runtime.config.ts --output test-results/runtime-browser
+
       - name: Upload Playwright Report
         if: always() && matrix.part == 'browser'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

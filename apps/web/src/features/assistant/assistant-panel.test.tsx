@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
 	setSelected: vi.fn(),
 	setPrompt: vi.fn(),
 	invalidate: vi.fn(),
+	update: vi.fn(),
 }));
 vi.mock("@tanstack/react-query", async (importOriginal) => ({
 	...(await importOriginal<typeof import("@tanstack/react-query")>()),
@@ -37,7 +38,7 @@ vi.mock("@/features/settings/integrations/hooks/use-has-usable-ai-provider", () 
 	useHasUsableAiProvider: () => ({ usableProviders: [{ id: "provider-1", label: "Local" }], hasUsableProvider: true }),
 }));
 vi.mock("@/libs/orpc/client", () => ({
-	client: { agent: { threads: { start: mocks.start }, attachments: { create: mocks.attach } } },
+	client: { agent: { threads: { start: mocks.start, update: mocks.update }, attachments: { create: mocks.attach } } },
 	orpc: {
 		agent: {
 			threads: {
@@ -49,6 +50,7 @@ vi.mock("@/libs/orpc/client", () => ({
 }));
 vi.mock("@reactive-resume/ui/components/toast", () => ({ toast: { add: vi.fn() } }));
 vi.mock("./chat", () => ({ fileToBase64: async () => "Zm9v", useConversationConnection: () => undefined }));
+vi.mock("./provider-setup", () => ({ ProviderSetup: () => <p>Provider setup</p> }));
 
 import { AssistantPanel } from "./assistant-panel";
 
@@ -72,6 +74,39 @@ beforeEach(() => {
 	mocks.start.mockResolvedValue({ id: "draft-thread" });
 	mocks.attach.mockResolvedValue({ id: "file-1", filename: "posting.txt", mediaType: "text/plain" });
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
+});
+
+it("preserves a missing bound provider until an explicit replacement is acknowledged", async () => {
+	mocks.selected = "bound-thread";
+	mocks.threads = [
+		{
+			id: "bound-thread",
+			workingResumeId: "resume-1",
+			coverLetterId: null,
+			aiProviderId: "removed",
+			providerLabel: "Bound provider",
+		},
+	];
+	let acknowledge!: () => void;
+	mocks.update.mockReturnValue(
+		new Promise<void>((resolve) => {
+			acknowledge = resolve;
+		}),
+	);
+	render(
+		<I18nProvider i18n={i18n}>
+			<AssistantPanel document={document} onClose={() => {}} />
+		</I18nProvider>,
+	);
+	expect(mocks.update).not.toHaveBeenCalled();
+	expect(screen.queryByRole("textbox")).toBeNull();
+	fireEvent.click(screen.getByRole("button", { name: "Model: Bound provider" }));
+	fireEvent.click(await screen.findByRole("menuitem", { name: "Local" }));
+	await waitFor(() => expect(mocks.update).toHaveBeenCalledWith({ id: "bound-thread", aiProviderId: "provider-1" }));
+	expect(screen.getByRole("button", { name: "Model: Bound provider" })).toBeDisabled();
+	expect(mocks.invalidate).not.toHaveBeenCalled();
+	acknowledge();
+	await waitFor(() => expect(mocks.invalidate).toHaveBeenCalledWith({ queryKey: ["threads"] }));
 });
 afterEach(cleanup);
 

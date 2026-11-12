@@ -1,3 +1,8 @@
+// Exercise retained internals with synthetic transports; egress-policy tests cover the unmocked release gate.
+vi.mock("../ai/route-policy", async (original) => ({
+	...(await original<typeof import("../ai/route-policy")>()),
+	assertLegacyAiDenied: () => undefined,
+}));
 vi.mock("@reactive-resume/db/owner-scope", () => ({
 	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
 }));
@@ -89,6 +94,7 @@ function seedProvider(overrides: Record<string, unknown> = {}) {
 	dbState.rows = [
 		{
 			id: "provider-1",
+			configRevision: "synthetic-1",
 			userId: "user-1",
 			label: "My provider",
 			provider: "openai",

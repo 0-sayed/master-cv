@@ -415,7 +415,7 @@ function Conversation(props: ConversationProps) {
 					threadId,
 					messageId: message.id,
 					toolCallId: part.toolCallId,
-					edits: changed.map((proposal) => ({ id: proposal.id, status: next })),
+					edits: changed.map((proposal) => ({ id: proposal.id, status: next, expectedStatus: proposal.status })),
 				},
 				{ context: { scope: props.scope } },
 			)

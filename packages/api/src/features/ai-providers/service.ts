@@ -1,10 +1,12 @@
 import type { AIProvider } from "@reactive-resume/ai/types";
+import { createHash } from "node:crypto";
 import { ORPCError } from "@orpc/client";
 import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 import { aiProviderSchema } from "@reactive-resume/ai/types";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
 import { env } from "@reactive-resume/env/server";
+import { generateId } from "@reactive-resume/utils/string";
 import { assertCredentialEncryptionConfigured, decryptCredential, encryptCredential } from "../ai/credentials";
 import { testConnection } from "../ai/service";
 import { resolveAiBaseUrl } from "../ai/url-policy";
@@ -21,6 +23,7 @@ export type AiProviderResponse = {
 	enabled: boolean;
 	isDefault: boolean;
 	testStatus: string;
+	configRevision: string;
 	testError: string | null;
 	apiKeyPreview: string;
 	apiKeyFingerprint: string;
@@ -63,6 +66,7 @@ function toResponse(row: AiProviderRecord): AiProviderResponse {
 		enabled: row.enabled,
 		isDefault: row.isDefault,
 		testStatus: row.testStatus,
+		configRevision: row.configRevision,
 		testError: row.testError,
 		apiKeyPreview: row.apiKeyPreview,
 		// The hash identifies the key without revealing it; the ciphertext and salt never leave the server.
@@ -119,9 +123,12 @@ async function serverProvider(userId: string) {
 		provider: env.AI_PROVIDER,
 		model: env.AI_MODEL,
 		baseUrl: env.AI_BASE_URL ?? null,
-		enabled: true,
+		enabled: false,
 		isDefault: true,
-		testStatus: "success",
+		testStatus: "untested",
+		configRevision: createHash("sha256")
+			.update(JSON.stringify([env.AI_PROVIDER, env.AI_MODEL, env.AI_BASE_URL, env.AI_API_KEY]))
+			.digest("hex"),
 		encryptedApiKey: "",
 		apiKeySalt: "",
 		apiKeyHash: "",
@@ -155,8 +162,10 @@ export const aiProvidersService = {
 	},
 
 	getRunnableById: async (input: { id: string; userId: string }) => {
+		if (env.AI_PROVIDER && input.id !== serverProviderId(input.userId))
+			throw new ORPCError("BAD_REQUEST", { message: "The selected AI provider is unavailable." });
 		const global = await serverProvider(input.userId);
-		if (global) return global;
+		if (global) throw new ORPCError("PRECONDITION_FAILED", { message: "The server provider has not been qualified." });
 		assertCredentialEncryptionConfigured();
 
 		const provider = await getOwnedProvider(input);
@@ -173,7 +182,7 @@ export const aiProvidersService = {
 
 	getDefaultRunnable: async (input: { userId: string }) => {
 		const global = await serverProvider(input.userId);
-		if (global) return global;
+		if (global) return null;
 		assertCredentialEncryptionConfigured();
 
 		const [provider] = await db
@@ -249,7 +258,15 @@ export const aiProvidersService = {
 				...(input.model !== undefined ? { model: input.model.trim() } : {}),
 				...(input.baseURL !== undefined ? { baseUrl: nextBaseUrl } : {}),
 				...(input.enabled !== undefined && !runtimeChanged ? { enabled: input.enabled } : {}),
-				...(runtimeChanged ? { enabled: false, testStatus: "untested", lastTestedAt: null, testError: null } : {}),
+				...(runtimeChanged
+					? {
+							enabled: false,
+							testStatus: "untested",
+							lastTestedAt: null,
+							testError: null,
+							configRevision: generateId(),
+						}
+					: {}),
 				...encrypted,
 			})
 			.where(and(eq(schema.aiProvider.id, input.id), eq(schema.aiProvider.userId, input.userId)))
@@ -294,10 +311,16 @@ export const aiProvidersService = {
 					testError: result.ok ? null : result.message,
 					lastTestedAt: new Date(),
 				})
-				.where(and(eq(schema.aiProvider.id, input.id), eq(schema.aiProvider.userId, input.userId)))
+				.where(
+					and(
+						eq(schema.aiProvider.id, input.id),
+						eq(schema.aiProvider.userId, input.userId),
+						eq(schema.aiProvider.configRevision, provider.configRevision),
+					),
+				)
 				.returning();
 
-			if (!updated) throw new ORPCError("NOT_FOUND");
+			if (!updated) throw new ORPCError("CONFLICT", { message: "The provider configuration changed during testing." });
 			return toResponse(updated);
 		} catch (error) {
 			// Only unexpected failures reach here now: provider-side outcomes come back as data above.
@@ -306,10 +329,16 @@ export const aiProvidersService = {
 				.set({
 					enabled: false,
 					testStatus: "failure",
-					testError: error instanceof Error ? error.message : "Failed to test provider.",
+					testError: "Failed to test provider.",
 					lastTestedAt: new Date(),
 				})
-				.where(and(eq(schema.aiProvider.id, input.id), eq(schema.aiProvider.userId, input.userId)));
+				.where(
+					and(
+						eq(schema.aiProvider.id, input.id),
+						eq(schema.aiProvider.userId, input.userId),
+						eq(schema.aiProvider.configRevision, provider.configRevision),
+					),
+				);
 
 			throw error;
 		}

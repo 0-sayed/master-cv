@@ -1,5 +1,6 @@
 import type { UIMessage } from "ai";
 import z from "zod";
+import { routeBindingSchema } from "@reactive-resume/schema/ai-operation";
 
 // AI SDK message parts are an extensible protocol (including dynamic tools and provider metadata).
 // Preserve their fields while documenting the stable envelope.
@@ -26,6 +27,8 @@ export const agentThreadSchema = z.object({
 	editsProposed: z.number(),
 	editsAccepted: z.number(),
 	activeRunId: z.string().nullable(),
+	activeOperationId: z.string().nullable().default(null),
+	routeBinding: routeBindingSchema.nullable().default(null),
 	lastMessageAt: z.date(),
 	archivedAt: z.date().nullable(),
 	deletedAt: z.date().nullable(),

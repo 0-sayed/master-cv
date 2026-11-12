@@ -2,6 +2,7 @@ import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { generateId } from "@reactive-resume/utils/string";
+import { aiOperation } from "./ai-operation";
 import { application } from "./applications";
 import { user } from "./auth";
 import { coverLetter } from "./cover-letter";
@@ -38,6 +39,11 @@ export const aiProvider = pg.pgTable.withRLS(
 		apiKeyHash: pg.text("api_key_hash").notNull(),
 		apiKeyPreview: pg.text("api_key_preview").notNull(),
 		testStatus: pg.text("test_status").notNull().default("untested"),
+		configRevision: pg
+			.text("config_revision")
+			.notNull()
+			.$defaultFn(() => generateId())
+			.default("legacy"),
 		testError: pg.text("test_error"),
 		lastTestedAt: pg.timestamp("last_tested_at", { withTimezone: true }),
 		lastUsedAt: pg.timestamp("last_used_at", { withTimezone: true }),
@@ -90,6 +96,8 @@ export const agentThread = pg.pgTable.withRLS(
 		// Per-thread "Review edits" toggle: when true, apply_resume_patch requires user approval.
 		reviewPatches: pg.boolean("review_patches").notNull().default(false),
 		activeRunId: pg.text("active_run_id"),
+		activeOperationId: pg.text("active_operation_id"),
+		routeBinding: pg.jsonb("route_binding").$type<import("@reactive-resume/schema/ai-operation").RouteBinding>(),
 		activeStreamId: pg.text("active_stream_id"),
 		activeRunStartedAt: pg.timestamp("active_run_started_at", { withTimezone: true }),
 		lastMessageAt: pg.timestamp("last_message_at", { withTimezone: true }).notNull().defaultNow(),
@@ -105,6 +113,7 @@ export const agentThread = pg.pgTable.withRLS(
 	(t) => [
 		ownerPolicy(t.userId),
 		pg.index().on(t.userId, t.status, t.lastMessageAt.desc()),
+		pg.foreignKey({ columns: [t.userId, t.activeOperationId], foreignColumns: [aiOperation.userId, aiOperation.id] }),
 		discoveryPolicy(),
 		pg.index().on(t.workingResumeId),
 		pg.index().on(t.coverLetterId),

@@ -44,6 +44,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 			`GRANT USAGE ON SCHEMA public TO "${role}"; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO "${role}"`,
 		);
 		await fixture.query(`REVOKE UPDATE,DELETE ON career_fact_revision FROM "${role}"`);
+		await fixture.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_usage_ledger FROM "${role}"`);
+		await fixture.query(`REVOKE ALL ON ai_platform_budget FROM "${role}"`);
 		await fixture.query(
 			`INSERT INTO "user" (id,name,email,username,display_username) VALUES ('alice','Alice','alice@example.test','alice','alice'),('bob','Bob','bob@example.test','bob','bob')`,
 		);
@@ -65,6 +67,59 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 		}
 	});
 
+	it.each([
+		["ai_usage_ledger", "UPDATE", "units"],
+		["ai_platform_budget", "SELECT", "spent_micros"],
+		["ai_platform_budget", "INSERT", "spent_micros"],
+		["ai_platform_budget", "UPDATE", "spent_micros"],
+	])("rejects column-only %s %s privileges at startup", async (table, privilege, column) => {
+		await expect(assertRuntimeDatabaseRole(runtime)).resolves.toBeUndefined();
+		await fixture.query(`GRANT ${privilege} (${column}) ON ${table} TO "${role}"`);
+		try {
+			await expect(assertRuntimeDatabaseRole(runtime)).rejects.toThrow("Unsafe runtime database role");
+		} finally {
+			await fixture.query(`REVOKE ${privilege} (${column}) ON ${table} FROM "${role}"`);
+		}
+	});
+
+	it("deletes an owner with a bound thread and accounts for attempts without app.user_id", async () => {
+		const connection = await fixture.connect();
+		try {
+			await connection.query(`SET ROLE "${schemaOwner}"`);
+			await connection.query("SELECT set_config('app.user_id','deleting',false)");
+			await connection.query(
+				`INSERT INTO "user"(id,name,email,username,display_username) VALUES ('deleting','Deleting','deleting@example.test','deleting','deleting')`,
+			);
+			await connection.query(
+				`INSERT INTO ai_platform_budget(id,route_id,route_revision,window_date,cap_micros,request_cap_micros,concurrency,active,reserved_micros) VALUES ('deletion-budget','synthetic','1',current_date,100000,10000,2,1,10000)`,
+			);
+			await connection.query(
+				`INSERT INTO ai_operation(id,user_id,request_key,fingerprint,kind,sources,route,consent_version,prompt_version,schema_version,budget_id,reserved_micros) VALUES ('deleting-op','deleting','req','fp','review','[]','{}','1','1','1','deletion-budget',10000)`,
+			);
+			await connection.query(
+				`INSERT INTO ai_operation_attempt(id,user_id,operation_id,ordinal,step_id,cost_micros,finished_at) VALUES ('deleting-attempt','deleting','deleting-op',1,'generate',700,now())`,
+			);
+			await connection.query(
+				`INSERT INTO agent_threads(id,user_id,title,active_operation_id) VALUES ('deleting-thread','deleting','Synthetic','deleting-op')`,
+			);
+			await connection.query("RESET app.user_id");
+			await connection.query(`DELETE FROM "user" WHERE id='deleting'`);
+		} finally {
+			await connection.query("RESET app.user_id");
+			await connection.query("RESET ROLE");
+			connection.release();
+		}
+		expect((await fixture.query("SELECT id FROM agent_threads WHERE id='deleting-thread'")).rows).toEqual([]);
+		expect((await fixture.query("SELECT id FROM ai_operation WHERE id='deleting-op'")).rows).toEqual([]);
+		expect(
+			(
+				await fixture.query(
+					"SELECT active,reserved_micros::int,spent_micros::int FROM ai_platform_budget WHERE id='deletion-budget'",
+				)
+			).rows,
+		).toEqual([{ active: 0, reserved_micros: 0, spent_micros: 700 }]);
+	});
+
 	it("denies missing/foreign owners and permits the authenticated owner's reads and writes", async () => {
 		await withDatabasePool(runtime, async () => {
 			expect(await db.select({ id: resume.id }).from(resume)).toEqual([]);
@@ -83,6 +138,36 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 			await withOwnerDatabase("alice", (tx) => tx.execute(sql`UPDATE resume SET name='Saved' WHERE id='alice-resume'`));
 		});
 		expect((await fixture.query(`SELECT name FROM resume WHERE id='alice-resume'`)).rows).toEqual([{ name: "Saved" }]);
+	});
+
+	it("isolates AI operations and forbids rewriting usage history or foreign attempts", async () => {
+		await fixture.query(
+			`INSERT INTO ai_operation(id,user_id,request_key,fingerprint,kind,sources,route,consent_version,prompt_version,schema_version) VALUES ('op-alice','alice','req','fp','review','[]','{}','1','1','1')`,
+		);
+		expect((await runtime.query("SELECT id FROM ai_operation")).rows).toEqual([]);
+		await withDatabasePool(runtime, () =>
+			withOwnerDatabase("bob", async (tx) => {
+				expect((await tx.execute(sql`SELECT id FROM ai_operation`)).rows).toEqual([]);
+				await expect(
+					tx.execute(
+						sql`INSERT INTO ai_operation_attempt(id,user_id,operation_id,ordinal,step_id) VALUES ('forged','bob','op-alice',1,'step')`,
+					),
+				).rejects.toThrow();
+			}),
+		);
+		await withDatabasePool(runtime, () =>
+			withOwnerDatabase("alice", async (tx) => {
+				await tx.execute(
+					sql`INSERT INTO ai_usage_ledger(id,user_id,operation_id,kind) VALUES ('reserve-alice','alice','op-alice','reserve')`,
+				);
+			}),
+		);
+		for (const mutation of [
+			"UPDATE ai_usage_ledger SET units=1",
+			"DELETE FROM ai_usage_ledger",
+			"TRUNCATE ai_usage_ledger",
+		])
+			await expect(runtime.query(mutation)).rejects.toMatchObject({ code: "42501" });
 	});
 
 	it("clears identity after rollback and reuses a single connection for nested same-owner transactions", async () => {

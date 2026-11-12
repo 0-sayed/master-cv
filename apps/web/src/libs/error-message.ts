@@ -1,5 +1,6 @@
 import { plural, t } from "@lingui/core/macro";
 import { ORPCError } from "@orpc/client";
+import { getCreationLimit } from "@/features/documents/creation-error";
 
 export function getReadableErrorMessage(error: unknown, fallback: string): string {
 	// A font download failed (see `assertPdfFonts`).
@@ -50,6 +51,12 @@ export function getOrpcErrorMessage(
 }
 
 export function getResumeErrorMessage(error: unknown): string {
+	const limit = getCreationLimit(error);
+	if (limit === "BASE_CV_LIMIT")
+		return t`You have reached the limit for base CVs. Your existing documents remain available to edit and download.`;
+	if (limit === "JOB_COPY_LIMIT") return t`You already have a job copy for this base CV. Your selections are kept.`;
+	if (limit === "LANGUAGE_COPY_LIMIT")
+		return t`You already have a language copy for this base CV. Your selections are kept.`;
 	return getOrpcErrorMessage(error, {
 		byCode: {
 			RESUME_SLUG_ALREADY_EXISTS: "A resume with this slug already exists.",

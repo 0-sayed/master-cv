@@ -432,6 +432,7 @@ export const aiRouter = {
 			const tailoredData = { ...resume.data, summary: { ...resume.data.summary, content: summary } };
 
 			const newResumeId = await resumeService.create({
+				creation: { variantKind: "job", baseResumeId: resume.id },
 				userId: context.user.id,
 				name,
 				slug: `${slugify(name)}-${generateId().slice(0, 6)}`,

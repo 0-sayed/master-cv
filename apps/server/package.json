@@ -11,6 +11,7 @@
 		"docs:gen": "tsx src/openapi/generate-spec.ts",
 		"typecheck": "tsrs --noEmit",
 		"test": "vp test run --passWithNoTests",
+		"test:ai-runtime": "tsx --tsconfig ../../tsconfig.json ../../tests/e2e/t005-runtime-server.ts",
 		"test:coverage": "vp test run --coverage --passWithNoTests",
 		"test:ci": "vp test run --reporter=default --reporter=github-actions --reporter=json --reporter=junit --outputFile.json=reports/vitest-results.json --outputFile.junit=reports/vitest-junit.xml --passWithNoTests",
 		"test:agent": "vp test run --reporter=agent --reporter=json --outputFile.json=reports/vitest-results.json --passWithNoTests"

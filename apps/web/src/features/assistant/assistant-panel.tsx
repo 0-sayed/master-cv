@@ -22,10 +22,10 @@ import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
-import { useConversationConnection } from "./chat";
 import { Composer, Conversation } from "./conversation";
 import { ProviderSetup } from "./provider-setup";
 import { QuerySkeleton } from "@/components/query-skeleton";
+import { selectConversationProvider } from "@/features/assistant/operation-state";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { formatVersionTime } from "@/features/resume/share/format";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
@@ -64,6 +64,7 @@ export function AssistantPanel({ document, onClose }: AssistantPanelProps) {
 	const [providerId, setProviderId] = useState<string | null>(null);
 	const [modelMenuOpen, setModelMenuOpen] = useState(false);
 	const [starting, setStarting] = useState(false);
+	const [switchingProvider, setSwitchingProvider] = useState(false);
 	const [context, setContext] = useState<MessageContext>({ document: true, posting: true });
 	const [promptAttachments, setPromptAttachments] = useState<ChatAttachment[]>([]);
 	const [draftKey, setDraftKey] = useState(0);
@@ -76,9 +77,11 @@ export function AssistantPanel({ document, onClose }: AssistantPanelProps) {
 	const summary = threads.data?.find((item) => item.id === threadId);
 
 	const usable = providers.usableProviders;
-	// A conversation runs on its own connection; one switched off or removed moves to the default.
-	const provider = usable.find((item) => item.id === (threadId ? summary?.aiProviderId : providerId)) ?? usable[0];
-	useConversationConnection(threadId ? summary : undefined, provider);
+	const provider = selectConversationProvider(
+		usable,
+		threadId ? (summary ?? { aiProviderId: null }) : undefined,
+		providerId,
+	);
 	const providerLabel = provider?.label ?? summary?.providerLabel ?? t`your provider`;
 
 	const ensureThread = async (): Promise<string> => {
@@ -132,14 +135,20 @@ export function AssistantPanel({ document, onClose }: AssistantPanelProps) {
 	});
 
 	const chooseProvider = async (id: string) => {
-		if (!threadId) setProviderId(id);
+		if (switchingProvider) return;
 		const targetThreadId = threadId ?? draftThread.current;
-		if (!targetThreadId) return;
+		if (!targetThreadId) {
+			setProviderId(id);
+			return;
+		}
+		setSwitchingProvider(true);
 		try {
 			await client.agent.threads.update({ id: targetThreadId, aiProviderId: id });
 			await queryClient.invalidateQueries({ queryKey: orpc.agent.threads.list.key() });
 		} catch (error) {
 			toast.add({ type: "error", description: getOrpcErrorMessage(error, { fallback: t`Couldn't switch models.` }) });
+		} finally {
+			setSwitchingProvider(false);
 		}
 	};
 
@@ -161,6 +170,7 @@ export function AssistantPanel({ document, onClose }: AssistantPanelProps) {
 						providers={usable}
 						current={provider}
 						label={providerLabel}
+						pending={switchingProvider}
 						onChoose={(id) => void chooseProvider(id)}
 					/>
 				)}
@@ -208,7 +218,7 @@ export function AssistantPanel({ document, onClose }: AssistantPanelProps) {
 				/>
 			) : skeletonWait1.pending || providers.isLoading || threads.isPending ? (
 				<QuerySkeleton shape="conversation" />
-			) : !providers.hasUsableProvider ? (
+			) : !provider ? (
 				<div className="min-h-0 flex-1 overflow-y-auto">
 					<ProviderSetup />
 				</div>
@@ -292,6 +302,7 @@ function ConversationLoader({ threadId, document, ...props }: ConversationLoader
 			threadId={threadId}
 			initialMessages={thread.data.messages}
 			activeRun={Boolean(thread.data.thread.activeRunId)}
+			operationId={thread.data.thread.activeOperationId}
 			document={document}
 			readOnly={thread.data.isReadOnly || document.locked}
 			{...props}
@@ -306,9 +317,10 @@ type ModelMenuProps = {
 	current: UsableProvider | undefined;
 	label: string;
 	onChoose: (id: string) => void;
+	pending?: boolean;
 };
 
-function ModelMenu({ open, onOpenChange, providers, current, label, onChoose }: ModelMenuProps) {
+function ModelMenu({ open, onOpenChange, providers, current, label, onChoose, pending }: ModelMenuProps) {
 	const navigate = useNavigate();
 
 	return (
@@ -317,6 +329,8 @@ function ModelMenu({ open, onOpenChange, providers, current, label, onChoose }: 
 				render={
 					<button
 						type="button"
+						disabled={pending}
+						aria-busy={pending}
 						aria-label={t`Model: ${label}`}
 						className="flex h-7 max-w-[140px] items-center gap-0.5 rounded-md px-2 text-xs text-ink-2 transition-colors hover:bg-hover"
 					/>

@@ -63,12 +63,13 @@ for (const locale of ["ar-SA", "en-US"]) {
 						};
 						const header = rect('[data-slot="dashboard-header-content"]');
 						const body = rect('[data-slot="dashboard-content"]');
-						const main = rect("main");
+						const main = document.querySelector("main");
+						if (!main) throw new Error("Dashboard main missing");
 						const grid = document.querySelector('[data-slot="collection-grid"]');
 						return {
 							header: { left: header.left, right: header.right, width: header.width },
 							body: { left: body.left, right: body.right, width: body.width },
-							available: main.width - 80,
+							available: main.clientWidth - 80,
 							columns: grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").map(Number.parseFloat) : [],
 							cards: [...document.querySelectorAll("main article")].map((card) => card.getBoundingClientRect().width),
 							forms: [...document.querySelectorAll(".form-content")].map((form) => form.getBoundingClientRect().width),
@@ -76,10 +77,9 @@ for (const locale of ["ar-SA", "en-US"]) {
 							overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
 						};
 					});
-					const settings = route.includes("settings");
-					const canvasWidth = Math.min(geometry.available, width >= 1600 && !settings ? 1360 : 1120);
+					const canvasWidth = Math.min(geometry.available, width >= 1600 ? 1360 : 1120);
 					expect(geometry.header.width, route).toBe(canvasWidth);
-					expect(geometry.body.width, route).toBe(settings ? Math.min(canvasWidth, 720) : canvasWidth);
+					expect(geometry.body.width, route).toBe(canvasWidth);
 					const rtl = locale === "ar-SA";
 					expect(
 						Math.abs(
@@ -87,7 +87,7 @@ for (const locale of ["ar-SA", "en-US"]) {
 						),
 						route,
 					).toBeLessThanOrEqual(1);
-					if (!settings) expect(Math.abs(geometry.header.right - geometry.body.right), route).toBeLessThanOrEqual(1);
+					expect(Math.abs(geometry.header.right - geometry.body.right), route).toBeLessThanOrEqual(1);
 					expect(geometry.overflow, route).toBe(false);
 					expect(geometry.headerHeight, route).toBe(64);
 					for (const form of geometry.forms) expect(form, route).toBeLessThanOrEqual(640);

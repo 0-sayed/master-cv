@@ -1,3 +1,6 @@
+vi.mock("@reactive-resume/db/owner-scope", () => ({
+	withOwnerDatabase: (_id: string, work: (tx: unknown) => unknown) => work(dbMock),
+}));
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";

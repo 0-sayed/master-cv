@@ -12,7 +12,7 @@ import { protectedProcedure } from "../../context";
 import { resumeMutationRateLimit } from "../../middleware/rate-limit";
 import { careerMasterService } from "../career/master";
 import { lockDocumentOwner } from "../documents/ownership";
-import { resumeService, notifyResumeUpdated } from "./service";
+import { createResumeInTransaction, notifyResumeUpdated } from "./service";
 
 const canonical = (value: unknown): string => {
 	if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
@@ -61,18 +61,15 @@ export async function confirmImport(userId: string, value: ImportReviewInput) {
 				throw new ORPCError("BAD_REQUEST", { message: "Review facts against the CV before confirming." });
 			keys.add(key);
 		}
-		await resumeService.create(
-			{
-				id,
-				userId,
-				name: input.name,
-				tags: [],
-				locale: localeSchema.parse(input.data.metadata.page.locale),
-				data: input.data,
-				origin: "import",
-			},
-			{ atomicConfirmation: true },
-		);
+		await createResumeInTransaction(tx, {
+			id,
+			userId,
+			name: input.name,
+			tags: [],
+			locale: localeSchema.parse(input.data.metadata.page.locale),
+			data: input.data,
+			origin: "import",
+		});
 		await tx
 			.update(t.resume)
 			.set({ importFlowId: input.flowId, importFlowHash: hash })

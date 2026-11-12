@@ -146,7 +146,7 @@ export function AppShell({ children }: AppShellProps) {
 	return (
 		<div
 			className={cn(
-				"grid min-h-svh bg-bg",
+				"grid h-svh min-h-0 overflow-hidden bg-bg",
 				breakpoint === "mobile"
 					? tabs
 						? "grid-rows-[minmax(0,1fr)_auto]"
@@ -163,7 +163,10 @@ export function AppShell({ children }: AppShellProps) {
 				<Trans>Skip to main content</Trans>
 			</a>
 			{breakpoint !== "mobile" && (rail ? <Rail toggle={desktop ? toggle : undefined} /> : <Sidebar toggle={toggle} />)}
-			<main id="main-content" className="min-w-0">
+			<main
+				id="main-content"
+				className="min-h-0 min-w-0 [scrollbar-gutter:stable_both-edges] overflow-y-auto max-lg:[scrollbar-width:none]"
+			>
 				{!mobileWorkspace && (
 					<DashboardHeader
 						width={pageWidth}
