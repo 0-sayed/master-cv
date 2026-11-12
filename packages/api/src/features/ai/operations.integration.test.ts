@@ -22,7 +22,7 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("durable AI operati
 		await database
 			.admin()
 			.query(
-				"INSERT INTO ai_processing_consent(id,user_id,route_id,route_revision,notice_version,purpose) VALUES ('consent','alice','synthetic','1','1','review')",
+				"INSERT INTO ai_processing_consent(id,user_id,route_id,route_revision,notice_version,purpose,config_revision) VALUES ('consent','alice','synthetic','1','1','review','1')",
 			);
 		await database
 			.admin()
@@ -292,7 +292,7 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("durable AI operati
 		await database
 			.admin()
 			.query(
-				"INSERT INTO ai_processing_consent(id,user_id,route_id,route_revision,notice_version,purpose) VALUES ('bob-consent','bob','synthetic','1','1','review')",
+				"INSERT INTO ai_processing_consent(id,user_id,route_id,route_revision,notice_version,purpose,config_revision) VALUES ('bob-consent','bob','synthetic','1','1','review','1')",
 			);
 		const bobRequest = (key: string) => ({
 			...request(key),
@@ -428,7 +428,7 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("durable AI operati
 		await database
 			.admin()
 			.query(
-				"INSERT INTO ai_processing_consent(id,user_id,route_id,route_revision,notice_version,purpose) VALUES ('consent-carol','carol','synthetic','1','1','review')",
+				"INSERT INTO ai_processing_consent(id,user_id,route_id,route_revision,notice_version,purpose,config_revision) VALUES ('consent-carol','carol','synthetic','1','1','review','1')",
 			);
 		const carolRevision = (
 			await database.admin().query("SELECT updated_at FROM resume WHERE id='cv-carol'")

@@ -35,7 +35,7 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("AI delivery and gl
 			await database
 				.admin()
 				.query(
-					"INSERT INTO ai_processing_consent(id,user_id,route_id,route_revision,notice_version,purpose) VALUES ($1,$2,$3,'1','1','review')",
+					"INSERT INTO ai_processing_consent(id,user_id,route_id,route_revision,notice_version,purpose,config_revision) VALUES ($1,$2,$3,'1','1','review','1')",
 					[`consent-${owner}`, owner, route],
 				);
 		}

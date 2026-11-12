@@ -31,6 +31,7 @@ export const processingConsentService = {
 					userId,
 					routeId: input.route.routeId,
 					routeRevision: input.route.routeRevision,
+					configRevision: input.route.configRevision,
 					noticeVersion: input.noticeVersion,
 					purpose: input.purpose,
 				})
@@ -42,7 +43,7 @@ export const processingConsentService = {
 						aiProcessingConsent.noticeVersion,
 						aiProcessingConsent.purpose,
 					],
-					set: { grantedAt: new Date(), revokedAt: null },
+					set: { configRevision: input.route.configRevision, grantedAt: new Date(), revokedAt: null },
 				})
 				.returning({ id: aiProcessingConsent.id });
 			if (!row) throw new ORPCError("INTERNAL_SERVER_ERROR");

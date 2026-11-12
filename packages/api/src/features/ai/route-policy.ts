@@ -117,6 +117,7 @@ export async function resolveApprovedRoute(userId: string, request: OperationReq
 					eq(aiProcessingConsent.userId, userId),
 					eq(aiProcessingConsent.routeId, route.routeId),
 					eq(aiProcessingConsent.routeRevision, route.routeRevision),
+					eq(aiProcessingConsent.configRevision, route.configRevision),
 					eq(aiProcessingConsent.noticeVersion, request.consentVersion),
 					eq(aiProcessingConsent.purpose, request.kind),
 					isNull(aiProcessingConsent.revokedAt),

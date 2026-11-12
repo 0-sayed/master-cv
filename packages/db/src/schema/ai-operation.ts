@@ -131,6 +131,7 @@ export const aiProcessingConsent = pg.pgTable.withRLS(
 		userId: owner(),
 		routeId: pg.text("route_id").notNull(),
 		routeRevision: pg.text("route_revision").notNull(),
+		configRevision: pg.text("config_revision").notNull(),
 		noticeVersion: pg.text("notice_version").notNull(),
 		purpose: pg.text("purpose").notNull(),
 		grantedAt: timestamp("granted_at").notNull().defaultNow(),
