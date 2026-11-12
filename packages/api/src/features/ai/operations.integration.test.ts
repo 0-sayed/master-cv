@@ -346,6 +346,29 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("durable AI operati
 		);
 		expect(calls).toBe(15);
 	});
+	it.each([
+		["stale", "cv", "outdated", "AI_SOURCE_CHANGED"],
+		["missing", "missing", "outdated", "AI_SOURCE_UNAVAILABLE"],
+	])("reports %s source denial through preflight availability", async (key, id, revision, reason) => {
+		const value = { ...request(`preflight-source-${key}`), sources: [{ kind: "resume" as const, id, revision }] };
+		expect(await run(() => operationService.preflight("alice", value))).toMatchObject({ available: false, reason });
+		expect(
+			(await database.admin().query("SELECT id FROM ai_operation WHERE request_key=$1", [value.requestKey])).rows,
+		).toEqual([]);
+	});
+	it.each([
+		["missing", { variantKind: "language" as const, baseResumeId: "missing-copy-source" }, "AI_SOURCE_UNAVAILABLE"],
+		["base", { variantKind: "base" as const }, "AI_INVALID_REQUEST"],
+	])("reports %s copy denial through preflight availability", async (key, claim, reason) => {
+		const review = syntheticRuntime.handlers.review;
+		if (!review) throw new Error("Missing handler");
+		const runtime = { ...syntheticRuntime, handlers: { review: { ...review, copyClaim: () => claim } } };
+		expect(
+			await database.run(() =>
+				withAiRuntime(runtime, () => operationService.preflight("alice", request(`copy-${key}`))),
+			),
+		).toMatchObject({ available: false, reason });
+	});
 	it("replays the same raw request after default/transform normalization and a deployment change", async () => {
 		const review = syntheticRuntime.handlers.review;
 		if (!review) throw new Error("Missing handler");
@@ -364,10 +387,23 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("durable AI operati
 			},
 		};
 		const original = request("normalized-replay");
+		const preflight = await database.run(() =>
+			withAiRuntime(runtime, () => operationService.preflight("alice", structuredClone(original))),
+		);
+		expect(preflight.available).toBe(true);
 		const operation = await database.run(() =>
 			withAiRuntime(runtime, () => operationService.start("alice", structuredClone(original))),
 		);
 		try {
+			expect(
+				(await database.admin().query("SELECT fingerprint FROM ai_operation WHERE id=$1", [operation.id])).rows[0]
+					.fingerprint,
+			).toBe(preflight.requestFingerprint);
+			expect(
+				await database.run(() =>
+					withAiRuntime(runtime, () => operationService.preflight("alice", structuredClone(original))),
+				),
+			).toMatchObject({ available: true, requestFingerprint: preflight.requestFingerprint });
 			expect(
 				await database.run(() =>
 					withAiRuntime(

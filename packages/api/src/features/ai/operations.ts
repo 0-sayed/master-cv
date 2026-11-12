@@ -80,7 +80,7 @@ export async function assertSourceRevisions(
 				.for("share");
 			if (row) revision = row.updatedAt.toISOString();
 		}
-		if (!revision) throw new ORPCError("NOT_FOUND");
+		if (!revision) throw new ORPCError("NOT_FOUND", { data: { reason: "AI_SOURCE_UNAVAILABLE" } });
 		if (revision !== source.revision) throw new ORPCError("CONFLICT", { data: { reason: "AI_SOURCE_CHANGED" } });
 	}
 }
@@ -206,7 +206,6 @@ export const operationService = {
 	async preflight(userId: string, value: OperationRequest) {
 		const request = operationRequestSchema.parse(value);
 		const handler = getOperationHandler(request.kind);
-		request.parameters = handler.parameters.parse(request.parameters);
 		const requestFingerprint = operationFingerprint(request, handler);
 		try {
 			// Run the exact admission path in a rolled-back transaction: no shadow quota policy.
@@ -217,12 +216,22 @@ export const operationService = {
 		} catch (error) {
 			if (error instanceof PreflightResult)
 				return { operationCost: 1 as const, available: true, reason: null, requestFingerprint };
-			if (error instanceof ORPCError && error.code === "PRECONDITION_FAILED") {
+			if (
+				error instanceof ORPCError &&
+				["PRECONDITION_FAILED", "CONFLICT", "NOT_FOUND", "BAD_REQUEST"].includes(error.code)
+			) {
 				const data = error.data as { reason?: string } | undefined;
+				if (!data?.reason && error.code === "CONFLICT") throw error;
 				return {
 					operationCost: 1 as const,
 					available: false,
-					reason: data?.reason ?? "AI_UNAVAILABLE",
+					reason:
+						data?.reason ??
+						(error.code === "NOT_FOUND"
+							? "AI_SOURCE_UNAVAILABLE"
+							: error.code === "BAD_REQUEST"
+								? "AI_INVALID_REQUEST"
+								: "AI_UNAVAILABLE"),
 					requestFingerprint,
 				};
 			}
