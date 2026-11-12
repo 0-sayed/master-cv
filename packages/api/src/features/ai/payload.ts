@@ -42,7 +42,7 @@ export function buildModelPayload(input: ModelPayloadInput): ModelPayload {
 			.replace(/[\p{L}\p{M}\p{N}_.+%-]+@[\p{L}\p{M}\p{N}.-]+\.(?:xn--[a-z0-9-]+|[\p{L}\p{M}]{2,})/giu, "[redacted]")
 			.replace(/(?:https?:\/\/|www\.)[^\s<>]+/giu, "[redacted]")
 			.replace(
-				/(?<![\p{L}\p{M}\p{N}_])[\p{L}\p{M}\p{N}](?:[\p{L}\p{M}\p{N}-]*[\p{L}\p{M}\p{N}])?(?:\.[\p{L}\p{M}\p{N}](?:[\p{L}\p{M}\p{N}-]*[\p{L}\p{M}\p{N}])?)*\.(?:xn--[a-z0-9-]+|[\p{L}\p{M}]{2,})(?:\/[^\s<>]*)?/giu,
+				/(?<![\p{L}\p{M}\p{N}_])[\p{L}\p{M}\p{N}](?:[\p{L}\p{M}\p{N}-]*[\p{L}\p{M}\p{N}])?(?:\.[\p{L}\p{M}\p{N}](?:[\p{L}\p{M}\p{N}-]*[\p{L}\p{M}\p{N}])?)*\.(?:xn--[a-z0-9-]+|[\p{L}\p{M}]{2,})(?:[/?#][^\s<>]*)?/giu,
 				"[redacted]",
 			)
 			.replace(/@[\p{L}\p{M}\p{N}_][\p{L}\p{M}\p{N}_.-]*/gu, "[redacted]");
