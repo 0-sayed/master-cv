@@ -27,6 +27,8 @@ export function WritingTab() {
 					copy("billing.usage.startOperationsLabel")
 				) : state === "unavailable" ? (
 					copy("review.assistant.error.unavailableTitle")
+				) : state === "busy" ? (
+					<Trans>An operation is already in progress. Your writing is kept.</Trans>
 				) : (
 					<Trans>Writing suggestions are not available yet</Trans>
 				)}
@@ -36,9 +38,7 @@ export function WritingTab() {
 					copy("billing.usage.startOperationsLimitHint")
 				) : state === "unavailable" ? (
 					copy("review.assistant.error.unavailableHint")
-				) : state === "busy" ? (
-					<Trans>An operation is already in progress. Your writing is kept.</Trans>
-				) : (
+				) : state === "busy" ? null : (
 					<Trans>
 						Deterministic content checks remain available. AI suggestions require approved consent and private
 						processing.

@@ -38,7 +38,7 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			).toBe(true);
 			await page.screenshot({ path: testInfo.outputPath("not-enabled.png") });
 			// Presentation-only doubles. They do not register handlers or enable server-side processing.
-			for (const state of ["unavailable", "exhausted"] as const) {
+			for (const state of ["unavailable", "exhausted", "busy"] as const) {
 				await page.route("**/api/rpc/ai/**", (route) => {
 					const requests = route.request().postDataJSON() as Array<{ url: string }>;
 					const responses = requests.map(({ url }, index) => ({
@@ -47,12 +47,17 @@ for (const locale of ["en-US", "ar-SA"] as const)
 						body: {
 							json: url.endsWith("/availability")
 								? {
-										state: state === "exhausted" ? "ready" : "unavailable",
-										reason: state === "exhausted" ? null : "WORKER_UNAVAILABLE",
+										state: state === "unavailable" ? "unavailable" : "ready",
+										reason: state === "unavailable" ? "WORKER_UNAVAILABLE" : null,
 									}
 								: {
 										plan: "start",
-										operations: { limit: 5, used: 5, reserved: 0, remaining: 0 },
+										operations: {
+											limit: 5,
+											used: state === "busy" ? 4 : 5,
+											reserved: state === "busy" ? 1 : 0,
+											remaining: 0,
+										},
 										baseCvs: { limit: 1, used: 1 },
 									},
 						},
@@ -76,9 +81,13 @@ for (const locale of ["en-US", "ar-SA"] as const)
 						? ar
 							? "استخدمت كل عمليات المساعد المجانية. لا تتجدد هذه العمليات، ويمكنك متابعة التحرير بنفسك وتنزيل ملف PDF."
 							: "You have used all your free assistant operations. They do not renew. You can continue editing manually and download a PDF."
-						: ar
-							? "المساعد غير متاح الآن"
-							: "The assistant is unavailable now";
+						: state === "busy"
+							? ar
+								? "هناك عملية جارية بالفعل. كتابتك محفوظة."
+								: "An operation is already in progress. Your writing is kept."
+							: ar
+								? "المساعد غير متاح الآن"
+								: "The assistant is unavailable now";
 				await expect(page.getByText(text, { exact: true })).toBeVisible();
 				await page.getByText(text, { exact: true }).scrollIntoViewIfNeeded();
 				await expect(page.getByRole("button", { name: /View plans|عرض الخطط/u })).toHaveCount(0);
