@@ -58,6 +58,29 @@ type ConversationProps = {
 	onSwitchModel: () => void;
 };
 
+// Bound both polling and stalled requests; unmount cancellation stays separate from timeout recovery.
+async function withPollingDeadline<T>(
+	signal: AbortSignal,
+	timeoutMs: number,
+	work: (signal: AbortSignal) => Promise<T>,
+) {
+	const deadline = new AbortController();
+	const bounded = AbortSignal.any([signal, deadline.signal]);
+	let rejectAbort!: () => void;
+	const aborted = new Promise<never>((_resolve, reject) => {
+		rejectAbort = () => reject(bounded.reason);
+		bounded.addEventListener("abort", rejectAbort, { once: true });
+	});
+	const timer = setTimeout(() => deadline.abort(new DOMException("Polling timed out", "TimeoutError")), timeoutMs);
+	try {
+		bounded.throwIfAborted();
+		return await Promise.race([work(bounded), aborted]);
+	} finally {
+		clearTimeout(timer);
+		bounded.removeEventListener("abort", rejectAbort);
+	}
+}
+
 /** One conversation: the thread (role="log"), change sets and questions in it, and the composer. */
 export function Conversation(props: ConversationProps) {
 	const copy = useAssistantCopy();
@@ -101,29 +124,31 @@ export function Conversation(props: ConversationProps) {
 		const controller = new AbortController();
 		const recover = async () => {
 			try {
-				let outcome;
-				do {
-					outcome = await client.agent.messages.operationStatus({ threadId }, { signal: controller.signal });
-					if (controller.signal.aborted) return;
-					setOperation(outcome.operation);
-					setResumeFailed(false);
-					if (!["queued", "running", "cancel_requested"].includes(outcome.operation.state)) break;
-					await new Promise<void>((resolve) => setTimeout(resolve, 1000));
-				} while (!controller.signal.aborted);
-				if (controller.signal.aborted) return;
-				if (outcome.operation.resultId) {
-					const result = await client.agent.messages.operationResult({ threadId }, { signal: controller.signal });
-					if (controller.signal.aborted) return;
-					const recovered: AgentUIMessage = {
-						id: outcome.operation.id,
-						role: "assistant",
-						parts: [{ type: "text", text: typeof result.text === "string" ? result.text : JSON.stringify(result) }],
-					};
-					setMessages((current) =>
-						current.some((message) => message.id === recovered.id) ? current : [...current, recovered],
-					);
-				}
-				setStopped(confirmedCancellation(outcome.operation));
+				await withPollingDeadline(controller.signal, 120_000, async (signal) => {
+					let outcome;
+					do {
+						outcome = await client.agent.messages.operationStatus({ threadId }, { signal });
+						signal.throwIfAborted();
+						setOperation(outcome.operation);
+						setResumeFailed(false);
+						if (!["queued", "running", "cancel_requested"].includes(outcome.operation.state)) break;
+						await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+					} while (!signal.aborted);
+					signal.throwIfAborted();
+					if (outcome.operation.resultId) {
+						const result = await client.agent.messages.operationResult({ threadId }, { signal });
+						signal.throwIfAborted();
+						const recovered: AgentUIMessage = {
+							id: outcome.operation.id,
+							role: "assistant",
+							parts: [{ type: "text", text: typeof result.text === "string" ? result.text : JSON.stringify(result) }],
+						};
+						setMessages((current) =>
+							current.some((message) => message.id === recovered.id) ? current : [...current, recovered],
+						);
+					}
+					setStopped(confirmedCancellation(outcome.operation));
+				});
 			} catch {
 				if (!controller.signal.aborted) setResumeFailed(true);
 			}
@@ -171,19 +196,26 @@ export function Conversation(props: ConversationProps) {
 		stopAttempt.current = controller;
 		setStopState("requested");
 		try {
-			let operation = await client.agent.messages.stopOperation({ threadId }, { signal: controller.signal });
-			while (["queued", "running", "cancel_requested"].includes(operation.state)) {
-				await new Promise<void>((resolve) => setTimeout(resolve, 1000));
-				controller.signal.throwIfAborted();
-				operation = (await client.agent.messages.operationStatus({ threadId }, { signal: controller.signal }))
-					.operation;
-			}
-			if (controller.signal.aborted) return;
-			setOperation(operation);
-			setStopped(confirmedCancellation(operation));
-			setStopState("idle");
-			await stop();
-			refresh();
+			await withPollingDeadline(controller.signal, 30_000, async (signal) => {
+				if (!props.operationId && !operation) {
+					await client.agent.messages.stop({ threadId }, { signal });
+					signal.throwIfAborted();
+					setStopped(true);
+				} else {
+					let outcome = await client.agent.messages.stopOperation({ threadId }, { signal });
+					while (["queued", "running", "cancel_requested"].includes(outcome.state)) {
+						await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+						signal.throwIfAborted();
+						outcome = (await client.agent.messages.operationStatus({ threadId }, { signal })).operation;
+					}
+					signal.throwIfAborted();
+					setOperation(outcome);
+					setStopped(confirmedCancellation(outcome));
+				}
+				setStopState("idle");
+				await stop();
+				refresh();
+			});
 		} catch {
 			if (!controller.signal.aborted) setStopState("failed");
 		}

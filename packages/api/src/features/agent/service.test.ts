@@ -1307,6 +1307,32 @@ describe("agentService.messages.stop", () => {
 		},
 	);
 
+	it("stops both a bounded operation and a legacy run on the same thread", async () => {
+		dbMock.select.mockImplementation(() =>
+			selectLimitResult([buildActiveThread({ activeRunId: "remote-run", activeOperationId: "bounded-operation" })]),
+		);
+		const { assistantOperations } = await import("./operations");
+		const operationStop = vi.spyOn(assistantOperations, "stop").mockResolvedValue({
+			id: "bounded-operation",
+			state: "cancelled",
+			resultId: null,
+			failureCode: null,
+		});
+		try {
+			const { agentService } = await import("./service");
+			await agentService.messages.stop({ userId: "user-1", threadId: "thread-1" });
+			expect(operationStop).toHaveBeenCalledWith("user-1", "thread-1");
+			expect(cancellationRedisMock.set).toHaveBeenCalledWith(
+				"test:agent-cancellation:remote-run",
+				"USER_STOPPED",
+				"PX",
+				900_000,
+			);
+		} finally {
+			operationStop.mockRestore();
+		}
+	});
+
 	it("signals a remote run without releasing its database claim", async () => {
 		dbMock.select.mockImplementation(() => selectLimitResult([buildActiveThread({ activeRunId: "remote-run" })]));
 		vi.mocked((await import("./runs")).reapStaleAgentRun).mockClear();

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import type { AssistantDocument } from "./document";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
 	attach: vi.fn(),
 	publish: vi.fn(),
 	cancel: vi.fn(),
+	legacyStop: vi.fn(),
 	operationStatus: vi.fn(),
 	decision: vi.fn(),
 	operationResult: vi.fn(),
@@ -24,6 +25,7 @@ vi.mock("@/libs/orpc/client", () => ({
 		agent: {
 			messages: {
 				stopOperation: mocks.cancel,
+				stop: mocks.legacyStop,
 				operationStatus: mocks.operationStatus,
 				operationResult: mocks.operationResult,
 				setEditStatus: mocks.decision,
@@ -64,7 +66,10 @@ beforeEach(() => {
 	mocks.chat.mockReturnValue({ messages: [], sendMessage: mocks.send, status: "ready", clearError: vi.fn() });
 	mocks.attach.mockResolvedValue({ id: "file-1", filename: "posting.txt", mediaType: "text/plain" });
 });
-afterEach(cleanup);
+afterEach(() => {
+	cleanup();
+	vi.useRealTimers();
+});
 
 it("uploads a file in the initial composer before sending its first message", async () => {
 	const ensureThread = vi.fn(async () => "draft-thread");
@@ -202,7 +207,7 @@ it("keeps work active when Stop fails and only confirms cancellation after serve
 	});
 	const response = { promise, resolve, reject };
 	const localStop = vi.fn();
-	mocks.cancel.mockReturnValueOnce(response.promise).mockResolvedValueOnce({ state: "cancelled" });
+	mocks.legacyStop.mockReturnValueOnce(response.promise).mockResolvedValueOnce(undefined);
 	mocks.chat.mockReturnValue({
 		messages: [],
 		sendMessage: mocks.send,
@@ -234,6 +239,8 @@ it("keeps work active when Stop fails and only confirms cancellation after serve
 	expect(localStop).not.toHaveBeenCalled();
 	fireEvent.click(screen.getByRole("button", { name: "Retry stop" }));
 	await waitFor(() => expect(localStop).toHaveBeenCalledTimes(1));
+	expect(mocks.legacyStop).toHaveBeenCalledTimes(2);
+	expect(mocks.cancel).not.toHaveBeenCalled();
 });
 
 it("recovers a persisted bounded result without attempting a Redis stream", async () => {
@@ -342,3 +349,38 @@ it("keeps a failed decision unconfirmed across rerenders and confirms only after
 		edits: [{ id: "edit", status: "rejected", expectedStatus: "pending" }],
 	});
 });
+
+for (const action of ["stop", "recovery"] as const) {
+	it(`offers retry when bounded ${action} polling does not finish`, async () => {
+		vi.useFakeTimers();
+		const setMessages = vi.fn();
+		mocks.chat.mockReturnValue({ messages: [], status: "streaming", setMessages, clearError: vi.fn(), stop: vi.fn() });
+		mocks.operationStatus.mockResolvedValue({ operation: { id: "operation", state: "running", resultId: null } });
+		mocks.cancel.mockResolvedValue({ id: "operation", state: "cancel_requested", resultId: null });
+		render(
+			<I18nProvider i18n={i18n}>
+				<Conversation
+					document={document}
+					threadId="thread-1"
+					operationId="operation"
+					initialMessages={[]}
+					activeRun={true}
+					readOnly={false}
+					providerLabel="Local"
+					initialContext={{ document: true, posting: false }}
+					prompt={null}
+					promptAttachments={[]}
+					onPromptSent={() => {}}
+					onSwitchModel={() => {}}
+				/>
+			</I18nProvider>,
+		);
+		await act(async () => {});
+		if (action === "stop") fireEvent.click(screen.getByRole("button", { name: "Stop" }));
+		await act(async () => {
+			await vi.advanceTimersByTimeAsync(action === "stop" ? 30_000 : 120_000);
+		});
+		expect(screen.getByRole("button", { name: action === "stop" ? "Retry stop" : "Retry" })).toBeDefined();
+		expect(mocks.send).not.toHaveBeenCalled();
+	});
+}

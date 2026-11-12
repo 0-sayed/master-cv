@@ -1545,7 +1545,6 @@ export const agentService = {
 			});
 			if (thread.activeOperationId) {
 				await assistantOperations.stop(input.userId, input.threadId);
-				return;
 			}
 			const activeRunId = thread.activeRunId;
 			if (!activeRunId) return;
