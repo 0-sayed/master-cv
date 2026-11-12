@@ -12,7 +12,7 @@ export default defineConfig({
 			? {
 					...server,
 					cwd: process.cwd(),
-					command: "node --import ./apps/server/node_modules/tsx/dist/loader.mjs tests/e2e/t005-runtime-server.ts",
+					command: "pnpm --filter server test:ai-runtime",
 				}
 			: { ...server, cwd: process.cwd() },
 	),

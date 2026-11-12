@@ -3,9 +3,6 @@
 	"tags": ["-lintignore"],
 	"ignoreBinaries": ["pdftotext", "pdftoppm", "gitleaks", "dpkg-deb"],
 	"workspaces": {
-		".": {
-			"entry": ["tests/e2e/t005-runtime-server.ts", "tests/e2e/t005-runtime.config.ts"]
-		},
 		"apps/mobile": {
 			"ignoreExportsUsedInFile": true,
 			"ignoreIssues": {

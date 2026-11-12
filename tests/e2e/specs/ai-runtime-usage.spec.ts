@@ -8,7 +8,7 @@ test("Start blocks another base while exhausted accounts retain editing and PDF 
 	await createSampleResumeFromDashboard(page, testInfo);
 	const id = new URL(page.url()).pathname.split("/").at(-1);
 	const session = await (await page.request.get("/api/auth/get-session")).json();
-	const pool = new Pool({ connectionString: process.env.DATABASE_MIGRATION_URL });
+	const pool = new Pool({ connectionString: process.env.DATABASE_MIGRATION_URL ?? process.env.DATABASE_URL });
 	try {
 		// Fixture administration creates an already delivered inventory. Runtime execution is proven by the restricted-PG suite.
 		for (let index = 0; index < 5; index++) {

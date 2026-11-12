@@ -8,7 +8,7 @@ import { runStartupChecks } from "../../apps/server/src/startup/checks";
 import { initializeAuth } from "../../packages/auth/src/config";
 import { getPool } from "../../packages/db/src/client";
 import { getRedis } from "../../packages/db/src/redis";
-const { serve } = createRequire(process.cwd() + "/apps/server/package.json")("@hono/node-server");
+const { serve } = createRequire(new URL("../../apps/server/package.json", import.meta.url))("@hono/node-server");
 import { withAiRuntime } from "../../packages/api/src/features/ai/route-policy";
 import { syntheticRuntime } from "../../packages/api/src/features/ai/testing/runtime";
 

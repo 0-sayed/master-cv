@@ -14,8 +14,9 @@ test("browser HTTP delivers five retried tasks once each and blocks the sixth", 
 	await createSampleResumeFromDashboard(page, testInfo);
 	const resumeId = new URL(page.url()).pathname.split("/").at(-1);
 	const user = (await (await page.request.get("/api/auth/get-session")).json()).user;
-	const pool = new Pool({ connectionString: process.env.DATABASE_MIGRATION_URL });
+	const pool = new Pool({ connectionString: process.env.DATABASE_MIGRATION_URL ?? process.env.DATABASE_URL });
 	try {
+		await pool.query("DELETE FROM ai_platform_budget WHERE id = 'browser-budget'");
 		const revision = (
 			await pool.query("SELECT updated_at FROM resume WHERE id=$1 AND user_id=$2", [resumeId, user.id])
 		).rows[0].updated_at.toISOString();
@@ -163,6 +164,10 @@ test("browser HTTP delivers five retried tasks once each and blocks the sixth", 
 			body: { data: { reason: "AI_CONSENT_REQUIRED" } },
 		});
 	} finally {
-		await pool.end();
+		try {
+			await pool.query("DELETE FROM ai_platform_budget WHERE id = 'browser-budget'");
+		} finally {
+			await pool.end();
+		}
 	}
 });
