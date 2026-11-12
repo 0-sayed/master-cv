@@ -67,6 +67,21 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 		}
 	});
 
+	it.each([
+		["ai_usage_ledger", "UPDATE", "units"],
+		["ai_platform_budget", "SELECT", "spent_micros"],
+		["ai_platform_budget", "INSERT", "spent_micros"],
+		["ai_platform_budget", "UPDATE", "spent_micros"],
+	])("rejects column-only %s %s privileges at startup", async (table, privilege, column) => {
+		await expect(assertRuntimeDatabaseRole(runtime)).resolves.toBeUndefined();
+		await fixture.query(`GRANT ${privilege} (${column}) ON ${table} TO "${role}"`);
+		try {
+			await expect(assertRuntimeDatabaseRole(runtime)).rejects.toThrow("Unsafe runtime database role");
+		} finally {
+			await fixture.query(`REVOKE ${privilege} (${column}) ON ${table} FROM "${role}"`);
+		}
+	});
+
 	it("denies missing/foreign owners and permits the authenticated owner's reads and writes", async () => {
 		await withDatabasePool(runtime, async () => {
 			expect(await db.select({ id: resume.id }).from(resume)).toEqual([]);
