@@ -82,6 +82,44 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 		}
 	});
 
+	it("deletes an owner with a bound thread and accounts for attempts without app.user_id", async () => {
+		const connection = await fixture.connect();
+		try {
+			await connection.query(`SET ROLE "${schemaOwner}"`);
+			await connection.query("SELECT set_config('app.user_id','deleting',false)");
+			await connection.query(
+				`INSERT INTO "user"(id,name,email,username,display_username) VALUES ('deleting','Deleting','deleting@example.test','deleting','deleting')`,
+			);
+			await connection.query(
+				`INSERT INTO ai_platform_budget(id,route_id,route_revision,window_date,cap_micros,request_cap_micros,concurrency,active,reserved_micros) VALUES ('deletion-budget','synthetic','1',current_date,100000,10000,2,1,10000)`,
+			);
+			await connection.query(
+				`INSERT INTO ai_operation(id,user_id,request_key,fingerprint,kind,sources,route,consent_version,prompt_version,schema_version,budget_id,reserved_micros) VALUES ('deleting-op','deleting','req','fp','review','[]','{}','1','1','1','deletion-budget',10000)`,
+			);
+			await connection.query(
+				`INSERT INTO ai_operation_attempt(id,user_id,operation_id,ordinal,step_id,cost_micros,finished_at) VALUES ('deleting-attempt','deleting','deleting-op',1,'generate',700,now())`,
+			);
+			await connection.query(
+				`INSERT INTO agent_threads(id,user_id,title,active_operation_id) VALUES ('deleting-thread','deleting','Synthetic','deleting-op')`,
+			);
+			await connection.query("RESET app.user_id");
+			await connection.query(`DELETE FROM "user" WHERE id='deleting'`);
+		} finally {
+			await connection.query("RESET app.user_id");
+			await connection.query("RESET ROLE");
+			connection.release();
+		}
+		expect((await fixture.query("SELECT id FROM agent_threads WHERE id='deleting-thread'")).rows).toEqual([]);
+		expect((await fixture.query("SELECT id FROM ai_operation WHERE id='deleting-op'")).rows).toEqual([]);
+		expect(
+			(
+				await fixture.query(
+					"SELECT active,reserved_micros::int,spent_micros::int FROM ai_platform_budget WHERE id='deletion-budget'",
+				)
+			).rows,
+		).toEqual([{ active: 0, reserved_micros: 0, spent_micros: 700 }]);
+	});
+
 	it("denies missing/foreign owners and permits the authenticated owner's reads and writes", async () => {
 		await withDatabasePool(runtime, async () => {
 			expect(await db.select({ id: resume.id }).from(resume)).toEqual([]);
