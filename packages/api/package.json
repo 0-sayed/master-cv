@@ -31,7 +31,12 @@
 		"./dto/cover-letter": "./src/dto/cover-letter.ts",
 		"./pagination": "./src/pagination.ts",
 		"./features/mcp/transport": "./src/features/mcp/transport.ts",
-		"./features/career/jobs": "./src/features/career/jobs.ts"
+		"./features/career/jobs": "./src/features/career/jobs.ts",
+		"./features/ai/variant-types": "./src/features/ai/variant-types.ts",
+		"./features/ai/variant-contracts": "./src/features/ai/variant-contracts.ts",
+		"./features/ai/variant-validation": "./src/features/ai/variant-validation.ts",
+		"./features/ai/variant-verifier": "./src/features/ai/variant-verifier.ts",
+		"./features/ai/variant-guard": "./src/features/ai/variant-guard.ts"
 	},
 	"scripts": {
 		"typecheck": "tsrs --noEmit",

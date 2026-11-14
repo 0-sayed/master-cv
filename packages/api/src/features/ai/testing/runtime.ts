@@ -1,6 +1,7 @@
 import type { AiRuntime, ApprovedRoute } from "../route-policy";
 import { z } from "zod";
 import { reviewHandlers } from "../review-handlers";
+import { variantReviewHandlers } from "../variant-handlers";
 
 export const syntheticRoute: ApprovedRoute = {
 	routeId: "synthetic",
@@ -60,7 +61,7 @@ export const syntheticRuntime: AiRuntime = {
 /** T006 fixture approvals are explicit; changing writer-config.json cannot authorize another writer. */
 export const syntheticReviewRuntime: AiRuntime = {
 	...syntheticRuntime,
-	handlers: reviewHandlers,
+	handlers: { ...reviewHandlers, ...variantReviewHandlers },
 	routes: [
 		{
 			...syntheticRoute,

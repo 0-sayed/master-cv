@@ -1,4 +1,5 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
+import type { VariantTerminology } from "@reactive-resume/schema/resume/variants";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
@@ -6,7 +7,7 @@ import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { generateId } from "@reactive-resume/utils/string";
 import { application } from "./applications";
 import { user } from "./auth";
-import { careerFactRevision } from "./career";
+import { careerFactRevision, jobTargetRevision } from "./career";
 import { ownerPolicy, resumeOwnerPolicy } from "./ownership";
 
 export const resume = pg.pgTable.withRLS(
@@ -98,6 +99,73 @@ export const resumeFactLink = pg.pgTable.withRLS(
 			foreignColumns: [careerFactRevision.userId, careerFactRevision.factId, careerFactRevision.revision],
 		}),
 		pg.check("resume_fact_link_revision_positive", sql`${t.acceptedRevision} > 0`),
+	],
+);
+
+export const resumeJobSelection = pg.pgTable.withRLS(
+	"resume_job_selection",
+	{
+		userId: pg.text("user_id").notNull(),
+		resumeId: pg.text("resume_id").primaryKey(),
+		jobId: pg.text("job_id").notNull(),
+		jobRevision: pg.text("job_revision").notNull(),
+		updatedAt: pg.timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+	},
+	(t) => [
+		ownerPolicy(t.userId),
+		pg.foreignKey({ columns: [t.userId, t.resumeId], foreignColumns: [resume.userId, resume.id] }).onDelete("cascade"),
+		pg
+			.foreignKey({
+				columns: [t.userId, t.jobId, t.jobRevision],
+				foreignColumns: [jobTargetRevision.userId, jobTargetRevision.jobId, jobTargetRevision.revision],
+			})
+			.onDelete("cascade"),
+		pg.index().on(t.userId, t.jobId, t.jobRevision),
+	],
+);
+
+/** Additive provenance; resume.baseResumeId remains the authoritative allowance lineage. */
+export const resumeVariantSource = pg.pgTable.withRLS(
+	"resume_variant_source",
+	{
+		userId: pg
+			.text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		resumeId: pg.text("resume_id").primaryKey(),
+		sourceResumeId: pg.text("source_resume_id"),
+		sourceRevision: pg.text("source_revision").notNull(),
+		targetLocale: pg.text("target_locale", { enum: ["ar-SA", "en-US"] }),
+		jobId: pg.text("job_id"),
+		jobRevision: pg.text("job_revision"),
+		requestKey: pg.text("request_key").notNull(),
+		requestHash: pg.text("request_hash").notNull(),
+		acceptedSourceRevision: pg.text("accepted_source_revision"),
+		acceptedFactRevisions: pg
+			.jsonb("accepted_fact_revisions")
+			.notNull()
+			.$type<Array<{ factId: string; revision: number }>>()
+			.default([]),
+		terminology: pg.jsonb("terminology").notNull().$type<VariantTerminology>().default({ schemaVersion: 1, terms: [] }),
+		createdAt: pg.timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	},
+	(t) => [
+		ownerPolicy(t.userId),
+		pg.unique("resume_variant_request_unique").on(t.userId, t.requestKey),
+		pg.foreignKey({ columns: [t.userId, t.resumeId], foreignColumns: [resume.userId, resume.id] }).onDelete("cascade"),
+		pg.foreignKey({ columns: [t.userId, t.sourceResumeId], foreignColumns: [resume.userId, resume.id] }),
+		pg.foreignKey({
+			columns: [t.userId, t.jobId, t.jobRevision],
+			foreignColumns: [jobTargetRevision.userId, jobTargetRevision.jobId, jobTargetRevision.revision],
+		}),
+		pg.index().on(t.userId, t.sourceResumeId),
+		pg.index().on(t.userId, t.jobId, t.jobRevision),
+		pg.check("resume_variant_job_pair", sql`(${t.jobId} IS NULL) = (${t.jobRevision} IS NULL)`),
+		pg.check("resume_variant_locale_valid", sql`${t.targetLocale} IS NULL OR ${t.targetLocale} IN ('ar-SA','en-US')`),
+		pg.check(
+			"resume_variant_provenance_bounded",
+			sql`jsonb_array_length(${t.acceptedFactRevisions}) <= 500 AND jsonb_array_length(${t.terminology}->'terms') <= 500 AND octet_length(${t.terminology}::text) <= 4194304`,
+		),
 	],
 );
 

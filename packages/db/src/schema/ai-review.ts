@@ -1,4 +1,5 @@
 import type { ReviewDecisionView, ReviewEvidence, ReviewProposal } from "@reactive-resume/schema/resume/ai-review";
+import type { VariantDecisionPayload } from "@reactive-resume/schema/resume/variants";
 import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { generateId } from "@reactive-resume/utils/string";
@@ -55,6 +56,7 @@ export const aiReviewDecision = pg.pgTable.withRLS(
 		subjectIds: pg.jsonb("subject_ids").notNull().$type<string[]>(),
 		previousDecisionId: pg.text("previous_decision_id"),
 		changes: pg.jsonb("changes").notNull().$type<ReviewProposal[]>().default([]),
+		variantPayload: pg.jsonb("variant_payload").$type<VariantDecisionPayload>(),
 		evidence: pg.jsonb("evidence").$type<ReviewEvidence>(),
 		beforeRevision: pg.text("before_revision"),
 		afterRevision: pg.text("after_revision"),

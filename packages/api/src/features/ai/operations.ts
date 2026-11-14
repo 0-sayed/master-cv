@@ -65,7 +65,7 @@ export async function assertSourceRevisions(
 	// Acquire the profile first regardless of request/source ordering.
 	await lockReviewProfile(tx, userId);
 	for (const source of [...request.sources].sort((a, b) => `${a.kind}:${a.id}`.localeCompare(`${b.kind}:${b.id}`))) {
-		if (source.kind === "import" || source.kind === "answer") {
+		if (source.kind === "import" || source.kind === "answer" || source.kind === "job") {
 			await loadReviewSource(tx, userId, source);
 			continue;
 		}
@@ -174,6 +174,7 @@ async function startOperation(
 	const request = { ...rawRequest, parameters: handler.parameters.parse(rawRequest.parameters) };
 	const route = await resolveApprovedRoute(userId, request);
 	await assertSourceRevisions(tx, userId, request);
+	if (handler.validateRequest) await handler.validateRequest(tx, userId, request);
 	const active = await tx
 		.select({ id: aiOperation.id })
 		.from(aiOperation)
@@ -379,7 +380,15 @@ export function deliverOperation(lease: OperationLease, output: Record<string, u
 					canonicalJson(generated.output) !== canonicalJson(output)
 				)
 					throw new Error("AI_VERIFICATION_REQUIRED");
-				handler.verifier.validate(output, verified.output);
+				if (handler.verifier.validateInContext)
+					await handler.verifier.validateInContext(
+						tx,
+						lease.ownerId,
+						operationRequest(operation),
+						output,
+						verified.output,
+					);
+				else handler.verifier.validate(output, verified.output);
 			} catch {
 				return finishUnsuccessful(tx, operation, "AI_VERIFICATION_FAILED");
 			}

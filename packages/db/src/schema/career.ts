@@ -52,6 +52,52 @@ export const careerProfile = pg.pgTable.withRLS(
 	},
 	(t) => [ownerPolicy(t.userId)],
 );
+
+/** Candidate-owned pasted jobs are independent of external discovery/application tracking. */
+export const jobTarget = pg.pgTable.withRLS(
+	"job_target",
+	{
+		id: pg
+			.text("id")
+			.primaryKey()
+			.$defaultFn(() => generateId()),
+		userId: pg
+			.text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		createdAt: pg.timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	},
+	(t) => [ownerPolicy(t.userId), pg.unique("job_target_owner_id").on(t.userId, t.id)],
+);
+
+/** UPDATE has no RLS policy: exact pasted revisions are append-only until owner deletion. */
+export const jobTargetRevision = pg.pgTable.withRLS(
+	"job_target_revision",
+	{
+		userId: pg.text("user_id").notNull(),
+		jobId: pg.text("job_id").notNull(),
+		revision: pg.text("revision").notNull(),
+		role: pg.text("role").notNull(),
+		employer: pg.text("employer").notNull().default(""),
+		text: pg.text("text").notNull(),
+		digest: pg.text("digest").notNull(),
+		createdAt: pg.timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	},
+	(t) => {
+		const owns = sql`${t.userId} = NULLIF(current_setting('app.user_id', true), '')`;
+		return [
+			pg.primaryKey({ columns: [t.userId, t.jobId, t.revision] }),
+			pg
+				.foreignKey({ columns: [t.userId, t.jobId], foreignColumns: [jobTarget.userId, jobTarget.id] })
+				.onDelete("cascade"),
+			pg.index().on(t.userId, t.jobId, t.createdAt),
+			pg.pgPolicy("owner_read", { for: "select", using: owns }),
+			pg.pgPolicy("owner_append", { for: "insert", withCheck: owns }),
+			pg.pgPolicy("owner_delete", { for: "delete", using: owns }),
+			pg.check("job_target_text_bounded", sql`length(${t.text}) > 0 AND octet_length(${t.text}) <= 128000`),
+		];
+	},
+);
 export const careerFact = pg.pgTable.withRLS(
 	"career_fact",
 	{

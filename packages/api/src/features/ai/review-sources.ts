@@ -19,6 +19,7 @@ import { readTarget, splitBlocks } from "@reactive-resume/resume/proposals";
 import { reviewTargetSchema } from "@reactive-resume/schema/resume/ai-review";
 import { parseResumeDataForWrite } from "@reactive-resume/schema/resume/write";
 import { generateId } from "@reactive-resume/utils/string";
+import { readJobRevision } from "../career/job-targets";
 import { lockDocumentOwner } from "../documents/ownership";
 import { buildModelPayload, resumeContactValues } from "./payload";
 
@@ -96,6 +97,15 @@ export async function loadReviewSource(
 	>[] = [],
 ): Promise<ReviewSourceSnapshot> {
 	const empty: ReviewSourceSnapshot = { source, selections: [], evidence: [], expiresAt: null, partial: false };
+	if (source.kind === "job") {
+		const job = await readJobRevision(tx, ownerId, source.id, source.revision);
+		return {
+			...empty,
+			selections: [
+				{ id: `job:${job.jobId}:${job.revision}`, kind: "user_supplied", section: "summary", text: job.text },
+			],
+		};
+	}
 	if (source.kind === "import") {
 		const [row] = await tx
 			.select()

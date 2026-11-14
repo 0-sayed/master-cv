@@ -6,9 +6,11 @@ import { getRootResume } from "./root";
 import { sharingRouter } from "./sharing";
 import { resumeStatisticsRouter } from "./statistics";
 import { tagsRouter } from "./tags";
+import { variantsRouter } from "./variant-router";
 import { versionsRouter } from "./versions";
 
 export const resumeRouter = {
+	variants: variantsRouter,
 	confirmImport: confirmImportProcedure,
 	getRoot: publicProcedure.route({ tags: ["Internal"] }).handler(({ context }) =>
 		getRootResume({

@@ -74,6 +74,20 @@ export type OperationHandler = {
 		systemPrompt: string;
 		buildInput: (payload: ModelPayload, output: Record<string, unknown>) => ModelPayload;
 		validate: (output: Record<string, unknown>, verdict: unknown) => void;
+		/** Source-aware verification is reloaded inside the worker's fenced transaction. */
+		validateInContext?: (
+			tx: OwnerTransaction,
+			ownerId: string,
+			request: OperationRequest,
+			output: Record<string, unknown>,
+			verdict: unknown,
+		) => Promise<void>;
+		buildInputInContext?: (
+			tx: OwnerTransaction,
+			ownerId: string,
+			request: OperationRequest,
+			output: Record<string, unknown>,
+		) => Promise<ModelPayload>;
 	};
 	systemPrompt?: string;
 	validateResult?: (
@@ -82,11 +96,14 @@ export type OperationHandler = {
 		request: OperationRequest,
 		output: Record<string, unknown>,
 	) => Promise<Record<string, unknown>>;
+	validateRequest?: (tx: OwnerTransaction, ownerId: string, request: OperationRequest) => Promise<void>;
 	promptVersion: string;
 	schemaVersion: string;
 	parameters: z.ZodType<Record<string, unknown>>;
 	output: z.ZodType<Record<string, unknown>>;
 	buildInput: (ownerId: string, request: OperationRequest, signal?: AbortSignal) => Promise<ModelPayloadInput>;
+	/** Already minimized structured input; never run a prose scrubber over serialized IDs. */
+	buildPayload?: (ownerId: string, request: OperationRequest, signal?: AbortSignal) => Promise<ModelPayload>;
 	copyClaim?: (request: OperationRequest) => ResumeCreationKind;
 	createCopy?: (output: Record<string, unknown>) => Pick<ResumeCreateInput, "name" | "locale" | "data">;
 	resultState: "waiting_review" | "succeeded";

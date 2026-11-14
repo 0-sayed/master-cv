@@ -106,7 +106,15 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 					await failOperation(lease, "AI_VERIFIER_UNAVAILABLE");
 					return;
 				}
-				handler.verifier.validate(completed.output, verified.output);
+				const verifier = handler.verifier;
+				const validateInContext = verifier.validateInContext;
+				const completedOutput = completed.output;
+				const verifiedOutput = verified.output;
+				if (validateInContext)
+					await withOperationLease(lease, (tx) =>
+						validateInContext(tx, lease.ownerId, request, completedOutput, verifiedOutput),
+					);
+				else verifier.validate(completed.output, verified.output);
 			}
 			await deliverOperation(lease, completed.output);
 			return;
@@ -137,9 +145,12 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 			}
 			preparingInput = true;
 			const inputSignal = shutdown ? AbortSignal.any([signal, shutdown]) : signal;
-			let payload = buildModelPayload(
-				await prepareInput(inputSignal, () => handler.buildInput(lease.ownerId, request, inputSignal)),
-			);
+			const buildPayload = handler.buildPayload;
+			let payload = buildPayload
+				? await prepareInput(inputSignal, () => buildPayload(lease.ownerId, request, inputSignal))
+				: buildModelPayload(
+						await prepareInput(inputSignal, () => handler.buildInput(lease.ownerId, request, inputSignal)),
+					);
 			preparingInput = false;
 			if (shutdown?.aborted) return;
 			if (Date.now() >= operation.deadlineAt.getTime()) {
@@ -151,7 +162,12 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 			const stepId = nextStep;
 			if (stepId === "verify") {
 				if (!handler.verifier || !generated) throw new Error("AI_VERIFIER_UNAVAILABLE");
-				payload = handler.verifier.buildInput(payload, generated);
+				const verifier = handler.verifier;
+				const buildInputInContext = verifier.buildInputInContext;
+				const generatedOutput = generated;
+				payload = buildInputInContext
+					? await withOperationLease(lease, (tx) => buildInputInContext(tx, lease.ownerId, request, generatedOutput))
+					: verifier.buildInput(payload, generated);
 			}
 			if (stepId === "repair") {
 				if (repairs >= route.maxRepairs) break;
@@ -212,7 +228,15 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 			if (outcome.outcome === "valid" && outcome.output) {
 				if (stepId === "verify" && handler.verifier && generated) {
 					try {
-						handler.verifier.validate(generated, outcome.output);
+						const verifier = handler.verifier;
+						const validateInContext = verifier.validateInContext;
+						const generatedOutput = generated;
+						const verifiedOutput = outcome.output;
+						if (validateInContext)
+							await withOperationLease(lease, (tx) =>
+								validateInContext(tx, lease.ownerId, request, generatedOutput, verifiedOutput),
+							);
+						else verifier.validate(generated, outcome.output);
 					} catch {
 						await failOperation(lease, "AI_VERIFICATION_FAILED");
 						return;
