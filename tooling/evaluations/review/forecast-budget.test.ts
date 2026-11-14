@@ -1,43 +1,74 @@
 import type { BenchmarkArtifact } from "./runner";
-import { readFileSync } from "node:fs";
-import { expect, it, vi } from "vite-plus/test";
+import { existsSync, readFileSync } from "node:fs";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { assertStudyForecast, projectObservedSpend, calibratedExpectedFull } from "./budget";
 import { loadModels } from "./config";
 import { cases } from "./corpus";
 import { forecastFromSmoke } from "./forecast";
 import forecast from "./forecast-historical-effort-grid.json";
+import { syntheticUsageFixture } from "./synthetic-test-fixtures";
 
-it("projects the eleven-variant BYOK grid from archived usage without charging OpenAI tokens to OpenRouter", () => {
-	const smoke = JSON.parse(
-		readFileSync(new URL(`../results/${forecast.source}/results.json`, import.meta.url), "utf8"),
-	) as BenchmarkArtifact;
+it("prices synthetic writer/verifier pairs independently for both payers across all eleven variants", async () => {
 	const projected = forecastFromSmoke(
-		smoke,
+		await syntheticUsageFixture(),
 		loadModels(),
 		cases.filter((c) => !c.exploratory),
 	);
-	// The archived forecast predates the production schema/prompt repair.
-	// Observed usage repricing stays equal; current-schema reservations intentionally change.
-	const retained = forecast.perVariant.filter((v) => v.provider !== "google-vertex");
-	expect(projected.expectedTotalUsd).toBeCloseTo(
-		retained.reduce((sum, v) => sum + v.smokeUsd + v.fullUsd, 0),
-		10,
-	);
-	expect(projected.expectedFullUsd).toBeCloseTo(
-		retained.reduce((sum, v) => sum + v.fullUsd, 0),
-		10,
-	);
+	const high = projected.perVariant.find((v) => v.model === "openai/gpt-6-luna" && v.reasoning === "high");
+	const low = projected.perVariant.find((v) => v.model === "openai/gpt-6-luna" && v.reasoning === "low");
+	// High writer: ceil(796 * .5 + 430 * 1.5) = 1043; low scales output to ceil(430 / 4) = 108.
+	// The independent judge remains ceil(250 * 1.055) = 264 on OpenRouter for both efforts.
+	expect(high?.openaiPairCostsMicros).toEqual([1043, 1043, 1043]);
+	expect(low?.openaiPairCostsMicros).toEqual([560, 560, 560]);
+	expect(high?.openRouterPairCostsMicros).toEqual([264, 264, 264]);
+	expect(low?.openRouterPairCostsMicros).toEqual([264, 264, 264]);
 	expect(projected.smokeSessions).toBe(33);
 	expect(projected.fullSessions).toBe(2772);
+	expect(projected.perVariant).toHaveLength(11);
 	expect(projected.expectedTotalUsd).toBeCloseTo(
 		projected.openRouter.expectedTotalUsd + projected.openai.expectedTotalUsd,
 	);
-	expect(projected.perVariant.some((v) => v.provider === "google-vertex")).toBe(false);
-	const luna = projected.perVariant.find((v) => v.model === "openai/gpt-6-luna" && v.reasoning === "low");
-	expect(luna?.openaiPairCostsMicros[0]).toBe(Math.ceil(796 * 0.5 + 430 * 1.5));
 	expect(projected.minimumBudgetUsd).toBe(projected.openRouter.minimumBudgetUsd);
 	expect(projected.minimumOpenaiBudgetUsd).toBe(projected.openai.minimumBudgetUsd);
 });
+
+describe.skipIf(!existsSync(new URL(`../results/${forecast.source}/`, import.meta.url)))(
+	"local evidence replay: archived forecast",
+	() => {
+		it("projects the eleven-variant BYOK grid from archived usage without charging OpenAI tokens to OpenRouter", () => {
+			const smoke = JSON.parse(
+				readFileSync(new URL(`../results/${forecast.source}/results.json`, import.meta.url), "utf8"),
+			) as BenchmarkArtifact;
+			const projected = forecastFromSmoke(
+				smoke,
+				loadModels(),
+				cases.filter((c) => !c.exploratory),
+			);
+			// The archived forecast predates the production schema/prompt repair.
+			// Observed usage repricing stays equal; current-schema reservations intentionally change.
+			const retained = forecast.perVariant.filter((v) => v.provider !== "google-vertex");
+			expect(projected.expectedTotalUsd).toBeCloseTo(
+				retained.reduce((sum, v) => sum + v.smokeUsd + v.fullUsd, 0),
+				10,
+			);
+			expect(projected.expectedFullUsd).toBeCloseTo(
+				retained.reduce((sum, v) => sum + v.fullUsd, 0),
+				10,
+			);
+			expect(projected.smokeSessions).toBe(33);
+			expect(projected.fullSessions).toBe(2772);
+			expect(projected.expectedTotalUsd).toBeCloseTo(
+				projected.openRouter.expectedTotalUsd + projected.openai.expectedTotalUsd,
+			);
+			expect(projected.perVariant.some((v) => v.provider === "google-vertex")).toBe(false);
+			const luna = projected.perVariant.find((v) => v.model === "openai/gpt-6-luna" && v.reasoning === "low");
+			expect(luna?.openaiPairCostsMicros[0]).toBe(Math.ceil(796 * 0.5 + 430 * 1.5));
+			expect(projected.minimumBudgetUsd).toBe(projected.openRouter.minimumBudgetUsd);
+			expect(projected.minimumOpenaiBudgetUsd).toBe(projected.openai.minimumBudgetUsd);
+		});
+	},
+);
+
 it("calibrates the mean workload from smoke 2 without claiming the conservative reservation fits", () => {
 	expect(projectObservedSpend(93963, 24, 2016, 10)).toEqual({
 		smokeUsd: 0.093963,

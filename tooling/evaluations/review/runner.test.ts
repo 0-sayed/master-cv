@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { expect, it, vi } from "vite-plus/test";
 import { Budget } from "./budget";
 import { parseOptions, loadModels, applyReasoning } from "./config";
@@ -48,13 +47,10 @@ it.each([false, true])(
 		expect(resumed.reservedUsd).toBe(required(required(run.calls[0]).reservedOpenRouterMicros) / 1e6);
 	},
 );
-const recorded429 = JSON.parse(
-	readFileSync(new URL("../results/2026-11-12T19-13-26.795Z-62ebb21f/calls.jsonl", import.meta.url), "utf8")
-		.split("\n")
-		.filter(Boolean)
-		.map((line) => JSON.parse(line))
-		.find((event) => event.type === "raw" && JSON.parse(event.data.body).error)?.data.body,
-);
+const throttled429 = {
+	error: { code: 429, message: "Rate limit exceeded", metadata: { error_type: "rate_limit_exceeded" } },
+	usage: { prompt_tokens: 0, completion_tokens: 0, cost: 0, cost_details: { upstream_inference_cost: 0 } },
+};
 it("records zero-cost writer throttling without stopping other variants", async () => {
 	vi.useFakeTimers();
 	const pending = runBenchmark({
@@ -64,7 +60,7 @@ it("records zero-cost writer throttling without stopping other variants", async 
 		fake: false,
 		key: "synthetic",
 		budgetUsd: 10,
-		transport: async () => Response.json(recorded429),
+		transport: async () => Response.json(throttled429),
 	});
 	await vi.runAllTimersAsync();
 	const run = await pending;
@@ -377,7 +373,7 @@ it.each(["fake-response", "fake-verifier"])(
 		const spy = vi.spyOn(Response, "json").mockImplementation((data, init) => {
 			if (data?.id === id && errors < 5) {
 				errors++;
-				return original(recorded429, init);
+				return original(throttled429, init);
 			}
 			return original(data, init);
 		});

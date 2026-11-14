@@ -4,6 +4,7 @@ import { cases } from "./corpus";
 import { scoreBenchmark } from "./metrics";
 import { required } from "./required";
 import { runBenchmark, type RawRecord, type RunOptions } from "./runner";
+import { syntheticRepairFixture } from "./synthetic-test-fixtures";
 import { vertexFixture } from "./vertex-test-fixture";
 
 afterEach(() => vi.useRealTimers());
@@ -174,13 +175,9 @@ it("cools only the exhausted provider/model and bounds attempts in a persistent 
 });
 
 it("requires a new writer and verifier after the study invalidates historical judgments", async () => {
-	const { readRepairSource, createRepairPlan } = await import("./repair");
-	const source = await readRepairSource(
-		new URL("../results/2026-11-13T06-30-48.077Z-c283d9cd", import.meta.url).pathname,
-	);
-	const latest = [...new Map(source.history.previousCalls.map((c) => [c.key, c])).values()];
-	const legacy = required(source.history.previousCalls.find((c) => c.verifierFault === "INVALID_VERIFIER_OUTPUT"));
-	const settled = required(latest.find((c) => c.key === legacy.key));
+	const { createRepairPlan } = await import("./repair");
+	const source = await syntheticRepairFixture();
+	const settled = required(source.history.previousCalls.find((c) => c.verifierAccepted));
 	expect(settled.verifierAccepted).toBe(true);
 	const { options } = await seed();
 	const sent: string[] = [];

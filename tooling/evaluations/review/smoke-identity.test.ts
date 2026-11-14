@@ -1,15 +1,22 @@
-import { readFileSync } from "node:fs";
 import { expect, it } from "vite-plus/test";
 import { loadModels } from "./config";
 import { cases } from "./corpus";
-import { type BenchmarkArtifact } from "./runner";
+import { required } from "./required";
+import { runBenchmark } from "./runner";
 import { smokeCases, studyHash, validateSmoke, validateResume } from "./study";
+import { vertexFixture } from "./vertex-test-fixture";
 
-it("invalidates the November 12 injection-only smoke for the changed extraction schema without losing historical calibration", () => {
-	const smoke = JSON.parse(
-		readFileSync(new URL("../results/2026-11-12T19-49-25.081Z-cc4d6966/results.json", import.meta.url), "utf8"),
-	) as BenchmarkArtifact;
+it("invalidates a synthetic historical injection-only smoke for the changed extraction schema", async () => {
 	const models = loadModels();
+	const fake = await runBenchmark({
+		models: [...models, vertexFixture],
+		cases: [required(cases.find((c) => c.category === "injection"))],
+		runs: 3,
+		fake: true,
+		budgetUsd: 100,
+		openaiBudgetUsd: 100,
+	});
+	const smoke = { ...fake, mode: "live" as const };
 	expect(smoke.mode).toBe("live");
 	expect(smoke.calls).toHaveLength(36);
 	expect(new Set(smoke.calls.map((c) => c.category))).toEqual(new Set(["injection"]));

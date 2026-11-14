@@ -1,11 +1,9 @@
-import { readFileSync } from "node:fs";
 import { expect, it, vi } from "vite-plus/test";
 import { forecastFromSmoke } from "./forecast";
+import { syntheticUsageFixture } from "./synthetic-test-fixtures";
 
-it("reforecasts archived Azure usage as separate BYOK and OpenRouter projections", () => {
-	const smoke = JSON.parse(
-		readFileSync(new URL("../results/2026-11-12T17-46-52.507Z-fd7f6fd3/results.json", import.meta.url), "utf8"),
-	);
+it("reforecasts synthetic Azure usage as separate BYOK and OpenRouter projections", async () => {
+	const smoke = await syntheticUsageFixture();
 	const forecast = forecastFromSmoke(
 		smoke,
 		loadModels(),

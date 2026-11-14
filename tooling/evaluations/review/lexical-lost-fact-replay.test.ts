@@ -1,7 +1,5 @@
-import type { BenchmarkArtifact } from "./runner";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, it } from "vite-plus/test";
@@ -9,19 +7,15 @@ import recorded from "./lexical-lost-fact-regressions.json";
 import { rescoreLexical } from "./lexical-lost-fact-replay";
 import { scoreBenchmark } from "./metrics";
 import { required } from "./required";
+import { syntheticLexicalFixture } from "./synthetic-test-fixtures";
 
-const source = JSON.parse(
-	readFileSync(
-		new URL("../results/2026-11-13T14-18-44.765Z-576ecf6b/lane23/reverified-results.json", import.meta.url),
-		"utf8",
-	),
-) as BenchmarkArtifact;
+const source = await syntheticLexicalFixture();
 
 it("re-scores saved lexical diagnostics without changing writer/judge decisions or accounting", () => {
 	const original = JSON.stringify(source);
 	const after = rescoreLexical(source);
 	expect(JSON.stringify(source)).toBe(original);
-	expect(after.calls).toHaveLength(2772);
+	expect(after.calls).toHaveLength(13);
 	for (const [i, call] of after.calls.entries()) {
 		const before = required(source.calls[i]);
 		const { lexicalLostFacts: _lexical, score, ...rest } = call;
@@ -40,12 +34,12 @@ it.each(recorded)("keeps the recorded loss decision for $caseId / $fact", ({ key
 });
 
 it("does not let retained verifier status erase a genuine omitted specialization", () => {
-	const before = required(
-		source.calls.find(
-			(c) => c.caseId === "r2-h03-extraction" && c.factRetention === "retained" && c.lexicalLostFacts?.length,
-		),
-	);
+	const before = {
+		...required(source.calls.find((c) => c.caseId === "r2-h03-extraction" && c.lexicalLostFacts?.length)),
+		factRetention: "retained" as const,
+	};
 	const after = rescoreLexical({ ...source, calls: [before] });
+	expect(after.calls[0]?.factRetention).toBe("retained");
 	expect(after.calls[0]?.score?.lostFacts).toContain("دبلوم أرشفة");
 });
 
@@ -66,17 +60,11 @@ it("refuses mismatched fixtures and materialized outputs", () => {
 it("writes the offline owner artifacts only under -o, without a key or stdout report", async () => {
 	const out = await mkdtemp(join(tmpdir(), "lexical-lost-fact-cli-"));
 	try {
+		const fixture = join(out, "synthetic-lexical-input.json");
+		await writeFile(fixture, JSON.stringify(source));
 		const result = spawnSync(
 			process.execPath,
-			[
-				"--import",
-				"tsx",
-				"evaluations/review/lexical-lost-fact-replay-cli.ts",
-				"--source",
-				"evaluations/results/2026-11-13T14-18-44.765Z-576ecf6b/lane23/reverified-results.json",
-				"-o",
-				out,
-			],
+			["--import", "tsx", "evaluations/review/lexical-lost-fact-replay-cli.ts", "--source", fixture, "-o", out],
 			{ encoding: "utf8" },
 		);
 		expect(result.stderr).toBe("");
@@ -84,10 +72,10 @@ it("writes the offline owner artifacts only under -o, without a key or stdout re
 		expect(result.stdout).toBe("");
 		const audit = JSON.parse(await readFile(join(out, "lexical-lost-fact-audit.json"), "utf8"));
 		expect(audit.control).toMatchObject({ checked: 126, pass: true });
-		expect(audit.hits).toHaveLength(223);
-		expect(audit.hits.filter((h: { fixed: boolean }) => h.fixed)).toHaveLength(160);
+		expect(audit.hits).toHaveLength(13);
+		expect(audit.hits.filter((h: { fixed: boolean }) => h.fixed)).toHaveLength(7);
 		expect(audit.winners.every((w: { winner: unknown }) => w.winner === null)).toBe(true);
-		expect(audit.table).toHaveLength(88);
+		expect(audit.table).toHaveLength(6);
 		expect((await readFile(join(out, "lexical-lost-fact-final.txt"), "utf8")).trim().split("\n")).toHaveLength(6);
 		const scored = JSON.parse(await readFile(join(out, "lexical-lost-fact-results.json"), "utf8"));
 		expect(scored.lexicalRescore.offline).toBe(true);

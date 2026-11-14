@@ -1,17 +1,17 @@
 {
-	"version": 24,
-	"studyId": "t006-tasks-v1-v25-naming-cleanup",
+	"version": 25,
+	"studyId": "t006-tasks-v1-v26-ci-repair",
 	"date": "2026-11-14",
-	"policy": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized option 1 cover-letter repair: shorten repeated framing and courtesy text, retain both cited CV facts and the exact Astra opening, and add separate jobSpanIds for a non-assertive duty bridge in cover-letter/tailoring only. Job text never becomes candidate evidence. Golds and honest controls fit the unchanged 2048-byte half-cap at 180-320 words. Controls and request serialization are offline/scripted, not measured semantic evidence or new human review. Historical core freeze and all historical runs remain unchanged; its shared task-file hashes are now stale and no new core qualification is claimed. Approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval. Owner-authorized verifier truncation repair: all six task contracts request 12288 completion tokens with a 4096 visible allowance; task reasons are at most one short sentence per claim. Canary dispatch uses bounded payer/provider concurrency and serialized atomic durable checkpoints with exclusive file locking. Completed probes are reused on same-study resume; unknown/pending billing fails closed. Historical core identity is unchanged; its shared dependency freeze may be stale. Fixtures and verdict semantics are unchanged. No inference, environment-file reads, staging, commits or approval. Owner decision 2026-11-14 slim rough-decision lane, larger funded benchmark later: 72 DeepSeek-only judge probes, two default full repetitions, canonical variant pruning and payer-specific offline forecasts. Fixtures and six contracts unchanged; fixture-bound owner approval remains valid. Fresh same-subset smoke is required. Luna judge quality unmeasured. No inference, environment-file reads, staging, commits or approval. Owner-requested offline canary scoring diagnosis from the copied 72-probe receipt. Semantic planted-target detection and honest safety false rejects are separated from protocol/availability faults; exact claim/premise IDs and scoped absence/retention remain mandatory. Protocol faults still block qualification independently. Unchanged thresholds, fixtures, prompts, plan, provider pins and production behavior. Saved outcomes are inspected diagnostic evidence, never unseen validation or fresh smoke. Summary deletion controls conflict with the advisory summary contract; two translation gold safety rejects need lead fidelity adjudication. No inference, environment-file reads, staging, commits or approval. Lead decisions 2026-11-14 supersede earlier calibration descriptions: measure the deterministic guard plus tasks-verifier safety pipeline at 100% planted-defect recall and zero honest false rejects; verifier-alone recall/false rejects are advisory. Final verifier protocol-fault rate must be <=10% after one identical pinned retry. Summary LOST_FACT remains disabled; replace its invalid omission safety canary with the existing invented-SAP-skill mutant. Clarify full exact IDs, complete question checks, unsafe-response coverage and compact reasons with a strict example; wire schema/audit rules unchanged. Correct only judge-canary-translation-ar and judge-canary-translation-mixed training-receipt golds and related mutant baselines; both require lead re-approval. Saved 72 verdicts and 53 smoke sessions are inspected offline diagnostic evidence, not unseen holdout, measured prompt improvement, post-retry health evidence or current-study qualification. Historical core freeze/receipts and source runs remain unchanged. All observed shared-byte changes are listed separately; no inference, environment-file reads, paid calls, staging, commits, approval or release authorized. Owner-requested Knip cleanup: internalize unused exports/types and remove the unused tailoring version alias/import. CLI-consumed exports retained. No intended runtime behavior, fixtures, prompts or scoring changes in this cleanup. Six pre-existing shared/API and CLI hash mismatches are recorded separately, without attributing them to this lane. Current observed bytes are sealed; historical core identity and receipts remain unchanged. New study requires fresh qualification; no inference, environment-file reads, staging, commits, approval or release. Owner-requested offline test:ci repair: make the test guard safe under Playwright CommonJS transformation while retaining credential/fetch blocks; distinguish proven pre-dispatch refusal from billed ambiguous post-dispatch reset in the fake transport. The prior Knip freeze changed without rebinding its control receipt; fresh actual scans pass without guard, fixture or gold changes. Historical core identity and receipts stay unchanged and stale shared core bytes do not qualify current runtime. No inference, environment-file reads, staging, commits, approval or live qualification. Owner-requested snapshot cleanup: archive unused historical JSON unchanged, preserve seal metadata and receipt chains in freeze-history.json, and route historical README references to history. Only the README sealed bytes changed. No runtime, fixture, prompt, gold, scoring, inference, approval or qualification change; historical core seal and receipt remain unchanged and stale. Owner-requested naming cleanup: purpose-based active paths and display identifiers; original seals and receipts preserved in freeze-history.json and external archive. Current bytes sealed as observed; no inference, new approval, smoke qualification or release.",
+	"policy": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized option 1 cover-letter repair: shorten repeated framing and courtesy text, retain both cited CV facts and the exact Astra opening, and add separate jobSpanIds for a non-assertive duty bridge in cover-letter/tailoring only. Job text never becomes candidate evidence. Golds and honest controls fit the unchanged 2048-byte half-cap at 180-320 words. Controls and request serialization are offline/scripted, not measured semantic evidence or new human review. Historical core freeze and all historical runs remain unchanged; its shared task-file hashes are now stale and no new core qualification is claimed. Approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval. Owner-authorized verifier truncation repair: all six task contracts request 12288 completion tokens with a 4096 visible allowance; task reasons are at most one short sentence per claim. Canary dispatch uses bounded payer/provider concurrency and serialized atomic durable checkpoints with exclusive file locking. Completed probes are reused on same-study resume; unknown/pending billing fails closed. Historical core identity is unchanged; its shared dependency freeze may be stale. Fixtures and verdict semantics are unchanged. No inference, environment-file reads, staging, commits or approval. Owner decision 2026-11-14 slim rough-decision lane, larger funded benchmark later: 72 DeepSeek-only judge probes, two default full repetitions, canonical variant pruning and payer-specific offline forecasts. Fixtures and six contracts unchanged; fixture-bound owner approval remains valid. Fresh same-subset smoke is required. Luna judge quality unmeasured. No inference, environment-file reads, staging, commits or approval. Owner-requested offline canary scoring diagnosis from the copied 72-probe receipt. Semantic planted-target detection and honest safety false rejects are separated from protocol/availability faults; exact claim/premise IDs and scoped absence/retention remain mandatory. Protocol faults still block qualification independently. Unchanged thresholds, fixtures, prompts, plan, provider pins and production behavior. Saved outcomes are inspected diagnostic evidence, never unseen validation or fresh smoke. Summary deletion controls conflict with the advisory summary contract; two translation gold safety rejects need lead fidelity adjudication. No inference, environment-file reads, staging, commits or approval. Lead decisions 2026-11-14 supersede earlier calibration descriptions: measure the deterministic guard plus tasks-verifier safety pipeline at 100% planted-defect recall and zero honest false rejects; verifier-alone recall/false rejects are advisory. Final verifier protocol-fault rate must be <=10% after one identical pinned retry. Summary LOST_FACT remains disabled; replace its invalid omission safety canary with the existing invented-SAP-skill mutant. Clarify full exact IDs, complete question checks, unsafe-response coverage and compact reasons with a strict example; wire schema/audit rules unchanged. Correct only judge-canary-translation-ar and judge-canary-translation-mixed training-receipt golds and related mutant baselines; both require lead re-approval. Saved 72 verdicts and 53 smoke sessions are inspected offline diagnostic evidence, not unseen holdout, measured prompt improvement, post-retry health evidence or current-study qualification. Historical core freeze/receipts and source runs remain unchanged. All observed shared-byte changes are listed separately; no inference, environment-file reads, paid calls, staging, commits, approval or release authorized. Owner-requested Knip cleanup: internalize unused exports/types and remove the unused tailoring version alias/import. CLI-consumed exports retained. No intended runtime behavior, fixtures, prompts or scoring changes in this cleanup. Six pre-existing shared/API and CLI hash mismatches are recorded separately, without attributing them to this lane. Current observed bytes are sealed; historical core identity and receipts remain unchanged. New study requires fresh qualification; no inference, environment-file reads, staging, commits, approval or release. Owner-requested offline test:ci repair: make the test guard safe under Playwright CommonJS transformation while retaining credential/fetch blocks; distinguish proven pre-dispatch refusal from billed ambiguous post-dispatch reset in the fake transport. The prior Knip freeze changed without rebinding its control receipt; fresh actual scans pass without guard, fixture or gold changes. Historical core identity and receipts stay unchanged and stale shared core bytes do not qualify current runtime. No inference, environment-file reads, staging, commits, approval or live qualification. Owner-requested snapshot cleanup: archive unused historical JSON unchanged, preserve seal metadata and receipt chains in freeze-history.json, and route historical README references to history. Only the README sealed bytes changed. No runtime, fixture, prompt, gold, scoring, inference, approval or qualification change; historical core seal and receipt remain unchanged and stale. Owner-requested naming cleanup: purpose-based active paths and display identifiers; original seals and receipts preserved in freeze-history.json and external archive. Current bytes sealed as observed; no inference, new approval, smoke qualification or release. Owner-requested PR #20 CI repair: seal the trailing blank-line removal in derive-cases.py (48bce4dab) and the production durable-worker retry ownership fix in adapter.ts and operation-worker.ts (7a713404b). No corpus, gold, prompt, model or scoring changes. Historical core seal stays unchanged and stale. Offline deterministic scans only; no inference, environment-file reads, approval or live qualification.",
 	"historicalFreeze": "freeze.json",
 	"files": {
 		"apps/web/vite.config.ts": "a113a6329ae930e18172fe8b994b369021cab900e6cf834c38255d539f953c5b",
 		"packages/ai/src/prompts/extraction-review-system.md": "bcd75693cd6d10b2345ba6bffdb47e27d051863fb005bf238b337cc9d21038d3",
 		"packages/ai/src/prompts/review-system.md": "e159279c37b0ff07813cd14bd036d42e657ba4884f0c821861d030cf81727895",
 		"packages/ai/src/prompts/review-verifier.md": "621829b1d36f6e355e1fb2c4689d3e3079ef745a5064833e7836a1bcdff0f3c0",
-		"packages/api/src/features/ai/adapter.ts": "6b9ecced40b5a3c054f7ffc88e0b421bf4bd9b29ab5009b03ef640470b8f53a7",
+		"packages/api/src/features/ai/adapter.ts": "84383413bfeaa2f9089170e296be6aae602bfd1656e5d1701d9b816b13115b06",
 		"packages/api/src/features/ai/hard-facts.ts": "b3d2ad6dfa0763cadb549b60dad5541d70c898b7b115766c421c0ba74e860f52",
-		"packages/api/src/features/ai/operation-worker.ts": "7e74abf3834498c90254472f8ef48837e431cd6de9c3951585e8948f1dcb92fe",
+		"packages/api/src/features/ai/operation-worker.ts": "ba2ebae22693133940783b561ce453e8da2a194f6938c11599bed4be1ab2b374",
 		"packages/api/src/features/ai/payload.ts": "3ee7e56a5e3562c209a0aa571573b9d61e0dda112768b3821a0828f7e796dc44",
 		"packages/api/src/features/ai/review-handlers.ts": "6dcf48ae62e042652fcebe81b54a96b8463de3e4e13ceca96e3ddc950b8fceca",
 		"packages/api/src/features/ai/review-validation.ts": "17e5f6751f281155d7a086868f6a80e5d7587609a16d6edd049be822f06669ea",
@@ -68,7 +68,7 @@
 		"tooling/evaluations/review/corpus.ts": "27ea5eed2537e806d0d54adc9bd400cf045dc22f50ee6fa6e93196f1c768ccbd",
 		"tooling/evaluations/review/decision-table.ts": "7b15f66d4912e961489c890a339bb0d5e9933b6c86aa08a32fc87ea601a1f207",
 		"tooling/evaluations/review/decision.ts": "c1b7af1f213345a91d7b03f2c73237d7d391eb12319a4b9c7d40a2ec7ef71f0b",
-		"tooling/evaluations/review/derive-cases.py": "0d0eb8175e0e6ca7fae4bfe32d903394b306ce22a4d2f72c98e0ab587da67cd9",
+		"tooling/evaluations/review/derive-cases.py": "878cda686a807c62c958c0f7173b2c5b1bfb7add4f7804227043ad43d2684bf9",
 		"tooling/evaluations/review/dispatch.ts": "b535b6fa50a63249f5054d8fa2c753941f919b0b433cae743748b70c8e095521",
 		"tooling/evaluations/review/effort-grid.ts": "10929859af13d3b52550b2fcd9bf1b9da1fb60c96a1f5705ace25056a3c60ea3",
 		"tooling/evaluations/review/execution.ts": "0da464e5f7ce303bd65a28884ec7d950ae13445195c54f1d95af4694d894433a",
@@ -131,144 +131,78 @@
 	"payloadVersion": "t006-payload-v3",
 	"hardFactsVersion": "t006-hard-facts-v10-literal-evidence",
 	"reseal": {
-		"reason": "Owner-requested offline test:ci repair: make the test guard safe under Playwright CommonJS transformation while retaining credential/fetch blocks; distinguish proven pre-dispatch refusal from billed ambiguous post-dispatch reset in the fake transport. The prior Knip freeze changed without rebinding its control receipt; fresh actual scans pass without guard, fixture or gold changes. Historical core identity and receipts stay unchanged and stale shared core bytes do not qualify current runtime. No inference, environment-file reads, staging, commits, approval or live qualification.",
-		"priorFreeze": "tasks-study-before-test-ci-fix.json",
-		"priorFreezeSha256": "92bff3311b0447ed1800c0725d7be6be53e04aec288c5e53f63c6e82cbed5063",
+		"reason": "Owner-requested PR #20 CI repair: seal the trailing blank-line removal in derive-cases.py (48bce4dab) and the production durable-worker retry ownership fix in adapter.ts and operation-worker.ts (7a713404b). No corpus, gold, prompt, model or scoring changes. Historical core seal stays unchanged and stale. Offline deterministic scans only; no inference, environment-file reads, approval or live qualification.",
+		"priorFreeze": "tasks-study-prior-to-ci-repair.json",
+		"priorFreezeSha256": "58b1215f002515216009975ca0d33846650245a79fb201bdf7ed1d21985eda3e",
 		"changedFiles": [
 			{
-				"path": "tooling/evaluations/review/faults.ts",
-				"beforeSha256": "51817182815cd02126e45813380b49a3ce0b16fc2fa0172036e6d5e8f6351cd8",
-				"afterSha256": "ff1d9d869851782b54fb82122c939b3b4a45a18edc2663bcbd89e81b0bf70de1"
+				"path": "packages/api/src/features/ai/adapter.ts",
+				"beforeSha256": "6b9ecced40b5a3c054f7ffc88e0b421bf4bd9b29ab5009b03ef640470b8f53a7",
+				"afterSha256": "84383413bfeaa2f9089170e296be6aae602bfd1656e5d1701d9b816b13115b06"
 			},
 			{
-				"path": "tooling/local/test-ai-guard.mjs",
-				"beforeSha256": "195ef3c764fed0a3b78a3e78ba717a80dcf9b38f7f588d7aaa77096512fcb0fe",
-				"afterSha256": "d6a13569564ce37c275de0960faa39499002aadf51f1392210849a9fab6fcb64"
+				"path": "packages/api/src/features/ai/operation-worker.ts",
+				"beforeSha256": "7e74abf3834498c90254472f8ef48837e431cd6de9c3951585e8948f1dcb92fe",
+				"afterSha256": "ba2ebae22693133940783b561ce453e8da2a194f6938c11599bed4be1ab2b374"
+			},
+			{
+				"path": "tooling/evaluations/review/derive-cases.py",
+				"beforeSha256": "0d0eb8175e0e6ca7fae4bfe32d903394b306ce22a4d2f72c98e0ab587da67cd9",
+				"afterSha256": "878cda686a807c62c958c0f7173b2c5b1bfb7add4f7804227043ad43d2684bf9"
 			}
 		],
 		"sealedControlsRescanned": true,
-		"controlsPass": true,
-		"coreFreeze": "Unchanged historical identity; current deterministic controls 126/126 only, no core freeze qualification.",
-		"approval": "UNAPPROVED; fresh smoke and applicable lead approval required."
+		"coreFreeze": "Historical identity and sealed hashes unchanged; stale as designed.",
+		"approval": "UNAPPROVED; fresh smoke and applicable lead approval required.",
+		"controlsPass": true
 	},
 	"approvalStatus": "UNAPPROVED",
-	"previousFreezeSha256": "6edb3ecad1b74442faba8dbda74fb0809f7a8416790faf225aa003396bad8e53",
+	"previousFreezeSha256": "58b1215f002515216009975ca0d33846650245a79fb201bdf7ed1d21985eda3e",
 	"observedChanges": [
 		{
-			"path": "packages/api/src/features/ai/hard-facts.ts",
-			"previousPath": "packages/api/src/features/ai/hard-facts.ts",
-			"beforeSha256": "35401efad3917dcc3bb66da895c4af19efed9aed27269b7e7027dd9aab288954",
-			"afterSha256": "b3d2ad6dfa0763cadb549b60dad5541d70c898b7b115766c421c0ba74e860f52"
+			"path": "packages/api/src/features/ai/adapter.ts",
+			"beforeSha256": "6b9ecced40b5a3c054f7ffc88e0b421bf4bd9b29ab5009b03ef640470b8f53a7",
+			"afterSha256": "84383413bfeaa2f9089170e296be6aae602bfd1656e5d1701d9b816b13115b06"
 		},
 		{
-			"path": "tooling/evaluations/review/lexical-lost-fact-replay-cli.ts",
-			"previousPath": "tooling/evaluations/review/lexical-rescore-cli.ts",
-			"beforeSha256": "69467bb213a1dd05ede716c4c6708ff63cd6e9e219554be8d4ab50659dd52d50",
-			"afterSha256": "d0eb7a281ae714b3294931834722eee3e2f7047fb8d06aaef49a86d2bd932da2"
+			"path": "packages/api/src/features/ai/operation-worker.ts",
+			"beforeSha256": "7e74abf3834498c90254472f8ef48837e431cd6de9c3951585e8948f1dcb92fe",
+			"afterSha256": "ba2ebae22693133940783b561ce453e8da2a194f6938c11599bed4be1ab2b374"
 		},
 		{
-			"path": "tooling/evaluations/review/lexical-lost-fact-replay.ts",
-			"previousPath": "tooling/evaluations/review/lexical-rescore.ts",
-			"beforeSha256": "99a6ee1652f2e64623095479a7b48bb8ce7eaff4cee35da87bcab2f83cf96155",
-			"afterSha256": "99a6ee1652f2e64623095479a7b48bb8ce7eaff4cee35da87bcab2f83cf96155"
-		},
-		{
-			"path": "tooling/evaluations/review/reguard-cli.ts",
-			"previousPath": "tooling/evaluations/review/reguard-cli.ts",
-			"beforeSha256": "cc92290be65908e0e54c3ab1abe417bd87616becff7d390c45a0c9548a9ba476",
-			"afterSha256": "8f898b9563bedb76dc03e9a54fb51183ac3106e0006a5582a22b4e5d8aa43251"
-		},
-		{
-			"path": "tooling/evaluations/review/repair.ts",
-			"previousPath": "tooling/evaluations/review/repair.ts",
-			"beforeSha256": "2b27e4e6e1d13ec0ae2b80ad563bfe73f1fb9a04f009c3a618f7c83f3d63af59",
-			"afterSha256": "0295667c3a36e1ddb734939d21c0043c58a7ecbf5e7c0b3ae45fd43aec9be5a0"
-		},
-		{
-			"path": "tooling/evaluations/review/rescore-cli.ts",
-			"previousPath": "tooling/evaluations/review/rescore-cli.ts",
-			"beforeSha256": "83df8a088e24d8174f4c07d042adf58254eb8d7c16e8cd6411c89b8399f58888",
-			"afterSha256": "319d6ff9cabf4cf732a9bc08cf6f5b980f9ab4ec27497cdded5945aecc542914"
-		},
-		{
-			"path": "tooling/evaluations/review/study.ts",
-			"previousPath": "tooling/evaluations/review/study.ts",
-			"beforeSha256": "37cf6284daf35e3271d4c8998faa33159fe82836e5c18717a672889301d30878",
-			"afterSha256": "0f1d4ce9ed20546a207fa2820f5dfbc41ee151845c919f881566b7ad30d161bc"
-		},
-		{
-			"path": "tooling/evaluations/review/README.md",
-			"previousPath": "tooling/evaluations/review/README.md",
-			"beforeSha256": "59ea8920e29223c0b6e3a3345c053fa8a667ef0353ae9804d4eef4821d06b9ab",
-			"afterSha256": "9d879df56d22e4f1c3c7b6d861a337e356bd14d9288ecf25feacd0bdb483fd4b"
+			"path": "tooling/evaluations/review/derive-cases.py",
+			"beforeSha256": "0d0eb8175e0e6ca7fae4bfe32d903394b306ce22a4d2f72c98e0ab587da67cd9",
+			"afterSha256": "878cda686a807c62c958c0f7173b2c5b1bfb7add4f7804227043ad43d2684bf9"
 		}
 	],
-	"reason": "naming cleanup",
+	"reason": "Owner-requested PR #20 CI repair: seal the trailing blank-line removal in derive-cases.py (48bce4dab) and the production durable-worker retry ownership fix in adapter.ts and operation-worker.ts (7a713404b). No corpus, gold, prompt, model or scoring changes. Historical core seal stays unchanged and stale. Offline deterministic scans only; no inference, environment-file reads, approval or live qualification.",
 	"changedFiles": [
-		"packages/api/src/features/ai/hard-facts.ts",
-		"tooling/evaluations/review/lexical-lost-fact-replay-cli.ts",
-		"tooling/evaluations/review/lexical-lost-fact-replay.ts",
-		"tooling/evaluations/review/reguard-cli.ts",
-		"tooling/evaluations/review/repair.ts",
-		"tooling/evaluations/review/rescore-cli.ts",
-		"tooling/evaluations/review/study.ts",
-		"tooling/evaluations/review/README.md"
+		"packages/api/src/features/ai/adapter.ts",
+		"packages/api/src/features/ai/operation-worker.ts",
+		"tooling/evaluations/review/derive-cases.py"
 	],
 	"amendment": {
-		"reason": "naming cleanup",
+		"reason": "Owner-requested PR #20 CI repair: seal the trailing blank-line removal in derive-cases.py (48bce4dab) and the production durable-worker retry ownership fix in adapter.ts and operation-worker.ts (7a713404b). No corpus, gold, prompt, model or scoring changes. Historical core seal stays unchanged and stale. Offline deterministic scans only; no inference, environment-file reads, approval or live qualification.",
 		"changes": [
 			{
-				"path": "packages/api/src/features/ai/hard-facts.ts",
-				"previousPath": "packages/api/src/features/ai/hard-facts.ts",
-				"beforeSha256": "35401efad3917dcc3bb66da895c4af19efed9aed27269b7e7027dd9aab288954",
-				"afterSha256": "b3d2ad6dfa0763cadb549b60dad5541d70c898b7b115766c421c0ba74e860f52"
+				"path": "packages/api/src/features/ai/adapter.ts",
+				"beforeSha256": "6b9ecced40b5a3c054f7ffc88e0b421bf4bd9b29ab5009b03ef640470b8f53a7",
+				"afterSha256": "84383413bfeaa2f9089170e296be6aae602bfd1656e5d1701d9b816b13115b06"
 			},
 			{
-				"path": "tooling/evaluations/review/lexical-lost-fact-replay-cli.ts",
-				"previousPath": "tooling/evaluations/review/lexical-rescore-cli.ts",
-				"beforeSha256": "69467bb213a1dd05ede716c4c6708ff63cd6e9e219554be8d4ab50659dd52d50",
-				"afterSha256": "d0eb7a281ae714b3294931834722eee3e2f7047fb8d06aaef49a86d2bd932da2"
+				"path": "packages/api/src/features/ai/operation-worker.ts",
+				"beforeSha256": "7e74abf3834498c90254472f8ef48837e431cd6de9c3951585e8948f1dcb92fe",
+				"afterSha256": "ba2ebae22693133940783b561ce453e8da2a194f6938c11599bed4be1ab2b374"
 			},
 			{
-				"path": "tooling/evaluations/review/lexical-lost-fact-replay.ts",
-				"previousPath": "tooling/evaluations/review/lexical-rescore.ts",
-				"beforeSha256": "99a6ee1652f2e64623095479a7b48bb8ce7eaff4cee35da87bcab2f83cf96155",
-				"afterSha256": "99a6ee1652f2e64623095479a7b48bb8ce7eaff4cee35da87bcab2f83cf96155"
-			},
-			{
-				"path": "tooling/evaluations/review/reguard-cli.ts",
-				"previousPath": "tooling/evaluations/review/reguard-cli.ts",
-				"beforeSha256": "cc92290be65908e0e54c3ab1abe417bd87616becff7d390c45a0c9548a9ba476",
-				"afterSha256": "8f898b9563bedb76dc03e9a54fb51183ac3106e0006a5582a22b4e5d8aa43251"
-			},
-			{
-				"path": "tooling/evaluations/review/repair.ts",
-				"previousPath": "tooling/evaluations/review/repair.ts",
-				"beforeSha256": "2b27e4e6e1d13ec0ae2b80ad563bfe73f1fb9a04f009c3a618f7c83f3d63af59",
-				"afterSha256": "0295667c3a36e1ddb734939d21c0043c58a7ecbf5e7c0b3ae45fd43aec9be5a0"
-			},
-			{
-				"path": "tooling/evaluations/review/rescore-cli.ts",
-				"previousPath": "tooling/evaluations/review/rescore-cli.ts",
-				"beforeSha256": "83df8a088e24d8174f4c07d042adf58254eb8d7c16e8cd6411c89b8399f58888",
-				"afterSha256": "319d6ff9cabf4cf732a9bc08cf6f5b980f9ab4ec27497cdded5945aecc542914"
-			},
-			{
-				"path": "tooling/evaluations/review/study.ts",
-				"previousPath": "tooling/evaluations/review/study.ts",
-				"beforeSha256": "37cf6284daf35e3271d4c8998faa33159fe82836e5c18717a672889301d30878",
-				"afterSha256": "0f1d4ce9ed20546a207fa2820f5dfbc41ee151845c919f881566b7ad30d161bc"
-			},
-			{
-				"path": "tooling/evaluations/review/README.md",
-				"previousPath": "tooling/evaluations/review/README.md",
-				"beforeSha256": "59ea8920e29223c0b6e3a3345c053fa8a667ef0353ae9804d4eef4821d06b9ab",
-				"afterSha256": "9d879df56d22e4f1c3c7b6d861a337e356bd14d9288ecf25feacd0bdb483fd4b"
+				"path": "tooling/evaluations/review/derive-cases.py",
+				"beforeSha256": "0d0eb8175e0e6ca7fae4bfe32d903394b306ce22a4d2f72c98e0ab587da67cd9",
+				"afterSha256": "878cda686a807c62c958c0f7173b2c5b1bfb7add4f7804227043ad43d2684bf9"
 			}
 		],
 		"sealedControlsRescanned": true,
 		"approval": "UNAPPROVED; fresh smoke and applicable lead approval required.",
-		"coreFreeze": "Historical study ID and sealed byte hashes preserved; current runtime remains stale.",
+		"coreFreeze": "Historical identity and sealed hashes unchanged; stale as designed.",
 		"controlsPass": true
 	}
 }

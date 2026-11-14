@@ -1,9 +1,9 @@
 {
 	"study": "tasks-v1",
-	"freezeHash": "13cc8851b948363969dfe37c541779d77efaac0f27e20f1479053808308ab066",
-	"reason": "naming cleanup",
-	"controlsBasis": "Fresh deterministic/scripted scans; not independent semantic evidence or live qualification.",
-	"scannedAt": "2026-11-14T06:13:43.391Z",
+	"freezeHash": "5b96876041eb3811e7802d34f32ecf1636a77fa8b4b7e34108af178098fc2fd2",
+	"reason": "Owner-requested PR #20 CI repair: seal the trailing blank-line removal in derive-cases.py (48bce4dab) and the production durable-worker retry ownership fix in adapter.ts and operation-worker.ts (7a713404b). No corpus, gold, prompt, model or scoring changes. Historical core seal stays unchanged and stale. Offline deterministic scans only; no inference, environment-file reads, approval or live qualification.",
+	"controlsBasis": "Fresh deterministic/scripted scans: tasks 1056, core 126, canaries 108. No semantic evidence or live qualification.",
+	"scannedAt": "2026-11-14T07:23:33.860Z",
 	"all": {
 		"checked": 1056,
 		"pass": true,

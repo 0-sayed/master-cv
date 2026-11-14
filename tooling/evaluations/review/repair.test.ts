@@ -1,52 +1,58 @@
+import { existsSync } from "node:fs";
 import { mkdtemp, mkdir, copyFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { expect, it } from "vite-plus/test";
+import { describe, expect, it } from "vite-plus/test";
 import { cases } from "./corpus";
 import { createRepairPlan, readRepairSource, validateRepairFolder } from "./repair";
 import { runBenchmark, type RawRecord } from "./runner";
+import { syntheticRepairFixture } from "./synthetic-test-fixtures";
 
 const source = fileURLToPath(new URL("../results/2026-11-13T06-30-48.077Z-c283d9cd", import.meta.url));
-it("binds migration to the exact source manifest and immutable journal prefix", async () => {
-	const original = await readRepairSource(source);
-	const plan = createRepairPlan(original.manifest, original.history);
-	expect(plan.slots).toHaveLength(540);
-	expect(plan.slots.filter((s) => s.category === "extraction" && s.action === "rerun")).toHaveLength(135);
-	expect(plan.slots.filter((s) => s.action === "rerun")).toHaveLength(540);
-	expect(plan.slots.filter((s) => s.action === "reuse")).toHaveLength(0);
-	expect(plan.slots.filter((s) => s.action === "model-error")).toHaveLength(0);
-	await expect(readRepairSource(source, JSON.stringify(original.manifest) + " ")).rejects.toThrow(
-		"REPAIR_SOURCE_MISMATCH",
-	);
-});
-it("rejects a changed repair identity, receipt or historical journal", async () => {
-	const original = await readRepairSource(source);
-	const plan = createRepairPlan(original.manifest, original.history);
-	const folder = await mkdtemp(join(tmpdir(), "study-migration-test-"));
-	try {
-		await mkdir(join(folder, "source"));
-		for (const name of ["manifest.json", "calls.jsonl"])
-			await copyFile(join(source, name), join(folder, "source", name));
-		await writeFile(join(folder, "calls.jsonl"), original.journalBody);
-		await writeFile(join(folder, "repair-plan.json"), JSON.stringify(plan));
-		await expect(validateRepairFolder(folder, plan.toStudyHash)).resolves.toMatchObject({ plan });
-		await expect(validateRepairFolder(folder, "changed")).rejects.toThrow("REPAIR_TARGET_MISMATCH");
-		await writeFile(join(folder, "repair-plan.json"), JSON.stringify({ ...plan, slots: [] }));
-		await expect(validateRepairFolder(folder, plan.toStudyHash)).rejects.toThrow("REPAIR_TARGET_MISMATCH");
-		await writeFile(join(folder, "repair-plan.json"), JSON.stringify(plan));
-		await writeFile(join(folder, "calls.jsonl"), "");
-		await expect(validateRepairFolder(folder, plan.toStudyHash)).rejects.toThrow("REPAIR_TARGET_MISMATCH");
-	} finally {
-		await rm(folder, { recursive: true, force: true });
-	}
+describe.skipIf(!existsSync(source))("local evidence replay: pinned repair source", () => {
+	it("binds migration to the exact source manifest and immutable journal prefix", async () => {
+		const original = await readRepairSource(source);
+		const plan = createRepairPlan(original.manifest, original.history);
+		expect(plan.slots).toHaveLength(540);
+		expect(plan.slots.filter((s) => s.category === "extraction" && s.action === "rerun")).toHaveLength(135);
+		expect(plan.slots.filter((s) => s.action === "rerun")).toHaveLength(540);
+		expect(plan.slots.filter((s) => s.action === "reuse")).toHaveLength(0);
+		expect(plan.slots.filter((s) => s.action === "model-error")).toHaveLength(0);
+		await expect(readRepairSource(source, JSON.stringify(original.manifest) + " ")).rejects.toThrow(
+			"REPAIR_SOURCE_MISMATCH",
+		);
+	});
+	it("rejects a changed repair identity, receipt or historical journal", async () => {
+		const original = await readRepairSource(source);
+		const plan = createRepairPlan(original.manifest, original.history);
+		const folder = await mkdtemp(join(tmpdir(), "study-migration-test-"));
+		try {
+			await mkdir(join(folder, "source"));
+			for (const name of ["manifest.json", "calls.jsonl"])
+				await copyFile(join(source, name), join(folder, "source", name));
+			await writeFile(join(folder, "calls.jsonl"), original.journalBody);
+			await writeFile(join(folder, "repair-plan.json"), JSON.stringify(plan));
+			await expect(validateRepairFolder(folder, plan.toStudyHash)).resolves.toMatchObject({ plan });
+			await expect(validateRepairFolder(folder, "changed")).rejects.toThrow("REPAIR_TARGET_MISMATCH");
+			await writeFile(join(folder, "repair-plan.json"), JSON.stringify({ ...plan, slots: [] }));
+			await expect(validateRepairFolder(folder, plan.toStudyHash)).rejects.toThrow("REPAIR_TARGET_MISMATCH");
+			await writeFile(join(folder, "repair-plan.json"), JSON.stringify(plan));
+			await writeFile(join(folder, "calls.jsonl"), "");
+			await expect(validateRepairFolder(folder, plan.toStudyHash)).rejects.toThrow("REPAIR_TARGET_MISMATCH");
+		} finally {
+			await rm(folder, { recursive: true, force: true });
+		}
+	});
 });
 it("does not disable repaired variants using invalidated historical extraction outcomes", async () => {
-	const { manifest, history } = await readRepairSource(source);
+	const { manifest, history } = await syntheticRepairFixture();
 	const plan = createRepairPlan(manifest, history);
 	const old = history.previousCalls
 		.filter((c) => c.provider === "together" && c.category === "extraction")
-		.slice(0, 10);
+		.slice(0, 10)
+		.map((call) => ({ ...call, outcome: "invalid", schemaValid: false, verifierAccepted: false }));
+	expect(old).toHaveLength(10);
 	const model = manifest.models.find((m) => m.model === old[0]?.model && m.reasoning === old[0]?.reasoning);
 	if (!model || !old[0]) throw new Error("fixture");
 	let sends = 0;
@@ -67,7 +73,7 @@ it("does not disable repaired variants using invalidated historical extraction o
 	expect(sends).toBe(1);
 });
 it("repurchases an invalidated extraction writer once and keeps prior charges on both resumes", async () => {
-	const { manifest, history } = await readRepairSource(source);
+	const { manifest, history } = await syntheticRepairFixture();
 	const plan = createRepairPlan(manifest, history);
 	const old = history.previousCalls.find((c) => c.provider === "together" && c.category === "extraction");
 	if (!old) throw new Error("fixture");
@@ -110,7 +116,7 @@ it("repurchases an invalidated extraction writer once and keeps prior charges on
 	expect(again.calls).toEqual(first.calls);
 });
 it("keeps all unfinished reservations held before any repaired dispatch", async () => {
-	const { manifest, history } = await readRepairSource(source);
+	const { manifest, history } = await syntheticRepairFixture();
 	const plan = createRepairPlan(manifest, history);
 	let sends = 0;
 	const result = await runBenchmark({
@@ -134,7 +140,7 @@ it("keeps all unfinished reservations held before any repaired dispatch", async 
 	expect(sends).toBe(0);
 });
 it("counts invalidated writers as new work under the unverified dispatch limit", async () => {
-	const { manifest, history } = await readRepairSource(source);
+	const { manifest, history } = await syntheticRepairFixture();
 	const plan = createRepairPlan(manifest, history);
 	const old = history.previousCalls
 		.filter((c) => c.provider === "google-vertex" && c.category === "extraction" && c.runIndex === 0)

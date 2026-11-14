@@ -1,19 +1,14 @@
-import { fileURLToPath } from "node:url";
 import { expect, it } from "vite-plus/test";
 import { loadModels } from "./config";
 import { cases } from "./corpus";
-import { readJournal } from "./journal";
-import { createRepairPlan, readRepairSource } from "./repair";
+import { createRepairPlan } from "./repair";
 import { runBenchmark, type RawRecord } from "./runner";
+import { syntheticRepairFixture } from "./synthetic-test-fixtures";
 
-it("retries the nine legacy OpenAI extraction rejections under an explicit identity repair and reuses settled wording", async () => {
-	const history = await readJournal(
-		fileURLToPath(new URL("../results/2026-11-13T06-30-48.077Z-c283d9cd/calls.jsonl", import.meta.url)),
-	);
+it("retries nine synthetic legacy OpenAI extraction rejections under an explicit identity repair and reuses settled wording", async () => {
+	const source = await syntheticRepairFixture();
+	const history = source.history;
 	const latest = [...new Map(history.previousCalls.map((c) => [c.key, c])).values()];
-	const source = await readRepairSource(
-		fileURLToPath(new URL("../results/2026-11-13T06-30-48.077Z-c283d9cd", import.meta.url)),
-	);
 	const repairPlan = createRepairPlan(source.manifest, source.history);
 	const rejected = latest.filter((c) => c.outcome === "unsupported");
 	expect(rejected).toHaveLength(9);
@@ -66,9 +61,7 @@ it("retries the nine legacy OpenAI extraction rejections under an explicit ident
 });
 
 it("refuses a changed session identity without an explicit audited repair", async () => {
-	const source = await readRepairSource(
-		fileURLToPath(new URL("../results/2026-11-13T06-30-48.077Z-c283d9cd", import.meta.url)),
-	);
+	const source = await syntheticRepairFixture();
 	const rejected = source.history.previousCalls.find((c) => c.outcome === "unsupported");
 	if (!rejected) throw new Error("fixture");
 	await expect(

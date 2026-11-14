@@ -1,6 +1,5 @@
-import type { BenchmarkArtifact } from "./runner";
-import { readFileSync } from "node:fs";
-import { expect, it } from "vite-plus/test";
+import { existsSync } from "node:fs";
+import { describe, expect, it } from "vite-plus/test";
 import { blindCalls, humanDefenceCounts, decisionHumanScores } from "./blind";
 import { loadModels } from "./config";
 import { cases, evaluateOutput, goldOutput } from "./corpus";
@@ -13,15 +12,19 @@ import { runBenchmark } from "./runner";
 import { assessSmoke, smokeCases } from "./study";
 import { verifierAuditFault } from "./verifier";
 
-const smoke: BenchmarkArtifact = JSON.parse(
-	readFileSync(new URL("../results/2026-11-12T17-46-52.507Z-fd7f6fd3/results.json", import.meta.url), "utf8"),
-);
-const t07 = required(
-	smoke.calls.find((c) => c.caseId === "r2-t07-injection" && c.model.includes("gemini") && c.reasoning === "low"),
-);
-it("rejects and scores the exact recorded number-free fabrication", () => {
-	const c = required(cases.find((c) => c.id === t07.caseId));
-	const replay = evaluateOutput(c, JSON.parse(t07.output));
+const smoke = await runBenchmark({
+	models: [required(loadModels()[0])],
+	cases: [required(cases.find((c) => c.id === "r2-t07-injection"))],
+	runs: 1,
+	fake: true,
+	budgetUsd: 10,
+});
+it("rejects and scores number-free fabrication from an injection instruction", () => {
+	const c = required(cases.find((c) => c.id === "r2-t07-injection"));
+	const replay = evaluateOutput(
+		c,
+		goldOutput({ ...c, requiresQuestion: false, safeText: `${c.safeText} I took on a much larger teaching load.` }),
+	);
 	expect(replay.guardAccepted).toBe(false);
 	expect(replay.score?.unsupportedClaims.length).toBeGreaterThan(0);
 });
@@ -258,27 +261,28 @@ it("records writer errors as data without rejecting an otherwise complete smoke"
 	};
 	expect(() => assessSmoke(throttled, models, smokeCases(cases, models))).not.toThrow();
 });
-it.each(["2026-11-12T17-23-39.924Z-1d8e7b6f", "2026-11-12T17-46-52.507Z-fd7f6fd3"])(
-	"replays every recorded session offline: %s",
-	async (run) => {
-		const replay = await replayRecordedSmoke(new URL(`../results/${run}/`, import.meta.url));
-		expect(replay.calls).toHaveLength(run.includes("17-46") ? 24 : 20);
-		expect(replay.calls.every((c) => c.costMicros !== null)).toBe(true);
-		if (run.includes("17-46")) {
-			const fault = required(
-				replay.calls.find(
-					(c) => c.model.includes("gemini") && c.reasoning === "medium" && c.caseId === "r2-t06-injection",
-				),
-			);
-			expect(fault.adjudication).toBe("verifier-fault");
-			expect(fault.score?.lostFacts).toEqual([]);
-			const invented = required(
-				replay.calls.find(
-					(c) => c.model.includes("gemini") && c.reasoning === "low" && c.caseId === "r2-t07-injection",
-				),
-			);
-			expect(invented.guardAccepted).toBe(false);
-			expect(invented.score?.unsupportedClaims.length).toBeGreaterThan(0);
-		}
-	},
-);
+for (const run of ["2026-11-12T17-23-39.924Z-1d8e7b6f", "2026-11-12T17-46-52.507Z-fd7f6fd3"]) {
+	describe.skipIf(!existsSync(new URL(`../results/${run}/`, import.meta.url)))(`local evidence replay: ${run}`, () => {
+		it("replays every recorded session offline", async () => {
+			const replay = await replayRecordedSmoke(new URL(`../results/${run}/`, import.meta.url));
+			expect(replay.calls).toHaveLength(run.includes("17-46") ? 24 : 20);
+			expect(replay.calls.every((c) => c.costMicros !== null)).toBe(true);
+			if (run.includes("17-46")) {
+				const fault = required(
+					replay.calls.find(
+						(c) => c.model.includes("gemini") && c.reasoning === "medium" && c.caseId === "r2-t06-injection",
+					),
+				);
+				expect(fault.adjudication).toBe("verifier-fault");
+				expect(fault.score?.lostFacts).toEqual([]);
+				const invented = required(
+					replay.calls.find(
+						(c) => c.model.includes("gemini") && c.reasoning === "low" && c.caseId === "r2-t07-injection",
+					),
+				);
+				expect(invented.guardAccepted).toBe(false);
+				expect(invented.score?.unsupportedClaims.length).toBeGreaterThan(0);
+			}
+		});
+	});
+}

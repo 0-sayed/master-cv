@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { expect, it } from "vite-plus/test";
 import snapshot from "./catalog-snapshot.json";
 import { loadModels } from "./config";
@@ -9,6 +8,7 @@ import plan from "./forecast.json";
 import { renderReport } from "./report";
 import { required } from "./required";
 import { runBenchmark } from "./runner";
+import { syntheticUsageFixture } from "./synthetic-test-fixtures";
 import { vertexFixture } from "./vertex-test-fixture";
 
 it("uses equal visible allowances with effort-scaled request caps and records them in the report", async () => {
@@ -30,12 +30,10 @@ it("uses equal visible allowances with effort-scaled request caps and records th
 	expect(html).toContain("verifier low: 5,120");
 });
 
-it("labels unmeasured efforts and scales only writer completion tokens, preserving the verifier", () => {
+it("labels unmeasured efforts and scales only writer completion tokens, preserving the verifier", async () => {
 	const models = loadModels();
 	const luna = required(models.find((m) => m.model === "openai/gpt-6-luna" && m.reasoning === "high"));
-	const smoke = JSON.parse(
-		readFileSync(new URL("../results/2026-11-12T17-46-52.507Z-fd7f6fd3/results.json", import.meta.url), "utf8"),
-	);
+	const smoke = await syntheticUsageFixture();
 	const projection = forecastFromSmoke(
 		smoke,
 		models,

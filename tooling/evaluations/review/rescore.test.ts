@@ -1,34 +1,53 @@
-import { readFileSync } from "node:fs";
-import { expect, it } from "vite-plus/test";
+import { existsSync, readFileSync } from "node:fs";
+import { describe, expect, it } from "vite-plus/test";
 import { cases } from "./corpus";
 import { rescoreJournal } from "./rescore";
+import { syntheticJournalFixture } from "./synthetic-test-fixtures";
 
-const journal = readFileSync(
-	new URL("../results/2026-11-13T13-29-43.354Z-27e0cb13/calls.jsonl", import.meta.url),
-	"utf8",
-);
-it("re-scores the latest 132 durable sessions without claiming missing/payload-affected judgments", () => {
+const journal = await syntheticJournalFixture();
+const evidence = new URL("../results/2026-11-13T13-29-43.354Z-27e0cb13/", import.meta.url);
+it("keeps synthetic edited outputs pending reverification and reports capacity without claiming live quality", () => {
 	const r = rescoreJournal(journal);
-	expect(r.sessions).toHaveLength(132);
-	expect(r.scoredEvents).toBe(145);
-	expect(r.sessions.filter((s) => s.verifierFault === "VERIFIER_TRUNCATED")).toHaveLength(4);
-	expect(r.writerErrors).toEqual({ schema: 1, truncated: 1 });
-	expect(
-		r.sessions
-			.filter((s) => s.category === "extraction" && s.schemaValid)
-			.every((s) => s.needsReverification.includes("incomplete-response-payload")),
-	).toBe(true);
-	expect(r.sessions.some((s) => s.before.safety === false && s.after.savedSafety === true)).toBe(true);
-	expect(
-		r.sessions
-			.filter((s) => s.needsReverification.includes("retention-not-applicable-with-edits"))
-			.every((s) => s.after.safety === null),
-	).toBe(true);
-	expect(r.capacity.schemaValidOutputs).toBe(130);
+	expect(r.sessions).toHaveLength(2);
+	expect(r.scoredEvents).toBe(2);
+	expect(r.writerErrors).toEqual({ schema: 0, truncated: 0 });
+	expect(r.sessions.filter((s) => s.category === "extraction")).toHaveLength(1);
+	for (const session of r.sessions) {
+		expect(session.schemaValid).toBe(true);
+		expect(session.needsReverification).toContain("incomplete-response-payload");
+		expect(session.after.safety).toBeNull();
+		expect(session.after.quality).toBeNull();
+	}
+	expect(r.capacity.schemaValidOutputs).toBe(2);
 	expect(r.capacity.inputLimitFailures).toEqual([]);
 	expect(r.capacity.compactOutputBudgetFailures).toEqual([]);
 	expect(r.capacity.provesLiveNonTruncation).toBe(false);
-	expect(r.table).toHaveLength(44);
+	expect(r.table).toHaveLength(2);
+});
+describe.skipIf(!existsSync(evidence))("local evidence replay: completed smoke rescore", () => {
+	it("re-scores the latest 132 durable sessions without claiming missing/payload-affected judgments", () => {
+		const r = rescoreJournal(readFileSync(new URL("calls.jsonl", evidence), "utf8"));
+		expect(r.sessions).toHaveLength(132);
+		expect(r.scoredEvents).toBe(145);
+		expect(r.sessions.filter((s) => s.verifierFault === "VERIFIER_TRUNCATED")).toHaveLength(4);
+		expect(r.writerErrors).toEqual({ schema: 1, truncated: 1 });
+		expect(
+			r.sessions
+				.filter((s) => s.category === "extraction" && s.schemaValid)
+				.every((s) => s.needsReverification.includes("incomplete-response-payload")),
+		).toBe(true);
+		expect(r.sessions.some((s) => s.before.safety === false && s.after.savedSafety === true)).toBe(true);
+		expect(
+			r.sessions
+				.filter((s) => s.needsReverification.includes("retention-not-applicable-with-edits"))
+				.every((s) => s.after.safety === null),
+		).toBe(true);
+		expect(r.capacity.schemaValidOutputs).toBe(130);
+		expect(r.capacity.inputLimitFailures).toEqual([]);
+		expect(r.capacity.compactOutputBudgetFailures).toEqual([]);
+		expect(r.capacity.provesLiveNonTruncation).toBe(false);
+		expect(r.table).toHaveLength(44);
+	});
 });
 it("refuses a missing durable writer output instead of manufacturing one", () => {
 	const lines = journal.trim().split("\n");
