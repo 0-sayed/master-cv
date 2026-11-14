@@ -46,6 +46,7 @@ vi.mock("./use-readiness", () => ({
 		setIntroduced: vi.fn(),
 	}),
 }));
+vi.mock("./job-match", () => ({ JobMatchTab: () => null }));
 vi.mock("./writing-tab", () => ({ WritingTab: () => null }));
 vi.mock("@reactive-resume/ui/components/toast", () => ({ toast: { add: vi.fn() } }));
 

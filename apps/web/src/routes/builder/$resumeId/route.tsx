@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect } from "react";
 import z from "zod";
+import { proposalTargetSchema } from "@reactive-resume/schema/resume/ai-review";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { EditorShell } from "./-components/editor-shell";
 import { QuerySkeleton, RouteSkeleton } from "@/components/query-skeleton";
@@ -12,6 +13,7 @@ import { formatPageTitle } from "@/libs/route-titles";
 import { createNoindexFollowMeta } from "@/libs/seo";
 
 const searchSchema = z.object({
+	source: proposalTargetSchema.optional().catch(undefined),
 	// Write is the default and stays out of the URL.
 	mode: z.enum(EDITOR_MODES).optional().catch(undefined),
 	// Opens History on this version, read-only; Applications' "Open" on what was sent links here.

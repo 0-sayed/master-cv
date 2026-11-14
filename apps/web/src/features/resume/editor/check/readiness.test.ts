@@ -39,3 +39,12 @@ it("contains synchronous failures before a readiness promise is returned", async
 	await vi.advanceTimersByTimeAsync(1);
 	expect(publish).not.toHaveBeenCalled();
 });
+
+import { emptyReadiness } from "@reactive-resume/resume/ats";
+import { mergeDocumentReadiness } from "./readiness";
+it("preserves the independently published job result when PDF work completes", () => {
+	const job = { ...emptyReadiness("job"), checker: "selected-job-B" };
+	const before = { pdf: emptyReadiness("pdf"), writing: emptyReadiness("writing"), job };
+	const completed = { ...before, job: emptyReadiness("job") };
+	expect(mergeDocumentReadiness(before, completed).job).toBe(job);
+});

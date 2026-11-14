@@ -1,15 +1,17 @@
 import type { ReadinessResults } from "@reactive-resume/resume/ats";
 import type { PdfAtsReport } from "@reactive-resume/resume/ats-pdf";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { create } from "zustand/react";
-import { emptyReadiness, invalidateReadiness } from "@reactive-resume/resume/ats";
+import { emptyReadiness, invalidateReadiness, jobReadiness } from "@reactive-resume/resume/ats";
 import { useResumeData, isEditableElementFocused } from "../../builder/draft";
 import { hasResumePreviewContent } from "../../preview/resume-thumbnail.shared";
 import { TYPING_DEBOUNCE_MS, UPDATE_DEBOUNCE_MS } from "../../preview/timing";
 import { useEditorStore, sameEditorIdentity } from "../store";
 import { evaluateReadiness } from "./evaluate";
 import { useCheckIntroduction } from "./introduction";
-import { scheduleReadiness } from "./readiness";
+import { mergeDocumentReadiness, scheduleReadiness } from "./readiness";
+import { orpc } from "@/libs/orpc/client";
 
 const empty = (): ReadinessResults => ({
 	pdf: emptyReadiness("pdf"),
@@ -32,6 +34,66 @@ export function useReadinessLifecycle() {
 	const identity = useEditorStore((state) => state.identity);
 	const data = useResumeData();
 	const retry = useReadinessStore((state) => state.retry);
+	const jobOptions = orpc.career.jobTargets.evidence.queryOptions({ input: { resumeId: identity?.resumeId ?? "" } });
+	const job = useQuery({
+		...jobOptions,
+		queryKey: [...jobOptions.queryKey, identity?.ownerId, identity?.baseRevision, identity?.editGeneration, retry],
+		enabled: Boolean(identity),
+		staleTime: 0,
+	});
+	useEffect(() => {
+		if (!identity || !data) return;
+		let cancelled = false;
+		if (!job.data?.literal) {
+			useReadinessStore.setState((state) => ({
+				results: {
+					...state.results,
+					job: {
+						...emptyReadiness("job"),
+						...(job.error ? { state: "failed" as const } : job.isFetching ? { state: "checking" as const } : {}),
+					},
+				},
+			}));
+			return;
+		}
+		const report = job.data.literal;
+		void crypto.subtle
+			.digest("SHA-256", new TextEncoder().encode(JSON.stringify(data)))
+			.then((bytes) => {
+				if (cancelled || !sameEditorIdentity(identity, useEditorStore.getState().identity)) return;
+				const hash = Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, "0")).join("");
+				const result = jobReadiness(
+					{
+						...identity,
+						baseRevision: report.identity.resumeRevision,
+						contentHash: report.identity.contentHash,
+						jobId: report.identity.jobId,
+						jobRevision: report.identity.jobRevision,
+						rubricVersion: report.identity.rubricVersion,
+						normalizationVersion: report.identity.normalizationVersion,
+					},
+					report,
+				);
+				useReadinessStore.setState((state) => ({
+					results: {
+						...state.results,
+						job:
+							hash === report.identity.contentHash
+								? result
+								: invalidateReadiness({ ...state.results, job: result }, "job").job,
+					},
+				}));
+			})
+			.catch(() => {
+				if (!cancelled)
+					useReadinessStore.setState((state) => ({
+						results: { ...state.results, job: { ...emptyReadiness("job"), state: "failed" } },
+					}));
+			});
+		return () => {
+			cancelled = true;
+		};
+	}, [identity, data, job.data, job.error, job.isFetching]);
 	useEffect(() => {
 		if (!identity || !data) {
 			useReadinessStore.setState({ results: empty(), pdfReport: null });
@@ -59,7 +121,11 @@ export function useReadinessLifecycle() {
 				return evaluateReadiness({ identity, data }, signal);
 			},
 			(result) => {
-				if (current()) useReadinessStore.setState(result);
+				if (current())
+					useReadinessStore.setState((state) => ({
+						...result,
+						results: mergeDocumentReadiness(state.results, result.results),
+					}));
 			},
 			isEditableElementFocused() ? TYPING_DEBOUNCE_MS : UPDATE_DEBOUNCE_MS,
 		);

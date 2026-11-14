@@ -31,6 +31,7 @@ import { useEditorMode } from "@/features/resume/editor/use-editor-mode";
 import { useResumeWebMcpTools } from "@/features/resume/editor/webmcp";
 import { revealSelectionInPanel } from "@/features/resume/editor/write/reveal";
 import { clearPdfArtifacts } from "@/features/resume/export/pdf-artifact";
+import { resolveSourceSelection } from "@/features/resume/variants/source-navigation";
 
 /**
  * The editor: a 56px bar over a 400px panel and the page canvas (desktop). On tablets the panel is a 380px
@@ -78,6 +79,7 @@ export function EditorShell() {
 		[resetEditor],
 	);
 	useOpenVersionFromUrl();
+	useOpenSourceFromUrl();
 
 	useResumeWebMcpTools(routeApi.useParams().resumeId);
 
@@ -339,4 +341,19 @@ function SelectionBar({ onEdit }: { onEdit: () => void }) {
 			</button>
 		</div>
 	);
+}
+
+function useOpenSourceFromUrl() {
+	const { source } = routeApi.useSearch();
+	useEffect(() => {
+		if (!source) return;
+		const data = useResumeStore.getState().resume?.data;
+		if (!data) return;
+		const selection = resolveSourceSelection(data, source);
+		if (!selection) return;
+		const editor = useEditorStore.getState();
+		editor.setMobileView("write");
+		editor.setDrawerOpen(true);
+		revealSelectionInPanel(selection);
+	}, [source]);
 }

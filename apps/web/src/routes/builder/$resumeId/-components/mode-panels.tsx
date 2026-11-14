@@ -8,6 +8,7 @@ import { OfflineBanner } from "@/features/resume/editor/save-status";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { selectionFromPanelElement } from "@/features/resume/editor/write/reveal";
 import { WritePanel } from "@/features/resume/editor/write/write-panel";
+import { VariantBanner } from "@/features/resume/variants/variant-banner";
 
 function WriteMode() {
 	const select = useEditorStore((state) => state.select);
@@ -29,6 +30,7 @@ function WriteMode() {
 }
 
 export function ModePanel({ mode }: { mode: EditorMode }) {
+	const resumeId = useResumeStore((state) => state.resume?.id);
 	const conflict = useResumeStore((state) => state.saveStatus === "conflict");
 	const recovery = useResumeStore((state) => !!state.recoveryDraft);
 	if (conflict) return <SaveConflict />;
@@ -36,6 +38,7 @@ export function ModePanel({ mode }: { mode: EditorMode }) {
 	return (
 		<>
 			<OfflineBanner className="mx-4 mt-4 w-auto" />
+			{resumeId && <VariantBanner resumeId={resumeId} />}
 			{mode === "design" ? <DesignPanel /> : mode === "check" ? <CheckPanel /> : <WriteMode />}
 		</>
 	);

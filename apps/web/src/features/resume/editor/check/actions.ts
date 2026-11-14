@@ -13,7 +13,7 @@ import { keepPdfFinding } from "./pdf-findings";
 import { useResumeStore } from "@/features/resume/builder/draft";
 
 /** The author's Check choices on a draft, created on first use. */
-export function checkStateOf(draft: ResumeData) {
+function checkStateOf(draft: ResumeData) {
 	draft.metadata.check ??= { ignored: [], hiddenTerms: [] };
 	return draft.metadata.check;
 }

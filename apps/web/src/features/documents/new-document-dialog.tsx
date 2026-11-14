@@ -47,7 +47,7 @@ type Step =
 	| { name: "failed"; file: File; message: string }
 	| { name: "copy" };
 
-type OpenResumeOptions = { withAssistant?: boolean; importedFrom?: string };
+type OpenResumeOptions = { importedFrom?: string };
 
 const ACCEPT = ".pdf,.docx,.json,.zip,application/pdf,application/json,application/zip";
 
@@ -161,23 +161,19 @@ function useResumeImport(
  */
 function LegacyNewDocumentDialog({ data, onStart }: { data?: NewDocumentDialogData | undefined; onStart: () => void }) {
 	const navigate = useNavigate();
-	const providerState = useHasUsableAiProvider();
-	const { hasUsableProvider } = providerState;
-	const closeDialog = useDialogStore((state) => state.closeDialog);
 	const markNew = useNewDocumentsStore((state) => state.markNew);
+	const providerState = useHasUsableAiProvider();
+	const closeDialog = useDialogStore((state) => state.closeDialog);
 	const [step, setStep] = useState<Step>({ name: data?.step ?? "choose" } as Step);
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	// A copy made for a job opens with the assistant ready to tailor it.
-	const openResume = (resumeId: string, { withAssistant = false, importedFrom }: OpenResumeOptions = {}) => {
+	// Opening a saved import never starts an AI review.
+	const openResume = (resumeId: string, { importedFrom }: OpenResumeOptions = {}) => {
 		closeDialog();
 		void navigate({
 			to: "/builder/$resumeId",
 			params: { resumeId },
-			search: {
-				...(withAssistant ? { assistant: "new" } : {}),
-				...(importedFrom ? { imported: importedFrom } : {}),
-			},
+			search: importedFrom ? { imported: importedFrom } : {},
 		});
 	};
 	const openLetter = (coverLetterId: string) => {
@@ -230,16 +226,27 @@ function LegacyNewDocumentDialog({ data, onStart }: { data?: NewDocumentDialogDa
 			{/* Each step fades up into place as it replaces the last; the dialog's height changes in the same frame. */}
 			{step.name === "copy" ? (
 				<div key="copy" className={cn(ENTER_CLASS, "grid gap-4")}>
-					<CopyForJob
-						initialSourceId={data?.sourceResumeId}
-						initialJobId={data?.applicationId}
-						onBack={onStart}
-						onCreated={(resumeId, forJob) => {
-							markNew(resumeId);
-							void refreshDocuments();
-							openResume(resumeId, { withAssistant: forJob && hasUsableProvider });
-						}}
-					/>
+					{data?.applicationId ? (
+						<CopyForApplication
+							initialSourceId={data.sourceResumeId}
+							initialJobId={data.applicationId}
+							onBack={onStart}
+							onCreated={(id) => {
+								markNew(id);
+								void refreshDocuments();
+								openResume(id);
+							}}
+						/>
+					) : (
+						<CopyForJob
+							initialSourceId={data?.sourceResumeId}
+							onBack={onStart}
+							onContinue={(resumeId) => {
+								closeDialog();
+								void navigate({ to: "/dashboard/resumes/$resumeId/job", params: { resumeId } });
+							}}
+						/>
+					)}
 				</div>
 			) : step.name !== "choose" ? (
 				<ImportStep
@@ -543,7 +550,98 @@ function ImportProgress({ stage, notes }: { stage: number; notes: string[] }) {
 	);
 }
 
+function CopySourcePicker({
+	loaded,
+	resumes,
+	sourceId,
+	onSelect,
+}: {
+	loaded: boolean;
+	resumes: Array<{ id: string; name: string; updatedAt: Date }>;
+	sourceId: string | undefined;
+	onSelect: (id: string) => void;
+}) {
+	const { i18n } = useLingui();
+	return (
+		<fieldset className="grid gap-1.5">
+			<legend className="mb-1.5 type-metadata font-medium text-ink-2">
+				<Trans>Start from</Trans>
+			</legend>
+			{loaded && resumes.length === 0 && (
+				<p className="type-body text-ink-2">
+					<Trans>
+						You don't have a resume to copy yet. Import or create a resume first, then return to copy it for this job.
+					</Trans>
+				</p>
+			)}
+			<div className="grid max-h-56 gap-1 overflow-y-auto">
+				{resumes.map((resume) => (
+					<label
+						key={resume.id}
+						className={cn(
+							"relative flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors duration-quick",
+							resume.id === sourceId ? "border-accent bg-accent-soft" : "border-line hover:bg-hover",
+						)}
+					>
+						<input
+							type="radio"
+							name="copy-source"
+							className="sr-only"
+							checked={resume.id === sourceId}
+							onChange={() => {
+								onSelect(resume.id);
+							}}
+						/>
+						<Icon name="file-text" className="text-ink-2" />
+						<span className="grid min-w-0 flex-1">
+							<span className="truncate type-body font-medium">{resume.name}</span>
+							<span className="type-metadata text-ink-3">{formatRelativeTime(resume.updatedAt, i18n.locale)}</span>
+						</span>
+					</label>
+				))}
+			</div>
+		</fieldset>
+	);
+}
 type CopyForJobProps = {
+	initialSourceId?: string | undefined;
+	onBack: () => void;
+	onContinue: (resumeId: string) => void;
+};
+/** Select a source; exact advert comparison and intentional creation belong to the job workflow. */
+function CopyForJob({ initialSourceId, onBack, onContinue }: CopyForJobProps) {
+	const { data: documents } = useQuery(orpc.documents.list.queryOptions({ input: { trashed: false } }));
+	const resumes = (documents ?? []).filter((document) => document.type === "resume");
+	const [sourceId, setSourceId] = useState(initialSourceId);
+	const source = resumes.find((resume) => resume.id === sourceId) ?? resumes[0];
+	return (
+		<>
+			<DialogHeader>
+				<DialogTitle className="type-title-s">
+					<Trans>Copy a resume for a job</Trans>
+				</DialogTitle>
+			</DialogHeader>
+
+			<CopySourcePicker loaded={Boolean(documents)} resumes={resumes} sourceId={source?.id} onSelect={setSourceId} />
+
+			<div className="flex flex-wrap justify-end gap-2">
+				<Button variant="secondary" onClick={onBack}>
+					{documents && resumes.length === 0 ? <Trans>Import or create a resume</Trans> : <Trans>Back</Trans>}
+				</Button>
+				<Button
+					disabled={!source}
+					onClick={() => {
+						if (source) onContinue(source.id);
+					}}
+				>
+					<Trans>Continue</Trans>
+				</Button>
+			</div>
+		</>
+	);
+}
+
+type CopyForApplicationProps = {
 	initialSourceId?: string | undefined;
 	initialJobId?: string | undefined;
 	onBack: () => void;
@@ -552,9 +650,8 @@ type CopyForJobProps = {
 };
 
 /** Pick a resume and a job; the copy is named from both and linked to the application. */
-function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyForJobProps) {
+function CopyForApplication({ initialSourceId, initialJobId, onBack, onCreated }: CopyForApplicationProps) {
 	const [copyError, setCopyError] = useState<string | null>(null);
-	const { i18n } = useLingui();
 	const nameId = useId();
 	const { data: documents } = useQuery(orpc.documents.list.queryOptions({ input: { trashed: false } }));
 	const { data: applications } = useQuery(applicationsListQueryOptions());
@@ -597,45 +694,15 @@ function CopyForJob({ initialSourceId, initialJobId, onBack, onCreated }: CopyFo
 				</DialogTitle>
 			</DialogHeader>
 
-			<fieldset className="grid gap-1.5">
-				<legend className="mb-1.5 type-metadata font-medium text-ink-2">
-					<Trans>Start from</Trans>
-				</legend>
-				{documents && resumes.length === 0 && (
-					<p className="type-body text-ink-2">
-						<Trans>
-							You don't have a resume to copy yet. Import or create a resume first, then return to copy it for this job.
-						</Trans>
-					</p>
-				)}
-				<div className="grid max-h-56 gap-1 overflow-y-auto">
-					{resumes.map((resume) => (
-						<label
-							key={resume.id}
-							className={cn(
-								"relative flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors duration-quick",
-								resume.id === source?.id ? "border-accent bg-accent-soft" : "border-line hover:bg-hover",
-							)}
-						>
-							<input
-								type="radio"
-								name="copy-source"
-								className="sr-only"
-								checked={resume.id === source?.id}
-								onChange={() => {
-									setSourceId(resume.id);
-									setName(null);
-								}}
-							/>
-							<Icon name="file-text" className="text-ink-2" />
-							<span className="grid min-w-0 flex-1">
-								<span className="truncate type-body font-medium">{resume.name}</span>
-								<span className="type-metadata text-ink-3">{formatRelativeTime(resume.updatedAt, i18n.locale)}</span>
-							</span>
-						</label>
-					))}
-				</div>
-			</fieldset>
+			<CopySourcePicker
+				loaded={Boolean(documents)}
+				resumes={resumes}
+				sourceId={source?.id}
+				onSelect={(id) => {
+					setSourceId(id);
+					setName(null);
+				}}
+			/>
 
 			<fieldset className="grid gap-1.5">
 				<legend className="mb-1.5 type-metadata font-medium text-ink-2">
