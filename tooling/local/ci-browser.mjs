@@ -18,6 +18,8 @@ export function ciBrowserEnvironment({ parent, databaseUrl, migrationUrl, direct
 	return {
 		PATH: resolve(repository, ".cache/document-toolchain/bin") + ":" + parent.PATH,
 		HOME: parent.HOME,
+		NODE_OPTIONS: `--import=${new URL("./test-isolation.mjs", import.meta.url).href}`,
+		TEST_INFERENCE_ISOLATION: "true",
 		// Match GitHub Ubuntu: Chromium must encode Arabic download filenames as UTF-8.
 		LANG: "C.UTF-8",
 		LC_ALL: "C.UTF-8",
@@ -112,7 +114,14 @@ async function main() {
 	env.DATABASE_URL = await provisionRuntimeRole(migrationUrl, role);
 	const args = process.argv.slice(2);
 	const skipBuild = args.includes("--skip-build");
-	if (!skipBuild && (await run(["build"]))) throw new Error("Production build failed");
+	if (!skipBuild) {
+		// Avoid Turbo's .env* input hashing: sanitized synthetic builds must not read local environment files.
+		if (
+			(await run(["pdf:translations"])) ||
+			(await run(["--recursive", "--workspace-concurrency=1", "--if-present", "run", "build"]))
+		)
+			throw new Error("Production build failed");
+	}
 	process.exitCode = await run([
 		"exec",
 		"playwright",

@@ -282,6 +282,8 @@
 	},
 	"globalDependencies": ["vitest.shared.mts", "vitest.setup.ts", "vite.config.ts"],
 	"globalPassThroughEnv": [
+		"NODE_OPTIONS",
+		"TEST_INFERENCE_ISOLATION",
 		"PORT",
 		"SERVER_PORT",
 		"APP_URL",

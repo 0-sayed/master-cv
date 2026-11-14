@@ -15,6 +15,13 @@ const fixture = {
 	migrationUrl: "postgresql://migration:synthetic@localhost/fresh_test",
 	directory: "/tmp/fresh-ci-browser",
 };
+it("preloads isolation for child builds and production runtimes without inherited Node options", () => {
+	const env = ciBrowserEnvironment({ ...fixture, parent: { ...fixture.parent, NODE_OPTIONS: "--require /private" } });
+	expect(env.NODE_OPTIONS).toMatch(/^--import=file:.*\/tooling\/local\/test-isolation\.mjs$/u);
+	expect(env.NODE_OPTIONS).not.toContain("/private");
+	expect(env.TEST_INFERENCE_ISOLATION).toBe("true");
+	expect(env).not.toHaveProperty("NODE_ENV");
+});
 it("ignores inherited browser, server, provider and product overrides", () => {
 	const env = ciBrowserEnvironment(fixture);
 	expect(env).toMatchObject({
