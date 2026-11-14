@@ -90,6 +90,10 @@ export async function loadReviewSource(
 	ownerId: string,
 	source: SourceRevision,
 	ancestors: readonly string[] = [],
+	resumeChanges: readonly Pick<
+		typeof aiReviewDecision.$inferSelect,
+		"resumeId" | "beforeRevision" | "afterRevision"
+	>[] = [],
 ): Promise<ReviewSourceSnapshot> {
 	const empty: ReviewSourceSnapshot = { source, selections: [], evidence: [], expiresAt: null, partial: false };
 	if (source.kind === "import") {
@@ -145,7 +149,8 @@ export async function loadReviewSource(
 			.from(aiOperation)
 			.where(and(eq(aiOperation.userId, ownerId), eq(aiOperation.id, row.operationId)));
 		if (!operation || ancestors.includes(source.id) || ancestors.length >= 10) return fail("AI_SOURCE_CHANGED");
-		for (const parent of operation.sources) await loadReviewSource(tx, ownerId, parent, [...ancestors, source.id]);
+		for (const parent of operation.sources)
+			await loadReviewSource(tx, ownerId, parent, [...ancestors, source.id], resumeChanges);
 		const answers = await tx
 			.select({ id: aiReviewDecision.id, createdAt: aiReviewDecision.createdAt, subjects: aiReviewDecision.subjectIds })
 			.from(aiReviewDecision)
@@ -180,7 +185,13 @@ export async function loadReviewSource(
 		.for("share");
 	if (!row || row.trashedAt) throw new ORPCError("NOT_FOUND");
 	if (row.isLocked) throw new ORPCError("FORBIDDEN");
-	if (row.updatedAt.toISOString() !== source.revision) fail("AI_SOURCE_CHANGED");
+	// Only a continuous chain of this review's decisions may advance answer provenance.
+	// A manual edit leaves a revision gap, even when it changes a different passage.
+	let revision = source.revision;
+	for (const change of resumeChanges)
+		if (change.resumeId === source.id && change.beforeRevision === revision && change.afterRevision)
+			revision = change.afterRevision;
+	if (row.updatedAt.toISOString() !== revision) fail("AI_SOURCE_CHANGED");
 	return empty;
 }
 

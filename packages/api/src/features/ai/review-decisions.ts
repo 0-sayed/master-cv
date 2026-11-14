@@ -83,12 +83,14 @@ async function assertEvidence(
 	ownerId: string,
 	result: ReviewResult,
 	proposals: ReviewProposal[],
+	decisions: Decision[],
 ) {
 	const ids = new Set(proposals.flatMap((proposal) => proposal.evidenceIds));
+	const resumeChanges = decisions.filter((decision) => ["accept", "accept_edited", "undo"].includes(decision.event));
 	for (const evidence of result.evidence.filter((entry) => ids.has(entry.id))) {
 		if (evidence.source.kind === "answer") {
 			try {
-				const current = await loadReviewSource(tx, ownerId, evidence.source);
+				const current = await loadReviewSource(tx, ownerId, evidence.source, [], resumeChanges);
 				if (!current.evidence.some((entry) => canonicalJson(entry) === canonicalJson(evidence)))
 					conflict("AI_SOURCE_CHANGED");
 			} catch {
@@ -259,7 +261,7 @@ export async function decideReview(ownerId: string, raw: ReviewDecisionInput): P
 			data = parseResumeDataForWrite(data);
 		} else {
 			if (selected.some((proposal) => statuses[proposal.id] !== "pending")) return conflict();
-			if (input.decision !== "reject") await assertEvidence(tx, ownerId, result, selected);
+			if (input.decision !== "reject") await assertEvidence(tx, ownerId, result, selected, decisions);
 			const editedText = input.editedText;
 			if (input.decision === "accept_edited" && editedText !== undefined)
 				selected = selected.map((proposal) => ({

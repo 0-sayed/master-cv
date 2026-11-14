@@ -82,6 +82,106 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("atomic review deci
 			},
 		};
 	}
+	async function followUpWithAnswer() {
+		const original = "<p>Built services.</p><p>Built tools.</p>";
+		const f = await fixture((result) => {
+			result.questions = [
+				{
+					id: "q1",
+					target: { sectionId: "summary", field: "content" },
+					prompt: "What was the outcome?",
+					evidenceIds: ["e1"],
+				},
+			];
+		});
+		const data = (await database.admin().query("SELECT data FROM resume WHERE id=$1", [f.id])).rows[0].data;
+		data.summary.content = original;
+		await database.admin().query("UPDATE resume SET data=$2 WHERE id=$1", [f.id, JSON.stringify(data)]);
+		const source = { kind: "resume" as const, id: f.id, revision: f.revision };
+		const answer = await database.run(() =>
+			recordReviewAnswer("alice", {
+				operationId: f.operationId,
+				questionId: "q1",
+				requestKey: `answer-${f.id}`,
+				expectedSource: source,
+				text: "Reduced waiting time.",
+			}),
+		);
+		const previous = await database.run(() => getReview("alice", f.operationId));
+		if (previous.result.kind !== "wording") throw new Error("Missing wording review");
+		const proposal = previous.result.proposals[0];
+		if (!proposal) throw new Error("Missing fixture proposal");
+		const result: Extract<ReviewResult, { kind: "wording" }> = {
+			...previous.result,
+			evidence: [answer],
+			questions: [],
+			proposals: [
+				{ id: "p1", before: "<p>Built services.</p>", text: "Developed services." },
+				{ id: "p2", before: "<p>Built tools.</p>", text: "Developed tools." },
+			].map(({ id, before, text }) => ({
+				...proposal,
+				id,
+				before,
+				after: `<p>${text}</p>`,
+				targetHash: hashReviewTarget(original),
+				evidenceIds: [answer.id],
+				claims: splitReviewClaims(text, [answer.id]),
+			})),
+		};
+		const operationId = `follow-up-${f.id}`;
+		await database
+			.admin()
+			.query(
+				"INSERT INTO ai_operation(id,user_id,request_key,fingerprint,kind,sources,route,consent_version,prompt_version,schema_version,state,result,delivered_at) VALUES ($1,'alice',$1,'fp','review.wording',$2,'{}','1','t006-wording-v2','t006-review-v2','waiting_review',$3,now())",
+				[operationId, JSON.stringify([source, answer.source]), JSON.stringify(result)],
+			);
+		return { ...f, input: { ...f.input, operationId } };
+	}
+	it("accepts sibling passages citing a saved answer after the follow-up review advances the CV revision", async () => {
+		const f = await followUpWithAnswer();
+		const first = await database.run(() => decideReview("alice", f.input));
+		expect(first.statuses).toEqual({ p1: "accepted", p2: "pending" });
+		const second = await database.run(() =>
+			decideReview("alice", {
+				...f.input,
+				proposalIds: ["p2"],
+				requestKey: `second-${f.id}`,
+				expectedUpdatedAt: first.updatedAt,
+			}),
+		);
+		expect(second.statuses).toEqual({ p1: "accepted", p2: "accepted" });
+		expect(second.data.summary.content).toBe("<p>Developed services.</p><p>Developed tools.</p>");
+		expect((await database.admin().query("SELECT data FROM resume WHERE id=$1", [f.id])).rows[0].data).toEqual(
+			second.data,
+		);
+	});
+	it("rejects saved answer evidence after an unrelated user edit to its cited CV", async () => {
+		const f = await followUpWithAnswer();
+		const first = await database.run(() => decideReview("alice", f.input));
+		const row = (
+			await database
+				.admin()
+				.query(
+					"UPDATE resume SET data=jsonb_set(data,'{basics,headline}','\"Manual headline\"'),updated_at=updated_at+interval '1 second' WHERE id=$1 RETURNING updated_at",
+					[f.id],
+				)
+		).rows[0];
+		await expect(
+			database.run(() =>
+				decideReview("alice", {
+					...f.input,
+					proposalIds: ["p2"],
+					requestKey: `after-edit-${f.id}`,
+					expectedUpdatedAt: row.updated_at.toISOString(),
+				}),
+			),
+		).rejects.toMatchObject({ code: "CONFLICT", data: { reason: "AI_SOURCE_CHANGED" } });
+		const review = await database.run(() => getReview("alice", f.input.operationId));
+		expect(review.statuses).toEqual(first.statuses);
+		const saved = (await database.admin().query("SELECT data FROM resume WHERE id=$1", [f.id])).rows[0].data;
+		expect(saved.summary.content).toBe("<p>Developed services.</p><p>Built tools.</p>");
+		expect(saved.basics.headline).toBe("Manual headline");
+	});
 	it.each(["same", "other-cv", "other-target", "unbound"] as const)(
 		"binds answer evidence to its original CV and target: %s",
 		async (binding) => {
