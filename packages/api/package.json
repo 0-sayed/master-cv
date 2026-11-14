@@ -79,7 +79,7 @@
 		"bcryptjs": "catalog:",
 		"better-auth": "catalog:",
 		"drizzle-orm": "catalog:",
-		"drizzle-zod": "1.0.0-beta.14-a36c63d",
+		"drizzle-zod": "1.0.0-beta.14-56703c9",
 		"fflate": "catalog:",
 		"ioredis": "catalog:",
 		"jsonrepair": "catalog:",
