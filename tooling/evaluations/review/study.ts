@@ -303,11 +303,14 @@ export function recordedControls(
 			all?: ReturnType<typeof controls>;
 			scoped?: { categories: string[]; result: ReturnType<typeof controls> };
 		};
-		const result = scope
-			? receipt.scoped && JSON.stringify(scope) === JSON.stringify(receipt.scoped.categories)
-				? receipt.scoped.result
-				: null
-			: receipt.all;
+		const fullScope =
+			scope?.length === taskCategories.length && taskCategories.every((category) => scope.includes(category));
+		const result =
+			scope && !fullScope
+				? receipt.scoped && JSON.stringify(scope) === JSON.stringify(receipt.scoped.categories)
+					? receipt.scoped.result
+					: null
+				: receipt.all;
 		if (
 			receipt.freezeHash !== hash(frozenStudyFor(study)) ||
 			!result ||

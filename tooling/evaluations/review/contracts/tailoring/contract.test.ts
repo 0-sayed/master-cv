@@ -312,7 +312,12 @@ it("offline preflight and fake transport session round-trip through journal", as
 		expect(run.calls[0]).toMatchObject({ schemaValid: true, guardAccepted: true, verifierAccepted: true });
 		expect((await readJournal(path)).previousCalls).toEqual(run.calls);
 		expect(evaluateOutput(c, c.gold).guardAccepted).toBe(true);
-		expect(JSON.parse(required(prepareCase(c).payload.selections[0]).text).jobAd).toEqual(c.jobAd);
+		const jobContext = required(
+			prepareCase(c).payload.selections.find(
+				(selection) => "id" in selection && selection.id === "variant-job-context",
+			),
+		);
+		expect(JSON.parse(jobContext.text)).toEqual({ trust: "untrusted", segments: required(c.jobAd).segments });
 		expect(readFileSync(path, "utf8")).toContain("targeted-change-coverage");
 	} finally {
 		await rm(folder, { recursive: true });

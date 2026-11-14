@@ -7,12 +7,12 @@ qualification belong to T008 and are excluded from this scope.
 
 ## Final identity and reproducible inputs
 
-- Study: `tasks-v1-job-language-v29`, metadata version 28, dated 2026-11-14.
-- Parsed freeze hash: `f09a6017b1e859897825864422526222f365ece9097b15966aef9f30d13c2271`.
-- Previous parsed study hash: `a87539f48d077499af4d768824fc5550a0e84f67343a12e8174190492ba2fa8f`.
+- Study: `tasks-v1-job-language-v30`, metadata version 29, dated 2026-11-14.
+- Parsed freeze hash: `6713168003b162efe54ca92727bbabcd5f13dfcfe41a815a99c3238815533ba2`.
+- Previous parsed study hash: `f09a6017b1e859897825864422526222f365ece9097b15966aef9f30d13c2271`.
 - Exact dependency byte hashes, prior identities and reasons are in
-  `tooling/evaluations/review/freeze-history.json`. The latest row has reason
-  `Arabic fixture review corrections` and records four changed source fixture files.
+  `tooling/evaluations/review/freeze-history.json`. The latest row records PR #21 review corrections and ten changed runtime/tooling dependencies.
+  Fixture, gold, model-pin and verifier inputs are unchanged by this review.
   The full dependency map is `tasks-study.json`; prompts, schemas, runtime source
   preparation and complete verifier contracts are sealed there. Historical core
   seals remain historical/stale. Original bytes are outside this repository at
@@ -33,14 +33,15 @@ qualification belong to T008 and are excluded from this scope.
   to the nine reported job-evidence cases, including honest no-evidence requirements in
   their golds and derived controls; the CV pool stays unchanged. Corrected the mixed h1
   second explanation and every derived baseline to Arabic with ASP.NET retained.
-- Current owner materials: `/mnt/storage/master-cv-design-archive/ui-audit/t007-bench/owner-review-v29/`.
+- Prior v29 owner materials: `/mnt/storage/master-cv-design-archive/ui-audit/t007-bench/owner-review-v29/`.
   Of 120 exported items, 16 hashes changed versus v28; 111 items remain script-gated.
   Every review flag is false; reviewer/time are empty. Prior exports and approvals cannot
-  authorize changed hashes. Holdout fixtures have prior exposure; no unseen holdout claim.
+  authorize changed hashes. The v30 trust-boundary prompts require fresh owner exports and
+  hash-bound review before a paid run. Holdout fixtures have prior exposure; no unseen holdout claim.
 
 ## Observed offline checks
 
-Regression checks reproduce the reported defects before correction and pass afterward
+Prior v29 regression checks reproduced the reported defects before correction and passed afterward
 (5 tests). The review suite passed 2,356 tests across 80 files
 (`/tmp/arabic-fixture-review-tests.log`); three startup tests are excluded because
 they invoke the forbidden environment-file option. Production-versus-benchmark parity,
@@ -49,16 +50,20 @@ scope/freeze and key-file checks passed in that suite and in separate focused ru
 checks passed. Exact new SHA-256 file:line candidates for lead review are recorded
 in `/mnt/storage/master-cv-design-archive/ui-audit/t007-bench/gitleaks-sha256-locations-v29.txt`;
 `.gitleaksignore` is unchanged.
+Current PR #21 checks reproduced four benchmark failures before their fixes: three
+job-assessment safety bypasses and an explicit full-category receipt rejection.
+The affected contract/parity/scope/study checks passed after correction; the new payload
+separates confirmed CV evidence from untrusted job context. Changed-file lint/format passed.
 Fresh deterministic/scripted scans checked 1,056 all-category controls, 699 scoped controls
 and 72 scoped canary controls: all passed with zero failures. Their scan time and current
 parsed freeze binding are in `guard-controls-tasks-v1.json`. Scripted controls do not
 qualify semantic quality.
 
-Current v29 isolated outputs: `/tmp/arabic-fixture-v29/{fake-smoke,preflight,smoke-forecast,full-forecast}/`.
+Prior v29 isolated outputs: `/tmp/arabic-fixture-v29/{fake-smoke,preflight,smoke-forecast,full-forecast}/`.
 Fake smoke completed 36 writer sessions and 48 verifier-only probes using scripted
 transports, with empty approval provenance and dirty-source provenance. Preflight passed
 with zero network requests. Both forecasts completed without inference. Direct Node + tsx
-imports avoid the sandbox's forbidden tsx CLI IPC socket. Historical v27/v28 artifacts
+imports avoid the sandbox's forbidden tsx CLI IPC socket. Historical v27/v28/v29 artifacts
 are superseded and cannot authorize this study or supply a qualifying live smoke receipt.
 
 ## Counts and dated cost estimates
@@ -69,7 +74,7 @@ global task defaults remain two and core defaults remain three.
 
 | Stage | Writer sessions | Nominal writer + verifier calls | Estimated OpenRouter | Estimated OpenAI | OpenRouter ceiling | OpenAI ceiling |
 | ----- | --------------: | ------------------------------: | -------------------: | ---------------: | -----------------: | -------------: |
-| Smoke |              36 |                              72 |         $0.049915215 |        $0.229089 |           $2.10564 |      $2.271114 |
+| Smoke |              36 |                              72 |         $0.049915215 |        $0.229089 |         $30.180456 |      $2.271114 |
 | Full  |             972 |                           1,944 |         $1.366294419 |       $6.6536415 |          $56.85228 |     $61.688427 |
 
 Catalog snapshot: 2026-11-12. OpenRouter's 5.5% fee is included once. These are dated

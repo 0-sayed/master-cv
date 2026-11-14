@@ -8,6 +8,26 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import { createVitestProjectConfig } from "../../vitest.shared.mts";
 
 const guard = fileURLToPath(new URL("./test-ai-guard.mjs", import.meta.url));
+it.each([undefined, "postgresql://postgres:postgres@localhost:55432/postgres"])(
+	"never inherits a runtime database outside the explicit disposable test URL (%s)",
+	(disposable) => {
+		const preload = fileURLToPath(new URL("./test-isolation.mjs", import.meta.url));
+		const result = spawnSync(
+			process.execPath,
+			["--import", preload, "--input-type=module", "-e", "console.log(process.env.DATABASE_URL ?? 'unset')"],
+			{
+				env: {
+					PATH: process.env.PATH,
+					DATABASE_URL: "postgresql://unapproved.invalid/never-connect",
+					...(disposable ? { COVER_LETTER_TEST_DATABASE_URL: disposable } : {}),
+				},
+				encoding: "utf8",
+			},
+		);
+		expect(result.status, result.stderr).toBe(0);
+		expect(result.stdout.trim()).toBe(disposable ?? "unset");
+	},
+);
 it("isolates production-mode child imports before native environment loading", () => {
 	const preload = fileURLToPath(new URL("./test-isolation.mjs", import.meta.url));
 	const result = spawnSync(

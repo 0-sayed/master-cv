@@ -27,6 +27,7 @@ export function ciBrowserEnvironment({ parent, databaseUrl, migrationUrl, direct
 		APP_URL: "http://localhost:3030",
 		PORT: "3030",
 		DATABASE_URL: databaseUrl,
+		COVER_LETTER_TEST_DATABASE_URL: databaseUrl,
 		DATABASE_MIGRATION_URL: migrationUrl,
 		AUTH_SECRET: randomBytes(32).toString("hex"),
 		ENCRYPTION_SECRET: randomBytes(32).toString("hex"),
@@ -112,6 +113,7 @@ async function main() {
 	await mkdir(env.LOCAL_STORAGE_PATH, { recursive: true, mode: 0o700 });
 	if (await run(["--filter", "@reactive-resume/db", "db:migrate"])) throw new Error("CI database migration failed");
 	env.DATABASE_URL = await provisionRuntimeRole(migrationUrl, role);
+	env.COVER_LETTER_TEST_DATABASE_URL = env.DATABASE_URL;
 	const args = process.argv.slice(2);
 	const skipBuild = args.includes("--skip-build");
 	if (!skipBuild) {

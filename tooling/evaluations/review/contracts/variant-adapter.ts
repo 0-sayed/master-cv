@@ -64,6 +64,8 @@ export function alignVariantContract<O>(historical: TaskContract<TaskCase, O>): 
 			try {
 				validateVariantOutput(variantSnapshot(c), output);
 				if (verdict !== null) assertVariantVerification(variantSnapshot(c), output, verdict);
+				// Job assessment rules supplement the production validator's evidence checks.
+				if (historical.category === "job-evidence") return previous;
 				return { ...previous, safetyDeterministic: { pass: true, reasons: [] }, unsupportedClaims: [], lostFacts: [] };
 			} catch (error) {
 				const reason = error instanceof Error ? error.message : "AI_INVALID_RESULT";

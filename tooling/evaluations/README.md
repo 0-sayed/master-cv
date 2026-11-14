@@ -153,5 +153,6 @@ existing unscoped six-category/default repetition behavior is preserved.
 See [the benchmark handoff](../../docs/t007-benchmark-handoff.md) for the exact
 freeze, unsigned review artifacts, observed offline controls, dated separate payer
 forecasts and owner-only smoke/full commands. A plain-token `--key-file` supports
-those live recipes without an environment file; offline modes do not load it.
+those live recipes without an environment file; fake, dry-run and preflight modes
+do not read it, but `--startup-check` reads the configured credential source.
 No fake/preflight result authorizes a paid run, model selection or release.

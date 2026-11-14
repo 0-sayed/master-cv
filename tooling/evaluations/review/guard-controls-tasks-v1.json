@@ -1,9 +1,9 @@
 {
 	"study": "tasks-v1",
-	"freezeHash": "f09a6017b1e859897825864422526222f365ece9097b15966aef9f30d13c2271",
-	"reason": "Arabic fixture review corrections",
+	"freezeHash": "6713168003b162efe54ca92727bbabcd5f13dfcfe41a815a99c3238815533ba2",
+	"reason": "PR #21 review corrections: split confirmed CV evidence from untrusted job instructions with versioned production prompts; retain deterministic job-assessment safety; normalize source offsets, dates and selected-job evidence; enforce 49 source passages and protected translation revisions; restore previews literally; accept explicit complete-category receipts. Current reviewed runtime dependencies are resealed without fixture, gold, model-pin or verifier changes. Fresh deterministic/scripted scans only. Historical core identity remains unchanged and stale; prior live/offline artifacts cannot qualify this study. No paid inference, environment-file reads, approval or release.",
 	"controlsBasis": "Fresh all-category and scoped deterministic/scripted scans plus scoped deterministic canary scan. No paid calls or measured semantic qualification.",
-	"scannedAt": "2026-11-14T11:51:19.459Z",
+	"scannedAt": "2026-11-14T13:24:51.554Z",
 	"all": {
 		"checked": 1056,
 		"pass": true,

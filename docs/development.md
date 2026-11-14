@@ -212,7 +212,7 @@ database settings pointed at that same synthetic runtime. `PLAYWRIGHT_CHANNEL=ch
 
 For bounded offline verification, use Node 24 and explicit disposable test URLs; do not load environment files.
 Preload `tooling/local/test-isolation.mjs` before application imports. It disables native dotenv loading,
-rejects inference credentials, disables Vite dotenv discovery and blocks external fetch while retaining
+rejects inference credentials, disables Vite dotenv discovery and blocks fetch to listed inference-provider hosts while retaining
 loopback transports and the application's normal `NODE_ENV`. The browser runner supplies this preload
 through its own controlled `NODE_OPTIONS`; inherited Node options and provider credentials are not forwarded.
 

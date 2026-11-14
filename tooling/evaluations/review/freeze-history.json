@@ -2268,5 +2268,69 @@
 				"sha256": "bbb6ede266f207b8912ebef29f9ca344de06eb6f4f3e6ff41b21965535174693"
 			}
 		]
+	},
+	{
+		"name": "tasks-job-language-review-corrections",
+		"date": "2026-11-14",
+		"reason": "PR #21 review corrections: split confirmed CV evidence from untrusted job instructions with versioned production prompts; retain deterministic job-assessment safety; normalize source offsets, dates and selected-job evidence; enforce 49 source passages and protected translation revisions; restore previews literally; accept explicit complete-category receipts. Current reviewed runtime dependencies are resealed without fixture, gold, model-pin or verifier changes. Fresh deterministic/scripted scans only. Historical core identity remains unchanged and stale; prior live/offline artifacts cannot qualify this study. No paid inference, environment-file reads, approval or release.",
+		"priorStudyId": "tasks-v1-job-language-v29",
+		"priorStudyHash": "f09a6017b1e859897825864422526222f365ece9097b15966aef9f30d13c2271",
+		"priorByteHash": "d88b0eb8973c35fcb2074ffe74f56059c4b7227236435a0910be739e77a9a4de",
+		"studyId": "tasks-v1-job-language-v30",
+		"studyHash": "6713168003b162efe54ca92727bbabcd5f13dfcfe41a815a99c3238815533ba2",
+		"approval": "UNAPPROVED",
+		"controlsBasis": "Fresh all-category, scoped and canary deterministic/scripted scans; no semantic qualification.",
+		"changedDependencies": [
+			{
+				"path": "tooling/evaluations/review/study.ts",
+				"priorByteHash": "daef72973fca2fcbe819615dc94ef1771cb3f194f783f2fc465253dd78f9e56a",
+				"sha256": "933e543cdd521a9c5510b4b41cd7e660f1babaea3677b52eabf7ad8555d9b1d5"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-contracts.ts",
+				"priorByteHash": "2abb62fe273dc04a26f642ede15e30a851d4314925537a0e1820d51c0a8b9194",
+				"sha256": "d21f44b20a6def028f17811db4d6cd542123615c8db7b153e7e6578e50ea90a8"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-prompts.json",
+				"priorByteHash": "b9e209f0377d4897b2176baf9af4139af94839e4caee9f5d3d34f7dfa802c3c8",
+				"sha256": "a1f98463a3c75e3b5f65aead32f1bc8415d4862df85e4c2f4547ce726707c330"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-validation.ts",
+				"priorByteHash": "ee844d353e2ea8be99456475181815b705b9b8f9e140f6b6d79274007a3016fb",
+				"sha256": "ccb5cd3b8b7965d6099375c7e23647577f26e4f24b7615695b11a8cb2ccf1e44"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-sources.ts",
+				"priorByteHash": "8e166de422970f91f0aa2d0d58dbab3e9464a4b558e63d2a0f891342895a24ae",
+				"sha256": "57306fd042f7cb1af43780c67141cf8b17aca6eb929465ad2fae3f9e1218e89c"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-decisions.ts",
+				"priorByteHash": "c2fe3e518b2b31fd2ab360c833fc8aa3d1b098438fc217f507d49d0598bf94f0",
+				"sha256": "0b80cc5d49fc29ca70aeaf564f30f33bf3e0aaab8fb052aa6d0a199f115d3b3c"
+			},
+			{
+				"path": "packages/api/src/features/resume/variants.ts",
+				"priorByteHash": "f00105aa223c1689791d1decb84916b1aeea5e1dcd82b748d1159952f7d0365e",
+				"sha256": "83fbc4bbac3b3a1a9ed8ca5073103047d838d8f40975f9cc415d75c63ebba098"
+			},
+			{
+				"path": "packages/schema/src/resume/variants.ts",
+				"priorByteHash": "60bc7a9139ee3f2587236d4d6db1bf567adaf37e3dac5a1b34b138e4d56f5cfb",
+				"sha256": "8d119088b9bdd876fcddb0faa42dc1a794b682fb9196357e8484e73e6f1bf710"
+			},
+			{
+				"path": "packages/schema/src/job-evidence.ts",
+				"priorByteHash": "766dc207e0477f0e65caab525837858bdd034c799b2e6d4c4d3a78bce2e9931c",
+				"sha256": "19ee8a34261f0975ced167ca26b992d2423bc72b32f8c39d39bab63ccc230b7e"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/variant-adapter.ts",
+				"priorByteHash": "f1c4b6c553e71cb98798d3afabefc74301048954e86133a0382c622356f3af92",
+				"sha256": "9784648896f26cb62593e1adf6488290d442348b37718cd54b07b55a54809699"
+			}
+		]
 	}
 ]
