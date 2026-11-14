@@ -206,7 +206,7 @@
 	"browser": {
 		"reviewRuntimePassed": 13,
 		"checkPanelPassed": 4,
-		"fixture": "tests/e2e/t006-runtime.config.ts",
+		"fixture": "tests/e2e/reviewable-ai-runtime.config.ts",
 		"locales": ["ar-SA", "en-US"],
 		"widths": [1440, 390],
 		"note": "First synthetic runtime fixture emitted an extra strict-schema verifier field; corrected, then 13/13 passed. Check panel 4/4 passed."

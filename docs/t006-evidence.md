@@ -121,3 +121,18 @@ Before real CVs, consent/privacy notices and the approved route bundle must name
 ### Pre-commit naming cleanup (2026-11-14)
 
 Regression files and active CLI outputs use behavior names; imports, scripts and guide links follow the new paths. Historical result-directory names, freeze IDs and receipt hashes remain evidence identifiers. Obsolete synthetic browser QA and schema-v2 probe scripts are archived unchanged under `t006-grid/retired-scripts/` outside this checkout. Current tasks bytes are resealed with reason `naming cleanup`; historical core qualification remains stale. Actual validation results are recorded in the explicit external output report, not inferred from prior runs.
+
+### PR #20 answer provenance and runtime naming corrections
+
+The saved-answer follow-up regression first reproduced a conflict in `assertEvidence` on the second
+acceptance, while the unrelated manual-edit rejection passed. Answer provenance now follows only a
+continuous chain of the current review's accept, edited-accept and undo revisions; revision gaps still
+reject with `AI_SOURCE_CHANGED`. The targeted decision suites pass 23/23, including both new database
+regressions. The whole API AI folder passes 462/462 across 33 files, with no skips. This preserves B-C04
+source provenance and explicit acceptance; no UI or Figma frames changed.
+
+The synthetic browser entry points are `tests/e2e/reviewable-ai-runtime.config.ts` and
+`tests/e2e/reviewable-ai-runtime-server.ts`; CI, the server script and the validation receipt use these paths.
+The config's existing `test:review-runtime` command resolves through the updated server script. Playwright/Vite/Knip
+and local tooling had no literal references to the old paths. Task evidence document names and the existing
+T005 runtime remain unchanged. Browser execution belongs to the host lead; no paid inference was used.

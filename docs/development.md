@@ -208,6 +208,13 @@ must already send to that loopback capture port and the sink must already write 
 Playwright cannot retrofit SMTP settings into an existing process. Keep `APP_URL`, `PORT`, storage and
 database settings pointed at that same synthetic runtime. `PLAYWRIGHT_CHANNEL=chrome` remains supported.
 
+## Synthetic review browser runtime
+
+The synthetic review browser suite uses `tests/e2e/reviewable-ai-runtime.config.ts`. Its web-server
+command, `pnpm --filter server test:review-runtime`, starts `tests/e2e/reviewable-ai-runtime-server.ts`
+with deterministic transports; it requires no paid inference. Pass `--config tests/e2e/reviewable-ai-runtime.config.ts`
+to the isolated browser runner when running the review specs.
+
 ## Local real AI (synthetic CVs only)
 
 With Node 24 on PATH and the local database/storage configured in `.env.local`, build the web app
