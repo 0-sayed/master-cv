@@ -18,6 +18,7 @@ import {
 } from "./operations";
 import { buildModelPayload } from "./payload";
 import { getOperationHandler, resolveApprovedRoute } from "./route-policy";
+import { resolveReviewVerifierRoute } from "./verifier-policy";
 
 async function prepareInput<T>(signal: AbortSignal, work: () => Promise<T>): Promise<T> {
 	signal.throwIfAborted();
@@ -62,35 +63,69 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 		);
 		const recoveryRoute = await resolveApprovedRoute(lease.ownerId, request);
 		let consumedMicros = previous.reduce(
-			(sum, attempt) => sum + (attempt.costMicros ?? recoveryRoute.maxCallCostMicros),
+			(sum, attempt) =>
+				sum +
+				(attempt.costMicros ??
+					(attempt.stepId === "verify"
+						? resolveReviewVerifierRoute(recoveryRoute).maxCallCostMicros
+						: recoveryRoute.maxCallCostMicros)),
 			0,
 		);
 		if (
 			recoveryRoute.requestCapMicros !== operation.reservedMicros ||
 			consumedMicros > operation.reservedMicros ||
-			previous.some((attempt) => attempt.costMicros !== null && attempt.costMicros > recoveryRoute.maxCallCostMicros)
+			previous.some(
+				(attempt) =>
+					attempt.costMicros !== null &&
+					attempt.costMicros >
+						(attempt.stepId === "verify"
+							? resolveReviewVerifierRoute(recoveryRoute).maxCallCostMicros
+							: recoveryRoute.maxCallCostMicros),
+			)
 		) {
 			await failOperation(lease, "AI_REQUEST_COST_LIMIT");
 			return;
 		}
-		const completed = previous.find((a) => a.outcome === "valid" && a.finishedAt && a.output);
-		if (completed?.output) {
+		const completed = previous.find((a) => a.stepId !== "verify" && a.outcome === "valid" && a.finishedAt && a.output);
+		let generated = completed?.output ?? null;
+		const verified = previous.find((a) => a.stepId === "verify");
+		const validateGenerated = async (output: Record<string, unknown>): Promise<boolean> => {
+			try {
+				const validateResult = handler.validateResult;
+				if (validateResult) await withOperationLease(lease, (tx) => validateResult(tx, lease.ownerId, request, output));
+				return true;
+			} catch {
+				await failOperation(lease, "AI_REVIEW_INVALID");
+				return false;
+			}
+		};
+		if (generated && !(await validateGenerated(generated))) return;
+		if (completed?.output && (!handler.verifier || verified)) {
+			if (handler.verifier) {
+				if (verified?.outcome !== "valid" || !verified.finishedAt || !verified.output) {
+					await failOperation(lease, "AI_VERIFIER_UNAVAILABLE");
+					return;
+				}
+				handler.verifier.validate(completed.output, verified.output);
+			}
 			await deliverOperation(lease, completed.output);
 			return;
 		}
 		const last = previous.at(-1);
-		if (last && !["invalid", "transient"].includes(last.outcome ?? "")) {
+		if (last && !generated && !["invalid", "transient"].includes(last.outcome ?? "")) {
 			await failOperation(lease, "AI_RECOVERED_TERMINAL");
 			return;
 		}
 		let repairs = previous.filter((a) => a.stepId === "repair").length;
-		let nextStep = previous.at(-1)?.outcome === "invalid" ? "repair" : "generate";
-		if (previous.at(-1)?.stepId === "repair") {
+		let nextStep =
+			generated && handler.verifier ? "verify" : previous.at(-1)?.outcome === "invalid" ? "repair" : "generate";
+		if (!generated && previous.at(-1)?.stepId === "repair") {
 			await failOperation(lease, "AI_REPAIR_LIMIT");
 			return;
 		}
 		for (let ordinal = previous.length + 1; ordinal <= 3; ordinal++) {
-			const route = await resolveApprovedRoute(lease.ownerId, request);
+			const writerRoute = await resolveApprovedRoute(lease.ownerId, request);
+			const route = nextStep === "verify" ? resolveReviewVerifierRoute(writerRoute) : writerRoute;
 			if (Date.now() >= operation.deadlineAt.getTime()) throw new Error("AI_DEADLINE");
 			if (ordinal > route.maxCalls) break;
 			if (
@@ -102,7 +137,7 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 			}
 			preparingInput = true;
 			const inputSignal = shutdown ? AbortSignal.any([signal, shutdown]) : signal;
-			const payload = buildModelPayload(
+			let payload = buildModelPayload(
 				await prepareInput(inputSignal, () => handler.buildInput(lease.ownerId, request, inputSignal)),
 			);
 			preparingInput = false;
@@ -114,6 +149,10 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 			// Preparing input can await storage while consent is revoked in another request.
 			await resolveApprovedRoute(lease.ownerId, request);
 			const stepId = nextStep;
+			if (stepId === "verify") {
+				if (!handler.verifier || !generated) throw new Error("AI_VERIFIER_UNAVAILABLE");
+				payload = handler.verifier.buildInput(payload, generated);
+			}
 			if (stepId === "repair") {
 				if (repairs >= route.maxRepairs) break;
 				repairs++;
@@ -135,7 +174,12 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 				attemptId: attempt.id,
 				stepId,
 				payload,
-				outputSchema: handler.output,
+				outputSchema: stepId === "verify" && handler.verifier ? handler.verifier.output : handler.output,
+				...(stepId === "verify" && handler.verifier
+					? { systemPrompt: handler.verifier.systemPrompt }
+					: handler.systemPrompt
+						? { systemPrompt: handler.systemPrompt }
+						: {}),
 				signal,
 			});
 			// Late accounting may finish after cancellation/lease loss, but may never publish a result.
@@ -163,7 +207,32 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 				return;
 			}
 			if (outcome.outcome === "valid" && outcome.output) {
+				if (stepId === "verify" && handler.verifier && generated) {
+					try {
+						handler.verifier.validate(generated, outcome.output);
+					} catch {
+						await failOperation(lease, "AI_VERIFICATION_FAILED");
+						return;
+					}
+					await deliverOperation(lease, generated);
+					return;
+				}
+				if (handler.verifier) {
+					if (!(await validateGenerated(outcome.output))) return;
+					generated = outcome.output;
+					nextStep = "verify";
+					continue;
+				}
 				await deliverOperation(lease, outcome.output);
+				return;
+			}
+			if (stepId === "verify") {
+				await failOperation(lease, "AI_VERIFIER_UNAVAILABLE");
+				return;
+			}
+			// The final call is reserved for verification; no retry may consume it.
+			if (handler.verifier && ordinal + 1 >= route.maxCalls) {
+				await failOperation(lease, "AI_CALL_LIMIT");
 				return;
 			}
 			if (outcome.outcome === "invalid" && repairs < route.maxRepairs) {

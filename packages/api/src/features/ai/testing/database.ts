@@ -35,6 +35,9 @@ export function aiTestDatabase() {
 			`REVOKE UPDATE,DELETE ON career_fact_revision FROM "${role}"; REVOKE UPDATE,DELETE,TRUNCATE ON ai_usage_ledger FROM "${role}"; REVOKE ALL ON ai_platform_budget FROM "${role}"; REVOKE DELETE ON ai_operation,ai_operation_attempt FROM "${role}"`,
 		);
 		await fixture.query(
+			`REVOKE UPDATE,DELETE,TRUNCATE ON ai_review_decision FROM "${role}"; REVOKE UPDATE,TRUNCATE ON ai_import_review_source FROM "${role}"`,
+		);
+		await fixture.query(
 			`GRANT EXECUTE ON FUNCTION master_cv_ai_queue_owners(),master_cv_ai_admit_budget(text,bigint,bigint),master_cv_ai_reconcile_budget(text) TO "${role}"`,
 		);
 		await fixture.query(

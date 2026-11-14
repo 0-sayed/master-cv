@@ -9,8 +9,8 @@ export type ResumeCreationKind = z.infer<typeof resumeCreationKindSchema>;
 export const startUsageViewSchema = z.strictObject({
 	plan: z.literal("start"),
 	operations: z
-		.strictObject({ limit: z.literal(5), used: count, reserved: count, remaining: count })
-		.refine((v) => v.used + v.reserved + v.remaining === 5),
+		.strictObject({ limit: count, used: count, reserved: count, remaining: count })
+		.refine((v) => v.used + v.reserved + v.remaining === v.limit),
 	baseCvs: z.strictObject({ limit: z.literal(1), used: count }),
 });
 export type StartUsageView = z.infer<typeof startUsageViewSchema>;

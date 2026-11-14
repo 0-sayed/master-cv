@@ -7,8 +7,19 @@ import {
 	operationPreflightSchema,
 	aiAvailabilitySchema,
 	routeBindingSchema,
+	sourceRevisionSchema,
 } from "@reactive-resume/schema/ai-operation";
 import { startUsageViewSchema } from "@reactive-resume/schema/ai-usage";
+import { masterSectionSchema } from "@reactive-resume/schema/career-master";
+import {
+	reviewAnswerInputSchema,
+	reviewDecisionInputSchema,
+	reviewDecisionViewSchema,
+	reviewEvidenceSchema,
+	reviewQuestionDismissalSchema,
+	reviewTargetSchema,
+	reviewViewSchema,
+} from "@reactive-resume/schema/resume/ai-review";
 import { resumeDataSchema } from "@reactive-resume/schema/resume/data";
 import { protectedProcedure } from "../../context";
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
@@ -18,6 +29,14 @@ import { getProcessingNotices, processingConsentService } from "./consent";
 import { improveInputSchema, improveLine, improveOutputSchema } from "./improve";
 import { operationService } from "./operations";
 import { reportAiContent } from "./reports";
+import {
+	decideReview,
+	dismissReviewQuestion,
+	getLatestResumeReview,
+	getReview,
+	recordReviewAnswer,
+} from "./review-decisions";
+import { createImportReviewSource, prepareResumeReview } from "./review-sources";
 import { getAiAvailability } from "./route-policy";
 import { fileInputSchema } from "./service";
 import { usageService } from "./usage";
@@ -56,6 +75,82 @@ async function getRunnableProvider(userId: string, aiProviderId?: string) {
 }
 
 export const aiRouter = {
+	review: {
+		latest: protectedProcedure
+			.route({ method: "GET", path: "/ai/reviews/latest", tags: ["AI"], operationId: "latestResumeReview" })
+			.input(z.strictObject({ resumeId: z.string().min(1).max(200) }))
+			.output(z.string().nullable())
+			.handler(({ context, input }) => getLatestResumeReview(context.user.id, input.resumeId)),
+		prepare: protectedProcedure
+			.route({ method: "POST", path: "/ai/reviews/prepare", tags: ["AI"], operationId: "prepareResumeReview" })
+			.use(aiRequestRateLimit)
+			.input(
+				z.strictObject({
+					resumeId: z.string().min(1).max(200),
+					expectedUpdatedAt: z.iso.datetime(),
+					targets: z.array(reviewTargetSchema).min(1).max(10),
+				}),
+			)
+			.output(z.strictObject({ sources: z.array(sourceRevisionSchema), evidence: z.array(reviewEvidenceSchema) }))
+			.handler(({ context, input }) => prepareResumeReview(context.user.id, input)),
+		importSource: protectedProcedure
+			.route({
+				method: "POST",
+				path: "/ai/reviews/import-sources",
+				tags: ["AI"],
+				operationId: "createImportReviewSource",
+			})
+			.use(aiRequestRateLimit)
+			.input(
+				z.strictObject({
+					flowId: z.string().min(1).max(200),
+					section: masterSectionSchema,
+					text: z.string().min(1).max(128000),
+					partial: z.boolean(),
+					contactValues: z.array(z.string().max(1000)).max(20),
+				}),
+			)
+			.output(z.strictObject({ source: sourceRevisionSchema, expiresAt: z.iso.datetime() }))
+			.handler(({ context, input }) => createImportReviewSource(context.user.id, input)),
+		get: protectedProcedure
+			.route({ method: "GET", path: "/ai/reviews/{operationId}", tags: ["AI"], operationId: "getAiReview" })
+			.input(z.strictObject({ operationId: z.string().min(1).max(200) }))
+			.output(reviewViewSchema)
+			.handler(({ context, input }) => getReview(context.user.id, input.operationId)),
+		decide: protectedProcedure
+			.route({
+				method: "POST",
+				path: "/ai/reviews/{operationId}/decisions",
+				tags: ["AI"],
+				operationId: "decideAiReview",
+			})
+			.use(aiRequestRateLimit)
+			.input(reviewDecisionInputSchema)
+			.output(reviewDecisionViewSchema)
+			.handler(({ context, input }) => decideReview(context.user.id, input)),
+		answer: protectedProcedure
+			.route({
+				method: "POST",
+				path: "/ai/reviews/{operationId}/answers",
+				tags: ["AI"],
+				operationId: "answerAiReviewQuestion",
+			})
+			.use(aiRequestRateLimit)
+			.input(reviewAnswerInputSchema)
+			.output(reviewEvidenceSchema)
+			.handler(({ context, input }) => recordReviewAnswer(context.user.id, input)),
+		dismissQuestion: protectedProcedure
+			.route({
+				method: "POST",
+				path: "/ai/reviews/{operationId}/question-dismissals",
+				tags: ["AI"],
+				operationId: "dismissAiReviewQuestion",
+			})
+			.use(aiRequestRateLimit)
+			.input(reviewQuestionDismissalSchema)
+			.output(z.void())
+			.handler(({ context, input }) => dismissReviewQuestion(context.user.id, input)),
+	},
 	processing: {
 		notices: protectedProcedure
 			.route({ method: "GET", path: "/ai/processing-notices", tags: ["AI"], operationId: "aiProcessingNotices" })

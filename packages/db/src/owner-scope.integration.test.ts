@@ -46,6 +46,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 		await fixture.query(`REVOKE UPDATE,DELETE ON career_fact_revision FROM "${role}"`);
 		await fixture.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_usage_ledger FROM "${role}"`);
 		await fixture.query(`REVOKE ALL ON ai_platform_budget FROM "${role}"`);
+		await fixture.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_review_decision FROM "${role}"`);
+		await fixture.query(`REVOKE UPDATE,TRUNCATE ON ai_import_review_source FROM "${role}"`);
 		await fixture.query(
 			`INSERT INTO "user" (id,name,email,username,display_username) VALUES ('alice','Alice','alice@example.test','alice','alice'),('bob','Bob','bob@example.test','bob','bob')`,
 		);
@@ -69,6 +71,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 
 	it.each([
 		["ai_usage_ledger", "UPDATE", "units"],
+		["ai_import_review_source", "UPDATE", "selection"],
+		["ai_review_decision", "UPDATE", "event"],
 		["ai_platform_budget", "SELECT", "spent_micros"],
 		["ai_platform_budget", "INSERT", "spent_micros"],
 		["ai_platform_budget", "UPDATE", "spent_micros"],

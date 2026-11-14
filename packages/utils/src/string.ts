@@ -75,6 +75,15 @@ export const escapeHtml = (text: string) =>
 		.replaceAll('"', "&quot;")
 		.replaceAll("'", "&#39;");
 
+const HTML_ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+/** Decode one level of HTML text entities, without interpreting markup. */
+export const decodeHtmlEntities = (text: string) =>
+	text.replace(/&(#x[\da-f]+|#\d+|[a-z]+);/gi, (entity, name: string) => {
+		if (name.startsWith("#x") || name.startsWith("#X")) return String.fromCodePoint(Number.parseInt(name.slice(2), 16));
+		if (name.startsWith("#")) return String.fromCodePoint(Number.parseInt(name.slice(1), 10));
+		return HTML_ENTITIES[name.toLowerCase()] ?? entity;
+	});
+
 export function stripHtml(html: string | undefined): string {
 	if (!html) return "";
 	return html.replace(/<[^>]*>/g, "").trim();

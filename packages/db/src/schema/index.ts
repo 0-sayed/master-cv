@@ -7,3 +7,4 @@ export * from "./cover-letter";
 export * from "./resume";
 export * from "./web-access";
 export * from "./ai-content-report";
+export * from "./ai-review";

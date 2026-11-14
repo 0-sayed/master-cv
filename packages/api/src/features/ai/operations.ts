@@ -18,7 +18,8 @@ import { operationRequestSchema } from "@reactive-resume/schema/ai-operation";
 import { generateId } from "@reactive-resume/utils/string";
 import { lockDocumentOwner } from "../documents/ownership";
 import { createResumeInTransaction } from "../resume/service";
-import { getOperationHandler, operationFingerprint, resolveApprovedRoute } from "./route-policy";
+import { loadReviewSource, lockReviewProfile, removeExpiredReviewSources } from "./review-sources";
+import { getOperationHandler, canonicalJson, operationFingerprint, resolveApprovedRoute } from "./route-policy";
 import {
 	admitResumeCreation,
 	resolveResumeCreation,
@@ -60,7 +61,14 @@ export async function assertSourceRevisions(
 	userId: string,
 	request: OperationRequest,
 ): Promise<void> {
+	// Nested answer sources can reach a resume before a later career source.
+	// Acquire the profile first regardless of request/source ordering.
+	await lockReviewProfile(tx, userId);
 	for (const source of [...request.sources].sort((a, b) => `${a.kind}:${a.id}`.localeCompare(`${b.kind}:${b.id}`))) {
+		if (source.kind === "import" || source.kind === "answer") {
+			await loadReviewSource(tx, userId, source);
+			continue;
+		}
 		let revision: string | undefined;
 		if (source.kind === "resume") {
 			const [row] = await tx
@@ -354,7 +362,36 @@ export function deliverOperation(lease: OperationLease, output: Record<string, u
 		const handler = getOperationHandler(operation.kind);
 		if (handler.promptVersion !== operation.promptVersion || handler.schemaVersion !== operation.schemaVersion)
 			throw new Error("AI_HANDLER_CHANGED");
+		if (handler.verifier) {
+			const attempts = await tx
+				.select()
+				.from(aiOperationAttempt)
+				.where(eq(aiOperationAttempt.operationId, operation.id));
+			const generated = attempts.find(
+				(a) => a.stepId !== "verify" && a.outcome === "valid" && a.finishedAt && a.output,
+			);
+			const verified = attempts.find((a) => a.stepId === "verify" && a.outcome === "valid" && a.finishedAt && a.output);
+			try {
+				if (
+					!generated?.output ||
+					!verified?.output ||
+					verified.ordinal <= generated.ordinal ||
+					canonicalJson(generated.output) !== canonicalJson(output)
+				)
+					throw new Error("AI_VERIFICATION_REQUIRED");
+				handler.verifier.validate(output, verified.output);
+			} catch {
+				return finishUnsuccessful(tx, operation, "AI_VERIFICATION_FAILED");
+			}
+		}
 		let result = handler.output.parse(output);
+		if (handler.validateResult) {
+			try {
+				result = await handler.validateResult(tx, lease.ownerId, operationRequest(operation), result);
+			} catch {
+				return finishUnsuccessful(tx, operation, "AI_REVIEW_INVALID");
+			}
+		}
 		if (operation.copyClaim) {
 			if (!handler.createCopy) throw new Error("AI_COPY_HANDLER_UNAVAILABLE");
 			const id = await createResumeInTransaction(
@@ -367,7 +404,15 @@ export function deliverOperation(lease: OperationLease, output: Record<string, u
 		const [updated] = await tx
 			.update(aiOperation)
 			.set({
-				state: handler.resultState,
+				state:
+					operation.kind.startsWith("review.") &&
+					Array.isArray(result.questions) &&
+					result.questions.length === 0 &&
+					(Array.isArray(result.proposals)
+						? result.proposals.length === 0
+						: Array.isArray(result.candidates) && result.candidates.length === 0)
+						? "succeeded"
+						: handler.resultState,
 				result,
 				deliveredAt: new Date(),
 				leaseToken: null,
@@ -394,7 +439,13 @@ export function deliverOperation(lease: OperationLease, output: Record<string, u
 				threadId: thread.id,
 				role: "assistant",
 				sequence: (last?.sequence ?? 0) + 1,
-				uiMessage: { id: operation.id, role: "assistant", parts: [{ type: "text", text }] },
+				uiMessage: {
+					id: operation.id,
+					role: "assistant",
+					parts: operation.kind.startsWith("review.")
+						? [{ type: "data-review", data: { operationId: operation.id } }]
+						: [{ type: "text", text }],
+				},
 			});
 			await tx.update(agentThread).set({ lastMessageAt: new Date() }).where(eq(agentThread.id, thread.id));
 		}
@@ -411,6 +462,7 @@ export async function discoverAiOwners(): Promise<string[]> {
 
 /** Owner discovery is bounded; unknown liability moves to conservative spend five minutes after deadline. */
 export async function reconcileExpiredAccounting(ownerId: string): Promise<void> {
+	await removeExpiredReviewSources(ownerId);
 	await withOwnerDatabase(ownerId, async (tx) => {
 		await lockDocumentOwner(tx, ownerId);
 		const operations = await tx

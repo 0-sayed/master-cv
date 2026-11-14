@@ -1,5 +1,6 @@
 import type { AiRuntime, ApprovedRoute } from "../route-policy";
 import { z } from "zod";
+import { reviewHandlers } from "../review-handlers";
 
 export const syntheticRoute: ApprovedRoute = {
 	routeId: "synthetic",
@@ -19,6 +20,7 @@ export const syntheticRoute: ApprovedRoute = {
 	maxOutputTokens: 4096,
 	requestCapMicros: 10000,
 	maxCallCostMicros: 3333,
+	verifier: { evidenceVersion: "synthetic-verifier-v2", maxCallCostMicros: 3333 },
 	dayCapMicros: 100000,
 };
 export const syntheticRuntime: AiRuntime = {
@@ -53,4 +55,34 @@ export const syntheticRuntime: AiRuntime = {
 				{ headers: { "content-type": "application/json" } },
 			),
 		),
+};
+
+/** T006 fixture approvals are explicit; changing writer-config.json cannot authorize another writer. */
+export const syntheticReviewRuntime: AiRuntime = {
+	...syntheticRuntime,
+	handlers: reviewHandlers,
+	routes: [
+		{
+			...syntheticRoute,
+			model: "openai/gpt-6-luna",
+			downstreamProvider: "azure",
+			reasoningEffort: "low",
+			writers: [
+				{
+					model: "openai/gpt-6-luna",
+					downstreamProvider: "azure",
+					reasoningEffort: "high",
+					evidenceVersion: "synthetic-extraction-high",
+					maxCallCostMicros: 3333,
+				},
+				{
+					model: "openai/gpt-6.1-terra",
+					downstreamProvider: "azure",
+					reasoningEffort: "medium",
+					evidenceVersion: "synthetic-questions-medium",
+					maxCallCostMicros: 3333,
+				},
+			],
+		},
+	],
 };

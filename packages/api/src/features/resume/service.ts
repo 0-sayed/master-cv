@@ -109,7 +109,7 @@ type ResumeUpdateInput = {
 	sessionId?: string;
 };
 
-async function updateResumeTx(tx: DbOrTx, input: ResumeUpdateInput) {
+export async function updateResumeTx(tx: DbOrTx, input: ResumeUpdateInput) {
 	const [existing] = await tx
 		.select({
 			name: schema.resume.name,
