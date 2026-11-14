@@ -12,7 +12,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { lastAssistantMessageIsCompleteWithToolCalls } from "ai";
 import { useEffect, useEffectEvent, useId, useMemo, useRef, useState } from "react";
 import { agentWebSources, readPageOutputSchema } from "@reactive-resume/ai/tools/agent-tool-contracts";
-import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { reviewResultSchema } from "@reactive-resume/schema/resume/ai-review";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
@@ -25,6 +26,7 @@ import { useAssistantCopy } from "./copy.generated";
 import { AssistantMarkdown } from "./markdown";
 import { confirmedCancellation } from "./operation-state";
 import { ChangeSet } from "@/features/resume/editor/proposals/proposal-list";
+import { ReviewResultPanel } from "@/features/resume/editor/proposals/review-panel";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { isImeComposing } from "@/libs/keyboard";
@@ -141,7 +143,17 @@ export function Conversation(props: ConversationProps) {
 						const recovered: AgentUIMessage = {
 							id: outcome.operation.id,
 							role: "assistant",
-							parts: [{ type: "text", text: typeof result.text === "string" ? result.text : JSON.stringify(result) }],
+							parts: reviewResultSchema.safeParse(result).success
+								? [{ type: "data-review", data: { operationId: outcome.operation.id } }]
+								: [
+										{
+											type: "text",
+											text:
+												typeof result.text === "string"
+													? result.text
+													: t`The result is unavailable. Reload this conversation.`,
+										},
+									],
 						};
 						setMessages((current) =>
 							current.some((message) => message.id === recovered.id) ? current : [...current, recovered],
@@ -338,11 +350,12 @@ export function Conversation(props: ConversationProps) {
 					<Alert variant="warn">
 						<Icon name="warning-circle" />
 						<AlertTitle>{copy("review.assistant.error.unavailableTitle")}</AlertTitle>
-						<AlertDescription>
+
+						<AlertActions>
 							<Button variant="secondary" onClick={() => setResumeAttempt((attempt) => attempt + 1)}>
 								<Trans>Retry</Trans>
 							</Button>
-						</AlertDescription>
+						</AlertActions>
 					</Alert>
 				)}
 				{stopState === "failed" && (
@@ -351,11 +364,12 @@ export function Conversation(props: ConversationProps) {
 						<AlertTitle>
 							<Trans>Couldn't stop the assistant. Work may still be active.</Trans>
 						</AlertTitle>
-						<AlertDescription>
+
+						<AlertActions>
 							<Button variant="secondary" onClick={() => void stopReply()}>
 								<Trans>Retry stop</Trans>
 							</Button>
-						</AlertDescription>
+						</AlertActions>
 					</Alert>
 				)}
 				{decisionFailure && (
@@ -366,10 +380,12 @@ export function Conversation(props: ConversationProps) {
 						</AlertTitle>
 						<AlertDescription>
 							<Trans>The previous confirmed decision is kept.</Trans>
+						</AlertDescription>
+						<AlertActions>
 							<Button variant="secondary" onClick={decisionFailure.retry}>
 								<Trans>Retry saving decision</Trans>
 							</Button>
-						</AlertDescription>
+						</AlertActions>
 					</Alert>
 				)}
 				{pendingDecisionCount > 0 && (
@@ -513,6 +529,14 @@ function MessageView({
 		<div className={cn("grid gap-3 text-sm", enter && ENTER_CLASS)}>
 			{message.parts.map((part, index) => {
 				const key = `${message.id}-${index}`;
+				if (
+					part.type === "data-review" &&
+					typeof part.data === "object" &&
+					part.data !== null &&
+					"operationId" in part.data &&
+					typeof part.data.operationId === "string"
+				)
+					return <ReviewResultPanel key={key} operationId={part.data.operationId} />;
 				if (part.type === "text")
 					return (
 						<div key={key}>

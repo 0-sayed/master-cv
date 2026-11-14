@@ -51,11 +51,9 @@ it.each([
 
 it("preserves the minimum value in advice about overlapping lines", async () => {
 	const [locale, catalog] = (await catalogs)[0];
-	const id = generateMessageId("Lines this close can run together when read. Use at least {minimum}.");
+	const id = generateMessageId("Close lines can merge when read; use spacing of at least {minimum}.");
 	const i18n = setupI18n({ locale, messages: { [locale]: { [id]: compiledTranslation(catalog, id) } } });
-	expect(i18n._(id, { minimum: "1.2" })).toBe(
-		"قد تتداخل الأسطر عند قراءتها إذا كان التباعد بينها ضيقًا هكذا. استخدم 1.2 على الأقل.",
-	);
+	expect(i18n._(id, { minimum: "1.2" })).toBe("قد تندمج الأسطر المتقاربة عند القراءة؛ استخدم تباعدًا لا يقل عن 1.2.");
 });
 
 it.each([

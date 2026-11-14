@@ -14,7 +14,8 @@
 		"test:ai-runtime": "tsx --tsconfig ../../tsconfig.json ../../tests/e2e/t005-runtime-server.ts",
 		"test:coverage": "vp test run --coverage --passWithNoTests",
 		"test:ci": "vp test run --reporter=default --reporter=github-actions --reporter=json --reporter=junit --outputFile.json=reports/vitest-results.json --outputFile.junit=reports/vitest-junit.xml --passWithNoTests",
-		"test:agent": "vp test run --reporter=agent --reporter=json --outputFile.json=reports/vitest-results.json --passWithNoTests"
+		"test:agent": "vp test run --reporter=agent --reporter=json --outputFile.json=reports/vitest-results.json --passWithNoTests",
+		"test:review-runtime": "tsx --tsconfig ../../tsconfig.json ../../tests/e2e/reviewable-ai-runtime-server.ts"
 	},
 	"dependencies": {
 		"@ai-sdk/anthropic": "^4.0.85",

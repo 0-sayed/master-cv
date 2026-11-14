@@ -15,6 +15,7 @@ const registry = {
 	voice: { key: "career-voice-settings", scope: "device" },
 	documentsView: { key: "documents-view", scope: "device" },
 	sidebar: { prefix: "master-cv:sidebar:", scope: "device" },
+	checkIntroduction: { prefix: "master-cv:check-introduction:", scope: "device" },
 } as const;
 
 declare const registeredKey: unique symbol;

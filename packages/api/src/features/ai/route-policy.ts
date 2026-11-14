@@ -1,5 +1,7 @@
 import type { ResumeCreateInput } from "../resume/service";
-import type { ModelPayloadInput } from "./payload";
+import type { ModelPayload, ModelPayloadInput } from "./payload";
+import type { WriterRouteApproval } from "./writer-policy";
+import type { OwnerTransaction } from "@reactive-resume/db/owner-scope";
 import type { AiAvailability, OperationRequest, RouteBinding } from "@reactive-resume/schema/ai-operation";
 import type { ResumeCreationKind } from "@reactive-resume/schema/ai-usage";
 import type { z } from "zod";
@@ -9,8 +11,18 @@ import { ORPCError } from "@orpc/client";
 import { and, eq, isNull } from "drizzle-orm";
 import { withOwnerDatabase } from "@reactive-resume/db/owner-scope";
 import { aiProcessingConsent } from "@reactive-resume/db/schema";
+import { resolveReviewVerifierRoute } from "./verifier-policy";
+import { resolveWriterRoute } from "./writer-policy";
+
+export type ReasoningEffort = "none" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max";
 
 export type ApprovedRoute = RouteBinding & {
+	/** Additional exact writer/effort approvals in this same versioned consent/config bundle. */
+	writers?: readonly WriterRouteApproval[];
+	/** Explicitly approved cross-family verification in this consent/config bundle. */
+	verifier?:
+		| { evidenceVersion: string; maxCallCostMicros: number; policy?: import("./verifier-policy").VerifierPolicy }
+		| undefined;
 	endpoint: string;
 	model: string;
 	downstreamProvider: string;
@@ -22,13 +34,54 @@ export type ApprovedRoute = RouteBinding & {
 	callTimeoutMs: number;
 	deadlineMs: number;
 	maxInputCodePoints: number;
+	/** Visible-output allowance; completionTokenLimit includes reasoning overhead. */
 	maxOutputTokens: number;
+	/** Explicit completion allowance for a large verifier response; visible writer limits stay unchanged. */
+	completionTokenCap?: number;
+	reasoningEffort?: ReasoningEffort;
 	requestCapMicros: number;
 	/** Reviewed conservative per-call bound from exact model pricing and input/output limits. */
 	maxCallCostMicros: number;
 	dayCapMicros: number;
 };
+/** Effort allocations are OpenRouter approximations, not a guarantee of visible output. */
+export function completionTokenLimit(
+	route: Pick<ApprovedRoute, "maxOutputTokens" | "reasoningEffort" | "completionTokenCap">,
+): number {
+	const visiblePercent = { none: 100, minimal: 90, low: 80, medium: 50, high: 20, xhigh: 5, max: 5 };
+	const effort = route.reasoningEffort ?? "none";
+	if (
+		!Object.hasOwn(visiblePercent, effort) ||
+		!Number.isSafeInteger(route.maxOutputTokens) ||
+		route.maxOutputTokens <= 0 ||
+		route.maxOutputTokens > 4096
+	)
+		throw new Error("AI_INVALID_OUTPUT_LIMIT");
+	const scaled = Math.ceil((route.maxOutputTokens * 100) / visiblePercent[effort]);
+	if (
+		route.completionTokenCap !== undefined &&
+		(!Number.isSafeInteger(route.completionTokenCap) ||
+			route.completionTokenCap < scaled ||
+			route.completionTokenCap > 12288)
+	)
+		throw new Error("AI_INVALID_OUTPUT_LIMIT");
+	return route.completionTokenCap ?? scaled;
+}
+
 export type OperationHandler = {
+	verifier?: {
+		output: z.ZodType<Record<string, unknown>>;
+		systemPrompt: string;
+		buildInput: (payload: ModelPayload, output: Record<string, unknown>) => ModelPayload;
+		validate: (output: Record<string, unknown>, verdict: unknown) => void;
+	};
+	systemPrompt?: string;
+	validateResult?: (
+		tx: OwnerTransaction,
+		ownerId: string,
+		request: OperationRequest,
+		output: Record<string, unknown>,
+	) => Promise<Record<string, unknown>>;
 	promptVersion: string;
 	schemaVersion: string;
 	parameters: z.ZodType<Record<string, unknown>>;
@@ -39,6 +92,10 @@ export type OperationHandler = {
 	resultState: "waiting_review" | "succeeded";
 };
 export type AiRuntime = {
+	/** Reviewed server composition only: model/effort overrides, never credentials or public request input. */
+	writerConfig?: unknown;
+	/** Local composition only; ignored in production. Never configured by a public request. */
+	localOwnerAllowance?: { ownerId: string; limit: number } | undefined;
 	routes: readonly ApprovedRoute[];
 	handlers: Readonly<Record<string, OperationHandler>>;
 	workerAvailable: boolean;
@@ -73,13 +130,33 @@ export function getOperationHandler(kind: string): OperationHandler {
 
 export async function resolveApprovedRoute(userId: string, request: OperationRequest): Promise<ApprovedRoute> {
 	const runtime = getAiRuntime();
-	const route = runtime.routes.find(
+	let route = runtime.routes.find(
 		(r) =>
 			r.routeId === request.route.routeId &&
 			r.routeRevision === request.route.routeRevision &&
 			r.configRevision === request.route.configRevision,
 	);
 	if (!route || route.noticeVersion !== request.consentVersion || !route.evidenceVersion) denyAiProcessing();
+	try {
+		route = resolveWriterRoute(route, request, runtime.writerConfig);
+	} catch {
+		denyAiProcessing();
+	}
+	if (runtime.handlers[request.kind]?.verifier) {
+		try {
+			const verifier = resolveReviewVerifierRoute(route);
+			completionTokenLimit(verifier);
+			if ((route.maxCalls - 1) * route.maxCallCostMicros + verifier.maxCallCostMicros > route.requestCapMicros)
+				denyAiProcessing();
+		} catch {
+			denyAiProcessing();
+		}
+	}
+	try {
+		completionTokenLimit(route);
+	} catch {
+		denyAiProcessing();
+	}
 	const positive = [
 		route.maxCalls,
 		route.callTimeoutMs,

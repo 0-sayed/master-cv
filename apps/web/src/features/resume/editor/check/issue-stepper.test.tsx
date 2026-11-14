@@ -108,7 +108,7 @@ it("opens mobile automatic-fix review before mutation, preserves rejected change
 	expect(within(dialog).getByText("https://example.com")).toBeVisible();
 	expect(mocks.data).toEqual(before);
 	expect(mocks.update).not.toHaveBeenCalled();
-	await userEvent.click(within(dialog).getByRole("button", { name: "Reject" }));
+	await userEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
 	await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
 	expect(mocks.data).toEqual(before);
 	expect(mocks.update).not.toHaveBeenCalled();

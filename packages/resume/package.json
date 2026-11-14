@@ -12,6 +12,7 @@
 		"./markdown": "./src/markdown.ts",
 		"./patch": "./src/patch.ts",
 		"./proposals": "./src/proposals.ts",
+		"./review-evidence": "./src/review-evidence.ts",
 		"./section-sort": "./src/section-sort.ts",
 		"./social-meta": "./src/social-meta.ts",
 		"./stylesheet": "./src/stylesheet/index.ts",

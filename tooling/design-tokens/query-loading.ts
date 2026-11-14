@@ -23,6 +23,10 @@ const actionSpinners: Record<string, { maximum: number; reason: string }> = {
 	"features/resume/editor/save-status.tsx": { maximum: 1, reason: "Pending autosave mutation." },
 	"features/resume/editor/check/writing-tab.tsx": { maximum: 1, reason: "Explicit opt-in AI writing review mutation." },
 	"features/resume/editor/check/check-panel.tsx": { maximum: 1, reason: "Explicit local rendered-PDF check action." },
+	"features/resume/editor/check/check-sections.tsx": {
+		maximum: 1,
+		reason: "Owner-required progress for the local rendered-PDF check, not query loading.",
+	},
 };
 
 export function queryLoadingViolations(source: string, path: string): string[] {

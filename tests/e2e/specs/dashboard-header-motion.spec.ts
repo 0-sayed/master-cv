@@ -86,7 +86,7 @@ for (const locale of ["ar-SA", "en-US"]) {
 					return [r.x, r.y, r.width, r.height];
 				};
 				const sample = (time: number) => {
-					const header = document.querySelector("main > header");
+					const header = document.querySelector(".shell-toolbar");
 					const style = getComputedStyle(document.documentElement, "::view-transition-new(root)");
 					const headerStyle = getComputedStyle(document.documentElement, "::view-transition-new(app-header)");
 					const areas: Frame["areas"] = {};
@@ -174,7 +174,7 @@ for (const locale of ["ar-SA", "en-US"]) {
 				).toHaveCount(0);
 				await settleScreen(page);
 				const title = await page.locator("main h1").first().innerText();
-				await expect(page.locator("main > header").getByText(title, { exact: true })).toHaveCount(0);
+				await expect(page.locator(".shell-toolbar").getByText(title, { exact: true })).toHaveCount(0);
 			}
 			// Settings sub-tab switches are client navigations too, not isolated reloads.
 			for (const destination of [

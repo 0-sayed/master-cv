@@ -17,7 +17,7 @@ for (const locale of ["ar-SA", "en-US"]) {
 			await settleScreen(page);
 			const geometry = await page.evaluate(() => {
 				const main = document.querySelector("main");
-				const band = main?.querySelector('[data-slot="dashboard-header-content"]');
+				const band = document.querySelector('[data-slot="dashboard-header-content"]');
 				const title = main?.querySelector("h1");
 				const frame = main?.querySelector('[data-slot="dashboard-page"]');
 				if (!main || !band || !title || !frame) throw new Error("Dashboard layout missing");

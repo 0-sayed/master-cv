@@ -1,0 +1,482 @@
+{
+	"version": 4,
+	"frozenBeforeHoldoutAuthorship": "2026-11-12T12:24:52.603886+00:00",
+	"policy": "Owner-authorized class-level holdout inspection and round-5 correction of a responsibility-inflating gold label; not pristine independent generalization evidence. Production guard unchanged. One authorized post-correction control scan; no other label changes. Owner-directed lead review on 2026-11-12 corrected chronology and supporting-role gold in tuning/holdout; regenerated from authored passages. Not pristine independent generalization evidence. Production guards and prompts unchanged. Owner-authorized recorded tuning-smoke repair: production guard v8, Gemini JSON mode with unchanged full local validation, larger benchmark completion caps, technical smoke checks and tuning fact aliases; holdout unchanged. Prior sealed receipt is historical only; new controls recorded separately.",
+	"files": {
+		"packages/api/src/features/ai/hard-facts.ts": "2bba6ab6dccf5a63d71208d7b66109c63d7b1f74d5a0c5bcfab980149b164364",
+		"packages/api/src/features/ai/review-validation.ts": "06b0f6b486503e75d1d64f81b976e6be56afde3b56551c781bfd25274825b725",
+		"packages/api/src/features/ai/review-verifier.ts": "9cd2453d4df7d597e6367446dcc2f59f78f90e0f69e309d08d54985d713000b7",
+		"packages/api/src/features/ai/review-handlers.ts": "7fdf354d2dcd71a14e85b5edb69e392bcf3a25d56618206d8d263fcb5e0f19be",
+		"packages/schema/src/resume/ai-review.ts": "e226775f071cc5aa9babe3f406ac1a8a62cb7d22f19f0d0df1de81cdd3cba265",
+		"packages/ai/src/prompts/review-system.md": "19f4b32216e3a614161f2849fc646f0faa6bb1bce58ec64ca83df16e80b87a6d",
+		"packages/ai/src/prompts/extraction-review-system.md": "fa9ffb0d72901467a4dc5ca676708fbe304e179571703bf3b7603ec6363fd478",
+		"packages/ai/src/prompts/review-verifier.md": "45840603bac96583ab793bc1f9cf9e6a66a0aec9192b9414b5301bca64d12611",
+		"tooling/evaluations/review/corpus.ts": "20c4d488429d8debe8845b231cedc2ac3b7e7844b065fbd259331b3e05a277f0",
+		"tooling/evaluations/review/score.ts": "fff13f7f333afca5d4a8d5b91ef21a12239eeb807453d26909f265e2ab6ad777",
+		"tooling/evaluations/review/decision.ts": "036c855b623d7f7bb930b1507c244989533a38764e8712392919e070a59bdc27",
+		"tooling/evaluations/review/metrics.ts": "6bdedea9135e76f4e7729985ac9ec91a09d786b7476d0830c02341dfd04a50cd",
+		"tooling/evaluations/review/runner.ts": "a20c972da786f1dcbfd0db6b60a2efec9dc3f60f3753d77e7c471c9a7d250bc3",
+		"tooling/evaluations/review/verifier.ts": "435852f1343f7dc057d22c3289469eed630bb5a172434d4e6821ff299e2885f1",
+		"tooling/evaluations/review/study.ts": "f28b84d249f9648a0eab5c38990b0119239ee8452740d21c135d4c5a7c7fd788",
+		"tooling/evaluations/review/report.ts": "ad4d65a56a500a385ad2a6b3690b1193f2ecaee9c29d16a62b97960b3da028ee",
+		"tooling/evaluations/review/report-client.ts": "f738c676fdd5854bf48cf51f966f0b343e1d0605ed4f5d3b66508a476f057027",
+		"tooling/evaluations/review/blind.ts": "9e0e9fb95980af07addf143b8d8ab61da34d022c1feaf6a3d844f15f41c61126",
+		"tooling/evaluations/review/cli.ts": "4b4c5d9dae6ce0c231075529634a7b1629c6b1295a5aba8040bd203cf9e7a3be",
+		"tooling/evaluations/review/config.ts": "87d08f52f16a30dd3b6ad06a3d4bc20ac6f0e979f32f131837c1fd284d62dcc4",
+		"tooling/evaluations/review/production.ts": "db4ce124dfb637915512259be79b8112b2ea79ddc58d5c3811affc239af8dd00",
+		"packages/utils/src/string.ts": "3f2d7e05fffa00bbaff5099182b1d40fc27c11f033c34331aaba72813f2e5c77",
+		"packages/resume/src/proposals.ts": "b4cce4d8595d7c77b7c9a4e8c71b2876caf6d14d44da4cedaf9eff4682eec6bb",
+		"packages/api/src/features/ai/verifier-policy.ts": "e1b92320cb850c4ff9bec4808632b000b477a68a69473081b43ee00b2bd763d8",
+		"packages/api/src/features/ai/operation-worker.ts": "7e74abf3834498c90254472f8ef48837e431cd6de9c3951585e8948f1dcb92fe",
+		"packages/api/src/features/ai/route-policy.ts": "bad0f6da2016d363bf296c349000773a43f8910560d6b1a40b7731b57cee133b",
+		"tooling/evaluations/review/honesty.ts": "e90031371ef0e8c8061e5f1993ad4c8334a013eb10d2da0f3fde1f452a4bc0e8",
+		"tooling/evaluations/review/honest-paraphrases.json": "1299a796dbc588543cde5186fc6f51da67014815823c992890de6bc12f1a4a75",
+		"tooling/evaluations/review/tuning-passages.json": "1b1266b5454a0047a129b5c08b4d037edde4676abe5bbdd3ddcf21cd245b48a4",
+		"tooling/evaluations/review/fixtures.json": "b254346891029d10d463bf30b83d9cdcf22b433044ba588f7f1d2c7942738713",
+		"tooling/evaluations/review/models.json": "2df3912204eef8bc056ecbc156303fd73b2b3b8d9be031453a2f96950d92ed9d",
+		"tooling/evaluations/review/derive-cases.py": "0d0eb8175e0e6ca7fae4bfe32d903394b306ce22a4d2f72c98e0ab587da67cd9",
+		"tooling/evaluations/review/class-tuning.json": "05796a098c2c0739eae7a6504bbfd1b356c87215640606cae4a3292b670dc0fb",
+		"tooling/evaluations/review/budget.ts": "31329cf8e72d8ff51f88de8145d8670447389fd94c1a464a300edba64b447743",
+		"tooling/evaluations/review/benchmark-verifier.md": "6981039faa9c2bf274244d02ef8eedf0a9d22a277955960c15ef1db48bcf90fb",
+		"packages/api/src/features/ai/adapter.ts": "f4ca5cf314e12ee254ab11f16a37a4bd6194e769391b91e8f173633f6c3d2c94",
+		"tooling/evaluations/review/replay.ts": "463f7ed7ec71b96f8eff3e51d1396d6f399fd40702083dcc6ce67024c604bcf3",
+		"tooling/evaluations/review/effort-grid.ts": "10929859af13d3b52550b2fcd9bf1b9da1fb60c96a1f5705ace25056a3c60ea3",
+		"tooling/evaluations/review/forecast.ts": "e546105bbbaebcfcd32bc62397acbfa701c1cf08ecbb5584d1de944840c6c565"
+	},
+	"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+	"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809",
+	"holdoutFrozenAt": "2026-11-12T12:25:46.644128+00:00",
+	"formattingOnly": {
+		"priorHoldoutHash": "86bb161e6fab0d1d48985518377db47df4612a8667c0ce2157c0b26bd77d30e4",
+		"contentChange": false
+	},
+	"independentCorrectnessAmendments": [
+		{
+			"at": "2026-11-12T12:28:11.230453+00:00",
+			"source": "Independent generic dispatch-receipts/inventory-notes reorder baseline test, RED to GREEN; no heldout/probe quality results inspected.",
+			"reason": "An absent clarity-removal marker could accept copied reordered tasks; measure authored fact order instead.",
+			"files": {
+				"tooling/evaluations/review/corpus.ts": "8d7940642909460b4fa4f8661c047b5690806071e5f152f8bdab52a78426b5ce",
+				"tooling/evaluations/review/score.ts": "8bd0a583abe22598902e3c37e8f281719d2bb6ca5826301dcace37ce46011f13"
+			},
+			"guardPromptChange": false,
+			"holdoutContentChange": false
+		}
+	],
+	"nonBehavioralAmendments": [
+		{
+			"at": "2026-11-12T12:36:30.756840+00:00",
+			"source": "Final static lint: split multiple variable declarations; capture optional validateResult function instead of non-null assertion.",
+			"qualityTuning": false,
+			"holdoutOrPromptContentChange": false,
+			"files": {
+				"packages/api/src/features/ai/hard-facts.ts": {
+					"before": "d37c79c27d2a2521383441e22c23cadbe224f4b1048c8e6b84faea558a61d1ac",
+					"after": "800c29ff7cc7313e02d28f1a09277b36c65c6954020048e3effc1af734ac6da3"
+				},
+				"tooling/evaluations/review/score.ts": {
+					"before": "8bd0a583abe22598902e3c37e8f281719d2bb6ca5826301dcace37ce46011f13",
+					"after": "517f87a9d7abc7614f3e597593d293ad2109289247006ccfeadf2169acf0ae7a"
+				},
+				"tooling/evaluations/review/runner.ts": {
+					"before": "62b18fe3cdb1e5d1388201ed3eae0074d0ff215c9d4fc93a75a6637332d171eb",
+					"after": "50c430037b3b71d783542088ba07032e3a78be005fd1d429408a7eaf80537f38"
+				},
+				"packages/api/src/features/ai/operation-worker.ts": {
+					"before": "9528c8b0b2ec003eeaceafe73c1a20eeb4a2045b8cbeec056340638f45e1f440",
+					"after": "7e74abf3834498c90254472f8ef48837e431cd6de9c3951585e8948f1dcb92fe"
+				}
+			}
+		},
+		{
+			"at": "2026-11-12T12:37:47.063777+00:00",
+			"source": "Final Knip: remove exports of three functions used only within their own modules.",
+			"qualityTuning": false,
+			"holdoutOrPromptContentChange": false,
+			"files": {
+				"tooling/evaluations/review/score.ts": {
+					"before": "517f87a9d7abc7614f3e597593d293ad2109289247006ccfeadf2169acf0ae7a",
+					"after": "e1cd9973c0a174622904b966e1e54ccfc38f3577c72c21a53d7db4110f0403d6"
+				},
+				"tooling/evaluations/review/runner.ts": {
+					"before": "50c430037b3b71d783542088ba07032e3a78be005fd1d429408a7eaf80537f38",
+					"after": "36e8ba439f1410baf5f00a40f8b95d3ea3c7d62fa1ebb8f8dba7e3060f1cdb7f"
+				}
+			}
+		}
+	],
+	"authorizedClassResolution": {
+		"frozenAt": "2026-11-12T12:53:53.455571+00:00",
+		"priorFreezeHash": "51df7ca53d9c7eb7834c1cb7b42fb44255495ce8990634845d522e692c12b884",
+		"priorFreeze": "freeze-round2-before-class-resolution.json",
+		"classOnlyLeakage": true,
+		"sealedScansAuthorized": 1,
+		"diagnoses": {
+			"r2-h11-wording": "date-only retained claim incorrectly requires omitted role context",
+			"r2-h11-injection": "same date-role context mismatch under another task wrapper",
+			"r2-h06-injection": "credential qualifier unbound to credential headword"
+		},
+		"newTuningExamples": 12,
+		"holdoutContentChange": false,
+		"furtherQualityIterationAllowed": false
+	},
+	"nonQualityAmendments": [
+		{
+			"at": "2026-11-12T13:03:45.732483+00:00",
+			"priorFreezeHash": "213cf19a932b94f1f1525b6ef3d7b95d26438c5a55759a66533c3468dbb7e7f0",
+			"priorFreezeFile": "tooling/evaluations/review/freeze-class-resolution-before-calibration.json",
+			"priorReceiptSha256": "040f708270c75e49911a933b7ecf219d721e9b4ad258ac1f3fb5d80f9141fb95",
+			"priorReceiptFile": "tooling/evaluations/review/guard-controls-class-resolution.json",
+			"changedFiles": ["tooling/evaluations/review/budget.ts", "tooling/evaluations/review/cli.ts"],
+			"reason": "Owner decision: print calibrated total before refusal and label provisional dry-run estimates unverified. No quality/guard/scoring/corpus change or new sealed scan."
+		}
+	],
+	"round5Amendment": {
+		"at": "2026-11-12T13:26:27.710359+00:00",
+		"priorFreezeFile": "tooling/evaluations/review/freeze-before-round5.json",
+		"priorFreezeHash": "44aae8c13bc456452ac717849e33d8c73cdaad177386854082fc465e4d315228",
+		"priorHoldoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+		"priorHoldoutFile": "tooling/evaluations/review/holdout-before-round5.json",
+		"goldCorrection": {
+			"ids": ["r2-h11-wording", "r2-h11-injection"],
+			"fields": ["safeText", "acceptableOutputs"],
+			"reason": "Gold strengthened an assisting responsibility into ownership; preserve the source responsibility strength."
+		},
+		"productionGuardChange": false,
+		"authorizedControlScans": 1,
+		"benchmarkChanges": [
+			"Adjudicate schema-valid guard rejects with the pinned verifier; include cost and blind ratings",
+			"Case-task usefulness verdict and 70% useful distinct-case threshold",
+			"Ten independently authored full-passage negation diagnostics",
+			"Report-header class-level leakage disclosure"
+		],
+		"changedFiles": [
+			"tooling/evaluations/review/corpus.ts",
+			"tooling/evaluations/review/decision.ts",
+			"tooling/evaluations/review/metrics.ts",
+			"tooling/evaluations/review/runner.ts",
+			"tooling/evaluations/review/verifier.ts",
+			"tooling/evaluations/review/study.ts",
+			"tooling/evaluations/review/report.ts",
+			"tooling/evaluations/review/report-client.ts",
+			"tooling/evaluations/review/honesty.ts",
+			"tooling/evaluations/review/honest-paraphrases.json",
+			"tooling/evaluations/review/benchmark-verifier.md"
+		]
+	},
+	"studyOnlyAmendments": [
+		{
+			"at": "2026-11-12",
+			"reason": "Owner-directed full model/effort grid, synthetic Google approval, explicit budget, fee-inclusive forecast and per-task quality/cost reporting. No prompt, production guard or corpus changes; no sealed control rescan.",
+			"priorFreeze": "freeze-before-variant-grid.json",
+			"files": {
+				"tooling/evaluations/review/decision.ts": {
+					"before": "e93db9ab34777485533176b24a8f1aa23d4bc796911a7db55922096bb7be3ab5",
+					"after": "07bb7fa311a5ec7eb0c913de4365a26f54616891e07d66be242ed171c01668f4"
+				},
+				"tooling/evaluations/review/runner.ts": {
+					"before": "f7fb123461c6f79cf6d1b8b74d1d6aede4d72c0092abe6460317afb15cc659aa",
+					"after": "5b3218dacfed7ca7631299ac668034ca3509cb14e0870bc51075005e3ad2c1c8"
+				},
+				"tooling/evaluations/review/report.ts": {
+					"before": "0ccf4ab242a8552f12e93732f7d7f60680123ce32da8881039fa08a15528b705",
+					"after": "1a21656275d99f302c621d43c69783b7efe134766116c7fb4475c2f2436ca05b"
+				},
+				"tooling/evaluations/review/report-client.ts": {
+					"before": "4476e315fc79f2757600309e7fb005afbe3856216ceb5c63acc2c13f9639dbaa",
+					"after": "0f66ada3d696d64bac71c7defdce2ded91c7cf8637e8828355cf78f8ec6ff36b"
+				},
+				"tooling/evaluations/review/cli.ts": {
+					"before": "ce14a837fcc6b85234d035620b6fa2ab86cf01dc39f4dcc93574489ea30f3ea3",
+					"after": "ceb9df1334c3542bf324245d22c6cefd0ef01a17c7689e8151bd03de0a2fd580"
+				},
+				"tooling/evaluations/review/config.ts": {
+					"before": "92884f11261771d8ec41f4e7771d8eeac1dd9b25a0df520fb12129fc57d996e3",
+					"after": "58c21b04c8368a285a19e708085b6ea5856fa417b991dab8403f5fa1d36c68cc"
+				},
+				"packages/api/src/features/ai/route-policy.ts": {
+					"before": "ad7c7bf500aa7c413bd87adc7409ff0d463014a581de6c831bb428d919ee8315",
+					"after": "bad0f6da2016d363bf296c349000773a43f8910560d6b1a40b7731b57cee133b"
+				},
+				"tooling/evaluations/review/models.json": {
+					"before": "dad1b64c3e58075f3a11437b95584839afcd297b8ee3a811e01c3b4c4504a692",
+					"after": "62e44b6162c81ff4557b3d0c86780acaef718f655045931caa1911d8b09e3e71"
+				},
+				"tooling/evaluations/review/budget.ts": {
+					"before": "e01a0ca91852ff5a6fcfc7c274a3896b2675583cabb77dbe4343f385cbc36f64",
+					"after": "8e3890136f9a351c0c157b5f4c843703a5b6b1062825255f3a97e83c46f89f26"
+				}
+			},
+			"guardPromptChange": false,
+			"holdoutContentChange": false
+		},
+		{
+			"at": "2026-11-12",
+			"reason": "Owner Google refresh: remove Lite, add healthy Carbon EU low with endpoint-specific 2.2/11 pricing, Flash .825/4.125; public effort enumeration excludes DeepSeek medium. Endpoint pin is hash-bound; identical privacy controls. No corpus/guard/prompt changes or sealed control rescan.",
+			"priorFreeze": "freeze-before-google-refresh.json",
+			"files": {
+				"tooling/evaluations/review/runner.ts": {
+					"before": "5b3218dacfed7ca7631299ac668034ca3509cb14e0870bc51075005e3ad2c1c8",
+					"after": "c960c19365c2389544acaa6ecb05b66cb3dec085fb2a4d818df51dce32c6811a"
+				},
+				"tooling/evaluations/review/study.ts": {
+					"before": "e0a72644b1b2d2cb886b641609f37b070d810d9fa5fa1685697f9b497cee8474",
+					"after": "6f663ac49b67d075470bf0dcb69c4e081c41b521b1f1f4705d061677b1bb1926"
+				},
+				"tooling/evaluations/review/config.ts": {
+					"before": "58c21b04c8368a285a19e708085b6ea5856fa417b991dab8403f5fa1d36c68cc",
+					"after": "89996acafd25d135ef75e3d64276255efa47393610cf6550a757dd81e3c90258"
+				},
+				"tooling/evaluations/review/models.json": {
+					"before": "62e44b6162c81ff4557b3d0c86780acaef718f655045931caa1911d8b09e3e71",
+					"after": "b92e851e9c6ee9c59b15cb1d0df1a9c5046bd8f7d52350b9a7472b1d3b5bc431"
+				}
+			},
+			"guardPromptChange": false,
+			"holdoutContentChange": false
+		},
+		{
+			"at": "2026-11-12",
+			"reason": "Owner removed the Google frontier candidate; eight variants retained, Terra low sole premium quality reference. No corpus, guard or prompt changes; prior sealed control outcomes carried without rescan.",
+			"priorFreeze": "freeze-before-reference-removal.json",
+			"files": {
+				"tooling/evaluations/review/models.json": {
+					"before": "b92e851e9c6ee9c59b15cb1d0df1a9c5046bd8f7d52350b9a7472b1d3b5bc431",
+					"after": "d6bcad98e2a624844da6e4c51ec90bb4782692be1562c9ab7ca0577553696bad"
+				}
+			},
+			"guardPromptChange": false,
+			"holdoutContentChange": false
+		},
+		{
+			"at": "2026-11-12T18:52:40.019951+00:00",
+			"reason": "Owner replaced Gemini 3.8 Flash low/medium with Hydrogen low across all categories/sets. Healthy exact Vertex global pin, fresh free metadata/prices. Historical offline replay uses archived manifest variants after removal from active grid. No paid inference, guard, prompt, corpus or preflight relaxation.",
+			"priorFreeze": "freeze-before-hydrogen-refresh.json",
+			"files": {
+				"tooling/evaluations/review/config.ts": {
+					"before": "b642de005938102dec7fb8f4c071c56e1866c40f1a0efcaf0951f8ab1409a13a",
+					"after": "d9c50e0b13934b300e74b3e23f7c876757f7d0788076e01d51cbfaf36e4b087f"
+				},
+				"tooling/evaluations/review/models.json": {
+					"before": "d6bcad98e2a624844da6e4c51ec90bb4782692be1562c9ab7ca0577553696bad",
+					"after": "3b58c6f82a6758568e99236934c071e03ad0d38adf0fd30b6b77bf21c5e3baed"
+				},
+				"tooling/evaluations/review/replay.ts": {
+					"before": "12e7b82456c499790a79ffdf3a5308fe2394380424e8db18b2dfd3d658240540",
+					"after": "a42750ed9acd223f0506524d5363f0d63c2c01599abeea85703a42ee387a87ce"
+				}
+			},
+			"guardPromptChange": false,
+			"holdoutContentChange": false
+		}
+	],
+	"leadReviewCorrections": {
+		"date": "2026-11-12",
+		"source": "Owner-directed lead review of Arabic gold and full AR/EN/mixed chronology/role-strength audit.",
+		"reason": "Reverse-chronological work histories and supporting-role gold corrections; stale authored h11 gold synchronized with its prior derived correction.",
+		"passages": ["r2-t03", "r2-t05", "r2-t11", "r2-h04", "r2-h05", "r2-h11"],
+		"derivedCaseIds": [
+			"r2-t03-wording",
+			"r2-t03-extraction",
+			"r2-t03-injection",
+			"r2-t05-wording",
+			"r2-t05-missing-info",
+			"r2-t05-injection",
+			"r2-t11-wording",
+			"r2-t11-extraction",
+			"r2-t11-injection",
+			"r2-h04-wording",
+			"r2-h04-extraction",
+			"r2-h04-missing-info",
+			"r2-h04-injection",
+			"r2-h05-wording",
+			"r2-h05-extraction",
+			"r2-h05-missing-info",
+			"r2-h05-injection",
+			"r2-h11-wording",
+			"r2-h11-extraction",
+			"r2-h11-missing-info",
+			"r2-h11-injection"
+		],
+		"priorFreeze": "freeze-before-lead-review.json",
+		"files": {
+			"tooling/evaluations/review/fixtures.json": {
+				"before": "4c553e02a56464a7a3b4a4cf5e95ca18519e04e6a40390a55d0615d0977d0541",
+				"after": "1508abfbab5a7e97c2c7d511e68781d242fa2517c8a959d75ff6d178822d865d"
+			},
+			"tooling/evaluations/review/tuning-passages.json": {
+				"before": "98ff2ebdcceaf5ca8bb0294584d7aefe09fedb2b230443bbac6b1dab3353b09c",
+				"after": "64d2f4a58504e6e28ccdbf0a707106aaa88e5c20cddb50ddbc235d6dbcea685a"
+			},
+			"tooling/evaluations/review/holdout.json": {
+				"before": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+				"after": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542"
+			},
+			"tooling/evaluations/review/holdout-passages.json": {
+				"before": "449ef4f1fc7c95e8b8d13bc45cdc05af7ae603f4c9430e5ea24a49ee07386901",
+				"after": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+			}
+		},
+		"productionGuardChanged": false,
+		"promptChanged": false,
+		"holdoutGoldCorrectedAfterReview": true
+	},
+	"liveSmokeRepair": {
+		"at": "2026-11-12",
+		"source": "Owner-authorized offline diagnosis of recorded tuning smoke 2026-11-12T17-23-39.924Z-1d8e7b6f; no new inference or heldout quality outcomes",
+		"priorFreeze": "freeze-before-live-smoke-repair.json",
+		"priorReceipt": "guard-controls-before-live-smoke-repair.json",
+		"productionGuardChange": true,
+		"hardFactsVersion": "t006-hard-facts-v8",
+		"holdoutContentChange": false,
+		"promptContentChange": false,
+		"changes": {
+			"packages/api/src/features/ai/hard-facts.ts": {
+				"before": "006505241241c9fbd9efb2582b170e5a2ed8ef1c905f8dfaabef03ec1dd8c66e",
+				"after": "2e2ccf97d5c0c1d51d3040cf6fe7b5740b89585905f527e303894dd79893aded"
+			},
+			"tooling/evaluations/review/runner.ts": {
+				"before": "c960c19365c2389544acaa6ecb05b66cb3dec085fb2a4d818df51dce32c6811a",
+				"after": "84bcade837336cff40c4a0c106eff58dae7c7bcf7ba3a4d5fe8ac5c0f783c331"
+			},
+			"tooling/evaluations/review/verifier.ts": {
+				"before": "dde642bb68ee7c3834284c771500d99a009484c3608f10480edb73b1f6ecd20e",
+				"after": "6e942cc1da5bd3f6bcbc84a6d35ef9284c2c906d91080846ad1b49817fd921e4"
+			},
+			"tooling/evaluations/review/study.ts": {
+				"before": "6f663ac49b67d075470bf0dcb69c4e081c41b521b1f1f4705d061677b1bb1926",
+				"after": "d5f76d889ba4b552792da47609b175fc87fb51e1fc29b68e6f923c26c25042f9"
+			},
+			"tooling/evaluations/review/tuning-passages.json": {
+				"before": "64d2f4a58504e6e28ccdbf0a707106aaa88e5c20cddb50ddbc235d6dbcea685a",
+				"after": "d8bfee49bd0f31c142d850ac64f26d44df888d22cb167561f1a1c00c5ede0864"
+			},
+			"tooling/evaluations/review/fixtures.json": {
+				"before": "1508abfbab5a7e97c2c7d511e68781d242fa2517c8a959d75ff6d178822d865d",
+				"after": "b254346891029d10d463bf30b83d9cdcf22b433044ba588f7f1d2c7942738713"
+			},
+			"packages/api/src/features/ai/adapter.ts": {
+				"before": null,
+				"after": "ae3334b9481601f76b27b359ce062dc4a3ed6f5f4f142cbba37c8b42292fa71f"
+			}
+		}
+	},
+	"postSmoke2Repair": {
+		"at": "2026-11-12T18:15:56.516756+00:00",
+		"source": "Owner-requested Astra/Fable smoke-2 fixes; offline replay of both recorded smokes only; no provider calls.",
+		"hardFactsVersion": "t006-hard-facts-v9",
+		"productionGuardChanged": true,
+		"holdoutPreviouslyInspected": true,
+		"holdoutContentChange": false,
+		"arabicFixtureContentChange": false,
+		"promptContentChange": false,
+		"aliases": "Removed t11-specific production aliases; remaining authored scoring aliases are tuning-only.",
+		"usefulness": "Advisory only; clarify-impact-without-inventing excluded; writer eligibility excludes verifier-fault sessions.",
+		"changes": {
+			"packages/api/src/features/ai/hard-facts.ts": {
+				"before": "2e2ccf97d5c0c1d51d3040cf6fe7b5740b89585905f527e303894dd79893aded",
+				"after": "2bba6ab6dccf5a63d71208d7b66109c63d7b1f74d5a0c5bcfab980149b164364"
+			},
+			"packages/api/src/features/ai/review-validation.ts": {
+				"before": "0f41e4a8b2edb86fa3c67b56fc38ff1a8981254a21b32b200175d75b28b30b51",
+				"after": "06b0f6b486503e75d1d64f81b976e6be56afde3b56551c781bfd25274825b725"
+			},
+			"tooling/evaluations/review/score.ts": {
+				"before": "e1cd9973c0a174622904b966e1e54ccfc38f3577c72c21a53d7db4110f0403d6",
+				"after": "fff13f7f333afca5d4a8d5b91ef21a12239eeb807453d26909f265e2ab6ad777"
+			},
+			"tooling/evaluations/review/decision.ts": {
+				"before": "07bb7fa311a5ec7eb0c913de4365a26f54616891e07d66be242ed171c01668f4",
+				"after": "036c855b623d7f7bb930b1507c244989533a38764e8712392919e070a59bdc27"
+			},
+			"tooling/evaluations/review/metrics.ts": {
+				"before": "30af6d0b71fb2adce27d1de7f763fcf1409aa34a9b1dd796eb369c0164d5cfc3",
+				"after": "0a201a5a9cc2c3ef8d822941a54a9a334c1dfdf00b6bd21a25b0b577ce78ddd1"
+			},
+			"tooling/evaluations/review/runner.ts": {
+				"before": "84bcade837336cff40c4a0c106eff58dae7c7bcf7ba3a4d5fe8ac5c0f783c331",
+				"after": "dcfb264496d4ae4ee14f8fdf61fa6a30fd94eda7b1c1b8f4f95d8e941b7865da"
+			},
+			"tooling/evaluations/review/verifier.ts": {
+				"before": "6e942cc1da5bd3f6bcbc84a6d35ef9284c2c906d91080846ad1b49817fd921e4",
+				"after": "89a090fa41b75ef3eb8d039feb9bd2d5f4c082dfcfdf16506a38f6ff85d96a2f"
+			},
+			"tooling/evaluations/review/study.ts": {
+				"before": "d5f76d889ba4b552792da47609b175fc87fb51e1fc29b68e6f923c26c25042f9",
+				"after": "130ebe20bed54d34f24bbfdb8617aa1c032f2bc83f73e5d066577102e9ac3418"
+			},
+			"tooling/evaluations/review/report.ts": {
+				"before": "1a21656275d99f302c621d43c69783b7efe134766116c7fb4475c2f2436ca05b",
+				"after": "cba5dd2066d2166d0af0822253d738b21dcfbdc2449c146db04823b3677ab12d"
+			},
+			"tooling/evaluations/review/report-client.ts": {
+				"before": "0f66ada3d696d64bac71c7defdce2ded91c7cf8637e8828355cf78f8ec6ff36b",
+				"after": "01fe5ba8c71f4062764ea280c821d89d44ca631386079ea62f5f29009431b932"
+			},
+			"tooling/evaluations/review/blind.ts": {
+				"before": "5aae689b9ea6076a3f8bd28f77cba362038d3252fc9edb69249079bbcbd08d4b",
+				"after": "8983e6018ce78bf6adbf2d29bbe2657f0784f554d23767b708ae97c73b3f5b24"
+			},
+			"tooling/evaluations/review/config.ts": {
+				"before": "89996acafd25d135ef75e3d64276255efa47393610cf6550a757dd81e3c90258",
+				"after": "b642de005938102dec7fb8f4c071c56e1866c40f1a0efcaf0951f8ab1409a13a"
+			},
+			"tooling/evaluations/review/tuning-passages.json": {
+				"before": "d8bfee49bd0f31c142d850ac64f26d44df888d22cb167561f1a1c00c5ede0864",
+				"after": "1b1266b5454a0047a129b5c08b4d037edde4676abe5bbdd3ddcf21cd245b48a4"
+			},
+			"tooling/evaluations/review/budget.ts": {
+				"before": "8e3890136f9a351c0c157b5f4c843703a5b6b1062825255f3a97e83c46f89f26",
+				"after": "c1899a64fd0f109cf087137854324fcb90c668d530d9b0cef50f2be8aaa4f2c9"
+			},
+			"tooling/evaluations/review/replay.ts": {
+				"before": null,
+				"after": "12e7b82456c499790a79ffdf3a5308fe2394380424e8db18b2dfd3d658240540"
+			}
+		}
+	},
+	"budgetPreflightAmendment": {
+		"date": "2026-11-12",
+		"ownerDecision": "Expected live-smoke mean per variant scaled to full sessions, 25% headroom, fee once and prior spend must fit $9; retain runtime worst-case hard stop. Round-robin dispatch and explicit incomplete coverage; no partial-data recommendations.",
+		"qualityChanged": false,
+		"priorFreezeSha256": "818719a0ffd3cc5cb6dcd06b467ed0f69ef93b2785ee733b5edb45716c5d68aa"
+	},
+	"transportRetryAmendments": [
+		{
+			"date": "2026-11-12",
+			"reason": "Owner-requested smoke-3 HTTP 200 upstream error repair: bounded identical pinned transport retries, measured error billing, per-model concurrency, variant-local transient accounting. No prompts, guards, corpus or model pins changed.",
+			"files": [
+				"tooling/evaluations/review/metrics.ts",
+				"tooling/evaluations/review/runner.ts",
+				"tooling/evaluations/review/verifier.ts",
+				"tooling/evaluations/review/study.ts",
+				"tooling/evaluations/review/report-client.ts",
+				"packages/api/src/features/ai/adapter.ts",
+				"tooling/evaluations/review/blind.ts"
+			],
+			"priorFreezeSha256": "b9519a8320c1d246da28d5bcc32c3e156b6d1105412c36cbb84602d96107f973"
+		}
+	],
+	"byokAmendment": {
+		"date": "2026-11-12",
+		"scope": "Owner-authorized synthetic benchmark OpenAI BYOK only; production Azure ZDR, prompts, guards and corpus unchanged. Split payer ledgers and forecast. No inference."
+	},
+	"effortGridAmendment": {
+		"date": "2026-11-12",
+		"scope": "Owner-expanded benchmark efforts with same pinned providers; Hydrogen medium dropped for OpenRouter headroom. Twelve variants, three repetitions each. No production, guard, scorer, prompt or corpus changes. New efforts are unverified smoke-2 cap-ratio projections.",
+		"changedFiles": [
+			"tooling/evaluations/review/runner.ts",
+			"tooling/evaluations/review/report.ts",
+			"tooling/evaluations/review/models.json"
+		],
+		"unsupportedRequestedEfforts": 0,
+		"writerCompletionCaps": {
+			"none": 2048,
+			"low": 2560,
+			"medium": 4096,
+			"high": 10240,
+			"xhigh": 40960
+		},
+		"verifierCompletionCap": 5120
+	}
+}

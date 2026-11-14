@@ -5,11 +5,21 @@ import { Button } from "./button";
 export function FactChip({
 	children,
 	detail,
+	icon,
+	truncate,
 	...props
-}: Omit<ComponentProps<typeof Button>, "size" | "variant"> & { detail?: ReactNode }) {
+}: Omit<ComponentProps<typeof Button>, "size" | "variant"> & {
+	detail?: ReactNode;
+	icon?: ReactNode;
+	/** Document references keep long names on one line without widening their row. */
+	truncate?: boolean;
+}) {
 	return (
 		<Button variant="ghost" size="chip" className="gap-1 bg-sunken text-ink-2" data-slot="fact-chip" {...props}>
-			<bdi>{children}</bdi>
+			{icon}
+			<bdi dir="auto" className={truncate ? "max-w-48 min-w-0 truncate" : undefined}>
+				{children}
+			</bdi>
 			{detail && (
 				<>
 					<span aria-hidden="true">·</span>

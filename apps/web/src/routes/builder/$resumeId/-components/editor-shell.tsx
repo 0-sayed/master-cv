@@ -23,6 +23,7 @@ import {
 } from "@/features/assistant/dock";
 import { useResumeStore, usePreviewPausedStore } from "@/features/resume/builder/draft";
 import { IssueStepper } from "@/features/resume/editor/check/page-layer";
+import { useCheckPanelScroll } from "@/features/resume/editor/check/panel-scroll";
 import { useReadinessLifecycle } from "@/features/resume/editor/check/use-readiness";
 import { useIsLandscape } from "@/features/resume/editor/chrome";
 import { useEditorStore } from "@/features/resume/editor/store";
@@ -150,6 +151,7 @@ function DesktopBody({ mode, assistant, narrow }: DesktopBodyProps) {
 	const assistantOpen = useEditorStore((state) => state.assistantOpen);
 	const assistantInstant = useEditorStore((state) => state.assistantInstant);
 	const replaced = assistant === "replace" && assistantOpen;
+	const { ref: checkScrollRef, onScroll: onCheckScroll } = useCheckPanelScroll(mode === "check" && !replaced);
 
 	return (
 		<div
@@ -172,12 +174,14 @@ function DesktopBody({ mode, assistant, narrow }: DesktopBodyProps) {
 				}
 			>
 				<TabsContent
+					ref={checkScrollRef}
+					onScroll={onCheckScroll}
 					key={mode}
 					value={mode}
 					aria-label={panelLabels()[mode]}
 					// `relative`: absolutely positioned descendants (sr-only text, say) stay inside this scroller instead of
 					// stretching the document, which would let scrollIntoView shift the whole editor. Keyed by mode so each
-					// mode starts at its top; no scroll anchoring, which yanked the Design panel back while scrolling it.
+					// mode mounts separately; Check restores its place; no scroll anchoring, which yanked the Design panel back while scrolling it.
 					className="relative min-h-0 overflow-y-auto border-e border-line bg-surface [overflow-anchor:none]"
 				>
 					<ModePanel mode={mode} />
@@ -197,6 +201,7 @@ function DesktopBody({ mode, assistant, narrow }: DesktopBodyProps) {
 
 function TabletBody({ mode }: { mode: EditorMode }) {
 	const drawerOpen = useEditorStore((state) => state.drawerOpen);
+	const { ref: checkScrollRef, onScroll: onCheckScroll } = useCheckPanelScroll(mode === "check" && drawerOpen);
 
 	return (
 		<div className="relative min-h-0">
@@ -204,6 +209,8 @@ function TabletBody({ mode }: { mode: EditorMode }) {
 				<Outlet />
 			</main>
 			<TabsContent
+				ref={checkScrollRef}
+				onScroll={onCheckScroll}
 				key={mode}
 				value={mode}
 				aria-label={panelLabels()[mode]}
@@ -235,6 +242,7 @@ function MobileBody({ mode, onModeChange }: MobileBodyProps) {
 	const needsRecovery = useResumeStore((state) => !!state.recoveryDraft || state.saveStatus === "conflict");
 	const requestedView = useEditorStore((state) => state.mobileView) ?? mode;
 	const view = needsRecovery ? "write" : requestedView;
+	const { ref: checkScrollRef, onScroll: onCheckScroll } = useCheckPanelScroll(view === "check");
 	const setView = useEditorStore((state) => state.setMobileView);
 	const setPreviewPaused = usePreviewPausedStore((state) => state.setPaused);
 	const labels: Record<MobileView, string> = { write: t`Write`, page: t`Page`, design: t`Design`, check: t`Check` };
@@ -267,6 +275,8 @@ function MobileBody({ mode, onModeChange }: MobileBodyProps) {
 				{view === "design" && <DesignSheet />}
 				{view !== "page" && view !== "design" && (
 					<TabsContent
+						ref={checkScrollRef}
+						onScroll={onCheckScroll}
 						key={mode}
 						value={mode}
 						className="absolute inset-0 overflow-y-auto bg-surface [overflow-anchor:none]"

@@ -12,6 +12,9 @@ import { Dialog, DialogContent } from "@reactive-resume/ui/components/dialog";
 import { ImportReview } from "./review";
 import { createReviewState } from "./review-draft";
 import { ConfirmDialogProvider } from "@/hooks/use-confirm";
+vi.mock("./ai-assistance-panel", () => ({
+	ImportAssistance: () => <button type="button">Synthetic assistance action</button>,
+}));
 const mocks = vi.hoisted(() => ({ read: vi.fn(), confirm: vi.fn() }));
 vi.mock("@/features/settings/integrations/hooks/use-has-usable-ai-provider", () => ({
 	useHasUsableAiProvider: () => ({ hasUsableProvider: false }),
@@ -99,6 +102,14 @@ it("cancel performs no server write", () => {
 	fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
 	expect(cancel).toHaveBeenCalledOnce();
 	expect(mocks.confirm).not.toHaveBeenCalled();
+});
+it("disables assistance while the final import confirmation is pending", async () => {
+	mocks.read.mockResolvedValue({ profileRevision: 0, facts: [] });
+	mocks.confirm.mockImplementation(() => new Promise(() => {}));
+	importedReview(vi.fn(), { pages: [{ page: 1, text: "Synthetic source" }] });
+	fireEvent.click(saveButton());
+	await waitFor(() => expect(mocks.confirm).toHaveBeenCalledOnce());
+	expect(screen.getByRole("button", { name: "Synthetic assistance action" })).toBeDisabled();
 });
 it("requires individual section review for a partially read file instead of offering a no-op bulk action", () => {
 	importedReview(vi.fn(), { partial: true });

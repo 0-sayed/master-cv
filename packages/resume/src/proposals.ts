@@ -1,5 +1,6 @@
+import type { ProposalTarget } from "@reactive-resume/schema/resume/ai-review";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
-import { escapeHtml } from "@reactive-resume/utils/string";
+import { escapeHtml, decodeHtmlEntities } from "@reactive-resume/utils/string";
 
 /**
  * Suggested edits to a document's text, shared by Check, the assistant and Improve. A proposal replaces one passage
@@ -7,7 +8,7 @@ import { escapeHtml } from "@reactive-resume/utils/string";
  */
 
 /** A field that holds rich text: the summary's content, an entry's description, or a letter's body. */
-export type ProposalTarget = { sectionId: string; itemId?: string; roleId?: string; field: string };
+export type { ProposalTarget } from "@reactive-resume/schema/resume/ai-review";
 
 type ProposalSource = "check" | "assistant" | "improve";
 
@@ -142,18 +143,9 @@ export function additionAfter(value: string, passageHtml: string, text: string) 
 // A paragraph or list item with no paragraph or list item inside it: `<li><p>…</p></li>` yields the `<p>`.
 const LEAF_BLOCK = /<(p|li)(?:\s[^>]*)?>((?:(?!<\/?(?:p|li)[\s>])[\s\S])*?)<\/\1>/gi;
 
-const ENTITIES: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
-
-const decodeEntities = (text: string) =>
-	text.replace(/&(#x[\da-f]+|#\d+|[a-z]+);/gi, (entity, name: string) => {
-		if (name.startsWith("#x") || name.startsWith("#X")) return String.fromCodePoint(Number.parseInt(name.slice(2), 16));
-		if (name.startsWith("#")) return String.fromCodePoint(Number.parseInt(name.slice(1), 10));
-		return ENTITIES[name.toLowerCase()] ?? entity;
-	});
-
 /** The visible text of some HTML, on one line. */
 export const blockText = (html: string) =>
-	decodeEntities(html.replace(/<[^>]*>/g, ""))
+	decodeHtmlEntities(html.replace(/<[^>]*>/g, ""))
 		.replace(/\s+/g, " ")
 		.trim();
 

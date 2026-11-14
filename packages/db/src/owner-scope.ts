@@ -31,6 +31,10 @@ export async function assertRuntimeDatabaseRole(pool: Pool): Promise<void> {
 		OR has_table_privilege(current_user,'public.ai_usage_ledger','UPDATE')
 		OR has_any_column_privilege(current_user,'public.ai_usage_ledger','UPDATE')
 		OR has_table_privilege(current_user,'public.ai_usage_ledger','DELETE')
+		OR has_table_privilege(current_user,'public.ai_review_decision','UPDATE,DELETE')
+		OR has_any_column_privilege(current_user,'public.ai_review_decision','UPDATE')
+		OR has_table_privilege(current_user,'public.ai_import_review_source','UPDATE')
+		OR has_any_column_privilege(current_user,'public.ai_import_review_source','UPDATE')
 		OR has_table_privilege(current_user,'public.ai_platform_budget','SELECT,INSERT,UPDATE,DELETE,TRUNCATE')
 		OR has_any_column_privilege(current_user,'public.ai_platform_budget','SELECT,INSERT,UPDATE')
 		AS unsafe

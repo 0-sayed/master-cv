@@ -5,6 +5,9 @@ import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 
+vi.mock("@/features/resume/editor/proposals/review-panel", () => ({
+	ResumeReviewWorkspace: () => <div>Review workspace</div>,
+}));
 const mocks = vi.hoisted(() => ({
 	selected: null as string | null,
 	threads: [] as unknown[],

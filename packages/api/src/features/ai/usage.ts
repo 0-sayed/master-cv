@@ -5,6 +5,7 @@ import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { withOwnerDatabase } from "@reactive-resume/db/owner-scope";
 import { aiOperation, aiUsageLedger, resume } from "@reactive-resume/db/schema";
 import { lockDocumentOwner } from "../documents/ownership";
+import { getAiRuntime } from "./route-policy";
 
 export function denyAllowance(reason: string): never {
 	throw new ORPCError("PRECONDITION_FAILED", { message: "The requested allowance is unavailable.", data: { reason } });
@@ -22,9 +23,11 @@ async function readUsage(tx: OwnerTransaction, ownerId: string): Promise<StartUs
 		.select({ used: sql<number>`count(*)::int` })
 		.from(resume)
 		.where(and(eq(resume.userId, ownerId), eq(resume.variantKind, "base")));
+	const allowance = process.env.NODE_ENV !== "production" ? getAiRuntime().localOwnerAllowance : undefined;
+	const limit = allowance?.ownerId === ownerId ? allowance.limit : 5;
 	return {
 		plan: "start",
-		operations: { limit: 5, used, reserved, remaining: Math.max(0, 5 - used - reserved) },
+		operations: { limit, used, reserved, remaining: Math.max(0, limit - used - reserved) },
 		baseCvs: { limit: 1, used: bases?.used ?? 0 },
 	};
 }

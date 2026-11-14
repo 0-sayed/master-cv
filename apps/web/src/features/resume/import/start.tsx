@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ActionChoice } from "@reactive-resume/ui/components/action-choice";
-import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	DialogContent,
@@ -178,6 +178,8 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 					</AlertTitle>
 					<AlertDescription>
 						<p>{error}</p>
+					</AlertDescription>
+					<AlertActions>
 						<Button
 							variant="secondary"
 							disabled={busy !== null}
@@ -192,7 +194,7 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 						>
 							{failedAction === "create" ? <Trans>Try again</Trans> : <Trans>Choose a file</Trans>}
 						</Button>
-					</AlertDescription>
+					</AlertActions>
 				</Alert>
 			)}
 			<fieldset disabled={!!busy} className="grid gap-4">

@@ -1,5 +1,5 @@
 import { Trans } from "@lingui/react/macro";
-import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertDescription, AlertTitle, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 
@@ -19,10 +19,12 @@ export function LibraryError({ retrying, onRetry }: LibraryErrorProps) {
 				<p>
 					<Trans>Check your connection and try again.</Trans>
 				</p>
-				<Button variant="secondary" className="mt-2" loading={retrying} onClick={onRetry}>
+			</AlertDescription>
+			<AlertActions>
+				<Button variant="secondary" loading={retrying} onClick={onRetry}>
 					{retrying ? <Trans>Retrying…</Trans> : <Trans>Try again</Trans>}
 				</Button>
-			</AlertDescription>
+			</AlertActions>
 		</Alert>
 	);
 }

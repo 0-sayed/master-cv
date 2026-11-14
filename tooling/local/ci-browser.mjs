@@ -7,12 +7,14 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { provisionRuntimeRole } from "./database-roles.mjs";
+import { assertNoAiCredentials } from "./test-ai-guard.mjs";
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
 const { Pool } = createRequire(new URL("../../packages/db/package.json", import.meta.url))("pg");
 
 /** Allowlist the browser CI environment; personal .env/browser settings must never alter the contract. */
 export function ciBrowserEnvironment({ parent, databaseUrl, migrationUrl, directory }) {
+	assertNoAiCredentials(parent);
 	return {
 		PATH: resolve(repository, ".cache/document-toolchain/bin") + ":" + parent.PATH,
 		HOME: parent.HOME,

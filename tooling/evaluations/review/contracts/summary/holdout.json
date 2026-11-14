@@ -1,0 +1,1350 @@
+[
+	{
+		"id": "summary-holdout-ar-records",
+		"category": "summary",
+		"language": "ar",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "healthcare-administration",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "نظم ملفات المواعيد في عيادة بالرياض."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "أعد تقارير الحضور."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "نظم ملفات المواعيد في عيادة بالرياض. أعد تقارير الحضور.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "نظم ملفات المواعيد في عيادة بالرياض.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					},
+					{
+						"id": "summary-2",
+						"text": "أعد تقارير الحضور.",
+						"evidenceIds": ["cv-2"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "رتب ملفات المواعيد في عيادة بالرياض. جهز تقارير الحضور.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "رتب ملفات المواعيد في عيادة بالرياض.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "جهز تقارير الحضور.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "رفع الإيرادات بنسبة 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "رفع الإيرادات بنسبة 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "uncovered-assertion",
+				"output": {
+					"summary": {
+						"text": "نظم ملفات المواعيد في عيادة بالرياض. أعد تقارير الحضور. رفع الإيرادات بنسبة 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "نظم ملفات المواعيد في عيادة بالرياض.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "أعد تقارير الحضور.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-ar-learning",
+		"category": "summary",
+		"language": "ar",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "education",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "نسق ورش تدريبية ووثق ملاحظات المشاركين."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "نسق ورش تدريبية ووثق ملاحظات المشاركين.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "نسق ورش تدريبية ووثق ملاحظات المشاركين.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "وثق ملاحظات المشاركين ونسق ورش التدريب.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "وثق ملاحظات المشاركين ونسق ورش التدريب.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "رفع الإيرادات بنسبة 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "رفع الإيرادات بنسبة 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "uncovered-assertion",
+				"output": {
+					"summary": {
+						"text": "نسق ورش تدريبية ووثق ملاحظات المشاركين. رفع الإيرادات بنسبة 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "نسق ورش تدريبية ووثق ملاحظات المشاركين.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-ar-logistics",
+		"category": "summary",
+		"language": "ar",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "logistics",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "تابع سجلات الشحنات باستخدام Excel."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "لم يتول إدارة الموردين."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "تابع سجلات الشحنات باستخدام Excel. لم يتول إدارة الموردين.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "تابع سجلات الشحنات باستخدام Excel.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					},
+					{
+						"id": "summary-2",
+						"text": "لم يتول إدارة الموردين.",
+						"evidenceIds": ["cv-2"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "استخدم Excel لمتابعة سجلات الشحنات. لم يتول إدارة الموردين.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "استخدم Excel لمتابعة سجلات الشحنات.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "لم يتول إدارة الموردين.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "رفع الإيرادات بنسبة 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "رفع الإيرادات بنسبة 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "uncovered-assertion",
+				"output": {
+					"summary": {
+						"text": "تابع سجلات الشحنات باستخدام Excel. لم يتول إدارة الموردين. رفع الإيرادات بنسبة 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "تابع سجلات الشحنات باستخدام Excel.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "لم يتول إدارة الموردين.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "negation-flip",
+				"output": {
+					"summary": {
+						"text": "تولى إدارة الموردين.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "تولى إدارة الموردين.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-ar-software",
+		"category": "summary",
+		"language": "ar",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "software",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "كتب اختبارات باستخدام Node.js."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "وثق نتائج الاختبارات."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "كتب اختبارات باستخدام Node.js. وثق نتائج الاختبارات.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "كتب اختبارات باستخدام Node.js.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					},
+					{
+						"id": "summary-2",
+						"text": "وثق نتائج الاختبارات.",
+						"evidenceIds": ["cv-2"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "استخدم Node.js لكتابة اختبارات. سجل نتائج الاختبارات.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "استخدم Node.js لكتابة اختبارات.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "سجل نتائج الاختبارات.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "رفع الإيرادات بنسبة 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "رفع الإيرادات بنسبة 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "uncovered-assertion",
+				"output": {
+					"summary": {
+						"text": "كتب اختبارات باستخدام Node.js. وثق نتائج الاختبارات. رفع الإيرادات بنسبة 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "كتب اختبارات باستخدام Node.js.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "وثق نتائج الاختبارات.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-en-records",
+		"category": "summary",
+		"language": "en",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "healthcare-administration",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "Organized clinic appointment records in Riyadh."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "Prepared attendance reports."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "Organized clinic appointment records in Riyadh. Prepared attendance reports.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "Organized clinic appointment records in Riyadh.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					},
+					{
+						"id": "summary-2",
+						"text": "Prepared attendance reports.",
+						"evidenceIds": ["cv-2"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "Arranged clinic appointment records in Riyadh. Compiled attendance reports.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Arranged clinic appointment records in Riyadh.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "Compiled attendance reports.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Increased revenue by 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "uncovered-assertion",
+				"output": {
+					"summary": {
+						"text": "Organized clinic appointment records in Riyadh. Prepared attendance reports. Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Organized clinic appointment records in Riyadh.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "Prepared attendance reports.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-en-learning",
+		"category": "summary",
+		"language": "en",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "education",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "Coordinated training workshops and documented participant feedback."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "Coordinated training workshops and documented participant feedback.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "Coordinated training workshops and documented participant feedback.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "Recorded participant feedback and coordinated training workshops.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Recorded participant feedback and coordinated training workshops.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Increased revenue by 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "uncovered-assertion",
+				"output": {
+					"summary": {
+						"text": "Coordinated training workshops and documented participant feedback. Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Coordinated training workshops and documented participant feedback.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-en-logistics",
+		"category": "summary",
+		"language": "en",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "logistics",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "Tracked shipment records with Excel."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "Did not manage suppliers."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "Tracked shipment records with Excel. Did not manage suppliers.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "Tracked shipment records with Excel.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					},
+					{
+						"id": "summary-2",
+						"text": "Did not manage suppliers.",
+						"evidenceIds": ["cv-2"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "Used Excel to track shipment records. Did not manage suppliers.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Used Excel to track shipment records.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "Did not manage suppliers.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Increased revenue by 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "uncovered-assertion",
+				"output": {
+					"summary": {
+						"text": "Tracked shipment records with Excel. Did not manage suppliers. Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Tracked shipment records with Excel.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "Did not manage suppliers.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "negation-flip",
+				"output": {
+					"summary": {
+						"text": "Managed suppliers.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Managed suppliers.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-en-software",
+		"category": "summary",
+		"language": "en",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "software",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "Wrote tests with Node.js."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "Documented test results."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "Wrote tests with Node.js. Documented test results.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "Wrote tests with Node.js.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					},
+					{
+						"id": "summary-2",
+						"text": "Documented test results.",
+						"evidenceIds": ["cv-2"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "Used Node.js to write tests. Recorded test results.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Used Node.js to write tests.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "Recorded test results.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Increased revenue by 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "uncovered-assertion",
+				"output": {
+					"summary": {
+						"text": "Wrote tests with Node.js. Documented test results. Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Wrote tests with Node.js.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "Documented test results.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-mixed-training",
+		"category": "summary",
+		"language": "mixed",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "education-administration",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "نسق سجلات الحضور في مركز تدريب بجدة."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "Prepared monthly course schedules with Excel."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "نسق سجلات الحضور في مركز تدريب بجدة. Prepared monthly course schedules with Excel.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "نسق سجلات الحضور في مركز تدريب بجدة.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					},
+					{
+						"id": "summary-2",
+						"text": "Prepared monthly course schedules with Excel.",
+						"evidenceIds": ["cv-2"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "رتب سجلات الحضور في مركز تدريب بجدة. Prepared monthly course timetables with Excel.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "رتب سجلات الحضور في مركز تدريب بجدة.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "Prepared monthly course timetables with Excel.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Increased revenue by 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "unsupported-tool",
+				"output": {
+					"summary": {
+						"text": "Used SAP to prepare reports.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Used SAP to prepare reports.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-mixed-maintenance",
+		"category": "summary",
+		"language": "mixed",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "facilities",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "تابع طلبات الصيانة في مبنى بالرياض."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "Recorded service visits in Excel."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "تابع طلبات الصيانة في مبنى بالرياض. Recorded service visits in Excel.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "تابع طلبات الصيانة في مبنى بالرياض.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					},
+					{
+						"id": "summary-2",
+						"text": "Recorded service visits in Excel.",
+						"evidenceIds": ["cv-2"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "تابع طلبات الصيانة في مبنى بالرياض. Logged service visits in Excel.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "تابع طلبات الصيانة في مبنى بالرياض.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "Logged service visits in Excel.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Increased revenue by 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "unsupported-tool",
+				"output": {
+					"summary": {
+						"text": "Used SAP to prepare reports.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Used SAP to prepare reports.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-mixed-library",
+		"category": "summary",
+		"language": "mixed",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "library-services",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "رتب فهارس الكتب في مكتبة بالدمام."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "Prepared weekly lending reports."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "رتب فهارس الكتب في مكتبة بالدمام. Prepared weekly lending reports.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "رتب فهارس الكتب في مكتبة بالدمام.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					},
+					{
+						"id": "summary-2",
+						"text": "Prepared weekly lending reports.",
+						"evidenceIds": ["cv-2"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "نظم فهارس الكتب في مكتبة بالدمام. Prepared weekly loan reports.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "نظم فهارس الكتب في مكتبة بالدمام.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "Prepared weekly loan reports.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Increased revenue by 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "unsupported-tool",
+				"output": {
+					"summary": {
+						"text": "Used SAP to prepare reports.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Used SAP to prepare reports.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	},
+	{
+		"id": "summary-holdout-mixed-events",
+		"category": "summary",
+		"language": "mixed",
+		"holdout": true,
+		"exploratory": false,
+		"kind": "task",
+		"requiresQuestion": false,
+		"sector": "event-administration",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "جهز قوائم الحضور لفعاليات في الخبر."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "Checked registration records with Excel."
+			}
+		],
+		"jobAd": null,
+		"gold": {
+			"summary": {
+				"text": "جهز قوائم الحضور لفعاليات في الخبر. Checked registration records with Excel.",
+				"claims": [
+					{
+						"id": "summary-1",
+						"text": "جهز قوائم الحضور لفعاليات في الخبر.",
+						"evidenceIds": ["cv-1"],
+						"kind": "fact"
+					},
+					{
+						"id": "summary-2",
+						"text": "Checked registration records with Excel.",
+						"evidenceIds": ["cv-2"],
+						"kind": "fact"
+					}
+				]
+			},
+			"questions": [],
+			"notes": []
+		},
+		"mutants": [
+			{
+				"id": "honest-paraphrase",
+				"output": {
+					"summary": {
+						"text": "أعد قوائم الحضور لفعاليات في الخبر. Checked registration entries with Excel.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "أعد قوائم الحضور لفعاليات في الخبر.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							},
+							{
+								"id": "summary-2",
+								"text": "Checked registration entries with Excel.",
+								"evidenceIds": ["cv-2"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "honest"
+			},
+			{
+				"id": "invented-metric",
+				"output": {
+					"summary": {
+						"text": "Increased revenue by 45%.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Increased revenue by 45%.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			},
+			{
+				"id": "unsupported-tool",
+				"output": {
+					"summary": {
+						"text": "Used SAP to prepare reports.",
+						"claims": [
+							{
+								"id": "summary-1",
+								"text": "Used SAP to prepare reports.",
+								"evidenceIds": ["cv-1"],
+								"kind": "fact"
+							}
+						]
+					},
+					"questions": [],
+					"notes": []
+				},
+				"expect": "unsafe"
+			}
+		]
+	}
+]

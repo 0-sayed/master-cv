@@ -4,7 +4,14 @@ import { expect, it, vi, beforeEach } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { DownloadTab, getExportFormats } from "./download-tab";
-const mocks = vi.hoisted(() => ({ generate: vi.fn(), download: vi.fn(), toast: vi.fn(), saveStatus: "saved" }));
+const mocks = vi.hoisted(() => ({
+	generate: vi.fn(),
+	download: vi.fn(),
+	toast: vi.fn(),
+	saveStatus: "saved",
+	pdfState: "complete",
+	blockers: true,
+}));
 vi.mock("@/features/resume/builder/draft", () => ({
 	useCurrentResume: () => ({ id: "resume" }),
 	useResumeStore: Object.assign((select: (state: { saveStatus: string }) => unknown) => select(mocks), {
@@ -12,6 +19,11 @@ vi.mock("@/features/resume/builder/draft", () => ({
 	}),
 }));
 vi.mock("@/features/resume/editor/check/use-check", () => ({ useOpenIssueCount: () => 4 }));
+vi.mock("@/features/resume/editor/check/use-readiness", () => ({
+	useReadiness: () => ({
+		results: { pdf: { state: mocks.pdfState, issues: mocks.blockers ? [{ severity: "blocker" }] : [] } },
+	}),
+}));
 vi.mock("@tanstack/react-query", () => ({ useQuery: () => ({ data: [] }) }));
 vi.mock("@/features/applications/queries", () => ({ applicationsListQueryOptions: () => ({}) }));
 vi.mock("@/features/letters/export", () => ({ createLetterFile: vi.fn(), letterFileName: vi.fn() }));
@@ -26,6 +38,8 @@ vi.mock("@/features/resume/export/use-resume-export", () => ({
 beforeEach(() => {
 	vi.clearAllMocks();
 	mocks.saveStatus = "saved";
+	mocks.pdfState = "complete";
+	mocks.blockers = true;
 	i18n.load("en", {});
 	i18n.activate("en");
 });
@@ -80,8 +94,30 @@ it("uses a warning with a titled review action while keeping download available"
 		</I18nProvider>,
 	);
 	expect(document.querySelector('[data-slot="alert"]')).toHaveClass("bg-warn-soft");
-	expect(document.querySelector('[data-slot="alert"]')).toHaveTextContent("Review your CV");
-	fireEvent.click(screen.getByRole("button", { name: "Review now" }));
+	expect(document.querySelector('[data-slot="alert"]')).toHaveTextContent("There is an issue that may block reading");
+	fireEvent.click(screen.getByRole("button", { name: "View issues" }));
 	expect(onReview).toHaveBeenCalledOnce();
 	expect(screen.getByRole("button", { name: "Download PDF" })).toBeEnabled();
+});
+
+it("shows the current PDF blocker advisory and allows downloading", () => {
+	const review = vi.fn();
+	render(
+		<I18nProvider i18n={i18n}>
+			<DownloadTab onReview={review} />
+		</I18nProvider>,
+	);
+	expect(screen.getByText("There is an issue that may block reading")).toBeVisible();
+	expect(screen.getByRole("button", { name: "Download PDF" })).toBeEnabled();
+	fireEvent.click(screen.getByRole("button", { name: "View issues" }));
+	expect(review).toHaveBeenCalledOnce();
+});
+it.each(["stale", "checking", "failed", "not-checked"])("does not show old blockers for %s", (state) => {
+	mocks.pdfState = state;
+	render(
+		<I18nProvider i18n={i18n}>
+			<DownloadTab onReview={() => {}} />
+		</I18nProvider>,
+	);
+	expect(screen.queryByText("There is an issue that may block reading")).not.toBeInTheDocument();
 });

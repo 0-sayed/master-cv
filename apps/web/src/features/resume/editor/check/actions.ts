@@ -1,4 +1,5 @@
 import type { CheckIssue } from "./issues";
+import type { PageMapTarget } from "@reactive-resume/pdf/page-map";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { t } from "@lingui/core/macro";
 import { toast } from "@reactive-resume/ui/components/toast";
@@ -8,6 +9,7 @@ import { captureUndoAction } from "../undo-action";
 import { useEditorMode } from "../use-editor-mode";
 import { getScrollBehavior, revealSelectionInPanel } from "../write/reveal";
 import { prepareFix } from "./fix-preview";
+import { keepPdfFinding } from "./pdf-findings";
 import { useResumeStore } from "@/features/resume/builder/draft";
 
 /** The author's Check choices on a draft, created on first use. */
@@ -39,9 +41,16 @@ export function scrollToIssue(key: string, where: "page" | "panel") {
 export function useCheckActions() {
 	const [, setMode] = useEditorMode();
 	const breakpoint = useBreakpoint();
+	const goToField = (target: PageMapTarget, key?: string) => {
+		if (key) useEditorStore.getState().setCheckReturnIssue(key);
+		setMode("write");
+		if (breakpoint === "mobile") useEditorStore.getState().setMobileView("write");
+		revealSelectionInPanel(target);
+	};
 
 	const showOnPage = (issue: CheckIssue) => {
 		const editor = useEditorStore.getState();
+		editor.setCheckReturnIssue(issue.key);
 		editor.setCheckIssue(issue.key);
 		editor.setPageView("page");
 		// The page is behind the drawer on tablets and in its own view on phones.
@@ -61,9 +70,7 @@ export function useCheckActions() {
 			return;
 		}
 
-		setMode("write");
-		if (breakpoint === "mobile") useEditorStore.getState().setMobileView("write");
-		revealSelectionInPanel(issue.fix.target);
+		goToField(issue.fix.target, issue.key);
 	};
 
 	const ignore = (issue: CheckIssue) => {
@@ -85,5 +92,9 @@ export function useCheckActions() {
 			t`Ignored issues are back`,
 		);
 
-	return { showOnPage, fix, ignore, restoreIgnored };
+	const ignorePdf = (key: string) => {
+		if (useResumeStore.getState().resume?.isLocked) return;
+		editWithUndo((draft) => keepPdfFinding(draft, key), t`Kept as it is`);
+	};
+	return { showOnPage, fix, ignore, ignorePdf, restoreIgnored, goToField };
 }

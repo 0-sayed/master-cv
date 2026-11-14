@@ -27,9 +27,6 @@ import { useIsMobile } from "@reactive-resume/ui/hooks/use-mobile";
 import { cn } from "@reactive-resume/utils/style";
 import { ImprovePanel, lineAtCaret } from "./improve";
 import { hasUnsupportedTableMarkup, richTextExtensions } from "@/components/input/rich-text-extensions";
-import { openAssistantFrom } from "@/features/assistant/open";
-import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
-import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
 import { usePrompt } from "@/hooks/use-confirm";
 
 type ToolbarAction = {
@@ -195,7 +192,6 @@ export function RichTextEditor({
 	const toolbar = useRef<HTMLDivElement>(null);
 	const [improving, setImproving] = useState<ImproveLine | null>(null);
 	const actions = useToolbarActions();
-	const ai = useHasUsableAiProvider();
 	const mobile = useIsMobile();
 	const keyboardInset = useKeyboardInset();
 	const readOnlyTable = useMemo(() => hasUnsupportedTableMarkup(value), [value]);
@@ -251,9 +247,8 @@ export function RichTextEditor({
 	const editing = focused || improving !== null || menus.open;
 
 	const startImprove = () => {
-		if (!editor || ai.isUnavailable) return;
-		// Without a provider, the assistant's inline setup connects one.
-		if (!ai.hasUsableProvider) return void openAssistantFrom({ assistant: "new" });
+		if (!editor) return;
+		// The shared review launcher owns platform availability and consent.
 		setImproving(lineAtCaret(editor));
 	};
 
@@ -292,7 +287,7 @@ export function RichTextEditor({
 			<button
 				type="button"
 				aria-expanded={improving !== null}
-				disabled={ai.isUnavailable || (!state?.canImprove && improving === null)}
+				disabled={!state?.canImprove && improving === null}
 				title={state?.canImprove ? undefined : t`Put the caret in a line to improve it`}
 				onMouseDown={(event) => event.preventDefault()}
 				onClick={() => (improving ? setImproving(null) : startImprove())}
@@ -364,7 +359,6 @@ export function RichTextEditor({
 			)}
 
 			<EditorContent editor={editor} />
-			{editing && <AiProviderLoadState state={ai} />}
 
 			{/* Under the text, so focusing the field never moves the line you clicked. */}
 			{editing && !readOnlyTable && !mobile && (

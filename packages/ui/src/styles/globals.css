@@ -82,6 +82,7 @@
 	--motion-brand-rest: 1800ms;
 	--motion-acknowledge: 400ms;
 	--motion-edit-highlight: 600ms;
+	--motion-review-highlight: 1200ms;
 	/* Static success hold, not an animation duration. */
 	--motion-success-hold: 1500ms;
 	--motion-skeleton: 1200ms;
@@ -446,7 +447,7 @@
 }
 
 @utility shell-brand-row {
-	@apply border-b border-transparent;
+	@apply border-b border-line;
 	display: flex;
 	align-items: center;
 	block-size: var(--app-toolbar-height);
@@ -458,9 +459,12 @@
 }
 
 @utility sidebar-brand-inset {
-	padding-inline: calc(var(--app-nav-gutter) + (var(--app-nav-icon) - var(--app-brand-mark)) / 2);
+	margin-inline: calc(-1 * var(--app-sidebar-inset));
+	padding-inline: calc(
+		var(--app-sidebar-inset) + var(--app-nav-gutter) + (var(--app-nav-icon) - var(--app-brand-mark)) / 2
+	);
 	@variant rtl {
-		padding-inline: var(--app-nav-gutter);
+		padding-inline: calc(var(--app-sidebar-inset) + var(--app-nav-gutter));
 	}
 }
 
@@ -938,5 +942,112 @@ button .success-tick {
 @media (prefers-reduced-motion: reduce) {
 	.skeleton {
 		animation: none !important;
+	}
+}
+
+/* Span the native scrollbar gutters too; the header remains inside its unchanged scroll canvas. */
+@utility dashboard-shell {
+	position: relative;
+	@media (width >= 40rem) {
+		&::before {
+			content: "";
+			position: absolute;
+			pointer-events: none;
+			inset-inline: 0;
+			top: var(--app-toolbar-height);
+			translate: 0 -100%;
+			@apply border-b border-line;
+			z-index: 30;
+		}
+	}
+}
+
+.review-wording[data-review-action="accept"] del {
+	opacity: 0;
+	animation: review-removed var(--d3) var(--ease) both;
+}
+.review-wording[data-review-action="accept"] ins {
+	animation: review-inserted var(--d3) var(--ease) both;
+}
+.review-wording[data-review-action="undo"] del {
+	animation: review-inserted var(--d2) var(--ease) both;
+}
+.review-wording[data-review-action="undo"] ins {
+	animation: review-restored var(--d2) var(--ease) both;
+}
+@keyframes review-removed {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+@keyframes review-inserted {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes review-restored {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0.5;
+	}
+}
+.preview-edit-highlight[data-review-action] {
+	outline: none;
+	animation-duration: var(--motion-review-highlight);
+}
+.preview-edit-highlight[data-review-action="undo"] {
+	animation-name: review-highlight-undone;
+}
+@keyframes review-highlight-undone {
+	from {
+		opacity: 0.35;
+	}
+	to {
+		opacity: 0;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.review-wording[data-review-action] :is(del, ins) {
+		animation: none;
+	}
+	.preview-edit-highlight[data-review-action][data-motion="static"] {
+		display: inline;
+		opacity: 0.7;
+		animation: none;
+	}
+}
+
+/* Evidence review additions: shared semantic warning role, also distinguished by underline. */
+.wording-added {
+	color: var(--warn-text);
+	background: var(--warn-soft);
+	text-decoration: underline;
+	text-decoration-style: dotted;
+}
+
+/* Check return uses the existing edit acknowledgement, with a static reduced-motion cue. */
+[data-check-return="true"] {
+	position: relative;
+}
+[data-check-return="true"]::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	outline: 1px solid var(--accent);
+	animation: edit-acknowledged var(--motion-review-highlight) var(--ease) both;
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-check-return="true"]::after {
+		animation: none;
+		opacity: 0.7;
 	}
 }

@@ -2,7 +2,7 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { Trans } from "@lingui/react/macro";
 import { useState } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertDescription, AlertTitle, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
@@ -47,16 +47,18 @@ export function QueryListState({
 					<p>
 						<Trans>Check your connection and try again.</Trans>
 					</p>
+				</AlertDescription>
+				<AlertActions>
 					<Button
 						variant="secondary"
-						className="mt-2"
+
 						loading={query.isFetching || retrying}
 						disabled={query.isFetching || retrying}
 						onClick={() => void retry()}
 					>
 						{query.isFetching || retrying ? <Trans>Retrying…</Trans> : <Trans>Try again</Trans>}
 					</Button>
-				</AlertDescription>
+				</AlertActions>
 			</Alert>
 		);
 	}

@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { isEqual } from "es-toolkit";
 import { useState } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertDescription, AlertTitle, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { SectionCard, SectionCardHeader } from "@reactive-resume/ui/components/section-card";
@@ -90,9 +90,12 @@ export function SaveConflict() {
 				{readError && (
 					<Alert variant="error">
 						<AlertDescription>{getResumeErrorMessage(readError)}</AlertDescription>
-						<Button variant="secondary" onClick={() => void refetch()}>
-							<Trans>Retry</Trans>
-						</Button>
+
+						<AlertActions>
+							<Button variant="secondary" onClick={() => void refetch()}>
+								<Trans>Retry</Trans>
+							</Button>
+						</AlertActions>
 					</Alert>
 				)}
 				<Button variant="secondary" disabled={busy || !saved} onClick={() => void choose("open-saved")}>

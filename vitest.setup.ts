@@ -1,6 +1,9 @@
-import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
 import { afterEach } from "vite-plus/test";
+import { installTestNetworkGuard } from "./tooling/local/test-ai-guard.mjs";
+
+installTestNetworkGuard();
 
 // Several units under test transitively import the validated server env, which throws at import
 // time when a required variable is missing. Tests are expected to run without a .env, so seed the

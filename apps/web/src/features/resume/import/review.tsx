@@ -8,7 +8,7 @@ import { produce } from "immer";
 import { useMemo, useState, useRef, useEffect, useCallback, useId } from "react";
 import { buildCareerFactCandidates } from "@reactive-resume/import/career-facts";
 import { formatResumeDates } from "@reactive-resume/schema/resume/dates";
-import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { SectionCard, SectionCardHeader, SectionCardRow } from "@reactive-resume/ui/components/section-card";
@@ -25,6 +25,8 @@ import {
 	getPrimaryField,
 } from "../editor/write/model";
 import { RichTextEditor } from "../editor/write/rich-text-editor";
+import { ImportAssistance } from "./ai-assistance-panel";
+import { fieldLabel } from "./field-label";
 import { reuseConfirmedFacts } from "./reuse-master";
 import { createReviewState, type ReviewState } from "./review-draft";
 import { SourcePreview } from "./source-preview";
@@ -66,6 +68,7 @@ export function ImportReview({
 	onCheckpoint?: ((state: ReviewState) => Promise<void>) | undefined;
 }) {
 	const panelId = useId();
+	const [aiReview, setAiReview] = useState(state?.aiReview);
 	const [data, setData] = useState(state?.data ?? initial);
 	const [reused, setReused] = useState<MasterFact[]>(state?.reused ?? []);
 	const [confirmed, setConfirmed] = useState<Record<string, string>>(state?.confirmed ?? {});
@@ -99,10 +102,11 @@ export function ImportReview({
 			confirmationFlow: confirmationFlow.current,
 			needsReconciliation,
 			changedMasterFacts,
+			...(aiReview ? { aiReview } : {}),
 			...(revision.current !== undefined ? { revision: revision.current } : {}),
 			...(submission.current ? { submission: submission.current } : {}),
 		}),
-		[data, flowId, confirmed, reviewed, active, reused, needsReconciliation, changedMasterFacts],
+		[data, flowId, confirmed, reviewed, active, reused, needsReconciliation, changedMasterFacts, aiReview],
 	);
 	useEffect(() => {
 		if (onCheckpoint)
@@ -140,6 +144,8 @@ export function ImportReview({
 				),
 			),
 		);
+		submission.current = undefined;
+		setSubmitted(false);
 		setData(next);
 	};
 	const keyOf = (fact: (typeof candidates)[number]) => `${fact.section}:${fact.entityId}:${fact.field}`;
@@ -405,6 +411,36 @@ export function ImportReview({
 		) : null;
 	return (
 		<div className="grid min-w-0 gap-4">
+			{pages && (
+				<fieldset disabled={busy || submitted} className="min-w-0">
+					<ImportAssistance
+						state={{
+							...createReviewState(data, flowId),
+							data,
+							confirmed,
+							reviewed,
+							active,
+							reused,
+							aiReview,
+							needsReconciliation,
+							changedMasterFacts,
+						}}
+						flowId={flowId}
+						pages={pages}
+						partial={partial ?? false}
+						onChange={(next) => {
+							if (busy || submitted) return;
+							setData(next.data);
+							setConfirmed(next.confirmed);
+							setReviewed(next.reviewed);
+							setAiReview(next.aiReview);
+							confirmationFlow.current = next.confirmationFlow;
+							submission.current = next.submission;
+							setSubmitted(Boolean(next.submission));
+						}}
+					/>
+				</fieldset>
+			)}
 			<header className="grid gap-2">
 				<h1 className="type-title-s">
 					<Trans context="review.import.title">Review imported information</Trans>
@@ -435,6 +471,8 @@ export function ImportReview({
 						<Trans>
 							Only part of this file could be read. Review every section and add missing information before saving.
 						</Trans>
+					</AlertDescription>
+					<AlertActions>
 						<Button
 							variant="secondary"
 							onClick={() => {
@@ -444,7 +482,7 @@ export function ImportReview({
 						>
 							<Trans>Review now</Trans>
 						</Button>
-					</AlertDescription>
+					</AlertActions>
 				</Alert>
 			)}
 			{!!issues?.length && (
@@ -461,6 +499,8 @@ export function ImportReview({
 								</li>
 							))}
 						</ul>
+					</AlertDescription>
+					<AlertActions>
 						<Button
 							variant="secondary"
 							onClick={() => {
@@ -470,7 +510,7 @@ export function ImportReview({
 						>
 							<Trans>Review now</Trans>
 						</Button>
-					</AlertDescription>
+					</AlertActions>
 				</Alert>
 			)}
 			<fieldset disabled={busy || submitted} className="grid min-w-0 gap-4">
@@ -765,6 +805,8 @@ export function ImportReview({
 					</AlertTitle>
 					<AlertDescription>
 						<p>{error}</p>
+					</AlertDescription>
+					<AlertActions>
 						<Button
 							variant="secondary"
 							disabled={busy}
@@ -772,7 +814,7 @@ export function ImportReview({
 						>
 							{needsReconciliation ? <Trans>Refresh career information for review</Trans> : <Trans>Try again</Trans>}
 						</Button>
-					</AlertDescription>
+					</AlertActions>
 				</Alert>
 			)}
 
@@ -811,37 +853,4 @@ function displayValue(field: string, value: unknown, data: ResumeData): string {
 			.join(" · ");
 	if (value && typeof value === "object" && "url" in value) return String(value.url);
 	return "";
-}
-
-function fieldLabel(field: string) {
-	const labels: Record<string, string> = {
-		company: t`Company`,
-		position: t`Position`,
-		location: t({ context: "workplace", message: "Location" }),
-		dates: t`Dates`,
-		period: t`Dates`,
-		description: t`Description`,
-		school: t`School`,
-		degree: t`Degree`,
-		area: t`Area of study`,
-		grade: t`Grade`,
-		name: t`Name`,
-		headline: t`Headline`,
-		phone: t`Phone`,
-		proficiency: t`Proficiency`,
-		language: t`Language`,
-		fluency: t`Fluency`,
-		title: t`Title`,
-		issuer: t`Issuer`,
-		network: t`Network`,
-		username: t`Username`,
-		website: t`Link`,
-		keywords: t`Keywords`,
-		roles: t`Roles`,
-		organization: t`Organization`,
-		awarder: t`Awarder`,
-		publisher: t`Publisher`,
-		content: t`Content`,
-	};
-	return labels[field] ?? field;
 }

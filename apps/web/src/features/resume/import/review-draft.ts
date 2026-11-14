@@ -1,5 +1,7 @@
 import z from "zod";
+import { sourceRevisionSchema } from "@reactive-resume/schema/ai-operation";
 import { masterFactSchema } from "@reactive-resume/schema/career-master";
+import { reviewResultSchema } from "@reactive-resume/schema/resume/ai-review";
 import { resumeDataSchema } from "@reactive-resume/schema/resume/data";
 import { importReviewInputSchema } from "@reactive-resume/schema/resume/import-review";
 
@@ -14,6 +16,16 @@ const stateSchema = z.object({
 	needsReconciliation: z.boolean().default(false),
 	changedMasterFacts: z.array(z.string()).default([]),
 	submission: importReviewInputSchema.optional(),
+	aiReview: z
+		.strictObject({
+			version: z.literal(1),
+			source: sourceRevisionSchema,
+			operationId: z.string().min(1),
+			result: reviewResultSchema.nullable(),
+			draftGeneration: z.string(),
+			appliedCandidateIds: z.array(z.string()).default([]),
+		})
+		.optional(),
 });
 export type ReviewState = z.infer<typeof stateSchema>;
 const draftSchema = z.object({

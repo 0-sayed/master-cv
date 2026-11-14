@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Plural, Trans } from "@lingui/react/macro";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { Alert, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Kbd } from "@reactive-resume/ui/components/kbd";
@@ -95,9 +95,9 @@ function ImportedNote() {
 		});
 
 	return (
-		<Alert variant="success" className="items-start">
+		<Alert variant="success">
 			<Icon name="check-circle" size={20} />
-			<AlertDescription className="flex items-start justify-between gap-3">
+			<AlertDescription>
 				<span role="status">
 					<Trans>Imported from {imported}.</Trans> <Plural value={sections} one="# section" other="# sections" />,{" "}
 					<Plural value={entries} one="# entry" other="# entries" />.{" "}
@@ -107,15 +107,13 @@ function ImportedNote() {
 						<Trans>Review each section before using this resume.</Trans>
 					)}
 				</span>
-				<button
-					type="button"
-					aria-label={t`Dismiss`}
-					onClick={dismiss}
-					className="-m-1.5 flex size-8 shrink-0 items-center justify-center rounded-md hover:bg-hover"
-				>
-					<Icon name="x" size={18} />
-				</button>
 			</AlertDescription>
+			<AlertActions>
+				<Button variant="secondary" onClick={dismiss}>
+					<Icon name="x" />
+					<Trans>Dismiss</Trans>
+				</Button>
+			</AlertActions>
 		</Alert>
 	);
 }
@@ -139,16 +137,18 @@ function LockedNote() {
 		);
 
 	return (
-		<Alert variant="info" className="items-center">
+		<Alert variant="info">
 			<Icon name="lock" size={20} />
-			<AlertDescription className="flex items-center justify-between gap-3">
+			<AlertDescription>
 				<span>
 					<Trans>Locked. Unlock to edit.</Trans>
 				</span>
+			</AlertDescription>
+			<AlertActions>
 				<Button size="sm" variant="secondary" loading={isPending} onClick={unlock} aria-label={t`Unlock editing`}>
 					<Trans>Unlock</Trans>
 				</Button>
-			</AlertDescription>
+			</AlertActions>
 		</Alert>
 	);
 }

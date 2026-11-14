@@ -58,13 +58,20 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 			if (width === 1440) await page.getByRole("tab", { name: /^(Check|فحص|مراجعة)/u }).click();
 			else await page.getByRole("button", { name: /^(Check|فحص|مراجعة)/u }).click();
-			const pdfReadiness = page.getByRole("region", { name: ar ? "قابلية قراءة PDF" : "PDF readability", exact: true });
-			await expect(pdfReadiness.getByRole("status")).toHaveText(ar ? "لم يُفحص" : "Not checked");
+			const pdfLabel = ar ? "قابلية قراءة PDF" : "PDF readability";
+			const pdfReadiness = page.getByRole("region", { name: pdfLabel, exact: true });
+			const pdfSummary = page
+				.getByRole("region", { name: ar ? "نتائج الفحص" : "Check summary", exact: true })
+				.getByRole("article")
+				.filter({ has: page.getByText(pdfLabel, { exact: true }) });
+			await expect(pdfSummary.getByRole("status")).toHaveText(ar ? "لم يُفحص" : "Not checked");
+			await expect(pdfReadiness.getByText(ar ? "لم يُفحص" : "Not checked", { exact: true })).toBeVisible();
 			await expect(page.locator("[data-pdf-bytes-hash]")).toHaveCount(0);
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("check.png") });
 			const ignoredNote = page.locator('[data-issue-card="MISSING_EMAIL:/basics/email"]');
-			await ignoredNote.getByRole("button", { name: ar ? "الإبقاء كما هو" : "Keep as it is", exact: true }).click();
+			await ignoredNote.getByRole("button", { name: ar ? "إبقاء كما هو" : "Keep as is", exact: true }).click();
+			await expect(ignoredNote).not.toBeVisible();
 			const showAgain = page.getByRole("button", { name: ar ? "اعرض مرة أخرى (1)" : "Show again (1)", exact: true });
 			await expect(showAgain).toBeVisible();
 			await showAgain.scrollIntoViewIfNeeded();

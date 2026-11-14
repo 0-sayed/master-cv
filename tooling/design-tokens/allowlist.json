@@ -1931,222 +1931,6 @@
 			"reason": "Inherited provider mark or UI occurrence from b617646fa; preserve approved upstream data."
 		},
 		{
-			"file": "apps/web/src/features/ats-checker/report/analysis-status.tsx",
-			"context": "function:AnalysisStatus/jsx:p@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/finding-row.tsx",
-			"context": "function:FindingRow/jsx:Badge@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/finding-row.tsx",
-			"context": "function:FindingRow/jsx:code@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/finding-row.tsx",
-			"context": "function:FindingRow/jsx:p@className",
-			"literal": "leading-normal",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/finding-row.tsx",
-			"context": "function:FindingRow/jsx:p@className",
-			"literal": "leading-snug",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/finding-row.tsx",
-			"context": "function:FindingRow/jsx:p@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/finding-row.tsx",
-			"context": "function:FindingRow/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/jd-coverage.tsx",
-			"context": "function:JdCoverage/jsx:p@className",
-			"literal": "leading-none",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/jd-coverage.tsx",
-			"context": "function:JdCoverage/jsx:p@className",
-			"literal": "leading-normal",
-			"kind": "typography",
-			"count": 4,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/jd-coverage.tsx",
-			"context": "function:JdCoverage/jsx:p@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/jd-coverage.tsx",
-			"context": "function:JdCoverage/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 6,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/report-view.tsx",
-			"context": "function:AtsPdfReportView/jsx:p@className",
-			"literal": "leading-normal",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/report-view.tsx",
-			"context": "function:AtsPdfReportView/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/report-view.tsx",
-			"context": "function:CategorySection/jsx:p@className",
-			"literal": "leading-normal",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/report-view.tsx",
-			"context": "function:CategorySection/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/report-view.tsx",
-			"context": "function:CategorySection/jsx:span@className",
-			"literal": "leading-normal",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/report-view.tsx",
-			"context": "function:CategorySection/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/report-view.tsx",
-			"context": "function:WritingSection/jsx:p@className",
-			"literal": "leading-normal",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/report-view.tsx",
-			"context": "function:WritingSection/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/report-view.tsx",
-			"context": "function:WritingSection/jsx:span@className",
-			"literal": "leading-normal",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/report-view.tsx",
-			"context": "function:WritingSection/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/score-header.tsx",
-			"context": "function:ScoreHeader/jsx:div@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/score-header.tsx",
-			"context": "function:ScoreHeader/jsx:p@className",
-			"literal": "leading-normal",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/score-header.tsx",
-			"context": "function:ScoreHeader/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/score-header.tsx",
-			"context": "function:ScoreHeader/jsx:span@className",
-			"literal": "leading-none",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/score-header.tsx",
-			"context": "function:ScoreHeader/jsx:span@className",
-			"literal": "text-4xl",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
-			"file": "apps/web/src/features/ats-checker/report/score-header.tsx",
-			"context": "function:ScoreHeader/jsx:span@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Untouched ATS source pinned at d34de15d4; exact inherited occurrence outside reconciliation scope."
-		},
-		{
 			"file": "apps/web/src/features/career/coach-thread.tsx",
 			"context": "const:contentClass/property:page",
 			"literal": "max-w-[720px]",
@@ -12972,22 +12756,6 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:button@className",
-			"literal": "border-white",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:button@className",
-			"literal": "size-[22px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
 			"context": "function:CheckPageLayer/jsx:div@className",
 			"literal": "-inset-y-[3px]",
 			"kind": "geometry",
@@ -13764,30 +13532,6 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/editor/proposals/proposal-list.tsx",
-			"context": "function:ProposalItem/jsx:div@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/proposals/proposal-list.tsx",
-			"context": "function:ProposalItem/jsx:div@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/proposals/proposal-list.tsx",
-			"context": "function:ProposalItem/jsx:ins@className",
-			"literal": "rounded-[3px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/proposals/proposal-list.tsx",
 			"context": "function:ProposalItem/jsx:p@className",
 			"literal": "text-xs",
 			"kind": "typography",
@@ -13800,14 +13544,6 @@
 			"literal": "text-[11px]",
 			"kind": "typography",
 			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/proposals/proposal-list.tsx",
-			"context": "function:ProposalItem/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
 		},
 		{
@@ -14118,54 +13854,6 @@
 			"file": "apps/web/src/features/resume/editor/write/fields.tsx",
 			"context": "function:WebsiteField/jsx:label@className",
 			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/improve.tsx",
-			"context": "function:ImprovePanel/jsx:button@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/improve.tsx",
-			"context": "function:ImprovePanel/jsx:p@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/improve.tsx",
-			"context": "function:ImprovePanel/jsx:p@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/improve.tsx",
-			"context": "function:ImprovePanel/jsx:p@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/improve.tsx",
-			"context": "function:ImprovePanel/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 3,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/improve.tsx",
-			"context": "function:ImprovePanel/jsx:span@className",
-			"literal": "text-xs",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."

@@ -2,7 +2,7 @@ import type { UIMessage } from "ai";
 import { ORPCError } from "@orpc/client";
 import { and, eq } from "drizzle-orm";
 import { withOwnerDatabase } from "@reactive-resume/db/owner-scope";
-import { agentMessage, agentThread } from "@reactive-resume/db/schema";
+import { agentMessage, agentThread, aiOperation } from "@reactive-resume/db/schema";
 import { lockDocumentOwner } from "../documents/ownership";
 import { proposedEditsOf, withEditStatuses } from "./messages-persistence";
 
@@ -31,6 +31,12 @@ export function recordEditDecision(input: EditDecisionInput) {
 			.for("update");
 		const row = rows.find((candidate) => candidate.uiMessage.id === input.messageId);
 		if (!row || row.role !== "assistant") throw new ORPCError("NOT_FOUND");
+		const [operation] = await tx
+			.select({ kind: aiOperation.kind })
+			.from(aiOperation)
+			.where(and(eq(aiOperation.userId, input.userId), eq(aiOperation.id, input.messageId)));
+		if (operation?.kind.startsWith("review."))
+			throw new ORPCError("FORBIDDEN", { message: "Use the review decision service." });
 		const original = row.uiMessage as unknown as UIMessage;
 		const scoped = {
 			...original,

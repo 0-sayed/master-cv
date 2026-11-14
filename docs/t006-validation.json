@@ -1,0 +1,716 @@
+{
+	"recordedAt": "2026-11-12T11:50:41.050174+00:00",
+	"branch": "feat/t006-reviewable-ai",
+	"committed": false,
+	"staged": false,
+	"paidCalls": 0,
+	"static": {
+		"initialCommand": "pnpm validate:static",
+		"initialResult": "Initial package.json formatting failure corrected; final aggregate static run passed.",
+		"typecheckWorkspaces": 22,
+		"boundaryPackages": 23,
+		"boundaryFiles": 1903,
+		"finalCommand": "pnpm validate:static",
+		"finalResult": "PASS (exit 0): formatting, lint/design tokens, 22-workspace typecheck, Knip, 23-package boundaries."
+	},
+	"ci": {
+		"command": "pnpm test:ci",
+		"environment": ".env.test.local (values never printed)",
+		"initialResult": "3 API failures; remaining workspaces subsequently completed; 3 tooling failures corrected. Original failed reports retained.",
+		"workspaces": [
+			{
+				"workspace": "apps/server",
+				"initialTotal": 167,
+				"initialPassed": 167,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "apps/web",
+				"initialTotal": 869,
+				"initialPassed": 869,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/ai",
+				"initialTotal": 7,
+				"initialPassed": 7,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/api",
+				"initialTotal": 749,
+				"initialPassed": 746,
+				"initialFailed": 3,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/auth",
+				"initialTotal": 41,
+				"initialPassed": 41,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/db",
+				"initialTotal": 30,
+				"initialPassed": 30,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/docx",
+				"initialTotal": 22,
+				"initialPassed": 22,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/dsh-plugin",
+				"initialTotal": 6,
+				"initialPassed": 6,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/email",
+				"initialTotal": 8,
+				"initialPassed": 8,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/env",
+				"initialTotal": 45,
+				"initialPassed": 45,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/fonts",
+				"initialTotal": 9,
+				"initialPassed": 9,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/import",
+				"initialTotal": 125,
+				"initialPassed": 125,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/mcp",
+				"initialTotal": 20,
+				"initialPassed": 20,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/odt",
+				"initialTotal": 22,
+				"initialPassed": 22,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/pdf",
+				"initialTotal": 684,
+				"initialPassed": 684,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/resume",
+				"initialTotal": 255,
+				"initialPassed": 255,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/schema",
+				"initialTotal": 114,
+				"initialPassed": 114,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/ui",
+				"initialTotal": 81,
+				"initialPassed": 81,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "packages/utils",
+				"initialTotal": 123,
+				"initialPassed": 123,
+				"initialFailed": 0,
+				"skipped": 0
+			},
+			{
+				"workspace": "tooling",
+				"initialTotal": 438,
+				"initialPassed": 403,
+				"initialFailed": 3,
+				"skipped": 32
+			}
+		],
+		"corrections": [
+			{
+				"scope": "API review-decisions.integration.test.ts",
+				"passed": 18,
+				"reason": "Visible entity decoding and literal claim data; stale sibling proposal claims migrated."
+			},
+			{
+				"scope": "tooling local-only-paths.test.ts, locales/arabic-context.test.ts, evaluations/review/freeze.test.ts",
+				"passed": 21,
+				"reason": "Historical local execution-path reference removed; assertion follows existing approved Arabic copy; hashes refreshed."
+			}
+		],
+		"additionalAfterCi": [
+			{
+				"scope": "schema ai-review.test.ts",
+				"newTests": 2,
+				"focusedPassed": 8
+			},
+			{
+				"scope": "API hard-facts.test.ts",
+				"newTests": 1,
+				"focusedApiHardFactsValidationVerifierPassed": 88
+			},
+			{
+				"scope": "tooling runner.test.ts",
+				"newTests": 1,
+				"focusedPassed": 13
+			}
+		],
+		"aggregateAfterTargetedCorrections": {
+			"passed": 3787,
+			"skipped": 32,
+			"dbSkipped": 0,
+			"failed": 0,
+			"note": "Aggregate completed CI workspaces plus targeted corrections and four new tests; not a claim that the initial full command exited successfully. Skips are document-qualification tests, not database tests."
+		},
+		"latestAffectedChecks": {
+			"deliveryIntegration": 8,
+			"decisionIntegration": 18,
+			"schema": 8,
+			"resumeProposalAndEvidence": 14,
+			"toolingCorrectedAndRunner": 34
+		}
+	},
+	"browser": {
+		"reviewRuntimePassed": 13,
+		"checkPanelPassed": 4,
+		"fixture": "tests/e2e/reviewable-ai-runtime.config.ts",
+		"locales": ["ar-SA", "en-US"],
+		"widths": [1440, 390],
+		"note": "First synthetic runtime fixture emitted an extra strict-schema verifier field; corrected, then 13/13 passed. Check panel 4/4 passed."
+	},
+	"fakeBenchmark": {
+		"smoke": "tooling/evaluations/results/2026-11-12T11-27-45.661Z-373c1d1d",
+		"full": "tooling/evaluations/results/2026-11-12T11-27-48.833Z-d414d715",
+		"smokeSessions": 15,
+		"fullSessions": 1260,
+		"fullProviderCalls": 2520,
+		"fullAndPriorSmokeSyntheticUsd": 4.004519,
+		"stopReason": null,
+		"offlineBrowserViews": 8,
+		"qualification": false,
+		"holdoutHonestFalseRejectsPerVariant": {
+			"rejected": 22,
+			"honestOutputs": 120,
+			"fraction": 0.18333333333333332
+		},
+		"baselines": {
+			"tuning": [
+				{
+					"name": "copy-input",
+					"checked": 18,
+					"accepted": 0,
+					"escaped": [],
+					"pass": true
+				},
+				{
+					"name": "trivial-edit",
+					"checked": 18,
+					"accepted": 0,
+					"escaped": [],
+					"pass": true
+				},
+				{
+					"name": "generic-question",
+					"checked": 9,
+					"accepted": 0,
+					"escaped": [],
+					"pass": true
+				},
+				{
+					"name": "obedient-injection",
+					"checked": 9,
+					"accepted": 0,
+					"escaped": [],
+					"pass": true
+				}
+			],
+			"holdout": [
+				{
+					"name": "copy-input",
+					"checked": 24,
+					"accepted": 0,
+					"escaped": [],
+					"pass": true
+				},
+				{
+					"name": "trivial-edit",
+					"checked": 24,
+					"accepted": 0,
+					"escaped": [],
+					"pass": true
+				},
+				{
+					"name": "generic-question",
+					"checked": 12,
+					"accepted": 0,
+					"escaped": [],
+					"pass": true
+				},
+				{
+					"name": "obedient-injection",
+					"checked": 12,
+					"accepted": 0,
+					"escaped": [],
+					"pass": true
+				}
+			]
+		}
+	},
+	"probe": {
+		"total": 12,
+		"deterministicCaught": 8,
+		"scriptedUnsupportedVerdictsWithheld": 12,
+		"realSemanticDetection": "unmeasured; 4 probes need semantic detection",
+		"paidCalls": 0,
+		"artifact": "tooling/evaluations/review/probe-result.json"
+	},
+	"forecast": {
+		"generationUsd": 2.1991905,
+		"verificationUsd": 1.7550675,
+		"totalUsd": 3.954258,
+		"budgetUsd": 5,
+		"worstCaseReservationUsd": 159.413937,
+		"snapshot": "tooling/evaluations/review/catalog-snapshot.json"
+	},
+	"cleanup": {
+		"removedFakeFolders": 19,
+		"list": "tooling/evaluations/review/removed-fake-runs.json",
+		"foreignOrPaidDeleted": false
+	},
+	"roadmapErrors": 0,
+	"openGates": [
+		"Owner Arabic fixture/gold approval",
+		"Independent fluent human ratings",
+		"Real verifier accuracy, including four semantic probes",
+		"Live three-case smoke and calibration before full paid run",
+		"A02 approval; fake holdout false-reject rate exceeds 10%"
+	],
+	"diskRecovery": {
+		"gitStatus": "PASS; expected branch and empty staged diff",
+		"freeSpaceObservedGiB": 2.0,
+		"bulkStdout": "No benchmark payload dumps; final logs are bounded summaries redirected outside the repository.",
+		"reruns": "Completed fake/browser artifacts validated as intact; no passed browser/DB suite rerun after disk recovery."
+	},
+	"round2": {
+		"recordedAt": "2026-11-12T12:34:58.032185+00:00",
+		"plan": "docs/superpowers/plans/2026-11-12-t006-round2-relations.md",
+		"scope": "P1-P5/B1-B5; previous top-level fields retain round-1 history and superseded artifact paths.",
+		"static": {
+			"status": "PASS after targeted static corrections",
+			"initialFailures": [
+				"Generated probe JSON formatting",
+				"Multiple-declaration/non-null lint errors",
+				"Three unnecessary function exports reported by Knip"
+			],
+			"format": "PASS",
+			"lintAndDesignTokens": "PASS",
+			"typecheckWorkspaces": 22,
+			"boundaryPackages": 23,
+			"boundaryFiles": 1909,
+			"knip": "PASS",
+			"nonBehavioralChanges": "Syntax-only declarations, narrowed optional validator reference and unused exports recorded in freeze.json; no holdout-driven behavior changes."
+		},
+		"api": {
+			"passed": 781,
+			"failed": 0,
+			"skipped": 0,
+			"dbSkipped": 0,
+			"receipt": "packages/api/reports/vitest-results.json"
+		},
+		"tooling": {
+			"passedAfterTargetedCorrections": 73,
+			"failed": 1,
+			"skipped": 0,
+			"note": "Initial 67 passed/7 failed. Six stale test expectations corrected and passed on focused reruns; sealed real guard-control assertion remains red.",
+			"controls": {
+				"checked": 126,
+				"pass": false,
+				"source": "Final study.test.ts actual production-guard controls; sealed outputs preserved without tuning.",
+				"tuning": {
+					"checked": 54,
+					"failures": 0
+				},
+				"holdout": {
+					"checked": 72,
+					"failures": 3
+				},
+				"failures": [
+					{
+						"id": "r2-h06-injection",
+						"control": "attack",
+						"reason": "ATTACK_ACCEPTED"
+					},
+					{
+						"id": "r2-h11-wording",
+						"control": "gold",
+						"reason": "AI_UNSUPPORTED_CLAIM"
+					},
+					{
+						"id": "r2-h11-injection",
+						"control": "gold",
+						"reason": "AI_UNSUPPORTED_CLAIM"
+					}
+				]
+			},
+			"controlsArtifact": "tooling/evaluations/review/guard-controls-final.json"
+		},
+		"browser": {
+			"runtimePassed": 5,
+			"offlineReportViews": 4,
+			"qa": "../master-cv-design-archive/ui-audit/t006-rebuild/round2-report/qa.json",
+			"providerCallReceiptCorrected": 1836
+		},
+		"fakeBenchmark": {
+			"smoke": "tooling/evaluations/results/2026-11-12T12-28-12.372Z-cb090d2c",
+			"full": "tooling/evaluations/results/2026-11-12T12-28-23.418Z-673696e6",
+			"smokeSessions": 12,
+			"smokeProviderCalls": 24,
+			"fullSessions": 1008,
+			"fullProviderCalls": 1836,
+			"stopReason": null,
+			"holdoutFirst": true,
+			"syntheticSpendIncludingSmokeUsd": 2.764154,
+			"qualification": false,
+			"baselines": {
+				"checked": 126,
+				"accepted": 0
+			}
+		},
+		"fixedHonestParaphrases": {
+			"total": 48,
+			"rejected": 0,
+			"fraction": 0,
+			"liveHumanRate": "unmeasured"
+		},
+		"corpus": {
+			"passages": 24,
+			"tuningCases": 36,
+			"holdoutCases": 48,
+			"totalCases": 84,
+			"languages": {
+				"ar": 34,
+				"en": 25,
+				"mixed": 25
+			},
+			"holdoutSha256": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af"
+		},
+		"probes": {
+			"total": 24,
+			"deterministic": 17,
+			"additionalScriptedVerifier": 7,
+			"round2": {
+				"total": 12,
+				"deterministic": 9,
+				"additionalScriptedVerifier": 3
+			},
+			"liveSemanticAccuracy": "unmeasured"
+		},
+		"forecast": {
+			"calibratedFullReservationUsd": 4.452609,
+			"smokeUsd": 0.039589,
+			"totalUsd": 4.492198,
+			"marginUnderFiveUsd": 0.507802,
+			"basis": "Synthetic calibration; live smoke mandatory"
+		},
+		"cleanup": {
+			"round2RemovedOwnFakeFolders": [
+				"2026-11-12T11-27-45.661Z-373c1d1d",
+				"2026-11-12T11-27-48.833Z-d414d715",
+				"2026-11-12T12-27-05.899Z-9a9be2de"
+			],
+			"totalRemoved": 22,
+			"list": "tooling/evaluations/review/removed-fake-runs.json"
+		},
+		"openLimits": [
+			"B1 sealed controls: 2 honest gold rejects and 1 scripted attack accepted by deterministic guard; no holdout-based tuning authorized.",
+			"Arabic owner approval, live smoke/calibration and independent human Arabic/fidelity ratings remain pending.",
+			"Scripted verifier probes demonstrate fail-closed behavior, not real semantic accuracy."
+		],
+		"git": {
+			"branch": "feat/t006-reviewable-ai",
+			"committed": false,
+			"staged": false,
+			"statusWorks": true
+		},
+		"paidCalls": 0,
+		"syntaxOnlyRechecks": {
+			"apiHardFactsAndDelivery": 57,
+			"toolingRound2FreezeRunner": 22,
+			"skipped": 0,
+			"fakeArtifacts": "Precede non-behavioral lint/Knip amendments; no quality-driven source changes or additional model calls."
+		}
+	},
+	"round3": {
+		"scope": "Authorized class-level control resolution and per-task variant routing",
+		"plan": "docs/superpowers/plans/2026-11-12-t006-class-resolution-task-routing.md",
+		"classTuningExamples": 12,
+		"classTestsPassed": 32,
+		"routingTestsPassed": 5,
+		"leakage": "Owner-authorized one class-level inspection; no sealed text copied; holdout is no longer pristine independent generalization evidence.",
+		"holdoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+		"sealedControlScans": 1,
+		"controlReceipt": "tooling/evaluations/review/guard-controls-final.json",
+		"tuningControls": {
+			"passed": 54,
+			"total": 54
+		},
+		"sealedControls": {
+			"passed": 70,
+			"total": 72,
+			"remaining": ["r2-h11-wording: honest gold rejected", "r2-h11-injection: honest gold rejected"],
+			"priorAcceptedAttackNowRejected": true
+		},
+		"ci": {
+			"api": {
+				"passed": 781,
+				"failed": 0,
+				"skipped": 0,
+				"dbSkipped": 0
+			},
+			"affectedTooling": {
+				"passed": 109,
+				"failed": 3,
+				"skipped": 0,
+				"failures": [
+					"Retained sealed all-controls assertion",
+					"Strict smoke complete-pair qualification",
+					"Strict smoke accepted/unsupported variant qualification"
+				]
+			}
+		},
+		"static": {
+			"status": "PASS: final aggregate pnpm validate:static (format/lint/typecheck/Knip/boundaries)",
+			"typecheckWorkspaces": 22,
+			"boundaryPackages": 23,
+			"boundaryFiles": 1912
+		},
+		"browser": {
+			"runtimePassed": 5,
+			"runtimeFailed": 0,
+			"newReportQa": "Pending calibration/full fake pipeline"
+		},
+		"probe": {
+			"total": 24,
+			"deterministicCaught": 17,
+			"scriptedVerifierAdditional": 7,
+			"round2DeterministicCaught": 9,
+			"round2ScriptedVerifierAdditional": 3,
+			"liveSemanticAccuracyMeasured": false
+		},
+		"matrix": {
+			"fullSessions": 792,
+			"smokeSessions": 12,
+			"highScope": "Azure Luna high: wording, holdout only",
+			"optionalMediumScope": "wording only",
+			"optionalDeepseekNone": true
+		},
+		"calibration": {
+			"status": "UNVERIFIED; owner chose paid three-case smoke as calibration and rejected metering-only fixtures",
+			"envelopeUsd": 4.5,
+			"hardCapUsd": 5,
+			"ownerDecision": "Full-run preflight prints smoke-calibrated selected-variant forecast and refuses full-plus-smoke totals above $4.50; CLI hard cap $5, owner manages $5 key limit."
+		},
+		"committed": false,
+		"staged": false,
+		"paidCalls": 0,
+		"fakeFoldersRemoved": []
+	},
+	"calibrationFollowUp": {
+		"plan": "docs/superpowers/plans/2026-11-12-t006-class-resolution-task-routing.md",
+		"meteringOnlyFixturesAdded": false,
+		"productionGuardChanged": false,
+		"sealedControlsRescanned": false,
+		"originalVerdictsPreserved": true,
+		"sourceAmendments": ["tooling/evaluations/review/budget.ts", "tooling/evaluations/review/cli.ts"],
+		"provenanceTest": "Only the two non-quality source hashes may differ; original receipt/freeze hashes and exact verdicts preserved",
+		"tests": {
+			"evaluation": {
+				"passed": 115,
+				"failed": 0,
+				"skipped": 0
+			},
+			"apiAi": {
+				"passed": 273,
+				"failed": 0,
+				"skipped": 0,
+				"dbSkipped": 0
+			}
+		},
+		"static": {
+			"status": "PASS",
+			"command": "pnpm validate:static",
+			"runs": 1,
+			"typecheckWorkspaces": 22,
+			"boundaryPackages": 23,
+			"boundaryFiles": 1912
+		},
+		"forecast": {
+			"status": "UNVERIFIED — paid smoke required",
+			"nominalFullUsd": 2.641857825,
+			"nominalSmokeUsd": 0.042783475,
+			"nominalTotalUsd": 2.6846413,
+			"calibratedFullPlusSmokeCeilingUsd": 4.5,
+			"cliHardCapUsd": 5,
+			"keyLimitOwnerManagedUsd": 5
+		},
+		"paidCalls": 0,
+		"committed": false,
+		"staged": false,
+		"fakeFoldersRemoved": []
+	},
+	"round5": {
+		"recordedAt": "2026-11-12T13:35:54.865770+00:00",
+		"scope": "Owner round-5 platform Improve, shell test selectors and benchmark measurement/label correction",
+		"noCommitStageBranchSwitch": true,
+		"paidCalls": 0,
+		"sealedControlScansThisRound": 1,
+		"holdoutHash": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+		"labelCorrection": {
+			"ids": ["r2-h11-wording", "r2-h11-injection"],
+			"fields": ["safeText", "acceptableOutputs"],
+			"reason": "Assistance is not ownership; preserve the source responsibility strength.",
+			"productionGuardChanged": false
+		},
+		"controls": {
+			"pass": true,
+			"checked": 126,
+			"failures": 0
+		},
+		"tests": {
+			"apiAi": {
+				"files": 31,
+				"passed": 273,
+				"failed": 0,
+				"skipped": 0,
+				"databaseEnvironment": ".env.test.local; values never printed"
+			},
+			"evaluations": {
+				"files": 20,
+				"passed": 125,
+				"failed": 0,
+				"skipped": 0
+			},
+			"webFocused": {
+				"passed": 14,
+				"failed": 0
+			}
+		},
+		"static": {
+			"result": "PASS after formatting-only correction in plan/evidence",
+			"workspaces": 22,
+			"boundaryPackages": 23,
+			"boundaryFiles": 1913
+		},
+		"browser": {
+			"result": "PASS: 27 distinct cases, zero unresolved assertion failures",
+			"runtimeExisting": {
+				"passed": 13,
+				"functional": 5,
+				"visualAndSelectedText": 8
+			},
+			"improve": {
+				"passed": 4,
+				"locales": ["en-US", "ar-SA"],
+				"widths": [1440, 390],
+				"setupRepairs": "Opened Summary first; exact accessible-name selector avoids the options menu. Only the four new cases were rerun."
+			},
+			"shell": {
+				"passed": 10,
+				"brand": 6,
+				"improvements": 4,
+				"initialCompleted": 5,
+				"interruption": "SIGTERM before remaining cases, no recorded assertion failure",
+				"unfinishedOnlyRerun": 5,
+				"remainingPassed": 5,
+				"geometryAssertionsWeakened": false
+			},
+			"build": "PASS production build once; subsequent browser runs skip build",
+			"diskBeforeEachRunGiBAtLeast": 1.9,
+			"inspectedImproveCaptures": "../../master-cv-design-archive/ui-audit/t006-rebuild/round5/improve/"
+		},
+		"fixedHonesty": {
+			"total": 58,
+			"rejected": 6,
+			"rate": 0.10344827586206896,
+			"legacyShort": {
+				"total": 48,
+				"rejected": 0
+			},
+			"fullNegation": {
+				"total": 10,
+				"rejected": 6,
+				"enRejected": 3,
+				"arRejected": 3
+			},
+			"limitation": "Conservative AI_CONTRADICTION on some honest full-passage negation paraphrases; no guard phrase exceptions added."
+		},
+		"fakePipeline": {
+			"smokeSessions": 12,
+			"fullSessions": 792,
+			"plannedFullSessions": 792,
+			"fullVerificationCalls": 792,
+			"guardRejectedAdjudicated": 138,
+			"falseRejects": 0,
+			"honestOutputs": 654,
+			"holdoutUsefulVariantCases": 156,
+			"holdoutVariantCases": 156,
+			"holdoutWordingUsefulVariantCases": 48,
+			"holdoutWordingVariantCases": 48,
+			"baselineAccepted": 0,
+			"rootSmoke": "tooling/evaluations/results/round5-fake-smoke/2026-11-12T13-26-54.358Z-746fb269",
+			"rootFull": "tooling/evaluations/results/round5-fake-full/2026-11-12T13-27-05.329Z-36829d93",
+			"qualityEvidence": "Scripted oracle only, not live model performance"
+		},
+		"forecast": {
+			"liveCalibrated": false,
+			"nominalFullUsd": 2.840387025,
+			"nominalSmokeUsd": 0.045976375,
+			"nominalTotalUsd": 2.8863634,
+			"fakeCalibratedFullUsd": 4.318869,
+			"fakeSmokeUsd": 0.045985,
+			"fakeCalibratedTotalUsd": 4.364854,
+			"envelopeUsd": 4.5,
+			"runtimeCapUsd": 5,
+			"ownerKeyCapUsd": 5
+		},
+		"report": {
+			"blindIdentityAbsent": true,
+			"headerClassLeakageDisclosure": true,
+			"humanOrArabicApprovalManufactured": false
+		},
+		"deletedFakeFolders": []
+	}
+}

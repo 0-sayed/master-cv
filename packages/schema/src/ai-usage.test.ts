@@ -17,3 +17,15 @@ it("preserves once-only Start limits and consistent available operations", () =>
 		baseResumeId: "root",
 	});
 });
+
+it("validates the scoped local allowance without accepting inconsistent balances", () => {
+	const usage = {
+		plan: "start",
+		operations: { limit: 50, used: 5, reserved: 1, remaining: 44 },
+		baseCvs: { limit: 1, used: 1 },
+	};
+	expect(startUsageViewSchema.parse(usage)).toEqual(usage);
+	expect(startUsageViewSchema.safeParse({ ...usage, operations: { ...usage.operations, remaining: 45 } }).success).toBe(
+		false,
+	);
+});

@@ -1,9 +1,10 @@
-import type { PdfCategory, PdfRuleCode, PdfSeverity } from "@reactive-resume/resume/ats-pdf";
+import type { PdfRuleCode, PdfSeverity } from "@reactive-resume/resume/ats-pdf";
 import { t } from "@lingui/core/macro";
 import { match } from "ts-pattern";
 
 export type PdfFindingMessage = {
 	title: string;
+	why: string;
 	action: string;
 };
 
@@ -22,345 +23,400 @@ export function getPdfFindingMessage(code: PdfRuleCode): PdfFindingMessage {
 		match(code)
 			// ---- Parseability: nothing readable came out ----
 			.with("NO_TEXT_LAYER", () => ({
-				title: t`No text could be read from this file.`,
-				action: t`Export the resume as a text PDF rather than as an image or a scan.`,
+				why: t`Hiring systems need text they can select and read.`,
+				title: t`Export a PDF with selectable text`,
+				action: t`Export as text, rather than a scan or image.`,
 			}))
 			.with("IMAGE_ONLY_DOCUMENT", () => ({
-				title: t`The pages are pictures, with no text behind them.`,
-				action: t`Export from the original document instead of scanning or screenshotting it.`,
+				why: t`Text inside images may be missed.`,
+				title: t`Replace page images with real text`,
+				action: t`Export directly from the original document.`,
 			}))
 			.with("GARBLED_TEXT", () => ({
-				title: t`The text comes out unreadable.`,
-				action: t`Re-export with fonts embedded, then open the file and check that the text copies out cleanly.`,
+				why: t`Unreadable characters can hide your experience.`,
+				title: t`Check the text in your exported PDF`,
+				action: t`Embed fonts, then check that copied text reads correctly.`,
 			}))
 			.with("TYPE3_FONT", () => ({
-				title: t`This file uses Type 3 fonts, which carry drawings instead of characters.`,
-				action: t`Re-export using an ordinary TrueType or OpenType font.`,
+				why: t`Type 3 fonts can make words unreadable to software.`,
+				title: t`Replace drawing-based fonts`,
+				action: t`Use a TrueType or OpenType font and export again.`,
 			}))
 			.with("INVALID_EMBEDDED_FONT", () => ({
-				title: t`An embedded font could not be read.`,
-				action: t`Re-export from the original document with fonts embedded properly.`,
+				why: t`A damaged embedded font can hide words.`,
+				title: t`Export again with readable fonts`,
+				action: t`Embed fonts from the original document and export again.`,
 			}))
 			// ---- Parseability: the file is the wrong kind of thing ----
 			.with("FILE_TOO_LARGE", () => ({
-				title: t`This file is larger than many application forms accept.`,
-				action: t`Keep it under 2.5 MB, usually by removing or shrinking images.`,
+				why: t`Some application forms limit upload size.`,
+				title: t`Reduce the PDF file size`,
+				action: t`Keep the file under 2.5 MB by shrinking or removing images.`,
 			}))
 			.with("ENCRYPTED_PDF", () => ({
-				title: t`This file is encrypted.`,
-				action: t`Save an unprotected copy, with no password and no permissions restrictions.`,
+				why: t`Protection can prevent software from reading the file.`,
+				title: t`Save a copy without password protection`,
+				action: t`Remove the password and reading restrictions from the copy.`,
 			}))
 			.with("XFA_FORM", () => ({
-				title: t`This is an XFA form, so most software reads only the empty shell.`,
-				action: t`Print or export the form to a flat PDF before sending it.`,
+				why: t`Some software cannot read text inside XFA forms.`,
+				title: t`Export the form as a regular PDF`,
+				action: t`Print or export the completed form to a flat PDF.`,
 			}))
 			.with("PDF_PORTFOLIO", () => ({
-				title: t`This is a PDF Portfolio: the visible page is only a cover.`,
-				action: t`Send the resume itself rather than a portfolio wrapper.`,
+				why: t`Software may read only the portfolio cover.`,
+				title: t`Send the CV itself`,
+				action: t`Export the CV separately from the PDF Portfolio.`,
 			}))
 			.with("ACROFORM_FIELDS", () => ({
-				title: t`This file contains form fields.`,
-				action: t`Flatten the form so the text is part of the page.`,
+				why: t`Form answers may be missing from extracted text.`,
+				title: t`Save form answers as page text`,
+				action: t`Flatten the completed form before sending it.`,
 			}))
 			// ---- Parseability: the characters came out wrong ----
 			.with("REPLACEMENT_CHARACTERS", () => ({
-				title: t`Some characters come out as question marks.`,
-				action: t`Re-export with fonts embedded, and check the text copies out cleanly.`,
+				why: t`Missing letters can change names and search terms.`,
+				title: t`Check missing letters in the PDF`,
+				action: t`Embed fonts and check the copied text.`,
 			}))
 			.with("PRIVATE_USE_CHARACTERS", () => ({
-				title: t`Some glyphs have no meaning outside this file.`,
-				action: t`Replace icon fonts with plain text, then re-export.`,
+				why: t`Some symbols have no meaning outside their font.`,
+				title: t`Replace font symbols with plain text`,
+				action: t`Use text labels instead of icon-font characters.`,
 			}))
 			.with("LIGATURE_CHARACTERS", () => ({
-				title: t`Ligatures can drop letters out of words such as "workflow".`,
-				action: t`Turn off discretionary ligatures when exporting.`,
+				why: t`Some joined shapes can lose letters during extraction.`,
+				title: t`Check words with joined letter shapes`,
+				action: t`Turn off optional ligatures and export again.`,
 			}))
 			.with("NON_EMBEDDED_FONTS", () => ({
-				title: t`A font is referenced but not embedded.`,
-				action: t`Embed all fonts when exporting, so characters map the way you intended.`,
+				why: t`Missing fonts can change how words are read.`,
+				title: t`Include fonts in the exported file`,
+				action: t`Enable font embedding when exporting.`,
 			}))
 			.with("LOST_WORD_SPACING", () => ({
-				title: t`Words run together when the text is extracted.`,
-				action: t`Re-export from the original document rather than converting from another format.`,
+				why: t`Joined words can be harder to recognize.`,
+				title: t`Restore spaces between words`,
+				action: t`Export from the original document and check the copied text.`,
 			}))
 			.with("SPLIT_CHARACTER_SPACING", () => ({
-				title: t`Text is written one character at a time.`,
-				action: t`Avoid heavy letter-spacing effects, then re-export.`,
+				why: t`Widely separated letters may not be read as words.`,
+				title: t`Reduce spacing between letters`,
+				action: t`Remove extra letter spacing and export again.`,
 			}))
 			// ---- Parseability: what the document declares about itself ----
 			.with("INVISIBLE_TEXT", () => ({
-				title: t`This file contains text drawn invisibly.`,
-				action: t`If it came from a scan, that is expected. Otherwise remove it; recruiters read it as keyword stuffing.`,
+				why: t`Hidden text may differ from what the reader sees.`,
+				title: t`Review text hidden behind the page`,
+				action: t`Keep scan-recognition text only if it matches the visible page.`,
 			}))
 			.with("WHITE_TEXT", () => ({
-				title: t`This file contains white-on-white text.`,
-				action: t`Delete it. Hidden keywords are treated as a deliberate attempt to game the search.`,
+				why: t`Hidden words can misrepresent the visible CV.`,
+				title: t`Remove white text on white backgrounds`,
+				action: t`Delete hidden keywords and keep the visible content.`,
 			}))
 			.with("LOW_TEXT_DENSITY", () => ({
-				title: t`Very little text was recovered for this many pages.`,
-				action: t`Open the exported file and confirm you can select and copy every part of it.`,
+				why: t`Only a small part of the page text was recovered.`,
+				title: t`Check that all your content is readable`,
+				action: t`Try selecting and copying each part of the PDF.`,
 			}))
 			.with("HIGH_IMAGE_COVERAGE", () => ({
-				title: t`Images cover most of the page.`,
-				action: t`Keep resume content as real text rather than as pictures of text.`,
+				why: t`Text inside large images may be missed.`,
+				title: t`Keep key information outside images`,
+				action: t`Use real text for experience, skills and contact details.`,
 			}))
 			.with("VERTICAL_TEXT", () => ({
-				title: t`Some text is rotated.`,
-				action: t`Lay the text out horizontally. Rotated runs are often dropped or misplaced.`,
+				why: t`Rotated text may be skipped or read out of order.`,
+				title: t`Keep text horizontal`,
+				action: t`Rotate text back to a horizontal reading direction.`,
 			}))
 			.with("ROTATED_PAGES", () => ({
-				title: t`A page is rotated.`,
-				action: t`Save the file with every page upright.`,
+				why: t`Rotated pages can affect reading order.`,
+				title: t`Make every page upright`,
+				action: t`Save all pages in their normal upright orientation.`,
 			}))
 			.with("NON_STANDARD_PAGE_SIZE", () => ({
-				title: t`This is not a common resume page size.`,
-				action: t`Use A4 or US Letter so the layout survives being re-rendered.`,
+				why: t`Unusual sizes can crop content in other viewers.`,
+				title: t`Use a standard page size`,
+				action: t`Choose A4 or US Letter and export again.`,
 			}))
 			.with("UNTAGGED_PDF", () => ({
-				title: t`This file has no accessibility tags.`,
-				action: t`Tags give software an explicit reading order. Enable them when exporting, if your tool offers it.`,
+				why: t`Tags help software follow the reading order.`,
+				title: t`Add accessibility tags when available`,
+				action: t`Enable tagged PDF export if your editor supports it.`,
 			}))
 			.with("MISSING_DOCUMENT_LANGUAGE", () => ({
-				title: t`This file declares no language.`,
-				action: t`Set the document language when exporting.`,
+				why: t`The language setting helps software interpret the text.`,
+				title: t`Set the PDF language`,
+				action: t`Set the document language before exporting.`,
 			}))
 			.with("LARGE_FILE_SIZE", () => ({
-				title: t`This file is large for a resume.`,
-				action: t`Compress or remove large images to keep uploads quick.`,
+				why: t`Large files take longer to upload.`,
+				title: t`Make the PDF lighter`,
+				action: t`Compress large images or remove unnecessary ones.`,
 			}))
 			.with("TRUNCATED_ANALYSIS", () => ({
-				title: t`Only the first pages were checked.`,
-				action: t`Nothing to fix. The remaining pages were simply not covered by this report.`,
+				why: t`The result covers only the first pages.`,
+				title: t`Review the pages beyond this check`,
+				action: t`Check the remaining pages yourself; this is not a file defect.`,
 			}))
 			// ---- Layout ----
 			.with("MULTI_COLUMN_LAYOUT", () => ({
-				title: t`This page is in columns, and the text extracts out of order.`,
-				action: t`Use a single column for anything that has to be read in sequence.`,
+				why: t`Columns can change the order software reads text.`,
+				title: t`Keep related text in one column`,
+				action: t`Use one column for content that needs a clear sequence.`,
 			}))
 			.with("READING_ORDER_INVERSION", () => ({
-				title: t`The order the text is stored in disagrees badly with the order it reads in.`,
-				action: t`Re-export from a single-column layout, then copy the text out and check it reads top to bottom.`,
+				why: t`The extracted text follows a different order from the page.`,
+				title: t`Correct the PDF reading order`,
+				action: t`Try a single-column layout, then copy the text to check its order.`,
 			}))
 			.with("READING_ORDER_RISK", () => ({
-				title: t`Some lines are stored out of reading order.`,
-				action: t`Copy the text out of the exported file and read it through; fix anything that arrives in the wrong place.`,
+				why: t`A role may become separated from its description.`,
+				title: t`Review lines that read out of order`,
+				action: t`Copy the PDF text and check that related lines stay together.`,
 			}))
 			.with("COLUMN_GUTTER", () => ({
-				title: t`A full-height gap splits this page into two columns.`,
-				action: t`Prefer a single column, or keep the side column to short, self-contained lists.`,
+				why: t`A wide column gap can split the reading sequence.`,
+				title: t`Check the order across columns`,
+				action: t`Use one column, or keep the sidebar to short lists.`,
 			}))
 			.with("TABLE_LIKE_LAYOUT", () => ({
-				title: t`Content is laid out in a grid.`,
-				action: t`Replace tables with plain paragraphs and lists. Cells extract in storage order, not reading order.`,
+				why: t`Table cells may be read in the wrong order.`,
+				title: t`Move key content out of tables`,
+				action: t`Use paragraphs and lists for content that needs a sequence.`,
 			}))
 			.with("TEXT_IN_MARGIN_ZONE", () => ({
-				title: t`Text sits in the header or footer area.`,
-				action: t`Move real content into the body of the page; some software discards the margins.`,
+				why: t`Some software skips headers and footers.`,
+				title: t`Move key text away from page edges`,
+				action: t`Move important details into the page body.`,
 			}))
 			.with("TIGHT_LINE_SPACING", () => ({
-				title: t`Your lines are packed very tightly.`,
-				action: t`Increase line spacing so two lines are not merged into one.`,
+				why: t`Tightly packed lines may merge during extraction.`,
+				title: t`Give lines more space`,
+				action: t`Increase line spacing and check the exported text.`,
 			}))
 			.with("SMALL_BODY_TEXT", () => ({
-				title: t`Your body text is very small.`,
-				action: t`Use at least 9pt.`,
+				why: t`Small text is harder to read.`,
+				title: t`Increase the body text size`,
+				action: t`Use a body font of at least 9 pt.`,
 			}))
 			.with("MANY_DISTINCT_FONTS", () => ({
-				title: t`This file uses a lot of different fonts.`,
-				action: t`Keep to two or three families. Each extra font is another chance for one to map badly.`,
+				why: t`Each font adds another mapping for software to read.`,
+				title: t`Use fewer font families`,
+				action: t`Keep to two or three font families.`,
 			}))
 			.with("NARROW_PAGE_MARGINS", () => ({
-				title: t`Your margins are very narrow.`,
+				why: t`Text close to an edge can be cut off.`,
+				title: t`Widen the page margins`,
 				action: t`Leave at least half an inch around the page.`,
 			}))
 			.with("TEXT_OUTSIDE_PAGE", () => ({
-				title: t`Some text falls outside the page.`,
-				action: t`Move all content inside the page boundaries and re-export.`,
+				why: t`Content outside the page may be missed.`,
+				title: t`Bring text inside the page`,
+				action: t`Move all content inside the page boundaries.`,
 			}))
 			.with("NON_STANDARD_BULLET_GLYPHS", () => ({
-				title: t`Your bullets are drawn with unusual characters.`,
-				action: t`Use your editor's normal bullet list, so stray glyphs do not land mid-sentence.`,
+				why: t`Unusual bullet symbols may appear inside words.`,
+				title: t`Use standard list bullets`,
+				action: t`Use your editor's built-in bullet list.`,
 			}))
 			.with("DENSE_PAGE", () => ({
-				title: t`This page is very densely packed.`,
-				action: t`Add some whitespace between sections so a person can skim it.`,
+				why: t`Crowded pages are harder to skim.`,
+				title: t`Give sections more breathing room`,
+				action: t`Add space between sections without removing useful facts.`,
 			}))
 			.with("REPEATED_HEADER_FOOTER", () => ({
-				title: t`The same line repeats on every page.`,
-				action: t`Keep running heads short, or drop them. They repeat in the extracted text too.`,
+				why: t`Repeated lines also appear in extracted text.`,
+				title: t`Shorten repeated page headers`,
+				action: t`Keep repeated headers brief or remove them.`,
 			}))
 			// ---- Sections ----
 			.with("NO_EXPERIENCE_SECTION", () => ({
-				title: t`No work-experience section was found.`,
-				action: t`Add a section headed "Experience" or "Work Experience". It is the field most systems rank on.`,
+				why: t`A clear heading helps readers find your work history.`,
+				title: t`Add a clear experience heading`,
+				action: t`Use a heading such as "Experience" or "Work Experience".`,
 			}))
 			.with("NO_RECOGNIZED_HEADINGS", () => ({
-				title: t`No conventional section headings were found.`,
-				action: t`Use plain headings such as "Experience", "Education" and "Skills".`,
+				why: t`Clear headings help software separate your information.`,
+				title: t`Use familiar section headings`,
+				action: t`Use headings such as Experience, Education and Skills.`,
 			}))
 			.with("FEW_SECTION_HEADINGS", () => ({
-				title: t`Only one recognisable section heading was found.`,
-				action: t`Break the resume into the usual sections so it can be segmented.`,
+				why: t`Only one familiar heading was found.`,
+				title: t`Give each section a clear heading`,
+				action: t`Separate your CV into clearly named sections.`,
 			}))
 			.with("NO_EDUCATION_SECTION", () => ({
-				title: t`No education section was found.`,
-				action: t`Add a section headed "Education". Many systems have a required education field.`,
+				why: t`A clear heading makes qualifications easier to find.`,
+				title: t`Add an education heading`,
+				action: t`Put your qualifications under an Education heading.`,
 			}))
 			.with("NO_SKILLS_SECTION", () => ({
-				title: t`No skills section was found.`,
-				action: t`List the tools and technologies you use. Recruiters search skills more than any other field.`,
+				why: t`A clear skills section helps readers find your tools.`,
+				title: t`Add a skills heading`,
+				action: t`List the tools and skills you actually use.`,
 			}))
 			.with("HEADINGS_NOT_DISTINGUISHED", () => ({
-				title: t`Your headings look the same as your body text.`,
-				action: t`Make them visibly larger, bolder or capitalised.`,
+				why: t`Headings that look like body text are harder to spot.`,
+				title: t`Make section headings stand out`,
+				action: t`Make headings larger or bolder than body text.`,
 			}))
 			.with("VERY_SHORT_DOCUMENT", () => ({
-				title: t`Very few words were recovered for a resume.`,
-				action: t`Check the exported file contains everything you expect, and that all of it is selectable text.`,
+				why: t`Very little text was recovered from the file.`,
+				title: t`Check for missing PDF content`,
+				action: t`Check that all expected content is present and selectable.`,
 			}))
 			.with("NO_BULLET_POINTS", () => ({
-				title: t`No bullet lists were found.`,
-				action: t`Describe each role with short bullets. Solid paragraphs are harder to skim and to segment.`,
+				why: t`Short bullets are easier to scan than long paragraphs.`,
+				title: t`Use short lists for your experience`,
+				action: t`Describe each role with a few clear bullets.`,
 			}))
 			.with("NO_ROLE_LINES", () => ({
-				title: t`No lines look like a job title paired with an employer.`,
-				action: t`Write each role as a clear title and company line, with the dates alongside.`,
+				why: t`Readers need to know where you held each role.`,
+				title: t`Pair each role with its employer`,
+				action: t`Place the role, employer and dates together.`,
 			}))
 			.with("NO_SUMMARY_SECTION", () => ({
-				title: t`There is no summary paragraph.`,
-				action: t`Add two or three lines at the top describing what you do.`,
+				why: t`A summary gives readers context for your experience.`,
+				title: t`Add a short professional summary`,
+				action: t`Write two or three lines about the work you do.`,
 			}))
 			// ---- Contact details ----
 			.with("NO_EMAIL", () => ({
-				title: t`No email address was found.`,
-				action: t`Put a plain email address near the top of the first page. It is what most systems file you under.`,
+				why: t`An email gives recruiters a way to reach you.`,
+				title: t`Add an email address`,
+				action: t`Put a plain email address near the top of page one.`,
 			}))
 			.with("NO_PHONE", () => ({
-				title: t`No phone number was found.`,
-				action: t`Add one with its country code; some application forms require it before you can submit.`,
+				why: t`Some application forms require a phone number.`,
+				title: t`Add a phone number`,
+				action: t`Include a phone number with its country code.`,
 			}))
 			.with("NO_NAME_LINE", () => ({
-				title: t`The top of the first page does not look like a name.`,
-				action: t`Start the resume with your name on its own line.`,
+				why: t`A clear name identifies whose CV this is.`,
+				title: t`Put your name at the top`,
+				action: t`Write your name on its own line at the top.`,
 			}))
 			.with("CONTACT_NOT_ON_FIRST_PAGE", () => ({
-				title: t`Your contact details are not on the first page.`,
-				action: t`Move your email and phone number to the top of page one.`,
+				why: t`Contact details are easier to find there.`,
+				title: t`Move contact details to page one`,
+				action: t`Place your email and phone near the top.`,
 			}))
 			.with("EMAIL_SPLIT_ACROSS_ITEMS", () => ({
-				title: t`Your email address is broken across pieces of text.`,
-				action: t`Write it as one uninterrupted piece, with no special spacing.`,
+				why: t`A split address may not be recognized as an email.`,
+				title: t`Keep your email address together`,
+				action: t`Write it as one continuous address with no added spacing.`,
 			}))
 			.with("LINK_TEXT_URL_MISMATCH", () => ({
-				title: t`A link points somewhere other than the address it shows.`,
-				action: t`Make the visible text and the destination match.`,
+				why: t`The destination differs from the address shown.`,
+				title: t`Check where this link opens`,
+				action: t`Make the displayed address and destination match.`,
 			}))
 			.with("MULTIPLE_EMAILS", () => ({
-				title: t`More than one email address appears.`,
-				action: t`Keep a single address, so software does not have to guess which one to use.`,
+				why: t`Several addresses can leave readers unsure which to use.`,
+				title: t`Choose one contact email`,
+				action: t`Keep one email address for applications.`,
 			}))
 			.with("NO_PROFESSIONAL_LINK", () => ({
-				title: t`There is no link to a profile, portfolio or repository.`,
-				action: t`Add one link that shows your work.`,
+				why: t`A profile or portfolio can support your experience.`,
+				title: t`Add a link that shows your work`,
+				action: t`Add a relevant profile, portfolio or repository link.`,
 			}))
 			.with("BARE_URL_WITHOUT_PROTOCOL", () => ({
-				title: t`A web address is written without https://.`,
-				action: t`Write the full address so it is recognised as a link.`,
+				why: t`A full address is easier to recognize as a link.`,
+				title: t`Write the full web address`,
+				action: t`Include https:// at the start of the address.`,
 			}))
 			.with("PHONE_FORMAT_UNUSUAL", () => ({
-				title: t`Your phone number is written in an unusual shape.`,
-				action: t`Use a plain international form, such as +1 555 010 1234.`,
+				why: t`A standard format makes your number easier to recognize.`,
+				title: t`Use a clear international phone format`,
+				action: t`Write the country code followed by your phone number.`,
 			}))
 			// ---- Dates ----
 			.with("NO_DATES_FOUND", () => ({
-				title: t`No dates were found.`,
-				action: t`Give every role a period, such as "Jan 2020 - Present", so your timeline can be reconstructed.`,
+				why: t`Dates help readers follow your work history.`,
+				title: t`Add dates to your experience`,
+				action: t`Give each role a clear start and end date.`,
 			}))
 			.with("FEW_DATES", () => ({
-				title: t`Most entries have no dates.`,
-				action: t`Give every role and qualification a date range.`,
+				why: t`Missing dates leave parts of your timeline unclear.`,
+				title: t`Add dates to undated entries`,
+				action: t`Add date ranges for roles and qualifications.`,
 			}))
 			.with("UNPARSEABLE_DATE_RANGE", () => ({
-				title: t`A date range is written in a form most software cannot read.`,
-				action: t`Use a recognised form such as "Jan 2020 - Mar 2022" or "2020 - 2022".`,
+				why: t`This date format may be hard for software to read.`,
+				title: t`Use a clearer date range`,
+				action: t`Use a form such as "Jan 2020 – Mar 2022" or "2020 – 2022".`,
 			}))
 			.with("REVERSED_DATE_RANGE", () => ({
-				title: t`A date range ends before it starts.`,
-				action: t`Swap the start and end dates.`,
+				why: t`The end date is earlier than the start date.`,
+				title: t`Check the start and end dates`,
+				action: t`Correct the dates so they reflect the actual period.`,
 			}))
 			.with("FUTURE_DATED_ENTRY", () => ({
-				title: t`A date is in the future.`,
-				action: t`Correct the year, or write "Present" for ongoing work.`,
+				why: t`A future date can make your timeline unclear.`,
+				title: t`Review this future date`,
+				action: t`Check the year; mark ongoing work as current only if it is.`,
 			}))
 			.with("MIXED_DATE_FORMATS", () => ({
-				title: t`Your dates are written several different ways.`,
-				action: t`Pick one format and use it everywhere.`,
+				why: t`Consistent dates are easier to follow.`,
+				title: t`Use one date format throughout`,
+				action: t`Choose one date format and use it for all entries.`,
 			}))
 			.with("NO_CURRENT_ROLE_MARKER", () => ({
-				title: t`Nothing marks a role as ongoing.`,
-				action: t`Write "Present" as the end date of your current role.`,
+				why: t`This helps readers distinguish current work from past roles.`,
+				title: t`Mark your current role as ongoing`,
+				action: t`If you still work there, use "Present" instead of an end date.`,
 			}))
 			.with("AMBIGUOUS_NUMERIC_DATE", () => ({
-				title: t`A numeric date reads differently in different countries.`,
-				action: t`Spell the month, as in "Mar 2022".`,
+				why: t`Numeric dates can mean different months in different countries.`,
+				title: t`Write the month name`,
+				action: t`Use a month name, such as "Mar 2022".`,
 			}))
 			// ---- Content: unscored advice ----
 			.with("NO_QUANTIFIED_IMPACT", () => ({
-				title: t`Almost none of your bullets carry a number.`,
-				action: t`Add figures where you have them: volumes, percentages, timeframes, team sizes.`,
+				why: t`Real figures help readers understand the scale of your work.`,
+				title: t`Add figures you can support`,
+				action: t`Add known volumes, time saved or team sizes; do not invent numbers.`,
 			}))
 			.with("WEAK_ACTION_VERBS", () => ({
-				title: t`Most bullets open with filler rather than something you did.`,
-				action: t`Start each one with a concrete verb: built, led, reduced, migrated.`,
+				why: t`Concrete verbs make your contribution clearer.`,
+				title: t`Start bullets with what you did`,
+				action: t`Use verbs that match your actual role, such as built or supported.`,
 			}))
 			.with("FIRST_PERSON_PRONOUNS", () => ({
-				title: t`Your resume uses "I" and "my".`,
-				action: t`Drop the pronouns and start from the verb. That is the convention in most markets.`,
+				why: t`Direct phrasing is easier to scan.`,
+				title: t`Start with the action instead of “I”`,
+				action: t`Remove unnecessary pronouns while keeping the meaning.`,
 			}))
 			.with("LONG_BULLETS", () => ({
-				title: t`Some bullets run long.`,
-				action: t`Keep them to roughly two lines, so a skim-reader finishes them.`,
+				why: t`Shorter points are easier to scan.`,
+				title: t`Shorten long bullet points`,
+				action: t`Aim for roughly two lines per point without losing key facts.`,
 			}))
 			.with("HIGH_PAGE_COUNT", () => ({
-				title: t`This resume is long.`,
-				action: t`Length is not a defect, and there is no universal one-page rule. Keep the pages that earn their place.`,
+				why: t`Useful content matters more than a fixed page limit.`,
+				title: t`Review what each page adds`,
+				action: t`Keep relevant pages; there is no universal one-page rule.`,
 			}))
 			.with("EMPLOYMENT_GAP", () => ({
-				title: t`There is a gap between two dated roles.`,
-				action: t`A gap is not a problem. Add a one-line explanation if you want to; many strong resumes simply do not.`,
+				why: t`Context is optional and can help explain your timeline.`,
+				title: t`Add timeline context if you want`,
+				action: t`A gap is not a defect; add a brief explanation only if useful.`,
 			}))
 			.with("ALL_CAPS_RUNS", () => ({
-				title: t`Long stretches are set in capitals.`,
-				action: t`Reserve capitals for short headings. They slow reading and can defeat case-sensitive search.`,
+				why: t`Long capitalized passages are harder to scan.`,
+				title: t`Use capitals sparingly`,
+				action: t`Reserve all-capitals text for short headings.`,
 			}))
 			.with("REPEATED_PHRASES", () => ({
-				title: t`Many bullets start with the same phrase.`,
-				action: t`Vary the openings so the section does not read as boilerplate.`,
+				why: t`Distinct openings help readers see different contributions.`,
+				title: t`Vary repeated bullet openings`,
+				action: t`Use a different opening when it better describes the work.`,
 			}))
 			.exhaustive()
 	);
-}
-
-export function getPdfCategoryLabel(category: PdfCategory): string {
-	return match(category)
-		.with("parseability", () => t`Readability`)
-		.with("layout", () => t`Layout`)
-		.with("sections", () => t`Sections`)
-		.with("contact", () => t`Contact details`)
-		.with("dates", () => t`Dates`)
-		.with("content", () => t`Writing`)
-		.exhaustive();
-}
-
-export function getPdfCategoryDescription(category: PdfCategory): string {
-	return match(category)
-		.with("parseability", () => t`Whether software can recover the words at all.`)
-		.with("layout", () => t`Whether the page geometry preserves reading order.`)
-		.with("sections", () => t`Whether the resume is segmented the way software expects.`)
-		.with("contact", () => t`Whether a recruiter can reach you.`)
-		.with("dates", () => t`Whether your timeline can be reconstructed.`)
-		.with("content", () => t`Advice for the person reading it. None of this affects the score.`)
-		.exhaustive();
 }
 
 export function getPdfSeverityLabel(severity: PdfSeverity): string {

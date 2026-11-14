@@ -18,7 +18,7 @@ export const routeBindingSchema = z.strictObject({
 });
 export type RouteBinding = z.infer<typeof routeBindingSchema>;
 export const sourceRevisionSchema = z.strictObject({
-	kind: z.enum(["resume", "career", "job"]),
+	kind: z.enum(["resume", "career", "job", "import", "answer"]),
 	id: identifier,
 	revision: identifier,
 });

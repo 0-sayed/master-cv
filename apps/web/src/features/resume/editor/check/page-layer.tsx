@@ -13,7 +13,9 @@ import { cn } from "@reactive-resume/utils/style";
 import { isSameSelection, useEditorStore } from "../store";
 import { findEntry } from "../write/model";
 import { scrollToIssue, useCheckActions } from "./actions";
+import { pdfFindingKey } from "./pdf-findings";
 import { useCheck } from "./use-check";
+import { useReadiness } from "./use-readiness";
 import { getPdfFindingMessage } from "@/features/ats-checker/messages";
 
 const toTarget = (node: PageMapNode): PageMapTarget => {
@@ -90,8 +92,7 @@ export function CheckPageLayer({ pageIndex, pageMap }: CheckPageLayerProps) {
 	const selected = useEditorStore((state) => state.checkIssue);
 	const highlightTerm = useEditorStore((state) => state.highlightTerm);
 	const proposals = useEditorStore((state) => state.proposals);
-	const exportCheck = useEditorStore((state) => state.exportCheck);
-	const openExportReport = useEditorStore((state) => state.setExportReportOpen);
+	const { results, pdfReport } = useReadiness();
 	const breakpoint = useBreakpoint();
 	const page = pageMap?.pages[pageIndex];
 
@@ -135,11 +136,13 @@ export function CheckPageLayer({ pageIndex, pageMap }: CheckPageLayerProps) {
 	// The deep check's findings, where it found them in the exported PDF: the same pages as the preview, as long as
 	// the resume hasn't changed since it ran.
 	const exportPins =
-		tab === "issues" && exportCheck?.data === check.data
-			? [...exportCheck.report.findings, ...exportCheck.report.tips].flatMap((finding, index) => {
-					const { page: pageNumber, box } = finding.evidence ?? {};
-					return box && pageNumber === pageIndex + 1 ? [{ finding, box, key: `${finding.code}:${index}` }] : [];
-				})
+		tab === "issues" && (results.pdf.state === "complete" || results.pdf.state === "partial") && pdfReport
+			? [...pdfReport.findings, ...pdfReport.tips]
+					.filter((finding) => !check.data.metadata.check?.ignored.includes(pdfFindingKey(finding)))
+					.flatMap((finding) => {
+						const { page: pageNumber, box } = finding.evidence ?? {};
+						return box && pageNumber === pageIndex + 1 ? [{ finding, box, key: pdfFindingKey(finding) }] : [];
+					})
 			: [];
 
 	const tinted = highlighted.flatMap((target) =>
@@ -194,17 +197,26 @@ export function CheckPageLayer({ pageIndex, pageMap }: CheckPageLayerProps) {
 						className="absolute -m-[3px] rounded-[3px] border-[1.5px] border-dashed border-info-text p-[3px]"
 						style={boxStyle(box, page)}
 					/>
-					<button
-						type="button"
+					<CountBadge
+						variant={finding.severity === "blocker" ? "danger" : finding.severity === "warning" ? "warn-solid" : "info"}
+						shape="circle"
+						render={<button type="button" />}
 						data-export-pin={finding.code}
+						data-issue-pin={key}
 						aria-label={t`Exported PDF: ${getPdfFindingMessage(finding.code).title}`}
-						title={getPdfFindingMessage(finding.code).title}
-						onClick={() => openExportReport(true)}
+						aria-pressed={selected === key}
+						onClick={() => {
+							const editor = useEditorStore.getState();
+							editor.setCheckIssue(key);
+							editor.setDrawerOpen(true);
+							editor.setMobileView("check");
+							scrollToIssue(key, "panel");
+						}}
 						style={marginStyle(box, page)}
-						className="pointer-events-auto absolute grid size-[22px] place-items-center rounded-full border-2 border-white bg-info-text text-bg shadow-[0_1px_3px_oklch(0_0_0/0.25)]"
+						className="pointer-events-auto absolute"
 					>
-						<Icon name="file-pdf" size={13} />
-					</button>
+						<Icon name="file-pdf" />
+					</CountBadge>
 				</div>
 			))}
 

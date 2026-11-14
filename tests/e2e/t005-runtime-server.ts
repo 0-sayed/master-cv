@@ -1,3 +1,4 @@
+import "../../tooling/local/test-ai-guard.mjs";
 /* eslint-disable no-restricted-imports -- Test-only composition exercises real, private server startup and synthetic runtime without exposing production exports. */
 // Test-only composition. This entry is never imported by the application or production build.
 import { createRequire } from "node:module";

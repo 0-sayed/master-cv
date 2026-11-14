@@ -11,6 +11,8 @@ import { devtools } from "@tanstack/devtools-vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import viteReact, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig } from "vite-plus";
+// @boundaries-ignore test isolation belongs to the repository test harness
+import { testViteEnvironment } from "../../tooling/local/test-ai-guard.mjs";
 
 const rootPackageJsonPath = new URL("../../package.json", import.meta.url);
 const rootPackageJson = JSON.parse(readFileSync(rootPackageJsonPath, "utf-8")) as { version: string | undefined };
@@ -90,8 +92,8 @@ const serverProxy = serverPaths.reduce(
 	{} as Record<string, ProxyOptions>,
 );
 
-export default defineConfig({
-	envDir: workspaceRoot,
+export default defineConfig(({ mode }) => ({
+	envDir: testViteEnvironment(workspaceRoot, process.env, mode),
 
 	resolve: {
 		tsconfigPaths: true,
@@ -172,4 +174,4 @@ export default defineConfig({
 		// (guarded by src/react-compiler.test.ts).
 		babel({ presets: [reactCompilerPreset()] }),
 	],
-});
+}));

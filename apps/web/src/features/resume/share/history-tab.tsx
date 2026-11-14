@@ -4,7 +4,7 @@ import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	DropdownMenu,
@@ -208,10 +208,12 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 						<p>
 							<Trans>Your CV is preserved. Check your connection and try again.</Trans>
 						</p>
+					</AlertDescription>
+					<AlertActions>
 						<Button variant="secondary" disabled={source.retrying} loading={source.retrying} onClick={source.retry}>
 							{source.retrying ? <Trans>Retrying…</Trans> : <Trans>Try again</Trans>}
 						</Button>
-					</AlertDescription>
+					</AlertActions>
 				</Alert>
 			)}
 			{(!source.loadError || versions !== undefined) && (

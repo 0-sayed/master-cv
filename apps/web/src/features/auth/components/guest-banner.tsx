@@ -1,6 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { Link, useRouteContext } from "@tanstack/react-router";
-import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertDescription, AlertTitle, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 
@@ -23,15 +23,15 @@ export function GuestBanner() {
 							resumes, cover letters and applications.
 						</Trans>
 					</p>
-					<div className="mt-2 flex flex-wrap gap-2">
-						<Button variant="secondary" size="sm" nativeButton={false} render={<Link to="/auth/register" />}>
-							<Trans>Create account</Trans>
-						</Button>
-						<Button variant="ghost" size="sm" nativeButton={false} render={<Link to="/auth/login" />}>
-							<Trans>Sign in</Trans>
-						</Button>
-					</div>
 				</AlertDescription>
+				<AlertActions>
+					<Button variant="secondary" size="sm" nativeButton={false} render={<Link to="/auth/register" />}>
+						<Trans>Create account</Trans>
+					</Button>
+					<Button variant="secondary" size="sm" nativeButton={false} render={<Link to="/auth/login" />}>
+						<Trans>Sign in</Trans>
+					</Button>
+				</AlertActions>
 			</Alert>
 		</div>
 	);

@@ -88,12 +88,14 @@ export function PageCanvas() {
 		if (mode === "write" && !isPhone) revealSelectionInPanel(selection);
 	};
 
+	const reviewFeedback = useEditorStore((state) => state.reviewFeedback);
 	const skeletonWait1 = useSkeletonLoading(historyVersionId !== null && !version);
 	if (skeletonWait1.pending || (historyVersionId !== null && !version)) return <QuerySkeleton shape="preview" />;
 	return (
 		<div className="relative h-full min-h-0 bg-sunken">
 			<section
 				ref={canvasRef}
+				data-slot="preview-scroll-area"
 				// The scroll area takes focus so the page can be scrolled from the keyboard even before its lines load.
 				// oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be reachable by keyboard.
 				tabIndex={0}
@@ -110,6 +112,7 @@ export function PageCanvas() {
 				<ResumePreview
 					identity={identity ?? undefined}
 					highlightEdits={!viewing && !previewTemplate}
+					editFeedback={reviewFeedback}
 					data={previewData}
 					pageLayout="vertical"
 					pageGap={24}

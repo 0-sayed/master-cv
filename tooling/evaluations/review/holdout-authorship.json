@@ -1,0 +1,6 @@
+{
+	"authoredAt": "2026-11-12T12:25:46.607308+00:00",
+	"implementationFreeze": "freeze-preholdout.json",
+	"authoring": "Separate source/gold authorship after production/scoring freeze; new register/card/log structures. No guard/prompt tuning from outcomes.",
+	"passages": 12
+}

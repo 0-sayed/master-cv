@@ -1,0 +1,418 @@
+[
+	{
+		"id": "honest-1-en-a",
+		"family": "construction",
+		"language": "en",
+		"source": "Prepared site inspection records using Excel.",
+		"paraphrase": "Compiled site inspection records using Excel."
+	},
+	{
+		"id": "honest-1-en-b",
+		"family": "construction",
+		"language": "en",
+		"source": "Prepared site inspection records using Excel.",
+		"paraphrase": "Using Excel, prepared site inspection records."
+	},
+	{
+		"id": "honest-1-ar-a",
+		"family": "construction",
+		"language": "ar",
+		"source": "أعددت محاضر فحص الموقع باستخدام Excel.",
+		"paraphrase": "وثقت محاضر فحص الموقع باستخدام Excel."
+	},
+	{
+		"id": "honest-1-ar-b",
+		"family": "construction",
+		"language": "ar",
+		"source": "أعددت محاضر فحص الموقع باستخدام Excel.",
+		"paraphrase": "باستخدام Excel أعددت محاضر فحص الموقع."
+	},
+	{
+		"id": "honest-2-en-a",
+		"family": "banking",
+		"language": "en",
+		"source": "Checked customer records; did not approve loans.",
+		"paraphrase": "Reviewed customer records; did not approve loans."
+	},
+	{
+		"id": "honest-2-en-b",
+		"family": "banking",
+		"language": "en",
+		"source": "Checked customer records; did not approve loans.",
+		"paraphrase": "Did not approve loans; checked customer records."
+	},
+	{
+		"id": "honest-2-ar-a",
+		"family": "banking",
+		"language": "ar",
+		"source": "راجعت سجلات العملاء؛ لم أعتمد القروض.",
+		"paraphrase": "دققت سجلات العملاء؛ لم أعتمد القروض."
+	},
+	{
+		"id": "honest-2-ar-b",
+		"family": "banking",
+		"language": "ar",
+		"source": "راجعت سجلات العملاء؛ لم أعتمد القروض.",
+		"paraphrase": "لم أعتمد القروض؛ راجعت سجلات العملاء."
+	},
+	{
+		"id": "honest-3-en-a",
+		"family": "government",
+		"language": "en",
+		"source": "Filed correspondence during 2022.",
+		"paraphrase": "Organized correspondence during 2022."
+	},
+	{
+		"id": "honest-3-en-b",
+		"family": "government",
+		"language": "en",
+		"source": "Filed correspondence during 2022.",
+		"paraphrase": "During 2022, filed correspondence."
+	},
+	{
+		"id": "honest-3-ar-a",
+		"family": "government",
+		"language": "ar",
+		"source": "أرشفت مراسلات خلال ٢٠٢٢.",
+		"paraphrase": "نظمت مراسلات خلال 2022."
+	},
+	{
+		"id": "honest-3-ar-b",
+		"family": "government",
+		"language": "ar",
+		"source": "أرشفت مراسلات خلال ٢٠٢٢.",
+		"paraphrase": "خلال 2022 أرشفت مراسلات."
+	},
+	{
+		"id": "honest-4-en-a",
+		"family": "healthcare",
+		"language": "en",
+		"source": "Recorded patient appointments.",
+		"paraphrase": "Logged patient appointments."
+	},
+	{
+		"id": "honest-4-en-b",
+		"family": "healthcare",
+		"language": "en",
+		"source": "Recorded patient appointments.",
+		"paraphrase": "Documented patient appointments."
+	},
+	{
+		"id": "honest-4-ar-a",
+		"family": "healthcare",
+		"language": "ar",
+		"source": "سجلت مواعيد المرضى.",
+		"paraphrase": "وثقت مواعيد المرضى."
+	},
+	{
+		"id": "honest-4-ar-b",
+		"family": "healthcare",
+		"language": "ar",
+		"source": "سجلت مواعيد المرضى.",
+		"paraphrase": "دونت مواعيد المرضى."
+	},
+	{
+		"id": "honest-5-en-a",
+		"family": "retail",
+		"language": "en",
+		"source": "Checked stock across 3 stores.",
+		"paraphrase": "Reviewed stock across 3 stores."
+	},
+	{
+		"id": "honest-5-en-b",
+		"family": "retail",
+		"language": "en",
+		"source": "Checked stock across 3 stores.",
+		"paraphrase": "Across 3 stores, checked stock."
+	},
+	{
+		"id": "honest-5-ar-a",
+		"family": "retail",
+		"language": "ar",
+		"source": "راجعت المخزون في ٣ متاجر.",
+		"paraphrase": "فحصت المخزون في 3 متاجر."
+	},
+	{
+		"id": "honest-5-ar-b",
+		"family": "retail",
+		"language": "ar",
+		"source": "راجعت المخزون في ٣ متاجر.",
+		"paraphrase": "في 3 متاجر راجعت المخزون."
+	},
+	{
+		"id": "honest-6-en-a",
+		"family": "telecom",
+		"language": "en",
+		"source": "Recorded 9 incidents using Oracle.",
+		"paraphrase": "Logged 9 incidents using Oracle."
+	},
+	{
+		"id": "honest-6-en-b",
+		"family": "telecom",
+		"language": "en",
+		"source": "Recorded 9 incidents using Oracle.",
+		"paraphrase": "Documented ٩ incidents using Oracle."
+	},
+	{
+		"id": "honest-6-ar-a",
+		"family": "telecom",
+		"language": "ar",
+		"source": "وثقت ٩ بلاغات باستخدام Oracle.",
+		"paraphrase": "سجلت 9 بلاغات باستخدام Oracle."
+	},
+	{
+		"id": "honest-6-ar-b",
+		"family": "telecom",
+		"language": "ar",
+		"source": "وثقت ٩ بلاغات باستخدام Oracle.",
+		"paraphrase": "دونت ٩ بلاغات باستخدام Oracle."
+	},
+	{
+		"id": "honest-7-en-a",
+		"family": "education",
+		"language": "en",
+		"source": "Kept attendance logs for classes.",
+		"paraphrase": "Maintained attendance logs for classes."
+	},
+	{
+		"id": "honest-7-en-b",
+		"family": "education",
+		"language": "en",
+		"source": "Kept attendance logs for classes.",
+		"paraphrase": "Recorded attendance logs for classes."
+	},
+	{
+		"id": "honest-7-ar-a",
+		"family": "education",
+		"language": "ar",
+		"source": "حفظت سجلات حضور الطلاب.",
+		"paraphrase": "وثقت سجلات حضور الطلاب."
+	},
+	{
+		"id": "honest-7-ar-b",
+		"family": "education",
+		"language": "ar",
+		"source": "حفظت سجلات حضور الطلاب.",
+		"paraphrase": "نظمت سجلات حضور الطلاب."
+	},
+	{
+		"id": "honest-8-en-a",
+		"family": "oil and gas services",
+		"language": "en",
+		"source": "Logged maintenance requests in SAP.",
+		"paraphrase": "Recorded maintenance requests in SAP."
+	},
+	{
+		"id": "honest-8-en-b",
+		"family": "oil and gas services",
+		"language": "en",
+		"source": "Logged maintenance requests in SAP.",
+		"paraphrase": "Documented maintenance requests in SAP."
+	},
+	{
+		"id": "honest-8-ar-a",
+		"family": "oil and gas services",
+		"language": "ar",
+		"source": "وثقت طلبات الصيانة في SAP.",
+		"paraphrase": "سجلت طلبات الصيانة في SAP."
+	},
+	{
+		"id": "honest-8-ar-b",
+		"family": "oil and gas services",
+		"language": "ar",
+		"source": "وثقت طلبات الصيانة في SAP.",
+		"paraphrase": "دونت طلبات الصيانة في SAP."
+	},
+	{
+		"id": "honest-9-en-a",
+		"family": "software",
+		"language": "en",
+		"source": "Reviewed deployment notes using Docker.",
+		"paraphrase": "Checked deployment notes using Docker."
+	},
+	{
+		"id": "honest-9-en-b",
+		"family": "software",
+		"language": "en",
+		"source": "Reviewed deployment notes using Docker.",
+		"paraphrase": "Using Docker, reviewed deployment notes."
+	},
+	{
+		"id": "honest-9-ar-a",
+		"family": "software",
+		"language": "ar",
+		"source": "راجعت ملاحظات النشر باستخدام Docker.",
+		"paraphrase": "فحصت ملاحظات النشر باستخدام Docker."
+	},
+	{
+		"id": "honest-9-ar-b",
+		"family": "software",
+		"language": "ar",
+		"source": "راجعت ملاحظات النشر باستخدام Docker.",
+		"paraphrase": "باستخدام Docker راجعت ملاحظات النشر."
+	},
+	{
+		"id": "honest-10-en-a",
+		"family": "HR",
+		"language": "en",
+		"source": "Updated contract records using Excel.",
+		"paraphrase": "Maintained contract records using Excel."
+	},
+	{
+		"id": "honest-10-en-b",
+		"family": "HR",
+		"language": "en",
+		"source": "Updated contract records using Excel.",
+		"paraphrase": "Using Excel, updated contract records."
+	},
+	{
+		"id": "honest-10-ar-a",
+		"family": "HR",
+		"language": "ar",
+		"source": "راجعت عقدين باستخدام قوى.",
+		"paraphrase": "دققت العقدين باستخدام قوى."
+	},
+	{
+		"id": "honest-10-ar-b",
+		"family": "HR",
+		"language": "ar",
+		"source": "راجعت عقدين باستخدام قوى.",
+		"paraphrase": "باستخدام قوى راجعت العقدين."
+	},
+	{
+		"id": "honest-11-en-a",
+		"family": "logistics",
+		"language": "en",
+		"source": "Prepared shipment notes in Riyadh.",
+		"paraphrase": "Compiled shipment notes in Riyadh."
+	},
+	{
+		"id": "honest-11-en-b",
+		"family": "logistics",
+		"language": "en",
+		"source": "Prepared shipment notes in Riyadh.",
+		"paraphrase": "In Riyadh, prepared shipment notes."
+	},
+	{
+		"id": "honest-11-ar-a",
+		"family": "logistics",
+		"language": "ar",
+		"source": "أعددت مذكرات الشحن في الرياض.",
+		"paraphrase": "كتبت مذكرات الشحن في الرياض."
+	},
+	{
+		"id": "honest-11-ar-b",
+		"family": "logistics",
+		"language": "ar",
+		"source": "أعددت مذكرات الشحن في الرياض.",
+		"paraphrase": "في الرياض أعددت مذكرات الشحن."
+	},
+	{
+		"id": "honest-12-en-a",
+		"family": "hospitality",
+		"language": "en",
+		"source": "Registered room bookings; did not issue invoices.",
+		"paraphrase": "Recorded room bookings; did not issue invoices."
+	},
+	{
+		"id": "honest-12-en-b",
+		"family": "hospitality",
+		"language": "en",
+		"source": "Registered room bookings; did not issue invoices.",
+		"paraphrase": "Did not issue invoices; registered room bookings."
+	},
+	{
+		"id": "honest-12-ar-a",
+		"family": "hospitality",
+		"language": "ar",
+		"source": "وثقت حجوزات الغرف؛ لم أصدر الفواتير.",
+		"paraphrase": "سجلت حجوزات الغرف؛ لم أصدر الفواتير."
+	},
+	{
+		"id": "honest-12-ar-b",
+		"family": "hospitality",
+		"language": "ar",
+		"source": "وثقت حجوزات الغرف؛ لم أصدر الفواتير.",
+		"paraphrase": "لم أصدر الفواتير؛ وثقت حجوزات الغرف."
+	},
+	{
+		"id": "honest-full-01-en",
+		"family": "telecom",
+		"language": "en",
+		"fullPassage": true,
+		"source": "Recorded incoming calls in a log. I did not approve service credits. Sent the log to the shift lead.",
+		"paraphrase": "Recorded incoming calls in a log and sent it to the shift lead. Approving service credits was not part of the role."
+	},
+	{
+		"id": "honest-full-02-en",
+		"family": "construction",
+		"language": "en",
+		"fullPassage": true,
+		"source": "Checked scaffold inspection sheets. I did not repair scaffolding. Filed the sheets at the site office.",
+		"paraphrase": "Checked scaffold inspection sheets and filed them at the site office. Repairing scaffolding was not part of the role."
+	},
+	{
+		"id": "honest-full-03-en",
+		"family": "government",
+		"language": "en",
+		"fullPassage": true,
+		"source": "Filed permit requests. I did not issue permits. Sent missing-document questions to applicants.",
+		"paraphrase": "Filed permit requests without issuing permits. Sent missing-document questions to applicants."
+	},
+	{
+		"id": "honest-full-04-en",
+		"family": "retail",
+		"language": "en",
+		"fullPassage": true,
+		"source": "Logged returned goods in Excel. I did not authorize refunds. Sent the return log to the store supervisor.",
+		"paraphrase": "Logged returned goods in Excel and sent the return log to the store supervisor. Authorizing refunds was not part of the role."
+	},
+	{
+		"id": "honest-full-05-en",
+		"family": "education",
+		"language": "en",
+		"fullPassage": true,
+		"source": "Organized attendance sheets. I did not grade examinations. Sent the sheets to the office.",
+		"paraphrase": "Sent attendance sheets to the office after organizing them. I did not grade examinations."
+	},
+	{
+		"id": "honest-full-06-ar",
+		"family": "banking",
+		"language": "ar",
+		"fullPassage": true,
+		"source": "راجعت بيانات الطلبات. لم أعتمد التسهيلات. حفظت الملاحظات في السجل.",
+		"paraphrase": "راجعت بيانات الطلبات دون اعتماد التسهيلات. حفظت الملاحظات في السجل."
+	},
+	{
+		"id": "honest-full-07-ar",
+		"family": "healthcare",
+		"language": "ar",
+		"fullPassage": true,
+		"source": "سجلت مواعيد العيادة. لم أصف الأدوية. أرسلت الجدول إلى الاستقبال.",
+		"paraphrase": "سجلت مواعيد العيادة دون وصف الأدوية. أرسلت الجدول إلى الاستقبال."
+	},
+	{
+		"id": "honest-full-08-ar",
+		"family": "logistics",
+		"language": "ar",
+		"fullPassage": true,
+		"source": "راجعت مستندات الشحن. لم أعتمد رسوم التخزين. أرشفت المستندات في النظام.",
+		"paraphrase": "راجعت مستندات الشحن دون اعتماد رسوم التخزين. أرشفت المستندات في النظام."
+	},
+	{
+		"id": "honest-full-09-ar",
+		"family": "HR",
+		"language": "ar",
+		"fullPassage": true,
+		"source": "حدثت ملفات الموظفين. لم أحدد الرواتب. حفظت سجل التحديثات.",
+		"paraphrase": "حدثت ملفات الموظفين دون تحديد الرواتب. حفظت سجل التحديثات."
+	},
+	{
+		"id": "honest-full-10-ar",
+		"family": "hospitality",
+		"language": "ar",
+		"fullPassage": true,
+		"source": "سجلت طلبات الضيوف. لم ألغ الحجوزات. أرسلت الطلبات إلى المشرف.",
+		"paraphrase": "أرسلت طلبات الضيوف إلى المشرف بعد تسجيلها. لم ألغ الحجوزات."
+	}
+]

@@ -6,6 +6,11 @@ const readPrompt = (filename: string) => {
 	return readFileSync(new URL(`./prompts/${filename}`, import.meta.url), "utf-8");
 };
 
+export const reviewVerifierPrompt = `${safetySystemPrompt}\n\n${readPrompt("review-verifier.md")}`;
+
+export const reviewSystemPrompt = `${safetySystemPrompt}\n\n${readPrompt("review-system.md")}`;
+export const extractionReviewSystemPrompt = `${safetySystemPrompt}\n\n${readPrompt("extraction-review-system.md")}`;
+
 // ponytail: single template with per-source substitutions; produced text is identical per source type
 const parserTemplate = `${safetySystemPrompt}\n\n${readPrompt("parser-system.md")}`;
 

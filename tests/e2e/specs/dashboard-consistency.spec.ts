@@ -41,13 +41,13 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				const layout = await page.evaluate(() => {
 					const main = document.querySelector("main");
 					if (!main) throw new Error("Dashboard main missing");
-					const bar = main.querySelector(":scope > header");
+					const bar = document.querySelector(".shell-toolbar");
 					const title = main.querySelector("h1");
 					const navigation = document.querySelector("aside");
 					if (!bar || !title || !navigation) throw new Error("Dashboard header, title or navigation missing");
 					const sidebar = navigation.getBoundingClientRect();
 					const rect = bar.getBoundingClientRect();
-					const bandElement = main.querySelector('[data-slot="dashboard-header-content"]');
+					const bandElement = document.querySelector('[data-slot="dashboard-header-content"]');
 					if (!bandElement) throw new Error("Dashboard band missing");
 					const band = bandElement.getBoundingClientRect();
 					const mainBox = main.getBoundingClientRect();

@@ -8,8 +8,6 @@ The implementation planning package is this file plus `Planning/bootstrap.md`,
 `Planning/context/` and `Planning/roadmap/`. Archives, root redirects, older ZIPs
 and HTML prototypes are not required. Follow `Planning/roadmap/tasks.md` for the
 16 large PRs (T000–T015); every scheduled PR is `L` and dependency-driven.
-When adding this package to an existing repository, merge these instructions with
-its current AGENTS.md; do not blindly overwrite existing project guidance.
 
 ## Required context
 
@@ -22,13 +20,11 @@ its current AGENTS.md; do not blindly overwrite existing project guidance.
 
 ## Roadmap and bootstrap
 
-- Start with `Planning/roadmap/README.md`, `Planning/roadmap/tasks.md` and
-  `Planning/bootstrap.md`. The first eligible large PR is T000.
-- `Planning/bootstrap.md` is now the fork-specific checklist, not a greenfield
-  template. Preserve history, license notices, working tooling and existing app code.
-- Default: add planning on `chore/t000-project-bootstrap`, complete T000 in the
-  same L PR, then start the normal scheduler from merged main. A main-seeded
-  alternative requires explicit permission; never bypass protection.
+- Start with `Planning/roadmap/README.md` and `Planning/roadmap/tasks.md`. The next eligible
+  large PR is the first unchecked task whose dependencies are complete.
+- `Planning/bootstrap.md` is the fork-specific checklist. Preserve history, license notices,
+  working tooling and existing app code.
+- Never bypass branch protection.
 - Confirm repository ownership/visibility before pushing client planning.
   Target PRs/issues at our product repository, not upstream.
 - Keep upstream `docs/` and useful nested agent instructions. Merge this root
@@ -91,6 +87,10 @@ its current AGENTS.md; do not blindly overwrite existing project guidance.
   enable real-CV processing or charge customers merely because these docs exist.
 - Employer B2B, public sharing and unreviewed integrations remain gated.
 - Old HTML/generator packages and archived docs do not override current guidance.
+- Name files, tests, fixtures and identifiers by what they do, never by the work
+  session, lane, round or task that created them (no `lane23.test.ts`,
+  `*-before-taskX.json`). Do not keep "before" snapshot copies in the repository;
+  record history in one log and archive copies outside the repository.
 
 ## Before completing a task
 
@@ -161,8 +161,8 @@ where inherited guidance conflicts:
 - Inherited publication/deployment commands describe upstream capabilities.
   Audit and gate their workflows before pushing; no registry publication,
   deployment, production secrets or paid services are authorized by bootstrap.
-- Start T000 with the existing toolchain and lockfile. No blanket dependency
-  upgrades, mass reformat, framework replacement or new business behavior.
+- Keep the existing toolchain and lockfile. No blanket dependency upgrades, mass reformat
+  or framework replacement.
 - `CLAUDE.md` remains a symlink to this file, sharing the same instructions.
 
 <!-- BEGIN:turborepo-agent-rules -->

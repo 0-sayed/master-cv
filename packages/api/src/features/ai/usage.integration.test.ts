@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { withOwnerDatabase } from "@reactive-resume/db/owner-scope";
 import { aiOperation } from "@reactive-resume/db/schema";
+import { withAiRuntime } from "./route-policy";
 import { aiTestDatabase } from "./testing/database";
+import { syntheticRuntime } from "./testing/runtime";
 import { reserveOperation, releaseOperation, settleOperation, usageService } from "./usage";
 
 describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("Start operation ledger", () => {
@@ -25,6 +27,19 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("Start operation le
 			}),
 		);
 	}
+	it("scopes the local allowance to its owner and ignores it in production", async () => {
+		const runtime = { ...syntheticRuntime, localOwnerAllowance: { ownerId: "alice", limit: 50 } };
+		const usage = (owner: string) =>
+			database.run(() => withAiRuntime(runtime, () => usageService.getStartUsage(owner)));
+		expect((await usage("alice")).operations.limit).toBe(50);
+		expect((await usage("bob")).operations.limit).toBe(5);
+		try {
+			vi.stubEnv("NODE_ENV", "production");
+			expect((await usage("alice")).operations.limit).toBe(5);
+		} finally {
+			vi.unstubAllEnvs();
+		}
+	});
 	it("reserves the final credit once under races; failure releases; five deliveries never replenish", async () => {
 		for (const id of ["a", "b", "c", "d"]) {
 			await reserve(id);

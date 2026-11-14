@@ -2,6 +2,33 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 const messages = {
+	"review.suggestion.keepOriginal": msg({ message: "Keep original", context: "review.suggestion.keepOriginal" }),
+	"review.suggestion.accept": msg({ message: "Accept wording", context: "review.suggestion.accept" }),
+	"review.suggestion.inputLabel": msg({ message: "Your wording", context: "review.suggestion.inputLabel" }),
+	"review.suggestion.saveWording": msg({ message: "Save my wording", context: "review.suggestion.saveWording" }),
+	"review.suggestion.staleHint": msg({
+		message: "The original text changed after this suggestion, so it will not be applied.",
+		context: "review.suggestion.staleHint",
+	}),
+	"review.suggestion.requestNew": msg({ message: "Ask for a new suggestion", context: "review.suggestion.requestNew" }),
+	"review.suggestion.undoHint": msg({
+		message: "Added to your CV. You can undo this now or in version history.",
+		context: "review.suggestion.undoHint",
+	}),
+	"review.assistant.status.disabled": msg({
+		message: "The assistant is not enabled yet",
+		context: "review.assistant.status.disabled",
+	}),
+	"review.assistant.disabledHint": msg({
+		message:
+			"Nothing was sent to any provider. You can write and export now. Suggestions will be enabled after the processing provider is approved.",
+		context: "review.assistant.disabledHint",
+	}),
+	"common.actions.undo": msg({ message: "Undo", context: "common.actions.undo" }),
+	"common.actions.cancel": msg({ message: "Cancel", context: "common.actions.cancel" }),
+	"jobs.letter.addInformation": msg({ message: "Add information", context: "jobs.letter.addInformation" }),
+	"review.fact.descriptionLabel": msg({ message: "Description", context: "review.fact.descriptionLabel" }),
+	"review.fact.save": msg({ message: "Save", context: "review.fact.save" }),
 	"billing.usage.startOperationsLabel": msg({
 		message: "Free assistant operations",
 		context: "billing.usage.startOperationsLabel",

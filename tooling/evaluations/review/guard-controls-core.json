@@ -1,0 +1,14 @@
+{
+	"study": "core",
+	"freezeHash": "77b1b535b1e844d617087306f1c579364e4110b8b57f17fec77a4e0ca8f37083",
+	"reason": "naming cleanup",
+	"controlsBasis": "Fresh deterministic/scripted scans; not independent semantic evidence or live qualification.",
+	"scannedAt": "2026-11-14T06:13:40.254Z",
+	"all": {
+		"checked": 126,
+		"pass": true,
+		"failures": [],
+		"knownLimitations": [],
+		"honestFalseRejects": []
+	}
+}

@@ -20,10 +20,9 @@ for (const locale of ["en-US", "ar-SA"] as const)
 					.getByRole("button", { name: /^(Check|فحص|مراجعة)$/u })
 					.click();
 			await expect(page.locator("html")).toHaveAttribute("dir", ar ? "rtl" : "ltr");
-			const notEnabled = page.getByText(
-				ar ? "اقتراحات الكتابة غير متاحة بعد" : "Writing suggestions are not available yet",
-				{ exact: true },
-			);
+			const notEnabled = page.getByText(ar ? "المساعد غير مفعّل بعد" : "The assistant is not enabled yet", {
+				exact: true,
+			});
 			await expect(notEnabled).toBeVisible();
 			await notEnabled.scrollIntoViewIfNeeded();
 			await settleScreen(page);
@@ -50,16 +49,18 @@ for (const locale of ["en-US", "ar-SA"] as const)
 										state: state === "unavailable" ? "unavailable" : "ready",
 										reason: state === "unavailable" ? "WORKER_UNAVAILABLE" : null,
 									}
-								: {
-										plan: "start",
-										operations: {
-											limit: 5,
-											used: state === "busy" ? 4 : 5,
-											reserved: state === "busy" ? 1 : 0,
-											remaining: 0,
+								: url.endsWith("/latest")
+									? null
+									: {
+											plan: "start",
+											operations: {
+												limit: 5,
+												used: state === "busy" ? 4 : 5,
+												reserved: state === "busy" ? 1 : 0,
+												remaining: 0,
+											},
+											baseCvs: { limit: 1, used: 1 },
 										},
-										baseCvs: { limit: 1, used: 1 },
-									},
 						},
 					}));
 					return route.fulfill({
