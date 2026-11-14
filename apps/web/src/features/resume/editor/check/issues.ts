@@ -106,39 +106,39 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 	switch (finding.code) {
 		case "MISSING_NAME":
 			return {
-				title: t`Your name is missing`,
-				body: t`Systems file you under the name at the top of the page.`,
+				title: t`Add your name`,
+				body: t`Your name helps readers identify your CV.`,
 				fix: write(t`Add your name`),
 			};
 		case "MISSING_EMAIL":
 			return {
-				title: t`No email address`,
-				body: t`Most systems file candidates by email address.`,
+				title: t`Add an email address`,
+				body: t`An email gives recruiters a way to reach you.`,
 				fix: write(t`Add an email`),
 			};
 		case "MALFORMED_EMAIL":
 			return {
-				title: t`Email address won't be recognised`,
-				body: t`“${value}” isn't a plain address like name@example.com.`,
+				title: t`Check your email address`,
+				body: t`“${value}” does not look like a complete email address.`,
 				fix: write(t`Edit the email`),
 			};
 		case "MISSING_PHONE":
 			return {
-				title: t`No phone number`,
-				body: t`Some application systems ask for one before you can apply.`,
+				title: t`Add a phone number`,
+				body: t`Some application forms require a phone number.`,
 				fix: write(t`Add a phone number`),
 			};
 		case "MISSING_LOCATION":
 			return {
-				title: t`No location`,
-				body: t`A city and country let roles be matched to where you are.`,
+				title: t`Add your city and country`,
+				body: t`Your location helps readers understand where you can work.`,
 				fix: write(t`Add a location`),
 			};
 		case "MALFORMED_URL": {
 			const url = `https://${value}`;
 			return {
-				title: t`A link isn't a full address`,
-				body: t`Some systems only recognise links that start with https://. This one reads as plain text: “${value}”.`,
+				title: t`Write the full web address`,
+				body: t`“${value}” may read as plain text without https://.`,
 				fix: HAS_SCHEME.test(value)
 					? write(t`Edit the link`)
 					: {
@@ -152,8 +152,8 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 		}
 		case "PICTURE_PRESENT":
 			return {
-				title: t`Your resume has a photo`,
-				body: t`Some systems mishandle images, and photos are discouraged in some countries.`,
+				title: t`Review whether to keep your photo`,
+				body: t`Images may be missed, and photo conventions vary by country.`,
 				fix: {
 					kind: "apply",
 					label: t`Hide the photo`,
@@ -166,40 +166,40 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 			};
 		case "EMPTY_PERIOD":
 			return {
-				title: t`An entry has no dates`,
-				body: t`${entry} doesn't say when. Dates place it on your timeline.`,
+				title: t`Add dates to this entry`,
+				body: t`Dates help readers place ${entry} in your work history.`,
 				fix: write(t`Add dates`),
 			};
 		case "UNPARSEABLE_PERIOD":
 			return {
-				title: t`Dates won't be read`,
-				body: t`“${value}” isn't a form systems recognise, such as Mar 2020 – Present.`,
+				title: t`Use a clearer date range`,
+				body: t`“${value}” may be hard to read; use a form such as Mar 2020 – Present.`,
 				fix: write(t`Fix the dates`),
 			};
 		case "UNPARSEABLE_DATE":
 			return {
-				title: t`A date won't be read`,
-				body: t`“${value}” isn't a form systems recognise, such as March 2022.`,
+				title: t`Use a clearer date`,
+				body: t`“${value}” may be hard to read; use a form such as March 2022.`,
 				fix: write(t`Fix the date`),
 			};
 		case "REVERSED_PERIOD":
 			return {
-				title: t`Dates run backwards`,
-				body: t`“${value}” ends before it starts.`,
+				title: t`Check the start and end dates`,
+				body: t`In “${value}”, the end date is earlier than the start date.`,
 				fix: write(t`Fix the dates`),
 			};
 		case "FUTURE_DATED_PERIOD":
 			return {
-				title: t`Dates start in the future`,
-				body: t`“${value}” starts after today. Check the year, or mark it as current.`,
+				title: t`Review this future start date`,
+				body: t`“${value}” starts after today; check that the date is correct.`,
 				fix: write(t`Fix the dates`),
 			};
 		case "SECTION_MISSING_FROM_LAYOUT": {
 			const name = getSectionName(data, section);
 			const page = formatPageNumberInSentence(1, i18n.locale);
 			return {
-				title: t`${name} never prints`,
-				body: t`It has entries but isn't placed on a page.`,
+				title: t`Add ${name} to a page`,
+				body: t`This section has information but is missing from the page layout.`,
 				fix: {
 					kind: "apply",
 					label: t`Add it to page ${page}`,
@@ -215,21 +215,21 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 		}
 		case "NO_VISIBLE_EXPERIENCE":
 			return {
-				title: t`No work experience shows`,
-				body: t`Systems look for an experience section. Projects or volunteering can show the same history.`,
+				title: t`Add experience readers can see`,
+				body: t`Projects or volunteering can also show relevant experience.`,
 				fix: { kind: "write", label: t`Add experience`, target: { kind: "section", sectionId: "experience" } },
 			};
 		case "MISSING_EXPERIENCE_DESCRIPTION":
 			return {
-				title: t`A role has no description`,
-				body: t`${entry} names the role but not what you did, so it adds no keywords.`,
+				title: t`Describe what you did in this role`,
+				body: t`${entry} names the role but does not describe your contribution.`,
 				fix: write(t`Describe the role`),
 			};
 		case "NON_STANDARD_SECTION_TITLE": {
 			const title = String(finding.params?.title ?? "");
 			return {
-				title: t`“${title}” isn't a heading systems look for`,
-				body: t`They look for headings such as Experience, Education and Skills.`,
+				title: t`Use a familiar heading instead of “${title}”`,
+				body: t`Headings such as Experience, Education and Skills are easier to recognize.`,
 				fix: {
 					kind: "apply",
 					label: t`Use the standard heading`,
@@ -242,10 +242,9 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 		}
 		case "MULTI_COLUMN_PROSE_SECTION": {
 			const name = getSectionName(data, section);
-			const columns = Number(finding.params?.columns ?? 2);
 			return {
-				title: t`${name} is split into ${columns} columns`,
-				body: t`Columns can scramble the order text is read in.`,
+				title: t`Keep ${name} in one column`,
+				body: t`Columns can change the order software reads text.`,
 				fix: {
 					kind: "apply",
 					label: t`Use one column`,
@@ -258,8 +257,8 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 		case "PROSE_SECTION_IN_SIDEBAR": {
 			const name = getSectionName(data, section);
 			return {
-				title: t`${name} sits in the sidebar`,
-				body: t`Sidebars are often read last, or mixed into the main column.`,
+				title: t`Move ${name} to the main column`,
+				body: t`Sidebar text may be read last or mixed with the main column.`,
 				fix: {
 					kind: "apply",
 					label: t`Move it to the main column`,
@@ -282,8 +281,8 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 				.map((id) => getSectionName(data, id))
 				.join(", ");
 			return {
-				title: t`Sidebar is read after the main column`,
-				body: t`${names} come last in the text. Most systems still find them; some don't.`,
+				title: t`Review the sidebar reading order`,
+				body: t`${names} appear after the main column in the extracted text.`,
 				keepLabel: true,
 				fix: {
 					kind: "apply",
@@ -304,8 +303,8 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 		}
 		case "SMALL_BODY_FONT":
 			return {
-				title: t`Body text is very small`,
-				body: t`Text under ${minimum} pt can be misread when a system re-renders it.`,
+				title: t`Increase the body text size`,
+				body: t`Text smaller than ${minimum} pt can be hard to read.`,
 				fix: {
 					kind: "apply",
 					label: t`Use ${minimum} pt`,
@@ -316,8 +315,8 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 			};
 		case "TIGHT_LINE_HEIGHT":
 			return {
-				title: t`Lines are packed tightly`,
-				body: t`Lines this close can run together when read. Use at least ${minimum}.`,
+				title: t`Give lines more space`,
+				body: t`Close lines can merge when read; use spacing of at least ${minimum}.`,
 				fix: {
 					kind: "apply",
 					label: t`Use ${minimum}`,
@@ -328,8 +327,8 @@ function describeFinding(finding: AtsFinding, data: ResumeData, target: PageMapT
 			};
 		case "TIGHT_PAGE_MARGINS":
 			return {
-				title: t`Margins are very narrow`,
-				body: t`Text this close to the edge can be cut off. Use at least ${minimum} pt.`,
+				title: t`Widen the page margins`,
+				body: t`Text near the edge can be cut off; leave at least ${minimum} pt.`,
 				fix: {
 					kind: "apply",
 					label: t`Use ${minimum} pt margins`,

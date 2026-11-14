@@ -3,6 +3,9 @@ import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 const messages = {
 	"editor.field.usedIn": msg({ message: "Used in: {documentNames}", context: "editor.field.usedIn" }),
+	"editor.field.usedInLabel": msg({ message: "Used in", context: "editor.field.usedInLabel" }),
+	"editor.field.openCV": msg({ message: "Open CV {name}", context: "editor.field.openCV" }),
+	"editor.field.moreDocuments": msg({ message: "+{count} more", context: "editor.field.moreDocuments" }),
 	"auth.welcome.title": msg({ message: "Welcome {name}, let us start your CV", context: "auth.welcome.title" }),
 	"auth.welcome.subtitle": msg({
 		message: "3 short steps: gather your experience, review it yourself, then download a clear CV.",

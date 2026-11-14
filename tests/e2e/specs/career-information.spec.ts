@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+import { Pool } from "pg";
 import { settleScreen } from "../fixtures/screen";
 import { test, expect } from "../fixtures/test";
 
@@ -87,7 +89,7 @@ test("accepted facts show only real owned document links", async ({ authPage: pa
 		).ok(),
 	).toBe(true);
 	await page.reload();
-	await expect(page.getByRole("link", { name: "Linked synthetic CV", exact: true })).toHaveAttribute(
+	await expect(page.getByRole("link", { name: "Open CV Linked synthetic CV", exact: true })).toHaveAttribute(
 		"href",
 		`/builder/${resumeId}`,
 	);
@@ -258,4 +260,117 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await page.locator('button[type="submit"]').click();
 			await expect(page).toHaveURL(/dashboard\/career\/information/);
 			await expect(page.locator('input[name="name"]')).toHaveValue("Owned draft العربية");
+		});
+
+for (const locale of ["ar-SA", "en-US"] as const)
+	for (const width of [1440, 390])
+		test(`${locale} ${width} used-in CV chips separate names and expand`, async ({ authPage: page }, info) => {
+			test.setTimeout(60_000);
+			await page.setViewportSize({ width, height: 900 });
+			if (width === 390) {
+				const session = await page.context().newCDPSession(page);
+				await session.send("Emulation.setTouchEmulationEnabled", { enabled: true });
+			}
+			await page.goto("/dashboard/career/information?locale=en-US");
+			await page.getByRole("button", { name: "Add skill", exact: true }).click();
+			await page.locator('input[name="name"]').fill("Linked synthetic skill");
+			await page.getByRole("button", { name: "Review changes", exact: true }).click();
+			await page.getByRole("button", { name: "Confirm changes", exact: true }).click();
+			await expect(page.getByRole("dialog")).not.toBeVisible();
+			const master = await (await page.request.get("/api/openapi/career/master")).json();
+			const fact = master.facts[0];
+			const names = [
+				"A long synthetic CV name that must truncate without losing the full document title",
+				"سيرة عربية",
+				"Mixed CV سيرة",
+				"Fourth CV",
+				"Fifth CV",
+			];
+			const ids: string[] = [];
+			const created = await page.request.post("/api/openapi/resumes", {
+				data: { name: names[0], tags: [], withSampleData: false },
+			});
+			await expect(created).toBeOK();
+			ids.push(await created.json());
+			const pool = new Pool({ connectionString: process.env.DATABASE_MIGRATION_URL ?? process.env.DATABASE_URL });
+			try {
+				// Seed an existing variant inventory; creating more bases would correctly hit Start's allowance.
+				for (const name of names.slice(1)) {
+					const id = randomUUID();
+					await pool.query(
+						"INSERT INTO resume (id,name,slug,user_id,data,base_resume_id,variant_kind) SELECT $1,$2,$1,user_id,data,id,'job' FROM resume WHERE id=$3",
+						[id, name, ids[0]],
+					);
+					ids.push(id);
+				}
+			} finally {
+				await pool.end();
+			}
+			for (const resumeId of ids) {
+				await expect(
+					await page.request.post("/api/openapi/career/master/links", {
+						data: { resumeId, links: [{ factId: fact.id, acceptedRevision: fact.revision }] },
+					}),
+				).toBeOK();
+			}
+			await page.goto(`/dashboard/career/information?locale=${locale}`);
+			const label = locale === "ar-SA" ? "مستخدمة في" : "Used in";
+			const moreLabel = locale === "ar-SA" ? "+2 أخرى" : "+2 more";
+			const openLabel = (name: string) => (locale === "ar-SA" ? `فتح السيرة الذاتية ${name}` : `Open CV ${name}`);
+			await expect(page.getByText(label, { exact: true })).toBeVisible();
+			const chips = page.locator('a[data-slot="fact-chip"]');
+			await expect(chips).toHaveCount(3);
+			const first = page.getByRole("link", { name: openLabel(names[0]), exact: true });
+			if (width === 390) {
+				for (const control of [...(await chips.all()), page.getByRole("button", { name: moreLabel, exact: true })]) {
+					const hit = await control.evaluate((element) => {
+						const box = element.getBoundingClientRect();
+						const after = getComputedStyle(element, "::after");
+						return {
+							width: Math.max(box.width, Number.parseFloat(after.width) || 0),
+							height: Math.max(box.height, Number.parseFloat(after.height) || 0),
+						};
+					});
+					expect(hit.width).toBeGreaterThanOrEqual(44);
+					expect(hit.height).toBeGreaterThanOrEqual(44);
+				}
+			}
+			await expect(first).toHaveAttribute("title", names[0]);
+			await expect(first).toHaveAttribute("href", `/builder/${ids[0]}`);
+			await expect(first.locator('bdi[dir="auto"]')).toHaveCSS("text-overflow", "ellipsis");
+			expect(await first.locator("bdi").evaluate((name) => name.scrollWidth > name.clientWidth)).toBe(true);
+			await first.focus();
+			// Entering via keyboard must retain the shared visible focus treatment.
+			await page.keyboard.press("Tab");
+			await page.keyboard.press("Shift+Tab");
+			await expect(first).toBeFocused();
+			expect(
+				await first.evaluate(
+					(element) => element.matches(":focus-visible") && getComputedStyle(element).outlineStyle !== "none",
+				),
+			).toBe(true);
+			const boxes = await chips.evaluateAll((elements) =>
+				elements.map((element) => {
+					const { left, right, top, bottom } = element.getBoundingClientRect();
+					return { left, right, top, bottom };
+				}),
+			);
+			for (let i = 0; i < boxes.length; i++)
+				for (let j = i + 1; j < boxes.length; j++) {
+					const a = boxes[i];
+					const b = boxes[j];
+					expect(a.right < b.left || b.right < a.left || a.bottom < b.top || b.bottom < a.top).toBe(true);
+				}
+			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+			await settleScreen(page);
+			await page.screenshot({ path: info.outputPath("used-in-collapsed.png") });
+			await page.getByRole("button", { name: moreLabel, exact: true }).click();
+			await expect(chips).toHaveCount(5);
+			await expect(page.getByRole("button", { name: moreLabel, exact: true })).toHaveCount(0);
+			for (const name of names)
+				await expect(page.getByRole("link", { name: openLabel(name), exact: true })).toBeVisible();
+			await settleScreen(page);
+			await page.screenshot({ path: info.outputPath("used-in-expanded.png") });
+			await page.getByRole("link", { name: openLabel(names[1]), exact: true }).click();
+			await expect(page).toHaveURL(new RegExp(`/builder/${ids[1]}$`));
 		});

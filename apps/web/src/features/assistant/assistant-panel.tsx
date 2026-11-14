@@ -26,6 +26,7 @@ import { Composer, Conversation } from "./conversation";
 import { ProviderSetup } from "./provider-setup";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { selectConversationProvider } from "@/features/assistant/operation-state";
+import { ResumeReviewWorkspace } from "@/features/resume/editor/proposals/review-panel";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { formatVersionTime } from "@/features/resume/share/format";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
@@ -198,6 +199,12 @@ export function AssistantPanel({ document, onClose }: AssistantPanelProps) {
 				/>
 				<IconButton icon="x" label={t`Close the assistant`} shortcut="Mod+J" className="text-ink-2" onClick={onClose} />
 			</header>
+
+			{document.kind === "resume" && view === "thread" && (
+				<div className="overflow-y-auto p-3">
+					<ResumeReviewWorkspace />
+				</div>
+			)}
 
 			{notSetUp ? (
 				<Notice>

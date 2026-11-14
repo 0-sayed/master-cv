@@ -23,3 +23,17 @@ export function changedPreviewTargets(before: ResumeData | undefined, after: Res
 	}
 	return targets;
 }
+
+/** One acknowledged review decision, bound to the PDF revision that contains it. */
+export type ReviewEditFeedback = {
+	id: string;
+	action: "accept" | "undo";
+	startedAt: number;
+	resumeId: string;
+	operationId: string;
+	revision: string;
+	generation: number;
+	proposalIds: readonly string[];
+	editedText?: string | undefined;
+	targets: PageMapTarget[];
+};

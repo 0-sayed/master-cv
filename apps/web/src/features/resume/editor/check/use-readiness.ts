@@ -1,6 +1,6 @@
 import type { ReadinessResults } from "@reactive-resume/resume/ats";
 import type { PdfAtsReport } from "@reactive-resume/resume/ats-pdf";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { create } from "zustand/react";
 import { emptyReadiness, invalidateReadiness } from "@reactive-resume/resume/ats";
 import { useResumeData, isEditableElementFocused } from "../../builder/draft";
@@ -8,6 +8,7 @@ import { hasResumePreviewContent } from "../../preview/resume-thumbnail.shared";
 import { TYPING_DEBOUNCE_MS, UPDATE_DEBOUNCE_MS } from "../../preview/timing";
 import { useEditorStore, sameEditorIdentity } from "../store";
 import { evaluateReadiness } from "./evaluate";
+import { useCheckIntroduction } from "./introduction";
 import { scheduleReadiness } from "./readiness";
 
 const empty = (): ReadinessResults => ({
@@ -74,7 +75,7 @@ export function useReadiness() {
 		const result = results[kind];
 		if (result.source && !sameEditorIdentity(result.source, identity)) results = invalidateReadiness(results, kind);
 	}
-	const [introduced, setIntroduced] = useState(false);
+	const { introduced, setIntroduced } = useCheckIntroduction(identity?.ownerId);
 	return {
 		...state,
 		results,

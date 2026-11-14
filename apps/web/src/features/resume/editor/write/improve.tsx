@@ -1,14 +1,13 @@
-import type { IconName } from "@reactive-resume/ui/components/icon";
 import type { Editor } from "@tiptap/react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import { collectPassages } from "@reactive-resume/resume/proposals";
 import { Button } from "@reactive-resume/ui/components/button";
-import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
-import { getOrpcErrorMessage } from "@/libs/error-message";
-import { orpc } from "@/libs/orpc/client";
+import { ReviewNotice } from "../proposals/review-operation";
+import { ResumeReviewWorkspace } from "../proposals/review-panel";
+import { useResumeStore } from "@/features/resume/builder/draft";
 
 type Action = "verb" | "result" | "shorter" | "custom";
 
@@ -31,144 +30,78 @@ type ImprovePanelProps = {
 	onClose: () => void;
 };
 
-/**
- * B · Improve: pick what to change, then Replace or Keep mine. Only the one line changes, and only when the user
- * replaces it; if the line was edited meanwhile, the suggestion is not applied.
- */
+/** Improve uses the same durable review/decision path as Writing and the assistant. */
 export function ImprovePanel({ editor, line, where, onClose }: ImprovePanelProps) {
-	const [asking, setAsking] = useState(false);
+	const data = useResumeStore((state) => state.resume?.data);
+	const [action, setAction] = useState<Action | null>(null);
 	const [request, setRequest] = useState("");
-	const [changed, setChanged] = useState(false);
-	const improve = useMutation(orpc.ai.improve.mutationOptions());
-
-	const options: Array<{ action: Action; icon: IconName; label: string }> = [
-		{ action: "verb", icon: "lightning", label: t`Stronger verb` },
-		{ action: "result", icon: "trend-up", label: t`Add a result` },
-		{ action: "shorter", icon: "arrows-in-line-vertical", label: t`Make it shorter` },
-	];
-
-	const run = (action: Action) =>
-		improve.mutate({
-			action,
-			line: line.text,
-			where,
-			context: editor.getText(),
-			...(action === "custom" ? { request: request.trim() } : {}),
-		});
-
-	const close = () => {
-		onClose();
-		editor.commands.focus();
-	};
-
-	const replace = (text: string) => {
-		const current = editor.state.doc.textBetween(line.from, line.to);
-		if (current !== line.text) return setChanged(true);
-		editor.chain().focus().insertContentAt({ from: line.from, to: line.to }, text).run();
-		onClose();
-	};
-
+	const [target] = useState(() => {
+		const passages = data
+			? collectPassages(data, {
+					summary: "",
+					sectionTitle: () => "",
+					entryTitle: () => "",
+					bullet: () => "",
+					paragraph: () => "",
+				}).filter((passage) => passage.text === line.text)
+			: [];
+		return passages.length === 1 ? passages[0]?.target : undefined;
+	});
 	return (
-		// oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- Escape closes the panel from any control inside it.
-		<div
-			className="grid gap-1 border-t border-line p-1.5"
-			onKeyDown={(event) => {
-				if (event.key !== "Escape") return;
-				event.stopPropagation();
-				close();
-			}}
-		>
-			<span className="px-2 pt-1 pb-1.5 text-xs font-semibold text-ink-3 uppercase">
-				<Trans>Improve selected line</Trans>
-			</span>
-
-			{improve.data ? (
-				<div className="grid gap-2 rounded-lg bg-bg p-2.5">
-					<p role="status" className="w-fit rounded-sm bg-accent-soft px-1 py-0.5 text-[13px] leading-[19px]">
-						{improve.data.text}
-					</p>
-					<p className="text-xs text-ink-3">
-						{improve.data.why}
-						{improve.data.addsFacts && <> {t`Check it's accurate.`}</>}
-					</p>
-					{changed && (
-						<p role="alert" className="text-xs text-danger-text">
-							<Trans>The line changed since you asked, so it wasn't replaced.</Trans>
-						</p>
-					)}
-					<div className="flex gap-1.5">
-						{!changed && (
-							<Button size="sm" onClick={() => replace(improve.data.text)}>
-								<Trans>Replace</Trans>
-							</Button>
-						)}
-						<Button size="sm" variant="secondary" onClick={close}>
-							<Trans>Keep mine</Trans>
-						</Button>
-					</div>
-				</div>
-			) : improve.isPending ? (
-				<p role="status" className="flex items-center gap-2 p-2 text-sm text-ink-2">
-					<Icon name="sparkle" size={16} className="animate-pulse motion-reduce:animate-none" />
-					<Trans>Improving…</Trans>
-				</p>
-			) : asking ? (
-				<form
-					className="flex gap-1.5 p-1"
-					onSubmit={(event) => {
-						event.preventDefault();
-						if (request.trim()) run("custom");
-					}}
-				>
-					<Input
-						size="sm"
-						autoFocus
-						aria-label={t`What should change?`}
-						placeholder={t`What should change?`}
-						value={request}
-						maxLength={500}
-						onChange={(event) => setRequest(event.target.value)}
-					/>
-					<Button type="submit" size="sm" disabled={!request.trim()}>
-						<Trans>Ask</Trans>
-					</Button>
-				</form>
+		<div className="grid gap-3 border-t border-line p-3">
+			<p dir="auto" className="type-metadata text-ink-2">
+				{where}
+			</p>
+			{!target ? (
+				<ReviewNotice>
+					<Trans>This passage could not be identified uniquely in the saved CV. Review it in Writing.</Trans>
+				</ReviewNotice>
 			) : (
-				<div className="grid gap-0.5">
-					{options.map((option, index) => (
-						<button
-							key={option.action}
-							type="button"
-							// oxlint-disable-next-line jsx-a11y/no-autofocus -- the menu opens from the Improve button.
-							autoFocus={index === 0}
-							onClick={() => run(option.action)}
-							className="flex h-9 items-center gap-2.5 rounded-md px-2 text-start text-sm transition-colors duration-quick hover:bg-hover"
-						>
-							<Icon name={option.icon} size={18} className="text-ink-2" />
-							{option.label}
-						</button>
-					))}
-					<button
-						type="button"
-						onClick={() => setAsking(true)}
-						className="flex h-9 items-center gap-2.5 rounded-md px-2 text-start text-sm transition-colors duration-quick hover:bg-hover"
-					>
-						<Icon name="chat-text" size={18} className="text-ink-2" />
-						<Trans>Ask for something else…</Trans>
-					</button>
-				</div>
-			)}
-
-			{improve.error && (
-				<div className="grid gap-2 px-2 pb-1">
-					<p role="alert" className="text-xs text-danger-text">
-						{getOrpcErrorMessage(improve.error, { fallback: t`Couldn't get a suggestion. Nothing changed.` })}
+				<>
+					<p className="type-body">
+						<Trans>The selected field and related confirmed facts are included in this review.</Trans>
 					</p>
-					<Button size="sm" variant="secondary" className="w-fit" onClick={() => improve.reset()}>
-						<Trans>Try again</Trans>
-					</Button>
-				</div>
+					<div className="flex flex-wrap gap-2">
+						{(
+							[
+								["verb", t`Stronger verb`],
+								["result", t`Add a result`],
+								["shorter", t`Make it shorter`],
+								["custom", t`Ask for something else…`],
+							] as const
+						).map(([value, label]) => (
+							<Button key={value} variant="secondary" aria-pressed={action === value} onClick={() => setAction(value)}>
+								{label}
+							</Button>
+						))}
+					</div>
+					{action === "custom" && (
+						<Input
+							aria-label={t`What should change?`}
+							value={request}
+							maxLength={500}
+							onChange={(event) => setRequest(event.target.value)}
+						/>
+					)}
+					{action && (action !== "custom" || request.trim()) && (
+						<ResumeReviewWorkspace
+							key={`${action}:${request}`}
+							target={target}
+							action={action}
+							request={action === "custom" ? request.trim() : undefined}
+						/>
+					)}
+				</>
 			)}
+			<Button
+				variant="secondary"
+				onClick={() => {
+					onClose();
+					editor.commands.focus();
+				}}
+			>
+				<Trans>Close</Trans>
+			</Button>
 		</div>
 	);
 }

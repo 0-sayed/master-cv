@@ -64,7 +64,7 @@ it("keeps a failed chunk in a dismissible overlay and retries loading it", async
 			<DialogManager />
 		</I18nProvider>,
 	);
-	await waitFor(() => expect(screen.getByRole("alert").textContent).toBe("Something went wrong"));
+	await waitFor(() => expect(screen.getByRole("alert").textContent).toBe("Something went wrongRetry"));
 	vi.doMock("./renderers", () => ({
 		renderDialog: () => (
 			<DialogContent>

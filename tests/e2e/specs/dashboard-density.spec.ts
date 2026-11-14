@@ -40,11 +40,11 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				const measured = await page.evaluate(() => {
 					const main = document.querySelector("main");
 					if (!main) throw new Error("Dashboard main missing");
-					const bar = main.querySelector(":scope > header");
+					const bar = document.querySelector(".shell-toolbar");
 					const frame = main.querySelector('[data-slot="dashboard-page"]');
 					const heading = main.querySelector("h1");
 					if (!bar || !frame || !heading) throw new Error("Dashboard frame or header missing");
-					const band = main.querySelector('[data-slot="dashboard-header-content"]');
+					const band = document.querySelector('[data-slot="dashboard-header-content"]');
 					const body = main.querySelector('[data-slot="dashboard-content"]');
 					if (!band || !body) throw new Error("Dashboard bands missing");
 					const headerBox = band.getBoundingClientRect();

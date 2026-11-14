@@ -2,7 +2,7 @@ import type { DialogSchema } from "./schemas";
 import type { ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Fragment, useEffect, useState } from "react";
-import { Alert } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Dialog, DialogContent, DialogTitle } from "@reactive-resume/ui/components/dialog";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
@@ -49,13 +49,17 @@ export function DialogManager() {
 						<Title>{failed ? t`Something went wrong` : t`Loading workspace…`}</Title>
 						{failed ? (
 							<>
-								<Alert variant="error">{t`Something went wrong`}</Alert>
-								<Button
-									onClick={() => {
-										setFailed(false);
-										setAttempt((value) => value + 1);
-									}}
-								>{t`Retry`}</Button>
+								<Alert variant="error">
+									<AlertDescription>{t`Something went wrong`}</AlertDescription>
+									<AlertActions>
+										<Button
+											onClick={() => {
+												setFailed(false);
+												setAttempt((value) => value + 1);
+											}}
+										>{t`Retry`}</Button>
+									</AlertActions>
+								</Alert>
 							</>
 						) : (
 							<div role="status" aria-label={t`Loading workspace…`}>

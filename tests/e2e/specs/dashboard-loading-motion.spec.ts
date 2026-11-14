@@ -40,7 +40,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			const sample = () => {
 				const boxes: LoadingFrame["boxes"] = {};
 				for (const [name, selector] of Object.entries({
-					header: "main > header",
+					header: ".shell-toolbar",
 					title: "main h1",
 					toolbar: '[data-slot="page-toolbar"]',
 				})) {

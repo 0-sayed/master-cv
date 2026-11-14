@@ -142,6 +142,7 @@ export function ResumePreviewClient({
 	onRender,
 	includeCoverLetterHeader = false,
 	highlightEdits = false,
+	editFeedback,
 }: ResolvedResumePreviewProps) {
 	const builderResumeData = useResumeData();
 	const resumeData = data ?? builderResumeData;
@@ -241,6 +242,12 @@ export function ResumePreviewClient({
 	}, [paused, resumeData, includeCoverLetterHeader, attempt, highlightEdits, identity]);
 
 	const activeLayer = getActivePreviewLayer(previewLayers);
+	const feedback =
+		editFeedback?.resumeId === activeLayer?.identity?.resumeId &&
+		editFeedback?.revision === activeLayer?.identity?.baseRevision &&
+		editFeedback?.generation === activeLayer?.identity?.editGeneration
+			? (editFeedback ?? undefined)
+			: undefined;
 	const activePageCount = activeLayer?.numPages ?? 0;
 	const activePageMap = activeLayer?.pageMap;
 	const activeFile = activeLayer?.file;
@@ -380,9 +387,11 @@ export function ResumePreviewClient({
 															{renderPageOverlay?.({ pageIndex: index, pageMap: visiblePdf.pageMap })}
 															{highlightEdits && (
 																<EditHighlights
+																	key={feedback?.id ?? visiblePdf.id}
 																	pageIndex={index}
 																	pageMap={visiblePdf.pageMap}
-																	targets={visiblePdf.highlights}
+																	targets={feedback?.targets ?? visiblePdf.highlights}
+																	feedback={feedback}
 																/>
 															)}
 														</>

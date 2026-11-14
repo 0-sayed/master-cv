@@ -1,3 +1,4 @@
+import type { ReviewEditFeedback } from "../../preview/edit-highlight";
 import type { Proposal, ProposalState } from "@reactive-resume/resume/proposals";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { KeyboardEvent, ReactNode } from "react";
@@ -11,6 +12,7 @@ import { Kbd } from "@reactive-resume/ui/components/kbd";
 import { cn } from "@reactive-resume/utils/style";
 import { useEditorStore } from "../store";
 import { acceptResumeProposals } from "./proposals";
+import { WordingDiff } from "./wording-diff";
 import { useIsResumeLocked } from "@/features/resume/builder/draft";
 import { ENTER_CLASS, POP_CLASS } from "@/libs/motion";
 
@@ -54,6 +56,7 @@ export function ProposalList({ proposals, data, onSuggestAgain }: ProposalListPr
 }
 
 type ChangeSetProps = {
+	feedback?: ReviewEditFeedback | undefined;
 	proposals: readonly Proposal[];
 	/** Each proposal's state as the document reads now (out of date once its passage changed). */
 	states: readonly ProposalState[];
@@ -64,19 +67,35 @@ type ChangeSetProps = {
 	onSuggestAgain?: (() => void) | undefined;
 	/** The set's title; "n proposed edits" by default. */
 	title?: ReactNode;
+	renderDetails?: ((proposal: Proposal, state: ProposalState) => ReactNode) | undefined;
+	onEdit?: ((proposal: Proposal) => void) | undefined;
+	keepLabel?: ReactNode;
 };
 
 /**
  * A change set: "n proposed edits" with Accept all, then each edit numbered, with where it lands, the old text
  * struck through, the new text and why. A accepts and R rejects the focused edit; ↑ and ↓ move between edits.
  */
-export function ChangeSet({ proposals, states, locked, onAccept, onReject, onSuggestAgain, title }: ChangeSetProps) {
+export function ChangeSet({
+	feedback,
+	proposals,
+	states,
+	locked,
+	onAccept,
+	onReject,
+	onSuggestAgain,
+	title,
+	renderDetails,
+	onEdit,
+	keepLabel,
+}: ChangeSetProps) {
 	const [focused, setFocused] = useState(0);
 	const pending = proposals.filter((_, index) => states[index] === "pending");
 	const headingId = useId();
 
 	const onKeyDown = (event: KeyboardEvent<HTMLOListElement>) => {
 		if (event.metaKey || event.ctrlKey || event.altKey) return;
+		if ((event.target as HTMLElement).closest("button,input,textarea,select,a,summary")) return;
 		const item = (event.target as HTMLElement).closest<HTMLElement>("[data-proposal-index]");
 		const index = Number(item?.dataset.proposalIndex ?? focused);
 		const proposal = proposals[index];
@@ -118,6 +137,7 @@ export function ChangeSet({ proposals, states, locked, onAccept, onReject, onSug
 				{proposals.map((proposal, index) => (
 					<ProposalItem
 						key={proposal.id}
+						feedback={feedback?.proposalIds.includes(proposal.id) ? feedback : undefined}
 						proposal={proposal}
 						number={index + 1}
 						state={states[index] ?? "pending"}
@@ -128,6 +148,9 @@ export function ChangeSet({ proposals, states, locked, onAccept, onReject, onSug
 						onAccept={() => onAccept([proposal])}
 						onReject={() => onReject([proposal])}
 						onSuggestAgain={onSuggestAgain}
+						onEdit={onEdit ? () => onEdit(proposal) : undefined}
+						keepLabel={keepLabel}
+						details={renderDetails?.(proposal, states[index] ?? "pending")}
 					/>
 				))}
 			</ol>
@@ -143,6 +166,7 @@ export function ChangeSet({ proposals, states, locked, onAccept, onReject, onSug
 }
 
 type ProposalItemProps = {
+	feedback?: ReviewEditFeedback | undefined;
 	proposal: Proposal;
 	number: number;
 	state: ProposalState;
@@ -153,6 +177,9 @@ type ProposalItemProps = {
 	onAccept: () => void;
 	onReject: () => void;
 	onSuggestAgain?: (() => void) | undefined;
+	onEdit?: (() => void) | undefined;
+	keepLabel?: ReactNode;
+	details?: ReactNode;
 };
 
 function ProposalItem(props: ProposalItemProps) {
@@ -183,19 +210,37 @@ function ProposalItem(props: ProposalItemProps) {
 				</span>
 			</div>
 
-			<div className="grid gap-1.5 text-[13px] leading-[19px]">
-				<del className="text-ink-3">{passageText(proposal.before)}</del>
-				<ins className="rounded-[3px] bg-accent-soft px-1 py-0.5 no-underline">{passageText(proposal.after)}</ins>
-				{proposal.why && <span className="text-xs text-ink-2">{proposal.why}</span>}
+			<div
+				key={props.feedback?.id ?? "original"}
+				data-review-action={props.feedback?.action}
+				className="review-wording grid gap-2 type-body"
+			>
+				<del dir="auto" className="text-ink-3">
+					{passageText(proposal.before)}
+				</del>
+				<WordingDiff
+					before={passageText(proposal.before)}
+					after={props.feedback?.editedText ?? passageText(proposal.after)}
+				/>
+				{proposal.why && (
+					<span dir="auto" className="type-metadata text-ink-2">
+						{proposal.why}
+					</span>
+				)}
 			</div>
 
 			{state === "pending" ? (
-				<div className="flex gap-1.5">
+				<div className="flex flex-wrap gap-2">
 					<Button size="sm" disabled={locked} onClick={props.onAccept}>
 						<Trans>Accept</Trans>
 					</Button>
-					<Button size="sm" variant="secondary" onClick={props.onReject}>
-						<Trans>Reject</Trans>
+					{props.onEdit && (
+						<Button size="sm" variant="secondary" disabled={locked} onClick={props.onEdit}>
+							<Trans>Edit</Trans>
+						</Button>
+					)}
+					<Button size="sm" variant="secondary" disabled={locked} onClick={props.onReject}>
+						{props.keepLabel ?? <Trans>Reject</Trans>}
 					</Button>
 				</div>
 			) : (
@@ -232,6 +277,7 @@ function ProposalItem(props: ProposalItemProps) {
 					)}
 				</p>
 			)}
+			{props.details}
 		</li>
 	);
 }

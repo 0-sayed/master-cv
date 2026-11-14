@@ -1,7 +1,7 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { Trans } from "@lingui/react/macro";
 import { useState } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertDescription, AlertTitle, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	Dialog,
@@ -31,20 +31,20 @@ export function FontReplacementNotice({ data, onAccept }: Props) {
 				</AlertTitle>
 				<AlertDescription>
 					<Trans>This font can't display some of your text — switch to {recommended}?</Trans>
-					<div className="mt-3">
-						<Button
-							variant="secondary"
-							onClick={() => {
-								const after = structuredClone(data);
-								applyFontPairing(after.metadata, pairing.id);
-								setReady(false);
-								setPreview({ before: data, after });
-							}}
-						>
-							<Trans>Preview replacement</Trans>
-						</Button>
-					</div>
 				</AlertDescription>
+				<AlertActions>
+					<Button
+						variant="secondary"
+						onClick={() => {
+							const after = structuredClone(data);
+							applyFontPairing(after.metadata, pairing.id);
+							setReady(false);
+							setPreview({ before: data, after });
+						}}
+					>
+						<Trans>Preview replacement</Trans>
+					</Button>
+				</AlertActions>
 			</Alert>
 			<Dialog
 				open={preview !== null}

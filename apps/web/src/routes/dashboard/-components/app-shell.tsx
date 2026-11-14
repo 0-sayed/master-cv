@@ -146,7 +146,7 @@ export function AppShell({ children }: AppShellProps) {
 	return (
 		<div
 			className={cn(
-				"grid h-svh min-h-0 overflow-hidden bg-bg",
+				"dashboard-shell grid h-svh min-h-0 overflow-hidden bg-bg",
 				breakpoint === "mobile"
 					? tabs
 						? "grid-rows-[minmax(0,1fr)_auto]"
@@ -163,10 +163,7 @@ export function AppShell({ children }: AppShellProps) {
 				<Trans>Skip to main content</Trans>
 			</a>
 			{breakpoint !== "mobile" && (rail ? <Rail toggle={desktop ? toggle : undefined} /> : <Sidebar toggle={toggle} />)}
-			<main
-				id="main-content"
-				className="min-h-0 min-w-0 [scrollbar-gutter:stable_both-edges] overflow-y-auto max-lg:[scrollbar-width:none]"
-			>
+			<div className="flex min-h-0 min-w-0 flex-col">
 				{!mobileWorkspace && (
 					<DashboardHeader
 						width={pageWidth}
@@ -188,11 +185,17 @@ export function AppShell({ children }: AppShellProps) {
 						</div>
 					</DashboardHeader>
 				)}
-				<GuestBanner />
-				<DashboardPage width={pageWidth} fullScreenOnMobile={mobileWorkspace}>
-					{children}
-				</DashboardPage>
-			</main>
+				<main
+					id="main-content"
+					tabIndex={-1}
+					className="min-h-0 min-w-0 flex-1 [scrollbar-gutter:stable_both-edges] overflow-y-auto max-lg:[scrollbar-width:none]"
+				>
+					<GuestBanner />
+					<DashboardPage width={pageWidth} fullScreenOnMobile={mobileWorkspace}>
+						{children}
+					</DashboardPage>
+				</main>
+			</div>
 			{tabs && <MobileTabs />}
 		</div>
 	);
@@ -247,7 +250,7 @@ function Sidebar({ toggle }: { toggle: () => void }) {
 	return (
 		<SidebarFrame>
 			<div>
-				<Link to="/" className="shell-brand-row sidebar-brand-inset">
+				<Link to="/" className="sidebar-brand-inset shell-brand-row">
 					<BrandIcon variant="logo" />
 				</Link>
 				<SidebarToggle collapsed={false} toggle={toggle} />
@@ -315,7 +318,7 @@ function Rail({ toggle }: { toggle?: (() => void) | undefined }) {
 
 	return (
 		<SidebarFrame rail>
-			<Link to="/" aria-label="Master CV" className="shell-brand-row w-11 justify-center rounded-md">
+			<Link to="/" aria-label="Master CV" className="shell-brand-row w-full justify-center">
 				<BrandIcon variant="icon" alt="" className="size-6" />
 			</Link>
 			{toggle && <SidebarToggle collapsed toggle={toggle} />}

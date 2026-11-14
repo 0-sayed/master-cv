@@ -14,6 +14,8 @@ export const D1 = 0.12;
 export const D2 = 0.2;
 /** --d3 / `duration-emphasized`: side and bottom sheets, toasts, the assistant. */
 export const D3 = 0.32;
+/** --motion-review-highlight: post-save preview acknowledgement, in milliseconds. */
+export const REVIEW_HIGHLIGHT_MS = 1200;
 /** Exits run at 70% of the enter duration, e.g. `D2 * EXIT`. */
 export const EXIT = 0.7;
 

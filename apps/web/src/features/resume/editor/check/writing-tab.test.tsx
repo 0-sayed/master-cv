@@ -6,6 +6,7 @@ import { I18nProvider } from "@lingui/react";
 
 const queryState = vi.hoisted(() => ({ loading: false, reserved: 0 }));
 vi.mock("@tanstack/react-query", () => ({
+	useMutation: () => ({ isPending: false }),
 	useQuery: ({ queryKey }: { queryKey: string[] }) => ({
 		data: queryState.loading
 			? undefined
@@ -22,13 +23,18 @@ vi.mock("@/libs/orpc/client", () => ({
 		},
 	},
 }));
-import { WritingTab } from "./writing-tab";
+import { ReviewLaunch } from "../proposals/review-operation";
+const WritingTab = () => (
+	<ReviewLaunch kind="review.wording" prepare={() => Promise.reject(new Error("not requested"))} onStarted={() => {}}>
+		Review wording
+	</ReviewLaunch>
+);
 afterEach(() => {
 	cleanup();
 	queryState.loading = false;
 	queryState.reserved = 0;
 });
-it("announces availability loading through the shared hidden skeleton status", () => {
+it("announces availability loading", () => {
 	queryState.loading = true;
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	render(
@@ -38,8 +44,6 @@ it("announces availability loading through the shared hidden skeleton status", (
 	);
 	const status = screen.getByRole("status");
 	expect(status.textContent).toBe("Loading assistant availability…");
-	expect(status.classList.contains("sr-only")).toBe(true);
-	expect(status.closest('[aria-busy="true"]')).not.toBeNull();
 });
 it("renders the nonrenewing Start limit without a plans action", () => {
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });

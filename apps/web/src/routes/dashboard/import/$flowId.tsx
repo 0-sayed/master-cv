@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { useNewDocumentsStore } from "@/features/documents/new-documents";
@@ -93,10 +93,12 @@ function ReviewSession({ draft }: { draft: ReviewDraft | null }) {
 					</AlertTitle>
 					<AlertDescription>
 						<Trans>Could not close this review. Try again.</Trans>
+					</AlertDescription>
+					<AlertActions>
 						<Button variant="secondary" onClick={() => void leave()}>
 							<Trans>Retry</Trans>
 						</Button>
-					</AlertDescription>
+					</AlertActions>
 				</Alert>
 			)}
 			{draft ? (
@@ -122,10 +124,12 @@ function ReviewSession({ draft }: { draft: ReviewDraft | null }) {
 					</AlertTitle>
 					<AlertDescription>
 						<Trans>This import review has expired or is unavailable on this device. Choose your file again.</Trans>
+					</AlertDescription>
+					<AlertActions>
 						<Button variant="secondary" onClick={() => void leave()}>
 							<Trans>Back to documents</Trans>
 						</Button>
-					</AlertDescription>
+					</AlertActions>
 				</Alert>
 			)}
 		</>

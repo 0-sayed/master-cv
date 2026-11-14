@@ -26,7 +26,7 @@ export function DashboardHeader({
 	return (
 		<header
 			data-width={width}
-			className="shell-toolbar sticky top-0 z-20 border-b border-line bg-surface dashboard-inline [view-transition-name:app-header] dashboard-canvas"
+			className="shell-toolbar relative z-20 shrink-0 [scrollbar-gutter:stable_both-edges] overflow-hidden border-b border-line bg-surface dashboard-inline [view-transition-name:app-header] dashboard-canvas max-lg:[scrollbar-width:none]"
 		>
 			<div
 				data-slot="dashboard-header-content"

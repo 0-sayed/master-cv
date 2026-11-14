@@ -29,3 +29,18 @@ it("does not publish a template or history preview as the selected render", () =
 	useEditorStore.getState().setRendered({ ...render, identity });
 	expect(useEditorStore.getState().rendered.file).toBeUndefined();
 });
+it("preserves Check scroll and return finding across modes and edits, scoped to the document", () => {
+	const editor = useEditorStore.getState();
+	editor.setIdentity(identity);
+	editor.setCheckScrollTop(1250);
+	editor.setCheckReturnIssue("lower-finding");
+	editor.setMobileView("write");
+	editor.setDrawerOpen(false);
+	editor.setCheckTab("writing");
+	editor.setIdentity({ ...identity, editGeneration: 2 });
+	expect(useEditorStore.getState().checkScrollTop).toBe(1250);
+	expect(useEditorStore.getState().checkReturnIssue).toBe("lower-finding");
+	editor.setIdentity({ ...identity, resumeId: "other" });
+	expect(useEditorStore.getState().checkScrollTop).toBe(0);
+	expect(useEditorStore.getState().checkReturnIssue).toBeNull();
+});

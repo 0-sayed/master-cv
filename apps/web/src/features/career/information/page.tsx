@@ -184,6 +184,7 @@ function Entry({
 }) {
 	const copy = useCareerCopy();
 	const documents = [...new Map(links.map((link) => [link.resumeId, link])).values()];
+	const [showAllDocuments, setShowAllDocuments] = useState(false);
 	const { t } = useLingui();
 	const titleField =
 		section === "experience" ? "position" : section === "education" ? "degree" : sectionFields[section][0];
@@ -273,18 +274,32 @@ function Entry({
 					</p>
 				)}
 				{documents.length > 0 && (
-					<div className={cn("flex flex-wrap gap-2 type-metadata text-ink-3", section === "languages" && "w-full")}>
-						<span>{copy("editor.field.usedIn", { documentNames: "" })}</span>
-						{documents.map((document) => (
-							<Link
+					<div
+						className={cn(
+							"flex min-w-0 flex-wrap items-center gap-x-2 gap-y-4 type-metadata text-ink-3",
+							section === "languages" && "w-full",
+						)}
+					>
+						<span>{copy("editor.field.usedInLabel")}</span>
+						{(showAllDocuments ? documents : documents.slice(0, 3)).map((document) => (
+							<FactChip
 								key={document.resumeId}
-								to="/builder/$resumeId"
-								params={{ resumeId: document.resumeId }}
-								className="text-accent-text underline"
+								nativeButton={false}
+								role="link"
+								render={<Link to="/builder/$resumeId" params={{ resumeId: document.resumeId }} />}
+								icon={<Icon name="file-text" />}
+								truncate
+								title={document.name}
+								aria-label={copy("editor.field.openCV", { name: document.name })}
 							>
-								<bdi>{document.name}</bdi>
-							</Link>
+								{document.name}
+							</FactChip>
 						))}
+						{!showAllDocuments && documents.length > 3 && (
+							<FactChip aria-expanded={false} onClick={() => setShowAllDocuments(true)}>
+								{copy("editor.field.moreDocuments", { count: documents.length - 3 })}
+							</FactChip>
+						)}
 					</div>
 				)}
 			</div>

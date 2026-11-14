@@ -6,14 +6,36 @@ import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { RichTextEditor } from "./rich-text-editor";
 
-const mocks = vi.hoisted(() => ({ mobile: false }));
+const mocks = vi.hoisted(() => ({
+	mobile: false,
+	openAssistant: vi.fn(),
+}));
 vi.mock("@reactive-resume/ui/hooks/use-mobile", () => ({ useIsMobile: () => mocks.mobile }));
 vi.mock("@reactive-resume/ui/hooks/use-keyboard-inset", () => ({ useKeyboardInset: () => 0 }));
 vi.mock("@/features/settings/integrations/hooks/use-has-usable-ai-provider", () => ({
 	useHasUsableAiProvider: () => ({ hasUsableProvider: false }),
 }));
+vi.mock("@/features/assistant/open", () => ({ openAssistantFrom: mocks.openAssistant }));
 vi.mock("@/hooks/use-confirm", () => ({ usePrompt: () => vi.fn() }));
-vi.mock("./improve", () => ({ lineAtCaret: () => null, ImprovePanel: () => null }));
+vi.mock("./improve", () => ({
+	lineAtCaret: () => ({ from: 1, to: 8, text: "Example" }),
+	ImprovePanel: () => <div role="status">Platform review choices</div>,
+}));
+
+it("opens platform Improve choices without a personal provider", async () => {
+	mocks.mobile = false;
+	i18n.loadAndActivate({ locale: "en", messages: {} });
+	render(
+		<I18nProvider i18n={i18n}>
+			<RichTextEditor label="Summary" value="<p>Example</p>" onChange={vi.fn()} />
+		</I18nProvider>,
+	);
+	const editor = await screen.findByRole("textbox", { name: "Summary" });
+	await act(async () => editor.focus());
+	await userEvent.click(screen.getByRole("button", { name: "Improve" }));
+	expect(await screen.findByText("Platform review choices")).toBeDefined();
+	expect(mocks.openAssistant).not.toHaveBeenCalled();
+});
 
 it.each([false, true])(
 	"retains formatting controls while keyboard focus enters the toolbar (mobile=%s)",

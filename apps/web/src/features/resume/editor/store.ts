@@ -1,3 +1,4 @@
+import type { ReviewEditFeedback } from "../preview/edit-highlight";
 import type { FixPreview } from "./check/fix-preview";
 import type { PageMap, PageMapTarget } from "@reactive-resume/pdf/page-map";
 import type { PdfAtsReport } from "@reactive-resume/resume/ats-pdf";
@@ -49,6 +50,8 @@ export const ZOOM_MAX = 1.5;
 export const ZOOM_STEP = 0.1;
 
 type EditorStore = {
+	reviewFeedback: ReviewEditFeedback | null;
+	setReviewFeedback: (feedback: ReviewEditFeedback) => void;
 	checkFixPreview: FixPreview | null;
 	setCheckFixPreview: (preview: FixPreview | null) => void;
 	identity: EditorIdentity | null;
@@ -102,6 +105,10 @@ type EditorStore = {
 	};
 	/** Phones: the view on screen; null until one is picked, which shows the current mode. */
 	mobileView: MobileView | null;
+	checkScrollTop: number;
+	checkReturnIssue: string | null;
+	setCheckScrollTop: (top: number) => void;
+	setCheckReturnIssue: (key: string | null) => void;
 	checkTab: CheckTab;
 	/** Check: the issue picked on its card or pin (its key). Both are outlined. */
 	checkIssue: string | null;
@@ -170,6 +177,7 @@ export const isSameSelection = (a: EditorSelection | null, b: EditorSelection | 
 };
 
 const initialState = {
+	reviewFeedback: null,
 	checkFixPreview: null,
 	identity: null,
 	pendingMode: null,
@@ -193,6 +201,8 @@ const initialState = {
 	styleHighlight: [],
 	rendered: { pageCount: 0, pageMap: undefined, file: undefined, version: 0 },
 	mobileView: null,
+	checkScrollTop: 0,
+	checkReturnIssue: null,
 	checkTab: "issues",
 	checkIssue: null,
 	pageView: "page",
@@ -222,6 +232,7 @@ export const useEditorStore = create<EditorStore>()((set) => ({
 				rendered: { ...initialState.rendered, version: state.rendered.version + 1 },
 			};
 		}),
+	setReviewFeedback: (reviewFeedback) => set({ reviewFeedback }),
 	select: (selection) => set({ selection }),
 	setZoom: (zoom) => set({ zoom: zoom === "fit" ? "fit" : clampZoom(zoom) }),
 	setDrawerOpen: (drawerOpen) => set({ drawerOpen }),
@@ -260,6 +271,8 @@ export const useEditorStore = create<EditorStore>()((set) => ({
 			return { rendered: { ...render, version: state.rendered.version + 1 } };
 		}),
 	setMobileView: (mobileView) => set({ mobileView }),
+	setCheckScrollTop: (checkScrollTop) => set({ checkScrollTop }),
+	setCheckReturnIssue: (checkReturnIssue) => set({ checkReturnIssue }),
 	setCheckTab: (checkTab) => set({ checkTab }),
 	setCheckIssue: (checkIssue) => set({ checkIssue }),
 	setPageView: (pageView) => set({ pageView }),

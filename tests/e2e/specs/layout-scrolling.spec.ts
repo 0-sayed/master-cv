@@ -39,7 +39,7 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			await page.locator("main").evaluate((main) => main.scrollTo(0, main.scrollHeight));
 			await expect.poll(() => page.locator("main").evaluate((main) => main.scrollTop)).toBeGreaterThan(0);
 			expect(await page.evaluate(() => scrollY)).toBe(0);
-			const header = await page.locator("main > header").boundingBox();
+			const header = await page.locator(".shell-toolbar").boundingBox();
 			expect(header?.y).toBe(0);
 			if (width === 1440) {
 				const sidebar = await page.getByRole("complementary").boundingBox();
@@ -114,7 +114,7 @@ for (const locale of ["ar-SA", "en-US"] as const)
 						return { x, y, width, height };
 					};
 					return {
-						header: box("main > header"),
+						header: box(".shell-toolbar"),
 						actions: [...document.querySelectorAll('[data-slot="dashboard-header-controls"] button')].map((button) => {
 							const { x, y, width, height } = button.getBoundingClientRect();
 							return { x, y, width, height };
@@ -132,4 +132,84 @@ for (const locale of ["ar-SA", "en-US"] as const)
 				expect.soft(await page.evaluate(() => scrollY), route).toBe(0);
 				await page.screenshot({ path: info.outputPath(`${route.split("/").at(-1)}.png`) });
 			}
+		});
+
+for (const locale of ["ar-SA", "en-US"] as const)
+	for (const width of [1440, 1780])
+		test(`${locale} ${width} brand corner meets header in expanded and rail layouts`, async ({
+			authPage: page,
+		}, info) => {
+			await page.setViewportSize({ width, height: 480 });
+			await page.goto(`/dashboard/settings/account?locale=${locale}`);
+			await expect(page.locator("main h1")).toBeVisible();
+			for (const collapsed of [false, true]) {
+				const sidebar = await page.locator("aside").boundingBox();
+				if (!sidebar) throw new Error("Missing sidebar");
+				const rail = sidebar.width < 100;
+				if (rail !== collapsed) await page.locator('[data-slot="sidebar-toggle"]').click();
+				await settleScreen(page);
+				await page.locator("main").evaluate((main) => main.scrollTo(0, main.scrollHeight));
+				await expect.poll(() => page.locator("main").evaluate((main) => main.scrollTop)).toBeGreaterThan(0);
+				expect(
+					await page.evaluate(() => ({
+						scroll: scrollY,
+						height: document.documentElement.scrollHeight,
+						viewport: innerHeight,
+					})),
+				).toEqual({ scroll: 0, height: 480, viewport: 480 });
+				const corner = await page.evaluate(() => {
+					const brand = document.querySelector<HTMLElement>(".shell-brand-row");
+					const header = document.querySelector<HTMLElement>(".shell-toolbar");
+					const aside = document.querySelector<HTMLElement>("aside");
+					const shell = document.querySelector(".dashboard-shell");
+					if (!brand || !header || !aside || !shell) throw new Error("Missing shell corner");
+					const b = brand.getBoundingClientRect();
+					const h = header.getBoundingClientRect();
+					const a = aside.getBoundingClientRect();
+					const rtl = document.documentElement.dir === "rtl";
+					return {
+						brandBottom: b.bottom,
+						headerBottom: h.bottom,
+						headerStart: rtl ? h.right : h.left,
+						brandStart: rtl ? b.right : b.left,
+						brandEnd: rtl ? b.left : b.right,
+						asideStart: rtl ? a.right : a.left,
+						asideEnd: rtl ? a.left : a.right,
+						lineStart: getComputedStyle(shell, "::before").insetInlineStart,
+						lineEnd: getComputedStyle(shell, "::before").insetInlineEnd,
+						brandBorder: getComputedStyle(brand).borderBottomColor,
+						headerBorder: getComputedStyle(header).borderBottomColor,
+						brandLine: getComputedStyle(brand).borderBottomWidth,
+						headerLine: getComputedStyle(header).borderBottomWidth,
+					};
+				});
+				expect(corner.headerStart).toBe(corner.asideEnd);
+				expect(corner.brandBottom).toBe(corner.headerBottom);
+				expect(corner.brandStart).toBe(corner.asideStart);
+				expect(Math.abs(corner.brandEnd - corner.asideEnd)).toBe(1);
+				expect(corner.lineStart).toBe("0px");
+				expect(corner.lineEnd).toBe("0px");
+				expect(corner.brandBorder).toBe(corner.headerBorder);
+				expect(corner.brandLine).toBe(corner.headerLine);
+				await page.screenshot({ path: info.outputPath(collapsed ? "corner-rail.png" : "corner-expanded.png") });
+				const savedScroll = await page.locator("#main-content").evaluate((main) => main.scrollTop);
+				await page.locator('aside a[href="/dashboard/career/information"]').click();
+				await expect(page.locator('[data-slot="section-card"]')).toHaveCount(5);
+				await expect.poll(() => page.locator("#main-content").evaluate((main) => main.scrollTop)).toBe(0);
+				await page.goBack();
+				await expect
+					.poll(() =>
+						page.locator("#main-content").evaluate((main, offset) => Math.abs(main.scrollTop - offset), savedScroll),
+					)
+					.toBeLessThanOrEqual(1);
+			}
+			await page.locator('a[href="#main-content"]').focus();
+			await page.keyboard.press("Enter");
+			await expect(page.locator("#main-content")).toBeFocused();
+			expect(await page.evaluate(() => scrollY)).toBe(0);
+			await page.setViewportSize({ width: 390, height: 900 });
+			await settleScreen(page);
+			await expect(page.locator(".shell-brand-row")).toHaveCount(0);
+			await expect(page.locator(".shell-toolbar")).toHaveCSS("height", "64px");
+			await page.screenshot({ path: info.outputPath("corner-mobile.png") });
 		});

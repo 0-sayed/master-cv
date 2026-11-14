@@ -22,7 +22,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 						await page.goto(route);
 						await settleScreen(page);
 						const sidebar = page.getByRole("complementary");
-						const header = page.locator("main > header");
+						const header = page.locator('header:has(> [data-slot="dashboard-header-content"])');
 						const mark = (width === 1440 ? sidebar : header).locator('[data-slot="brand-mark"]');
 						const nav = (width === 1440 ? sidebar : page.locator('[data-slot="app-bottom-nav"]')).locator(
 							'a[href="/dashboard"] svg',

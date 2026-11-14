@@ -6,6 +6,21 @@ const deck = JSON.parse(
 ) as { entries: Array<{ key: string; messages: Record<string, string> }> };
 const groups = {
 	assistant: [
+		"review.suggestion.keepOriginal",
+		"review.suggestion.accept",
+		"review.suggestion.inputLabel",
+		"review.suggestion.saveWording",
+		"review.suggestion.staleHint",
+		"review.suggestion.requestNew",
+		"review.suggestion.undoHint",
+		"review.assistant.status.disabled",
+		"review.assistant.disabledHint",
+		"common.actions.undo",
+		"common.actions.cancel",
+		"jobs.letter.addInformation",
+		"review.fact.descriptionLabel",
+		"review.fact.save",
+
 		"billing.usage.startOperationsLabel",
 		"billing.usage.startOperationsLimitHint",
 		"billing.usage.startOperationsHint",
@@ -68,6 +83,9 @@ const groups = {
 	],
 	career: [
 		"editor.field.usedIn",
+		"editor.field.usedInLabel",
+		"editor.field.openCV",
+		"editor.field.moreDocuments",
 		"auth.welcome.title",
 		"auth.welcome.subtitle",
 		"auth.welcome.import.title",

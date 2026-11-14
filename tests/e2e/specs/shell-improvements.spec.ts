@@ -28,7 +28,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await page.setViewportSize({ width, height: 900 });
 			await page.goto("/dashboard");
 			await settleScreen(page);
-			const header = page.locator("main > header");
+			const header = page.locator('header:has(> [data-slot="dashboard-header-content"])');
 			const baseline = await header.boundingBox();
 			for (const collapsed of [false, true]) {
 				const aside = page.getByRole("complementary");
@@ -98,7 +98,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await page.goto("/dashboard");
 			await expect(page.locator('[data-slot="shell-search"]')).toHaveCount(1);
 			await expect(page.getByRole("button", { name: collapse, exact: true })).toHaveCount(0);
-			for (const control of await page.locator("main > header button").filter({ visible: true }).all())
+			for (const control of await page
+				.locator('header:has(> [data-slot="dashboard-header-content"]) button')
+				.filter({ visible: true })
+				.all())
 				expect((await control.boundingBox())?.height).toBe(48);
 			if (width === 768) expect((await page.getByRole("complementary").boundingBox())?.width).toBe(64);
 			else await expect(page.getByRole("complementary")).toHaveCount(0);

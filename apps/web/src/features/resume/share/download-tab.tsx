@@ -7,7 +7,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useEffect, useId, useRef, useState } from "react";
 import { ActionFeedback } from "@reactive-resume/ui/components/action-feedback";
-import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
@@ -15,6 +15,7 @@ import { toast } from "@reactive-resume/ui/components/toast";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
 import { useCurrentResume, useResumeStore } from "@/features/resume/builder/draft";
 import { useOpenIssueCount } from "@/features/resume/editor/check/use-check";
+import { useReadiness } from "@/features/resume/editor/check/use-readiness";
 import { createExportFile, getDefaultFileName, sanitizeFileName } from "@/features/resume/export/use-resume-export";
 import { getReadableErrorMessage } from "@/libs/error-message";
 
@@ -153,17 +154,17 @@ export function DownloadActions({ state, label, onDownload, onDownloadPdf, disab
 						<p>
 							<Trans>The {label} file couldn't be generated. Try again, or download PDF instead.</Trans>
 						</p>
-						<div className="mt-2 flex flex-wrap gap-2">
-							<Button variant="secondary" disabled={disabled} onClick={onDownload}>
-								<Trans>Try again</Trans>
-							</Button>
-							{onDownloadPdf && (
-								<Button variant="secondary" onClick={onDownloadPdf}>
-									<Trans>Download PDF instead</Trans>
-								</Button>
-							)}
-						</div>
 					</AlertDescription>
+					<AlertActions>
+						<Button variant="secondary" disabled={disabled} onClick={onDownload}>
+							<Trans>Try again</Trans>
+						</Button>
+						{onDownloadPdf && (
+							<Button variant="secondary" onClick={onDownloadPdf}>
+								<Trans>Download PDF instead</Trans>
+							</Button>
+						)}
+					</AlertActions>
 				</Alert>
 			)}
 
@@ -212,6 +213,10 @@ export function DownloadTab({ onReview }: { onReview: () => void }) {
 	const [name, setName] = useState(() => getDefaultFileName(resume));
 	const [state, setState] = useState<DownloadState>("idle");
 	const issues = useOpenIssueCount();
+	const { results } = useReadiness();
+	const pdfBlockers =
+		(results.pdf.state === "complete" || results.pdf.state === "partial") &&
+		results.pdf.issues.some((issue) => issue.severity === "blocker");
 	const active = useRef(true);
 	const inFlight = useRef(false);
 	useEffect(() => {
@@ -247,7 +252,25 @@ export function DownloadTab({ onReview }: { onReview: () => void }) {
 				extension=".pdf"
 				hint={<Trans>Choose the file name you want to send.</Trans>}
 			/>
-			{issues > 0 && (
+			{pdfBlockers && (
+				<Alert variant="warn">
+					<Icon name="warning" />
+					<AlertTitle>
+						<Trans>There is an issue that may block reading</Trans>
+					</AlertTitle>
+					<AlertDescription>
+						<p>
+							<Trans>PDF download remains available. Review the findings before sending it.</Trans>
+						</p>
+					</AlertDescription>
+					<AlertActions>
+						<Button variant="secondary" onClick={onReview}>
+							<Trans>View issues</Trans>
+						</Button>
+					</AlertActions>
+				</Alert>
+			)}
+			{issues > 0 && !pdfBlockers && (
 				<Alert variant="warn">
 					<Icon name="warning-circle" />
 					<AlertTitle>
@@ -255,12 +278,12 @@ export function DownloadTab({ onReview }: { onReview: () => void }) {
 					</AlertTitle>
 					<AlertDescription>
 						<Trans>There is information to review. PDF download remains free and available.</Trans>
-						<div className="mt-2 flex flex-wrap gap-2">
-							<Button variant="secondary" onClick={onReview}>
-								<Trans>Review now</Trans>
-							</Button>
-						</div>
 					</AlertDescription>
+					<AlertActions>
+						<Button variant="secondary" onClick={onReview}>
+							<Trans>Review now</Trans>
+						</Button>
+					</AlertActions>
 				</Alert>
 			)}
 			<DownloadActions disabled={conflict} state={state} label="PDF" onDownload={() => void download()} />

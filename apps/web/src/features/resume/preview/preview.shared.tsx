@@ -1,4 +1,5 @@
 import type { EditorIdentity } from "../editor/store";
+import type { ReviewEditFeedback } from "./edit-highlight";
 import type { PageMap } from "@reactive-resume/pdf/page-map";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { CSSProperties, ReactNode } from "react";
@@ -12,6 +13,7 @@ export type ResumePreviewProps = {
 	className?: string;
 	/** Editor-only feedback, excluded from exports and public previews. */
 	highlightEdits?: boolean;
+	editFeedback?: ReviewEditFeedback | null | undefined;
 	data?: ResumeData | undefined;
 	pageGap?: CSSProperties["gap"];
 	pageLayout?: "horizontal" | "vertical";

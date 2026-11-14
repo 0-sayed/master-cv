@@ -73,7 +73,7 @@ for (const locale of ["ar-SA", "en-US"]) {
 							columns: grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").map(Number.parseFloat) : [],
 							cards: [...document.querySelectorAll("main article")].map((card) => card.getBoundingClientRect().width),
 							forms: [...document.querySelectorAll(".form-content")].map((form) => form.getBoundingClientRect().width),
-							headerHeight: rect("main > header").height,
+							headerHeight: rect(".shell-toolbar").height,
 							overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
 						};
 					});

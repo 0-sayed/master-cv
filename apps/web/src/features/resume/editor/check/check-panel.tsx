@@ -1,7 +1,8 @@
 import type { CheckIssue } from "./issues";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { useState } from "react";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	Dialog,
@@ -9,42 +10,48 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogDescription,
+	DialogFooter,
 } from "@reactive-resume/ui/components/dialog";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { SectionCard, SectionCardHeader } from "@reactive-resume/ui/components/section-card";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
+import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { useResumeStore, useIsResumeLocked } from "../../builder/draft";
 import { useEditorStore } from "../store";
-import { useCheckActions, editWithUndo } from "./actions";
+import { useCheckActions, editWithUndo, scrollToIssue } from "./actions";
+import { FindingCard, FindingGroup, SummaryRow, KeptFindings } from "./check-sections";
 import { acceptFix } from "./fix-preview";
+import { getSectionName } from "./issues";
+import { pdfFindingKey, pdfFieldTarget } from "./pdf-findings";
 import { useCheck } from "./use-check";
 import { useReadiness } from "./use-readiness";
 import { WritingTab } from "./writing-tab";
-import { getPdfFindingMessage, getPdfSeverityLabel } from "@/features/ats-checker/messages";
-const readinessStateLabel = (state: string) =>
-	({
-		"not-checked": t`Not checked`,
-		checking: t`Checking…`,
-		complete: t`Checked`,
-		skipped: t`Skipped`,
-		partial: t`Partially checked`,
-		stale: t`Out of date`,
-		failed: t`Check failed`,
-	})[state] ?? t`Not checked`;
-
+import { getPdfFindingMessage } from "@/features/ats-checker/messages";
 /** Each result answers a separate question. Counts describe findings, never hiring likelihood. */
 export function CheckPanel() {
 	const check = useCheck();
-	const { restoreIgnored } = useCheckActions();
+	const { restoreIgnored, ignorePdf, goToField } = useCheckActions();
 	const locked = useIsResumeLocked();
 	const { results, pdfReport, requestRetry, introduced, setIntroduced } = useReadiness();
 	const preview = useEditorStore((state) => state.checkFixPreview);
 	const setPreview = useEditorStore((state) => state.setCheckFixPreview);
+	const [fixedResult, setFixed] = useState<{ checkedAt: string | null; titles: string[] }>({
+		checkedAt: null,
+		titles: [],
+	});
+	const [pendingFix, setPendingFix] = useState<string | null>(null);
+	const checkedAt = results.pdf.checkedAt;
+	const fixed = !checkedAt || fixedResult.checkedAt === checkedAt ? fixedResult.titles : [];
 	if (!check) return null;
 	const pdf = results.pdf;
 	const current = pdf.state === "complete" || pdf.state === "partial";
-	const blockers = pdf.issues.filter((issue) => issue.severity === "blocker").length;
-	const warnings = pdf.issues.filter((issue) => issue.severity === "warning").length;
+	const ignored = check.data.metadata.check?.ignored ?? [];
+	const pdfFindings = current && pdfReport ? [...pdfReport.findings, ...pdfReport.tips] : [];
+	const visiblePdf = pdfFindings.filter((finding) => !ignored.includes(pdfFindingKey(finding)));
+	const writing = check.issues.map((issue) => ({
+		issue,
+		severity: issue.finding.severity === "info" ? ("tip" as const) : ("warning" as const),
+	}));
 	return (
 		<div className="grid content-start gap-4 p-4">
 			<header className="grid gap-2">
@@ -57,7 +64,8 @@ export function CheckPanel() {
 				<PageViewToggle />
 			</header>
 			{!introduced && (
-				<Alert>
+				<Alert variant="info">
+					<Icon name="info" />
 					<AlertTitle>
 						<Trans>You make the decision</Trans>
 					</AlertTitle>
@@ -67,9 +75,33 @@ export function CheckPanel() {
 							Arabic parsing can vary between hiring systems.
 						</Trans>
 					</AlertDescription>
-					<Button variant="ghost" onClick={() => setIntroduced(true)}>
-						<Trans>Got it</Trans>
-					</Button>
+
+					<AlertActions>
+						<Button variant="secondary" onClick={() => setIntroduced(true)}>
+							<Trans>Got it</Trans>
+						</Button>
+					</AlertActions>
+				</Alert>
+			)}
+			<SectionCard aria-label={t`Check summary`}>
+				<h3 className="type-label">
+					<Trans>Check summary</Trans>
+				</h3>
+				<SummaryRow title={t`PDF readability`} state={pdf.state} findings={current ? visiblePdf : []} />
+				<SummaryRow title={t`Writing notes`} state={results.writing.state} findings={writing} />
+				<p className="type-meta text-ink-3">
+					<Trans>Job evidence · Available later</Trans>
+				</p>
+			</SectionCard>
+			{locked && (
+				<Alert variant="info">
+					<Icon name="lock" />
+					<AlertTitle>
+						<Trans>This CV is locked</Trans>
+					</AlertTitle>
+					<AlertDescription>
+						<Trans>Unlock the CV to apply fixes or change kept findings. You can still read the results.</Trans>
+					</AlertDescription>
 				</Alert>
 			)}
 			<SectionCard
@@ -85,93 +117,100 @@ export function CheckPanel() {
 				<p className="type-body text-ink-2">
 					<Trans>Can a hiring system read the text and order in this PDF?</Trans>
 				</p>
-				<p role="status" className="type-label">
-					{readinessStateLabel(pdf.state)}
-				</p>
-				{current && (
-					<p className="type-meta">
-						<Trans>
-							{blockers} blockers · {warnings} warnings
-						</Trans>
-					</p>
-				)}
-				{pdf.state === "partial" && (
-					<Alert variant="warn">
-						<Icon name="warning-circle" />
-						<AlertTitle>
-							<Trans>Partially checked</Trans>
-						</AlertTitle>
-						<AlertDescription>
-							<Trans>
-								Some pages or checks could not be read completely. This result does not cover the whole file.
-							</Trans>
-							<Button variant="secondary" onClick={requestRetry}>
-								<Trans>Check the PDF again</Trans>
-							</Button>
-						</AlertDescription>
-					</Alert>
-				)}
-				{pdf.state === "failed" && (
-					<Alert variant="error">
-						<Icon name="warning-circle" />
-						<AlertTitle>
-							<Trans>Check failed</Trans>
-						</AlertTitle>
-						<AlertDescription>
-							<p>
-								<Trans>The PDF could not be checked. Your CV is preserved; retry or keep editing.</Trans>
-							</p>
-							<Button variant="secondary" onClick={requestRetry}>
-								<Trans>Check the PDF again</Trans>
-							</Button>
-						</AlertDescription>
-					</Alert>
-				)}
-				{current &&
-					pdfReport &&
-					(["blocker", "warning", "tip"] as const).map((severity) => {
-						const findings = [...pdfReport.findings, ...pdfReport.tips].filter(
-							(finding) => finding.severity === severity,
-						);
-						return (
-							findings.length > 0 && (
-								<section key={severity} className="grid gap-3">
-									<h4 className="type-label">{getPdfSeverityLabel(severity)}</h4>
-									{findings.map((finding, index) => {
-										const message = getPdfFindingMessage(finding.code);
-										return (
-											<SectionCard key={`${finding.code}:${index}`}>
-												<h5 className="type-label">{message.title}</h5>
-												<p className="type-body text-ink-2">{message.action}</p>
-												{finding.evidence?.page && (
-													<p className="type-meta">
-														<Trans>Page {finding.evidence.page}</Trans>
-													</p>
-												)}
-												{finding.evidence?.snippet && (
-													<blockquote className="type-body wrap-anywhere" dir="auto">
-														{finding.evidence.snippet}
-													</blockquote>
-												)}
+				<PdfStateNotice state={pdf.state} onRetry={requestRetry} onStart={() => goToField({ kind: "header" })} />
+				{(["blocker", "warning", "tip"] as const).map((severity) => {
+					const findings = visiblePdf.filter((finding) => finding.severity === severity);
+					return (
+						<FindingGroup key={severity} severity={severity} count={findings.length}>
+							{findings.map((finding) => {
+								const message = getPdfFindingMessage(finding.code);
+								const key = pdfFindingKey(finding);
+								const target = pdfFieldTarget(finding.code);
+								const section =
+									target?.kind === "section"
+										? getSectionName(check.data, target.sectionId)
+										: target?.kind === "header"
+											? t`Contact details`
+											: "PDF";
+								return (
+									<div key={key} data-issue-card={key}>
+										<FindingCard
+											severity={severity}
+											title={message.title}
+											why={message.why}
+											location={
+												finding.evidence?.page
+													? t`Page ${finding.evidence.page} · ${section}`
+													: section === "PDF"
+														? t`Location: Whole file`
+														: t`Section: ${section}`
+											}
+											snippet={finding.evidence?.snippet}
+										>
+											{severity !== "tip" &&
+												(target ? (
+													<Button variant="secondary" disabled={locked} onClick={() => goToField(target, key)}>
+														<Trans>Go to field</Trans>
+													</Button>
+												) : (
+													<Button
+														variant="secondary"
+														onClick={() => {
+															const editor = useEditorStore.getState();
+															editor.setDrawerOpen(false);
+															editor.setPageView("parser");
+															editor.setMobileView("page");
+														}}
+													>
+														<Icon name="brackets-curly" />
+														<Trans>Review extracted text</Trans>
+													</Button>
+												))}
+											{finding.evidence?.box && (
 												<Button
 													variant="secondary"
 													onClick={() => {
-														useEditorStore.getState().setDrawerOpen(false);
-														useEditorStore.getState().setPageView("parser");
-														useEditorStore.getState().setMobileView("page");
+														const editor = useEditorStore.getState();
+														editor.setCheckReturnIssue(key);
+														editor.setCheckIssue(key);
+														editor.setPageView("page");
+														editor.setMobileView("page");
+														editor.setDrawerOpen(false);
+														scrollToIssue(key, "page");
 													}}
 												>
-													<Trans>Review extracted text</Trans>
+													<Icon name="target" />
+													<Trans>Show on page</Trans>
 												</Button>
-											</SectionCard>
-										);
-									})}
-								</section>
-							)
-						);
-					})}
-				{pdf.state !== "failed" && pdf.state !== "partial" && (
-					<Button variant="secondary" disabled={pdf.state === "checking"} onClick={requestRetry}>
+											)}
+											{severity !== "blocker" && (
+												<Button variant="secondary" disabled={locked} onClick={() => ignorePdf(key)}>
+													{severity === "tip" ? <Trans>Ignore</Trans> : <Trans>Keep as is</Trans>}
+												</Button>
+											)}
+										</FindingCard>
+									</div>
+								);
+							})}
+						</FindingGroup>
+					);
+				})}
+				{pdf.state === "complete" && visiblePdf.every((finding) => finding.severity !== "blocker") && (
+					<Alert variant="success">
+						<Icon name="check-circle" />
+						<AlertTitle>
+							<Trans>No blockers</Trans>
+						</AlertTitle>
+						<AlertDescription>
+							<Trans>
+								No reading blockers were found in the checked pages. This does not guarantee acceptance by every hiring
+								system.
+							</Trans>
+						</AlertDescription>
+					</Alert>
+				)}
+				{pdf.state === "complete" && (
+					<Button variant="secondary" onClick={requestRetry}>
 						<Icon name="arrow-clockwise" />
 						<Trans>Check the PDF again</Trans>
 					</Button>
@@ -181,41 +220,24 @@ export function CheckPanel() {
 				<SectionCardHeader>
 					<Icon name="pencil-simple" />
 					<h3 className="type-label">
-						<Trans>Writing and content</Trans>
+						<Trans>Writing notes</Trans>
 					</h3>
 				</SectionCardHeader>
 				<p className="type-body text-ink-2">
 					<Trans>Advice about clarity and missing information. These notes do not predict acceptance.</Trans>
 				</p>
-				<p role="status" className="type-meta">
-					{readinessStateLabel(results.writing.state)}
-				</p>
-				<ul className="grid gap-3">
-					{check.issues.map((issue) => (
-						<IssueCard key={issue.key} issue={issue} />
-					))}
-				</ul>
-				{check.report.ignored.length > 0 && (
-					<Button variant="secondary" disabled={locked} onClick={restoreIgnored}>
-						<Icon name="arrow-counter-clockwise" />
-						<Trans>Show again</Trans> ({check.report.ignored.length})
-					</Button>
-				)}
+				{(["warning", "tip"] as const).map((severity) => {
+					const issues = writing.filter((entry) => entry.severity === severity);
+					return (
+						<FindingGroup key={severity} severity={severity} count={issues.length}>
+							{issues.map(({ issue }) => (
+								<IssueCard key={issue.key} issue={issue} onFix={() => setPendingFix(issue.title)} />
+							))}
+						</FindingGroup>
+					);
+				})}
+				<KeptFindings count={ignored.length} fixed={fixed} locked={locked} onRestore={restoreIgnored} />
 				<WritingTab />
-			</SectionCard>
-			<SectionCard aria-label={t`Evidence for a selected job`}>
-				<SectionCardHeader>
-					<Icon name="target" />
-					<h3 className="type-label">
-						<Trans>Evidence for a selected job</Trans>
-					</h3>
-				</SectionCardHeader>
-				<p role="status" className="type-meta">
-					<Trans>Not checked</Trans>
-				</p>
-				<p className="type-body text-ink-2">
-					<Trans>A selected job and reviewed evidence are required. Job comparison is not available yet.</Trans>
-				</p>
 			</SectionCard>
 			<Dialog
 				open={preview !== null}
@@ -248,23 +270,26 @@ export function CheckPanel() {
 							</p>
 						</SectionCard>
 					))}
-					<div className="flex flex-wrap gap-3">
+					<DialogFooter>
 						<Button variant="secondary" onClick={() => setPreview(null)}>
-							<Trans>Reject</Trans>
+							<Trans>Cancel</Trans>
 						</Button>
 						<Button
+							disabled={locked}
 							onClick={() => {
 								const draft = useResumeStore.getState().resume;
-								if (preview && draft)
-									acceptFix(preview, useEditorStore.getState().identity, draft.data, (after) =>
+								if (preview && draft && !locked) {
+									const accepted = acceptFix(preview, useEditorStore.getState().identity, draft.data, (after) =>
 										editWithUndo((data) => Object.assign(data, after), t`Change accepted`),
 									);
+									if (accepted && pendingFix) setFixed({ checkedAt, titles: [...fixed, pendingFix] });
+								}
 								setPreview(null);
 							}}
 						>
 							<Trans>Accept change</Trans>
 						</Button>
-					</div>
+					</DialogFooter>
 				</DialogContent>
 			</Dialog>
 		</div>
@@ -298,28 +323,109 @@ function PageViewToggle() {
 	);
 }
 
-function IssueCard({ issue }: { issue: CheckIssue }) {
+type IssueCardProps = { issue: CheckIssue; onFix: () => void };
+function IssueCard({ issue, onFix }: IssueCardProps) {
 	const { fix, ignore, showOnPage } = useCheckActions();
 	const locked = useIsResumeLocked();
+	const check = useCheck();
+	const pageMap = useEditorStore((state) => state.rendered.pageMap);
+	const node = pageMap?.nodes.find(
+		(node) =>
+			issue.target?.kind === node.kind &&
+			(node.kind === "header" ||
+				(issue.target &&
+					"sectionId" in issue.target &&
+					issue.target.sectionId === node.sectionId &&
+					(node.kind !== "item" || (issue.target.kind === "item" && issue.target.itemId === node.itemId)))),
+	);
+	const section =
+		issue.target && "sectionId" in issue.target && check
+			? getSectionName(check.data, issue.target.sectionId)
+			: t`Contact details`;
+	const location = node ? t`Page ${node.page + 1} · ${section}` : t`Section: ${section}`;
+	const severity = issue.finding.severity === "info" ? "tip" : "warning";
 	return (
-		<li data-issue-card={issue.key}>
-			<SectionCard>
-				<h4 className="type-label">{issue.title}</h4>
-				<p className="type-body text-ink-2">{issue.body}</p>
-				<div className="flex flex-wrap gap-2">
-					<Button variant="secondary" disabled={locked && issue.fix.kind === "apply"} onClick={() => fix(issue)}>
-						{issue.fix.kind === "apply" ? <Trans>Preview fix</Trans> : <Trans>Review information</Trans>}
+		<div data-issue-card={issue.key}>
+			<FindingCard
+				severity={severity}
+				title={issue.title}
+				why={issue.body}
+				location={location}
+				snippet={String(issue.finding.params?.value ?? "")}
+			>
+				{severity !== "tip" && (
+					<Button
+						variant={issue.fix.kind === "apply" ? "primary" : "secondary"}
+						disabled={locked}
+						onClick={() => {
+							onFix();
+							fix(issue);
+						}}
+					>
+						{issue.fix.kind === "apply" ? <Trans>Fix</Trans> : <Trans>Go to field</Trans>}
 					</Button>
-					{issue.target && (
-						<Button variant="ghost" onClick={() => showOnPage(issue)}>
-							<Trans>Show on page</Trans>
+				)}
+				{issue.target && (
+					<Button variant="secondary" onClick={() => showOnPage(issue)}>
+						<Icon name="target" />
+						<Trans>Show on page</Trans>
+					</Button>
+				)}
+				<Button variant="secondary" disabled={locked} onClick={() => ignore(issue)}>
+					{severity === "tip" ? <Trans>Ignore</Trans> : <Trans>Keep as is</Trans>}
+				</Button>
+			</FindingCard>
+		</div>
+	);
+}
+function PdfStateNotice({ state, onRetry, onStart }: { state: string; onRetry: () => void; onStart: () => void }) {
+	if (state === "complete") return null;
+	const title =
+		state === "stale"
+			? t`Result out of date`
+			: state === "failed"
+				? t`Check failed`
+				: state === "partial"
+					? t`Partially checked`
+					: state === "checking"
+						? t`Checking…`
+						: state === "skipped"
+							? t`Skipped`
+							: t`Not checked`;
+	const description =
+		state === "stale"
+			? t`You edited the CV after the last check. Check it again for current results.`
+			: state === "failed"
+				? t`The PDF could not be checked. Your CV is preserved; retry or keep editing.`
+				: state === "partial"
+					? t`Some pages or checks could not be read completely. This result does not cover the whole file.`
+					: state === "checking"
+						? t`Analyzing text extracted from the PDF. Your CV remains unchanged.`
+						: t`Add information to your CV to check its PDF readability.`;
+	return (
+		<Alert variant={state === "failed" ? "error" : state === "stale" || state === "partial" ? "warn" : "info"}>
+			{state === "checking" ? (
+				<Spinner decorative />
+			) : (
+				<Icon name={state === "failed" || state === "stale" || state === "partial" ? "warning-circle" : "info"} />
+			)}
+			<AlertTitle>{title}</AlertTitle>
+			<AlertDescription>
+				<p>{description}</p>
+			</AlertDescription>
+			<AlertActions>
+				{state === "not-checked" || state === "skipped" ? (
+					<Button variant="secondary" onClick={onStart}>
+						<Trans>Add information</Trans>
+					</Button>
+				) : (
+					state !== "checking" && (
+						<Button variant="secondary" onClick={onRetry}>
+							<Trans>Check the PDF again</Trans>
 						</Button>
-					)}
-					<Button variant="ghost" disabled={locked} onClick={() => ignore(issue)}>
-						<Trans>Keep as it is</Trans>
-					</Button>
-				</div>
-			</SectionCard>
-		</li>
+					)
+				)}
+			</AlertActions>
+		</Alert>
 	);
 }
