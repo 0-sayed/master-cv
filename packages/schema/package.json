@@ -4,6 +4,7 @@
 	"type": "module",
 	"private": true,
 	"exports": {
+		"./job-evidence": "./src/job-evidence.ts",
 		"./ai-operation": "./src/ai-operation.ts",
 		"./ai-usage": "./src/ai-usage.ts",
 		"./career": "./src/career.ts",

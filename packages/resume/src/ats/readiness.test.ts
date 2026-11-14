@@ -1,6 +1,7 @@
 import type { PdfAtsReport } from "../ats-pdf/types";
 import { describe, expect, it } from "vite-plus/test";
-import { pdfReadiness, invalidateReadiness, emptyReadiness } from "./readiness";
+import { analyzeJobTerms } from "./job-evidence";
+import { pdfReadiness, jobReadiness, invalidateReadiness, emptyReadiness } from "./readiness";
 const source = {
 	ownerId: "alice",
 	resumeId: "cv",
@@ -20,6 +21,37 @@ const report = (partial = false) =>
 		skippedChecks: 0,
 	}) as unknown as PdfAtsReport;
 describe("independent readiness", () => {
+	it("publishes literal job coverage separately and rejects a different source revision", () => {
+		const jobSource = {
+			...source,
+			jobId: "job",
+			jobRevision: "j1",
+			rubricVersion: "literal-v1",
+			normalizationVersion: "matching-v2",
+		};
+		const identity = {
+			resumeId: source.resumeId,
+			resumeRevision: source.baseRevision,
+			contentHash: source.contentHash,
+			jobId: jobSource.jobId,
+			jobRevision: jobSource.jobRevision,
+			rubricVersion: jobSource.rubricVersion,
+			normalizationVersion: jobSource.normalizationVersion,
+		};
+		const jobReport = analyzeJobTerms({ identity, jobText: "React, SAP", passages: [] });
+		const result = jobReadiness(jobSource, jobReport);
+		expect(result).toMatchObject({ dimension: "job", state: "complete", options: { denominator: 2, matchedCount: 0 } });
+		expect(() => jobReadiness({ ...jobSource, jobRevision: "j2" }, jobReport)).toThrow("JOB_SOURCE_CHANGED");
+		const initial = { pdf: pdfReadiness(source, report()), writing: emptyReadiness("writing"), job: result };
+		const next = invalidateReadiness(initial, "job");
+		expect(next.job.state).toBe("stale");
+		expect(next.pdf).toBe(initial.pdf);
+		expect(next.writing).toBe(initial.writing);
+		expect(
+			jobReadiness(jobSource, analyzeJobTerms({ identity: jobReport.identity, jobText: "and the", passages: [] }))
+				.state,
+		).toBe("skipped");
+	});
 	it("never labels partial, truncated or unmeasured output complete", () => {
 		expect(pdfReadiness(source, report(true)).state).toBe("partial");
 		expect(pdfReadiness(source, { ...report(), document: { ...report().document, truncated: true } }).state).toBe(
