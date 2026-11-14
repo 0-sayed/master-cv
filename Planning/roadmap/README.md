@@ -38,7 +38,7 @@ The fork-specific [bootstrap](../bootstrap.md) supersedes the earlier generic gr
 - Product PR/issue destination is `0-sayed/master-cv`; preserve the reviewed upstream relationship. Audit inherited
   deployment/publication before pushing; bootstrap does not authorize publication, paid resources or live deployment.
 
-T000 stays [ ] pending until authorized merge.
+Task rows and matching Mermaid classes change when the PR is first shipped (owner decision 2026-11-14). The checkbox records delivery bookkeeping; all release gates and branch protection still apply. Unshipped work stays pending.
 
 ## Why the dependency graph is shaped this way
 
@@ -88,7 +88,7 @@ Reject newly added raw UI font/color/spacing/radius values and control-size over
   synthetic/sandbox evidence from real-route, Word-viewer and production evidence; record failed/unavailable checks.
 - Preserve A01-A16 as applicable gates, never inferred passes. Record tested commits, fixtures/configuration,
   artifacts, unresolved decisions and unavailable features. Complete reviews required for the actual merge scope.
-- Only authorized merge and acceptance accounting permits [x]; update the graph and Mermaid class together.
+- Mark [x] when the task PR is first shipped (owner decision 2026-11-14); update the graph and Mermaid class together.
   Merging engineering work does not authorize external activation or complete open release gates.
 
 ## External gates and owner actions
