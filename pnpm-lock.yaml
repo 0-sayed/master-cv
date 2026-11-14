@@ -2021,6 +2021,9 @@ importers:
       '@playwright/test':
         specifier: ^1.64.1
         version: 1.64.1
+      '@reactive-resume/api':
+        specifier: workspace:*
+        version: link:../packages/api
       '@reactive-resume/config':
         specifier: workspace:*
         version: link:../packages/config
@@ -2051,6 +2054,9 @@ importers:
       esbuild:
         specifier: 'catalog:'
         version: 0.28.2
+      happy-dom:
+        specifier: ^21.0.4
+        version: 21.0.4
       node-html-parser:
         specifier: 9.0.5
         version: 9.0.5

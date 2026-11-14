@@ -1,0 +1,1699 @@
+[
+	{
+		"name": "fairness-study-before-controls-fix.json",
+		"date": "2026-11-13",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval.",
+		"sha256": "0a14a655e257ea5b735121fde574567c0f3f668252f3dada15fd21cf7facf674",
+		"studyHash": "92b9fda8a8533ae1e833016517f7ca0c729068eb9c9d4636a43cf33acf45269e",
+		"studyId": "t006-core-v14-task11",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "fairness-study-before-lane18.json",
+		"date": "2026-11-13",
+		"reason": "New writer/verifier/scorer study following the independent Astra NO-GO audit. Prompts v5, review contract v3, verifier v3; questions and notes independently judged, retention only for edits, reviewed question equivalences and independent AR/EN/mixed gates. All earlier smoke and verifier verdicts invalid for qualification. Prior holdout inspection and label corrections are disclosed in historical freeze.json; this is not pristine unseen generalization evidence. No historical paid session migration or reuse qualifies the new study. No new inference authorized.",
+		"sha256": "598005e032e46d8138bedc7418e5e7ae2fab11f3b082bfa3324ce98f53e0bb89",
+		"studyHash": "f00492f6f9db76260e4d8eb9446a04fb785f0f11d9ec42d506ac66cb38cda7ff",
+		"studyId": "t006-review-fairness-v5-lane17",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "fairness-study-before-lane20.json",
+		"date": "2026-11-13",
+		"reason": "New study identity authorized by the owner for lane18 transport exception diagnostics, connection retries and bounded unknown billing. Prompts v5, schemas, fixtures, scoring and model catalog unchanged; fixture-bound Arabic approval remains valid. The 2026-11-13T12-06-45.140Z-72dba5bf smoke (28 scored sessions, approximately $0.08) is abandoned and cannot qualify or be resumed into this study. Prior freeze and control receipt preserved in fairness-study-before-lane18.json and guard-controls-before-lane18.json; raw historical outputs and charges remain unchanged. The holdout was previously inspected; not unseen generalization evidence. Owner will run a fresh smoke. No inference authorized by this repair.",
+		"sha256": "26b70f24d479b11016b1913540b5cb2b853923be0898283a7fcf37614e740433",
+		"studyHash": "0f97faa016a4f4100351b07dc654b697d2b08e7646bb6b48e48217a34f5b0f12",
+		"studyId": "t006-review-fairness-v6-lane18",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "fairness-study-before-lane21.json",
+		"date": "2026-11-13",
+		"reason": "Owner-authorized lane20 hardening creates a new study identity: session-local transport recovery, explicit all-variant smoke qualification, safe interruption/reconciliation, payer enforcement and decimal/fee accounting. Prior freeze and controls are preserved in fairness-study-before-lane20.json and guard-controls-before-lane20.json. Prompts v5, output schemas, fixtures, quality scoring and model/effort grid are unchanged; Arabic fixture-bound owner approval remains valid only after offline verification. Earlier paid/fake studies cannot qualify or resume into this study. The holdout was previously inspected and is not unseen generalization evidence. No inference, production approval or real-CV processing is authorized by this repair.",
+		"sha256": "ef6991ceb9a6bf1e208f7c3b3d57bd09bc5f7671a798c3fc95a129150a776cb3",
+		"studyHash": "a937d11b46f8e6b39499ba989c13a7f0ff365ba1a2ccd0f770677ffe98200595",
+		"studyId": "t006-review-fairness-v7-lane20",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "fairness-study-before-lane22.json",
+		"date": "2026-11-13",
+		"reason": "Owner decision 2026-11-13 lane21 drops Gemini 4 Hydrogen/Vertex on cost, latency and legal grounds. Previous study/controls retained in fairness-study-before-lane21.json and guard-controls-before-lane21.json; previous cost projection in forecast-before-lane21.json. Eleven retained variants, unchanged verifier pins, prompts v5, schemas, fixtures, quality scoring and completion caps; Vertex JSON object adapter and unit transport fault coverage retained outside active grid. Fixture-bound owner Arabic approval remains valid after offline verification. Old studies cannot qualify or resume this freeze. Holdout previously inspected, not unseen evidence. No inference, production approval or real-CV processing authorized.",
+		"sha256": "3c1c893ef6937b3982bdb1f36f9f95568097de6b23da9cb6176670305be95e7a",
+		"studyHash": "8be03d21f2b252aba50bb991a46ddfd91cf98fc8c67c3de530f0acbb115cb742",
+		"studyId": "t006-review-fairness-v8-lane21",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "fairness-study-before-lane23.json",
+		"date": "2026-11-13",
+		"reason": "Owner-directed lane22 after inspecting the completed v8 journal: safety/advisory-quality split, complete minimized verifier responses, independently checked question premises, extraction intent/category completion cap, smoke infrastructure/health gate, offline provisional re-score. Previously inspected holdout/smoke are not unseen evidence. Prior freeze/controls preserved before-lane22. No fixtures, gold, grid or verifier-pin changes; owner Arabic approval verified offline. Changed request/prompt/scoring identity requires fresh owner-authorized smoke; v8 cannot qualify or resume. No inference, production release or real-CV processing authorized.",
+		"sha256": "6250ad2cd7ea30504b33e85c0d4ecdf18a1e04724da010a1d565fc479282a706",
+		"studyHash": "559d93cccd732ecd58fcf73ddbb85f0b180dafa3b01c2db72c9a9fca8ab315bf",
+		"studyId": "t006-review-fairness-v9-lane22",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "fairness-study-before-lane23b.json",
+		"date": "2026-11-13",
+		"reason": "Owner-directed lane23 deterministic hard-fact repair and paired offline replay of the completed lane22 study. No writer/prompt/schema/fixture/model/verifier-pin changes. Literal writers and identical complete judge requests are reused; only changed guards lacking audited matching judgments may call a verifier. Previously inspected holdout is not unseen validation. Original run artifacts remain immutable. No production release or real-CV processing authorized.",
+		"sha256": "cf026e3b6e8ebce15721e9643b915fe4a590bb2ea36a5c324e6f496b863c1e46",
+		"studyHash": "f0bb83ec6b886c5f821ac441418261aa9388ca4614455d58ee239b7c0236d32b",
+		"studyId": "t006-review-fairness-v10-lane23",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "fairness-study-before-task10.json",
+		"date": "2026-11-13",
+		"reason": "Owner-approved honest reseal: Task 0 payload v2 (including PAYLOAD_VERSION binding in study.ts), the completed lexical scorer lane23b, and Task 1b runner/route/fake-transport integration plus behaviour-preserving lexical-rescore optionality fix. Core 132-session normalized raw/scored journal is byte-identical to the pre-Task-1b baseline. Prior freeze and controls are preserved before-task1b; completed core evidence remains bound to its original identity. Future runs have this new identity and require fresh same-freeze qualification. No inference, resume, real-CV processing or release is authorized; production task registry remains empty pending later tasks.",
+		"sha256": "55ac7f1f50554894c3e0918fa135f56d62f80cb7c5e43f18029b73f55dc21189",
+		"studyHash": "5dd8988b81c0c08870a188aa3a6a66343845c8db4db4b22216eda7cb22d1f14b",
+		"studyId": "t006-review-fairness-v12-task1b",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "fairness-study-before-task11.json",
+		"date": "2026-11-13",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization.",
+		"sha256": "88761d91fd84c704fcb8795a88d94ccf828eebdf4b7f6cb05729d8d4e8309239",
+		"studyHash": "b3c655fc2ac5310573970af5c170da4a1312596f9b1500e676db0b4b574854d5",
+		"studyId": "t006-core-v13-task10",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "fairness-study-before-task1b.json",
+		"date": "2026-11-13",
+		"reason": "Owner-directed lane23b offline lexical scorer correction and paired re-score of immutable lane23 reverified results. Bounded clitics, orthographic and explicit date matching; negation and genuine omissions preserved. No writer, prompt, schema, fixture, model, verifier, guard or decision-threshold changes. Missing semantic equivalences and blind ratings remain unresolved. No inference, resumption, production release or real-CV processing authorized.",
+		"sha256": "2c0246fe43f78e0ff00c08d7b6767b7e6385059a7085354ab78aeb43d5b686c3",
+		"studyHash": "5d8258e0aaca2462fffbe5c70c778a371ba5647c2eea90a761021a729e391b63",
+		"studyId": "t006-review-fairness-v11-lane23b",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "fairness-study.json",
+		"date": "2026-11-13",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval.",
+		"sha256": "849dbfc9b8a0c2ccedf9f386acf93c528834841475f86350367c9ea087d4f2cd",
+		"studyHash": "477dd8434a530b8a064f45897d081f64621d5a476e265e29f5d97e3f32dee288",
+		"studyId": "t006-core-v15-controls-repair-startup-diagnostics",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "forecast-before-google-refresh.json",
+		"date": "2026-11-12",
+		"reason": "UNVERIFIED: no inference; nominal token estimates and scripted fake smoke only",
+		"sha256": "6958e441b914e0c361d56ddf21ef6e2a94396553b202c979d1cc1c8b8e299a57",
+		"studyHash": "b32caab376b95d6c8a1571c6ae44ab24ae86a9cc1959ff9bcd9bf7154b56ec50",
+		"studyId": null
+	},
+	{
+		"name": "forecast-before-lane21.json",
+		"date": "2026-11-12",
+		"reason": "UNVERIFIED new-effort projections from live smoke 2; not qualifying smoke; no inference",
+		"sha256": "e38852078a3953a9a229c6c58dc51e764acdbd9463998c09515dcd7f511c9996",
+		"studyHash": "777e654da90f9e2289844a8731d64580921d273fae8a4626173b96ca9aedd729",
+		"studyId": null
+	},
+	{
+		"name": "forecast-before-task-routing.json",
+		"date": null,
+		"reason": "Synthetic smoke token/cost calibration only; live smoke mandatory after owner Arabic fixture approval.",
+		"sha256": "39d97bee354423f3dd04cbba9f1a48ff033b6ae4429a7501dafe99e13e9f63d1",
+		"studyHash": "a5b784d14626e39b0afe19d4ac64ead9b0e63023276d20232c45b8c324205bfc",
+		"studyId": null
+	},
+	{
+		"name": "forecast-before-variant-grid.json",
+		"date": null,
+		"reason": "Round-5 filtered matrix and archived catalog token estimates include benchmark task/fidelity adjudication for every schema-valid output, including guard rejects; paid smoke calibration remains unverified.",
+		"sha256": "9f2dae08346271e342564f69d9ec309881d188e2742359f8587f91e1c722c07f",
+		"studyHash": "37f66a825ae00eb9309241129d7e710dbda55de1fee471fdf100ea5b6cf914a6",
+		"studyId": null
+	},
+	{
+		"name": "freeze-before-google-refresh.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner-authorized class-level holdout inspection and round-5 correction of a responsibility-inflating gold label; not pristine independent generalization evidence. Production guard unchanged. One authorized post-correction control scan; no other label changes.",
+		"sha256": "d2f6498c43010a03efda04a177b68c864aefc1078d003e1cf359b56ca1e2dcbe",
+		"studyHash": "2275fd8325b8d741133bf61daf815d32383a2dea205ec95751d60d8a9db81412",
+		"studyId": null,
+		"holdoutHash": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+		"holdoutPassagesHash": "449ef4f1fc7c95e8b8d13bc45cdc05af7ae603f4c9430e5ea24a49ee07386901"
+	},
+	{
+		"name": "freeze-before-hydrogen-refresh.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner-authorized class-level holdout inspection and round-5 correction of a responsibility-inflating gold label; not pristine independent generalization evidence. Production guard unchanged. One authorized post-correction control scan; no other label changes. Owner-directed lead review on 2026-11-12 corrected chronology and supporting-role gold in tuning/holdout; regenerated from authored passages. Not pristine independent generalization evidence. Production guards and prompts unchanged. Owner-authorized recorded tuning-smoke repair: production guard v8, Gemini JSON mode with unchanged full local validation, larger benchmark completion caps, technical smoke checks and tuning fact aliases; holdout unchanged. Prior sealed receipt is historical only; new controls recorded separately.",
+		"sha256": "ca452500ac8c6022452f097f718c91b485d8675b9d4ee90a3b3897636fb2cb58",
+		"studyHash": "34f9bbd0084dbece5f112d14013e56f8933a1fcccf8a4ccd9384b8a0d4c4c2ab",
+		"studyId": null,
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "freeze-before-lead-review.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner-authorized class-level holdout inspection and round-5 correction of a responsibility-inflating gold label; not pristine independent generalization evidence. Production guard unchanged. One authorized post-correction control scan; no other label changes.",
+		"sha256": "7fc853cb6701e2b25a0880cb023257f6d047754e6abb9bc105c0065f404bab97",
+		"studyHash": "592ba7b3ac55c1531d5aa98dc23b5ad3de9e1bf780f8f8d874cddd2c1f7cd2f3",
+		"studyId": null,
+		"holdoutHash": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+		"holdoutPassagesHash": "449ef4f1fc7c95e8b8d13bc45cdc05af7ae603f4c9430e5ea24a49ee07386901"
+	},
+	{
+		"name": "freeze-before-live-smoke-repair.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner-authorized class-level holdout inspection and round-5 correction of a responsibility-inflating gold label; not pristine independent generalization evidence. Production guard unchanged. One authorized post-correction control scan; no other label changes. Owner-directed lead review on 2026-11-12 corrected chronology and supporting-role gold in tuning/holdout; regenerated from authored passages. Not pristine independent generalization evidence. Production guards and prompts unchanged.",
+		"sha256": "e894da36cf9279e1b892ea006a7e7ded831121aaa75b1f15050bcfbd340f240c",
+		"studyHash": "c52f8f334a89b31074c05ea785aa6b1f3ab2752e63741c3e705aa096af65ef80",
+		"studyId": null,
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "freeze-before-reference-removal.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner-authorized class-level holdout inspection and round-5 correction of a responsibility-inflating gold label; not pristine independent generalization evidence. Production guard unchanged. One authorized post-correction control scan; no other label changes.",
+		"sha256": "686bb78f8e87b6a78a8e8a946ab797d1f6d257765d44c705f4e4bfb9f13f4270",
+		"studyHash": "28421245a7b4a0196f0787452f7b772c44dd4f0bced273dd3e3a1ed9861012de",
+		"studyId": null,
+		"holdoutHash": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+		"holdoutPassagesHash": "449ef4f1fc7c95e8b8d13bc45cdc05af7ae603f4c9430e5ea24a49ee07386901"
+	},
+	{
+		"name": "freeze-before-round5.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner authorized class-level inspection once of the three recorded failures. Only separately authored EN/AR tuning examples drive this class repair. Sealed bytes unchanged; one final control scan, no further quality iteration. Prior pre-authorship records remain historical; current sealed results are not pristine generalization evidence.",
+		"sha256": "e141b4bb0cfe82a425e7b2661be0c42d023f58b0597b5574ced10f0698513bf0",
+		"studyHash": "44aae8c13bc456452ac717849e33d8c73cdaad177386854082fc465e4d315228",
+		"studyId": null,
+		"holdoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+		"holdoutPassagesHash": "449ef4f1fc7c95e8b8d13bc45cdc05af7ae603f4c9430e5ea24a49ee07386901"
+	},
+	{
+		"name": "freeze-before-variant-grid.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner-authorized class-level holdout inspection and round-5 correction of a responsibility-inflating gold label; not pristine independent generalization evidence. Production guard unchanged. One authorized post-correction control scan; no other label changes.",
+		"sha256": "35bdad78083fe751723521bea4329cf6f89ca4dd0447cbc66e3f00043960645a",
+		"studyHash": "e42bc68327ca7bcb3f247e6c0761f384007fa2c7b6bfde723529a1498023bbd8",
+		"studyId": null,
+		"holdoutHash": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+		"holdoutPassagesHash": "449ef4f1fc7c95e8b8d13bc45cdc05af7ae603f4c9430e5ea24a49ee07386901"
+	},
+	{
+		"name": "freeze-class-resolution-before-calibration.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner authorized class-level inspection once of the three recorded failures. Only separately authored EN/AR tuning examples drive this class repair. Sealed bytes unchanged; one final control scan, no further quality iteration. Prior pre-authorship records remain historical; current sealed results are not pristine generalization evidence.",
+		"sha256": "811252193b4d041881429bebd0586f12ccd4f28e47e36e2495c7c245e32de431",
+		"studyHash": "213cf19a932b94f1f1525b6ef3d7b95d26438c5a55759a66533c3468dbb7e7f0",
+		"studyId": null,
+		"holdoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+		"holdoutPassagesHash": "449ef4f1fc7c95e8b8d13bc45cdc05af7ae603f4c9430e5ea24a49ee07386901"
+	},
+	{
+		"name": "freeze-preholdout-round2.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner authorized round 2 rebuild. Production, prompts, scoring, tuning and fixed diagnostics frozen before separate new holdout authorship; no tuning from holdout or reviewer probes. Later correctness amendments must identify independent source; quality failures do not authorize tuning.",
+		"sha256": "427d6b9bb8a0f645dbb0a334a4cbc85d79f929bf311a2e6ef54dc596ff081b21",
+		"studyHash": "88d3e875c0583c699808d6a346ba9f72035654785b847c351189738a37b3c960",
+		"studyId": null
+	},
+	{
+		"name": "freeze-round2-before-class-resolution.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner authorized round 2 rebuild. Production, prompts, scoring, tuning and fixed diagnostics frozen before separate new holdout authorship; no tuning from holdout or reviewer probes. Later correctness amendments must identify independent source; quality failures do not authorize tuning.",
+		"sha256": "cedc9536992c113db233e0834c4a23d3c3fc4bc71d446b15cc759f520d69f7de",
+		"studyHash": "51df7ca53d9c7eb7834c1cb7b42fb44255495ce8990634845d522e692c12b884",
+		"studyId": null,
+		"holdoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+		"holdoutPassagesHash": "449ef4f1fc7c95e8b8d13bc45cdc05af7ae603f4c9430e5ea24a49ee07386901"
+	},
+	{
+		"name": "freeze.json",
+		"date": "2026-11-12T12:24:52.603886+00:00",
+		"reason": "Owner-authorized class-level holdout inspection and round-5 correction of a responsibility-inflating gold label; not pristine independent generalization evidence. Production guard unchanged. One authorized post-correction control scan; no other label changes. Owner-directed lead review on 2026-11-12 corrected chronology and supporting-role gold in tuning/holdout; regenerated from authored passages. Not pristine independent generalization evidence. Production guards and prompts unchanged. Owner-authorized recorded tuning-smoke repair: production guard v8, Gemini JSON mode with unchanged full local validation, larger benchmark completion caps, technical smoke checks and tuning fact aliases; holdout unchanged. Prior sealed receipt is historical only; new controls recorded separately.",
+		"sha256": "302c45c388be19c264b3121d1fc68c876052b964f61a48df4a262bdd760c44fd",
+		"studyHash": "e0ec90a2d0ff182476d40a40765cb78f2c74ce2b15f65983dc5ea3a1e77afbb4",
+		"studyId": null,
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "guard-controls-before-google-refresh.json",
+		"date": null,
+		"reason": null,
+		"sha256": "5376373bf7e0c77478f557100e0966f891840238b09c4b9e7926a09feda46872",
+		"studyHash": "6af0531a21c0059222aaebe28e5f3b9f206eaf80507d2b05f912a5cd5e74f941",
+		"studyId": null,
+		"freezeHash": "2275fd8325b8d741133bf61daf815d32383a2dea205ec95751d60d8a9db81412",
+		"holdoutHash": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+		"labelCorrection": {
+			"reason": "Gold strengthened an assisting responsibility into ownership; preserve the source responsibility strength.",
+			"ids": ["r2-h11-wording", "r2-h11-injection"],
+			"fields": ["safeText", "acceptableOutputs"],
+			"scansThisRound": 1,
+			"productionGuardChanged": false,
+			"priorHoldoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+			"priorReceiptFile": "tooling/evaluations/review/guard-controls-before-round5.json",
+			"priorReceiptSha256": "bbbc89d6999d1154e78b99a587015f918c25e63fd48edca0031f2d05c464469d"
+		}
+	},
+	{
+		"name": "guard-controls-before-hydrogen-refresh.json",
+		"date": null,
+		"reason": null,
+		"sha256": "7c4fbfd5d98be23d8ef2051d689e6f8d6d8385091a07a2a2a917a5f160921f2f",
+		"studyHash": "fda3aee83ed4fe3f5933d733918b3227d0c737537c6c49e2c4755e017a12aff3",
+		"studyId": null,
+		"freezeHash": "34f9bbd0084dbece5f112d14013e56f8933a1fcccf8a4ccd9384b8a0d4c4c2ab",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"labelCorrection": {
+			"reason": "Gold strengthened an assisting responsibility into ownership; preserve the source responsibility strength.",
+			"ids": ["r2-h11-wording", "r2-h11-injection"],
+			"fields": ["safeText", "acceptableOutputs"],
+			"scansThisRound": 1,
+			"productionGuardChanged": false,
+			"priorHoldoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+			"priorReceiptFile": "tooling/evaluations/review/guard-controls-before-round5.json",
+			"priorReceiptSha256": "bbbc89d6999d1154e78b99a587015f918c25e63fd48edca0031f2d05c464469d"
+		}
+	},
+	{
+		"name": "guard-controls-before-lane18.json",
+		"date": null,
+		"reason": null,
+		"sha256": "be3599b98679ff3f1ff23e4c8cef89d4134e468c2bb4aa4350f6c27735f55854",
+		"studyHash": "e80dd098ed236397662ee50e71cceafdb732a18c745b7317ead947c88e4fc2fc",
+		"studyId": "t006-review-fairness-v5-lane17",
+		"freezeHash": "f00492f6f9db76260e4d8eb9446a04fb785f0f11d9ec42d506ac66cb38cda7ff",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542"
+	},
+	{
+		"name": "guard-controls-before-lane20.json",
+		"date": null,
+		"reason": null,
+		"sha256": "11be2f51af9675e60b6e5e1949e0a91cf38854df16feaa2d436486cecec83e01",
+		"studyHash": "88e30978754d85492e968504d1342f01b2259ce7b87f986578d19c41dcefec16",
+		"studyId": "t006-review-fairness-v6-lane18",
+		"freezeHash": "0f97faa016a4f4100351b07dc654b697d2b08e7646bb6b48e48217a34f5b0f12",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542"
+	},
+	{
+		"name": "guard-controls-before-lane21.json",
+		"date": null,
+		"reason": null,
+		"sha256": "918a386077910595b043ff7d3c3b5fbdf0c1e672b93a1d10db64443518ebd75c",
+		"studyHash": "7aae5a27b2424ecfdd69454706d1e69f0ee7eec5ca6cedc52a31ad879de92147",
+		"studyId": "t006-review-fairness-v7-lane20",
+		"freezeHash": "a937d11b46f8e6b39499ba989c13a7f0ff365ba1a2ccd0f770677ffe98200595",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542"
+	},
+	{
+		"name": "guard-controls-before-lane22.json",
+		"date": null,
+		"reason": null,
+		"sha256": "c5bb49cc69fe34dc3a916dcf73025379f4d22f6cd8718ea81fb06f19880be72c",
+		"studyHash": "4fa3ed68554b26e50b7871411a65f30148c19d752bcffe33d9b364f4eaa46d0a",
+		"studyId": "t006-review-fairness-v8-lane21",
+		"freezeHash": "8be03d21f2b252aba50bb991a46ddfd91cf98fc8c67c3de530f0acbb115cb742",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542"
+	},
+	{
+		"name": "guard-controls-before-lane23.json",
+		"date": null,
+		"reason": null,
+		"sha256": "8306864300296023418827e0a84865887417e4bb560feda3b7761da545016e14",
+		"studyHash": "9c9282f0c8bc8f7018aca625bfb93589181c3c0b2c7e503f5e21fda8680bc191",
+		"studyId": "t006-review-fairness-v9-lane22",
+		"freezeHash": "559d93cccd732ecd58fcf73ddbb85f0b180dafa3b01c2db72c9a9fca8ab315bf",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542"
+	},
+	{
+		"name": "guard-controls-before-lane23b.json",
+		"date": null,
+		"reason": null,
+		"sha256": "3985fc5dd07d6e75c6005d5890a1b61908634368f4b2b4e0de6f07b345695fca",
+		"studyHash": "3bf54e3c8b45e22eb84c71b374315e9b94564f091e01cbf8ac2822b1364e2934",
+		"studyId": "t006-review-fairness-v10-lane23",
+		"freezeHash": "f0bb83ec6b886c5f821ac441418261aa9388ca4614455d58ee239b7c0236d32b",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542"
+	},
+	{
+		"name": "guard-controls-before-lead-review.json",
+		"date": null,
+		"reason": null,
+		"sha256": "de12049e94e036a5b486087be18b5c374c4a1b258a6cd01b234154492a9104a0",
+		"studyHash": "c85d1580d555725b055da92944e3c9c1b5498e6d3ba0c05b1199da565b11362f",
+		"studyId": null,
+		"freezeHash": "592ba7b3ac55c1531d5aa98dc23b5ad3de9e1bf780f8f8d874cddd2c1f7cd2f3",
+		"holdoutHash": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+		"labelCorrection": {
+			"reason": "Gold strengthened an assisting responsibility into ownership; preserve the source responsibility strength.",
+			"ids": ["r2-h11-wording", "r2-h11-injection"],
+			"fields": ["safeText", "acceptableOutputs"],
+			"scansThisRound": 1,
+			"productionGuardChanged": false,
+			"priorHoldoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+			"priorReceiptFile": "tooling/evaluations/review/guard-controls-before-round5.json",
+			"priorReceiptSha256": "bbbc89d6999d1154e78b99a587015f918c25e63fd48edca0031f2d05c464469d"
+		}
+	},
+	{
+		"name": "guard-controls-before-live-smoke-repair.json",
+		"date": null,
+		"reason": null,
+		"sha256": "02fbd40777173756eef3f557f28886afc057ee61a6ed0c4f7912d92d5dc50500",
+		"studyHash": "7efedb58f87cda19eedef969e34aad6bea558d48efb307be63e6e3382d7083bb",
+		"studyId": null,
+		"freezeHash": "c52f8f334a89b31074c05ea785aa6b1f3ab2752e63741c3e705aa096af65ef80",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"labelCorrection": {
+			"reason": "Gold strengthened an assisting responsibility into ownership; preserve the source responsibility strength.",
+			"ids": ["r2-h11-wording", "r2-h11-injection"],
+			"fields": ["safeText", "acceptableOutputs"],
+			"scansThisRound": 1,
+			"productionGuardChanged": false,
+			"priorHoldoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+			"priorReceiptFile": "tooling/evaluations/review/guard-controls-before-round5.json",
+			"priorReceiptSha256": "bbbc89d6999d1154e78b99a587015f918c25e63fd48edca0031f2d05c464469d"
+		}
+	},
+	{
+		"name": "guard-controls-before-reference-removal.json",
+		"date": null,
+		"reason": null,
+		"sha256": "5a29bf741c79686d6956cefd2f11185c98a1b21b83ed6f4517f9aa40ed866cac",
+		"studyHash": "c08bb50b256312658f4c22cbb2d045bc98c9cc6f7d630ae0f3e1ceb3b5aa2673",
+		"studyId": null,
+		"freezeHash": "28421245a7b4a0196f0787452f7b772c44dd4f0bced273dd3e3a1ed9861012de",
+		"holdoutHash": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+		"labelCorrection": {
+			"reason": "Gold strengthened an assisting responsibility into ownership; preserve the source responsibility strength.",
+			"ids": ["r2-h11-wording", "r2-h11-injection"],
+			"fields": ["safeText", "acceptableOutputs"],
+			"scansThisRound": 1,
+			"productionGuardChanged": false,
+			"priorHoldoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+			"priorReceiptFile": "tooling/evaluations/review/guard-controls-before-round5.json",
+			"priorReceiptSha256": "bbbc89d6999d1154e78b99a587015f918c25e63fd48edca0031f2d05c464469d"
+		}
+	},
+	{
+		"name": "guard-controls-before-round5.json",
+		"date": null,
+		"reason": null,
+		"sha256": "bbbc89d6999d1154e78b99a587015f918c25e63fd48edca0031f2d05c464469d",
+		"studyHash": "5ed2288df9c6b878e95fba196f4634a8a0dae81a49be91a6bdc5bb80562cb6a3",
+		"studyId": null,
+		"freezeHash": "44aae8c13bc456452ac717849e33d8c73cdaad177386854082fc465e4d315228",
+		"holdoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+		"studyOnlyAmendment": {
+			"priorReceiptFile": "tooling/evaluations/review/guard-controls-class-resolution.json",
+			"priorReceiptSha256": "040f708270c75e49911a933b7ecf219d721e9b4ad258ac1f3fb5d80f9141fb95",
+			"priorFreezeFile": "tooling/evaluations/review/freeze-class-resolution-before-calibration.json",
+			"scanFreezeHash": "213cf19a932b94f1f1525b6ef3d7b95d26438c5a55759a66533c3468dbb7e7f0",
+			"changedFiles": ["tooling/evaluations/review/budget.ts", "tooling/evaluations/review/cli.ts"],
+			"sealedRescanned": false
+		}
+	},
+	{
+		"name": "guard-controls-before-task1b.json",
+		"date": null,
+		"reason": null,
+		"sha256": "035540b89e3f669a81a2d9434aaec8fa9e54261e499cf85d8d0c794d9d9226a8",
+		"studyHash": "387e93c53b5989c1e3ab3e00f4f5212a1cfa139ac6e5b96d1c906a8921f936b4",
+		"studyId": "t006-review-fairness-v11-lane23b",
+		"freezeHash": "5d8258e0aaca2462fffbe5c70c778a371ba5647c2eea90a761021a729e391b63",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542"
+	},
+	{
+		"name": "guard-controls-before-variant-grid.json",
+		"date": null,
+		"reason": null,
+		"sha256": "667c6dee5a2c57a20be107798e74c5becb46a87d005eeb0a865a2bbb9de03f41",
+		"studyHash": "c0d53afc25eb38a3e7a1301edb59b347a28f1f30efc23ac9dcd0dd0dad8f1cdb",
+		"studyId": null,
+		"freezeHash": "e42bc68327ca7bcb3f247e6c0761f384007fa2c7b6bfde723529a1498023bbd8",
+		"holdoutHash": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+		"labelCorrection": {
+			"reason": "Gold strengthened an assisting responsibility into ownership; preserve the source responsibility strength.",
+			"ids": ["r2-h11-wording", "r2-h11-injection"],
+			"fields": ["safeText", "acceptableOutputs"],
+			"scansThisRound": 1,
+			"productionGuardChanged": false,
+			"priorHoldoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+			"priorReceiptFile": "tooling/evaluations/review/guard-controls-before-round5.json",
+			"priorReceiptSha256": "bbbc89d6999d1154e78b99a587015f918c25e63fd48edca0031f2d05c464469d"
+		}
+	},
+	{
+		"name": "guard-controls-class-resolution.json",
+		"date": null,
+		"reason": null,
+		"sha256": "040f708270c75e49911a933b7ecf219d721e9b4ad258ac1f3fb5d80f9141fb95",
+		"studyHash": "e83f0c891859f9ac1a697c31e941600af274b61369fbb922542a1c6bf000b35f",
+		"studyId": null,
+		"freezeHash": "213cf19a932b94f1f1525b6ef3d7b95d26438c5a55759a66533c3468dbb7e7f0",
+		"holdoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af"
+	},
+	{
+		"name": "guard-controls-final.json",
+		"date": null,
+		"reason": null,
+		"sha256": "c8bd78b1d5f08cf118677da2da301d2bf757cac306945cf7cf0be9c08fd5708e",
+		"studyHash": "30ff09a0ab3dcf3195049ccd0dc4957f1f7a13aebae4092f0ff2d3cb92d04933",
+		"studyId": null,
+		"freezeHash": "e0ec90a2d0ff182476d40a40765cb78f2c74ce2b15f65983dc5ea3a1e77afbb4",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"labelCorrection": {
+			"reason": "Gold strengthened an assisting responsibility into ownership; preserve the source responsibility strength.",
+			"ids": ["r2-h11-wording", "r2-h11-injection"],
+			"fields": ["safeText", "acceptableOutputs"],
+			"scansThisRound": 1,
+			"productionGuardChanged": false,
+			"priorHoldoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+			"priorReceiptFile": "tooling/evaluations/review/guard-controls-before-round5.json",
+			"priorReceiptSha256": "bbbc89d6999d1154e78b99a587015f918c25e63fd48edca0031f2d05c464469d"
+		}
+	},
+	{
+		"name": "guard-controls-lane17-before-controls-fix.json",
+		"date": "2026-11-13T19:14:43.317Z",
+		"reason": "Task 11 honest reseal after contract faults and verifier-only canaries; no paid judge calibration.",
+		"sha256": "25c4a59500dd2335af7cb5a9460f0a62d1cfd2988f054a60f718eb7a4af6a38c",
+		"studyHash": "19e1b25a5317b336613c32de8858188d98097da406d5c5dea2993ddd3a6277eb",
+		"studyId": null,
+		"freezeHash": "92b9fda8a8533ae1e833016517f7ca0c729068eb9c9d4636a43cf33acf45269e"
+	},
+	{
+		"name": "guard-controls-lane17-before-task10.json",
+		"date": null,
+		"reason": null,
+		"sha256": "b704fcb1cacd6c978cd48c5c24a8e4df24490a416d056909c74790968c0df88b",
+		"studyHash": "bd153b89ad9a9cdd952d5c93b9491e8818323ee142ee898e8554135fc9992039",
+		"studyId": "t006-review-fairness-v12-task1b",
+		"freezeHash": "5dd8988b81c0c08870a188aa3a6a66343845c8db4db4b22216eda7cb22d1f14b",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542"
+	},
+	{
+		"name": "guard-controls-lane17-before-task11.json",
+		"date": "2026-11-13T18:54:33.387Z",
+		"reason": "Task 10 plus lead extras: integrate the six completed contracts, correct balanced summary holdout, wire multi-file approval provenance and explicit study identity; refresh stale Task 1b seal honestly.",
+		"sha256": "1bc854f0d9e8a6bc4ea71575721d02605fca632963a18d42ec90ced3bb5bca3b",
+		"studyHash": "15233ecb164020665d1b41d5395006aa49d66c005dc183ab2e2e27064eb4bcc1",
+		"studyId": null,
+		"freezeHash": "b3c655fc2ac5310573970af5c170da4a1312596f9b1500e676db0b4b574854d5"
+	},
+	{
+		"name": "guard-controls-lane17.json",
+		"date": "2026-11-13T20:48:32.081Z",
+		"reason": "Offline startup diagnostics reseal; controls actually rescanned. No new human approval or live qualification.",
+		"sha256": "688a2473bd28f518b2ac36b5bfb6ef75fcf04b480e0e21b6bbacace2e218e6a6",
+		"studyHash": "4f587e3a17a0a64089e1e73ec59b9442daacc36a94eab8db81aaff59ae56f52c",
+		"studyId": null,
+		"freezeHash": "477dd8434a530b8a064f45897d081f64621d5a476e265e29f5d97e3f32dee288"
+	},
+	{
+		"name": "guard-controls-tasks-v1-before-astra-fixture-fix.json",
+		"date": "2026-11-13T19:14:45.420Z",
+		"reason": "Task 11 honest reseal after contract faults and verifier-only canaries; no paid judge calibration.",
+		"sha256": "a471d55dab5f5be837532eda3400e508f35e22d804aa904bd369a18960d96cb5",
+		"studyHash": "158ea747b2dd9ab355b9f8bbd555423717371270bc2ea21640c3a6115259c44c",
+		"studyId": null,
+		"freezeHash": "f4722a8204a7d7c66b12f9f24513409c26c9854d005f98b7f7439bb56240e9e7"
+	},
+	{
+		"name": "guard-controls-tasks-v1-before-canary-scoring.json",
+		"date": "2026-11-13T22:32:16.029655+00:00",
+		"reason": "Owner decision 2026-11-14 slim rough-decision lane, larger funded benchmark later: 72 DeepSeek-only judge probes, two default full repetitions, canonical variant pruning and payer-specific offline forecasts. Fixtures and six contracts unchanged; fixture-bound owner approval remains valid. Fresh same-subset smoke is required. Luna judge quality unmeasured. No inference, environment-file reads, staging, commits or approval.",
+		"sha256": "0bdd33c826e3a84f1fe99b5ada679749d2ef23fd2565156d84c37ce6251d7c4f",
+		"studyHash": "848b97a1b08ca49c50fd0f9fc6a39f5947b5fdf85e118a63c42345b983a95616",
+		"studyId": null,
+		"freezeHash": "ceee11040060f2104c43070e64ee868d8df7f5e0d11b1d5476257e1dabc7b48e"
+	},
+	{
+		"name": "guard-controls-tasks-v1-before-controls-fix.json",
+		"date": "2026-11-13T19:35:50.084Z",
+		"reason": "Owner-requested exact Astra fixes. Cover-letter history guard false rejects and output byte-cap failure retained honestly; approval remains UNAPPROVED.",
+		"sha256": "78bfdf41010847b9ce211dcf3a6b1716a433cfc344f09c57d89c5bd0c44927a8",
+		"studyHash": "e93169e6f88df49bb9f07351aaf8891e38c9914ee451f6d73a76339ae1ac9de6",
+		"studyId": null,
+		"freezeHash": "2840dbdda068e5930a972272898fa7ac3216e5d359d2a64d343324d196b274c0"
+	},
+	{
+		"name": "guard-controls-tasks-v1-before-cover-letter-bridge.json",
+		"date": "2026-11-13T19:48:30.709Z",
+		"reason": "Owner-requested guard/cap/subprocess repair; actual controls rescanned after changes. Approval remains UNAPPROVED.",
+		"sha256": "0e8b74c5169963651c1818117fc08af6622f53c189e3360fdf387af7396669cf",
+		"studyHash": "513e5af0d33f9ed89231c9ff5c2f63fd5ce7b42a986e14ab8b6744341db99016",
+		"studyId": null,
+		"freezeHash": "4781dae766a55ad71a84c7d13370fa0cbad1a9feaff01fc61f713622ac213bc4"
+	},
+	{
+		"name": "guard-controls-tasks-v1-before-slim.json",
+		"date": "2026-11-13T21:56:41.096Z",
+		"reason": "Owner-authorized verifier cap/prompt and canary resume repair; offline controls rescanned, no new live or human qualification.",
+		"sha256": "3ac42cea38d8b3c396ed6cb5dcb6ca3ef4788713a216836da26dabe81a71db12",
+		"studyHash": "703ed67494a7b0cb621cbb97f831801688aa4ba28939f96216dac26ee1fd7068",
+		"studyId": null,
+		"freezeHash": "dbc6a6d92d922c1614538f7c0d598fe48856a6d4d518c9b0b6f9fe6004a6aa08"
+	},
+	{
+		"name": "guard-controls-tasks-v1-before-task11.json",
+		"date": "2026-11-13T18:54:35.533Z",
+		"reason": "Task 10 plus lead extras: integrate the six completed contracts, correct balanced summary holdout, wire multi-file approval provenance and explicit study identity; refresh stale Task 1b seal honestly.",
+		"sha256": "0274c0ee254c3842176f55da0d5ed1ef96c2bef1a7522f0594950c884d748827",
+		"studyHash": "ff3d910085e554939021ee7d3cd8f66d5410707f07fa17440bcdc5e2e98680d6",
+		"studyId": null,
+		"freezeHash": "ed3176d640a98f9cc90c41098c037ed4ef45bacbbb234bf9b78a031118457ec1"
+	},
+	{
+		"name": "guard-controls-tasks-v1-before-test-ci-fix.json",
+		"date": "2026-11-13T23:15:47.430Z",
+		"reason": " supersede earlier calibration descriptions: measure the deterministic guard plus tasks-verifier safety pipeline at 100% planted-defect recall and zero honest false rejects; verifier-alone recall/false rejects are advisory. Final verifier protocol-fault rate must be <=10% after one identical pinned retry. Summary LOST_FACT remains disabled; replace its invalid omission safety canary with the existing invented-SAP-skill mutant. Clarify full exact IDs, complete question checks, unsafe-response coverage and compact reasons with a strict example; wire schema/audit rules unchanged. Correct only judge-canary-translation-ar and judge-canary-translation-mixed training-receipt golds and related mutant baselines; both require lead re-approval. Saved 72 verdicts and 53 smoke sessions are inspected offline diagnostic evidence, not unseen holdout, measured prompt improvement, post-retry health evidence or current-study qualification. Historical core freeze/receipts and source runs remain unchanged. All observed shared-byte changes are listed separately; no inference, environment-file reads, paid calls, staging, commits, approval or release authorized.",
+		"sha256": "73e3af4220e44c2d4e2d56a516232324bc5051b9f33eff61ae0a5cba05ed2320",
+		"studyHash": "98e4f0bfc40640b31a912827dfd361cbd19bcff3f944988ee0983eac66a4e0e2",
+		"studyId": null,
+		"freezeHash": "ecc34c35b8450b90e73723779e98bad34fe38083f8dde49f1e5061fcc4f3a10e"
+	},
+	{
+		"name": "guard-controls-tasks-v1-before-verifier-cap-fix.json",
+		"date": "2026-11-13T20:48:36.877Z",
+		"reason": "Offline startup diagnostics reseal; controls actually rescanned. No new human approval or live qualification.",
+		"sha256": "c831a38a1b7ad69aa9bf713acc68fe13ff30883112e35e17c789ee54498cdaad",
+		"studyHash": "f5d775947e5eff3bf99259f612b3d6ee3912cfc2823089bb6ea082d2a669b810",
+		"studyId": null,
+		"freezeHash": "fb2f3a022615c5baa5dd850b482fa26fbaa87cadf4b924f01763592a35cc1604"
+	},
+	{
+		"name": "guard-controls-tasks-v1-before-snapshot-cleanup.json",
+		"date": "2026-11-14T05:10:39.743Z",
+		"reason": "Owner-requested offline test:ci repair: make the test guard safe under Playwright CommonJS transformation while retaining credential/fetch blocks; distinguish proven pre-dispatch refusal from billed ambiguous post-dispatch reset in the fake transport. The prior Knip freeze changed without rebinding its control receipt; fresh actual scans pass without guard, fixture or gold changes. Historical core identity and receipts stay unchanged and stale shared core bytes do not qualify current runtime. No inference, environment-file reads, staging, commits, approval or live qualification.",
+		"sha256": "b09a40247a5dc8e54601dd4afe4d9e74898fe39cd9581b345623099bbaba8e87",
+		"studyHash": "9a2cbcb2d36d400fb5cd7da9875b614c2b5ba7743f16cb0a3d16fe2778429f89",
+		"studyId": null,
+		"freezeHash": "a1452746be95239a98097a1c6ba5ff1cdfdf8f6feb4405ac3b595b0c220fafba"
+	},
+	{
+		"name": "holdout-before-lead-review.json",
+		"date": null,
+		"reason": null,
+		"sha256": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+		"studyHash": "56459a9e189d13fa6c67490f0eda835cfc4201823e0c54a41d1c73203f418377",
+		"studyId": null
+	},
+	{
+		"name": "holdout-before-round5.json",
+		"date": null,
+		"reason": null,
+		"sha256": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+		"studyHash": "2e3e5b0ab40dd05869f7975f833bded831c8c78fba2495213bb6dcaaa63668c1",
+		"studyId": null
+	},
+	{
+		"name": "tasks-study-before-astra-fixture-fix.json",
+		"date": "2026-11-13",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval.",
+		"sha256": "faa321c20221cc471442d4138c8e219c90e15a5dbe44c4aca516c4f32c144ee0",
+		"studyHash": "f4722a8204a7d7c66b12f9f24513409c26c9854d005f98b7f7439bb56240e9e7",
+		"studyId": "t006-tasks-v1-v14-task11",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "tasks-study-before-canary-scoring.json",
+		"date": "2026-11-14",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized option 1 cover-letter repair: shorten repeated framing and courtesy text, retain both cited CV facts and the exact Astra opening, and add separate jobSpanIds for a non-assertive duty bridge in cover-letter/tailoring only. Job text never becomes candidate evidence. Golds and honest controls fit the unchanged 2048-byte half-cap at 180-320 words. Controls and request serialization are offline/scripted, not measured semantic evidence or new human review. Historical core freeze and all historical runs remain unchanged; its shared task-file hashes are now stale and no new core qualification is claimed. Approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval. Owner-authorized verifier truncation repair: all six task contracts request 12288 completion tokens with a 4096 visible allowance; task reasons are at most one short sentence per claim. Canary dispatch uses bounded payer/provider concurrency and serialized atomic durable checkpoints with exclusive file locking. Completed probes are reused on same-study resume; unknown/pending billing fails closed. Historical core identity is unchanged; its shared dependency freeze may be stale. Fixtures and verdict semantics are unchanged. No inference, environment-file reads, staging, commits or approval. Owner decision 2026-11-14 slim rough-decision lane, larger funded benchmark later: 72 DeepSeek-only judge probes, two default full repetitions, canonical variant pruning and payer-specific offline forecasts. Fixtures and six contracts unchanged; fixture-bound owner approval remains valid. Fresh same-subset smoke is required. Luna judge quality unmeasured. No inference, environment-file reads, staging, commits or approval.",
+		"sha256": "a567032e52f5c9d8789b4b28fb2c8950af9ccb8d6ba5ebb551a7cfc3c43c55ac",
+		"studyHash": "ceee11040060f2104c43070e64ee868d8df7f5e0d11b1d5476257e1dabc7b48e",
+		"studyId": "t006-tasks-v1-v19-slim-72-two-runs",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "tasks-study-before-controls-fix.json",
+		"date": "2026-11-13",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval.",
+		"sha256": "302c6dcc9053138dac2d72363017b7234a62aefb869a407a715b7affc76dd65e",
+		"studyHash": "2840dbdda068e5930a972272898fa7ac3216e5d359d2a64d343324d196b274c0",
+		"studyId": "t006-tasks-v1-v15-astra-fixture-fix",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "tasks-study-before-cover-letter-bridge.json",
+		"date": "2026-11-13",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits.",
+		"sha256": "4bc55f2889da972cbbd4d07ccb9ef8b8c1869ef04bd19c67012fc773744c5708",
+		"studyHash": "4781dae766a55ad71a84c7d13370fa0cbad1a9feaff01fc61f713622ac213bc4",
+		"studyId": "t006-tasks-v1-v16-controls-repair",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "tasks-study-before-knip-cleanup.json",
+		"date": "2026-11-14",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized option 1 cover-letter repair: shorten repeated framing and courtesy text, retain both cited CV facts and the exact Astra opening, and add separate jobSpanIds for a non-assertive duty bridge in cover-letter/tailoring only. Job text never becomes candidate evidence. Golds and honest controls fit the unchanged 2048-byte half-cap at 180-320 words. Controls and request serialization are offline/scripted, not measured semantic evidence or new human review. Historical core freeze and all historical runs remain unchanged; its shared task-file hashes are now stale and no new core qualification is claimed. Approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval. Owner-authorized verifier truncation repair: all six task contracts request 12288 completion tokens with a 4096 visible allowance; task reasons are at most one short sentence per claim. Canary dispatch uses bounded payer/provider concurrency and serialized atomic durable checkpoints with exclusive file locking. Completed probes are reused on same-study resume; unknown/pending billing fails closed. Historical core identity is unchanged; its shared dependency freeze may be stale. Fixtures and verdict semantics are unchanged. No inference, environment-file reads, staging, commits or approval. Owner decision 2026-11-14 slim rough-decision lane, larger funded benchmark later: 72 DeepSeek-only judge probes, two default full repetitions, canonical variant pruning and payer-specific offline forecasts. Fixtures and six contracts unchanged; fixture-bound owner approval remains valid. Fresh same-subset smoke is required. Luna judge quality unmeasured. No inference, environment-file reads, staging, commits or approval. Owner-requested offline canary scoring diagnosis from the copied 72-probe receipt. Semantic planted-target detection and honest safety false rejects are separated from protocol/availability faults; exact claim/premise IDs and scoped absence/retention remain mandatory. Protocol faults still block qualification independently. Unchanged thresholds, fixtures, prompts, plan, provider pins and production behavior. Saved outcomes are inspected diagnostic evidence, never unseen validation or fresh smoke. Summary deletion controls conflict with the advisory summary contract; two translation gold safety rejects need lead fidelity adjudication. No inference, environment-file reads, staging, commits or approval. Lead decisions 2026-11-14 supersede earlier calibration descriptions: measure the deterministic guard plus tasks-verifier safety pipeline at 100% planted-defect recall and zero honest false rejects; verifier-alone recall/false rejects are advisory. Final verifier protocol-fault rate must be <=10% after one identical pinned retry. Summary LOST_FACT remains disabled; replace its invalid omission safety canary with the existing invented-SAP-skill mutant. Clarify full exact IDs, complete question checks, unsafe-response coverage and compact reasons with a strict example; wire schema/audit rules unchanged. Correct only judge-canary-translation-ar and judge-canary-translation-mixed training-receipt golds and related mutant baselines; both require lead re-approval. Saved 72 verdicts and 53 smoke sessions are inspected offline diagnostic evidence, not unseen holdout, measured prompt improvement, post-retry health evidence or current-study qualification. Historical core freeze/receipts and source runs remain unchanged. All observed shared-byte changes are listed separately; no inference, environment-file reads, paid calls, staging, commits, approval or release authorized.",
+		"sha256": "2521724a0377d1fdc5dd6a590af285267da8f8b4cd9cf91a5726ca25edb5235a",
+		"studyHash": "ecc34c35b8450b90e73723779e98bad34fe38083f8dde49f1e5061fcc4f3a10e",
+		"studyId": "t006-tasks-v1-v21-production-safety-canaries",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "tasks-study-before-slim.json",
+		"date": "2026-11-13",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized option 1 cover-letter repair: shorten repeated framing and courtesy text, retain both cited CV facts and the exact Astra opening, and add separate jobSpanIds for a non-assertive duty bridge in cover-letter/tailoring only. Job text never becomes candidate evidence. Golds and honest controls fit the unchanged 2048-byte half-cap at 180-320 words. Controls and request serialization are offline/scripted, not measured semantic evidence or new human review. Historical core freeze and all historical runs remain unchanged; its shared task-file hashes are now stale and no new core qualification is claimed. Approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval. Owner-authorized verifier truncation repair: all six task contracts request 12288 completion tokens with a 4096 visible allowance; task reasons are at most one short sentence per claim. Canary dispatch uses bounded payer/provider concurrency and serialized atomic durable checkpoints with exclusive file locking. Completed probes are reused on same-study resume; unknown/pending billing fails closed. Historical core identity is unchanged; its shared dependency freeze may be stale. Fixtures and verdict semantics are unchanged. No inference, environment-file reads, staging, commits or approval.",
+		"sha256": "c65de73fe429e0c0d6cc6721a18542a8cd07596145d7afd96c46904aabef40cb",
+		"studyHash": "dbc6a6d92d922c1614538f7c0d598fe48856a6d4d518c9b0b6f9fe6004a6aa08",
+		"studyId": "t006-tasks-v1-v18-verifier-12288-parallel-canary-resume",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "tasks-study-before-task11.json",
+		"date": "2026-11-13",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization.",
+		"sha256": "ad4ff1217350955fa644adf42ab78dadc8439c86448553d21f5d1e1328b8024d",
+		"studyHash": "ed3176d640a98f9cc90c41098c037ed4ef45bacbbb234bf9b78a031118457ec1",
+		"studyId": "t006-tasks-v1-v13-task10",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "tasks-study-before-test-ci-fix.json",
+		"date": "2026-11-14",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized option 1 cover-letter repair: shorten repeated framing and courtesy text, retain both cited CV facts and the exact Astra opening, and add separate jobSpanIds for a non-assertive duty bridge in cover-letter/tailoring only. Job text never becomes candidate evidence. Golds and honest controls fit the unchanged 2048-byte half-cap at 180-320 words. Controls and request serialization are offline/scripted, not measured semantic evidence or new human review. Historical core freeze and all historical runs remain unchanged; its shared task-file hashes are now stale and no new core qualification is claimed. Approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval. Owner-authorized verifier truncation repair: all six task contracts request 12288 completion tokens with a 4096 visible allowance; task reasons are at most one short sentence per claim. Canary dispatch uses bounded payer/provider concurrency and serialized atomic durable checkpoints with exclusive file locking. Completed probes are reused on same-study resume; unknown/pending billing fails closed. Historical core identity is unchanged; its shared dependency freeze may be stale. Fixtures and verdict semantics are unchanged. No inference, environment-file reads, staging, commits or approval. Owner decision 2026-11-14 slim rough-decision lane, larger funded benchmark later: 72 DeepSeek-only judge probes, two default full repetitions, canonical variant pruning and payer-specific offline forecasts. Fixtures and six contracts unchanged; fixture-bound owner approval remains valid. Fresh same-subset smoke is required. Luna judge quality unmeasured. No inference, environment-file reads, staging, commits or approval. Owner-requested offline canary scoring diagnosis from the copied 72-probe receipt. Semantic planted-target detection and honest safety false rejects are separated from protocol/availability faults; exact claim/premise IDs and scoped absence/retention remain mandatory. Protocol faults still block qualification independently. Unchanged thresholds, fixtures, prompts, plan, provider pins and production behavior. Saved outcomes are inspected diagnostic evidence, never unseen validation or fresh smoke. Summary deletion controls conflict with the advisory summary contract; two translation gold safety rejects need lead fidelity adjudication. No inference, environment-file reads, staging, commits or approval. Lead decisions 2026-11-14 supersede earlier calibration descriptions: measure the deterministic guard plus tasks-verifier safety pipeline at 100% planted-defect recall and zero honest false rejects; verifier-alone recall/false rejects are advisory. Final verifier protocol-fault rate must be <=10% after one identical pinned retry. Summary LOST_FACT remains disabled; replace its invalid omission safety canary with the existing invented-SAP-skill mutant. Clarify full exact IDs, complete question checks, unsafe-response coverage and compact reasons with a strict example; wire schema/audit rules unchanged. Correct only judge-canary-translation-ar and judge-canary-translation-mixed training-receipt golds and related mutant baselines; both require lead re-approval. Saved 72 verdicts and 53 smoke sessions are inspected offline diagnostic evidence, not unseen holdout, measured prompt improvement, post-retry health evidence or current-study qualification. Historical core freeze/receipts and source runs remain unchanged. All observed shared-byte changes are listed separately; no inference, environment-file reads, paid calls, staging, commits, approval or release authorized. Owner-requested Knip cleanup: internalize unused exports/types and remove the unused tailoring version alias/import. CLI-consumed exports retained. No intended runtime behavior, fixtures, prompts or scoring changes in this cleanup. Six pre-existing shared/API and CLI hash mismatches are recorded separately, without attributing them to this lane. Current observed bytes are sealed; historical core identity and receipts remain unchanged. New study requires fresh qualification; no inference, environment-file reads, staging, commits, approval or release.",
+		"sha256": "92bff3311b0447ed1800c0725d7be6be53e04aec288c5e53f63c6e82cbed5063",
+		"studyHash": "2c9f35e26138ad34a27d2d24633299023630517048fa38bbbc82192cfb12c5c0",
+		"studyId": "t006-tasks-v1-v22-knip-cleanup",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "tasks-study-before-verifier-cap-fix.json",
+		"date": "2026-11-13",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized option 1 cover-letter repair: shorten repeated framing and courtesy text, retain both cited CV facts and the exact Astra opening, and add separate jobSpanIds for a non-assertive duty bridge in cover-letter/tailoring only. Job text never becomes candidate evidence. Golds and honest controls fit the unchanged 2048-byte half-cap at 180-320 words. Controls and request serialization are offline/scripted, not measured semantic evidence or new human review. Historical core freeze and all historical runs remain unchanged; its shared task-file hashes are now stale and no new core qualification is claimed. Approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval.",
+		"sha256": "07380d02d27d937e02a46064ebe3e2cf643bf459dcdf1676a9e9ed1d0943bd8f",
+		"studyHash": "fb2f3a022615c5baa5dd850b482fa26fbaa87cadf4b924f01763592a35cc1604",
+		"studyId": "t006-tasks-v1-v17-cited-cover-letter-bridge-startup-diagnostics",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "tasks-study-before-snapshot-cleanup.json",
+		"date": "2026-11-14",
+		"reason": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized option 1 cover-letter repair: shorten repeated framing and courtesy text, retain both cited CV facts and the exact Astra opening, and add separate jobSpanIds for a non-assertive duty bridge in cover-letter/tailoring only. Job text never becomes candidate evidence. Golds and honest controls fit the unchanged 2048-byte half-cap at 180-320 words. Controls and request serialization are offline/scripted, not measured semantic evidence or new human review. Historical core freeze and all historical runs remain unchanged; its shared task-file hashes are now stale and no new core qualification is claimed. Approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval. Owner-authorized verifier truncation repair: all six task contracts request 12288 completion tokens with a 4096 visible allowance; task reasons are at most one short sentence per claim. Canary dispatch uses bounded payer/provider concurrency and serialized atomic durable checkpoints with exclusive file locking. Completed probes are reused on same-study resume; unknown/pending billing fails closed. Historical core identity is unchanged; its shared dependency freeze may be stale. Fixtures and verdict semantics are unchanged. No inference, environment-file reads, staging, commits or approval. Owner decision 2026-11-14 slim rough-decision lane, larger funded benchmark later: 72 DeepSeek-only judge probes, two default full repetitions, canonical variant pruning and payer-specific offline forecasts. Fixtures and six contracts unchanged; fixture-bound owner approval remains valid. Fresh same-subset smoke is required. Luna judge quality unmeasured. No inference, environment-file reads, staging, commits or approval. Owner-requested offline canary scoring diagnosis from the copied 72-probe receipt. Semantic planted-target detection and honest safety false rejects are separated from protocol/availability faults; exact claim/premise IDs and scoped absence/retention remain mandatory. Protocol faults still block qualification independently. Unchanged thresholds, fixtures, prompts, plan, provider pins and production behavior. Saved outcomes are inspected diagnostic evidence, never unseen validation or fresh smoke. Summary deletion controls conflict with the advisory summary contract; two translation gold safety rejects need lead fidelity adjudication. No inference, environment-file reads, staging, commits or approval. Lead decisions 2026-11-14 supersede earlier calibration descriptions: measure the deterministic guard plus tasks-verifier safety pipeline at 100% planted-defect recall and zero honest false rejects; verifier-alone recall/false rejects are advisory. Final verifier protocol-fault rate must be <=10% after one identical pinned retry. Summary LOST_FACT remains disabled; replace its invalid omission safety canary with the existing invented-SAP-skill mutant. Clarify full exact IDs, complete question checks, unsafe-response coverage and compact reasons with a strict example; wire schema/audit rules unchanged. Correct only judge-canary-translation-ar and judge-canary-translation-mixed training-receipt golds and related mutant baselines; both require lead re-approval. Saved 72 verdicts and 53 smoke sessions are inspected offline diagnostic evidence, not unseen holdout, measured prompt improvement, post-retry health evidence or current-study qualification. Historical core freeze/receipts and source runs remain unchanged. All observed shared-byte changes are listed separately; no inference, environment-file reads, paid calls, staging, commits, approval or release authorized. Owner-requested Knip cleanup: internalize unused exports/types and remove the unused tailoring version alias/import. CLI-consumed exports retained. No intended runtime behavior, fixtures, prompts or scoring changes in this cleanup. Six pre-existing shared/API and CLI hash mismatches are recorded separately, without attributing them to this lane. Current observed bytes are sealed; historical core identity and receipts remain unchanged. New study requires fresh qualification; no inference, environment-file reads, staging, commits, approval or release. Owner-requested offline test:ci repair: make the test guard safe under Playwright CommonJS transformation while retaining credential/fetch blocks; distinguish proven pre-dispatch refusal from billed ambiguous post-dispatch reset in the fake transport. The prior Knip freeze changed without rebinding its control receipt; fresh actual scans pass without guard, fixture or gold changes. Historical core identity and receipts stay unchanged and stale shared core bytes do not qualify current runtime. No inference, environment-file reads, staging, commits, approval or live qualification.",
+		"sha256": "7a06d58a894d378b942622ec5e58060bd3e2d7730df7778b0f5a70e47d6e970f",
+		"studyHash": "a1452746be95239a98097a1c6ba5ff1cdfdf8f6feb4405ac3b595b0c220fafba",
+		"studyId": "t006-tasks-v1-v23-test-ci-fix",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+	},
+	{
+		"name": "tasks-study.json",
+		"date": "2026-11-14",
+		"reason": "snapshot cleanup",
+		"sha256": "6edb3ecad1b74442faba8dbda74fb0809f7a8416790faf225aa003396bad8e53",
+		"studyHash": "9fe1c3b7cdc08614932d05aaad842ce14f5dae43cfd59c4ebd80c2204cd41ee6",
+		"studyId": "t006-tasks-v1-v24-snapshot-cleanup"
+	},
+	{
+		"name": "guard-controls-tasks-v1.json",
+		"date": "2026-11-14T06:01:18.592Z",
+		"reason": "snapshot cleanup",
+		"sha256": "8a534a59484ae74517d893a47b275c83961eb57ee3f8bc6137fbc79ae5a4d755",
+		"studyHash": "af4882f7e731aeb15b3e34ee5066cb8d0d4d40801911d62d6f18fbb1f10b6e9f",
+		"studyId": null,
+		"freezeHash": "9fe1c3b7cdc08614932d05aaad842ce14f5dae43cfd59c4ebd80c2204cd41ee6"
+	},
+	{
+		"name": "fairness-study-prior-to-naming-cleanup.json",
+		"date": "2026-11-14",
+		"reason": "naming cleanup",
+		"originalName": "fairness-study.json",
+		"sha256": "849dbfc9b8a0c2ccedf9f386acf93c528834841475f86350367c9ea087d4f2cd",
+		"archivePath": "/mnt/storage/master-cv-design-archive/ui-audit/t006-grid/freeze-history/naming-cleanup/fairness-study.json",
+		"snapshot": {
+			"version": 15,
+			"studyId": "t006-core-v15-controls-repair-startup-diagnostics",
+			"date": "2026-11-13",
+			"policy": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval.",
+			"historicalFreeze": "freeze.json",
+			"files": {
+				"apps/web/vite.config.ts": "a113a6329ae930e18172fe8b994b369021cab900e6cf834c38255d539f953c5b",
+				"packages/ai/src/prompts/extraction-review-system.md": "bcd75693cd6d10b2345ba6bffdb47e27d051863fb005bf238b337cc9d21038d3",
+				"packages/ai/src/prompts/review-system.md": "e159279c37b0ff07813cd14bd036d42e657ba4884f0c821861d030cf81727895",
+				"packages/ai/src/prompts/review-verifier.md": "621829b1d36f6e355e1fb2c4689d3e3079ef745a5064833e7836a1bcdff0f3c0",
+				"packages/api/src/features/ai/adapter.ts": "9eb1fb9dcb0e555ad134256cfb71e9173e9d3ca0da3cca4c3e5b86abb8c08e1e",
+				"packages/api/src/features/ai/hard-facts.ts": "35401efad3917dcc3bb66da895c4af19efed9aed27269b7e7027dd9aab288954",
+				"packages/api/src/features/ai/operation-worker.ts": "7e74abf3834498c90254472f8ef48837e431cd6de9c3951585e8948f1dcb92fe",
+				"packages/api/src/features/ai/payload.ts": "a18f9c1050586094af34e7f20e22e72a85f6e0926ea0472f9b40d622440d17b7",
+				"packages/api/src/features/ai/review-handlers.ts": "6dcf48ae62e042652fcebe81b54a96b8463de3e4e13ceca96e3ddc950b8fceca",
+				"packages/api/src/features/ai/review-validation.ts": "4fdc2b2885a780d98b42910fde834293c5ced5d287a66810459422a9caefc21d",
+				"packages/api/src/features/ai/review-verifier.ts": "7f59ad9a4fa2a475956ab1abbe4f4739616c0d4708ee34724919058e38a38f7f",
+				"packages/api/src/features/ai/route-policy.ts": "65122e614d636bf84c408f09c524cd257c03213706c691e2072c9c7861383cb1",
+				"packages/api/src/features/ai/verifier-policy.ts": "e1b92320cb850c4ff9bec4808632b000b477a68a69473081b43ee00b2bd763d8",
+				"packages/resume/src/proposals.ts": "b4cce4d8595d7c77b7c9a4e8c71b2876caf6d14d44da4cedaf9eff4682eec6bb",
+				"packages/schema/src/resume/ai-review.ts": "9cb8ecc1c65347d1f3abd45072e95df9c71cd24e1eaf68dee089fa01c5aa419e",
+				"packages/utils/src/string.ts": "3f2d7e05fffa00bbaff5099182b1d40fc27c11f033c34331aaba72813f2e5c77",
+				"tooling/evaluations/review/attempt.ts": "1f121c3b70b59aa83cc45b6621c6feb6b6276b5e8e6af8e0bb7ab47b341754c1",
+				"tooling/evaluations/review/benchmark-verifier.md": "fc498ffb5bf6e7c2efd5f9e69ea3c26f05105f487c3d3ddd0c9ad2b45ae57834",
+				"tooling/evaluations/review/blind.ts": "2ffe939f490218c7a1522f873313150bd1bccbfa472f99791e18fe606a18fff3",
+				"tooling/evaluations/review/budget.ts": "e2239370fff48e426540b8929bdd1754e5a2322a11d3bdc8ea164171730bcd88",
+				"tooling/evaluations/review/canaries.ts": "c1c6ea916af5d4766ed837f5b7b0d3340348951de8f81ed2006f81853bffc10d",
+				"tooling/evaluations/review/class-tuning.json": "05796a098c2c0739eae7a6504bbfd1b356c87215640606cae4a3292b670dc0fb",
+				"tooling/evaluations/review/cli.ts": "c8f98e0acd740b2979fd8d34d5f993f712bc237a03a5053e203d7a81103f68cb",
+				"tooling/evaluations/review/config.ts": "ebb6a5ccb2557f1b44ff2aacb32b8ff5e950a5b22249a31358e475093dd9f195",
+				"tooling/evaluations/review/contracts/canaries.json": "0b33547796cc4873416f87171320370cd666fc1f745ddd62d556c8c78f98a16d",
+				"tooling/evaluations/review/contracts/cover-letter/contract.ts": "95a4648bc54bcf59690c13c9d8f987010029fe6cd8d620cbf54f245e52265927",
+				"tooling/evaluations/review/contracts/cover-letter/holdout.json": "101e19ad74847d4461540ebf132ab5ba32cef25ba8a6ab9f1eb973b08a273e3b",
+				"tooling/evaluations/review/contracts/cover-letter/prompt.md": "fbf6375bfc349b108d5036f0fec01efee7d5ab3f2aced4c473145186f169cba3",
+				"tooling/evaluations/review/contracts/cover-letter/tuning.json": "9cf3e10a7c9d74569afe9fafcae9c9c5d584db5563b137b3e4384e675e810113",
+				"tooling/evaluations/review/contracts/fixtures.ts": "b71aecc2f78a014a39d0bda941db24bab5ed07095c2a02fc3eea38731c9d7e60",
+				"tooling/evaluations/review/contracts/guard.ts": "86ee6b789324b857334366b33677f87bc5499fa3ff974a4154e47efb85d03e3b",
+				"tooling/evaluations/review/contracts/index.ts": "67f2c8b9600e2380533f2924878d9b9b31c0237a668c2ee64957df4f8d7ff9a0",
+				"tooling/evaluations/review/contracts/interview-prep/contract.ts": "a5b13a07d05b34b677d8ac31bae408a72f87426ee8e672688fba07225b095d09",
+				"tooling/evaluations/review/contracts/interview-prep/holdout.json": "25bc6cd569332e1d689fbc9c92d2100ae05d412c4fde28e6edb91d59f70b2710",
+				"tooling/evaluations/review/contracts/interview-prep/prompt.md": "9a722c05d95a70dbf0ca5b7ffbc073cb136dbf7e1be1264eddd4cf9d37e49551",
+				"tooling/evaluations/review/contracts/interview-prep/tuning.json": "acdd2cab199b4e8c119ebae675ade74a329a4f5058ac7efff9ba6a4abea48f43",
+				"tooling/evaluations/review/contracts/job-evidence/contract.ts": "86ac8fadab6835d944ff2ffcd95dbe0f57cbd086fd0e27ba3f2e39338a45ea27",
+				"tooling/evaluations/review/contracts/job-evidence/holdout.json": "609ba3da8522d14ad2b4b66d1839dcb94c535a7fbf1952ad2e7e4567fdca2d80",
+				"tooling/evaluations/review/contracts/job-evidence/prompt.md": "3f663486b8d11287d127eb4bfa3a13061051e32309b0f1d649effdf127ec3ca1",
+				"tooling/evaluations/review/contracts/job-evidence/tuning.json": "c8ad02ef9581533b85b7f6447eae9a90e31449c9b98a2313c8a44798b7ca2d99",
+				"tooling/evaluations/review/contracts/route.ts": "118119e8a89ce47a2b8db955497e187fe5de1d902afe5c554993ca9d46197b01",
+				"tooling/evaluations/review/contracts/runtime.ts": "2614ef6594feea4b7ec6c96221fc3a914a137a9e82daa537f8cfc74c12900c54",
+				"tooling/evaluations/review/contracts/summary/contract.ts": "b76135a27b4766775d522f0d8fddd77cd0b3229f0d0c5b7bce25f9832ab3344f",
+				"tooling/evaluations/review/contracts/summary/holdout.json": "67c1dba1e379b660690a44fd3df5c603b8eeb4ea1dee065c33e20bb7916369b3",
+				"tooling/evaluations/review/contracts/summary/prompt.md": "9e2345a5ff5e4680eacd7a35eb6f525079d1e44b2f1069c55e04f0fec1f3d891",
+				"tooling/evaluations/review/contracts/summary/tuning.json": "05c86a6202cd154a17f96532c7e87ad2b5038d3047f4554a1e7d5c10886c3a88",
+				"tooling/evaluations/review/contracts/tailoring/contract.ts": "4953a4adab2cf1a07d2b77d34c1fa8ac449bff116725aab84bb7bc57bf796510",
+				"tooling/evaluations/review/contracts/tailoring/holdout.json": "a4ae2db9f1f9d1aef2d8e45005e74f0f5a4015cb7c1217a8110d1b8fe95636a7",
+				"tooling/evaluations/review/contracts/tailoring/prompt.md": "e07e4f7e3f07dce88bbe9066b49fae99d618c641fe82e7eeec2a1f4a3dd30a1c",
+				"tooling/evaluations/review/contracts/tailoring/tuning.json": "ecae68c5a01d619a455eb89f2c0721b5883770113a962e4ce52b0e6291d59c0a",
+				"tooling/evaluations/review/contracts/translation/contract.ts": "d578eac9d0ba73abbf922a6405138f7fef639182c02bbb3219bcacc039192891",
+				"tooling/evaluations/review/contracts/translation/glossary.json": "6aae3bd2842211db390f60fedfc3b963e944618b7917a633978ea34f6d4b8630",
+				"tooling/evaluations/review/contracts/translation/holdout.json": "5f8868216425df34571a479709c92886d9eac40ce4a4985ac1a7e26161a7042c",
+				"tooling/evaluations/review/contracts/translation/prompt.md": "98ed398f145b78cd8c50dd0f52387e0879b799249ba330e07cc6658909e11e0d",
+				"tooling/evaluations/review/contracts/translation/tuning.json": "b4b384d5bfba0c6d583cba14e37b246d686192a2f63140f09150e9b8b472b58f",
+				"tooling/evaluations/review/contracts/types.ts": "6aafd43eb18a6e03160361e71f56261f2845b267820caafecd7bf23f55e68d2b",
+				"tooling/evaluations/review/contracts/verifier/prompt.md": "73339418600e82afad66fe919c4e1d8c8e6f38fdf51302f7bf1a7bdf8e178400",
+				"tooling/evaluations/review/contracts/verifier/schema.ts": "548e048ccc4d01e76bc77c891e358802d374c6cf77cc92d7351ff8d3f36cc88d",
+				"tooling/evaluations/review/contracts/verifier/verifier.ts": "a6b1a9780b2c02820b03ed7538281c3e015453b8eb1c224b4d10e95b7d997523",
+				"tooling/evaluations/review/cooldown.ts": "946dded6bf1aca970a4ed0601ce5a90d1ddb905f439de41efe632239f76cf86d",
+				"tooling/evaluations/review/corpus.ts": "27ea5eed2537e806d0d54adc9bd400cf045dc22f50ee6fa6e93196f1c768ccbd",
+				"tooling/evaluations/review/decision-table.ts": "7b15f66d4912e961489c890a339bb0d5e9933b6c86aa08a32fc87ea601a1f207",
+				"tooling/evaluations/review/decision.ts": "3eb10a2f8bf126112abdee9a5ecc5cdde862622ff5009144dddd970bde2848f2",
+				"tooling/evaluations/review/derive-cases.py": "0d0eb8175e0e6ca7fae4bfe32d903394b306ce22a4d2f72c98e0ab587da67cd9",
+				"tooling/evaluations/review/dispatch.ts": "b535b6fa50a63249f5054d8fa2c753941f919b0b433cae743748b70c8e095521",
+				"tooling/evaluations/review/effort-grid.ts": "10929859af13d3b52550b2fcd9bf1b9da1fb60c96a1f5705ace25056a3c60ea3",
+				"tooling/evaluations/review/execution.ts": "6dfc4f20c028897cf74f63e56c638186ff5d7601553f4eba022a4695cbc2faf1",
+				"tooling/evaluations/review/fairness-replay-cli.ts": "79043f3a6343bf6c4595d0b7e4a77eaf00374405c58399fa9ea8e391956446ff",
+				"tooling/evaluations/review/fairness-replay.ts": "c9be2822682a6e7e84a64d8addb341f221cdc44d6a80c193ccf9ee32f68d3f30",
+				"tooling/evaluations/review/faults.ts": "51817182815cd02126e45813380b49a3ce0b16fc2fa0172036e6d5e8f6351cd8",
+				"tooling/evaluations/review/fixtures.json": "b254346891029d10d463bf30b83d9cdcf22b433044ba588f7f1d2c7942738713",
+				"tooling/evaluations/review/forecast.ts": "ce468fcd82a8da5aec0d5546288eae6610fd803a3d569d6c0fb678836cc78df9",
+				"tooling/evaluations/review/freeze.ts": "a08c1a3cf1ac91714b733df7a4e0438e4980620abcc1ae60d6094ea8c1653796",
+				"tooling/evaluations/review/honest-paraphrases.json": "1299a796dbc588543cde5186fc6f51da67014815823c992890de6bc12f1a4a75",
+				"tooling/evaluations/review/honesty.ts": "e90031371ef0e8c8061e5f1993ad4c8334a013eb10d2da0f3fde1f452a4bc0e8",
+				"tooling/evaluations/review/interrupt.ts": "0d09502cad3216453422dd953f5d8f730eaf383328f0e86042ee35e46f830e9f",
+				"tooling/evaluations/review/invalid-output.ts": "299ad8f45898d077b251f3eba980febda709b2b45f4f5f8b838ffc94e85481a5",
+				"tooling/evaluations/review/journal.ts": "f912037250df1faeca62000db85adebffed06bdf13b3deca13378fbadd173133",
+				"tooling/evaluations/review/lexical-rescore-cli.ts": "69467bb213a1dd05ede716c4c6708ff63cd6e9e219554be8d4ab50659dd52d50",
+				"tooling/evaluations/review/lexical-rescore.ts": "99a6ee1652f2e64623095479a7b48bb8ce7eaff4cee35da87bcab2f83cf96155",
+				"tooling/evaluations/review/metrics.ts": "78d5c92579f3c460ba570886355e5168067304fafa4cbe3a41f7b7053983d4d4",
+				"tooling/evaluations/review/models-tasks.json": "7af5dd6e479223b4783d4cf8e18eec8f73223985c9bdc2ef388c49e031e2d10d",
+				"tooling/evaluations/review/models.json": "37e61cc8f5a3b214797ec7c695674692a2f88accdd78b3e7b3cb79ca2be18731",
+				"tooling/evaluations/review/owner-review-cli.ts": "2afe0dc175d9a8a3b1012c21eba7e748825cd33cfb7a59c4c08cd5aea6c36a01",
+				"tooling/evaluations/review/preflight.ts": "e765ad311d25997a3f8903e8f29d8145e4528a4e1d7f5e434e3f0d7e4cc61ed0",
+				"tooling/evaluations/review/production.ts": "d10d21c00d1f61f9c7a6f8cb475d1039d492e08340dfcdfa2fc613a9d6369e84",
+				"tooling/evaluations/review/question-equivalences.json": "265aa52f25bffd3ce5aab4a7e772c32700bde746927ee6d85533b42551d0773c",
+				"tooling/evaluations/review/reconcile.ts": "8e862e799c0ff343c895293623f1ffead086564bca18d1c3242cbfef062c1b7b",
+				"tooling/evaluations/review/reguard-cli.ts": "cc92290be65908e0e54c3ab1abe417bd87616becff7d390c45a0c9548a9ba476",
+				"tooling/evaluations/review/reguard.ts": "a302ffd9cdffb4a721a4f7a609ccd9ce4bbe2df269b4c5fd61578cb544ec2f4c",
+				"tooling/evaluations/review/repair-cli.ts": "f2efbbbd1ca9a5e014994b06757f99f1e4c8e99099a003bb504c3abc0c5fae52",
+				"tooling/evaluations/review/repair.ts": "2b27e4e6e1d13ec0ae2b80ad563bfe73f1fb9a04f009c3a618f7c83f3d63af59",
+				"tooling/evaluations/review/replay.ts": "463f7ed7ec71b96f8eff3e51d1396d6f399fd40702083dcc6ce67024c604bcf3",
+				"tooling/evaluations/review/report-client.ts": "31de4336fcf2eab75e4e2e935d77f650160ec87951c845a0b40467d39fd137ea",
+				"tooling/evaluations/review/report.ts": "804b37402d4684026dc9e5529054ed34c5d1fcec9777c373e03049d3c842484a",
+				"tooling/evaluations/review/rescore-cli.ts": "83df8a088e24d8174f4c07d042adf58254eb8d7c16e8cd6411c89b8399f58888",
+				"tooling/evaluations/review/rescore.ts": "833f2774878b6d5efc74042f16deda22409f0f2e4a233bedce137e48ebbd1f6d",
+				"tooling/evaluations/review/runner.ts": "da98342575c44f783e087c8d1626c1000286ac3fa04cc821ce0a86a87060dab0",
+				"tooling/evaluations/review/score.ts": "976d631dd5b59a098b585c81729309f4df6f941bc0187b01aeb11aaac49dbad0",
+				"tooling/evaluations/review/stop-summary.ts": "f83c9064d65ad5cbce77ec242d0c91ff49c55bb6c5df5c30ed72d87b41f8a7ac",
+				"tooling/evaluations/review/study.ts": "37cf6284daf35e3271d4c8998faa33159fe82836e5c18717a672889301d30878",
+				"tooling/evaluations/review/subprocess.ts": "b094b5ed52636912715e0993d63ed5d83ff4d86bc2991cf760569792ebda68c2",
+				"tooling/evaluations/review/tuning-passages.json": "1b1266b5454a0047a129b5c08b4d037edde4676abe5bbdd3ddcf21cd245b48a4",
+				"tooling/evaluations/review/verifier-health.ts": "8b7219703098706e5608840b8b8880eb6f05a9f0da019df38aa1f3496b29d66a",
+				"tooling/evaluations/review/verifier.ts": "0039cc080014c527ebc3e92451c6c6d4248ae0231af2ecc0f643f936a9f6f606",
+				"tooling/local/test-ai-guard.d.mts": "661b80dc072df91ce598abc570b844c29c0947fad8fdbe40b6a433a3d364c469",
+				"tooling/local/test-ai-guard.mjs": "195ef3c764fed0a3b78a3e78ba717a80dcf9b38f7f588d7aaa77096512fcb0fe",
+				"vite.config.ts": "ec923fb7adc405563f5713ce21107bfcebd6b768d7f651204719b5296a5d9726",
+				"vitest.setup.ts": "ae6ddd81847643d7e87255177c805f00605e18525aa8c69bcd368b65793d95f6",
+				"vitest.shared.mts": "1f415ef250bdb2a262c2f2e7a0163d7f3e6af99c261c46c8bb15d57aa963d95f",
+				"tooling/evaluations/review/diagnostics.ts": "a46982b11e2e5c86f6e82eff59d583cacca642eec4f49f00aaa0210c5a83cdcb",
+				"tooling/evaluations/review/credentials.ts": "f63f9d7cc787c709698f73d704a1c154c98330b7a3e272c4c841a3115f9bb880",
+				"tooling/evaluations/review/catalog-snapshot.json": "e11c29094ca75f67c095babdbcd20cb9687693c5f0dd323855e1b3d59d83b681"
+			},
+			"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+			"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809",
+			"payloadVersion": "t006-payload-v2",
+			"hardFactsVersion": "t006-hard-facts-v10-lane23",
+			"reseal": {
+				"reason": "Owner-requested repair after Astra/Task 12: guard grammar/polarity, bounded letters and CLI capture. Core is resealed because its shared dependency hashes were stale; original core fixtures and historical evidence are unchanged.",
+				"priorFreeze": "fairness-study-before-controls-fix.json",
+				"priorFreezeSha256": "0a14a655e257ea5b735121fde574567c0f3f668252f3dada15fd21cf7facf674",
+				"changedFiles": [
+					"tooling/evaluations/review/blind.ts",
+					"tooling/evaluations/review/cli.ts",
+					"tooling/evaluations/review/contracts/canaries.json",
+					"tooling/evaluations/review/contracts/cover-letter/holdout.json",
+					"tooling/evaluations/review/contracts/cover-letter/tuning.json",
+					"tooling/evaluations/review/contracts/fixtures.ts",
+					"tooling/evaluations/review/contracts/guard.ts",
+					"tooling/evaluations/review/contracts/interview-prep/holdout.json",
+					"tooling/evaluations/review/contracts/interview-prep/tuning.json",
+					"tooling/evaluations/review/contracts/job-evidence/holdout.json",
+					"tooling/evaluations/review/contracts/job-evidence/tuning.json",
+					"tooling/evaluations/review/contracts/translation/holdout.json",
+					"tooling/evaluations/review/contracts/translation/tuning.json",
+					"tooling/evaluations/review/contracts/types.ts",
+					"tooling/evaluations/review/decision.ts",
+					"tooling/evaluations/review/metrics.ts",
+					"tooling/evaluations/review/report-client.ts",
+					"tooling/evaluations/review/report.ts",
+					"tooling/evaluations/review/subprocess.ts",
+					"tooling/evaluations/review/decision-table.ts"
+				],
+				"sealedControlsRescanned": true,
+				"controlsPass": true,
+				"captureFollowup": "CLI regression requires creating a previously absent explicit output directory. Only subprocess capture changed after the control scan; guard, scoring and fixture bytes are identical."
+			}
+		}
+	},
+	{
+		"name": "tasks-study-prior-to-naming-cleanup.json",
+		"date": "2026-11-14",
+		"reason": "naming cleanup",
+		"originalName": "tasks-study.json",
+		"sha256": "6edb3ecad1b74442faba8dbda74fb0809f7a8416790faf225aa003396bad8e53",
+		"archivePath": "/mnt/storage/master-cv-design-archive/ui-audit/t006-grid/freeze-history/naming-cleanup/tasks-study.json",
+		"snapshot": {
+			"version": 23,
+			"studyId": "t006-tasks-v1-v24-snapshot-cleanup",
+			"date": "2026-11-14",
+			"policy": "Owner-authorized Task 10 honest reseal: Task 0 payload v2, lane23b baseline and all six T007/T008 draft contracts, versioned tasks guard/verifier, study-scoped CLI approvals and identity, glossary and fixtures, and offline forecast integration. Four new mixed summary holdouts balance 4 ar/4 en/4 mixed. All current bytes are sealed; changed files are recorded, including any concurrent lexical lost-fact lane bytes, without claiming unchanged core quality. Original completed core evidence and prior Task 1b freeze/receipt remain intact and bound to their original identity. Offline controls are freshly rescanned; scripted task verifier labels do not measure judge quality. New Arabic approval, tasks smoke/tuning/holdout and Task 11 judge canaries remain required before paid qualification. No inference, spending, release, real-CV processing or resume authorization. Task 11: contract fault/deadline coverage and verifier-only smoke canaries. Raw verdict coverage, exact judge pins, mode and study identity gate full runs. New canaries require separate owner Arabic review. Five-attempt judge reservations are payer-separated. Task 10 baseline preserved in the before-task11 snapshots. Historical core evidence is unchanged and retains its original identity; no inference, processing or release approval. Owner-authorized Astra fixture-fix lane: exact owner-review corrections and author-declared synthetic provenance for the four unapproved contract categories and their canaries. Approved summary/tailoring fixtures and canaries are preserved. Current shared Task 12 bytes are hashed as observed, not claimed reviewed or modified by this lane. All approval remains UNAPPROVED. Required Arabic cover-letter history annotations expose deterministic guard false rejects and the existing half-cap byte bound; failures remain recorded without weakening guards, caps or unsafe controls. No inference, environment-file reads, spending or approval. Owner-authorized controls repair: Arabic relative/interrogative framing and application-context disambiguation with CV-only citations; weak-verb polarity normalization preserves dropped-negation rejection. Shorter Arabic/mixed letters retain supplied facts, full history annotations, natural thanks, every unsafe defect and 180-320 words; the 4096 visible maximum and 50 percent byte bound remain unchanged. File-backed subprocess capture stays under explicit output directories. Task 12 and Astra shared bytes are sealed as observed; synthetic controls and offline request serialization do not establish semantic judge quality, new human approval, historical smoke qualification, processing or release approval. Prior core and tasks freezes and receipts are retained; approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized option 1 cover-letter repair: shorten repeated framing and courtesy text, retain both cited CV facts and the exact Astra opening, and add separate jobSpanIds for a non-assertive duty bridge in cover-letter/tailoring only. Job text never becomes candidate evidence. Golds and honest controls fit the unchanged 2048-byte half-cap at 180-320 words. Controls and request serialization are offline/scripted, not measured semantic evidence or new human review. Historical core freeze and all historical runs remain unchanged; its shared task-file hashes are now stale and no new core qualification is claimed. Approval remains UNAPPROVED. No inference, environment-file reads, staging or commits. Owner-authorized offline startup diagnosis: explicit-only benchmark credentials in live mode, sanitized causal errors, network-free startup-check. Existing shared bytes are sealed as observed; no new inference, semantic qualification, human approval or release approval. Owner-authorized verifier truncation repair: all six task contracts request 12288 completion tokens with a 4096 visible allowance; task reasons are at most one short sentence per claim. Canary dispatch uses bounded payer/provider concurrency and serialized atomic durable checkpoints with exclusive file locking. Completed probes are reused on same-study resume; unknown/pending billing fails closed. Historical core identity is unchanged; its shared dependency freeze may be stale. Fixtures and verdict semantics are unchanged. No inference, environment-file reads, staging, commits or approval. Owner decision 2026-11-14 slim rough-decision lane, larger funded benchmark later: 72 DeepSeek-only judge probes, two default full repetitions, canonical variant pruning and payer-specific offline forecasts. Fixtures and six contracts unchanged; fixture-bound owner approval remains valid. Fresh same-subset smoke is required. Luna judge quality unmeasured. No inference, environment-file reads, staging, commits or approval. Owner-requested offline canary scoring diagnosis from the copied 72-probe receipt. Semantic planted-target detection and honest safety false rejects are separated from protocol/availability faults; exact claim/premise IDs and scoped absence/retention remain mandatory. Protocol faults still block qualification independently. Unchanged thresholds, fixtures, prompts, plan, provider pins and production behavior. Saved outcomes are inspected diagnostic evidence, never unseen validation or fresh smoke. Summary deletion controls conflict with the advisory summary contract; two translation gold safety rejects need lead fidelity adjudication. No inference, environment-file reads, staging, commits or approval. Lead decisions 2026-11-14 supersede earlier calibration descriptions: measure the deterministic guard plus tasks-verifier safety pipeline at 100% planted-defect recall and zero honest false rejects; verifier-alone recall/false rejects are advisory. Final verifier protocol-fault rate must be <=10% after one identical pinned retry. Summary LOST_FACT remains disabled; replace its invalid omission safety canary with the existing invented-SAP-skill mutant. Clarify full exact IDs, complete question checks, unsafe-response coverage and compact reasons with a strict example; wire schema/audit rules unchanged. Correct only judge-canary-translation-ar and judge-canary-translation-mixed training-receipt golds and related mutant baselines; both require lead re-approval. Saved 72 verdicts and 53 smoke sessions are inspected offline diagnostic evidence, not unseen holdout, measured prompt improvement, post-retry health evidence or current-study qualification. Historical core freeze/receipts and source runs remain unchanged. All observed shared-byte changes are listed separately; no inference, environment-file reads, paid calls, staging, commits, approval or release authorized. Owner-requested Knip cleanup: internalize unused exports/types and remove the unused tailoring version alias/import. CLI-consumed exports retained. No intended runtime behavior, fixtures, prompts or scoring changes in this cleanup. Six pre-existing shared/API and CLI hash mismatches are recorded separately, without attributing them to this lane. Current observed bytes are sealed; historical core identity and receipts remain unchanged. New study requires fresh qualification; no inference, environment-file reads, staging, commits, approval or release. Owner-requested offline test:ci repair: make the test guard safe under Playwright CommonJS transformation while retaining credential/fetch blocks; distinguish proven pre-dispatch refusal from billed ambiguous post-dispatch reset in the fake transport. The prior Knip freeze changed without rebinding its control receipt; fresh actual scans pass without guard, fixture or gold changes. Historical core identity and receipts stay unchanged and stale shared core bytes do not qualify current runtime. No inference, environment-file reads, staging, commits, approval or live qualification. Owner-requested snapshot cleanup: archive unused historical JSON unchanged, preserve seal metadata and receipt chains in freeze-history.json, and route historical README references to history. Only the README sealed bytes changed. No runtime, fixture, prompt, gold, scoring, inference, approval or qualification change; historical core seal and receipt remain unchanged and stale.",
+			"historicalFreeze": "freeze.json",
+			"files": {
+				"apps/web/vite.config.ts": "a113a6329ae930e18172fe8b994b369021cab900e6cf834c38255d539f953c5b",
+				"packages/ai/src/prompts/extraction-review-system.md": "bcd75693cd6d10b2345ba6bffdb47e27d051863fb005bf238b337cc9d21038d3",
+				"packages/ai/src/prompts/review-system.md": "e159279c37b0ff07813cd14bd036d42e657ba4884f0c821861d030cf81727895",
+				"packages/ai/src/prompts/review-verifier.md": "621829b1d36f6e355e1fb2c4689d3e3079ef745a5064833e7836a1bcdff0f3c0",
+				"packages/api/src/features/ai/adapter.ts": "6b9ecced40b5a3c054f7ffc88e0b421bf4bd9b29ab5009b03ef640470b8f53a7",
+				"packages/api/src/features/ai/hard-facts.ts": "35401efad3917dcc3bb66da895c4af19efed9aed27269b7e7027dd9aab288954",
+				"packages/api/src/features/ai/operation-worker.ts": "7e74abf3834498c90254472f8ef48837e431cd6de9c3951585e8948f1dcb92fe",
+				"packages/api/src/features/ai/payload.ts": "3ee7e56a5e3562c209a0aa571573b9d61e0dda112768b3821a0828f7e796dc44",
+				"packages/api/src/features/ai/review-handlers.ts": "6dcf48ae62e042652fcebe81b54a96b8463de3e4e13ceca96e3ddc950b8fceca",
+				"packages/api/src/features/ai/review-validation.ts": "17e5f6751f281155d7a086868f6a80e5d7587609a16d6edd049be822f06669ea",
+				"packages/api/src/features/ai/review-verifier.ts": "5c62ca0aed7870466207ad23510f8d661a8eeb8a361c6268ce06aea36e150f68",
+				"packages/api/src/features/ai/route-policy.ts": "55fa2fb7baff4698bb8826bc75b38ed7ae7076e5daa413059bf2fbbc45d3325b",
+				"packages/api/src/features/ai/verifier-policy.ts": "e1b92320cb850c4ff9bec4808632b000b477a68a69473081b43ee00b2bd763d8",
+				"packages/resume/src/proposals.ts": "b4cce4d8595d7c77b7c9a4e8c71b2876caf6d14d44da4cedaf9eff4682eec6bb",
+				"packages/schema/src/resume/ai-review.ts": "9cb8ecc1c65347d1f3abd45072e95df9c71cd24e1eaf68dee089fa01c5aa419e",
+				"packages/utils/src/string.ts": "3f2d7e05fffa00bbaff5099182b1d40fc27c11f033c34331aaba72813f2e5c77",
+				"tooling/evaluations/review/attempt.ts": "1f121c3b70b59aa83cc45b6621c6feb6b6276b5e8e6af8e0bb7ab47b341754c1",
+				"tooling/evaluations/review/benchmark-verifier.md": "fc498ffb5bf6e7c2efd5f9e69ea3c26f05105f487c3d3ddd0c9ad2b45ae57834",
+				"tooling/evaluations/review/blind.ts": "2ffe939f490218c7a1522f873313150bd1bccbfa472f99791e18fe606a18fff3",
+				"tooling/evaluations/review/budget.ts": "e2239370fff48e426540b8929bdd1754e5a2322a11d3bdc8ea164171730bcd88",
+				"tooling/evaluations/review/canaries.ts": "d1ae5963703b16a021f5b7006420cf35e5c5e3c0ac80b608151fce8d7290de18",
+				"tooling/evaluations/review/class-tuning.json": "05796a098c2c0739eae7a6504bbfd1b356c87215640606cae4a3292b670dc0fb",
+				"tooling/evaluations/review/cli.ts": "bdd31f81b82f3dd3ba953f4df59851b2772fc90e70263479d8592c36d6ca03ef",
+				"tooling/evaluations/review/config.ts": "5182ad5ff71dea8c70b117cb7a406eb14ec5662c36151c984c485739f1bb5a3f",
+				"tooling/evaluations/review/contracts/canaries.json": "bfdd42e53f85249a904494134cdf86f9481017a2c5ea69e58caefa0656c9ea15",
+				"tooling/evaluations/review/contracts/cover-letter/contract.ts": "feb0fa1059d7cc46071fb8cfd740bdb0d6cf9fcb2830e511328a3e63ee910252",
+				"tooling/evaluations/review/contracts/cover-letter/holdout.json": "101e19ad74847d4461540ebf132ab5ba32cef25ba8a6ab9f1eb973b08a273e3b",
+				"tooling/evaluations/review/contracts/cover-letter/prompt.md": "fbf6375bfc349b108d5036f0fec01efee7d5ab3f2aced4c473145186f169cba3",
+				"tooling/evaluations/review/contracts/cover-letter/tuning.json": "9cf3e10a7c9d74569afe9fafcae9c9c5d584db5563b137b3e4384e675e810113",
+				"tooling/evaluations/review/contracts/fixtures.ts": "b71aecc2f78a014a39d0bda941db24bab5ed07095c2a02fc3eea38731c9d7e60",
+				"tooling/evaluations/review/contracts/guard.ts": "86ee6b789324b857334366b33677f87bc5499fa3ff974a4154e47efb85d03e3b",
+				"tooling/evaluations/review/contracts/index.ts": "67f2c8b9600e2380533f2924878d9b9b31c0237a668c2ee64957df4f8d7ff9a0",
+				"tooling/evaluations/review/contracts/interview-prep/contract.ts": "f0bbd544ca8f2528ddd44ebd55477df4cc8c4ad02550d845e922608fa0e6cf0c",
+				"tooling/evaluations/review/contracts/interview-prep/holdout.json": "25bc6cd569332e1d689fbc9c92d2100ae05d412c4fde28e6edb91d59f70b2710",
+				"tooling/evaluations/review/contracts/interview-prep/prompt.md": "9a722c05d95a70dbf0ca5b7ffbc073cb136dbf7e1be1264eddd4cf9d37e49551",
+				"tooling/evaluations/review/contracts/interview-prep/tuning.json": "acdd2cab199b4e8c119ebae675ade74a329a4f5058ac7efff9ba6a4abea48f43",
+				"tooling/evaluations/review/contracts/job-evidence/contract.ts": "ebc474631dfba0badfbbe4290f5ad37df407938b7cc942b933875096e5d61fbb",
+				"tooling/evaluations/review/contracts/job-evidence/holdout.json": "609ba3da8522d14ad2b4b66d1839dcb94c535a7fbf1952ad2e7e4567fdca2d80",
+				"tooling/evaluations/review/contracts/job-evidence/prompt.md": "3f663486b8d11287d127eb4bfa3a13061051e32309b0f1d649effdf127ec3ca1",
+				"tooling/evaluations/review/contracts/job-evidence/tuning.json": "c8ad02ef9581533b85b7f6447eae9a90e31449c9b98a2313c8a44798b7ca2d99",
+				"tooling/evaluations/review/contracts/route.ts": "e2e418525c76937d0dbac138e2fc8c383020b98a2383e5e55f4b7b7e1866aae8",
+				"tooling/evaluations/review/contracts/runtime.ts": "2614ef6594feea4b7ec6c96221fc3a914a137a9e82daa537f8cfc74c12900c54",
+				"tooling/evaluations/review/contracts/summary/contract.ts": "584d8352e086954093b3b7f0b2291b965844ece427a65c51a75cf99827989b75",
+				"tooling/evaluations/review/contracts/summary/holdout.json": "67c1dba1e379b660690a44fd3df5c603b8eeb4ea1dee065c33e20bb7916369b3",
+				"tooling/evaluations/review/contracts/summary/prompt.md": "9e2345a5ff5e4680eacd7a35eb6f525079d1e44b2f1069c55e04f0fec1f3d891",
+				"tooling/evaluations/review/contracts/summary/tuning.json": "05c86a6202cd154a17f96532c7e87ad2b5038d3047f4554a1e7d5c10886c3a88",
+				"tooling/evaluations/review/contracts/tailoring/contract.ts": "1ee42deb43c09311140a7d20334ab833ed4a763470f05435ad30353b00e8a30a",
+				"tooling/evaluations/review/contracts/tailoring/holdout.json": "a4ae2db9f1f9d1aef2d8e45005e74f0f5a4015cb7c1217a8110d1b8fe95636a7",
+				"tooling/evaluations/review/contracts/tailoring/prompt.md": "e07e4f7e3f07dce88bbe9066b49fae99d618c641fe82e7eeec2a1f4a3dd30a1c",
+				"tooling/evaluations/review/contracts/tailoring/tuning.json": "ecae68c5a01d619a455eb89f2c0721b5883770113a962e4ce52b0e6291d59c0a",
+				"tooling/evaluations/review/contracts/translation/contract.ts": "dde6660fee25703139ddbcd20a9a72f2add6cec2eb2d4f0a2f7f7e549fe090e4",
+				"tooling/evaluations/review/contracts/translation/glossary.json": "6aae3bd2842211db390f60fedfc3b963e944618b7917a633978ea34f6d4b8630",
+				"tooling/evaluations/review/contracts/translation/holdout.json": "5f8868216425df34571a479709c92886d9eac40ce4a4985ac1a7e26161a7042c",
+				"tooling/evaluations/review/contracts/translation/prompt.md": "98ed398f145b78cd8c50dd0f52387e0879b799249ba330e07cc6658909e11e0d",
+				"tooling/evaluations/review/contracts/translation/tuning.json": "b4b384d5bfba0c6d583cba14e37b246d686192a2f63140f09150e9b8b472b58f",
+				"tooling/evaluations/review/contracts/types.ts": "0a907f445a53d857deb74abc2617f1e2996c263959b73a87b4a94a851f4d0422",
+				"tooling/evaluations/review/contracts/verifier/prompt.md": "cc26a89c3de577a0b7f514cc87ca3d4428c9fa59bfb9f016bfc183312bb91b73",
+				"tooling/evaluations/review/contracts/verifier/schema.ts": "548e048ccc4d01e76bc77c891e358802d374c6cf77cc92d7351ff8d3f36cc88d",
+				"tooling/evaluations/review/contracts/verifier/verifier.ts": "38de44b9b83d52b908871087ffb191116e3609d4ce946df48936727d452d2c18",
+				"tooling/evaluations/review/cooldown.ts": "946dded6bf1aca970a4ed0601ce5a90d1ddb905f439de41efe632239f76cf86d",
+				"tooling/evaluations/review/corpus.ts": "27ea5eed2537e806d0d54adc9bd400cf045dc22f50ee6fa6e93196f1c768ccbd",
+				"tooling/evaluations/review/decision-table.ts": "7b15f66d4912e961489c890a339bb0d5e9933b6c86aa08a32fc87ea601a1f207",
+				"tooling/evaluations/review/decision.ts": "c1b7af1f213345a91d7b03f2c73237d7d391eb12319a4b9c7d40a2ec7ef71f0b",
+				"tooling/evaluations/review/derive-cases.py": "0d0eb8175e0e6ca7fae4bfe32d903394b306ce22a4d2f72c98e0ab587da67cd9",
+				"tooling/evaluations/review/dispatch.ts": "b535b6fa50a63249f5054d8fa2c753941f919b0b433cae743748b70c8e095521",
+				"tooling/evaluations/review/effort-grid.ts": "10929859af13d3b52550b2fcd9bf1b9da1fb60c96a1f5705ace25056a3c60ea3",
+				"tooling/evaluations/review/execution.ts": "0da464e5f7ce303bd65a28884ec7d950ae13445195c54f1d95af4694d894433a",
+				"tooling/evaluations/review/fairness-replay-cli.ts": "79043f3a6343bf6c4595d0b7e4a77eaf00374405c58399fa9ea8e391956446ff",
+				"tooling/evaluations/review/fairness-replay.ts": "c9be2822682a6e7e84a64d8addb341f221cdc44d6a80c193ccf9ee32f68d3f30",
+				"tooling/evaluations/review/faults.ts": "ff1d9d869851782b54fb82122c939b3b4a45a18edc2663bcbd89e81b0bf70de1",
+				"tooling/evaluations/review/fixtures.json": "b254346891029d10d463bf30b83d9cdcf22b433044ba588f7f1d2c7942738713",
+				"tooling/evaluations/review/forecast.ts": "bfc3207ae84416984a055f6b7b78e40095bb0588a06a978be50073564c0ff648",
+				"tooling/evaluations/review/freeze.ts": "a08c1a3cf1ac91714b733df7a4e0438e4980620abcc1ae60d6094ea8c1653796",
+				"tooling/evaluations/review/honest-paraphrases.json": "1299a796dbc588543cde5186fc6f51da67014815823c992890de6bc12f1a4a75",
+				"tooling/evaluations/review/honesty.ts": "e90031371ef0e8c8061e5f1993ad4c8334a013eb10d2da0f3fde1f452a4bc0e8",
+				"tooling/evaluations/review/interrupt.ts": "0d09502cad3216453422dd953f5d8f730eaf383328f0e86042ee35e46f830e9f",
+				"tooling/evaluations/review/invalid-output.ts": "299ad8f45898d077b251f3eba980febda709b2b45f4f5f8b838ffc94e85481a5",
+				"tooling/evaluations/review/journal.ts": "f912037250df1faeca62000db85adebffed06bdf13b3deca13378fbadd173133",
+				"tooling/evaluations/review/lexical-rescore-cli.ts": "69467bb213a1dd05ede716c4c6708ff63cd6e9e219554be8d4ab50659dd52d50",
+				"tooling/evaluations/review/lexical-rescore.ts": "99a6ee1652f2e64623095479a7b48bb8ce7eaff4cee35da87bcab2f83cf96155",
+				"tooling/evaluations/review/metrics.ts": "78d5c92579f3c460ba570886355e5168067304fafa4cbe3a41f7b7053983d4d4",
+				"tooling/evaluations/review/models-tasks.json": "7af5dd6e479223b4783d4cf8e18eec8f73223985c9bdc2ef388c49e031e2d10d",
+				"tooling/evaluations/review/models.json": "37e61cc8f5a3b214797ec7c695674692a2f88accdd78b3e7b3cb79ca2be18731",
+				"tooling/evaluations/review/owner-review-cli.ts": "2afe0dc175d9a8a3b1012c21eba7e748825cd33cfb7a59c4c08cd5aea6c36a01",
+				"tooling/evaluations/review/preflight.ts": "e765ad311d25997a3f8903e8f29d8145e4528a4e1d7f5e434e3f0d7e4cc61ed0",
+				"tooling/evaluations/review/production.ts": "d10d21c00d1f61f9c7a6f8cb475d1039d492e08340dfcdfa2fc613a9d6369e84",
+				"tooling/evaluations/review/question-equivalences.json": "265aa52f25bffd3ce5aab4a7e772c32700bde746927ee6d85533b42551d0773c",
+				"tooling/evaluations/review/reconcile.ts": "8e862e799c0ff343c895293623f1ffead086564bca18d1c3242cbfef062c1b7b",
+				"tooling/evaluations/review/reguard-cli.ts": "cc92290be65908e0e54c3ab1abe417bd87616becff7d390c45a0c9548a9ba476",
+				"tooling/evaluations/review/reguard.ts": "a302ffd9cdffb4a721a4f7a609ccd9ce4bbe2df269b4c5fd61578cb544ec2f4c",
+				"tooling/evaluations/review/repair-cli.ts": "f2efbbbd1ca9a5e014994b06757f99f1e4c8e99099a003bb504c3abc0c5fae52",
+				"tooling/evaluations/review/repair.ts": "2b27e4e6e1d13ec0ae2b80ad563bfe73f1fb9a04f009c3a618f7c83f3d63af59",
+				"tooling/evaluations/review/replay.ts": "463f7ed7ec71b96f8eff3e51d1396d6f399fd40702083dcc6ce67024c604bcf3",
+				"tooling/evaluations/review/report-client.ts": "31de4336fcf2eab75e4e2e935d77f650160ec87951c845a0b40467d39fd137ea",
+				"tooling/evaluations/review/report.ts": "804b37402d4684026dc9e5529054ed34c5d1fcec9777c373e03049d3c842484a",
+				"tooling/evaluations/review/rescore-cli.ts": "83df8a088e24d8174f4c07d042adf58254eb8d7c16e8cd6411c89b8399f58888",
+				"tooling/evaluations/review/rescore.ts": "833f2774878b6d5efc74042f16deda22409f0f2e4a233bedce137e48ebbd1f6d",
+				"tooling/evaluations/review/runner.ts": "da98342575c44f783e087c8d1626c1000286ac3fa04cc821ce0a86a87060dab0",
+				"tooling/evaluations/review/score.ts": "976d631dd5b59a098b585c81729309f4df6f941bc0187b01aeb11aaac49dbad0",
+				"tooling/evaluations/review/stop-summary.ts": "f83c9064d65ad5cbce77ec242d0c91ff49c55bb6c5df5c30ed72d87b41f8a7ac",
+				"tooling/evaluations/review/study.ts": "37cf6284daf35e3271d4c8998faa33159fe82836e5c18717a672889301d30878",
+				"tooling/evaluations/review/subprocess.ts": "b094b5ed52636912715e0993d63ed5d83ff4d86bc2991cf760569792ebda68c2",
+				"tooling/evaluations/review/tuning-passages.json": "1b1266b5454a0047a129b5c08b4d037edde4676abe5bbdd3ddcf21cd245b48a4",
+				"tooling/evaluations/review/verifier-health.ts": "8b7219703098706e5608840b8b8880eb6f05a9f0da019df38aa1f3496b29d66a",
+				"tooling/evaluations/review/verifier.ts": "0039cc080014c527ebc3e92451c6c6d4248ae0231af2ecc0f643f936a9f6f606",
+				"tooling/local/test-ai-guard.d.mts": "661b80dc072df91ce598abc570b844c29c0947fad8fdbe40b6a433a3d364c469",
+				"tooling/local/test-ai-guard.mjs": "d6a13569564ce37c275de0960faa39499002aadf51f1392210849a9fab6fcb64",
+				"vite.config.ts": "ec923fb7adc405563f5713ce21107bfcebd6b768d7f651204719b5296a5d9726",
+				"vitest.setup.ts": "ae6ddd81847643d7e87255177c805f00605e18525aa8c69bcd368b65793d95f6",
+				"vitest.shared.mts": "1f415ef250bdb2a262c2f2e7a0163d7f3e6af99c261c46c8bb15d57aa963d95f",
+				"tooling/evaluations/review/diagnostics.ts": "a46982b11e2e5c86f6e82eff59d583cacca642eec4f49f00aaa0210c5a83cdcb",
+				"tooling/evaluations/review/credentials.ts": "f63f9d7cc787c709698f73d704a1c154c98330b7a3e272c4c841a3115f9bb880",
+				"tooling/evaluations/review/catalog-snapshot.json": "e11c29094ca75f67c095babdbcd20cb9687693c5f0dd323855e1b3d59d83b681",
+				"tooling/evaluations/review/canaries-scoring.test.ts": "83afa4ee36977c84805c09e52a699b1816da55b839398a2e9e87ff2e9272027d",
+				"tooling/evaluations/review/README.md": "59ea8920e29223c0b6e3a3345c053fa8a667ef0353ae9804d4eef4821d06b9ab",
+				"tooling/evaluations/review/canaries-pipeline.test.ts": "54dc61153b521fdd1b75860c48668e70bb7989b9e9b484be6c325d0147275593",
+				"tooling/evaluations/review/canaries.test.ts": "3f624e0bb0534b0a0aa68c2f0d6c06447bfc302bf5b54ff748d3657874e226d4",
+				"tooling/evaluations/review/safety-replay.ts": "f817bb520dcb7e50b3323ebfa5105f9c5e227d501e1d73a882cb2e7462041c27",
+				"tooling/evaluations/review/safety-replay-cli.ts": "9679086397c8aa57fc8fc10e5ea11f64e4a0b4454a2938237670e87c12929390",
+				"tooling/evaluations/review/safety-replay.test.ts": "ae18e586845d7943f27292e645c4cb41d4feeeeced885b502ebf0e715b4d0219"
+			},
+			"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+			"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809",
+			"payloadVersion": "t006-payload-v3",
+			"hardFactsVersion": "t006-hard-facts-v10-lane23",
+			"reseal": {
+				"reason": "Owner-requested offline test:ci repair: make the test guard safe under Playwright CommonJS transformation while retaining credential/fetch blocks; distinguish proven pre-dispatch refusal from billed ambiguous post-dispatch reset in the fake transport. The prior Knip freeze changed without rebinding its control receipt; fresh actual scans pass without guard, fixture or gold changes. Historical core identity and receipts stay unchanged and stale shared core bytes do not qualify current runtime. No inference, environment-file reads, staging, commits, approval or live qualification.",
+				"priorFreeze": "tasks-study-before-test-ci-fix.json",
+				"priorFreezeSha256": "92bff3311b0447ed1800c0725d7be6be53e04aec288c5e53f63c6e82cbed5063",
+				"changedFiles": [
+					{
+						"path": "tooling/evaluations/review/faults.ts",
+						"beforeSha256": "51817182815cd02126e45813380b49a3ce0b16fc2fa0172036e6d5e8f6351cd8",
+						"afterSha256": "ff1d9d869851782b54fb82122c939b3b4a45a18edc2663bcbd89e81b0bf70de1"
+					},
+					{
+						"path": "tooling/local/test-ai-guard.mjs",
+						"beforeSha256": "195ef3c764fed0a3b78a3e78ba717a80dcf9b38f7f588d7aaa77096512fcb0fe",
+						"afterSha256": "d6a13569564ce37c275de0960faa39499002aadf51f1392210849a9fab6fcb64"
+					}
+				],
+				"sealedControlsRescanned": true,
+				"controlsPass": true,
+				"coreFreeze": "Unchanged historical identity; current deterministic controls 126/126 only, no core freeze qualification.",
+				"approval": "UNAPPROVED; fresh smoke and applicable lead approval required."
+			},
+			"approvalStatus": "UNAPPROVED",
+			"previousFreezeSha256": "7a06d58a894d378b942622ec5e58060bd3e2d7730df7778b0f5a70e47d6e970f",
+			"observedChanges": [
+				{
+					"path": "tooling/evaluations/review/faults.ts",
+					"beforeSha256": "51817182815cd02126e45813380b49a3ce0b16fc2fa0172036e6d5e8f6351cd8",
+					"afterSha256": "ff1d9d869851782b54fb82122c939b3b4a45a18edc2663bcbd89e81b0bf70de1"
+				},
+				{
+					"path": "tooling/local/test-ai-guard.mjs",
+					"beforeSha256": "195ef3c764fed0a3b78a3e78ba717a80dcf9b38f7f588d7aaa77096512fcb0fe",
+					"afterSha256": "d6a13569564ce37c275de0960faa39499002aadf51f1392210849a9fab6fcb64"
+				}
+			],
+			"reason": "snapshot cleanup",
+			"changedFiles": ["tooling/evaluations/review/README.md"]
+		}
+	},
+	{
+		"name": "guard-controls-core-prior-to-naming-cleanup.json",
+		"date": "2026-11-14",
+		"reason": "naming cleanup",
+		"originalName": "guard-controls-lane17.json",
+		"sha256": "688a2473bd28f518b2ac36b5bfb6ef75fcf04b480e0e21b6bbacace2e218e6a6",
+		"archivePath": "/mnt/storage/master-cv-design-archive/ui-audit/t006-grid/freeze-history/naming-cleanup/guard-controls-lane17.json",
+		"snapshot": {
+			"study": "core",
+			"freezeHash": "477dd8434a530b8a064f45897d081f64621d5a476e265e29f5d97e3f32dee288",
+			"reason": "Offline startup diagnostics reseal; controls actually rescanned. No new human approval or live qualification.",
+			"controlsBasis": "Actual deterministic scoring plus scripted semantic labels; not live semantic evidence.",
+			"scannedAt": "2026-11-13T20:48:32.081Z",
+			"all": {
+				"checked": 126,
+				"pass": true,
+				"failures": [],
+				"knownLimitations": [],
+				"honestFalseRejects": []
+			},
+			"tuning": {
+				"checked": 54,
+				"pass": true,
+				"failures": [],
+				"knownLimitations": [],
+				"honestFalseRejects": []
+			},
+			"holdout": {
+				"checked": 72,
+				"pass": true,
+				"failures": [],
+				"knownLimitations": [],
+				"honestFalseRejects": []
+			}
+		}
+	},
+	{
+		"name": "guard-controls-tasks-v1-prior-to-naming-cleanup.json",
+		"date": "2026-11-14",
+		"reason": "naming cleanup",
+		"originalName": "guard-controls-tasks-v1.json",
+		"sha256": "8a534a59484ae74517d893a47b275c83961eb57ee3f8bc6137fbc79ae5a4d755",
+		"archivePath": "/mnt/storage/master-cv-design-archive/ui-audit/t006-grid/freeze-history/naming-cleanup/guard-controls-tasks-v1.json",
+		"snapshot": {
+			"study": "tasks-v1",
+			"freezeHash": "9fe1c3b7cdc08614932d05aaad842ce14f5dae43cfd59c4ebd80c2204cd41ee6",
+			"reason": "snapshot cleanup",
+			"controlsBasis": "Fresh actual deterministic/scripted scans: tasks 1056, core 126, canaries 108. Not independent semantic evidence or live qualification.",
+			"scannedAt": "2026-11-14T06:01:18.592Z",
+			"all": {
+				"checked": 1056,
+				"pass": true,
+				"failures": [],
+				"knownLimitations": [],
+				"honestFalseRejects": []
+			},
+			"canaries": {
+				"checked": 108,
+				"pass": true,
+				"failures": [],
+				"knownLimitations": [],
+				"honestFalseRejects": []
+			}
+		}
+	},
+	{
+		"name": "freeze-prior-to-naming-cleanup.json",
+		"date": "2026-11-14",
+		"reason": "naming cleanup",
+		"originalName": "freeze.json",
+		"sha256": "302c45c388be19c264b3121d1fc68c876052b964f61a48df4a262bdd760c44fd",
+		"archivePath": "/mnt/storage/master-cv-design-archive/ui-audit/t006-grid/freeze-history/naming-cleanup/freeze.json",
+		"snapshot": {
+			"version": 4,
+			"frozenBeforeHoldoutAuthorship": "2026-11-12T12:24:52.603886+00:00",
+			"policy": "Owner-authorized class-level holdout inspection and round-5 correction of a responsibility-inflating gold label; not pristine independent generalization evidence. Production guard unchanged. One authorized post-correction control scan; no other label changes. Owner-directed lead review on 2026-11-12 corrected chronology and supporting-role gold in tuning/holdout; regenerated from authored passages. Not pristine independent generalization evidence. Production guards and prompts unchanged. Owner-authorized recorded tuning-smoke repair: production guard v8, Gemini JSON mode with unchanged full local validation, larger benchmark completion caps, technical smoke checks and tuning fact aliases; holdout unchanged. Prior sealed receipt is historical only; new controls recorded separately.",
+			"files": {
+				"packages/api/src/features/ai/hard-facts.ts": "2bba6ab6dccf5a63d71208d7b66109c63d7b1f74d5a0c5bcfab980149b164364",
+				"packages/api/src/features/ai/review-validation.ts": "06b0f6b486503e75d1d64f81b976e6be56afde3b56551c781bfd25274825b725",
+				"packages/api/src/features/ai/review-verifier.ts": "9cd2453d4df7d597e6367446dcc2f59f78f90e0f69e309d08d54985d713000b7",
+				"packages/api/src/features/ai/review-handlers.ts": "7fdf354d2dcd71a14e85b5edb69e392bcf3a25d56618206d8d263fcb5e0f19be",
+				"packages/schema/src/resume/ai-review.ts": "e226775f071cc5aa9babe3f406ac1a8a62cb7d22f19f0d0df1de81cdd3cba265",
+				"packages/ai/src/prompts/review-system.md": "19f4b32216e3a614161f2849fc646f0faa6bb1bce58ec64ca83df16e80b87a6d",
+				"packages/ai/src/prompts/extraction-review-system.md": "fa9ffb0d72901467a4dc5ca676708fbe304e179571703bf3b7603ec6363fd478",
+				"packages/ai/src/prompts/review-verifier.md": "45840603bac96583ab793bc1f9cf9e6a66a0aec9192b9414b5301bca64d12611",
+				"tooling/evaluations/review/corpus.ts": "20c4d488429d8debe8845b231cedc2ac3b7e7844b065fbd259331b3e05a277f0",
+				"tooling/evaluations/review/score.ts": "fff13f7f333afca5d4a8d5b91ef21a12239eeb807453d26909f265e2ab6ad777",
+				"tooling/evaluations/review/decision.ts": "036c855b623d7f7bb930b1507c244989533a38764e8712392919e070a59bdc27",
+				"tooling/evaluations/review/metrics.ts": "6bdedea9135e76f4e7729985ac9ec91a09d786b7476d0830c02341dfd04a50cd",
+				"tooling/evaluations/review/runner.ts": "a20c972da786f1dcbfd0db6b60a2efec9dc3f60f3753d77e7c471c9a7d250bc3",
+				"tooling/evaluations/review/verifier.ts": "435852f1343f7dc057d22c3289469eed630bb5a172434d4e6821ff299e2885f1",
+				"tooling/evaluations/review/study.ts": "f28b84d249f9648a0eab5c38990b0119239ee8452740d21c135d4c5a7c7fd788",
+				"tooling/evaluations/review/report.ts": "ad4d65a56a500a385ad2a6b3690b1193f2ecaee9c29d16a62b97960b3da028ee",
+				"tooling/evaluations/review/report-client.ts": "f738c676fdd5854bf48cf51f966f0b343e1d0605ed4f5d3b66508a476f057027",
+				"tooling/evaluations/review/blind.ts": "9e0e9fb95980af07addf143b8d8ab61da34d022c1feaf6a3d844f15f41c61126",
+				"tooling/evaluations/review/cli.ts": "4b4c5d9dae6ce0c231075529634a7b1629c6b1295a5aba8040bd203cf9e7a3be",
+				"tooling/evaluations/review/config.ts": "87d08f52f16a30dd3b6ad06a3d4bc20ac6f0e979f32f131837c1fd284d62dcc4",
+				"tooling/evaluations/review/production.ts": "db4ce124dfb637915512259be79b8112b2ea79ddc58d5c3811affc239af8dd00",
+				"packages/utils/src/string.ts": "3f2d7e05fffa00bbaff5099182b1d40fc27c11f033c34331aaba72813f2e5c77",
+				"packages/resume/src/proposals.ts": "b4cce4d8595d7c77b7c9a4e8c71b2876caf6d14d44da4cedaf9eff4682eec6bb",
+				"packages/api/src/features/ai/verifier-policy.ts": "e1b92320cb850c4ff9bec4808632b000b477a68a69473081b43ee00b2bd763d8",
+				"packages/api/src/features/ai/operation-worker.ts": "7e74abf3834498c90254472f8ef48837e431cd6de9c3951585e8948f1dcb92fe",
+				"packages/api/src/features/ai/route-policy.ts": "bad0f6da2016d363bf296c349000773a43f8910560d6b1a40b7731b57cee133b",
+				"tooling/evaluations/review/honesty.ts": "e90031371ef0e8c8061e5f1993ad4c8334a013eb10d2da0f3fde1f452a4bc0e8",
+				"tooling/evaluations/review/honest-paraphrases.json": "1299a796dbc588543cde5186fc6f51da67014815823c992890de6bc12f1a4a75",
+				"tooling/evaluations/review/tuning-passages.json": "1b1266b5454a0047a129b5c08b4d037edde4676abe5bbdd3ddcf21cd245b48a4",
+				"tooling/evaluations/review/fixtures.json": "b254346891029d10d463bf30b83d9cdcf22b433044ba588f7f1d2c7942738713",
+				"tooling/evaluations/review/models.json": "2df3912204eef8bc056ecbc156303fd73b2b3b8d9be031453a2f96950d92ed9d",
+				"tooling/evaluations/review/derive-cases.py": "0d0eb8175e0e6ca7fae4bfe32d903394b306ce22a4d2f72c98e0ab587da67cd9",
+				"tooling/evaluations/review/class-tuning.json": "05796a098c2c0739eae7a6504bbfd1b356c87215640606cae4a3292b670dc0fb",
+				"tooling/evaluations/review/budget.ts": "31329cf8e72d8ff51f88de8145d8670447389fd94c1a464a300edba64b447743",
+				"tooling/evaluations/review/benchmark-verifier.md": "6981039faa9c2bf274244d02ef8eedf0a9d22a277955960c15ef1db48bcf90fb",
+				"packages/api/src/features/ai/adapter.ts": "f4ca5cf314e12ee254ab11f16a37a4bd6194e769391b91e8f173633f6c3d2c94",
+				"tooling/evaluations/review/replay.ts": "463f7ed7ec71b96f8eff3e51d1396d6f399fd40702083dcc6ce67024c604bcf3",
+				"tooling/evaluations/review/effort-grid.ts": "10929859af13d3b52550b2fcd9bf1b9da1fb60c96a1f5705ace25056a3c60ea3",
+				"tooling/evaluations/review/forecast.ts": "e546105bbbaebcfcd32bc62397acbfa701c1cf08ecbb5584d1de944840c6c565"
+			},
+			"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+			"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809",
+			"holdoutFrozenAt": "2026-11-12T12:25:46.644128+00:00",
+			"formattingOnly": {
+				"priorHoldoutHash": "86bb161e6fab0d1d48985518377db47df4612a8667c0ce2157c0b26bd77d30e4",
+				"contentChange": false
+			},
+			"independentCorrectnessAmendments": [
+				{
+					"at": "2026-11-12T12:28:11.230453+00:00",
+					"source": "Independent generic dispatch-receipts/inventory-notes reorder baseline test, RED to GREEN; no heldout/probe quality results inspected.",
+					"reason": "An absent clarity-removal marker could accept copied reordered tasks; measure authored fact order instead.",
+					"files": {
+						"tooling/evaluations/review/corpus.ts": "8d7940642909460b4fa4f8661c047b5690806071e5f152f8bdab52a78426b5ce",
+						"tooling/evaluations/review/score.ts": "8bd0a583abe22598902e3c37e8f281719d2bb6ca5826301dcace37ce46011f13"
+					},
+					"guardPromptChange": false,
+					"holdoutContentChange": false
+				}
+			],
+			"nonBehavioralAmendments": [
+				{
+					"at": "2026-11-12T12:36:30.756840+00:00",
+					"source": "Final static lint: split multiple variable declarations; capture optional validateResult function instead of non-null assertion.",
+					"qualityTuning": false,
+					"holdoutOrPromptContentChange": false,
+					"files": {
+						"packages/api/src/features/ai/hard-facts.ts": {
+							"before": "d37c79c27d2a2521383441e22c23cadbe224f4b1048c8e6b84faea558a61d1ac",
+							"after": "800c29ff7cc7313e02d28f1a09277b36c65c6954020048e3effc1af734ac6da3"
+						},
+						"tooling/evaluations/review/score.ts": {
+							"before": "8bd0a583abe22598902e3c37e8f281719d2bb6ca5826301dcace37ce46011f13",
+							"after": "517f87a9d7abc7614f3e597593d293ad2109289247006ccfeadf2169acf0ae7a"
+						},
+						"tooling/evaluations/review/runner.ts": {
+							"before": "62b18fe3cdb1e5d1388201ed3eae0074d0ff215c9d4fc93a75a6637332d171eb",
+							"after": "50c430037b3b71d783542088ba07032e3a78be005fd1d429408a7eaf80537f38"
+						},
+						"packages/api/src/features/ai/operation-worker.ts": {
+							"before": "9528c8b0b2ec003eeaceafe73c1a20eeb4a2045b8cbeec056340638f45e1f440",
+							"after": "7e74abf3834498c90254472f8ef48837e431cd6de9c3951585e8948f1dcb92fe"
+						}
+					}
+				},
+				{
+					"at": "2026-11-12T12:37:47.063777+00:00",
+					"source": "Final Knip: remove exports of three functions used only within their own modules.",
+					"qualityTuning": false,
+					"holdoutOrPromptContentChange": false,
+					"files": {
+						"tooling/evaluations/review/score.ts": {
+							"before": "517f87a9d7abc7614f3e597593d293ad2109289247006ccfeadf2169acf0ae7a",
+							"after": "e1cd9973c0a174622904b966e1e54ccfc38f3577c72c21a53d7db4110f0403d6"
+						},
+						"tooling/evaluations/review/runner.ts": {
+							"before": "50c430037b3b71d783542088ba07032e3a78be005fd1d429408a7eaf80537f38",
+							"after": "36e8ba439f1410baf5f00a40f8b95d3ea3c7d62fa1ebb8f8dba7e3060f1cdb7f"
+						}
+					}
+				}
+			],
+			"authorizedClassResolution": {
+				"frozenAt": "2026-11-12T12:53:53.455571+00:00",
+				"priorFreezeHash": "51df7ca53d9c7eb7834c1cb7b42fb44255495ce8990634845d522e692c12b884",
+				"priorFreeze": "freeze-round2-before-class-resolution.json",
+				"classOnlyLeakage": true,
+				"sealedScansAuthorized": 1,
+				"diagnoses": {
+					"r2-h11-wording": "date-only retained claim incorrectly requires omitted role context",
+					"r2-h11-injection": "same date-role context mismatch under another task wrapper",
+					"r2-h06-injection": "credential qualifier unbound to credential headword"
+				},
+				"newTuningExamples": 12,
+				"holdoutContentChange": false,
+				"furtherQualityIterationAllowed": false
+			},
+			"nonQualityAmendments": [
+				{
+					"at": "2026-11-12T13:03:45.732483+00:00",
+					"priorFreezeHash": "213cf19a932b94f1f1525b6ef3d7b95d26438c5a55759a66533c3468dbb7e7f0",
+					"priorFreezeFile": "tooling/evaluations/review/freeze-class-resolution-before-calibration.json",
+					"priorReceiptSha256": "040f708270c75e49911a933b7ecf219d721e9b4ad258ac1f3fb5d80f9141fb95",
+					"priorReceiptFile": "tooling/evaluations/review/guard-controls-class-resolution.json",
+					"changedFiles": ["tooling/evaluations/review/budget.ts", "tooling/evaluations/review/cli.ts"],
+					"reason": "Owner decision: print calibrated total before refusal and label provisional dry-run estimates unverified. No quality/guard/scoring/corpus change or new sealed scan."
+				}
+			],
+			"round5Amendment": {
+				"at": "2026-11-12T13:26:27.710359+00:00",
+				"priorFreezeFile": "tooling/evaluations/review/freeze-before-round5.json",
+				"priorFreezeHash": "44aae8c13bc456452ac717849e33d8c73cdaad177386854082fc465e4d315228",
+				"priorHoldoutHash": "91c07c62256795491c76aa4930d0de98c5ac227cbcc4e095ffe6a5baf84ed5af",
+				"priorHoldoutFile": "tooling/evaluations/review/holdout-before-round5.json",
+				"goldCorrection": {
+					"ids": ["r2-h11-wording", "r2-h11-injection"],
+					"fields": ["safeText", "acceptableOutputs"],
+					"reason": "Gold strengthened an assisting responsibility into ownership; preserve the source responsibility strength."
+				},
+				"productionGuardChange": false,
+				"authorizedControlScans": 1,
+				"benchmarkChanges": [
+					"Adjudicate schema-valid guard rejects with the pinned verifier; include cost and blind ratings",
+					"Case-task usefulness verdict and 70% useful distinct-case threshold",
+					"Ten independently authored full-passage negation diagnostics",
+					"Report-header class-level leakage disclosure"
+				],
+				"changedFiles": [
+					"tooling/evaluations/review/corpus.ts",
+					"tooling/evaluations/review/decision.ts",
+					"tooling/evaluations/review/metrics.ts",
+					"tooling/evaluations/review/runner.ts",
+					"tooling/evaluations/review/verifier.ts",
+					"tooling/evaluations/review/study.ts",
+					"tooling/evaluations/review/report.ts",
+					"tooling/evaluations/review/report-client.ts",
+					"tooling/evaluations/review/honesty.ts",
+					"tooling/evaluations/review/honest-paraphrases.json",
+					"tooling/evaluations/review/benchmark-verifier.md"
+				]
+			},
+			"studyOnlyAmendments": [
+				{
+					"at": "2026-11-12",
+					"reason": "Owner-directed full model/effort grid, synthetic Google approval, explicit budget, fee-inclusive forecast and per-task quality/cost reporting. No prompt, production guard or corpus changes; no sealed control rescan.",
+					"priorFreeze": "freeze-before-variant-grid.json",
+					"files": {
+						"tooling/evaluations/review/decision.ts": {
+							"before": "e93db9ab34777485533176b24a8f1aa23d4bc796911a7db55922096bb7be3ab5",
+							"after": "07bb7fa311a5ec7eb0c913de4365a26f54616891e07d66be242ed171c01668f4"
+						},
+						"tooling/evaluations/review/runner.ts": {
+							"before": "f7fb123461c6f79cf6d1b8b74d1d6aede4d72c0092abe6460317afb15cc659aa",
+							"after": "5b3218dacfed7ca7631299ac668034ca3509cb14e0870bc51075005e3ad2c1c8"
+						},
+						"tooling/evaluations/review/report.ts": {
+							"before": "0ccf4ab242a8552f12e93732f7d7f60680123ce32da8881039fa08a15528b705",
+							"after": "1a21656275d99f302c621d43c69783b7efe134766116c7fb4475c2f2436ca05b"
+						},
+						"tooling/evaluations/review/report-client.ts": {
+							"before": "4476e315fc79f2757600309e7fb005afbe3856216ceb5c63acc2c13f9639dbaa",
+							"after": "0f66ada3d696d64bac71c7defdce2ded91c7cf8637e8828355cf78f8ec6ff36b"
+						},
+						"tooling/evaluations/review/cli.ts": {
+							"before": "ce14a837fcc6b85234d035620b6fa2ab86cf01dc39f4dcc93574489ea30f3ea3",
+							"after": "ceb9df1334c3542bf324245d22c6cefd0ef01a17c7689e8151bd03de0a2fd580"
+						},
+						"tooling/evaluations/review/config.ts": {
+							"before": "92884f11261771d8ec41f4e7771d8eeac1dd9b25a0df520fb12129fc57d996e3",
+							"after": "58c21b04c8368a285a19e708085b6ea5856fa417b991dab8403f5fa1d36c68cc"
+						},
+						"packages/api/src/features/ai/route-policy.ts": {
+							"before": "ad7c7bf500aa7c413bd87adc7409ff0d463014a581de6c831bb428d919ee8315",
+							"after": "bad0f6da2016d363bf296c349000773a43f8910560d6b1a40b7731b57cee133b"
+						},
+						"tooling/evaluations/review/models.json": {
+							"before": "dad1b64c3e58075f3a11437b95584839afcd297b8ee3a811e01c3b4c4504a692",
+							"after": "62e44b6162c81ff4557b3d0c86780acaef718f655045931caa1911d8b09e3e71"
+						},
+						"tooling/evaluations/review/budget.ts": {
+							"before": "e01a0ca91852ff5a6fcfc7c274a3896b2675583cabb77dbe4343f385cbc36f64",
+							"after": "8e3890136f9a351c0c157b5f4c843703a5b6b1062825255f3a97e83c46f89f26"
+						}
+					},
+					"guardPromptChange": false,
+					"holdoutContentChange": false
+				},
+				{
+					"at": "2026-11-12",
+					"reason": "Owner Google refresh: remove Lite, add healthy Carbon EU low with endpoint-specific 2.2/11 pricing, Flash .825/4.125; public effort enumeration excludes DeepSeek medium. Endpoint pin is hash-bound; identical privacy controls. No corpus/guard/prompt changes or sealed control rescan.",
+					"priorFreeze": "freeze-before-google-refresh.json",
+					"files": {
+						"tooling/evaluations/review/runner.ts": {
+							"before": "5b3218dacfed7ca7631299ac668034ca3509cb14e0870bc51075005e3ad2c1c8",
+							"after": "c960c19365c2389544acaa6ecb05b66cb3dec085fb2a4d818df51dce32c6811a"
+						},
+						"tooling/evaluations/review/study.ts": {
+							"before": "e0a72644b1b2d2cb886b641609f37b070d810d9fa5fa1685697f9b497cee8474",
+							"after": "6f663ac49b67d075470bf0dcb69c4e081c41b521b1f1f4705d061677b1bb1926"
+						},
+						"tooling/evaluations/review/config.ts": {
+							"before": "58c21b04c8368a285a19e708085b6ea5856fa417b991dab8403f5fa1d36c68cc",
+							"after": "89996acafd25d135ef75e3d64276255efa47393610cf6550a757dd81e3c90258"
+						},
+						"tooling/evaluations/review/models.json": {
+							"before": "62e44b6162c81ff4557b3d0c86780acaef718f655045931caa1911d8b09e3e71",
+							"after": "b92e851e9c6ee9c59b15cb1d0df1a9c5046bd8f7d52350b9a7472b1d3b5bc431"
+						}
+					},
+					"guardPromptChange": false,
+					"holdoutContentChange": false
+				},
+				{
+					"at": "2026-11-12",
+					"reason": "Owner removed the Google frontier candidate; eight variants retained, Terra low sole premium quality reference. No corpus, guard or prompt changes; prior sealed control outcomes carried without rescan.",
+					"priorFreeze": "freeze-before-reference-removal.json",
+					"files": {
+						"tooling/evaluations/review/models.json": {
+							"before": "b92e851e9c6ee9c59b15cb1d0df1a9c5046bd8f7d52350b9a7472b1d3b5bc431",
+							"after": "d6bcad98e2a624844da6e4c51ec90bb4782692be1562c9ab7ca0577553696bad"
+						}
+					},
+					"guardPromptChange": false,
+					"holdoutContentChange": false
+				},
+				{
+					"at": "2026-11-12T18:52:40.019951+00:00",
+					"reason": "Owner replaced Gemini 3.8 Flash low/medium with Hydrogen low across all categories/sets. Healthy exact Vertex global pin, fresh free metadata/prices. Historical offline replay uses archived manifest variants after removal from active grid. No paid inference, guard, prompt, corpus or preflight relaxation.",
+					"priorFreeze": "freeze-before-hydrogen-refresh.json",
+					"files": {
+						"tooling/evaluations/review/config.ts": {
+							"before": "b642de005938102dec7fb8f4c071c56e1866c40f1a0efcaf0951f8ab1409a13a",
+							"after": "d9c50e0b13934b300e74b3e23f7c876757f7d0788076e01d51cbfaf36e4b087f"
+						},
+						"tooling/evaluations/review/models.json": {
+							"before": "d6bcad98e2a624844da6e4c51ec90bb4782692be1562c9ab7ca0577553696bad",
+							"after": "3b58c6f82a6758568e99236934c071e03ad0d38adf0fd30b6b77bf21c5e3baed"
+						},
+						"tooling/evaluations/review/replay.ts": {
+							"before": "12e7b82456c499790a79ffdf3a5308fe2394380424e8db18b2dfd3d658240540",
+							"after": "a42750ed9acd223f0506524d5363f0d63c2c01599abeea85703a42ee387a87ce"
+						}
+					},
+					"guardPromptChange": false,
+					"holdoutContentChange": false
+				}
+			],
+			"leadReviewCorrections": {
+				"date": "2026-11-12",
+				"source": "Owner-directed lead review of Arabic gold and full AR/EN/mixed chronology/role-strength audit.",
+				"reason": "Reverse-chronological work histories and supporting-role gold corrections; stale authored h11 gold synchronized with its prior derived correction.",
+				"passages": ["r2-t03", "r2-t05", "r2-t11", "r2-h04", "r2-h05", "r2-h11"],
+				"derivedCaseIds": [
+					"r2-t03-wording",
+					"r2-t03-extraction",
+					"r2-t03-injection",
+					"r2-t05-wording",
+					"r2-t05-missing-info",
+					"r2-t05-injection",
+					"r2-t11-wording",
+					"r2-t11-extraction",
+					"r2-t11-injection",
+					"r2-h04-wording",
+					"r2-h04-extraction",
+					"r2-h04-missing-info",
+					"r2-h04-injection",
+					"r2-h05-wording",
+					"r2-h05-extraction",
+					"r2-h05-missing-info",
+					"r2-h05-injection",
+					"r2-h11-wording",
+					"r2-h11-extraction",
+					"r2-h11-missing-info",
+					"r2-h11-injection"
+				],
+				"priorFreeze": "freeze-before-lead-review.json",
+				"files": {
+					"tooling/evaluations/review/fixtures.json": {
+						"before": "4c553e02a56464a7a3b4a4cf5e95ca18519e04e6a40390a55d0615d0977d0541",
+						"after": "1508abfbab5a7e97c2c7d511e68781d242fa2517c8a959d75ff6d178822d865d"
+					},
+					"tooling/evaluations/review/tuning-passages.json": {
+						"before": "98ff2ebdcceaf5ca8bb0294584d7aefe09fedb2b230443bbac6b1dab3353b09c",
+						"after": "64d2f4a58504e6e28ccdbf0a707106aaa88e5c20cddb50ddbc235d6dbcea685a"
+					},
+					"tooling/evaluations/review/holdout.json": {
+						"before": "861604b627bc8d9462a383b78a69ffe5f2a53edd8b60ecd132e4a3f5b0bff372",
+						"after": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542"
+					},
+					"tooling/evaluations/review/holdout-passages.json": {
+						"before": "449ef4f1fc7c95e8b8d13bc45cdc05af7ae603f4c9430e5ea24a49ee07386901",
+						"after": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809"
+					}
+				},
+				"productionGuardChanged": false,
+				"promptChanged": false,
+				"holdoutGoldCorrectedAfterReview": true
+			},
+			"liveSmokeRepair": {
+				"at": "2026-11-12",
+				"source": "Owner-authorized offline diagnosis of recorded tuning smoke 2026-11-12T17-23-39.924Z-1d8e7b6f; no new inference or heldout quality outcomes",
+				"priorFreeze": "freeze-before-live-smoke-repair.json",
+				"priorReceipt": "guard-controls-before-live-smoke-repair.json",
+				"productionGuardChange": true,
+				"hardFactsVersion": "t006-hard-facts-v8",
+				"holdoutContentChange": false,
+				"promptContentChange": false,
+				"changes": {
+					"packages/api/src/features/ai/hard-facts.ts": {
+						"before": "006505241241c9fbd9efb2582b170e5a2ed8ef1c905f8dfaabef03ec1dd8c66e",
+						"after": "2e2ccf97d5c0c1d51d3040cf6fe7b5740b89585905f527e303894dd79893aded"
+					},
+					"tooling/evaluations/review/runner.ts": {
+						"before": "c960c19365c2389544acaa6ecb05b66cb3dec085fb2a4d818df51dce32c6811a",
+						"after": "84bcade837336cff40c4a0c106eff58dae7c7bcf7ba3a4d5fe8ac5c0f783c331"
+					},
+					"tooling/evaluations/review/verifier.ts": {
+						"before": "dde642bb68ee7c3834284c771500d99a009484c3608f10480edb73b1f6ecd20e",
+						"after": "6e942cc1da5bd3f6bcbc84a6d35ef9284c2c906d91080846ad1b49817fd921e4"
+					},
+					"tooling/evaluations/review/study.ts": {
+						"before": "6f663ac49b67d075470bf0dcb69c4e081c41b521b1f1f4705d061677b1bb1926",
+						"after": "d5f76d889ba4b552792da47609b175fc87fb51e1fc29b68e6f923c26c25042f9"
+					},
+					"tooling/evaluations/review/tuning-passages.json": {
+						"before": "64d2f4a58504e6e28ccdbf0a707106aaa88e5c20cddb50ddbc235d6dbcea685a",
+						"after": "d8bfee49bd0f31c142d850ac64f26d44df888d22cb167561f1a1c00c5ede0864"
+					},
+					"tooling/evaluations/review/fixtures.json": {
+						"before": "1508abfbab5a7e97c2c7d511e68781d242fa2517c8a959d75ff6d178822d865d",
+						"after": "b254346891029d10d463bf30b83d9cdcf22b433044ba588f7f1d2c7942738713"
+					},
+					"packages/api/src/features/ai/adapter.ts": {
+						"before": null,
+						"after": "ae3334b9481601f76b27b359ce062dc4a3ed6f5f4f142cbba37c8b42292fa71f"
+					}
+				}
+			},
+			"postSmoke2Repair": {
+				"at": "2026-11-12T18:15:56.516756+00:00",
+				"source": "Owner-requested Astra/Fable smoke-2 fixes; offline replay of both recorded smokes only; no provider calls.",
+				"hardFactsVersion": "t006-hard-facts-v9",
+				"productionGuardChanged": true,
+				"holdoutPreviouslyInspected": true,
+				"holdoutContentChange": false,
+				"arabicFixtureContentChange": false,
+				"promptContentChange": false,
+				"aliases": "Removed t11-specific production aliases; remaining authored scoring aliases are tuning-only.",
+				"usefulness": "Advisory only; clarify-impact-without-inventing excluded; writer eligibility excludes verifier-fault sessions.",
+				"changes": {
+					"packages/api/src/features/ai/hard-facts.ts": {
+						"before": "2e2ccf97d5c0c1d51d3040cf6fe7b5740b89585905f527e303894dd79893aded",
+						"after": "2bba6ab6dccf5a63d71208d7b66109c63d7b1f74d5a0c5bcfab980149b164364"
+					},
+					"packages/api/src/features/ai/review-validation.ts": {
+						"before": "0f41e4a8b2edb86fa3c67b56fc38ff1a8981254a21b32b200175d75b28b30b51",
+						"after": "06b0f6b486503e75d1d64f81b976e6be56afde3b56551c781bfd25274825b725"
+					},
+					"tooling/evaluations/review/score.ts": {
+						"before": "e1cd9973c0a174622904b966e1e54ccfc38f3577c72c21a53d7db4110f0403d6",
+						"after": "fff13f7f333afca5d4a8d5b91ef21a12239eeb807453d26909f265e2ab6ad777"
+					},
+					"tooling/evaluations/review/decision.ts": {
+						"before": "07bb7fa311a5ec7eb0c913de4365a26f54616891e07d66be242ed171c01668f4",
+						"after": "036c855b623d7f7bb930b1507c244989533a38764e8712392919e070a59bdc27"
+					},
+					"tooling/evaluations/review/metrics.ts": {
+						"before": "30af6d0b71fb2adce27d1de7f763fcf1409aa34a9b1dd796eb369c0164d5cfc3",
+						"after": "0a201a5a9cc2c3ef8d822941a54a9a334c1dfdf00b6bd21a25b0b577ce78ddd1"
+					},
+					"tooling/evaluations/review/runner.ts": {
+						"before": "84bcade837336cff40c4a0c106eff58dae7c7bcf7ba3a4d5fe8ac5c0f783c331",
+						"after": "dcfb264496d4ae4ee14f8fdf61fa6a30fd94eda7b1c1b8f4f95d8e941b7865da"
+					},
+					"tooling/evaluations/review/verifier.ts": {
+						"before": "6e942cc1da5bd3f6bcbc84a6d35ef9284c2c906d91080846ad1b49817fd921e4",
+						"after": "89a090fa41b75ef3eb8d039feb9bd2d5f4c082dfcfdf16506a38f6ff85d96a2f"
+					},
+					"tooling/evaluations/review/study.ts": {
+						"before": "d5f76d889ba4b552792da47609b175fc87fb51e1fc29b68e6f923c26c25042f9",
+						"after": "130ebe20bed54d34f24bbfdb8617aa1c032f2bc83f73e5d066577102e9ac3418"
+					},
+					"tooling/evaluations/review/report.ts": {
+						"before": "1a21656275d99f302c621d43c69783b7efe134766116c7fb4475c2f2436ca05b",
+						"after": "cba5dd2066d2166d0af0822253d738b21dcfbdc2449c146db04823b3677ab12d"
+					},
+					"tooling/evaluations/review/report-client.ts": {
+						"before": "0f66ada3d696d64bac71c7defdce2ded91c7cf8637e8828355cf78f8ec6ff36b",
+						"after": "01fe5ba8c71f4062764ea280c821d89d44ca631386079ea62f5f29009431b932"
+					},
+					"tooling/evaluations/review/blind.ts": {
+						"before": "5aae689b9ea6076a3f8bd28f77cba362038d3252fc9edb69249079bbcbd08d4b",
+						"after": "8983e6018ce78bf6adbf2d29bbe2657f0784f554d23767b708ae97c73b3f5b24"
+					},
+					"tooling/evaluations/review/config.ts": {
+						"before": "89996acafd25d135ef75e3d64276255efa47393610cf6550a757dd81e3c90258",
+						"after": "b642de005938102dec7fb8f4c071c56e1866c40f1a0efcaf0951f8ab1409a13a"
+					},
+					"tooling/evaluations/review/tuning-passages.json": {
+						"before": "d8bfee49bd0f31c142d850ac64f26d44df888d22cb167561f1a1c00c5ede0864",
+						"after": "1b1266b5454a0047a129b5c08b4d037edde4676abe5bbdd3ddcf21cd245b48a4"
+					},
+					"tooling/evaluations/review/budget.ts": {
+						"before": "8e3890136f9a351c0c157b5f4c843703a5b6b1062825255f3a97e83c46f89f26",
+						"after": "c1899a64fd0f109cf087137854324fcb90c668d530d9b0cef50f2be8aaa4f2c9"
+					},
+					"tooling/evaluations/review/replay.ts": {
+						"before": null,
+						"after": "12e7b82456c499790a79ffdf3a5308fe2394380424e8db18b2dfd3d658240540"
+					}
+				}
+			},
+			"budgetPreflightAmendment": {
+				"date": "2026-11-12",
+				"ownerDecision": "Expected live-smoke mean per variant scaled to full sessions, 25% headroom, fee once and prior spend must fit $9; retain runtime worst-case hard stop. Round-robin dispatch and explicit incomplete coverage; no partial-data recommendations.",
+				"qualityChanged": false,
+				"priorFreezeSha256": "818719a0ffd3cc5cb6dcd06b467ed0f69ef93b2785ee733b5edb45716c5d68aa"
+			},
+			"transportRetryAmendments": [
+				{
+					"date": "2026-11-12",
+					"reason": "Owner-requested smoke-3 HTTP 200 upstream error repair: bounded identical pinned transport retries, measured error billing, per-model concurrency, variant-local transient accounting. No prompts, guards, corpus or model pins changed.",
+					"files": [
+						"tooling/evaluations/review/metrics.ts",
+						"tooling/evaluations/review/runner.ts",
+						"tooling/evaluations/review/verifier.ts",
+						"tooling/evaluations/review/study.ts",
+						"tooling/evaluations/review/report-client.ts",
+						"packages/api/src/features/ai/adapter.ts",
+						"tooling/evaluations/review/blind.ts"
+					],
+					"priorFreezeSha256": "b9519a8320c1d246da28d5bcc32c3e156b6d1105412c36cbb84602d96107f973"
+				}
+			],
+			"byokAmendment": {
+				"date": "2026-11-12",
+				"scope": "Owner-authorized synthetic benchmark OpenAI BYOK only; production Azure ZDR, prompts, guards and corpus unchanged. Split payer ledgers and forecast. No inference."
+			},
+			"effortGridAmendment": {
+				"date": "2026-11-12",
+				"scope": "Owner-expanded benchmark efforts with same pinned providers; Hydrogen medium dropped for OpenRouter headroom. Twelve variants, three repetitions each. No production, guard, scorer, prompt or corpus changes. New efforts are unverified smoke-2 cap-ratio projections.",
+				"changedFiles": [
+					"tooling/evaluations/review/runner.ts",
+					"tooling/evaluations/review/report.ts",
+					"tooling/evaluations/review/models.json"
+				],
+				"unsupportedRequestedEfforts": 0,
+				"writerCompletionCaps": {
+					"none": 2048,
+					"low": 2560,
+					"medium": 4096,
+					"high": 10240,
+					"xhigh": 40960
+				},
+				"verifierCompletionCap": 5120
+			}
+		}
+	},
+	{
+		"name": "freeze-preholdout-prior-to-naming-cleanup.json",
+		"date": "2026-11-14",
+		"reason": "naming cleanup",
+		"originalName": "freeze-preholdout-round2.json",
+		"sha256": "427d6b9bb8a0f645dbb0a334a4cbc85d79f929bf311a2e6ef54dc596ff081b21",
+		"archivePath": "/mnt/storage/master-cv-design-archive/ui-audit/t006-grid/freeze-history/naming-cleanup/freeze-preholdout-round2.json",
+		"snapshot": {
+			"version": 2,
+			"frozenBeforeHoldoutAuthorship": "2026-11-12T12:24:52.603886+00:00",
+			"policy": "Owner authorized round 2 rebuild. Production, prompts, scoring, tuning and fixed diagnostics frozen before separate new holdout authorship; no tuning from holdout or reviewer probes. Later correctness amendments must identify independent source; quality failures do not authorize tuning.",
+			"files": {
+				"packages/api/src/features/ai/hard-facts.ts": "d37c79c27d2a2521383441e22c23cadbe224f4b1048c8e6b84faea558a61d1ac",
+				"packages/api/src/features/ai/review-validation.ts": "0f41e4a8b2edb86fa3c67b56fc38ff1a8981254a21b32b200175d75b28b30b51",
+				"packages/api/src/features/ai/review-verifier.ts": "9cd2453d4df7d597e6367446dcc2f59f78f90e0f69e309d08d54985d713000b7",
+				"packages/api/src/features/ai/review-handlers.ts": "7fdf354d2dcd71a14e85b5edb69e392bcf3a25d56618206d8d263fcb5e0f19be",
+				"packages/schema/src/resume/ai-review.ts": "e226775f071cc5aa9babe3f406ac1a8a62cb7d22f19f0d0df1de81cdd3cba265",
+				"packages/ai/src/prompts/review-system.md": "19f4b32216e3a614161f2849fc646f0faa6bb1bce58ec64ca83df16e80b87a6d",
+				"packages/ai/src/prompts/extraction-review-system.md": "fa9ffb0d72901467a4dc5ca676708fbe304e179571703bf3b7603ec6363fd478",
+				"packages/ai/src/prompts/review-verifier.md": "45840603bac96583ab793bc1f9cf9e6a66a0aec9192b9414b5301bca64d12611",
+				"tooling/evaluations/review/corpus.ts": "4df78b5d6f99c5af15f7d8632c50a5df121ae2bd6c978cd546a991696529dcc2",
+				"tooling/evaluations/review/score.ts": "9fe82086468e026a58c13cfa209e855dd96c98dd97aaf18d3838e36eb2fcacf8",
+				"tooling/evaluations/review/decision.ts": "da24fa44c9085f2e180d641100e94a8cc3deff0c49b47a100fa8c7b092c6e526",
+				"tooling/evaluations/review/metrics.ts": "f44e603fcd5b1a182d42199a529c60b5170f53b6a5d69eb48cce4661004dab87",
+				"tooling/evaluations/review/runner.ts": "62b18fe3cdb1e5d1388201ed3eae0074d0ff215c9d4fc93a75a6637332d171eb",
+				"tooling/evaluations/review/verifier.ts": "a1e3e4f628442bd787bfc0de28f43219ceaa8be52d58070b2d3638e39d0ed5f6",
+				"tooling/evaluations/review/study.ts": "15fcee20401e314b7f67487208d6e173c5b08c842f9a8c04ae4d14ad3f8c6975",
+				"tooling/evaluations/review/report.ts": "ba999584f875b8fada42f3b84ec0988a82ee8c4942e52036cd229cc4307b1c9c",
+				"tooling/evaluations/review/report-client.ts": "311048403619901bab8595d81590c237fe997810d8bb57b8a012870d98f79b1e",
+				"tooling/evaluations/review/blind.ts": "5aae689b9ea6076a3f8bd28f77cba362038d3252fc9edb69249079bbcbd08d4b",
+				"tooling/evaluations/review/cli.ts": "35dd4f81f8db7b1b25870eea292c5282ff69713235570995df40f2d8afa99654",
+				"tooling/evaluations/review/config.ts": "fba879fe9aa49486dc9138aceadaf49b7ebd1fee3ec0b9ac4de55c1bfc5991f8",
+				"tooling/evaluations/review/production.ts": "6a575bf50e778b6879dafa8313195a83731758ed0324b8cc08ab503bfd39ce3f",
+				"packages/utils/src/string.ts": "3f2d7e05fffa00bbaff5099182b1d40fc27c11f033c34331aaba72813f2e5c77",
+				"packages/resume/src/proposals.ts": "b4cce4d8595d7c77b7c9a4e8c71b2876caf6d14d44da4cedaf9eff4682eec6bb",
+				"packages/api/src/features/ai/verifier-policy.ts": "e1b92320cb850c4ff9bec4808632b000b477a68a69473081b43ee00b2bd763d8",
+				"packages/api/src/features/ai/operation-worker.ts": "9528c8b0b2ec003eeaceafe73c1a20eeb4a2045b8cbeec056340638f45e1f440",
+				"packages/api/src/features/ai/route-policy.ts": "ad7c7bf500aa7c413bd87adc7409ff0d463014a581de6c831bb428d919ee8315",
+				"tooling/evaluations/review/honesty.ts": "f5bd0f35a7d94caae4605872b8af6da0ac7c117ad0244566cec1c09a49fe6825",
+				"tooling/evaluations/review/honest-paraphrases.json": "4b5e655861479c23908de88e1e2a15e64c63e720fe2aab5c9268e8f05ce28d62",
+				"tooling/evaluations/review/tuning-passages.json": "98ff2ebdcceaf5ca8bb0294584d7aefe09fedb2b230443bbac6b1dab3353b09c",
+				"tooling/evaluations/review/fixtures.json": "4c553e02a56464a7a3b4a4cf5e95ca18519e04e6a40390a55d0615d0977d0541",
+				"tooling/evaluations/review/models.json": "d8667996411fe4ac612528a9bac2622879ce52c0de6ffc0847dd34d3caccc188",
+				"tooling/evaluations/review/derive-cases.py": "0d0eb8175e0e6ca7fae4bfe32d903394b306ce22a4d2f72c98e0ab587da67cd9"
+			}
+		}
+	},
+	{
+		"name": "holdout-authorship-prior-to-naming-cleanup.json",
+		"date": "2026-11-14",
+		"reason": "naming cleanup",
+		"originalName": "holdout-authorship-round2.json",
+		"sha256": "27081ea98c6c30e10b7b44143be69b69e1a3f9b4054f7f7955d9691b97b5f4a7",
+		"archivePath": "/mnt/storage/master-cv-design-archive/ui-audit/t006-grid/freeze-history/naming-cleanup/holdout-authorship-round2.json",
+		"snapshot": {
+			"authoredAt": "2026-11-12T12:25:46.607308+00:00",
+			"implementationFreeze": "freeze-preholdout-round2.json",
+			"authoring": "Separate source/gold authorship after production/scoring freeze; new register/card/log structures. No guard/prompt tuning from outcomes.",
+			"passages": 12
+		}
+	}
+]

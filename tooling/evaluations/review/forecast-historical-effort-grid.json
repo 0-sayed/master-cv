@@ -1,0 +1,852 @@
+{
+	"status": "UNVERIFIED new-effort projections from live smoke 2; not qualifying smoke; no inference",
+	"source": "2026-11-12T17-46-52.507Z-fd7f6fd3",
+	"date": "2026-11-12",
+	"calibrationEligible": false,
+	"feePercent": 5.5,
+	"runs": 3,
+	"budgetUsd": 9,
+	"openaiBudgetUsd": 40,
+	"dropped": [
+		{
+			"model": "google/gemini-4-hydrogen",
+			"provider": "google-vertex",
+			"reasoning": "medium",
+			"reason": "OPENROUTER_HEADROOM_LIMIT"
+		}
+	],
+	"repetitionsReduced": false,
+	"requestedForecast": {
+		"openRouter": {
+			"expectedSmokeUsd": 0.138409,
+			"expectedFullUsd": 11.626356,
+			"expectedTotalUsd": 11.764765,
+			"minimumBudgetUsd": 14.671354,
+			"conservativeReservationFullUsd": 30.772332,
+			"conservativeReservationTotalUsd": 30.910741,
+			"uncalibratedWorstCaseFullUsd": 162.65691299999997
+		},
+		"openai": {
+			"expectedSmokeUsd": 0.191161,
+			"expectedFullUsd": 16.057524,
+			"expectedTotalUsd": 16.248685,
+			"minimumBudgetUsd": 20.263066,
+			"conservativeReservationFullUsd": 41.747502000000004,
+			"conservativeReservationTotalUsd": 41.938664,
+			"uncalibratedWorstCaseFullUsd": 181.53105600000004
+		}
+	},
+	"perVariant": [
+		{
+			"model": "openai/gpt-6-luna",
+			"provider": "openai",
+			"reasoning": "low",
+			"sourceModel": "openai/gpt-6-luna",
+			"sourceProvider": "azure",
+			"sourceEffort": "low",
+			"writerOutputScale": 1,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2560,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 796,
+					"output": 430
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 770,
+					"output": 393
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 779,
+					"output": 494
+				}
+			],
+			"pairCostsMicros": [2710, 2040, 4557],
+			"openRouterPairCostsMicros": [1667, 1065, 3426],
+			"openaiPairCostsMicros": [1043, 975, 1131],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.009307,
+			"costPerSessionUsd": 0.0031023333333333337,
+			"fullUsd": 0.781788
+		},
+		{
+			"model": "openai/gpt-6-luna",
+			"provider": "openai",
+			"reasoning": "medium",
+			"sourceModel": "openai/gpt-6-luna",
+			"sourceProvider": "azure",
+			"sourceEffort": "medium",
+			"writerOutputScale": 1,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 4096,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 796,
+					"output": 895
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 770,
+					"output": 753
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 779,
+					"output": 1284
+				}
+			],
+			"pairCostsMicros": [4683, 2689, 4497],
+			"openRouterPairCostsMicros": [2942, 1174, 2181],
+			"openaiPairCostsMicros": [1741, 1515, 2316],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.011869,
+			"costPerSessionUsd": 0.003956333333333333,
+			"fullUsd": 0.996996
+		},
+		{
+			"model": "openai/gpt-6-luna",
+			"provider": "openai",
+			"reasoning": "high",
+			"sourceModel": "openai/gpt-6-luna",
+			"sourceProvider": "azure",
+			"sourceEffort": "high",
+			"writerOutputScale": 1,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 10240,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 796,
+					"output": 1211
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 770,
+					"output": 1155
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 779,
+					"output": 1121
+				}
+			],
+			"pairCostsMicros": [3804, 3915, 3513],
+			"openRouterPairCostsMicros": [1589, 1797, 1442],
+			"openaiPairCostsMicros": [2215, 2118, 2071],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.011232,
+			"costPerSessionUsd": 0.003744,
+			"fullUsd": 0.943488
+		},
+		{
+			"model": "openai/gpt-6-luna",
+			"provider": "openai",
+			"reasoning": "none",
+			"sourceModel": "openai/gpt-6-luna",
+			"sourceProvider": "azure",
+			"sourceEffort": "low",
+			"writerOutputScale": 0.8,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2048,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 796,
+					"output": 430
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 770,
+					"output": 393
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 779,
+					"output": 494
+				}
+			],
+			"pairCostsMicros": [2581, 1923, 4410],
+			"openRouterPairCostsMicros": [1667, 1065, 3426],
+			"openaiPairCostsMicros": [914, 858, 984],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.008914,
+			"costPerSessionUsd": 0.0029713333333333336,
+			"fullUsd": 0.748776
+		},
+		{
+			"model": "openai/gpt-6-luna",
+			"provider": "openai",
+			"reasoning": "xhigh",
+			"sourceModel": "openai/gpt-6-luna",
+			"sourceProvider": "azure",
+			"sourceEffort": "high",
+			"writerOutputScale": 4,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 40960,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 796,
+					"output": 1211
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 770,
+					"output": 1155
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 779,
+					"output": 1121
+				}
+			],
+			"pairCostsMicros": [9253, 9112, 8558],
+			"openRouterPairCostsMicros": [1589, 1797, 1442],
+			"openaiPairCostsMicros": [7664, 7315, 7116],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.026923,
+			"costPerSessionUsd": 0.008974333333333334,
+			"fullUsd": 2.261532
+		},
+		{
+			"model": "openai/gpt-6.1-terra",
+			"provider": "openai",
+			"reasoning": "low",
+			"sourceModel": "openai/gpt-6.1-terra",
+			"sourceProvider": "azure",
+			"sourceEffort": "low",
+			"writerOutputScale": 1,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2560,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 796,
+					"output": 260
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 770,
+					"output": 283
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 779,
+					"output": 338
+				}
+			],
+			"pairCostsMicros": [9648, 9348, 10316],
+			"openRouterPairCostsMicros": [1768, 1253, 1351],
+			"openaiPairCostsMicros": [7880, 8095, 8965],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.029312,
+			"costPerSessionUsd": 0.009770666666666665,
+			"fullUsd": 2.462208
+		},
+		{
+			"model": "openai/gpt-6.1-terra",
+			"provider": "openai",
+			"reasoning": "none",
+			"sourceModel": "openai/gpt-6.1-terra",
+			"sourceProvider": "azure",
+			"sourceEffort": "low",
+			"writerOutputScale": 0.8,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2048,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 796,
+					"output": 260
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 770,
+					"output": 283
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 779,
+					"output": 338
+				}
+			],
+			"pairCostsMicros": [8868, 8508, 9311],
+			"openRouterPairCostsMicros": [1768, 1253, 1351],
+			"openaiPairCostsMicros": [7100, 7255, 7960],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.026687,
+			"costPerSessionUsd": 0.008895666666666666,
+			"fullUsd": 2.241708
+		},
+		{
+			"model": "openai/gpt-6.1-terra",
+			"provider": "openai",
+			"reasoning": "medium",
+			"sourceModel": "openai/gpt-6.1-terra",
+			"sourceProvider": "azure",
+			"sourceEffort": "low",
+			"writerOutputScale": 1.6,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 4096,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 796,
+					"output": 260
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 770,
+					"output": 283
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 779,
+					"output": 338
+				}
+			],
+			"pairCostsMicros": [11988, 11898, 13361],
+			"openRouterPairCostsMicros": [1768, 1253, 1351],
+			"openaiPairCostsMicros": [10220, 10645, 12010],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.037247,
+			"costPerSessionUsd": 0.012415666666666667,
+			"fullUsd": 3.128748
+		},
+		{
+			"model": "openai/gpt-6.1-terra",
+			"provider": "openai",
+			"reasoning": "high",
+			"sourceModel": "openai/gpt-6.1-terra",
+			"sourceProvider": "azure",
+			"sourceEffort": "low",
+			"writerOutputScale": 4,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 10240,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 796,
+					"output": 260
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 770,
+					"output": 283
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 779,
+					"output": 338
+				}
+			],
+			"pairCostsMicros": [21348, 22083, 25526],
+			"openRouterPairCostsMicros": [1768, 1253, 1351],
+			"openaiPairCostsMicros": [19580, 20830, 24175],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.068957,
+			"costPerSessionUsd": 0.022985666666666668,
+			"fullUsd": 5.792388
+		},
+		{
+			"model": "deepseek/deepseek-v4.1-flash-1017",
+			"provider": "together",
+			"reasoning": "none",
+			"sourceModel": "deepseek/deepseek-v4.1-flash-1017",
+			"sourceProvider": "together",
+			"sourceEffort": "none",
+			"writerOutputScale": 1,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2048,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 613,
+					"output": 626
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 577,
+					"output": 254
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 588,
+					"output": 308
+				}
+			],
+			"pairCostsMicros": [2556, 1623, 1476],
+			"openRouterPairCostsMicros": [988, 387, 418],
+			"openaiPairCostsMicros": [1568, 1236, 1058],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.005655,
+			"costPerSessionUsd": 0.001885,
+			"fullUsd": 0.47502
+		},
+		{
+			"model": "deepseek/deepseek-v4.1-flash-1017",
+			"provider": "together",
+			"reasoning": "low",
+			"sourceModel": "deepseek/deepseek-v4.1-flash-1017",
+			"sourceProvider": "together",
+			"sourceEffort": "low",
+			"writerOutputScale": 1,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2560,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 638,
+					"output": 2029
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 602,
+					"output": 829
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 613,
+					"output": 2560
+				}
+			],
+			"pairCostsMicros": [4144, 2318, 3277],
+			"openRouterPairCostsMicros": [2772, 1082, 3277],
+			"openaiPairCostsMicros": [1372, 1236, 0],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.009739,
+			"costPerSessionUsd": 0.0032463333333333333,
+			"fullUsd": 0.818076
+		},
+		{
+			"model": "google/gemini-4-hydrogen",
+			"provider": "google-vertex",
+			"reasoning": "low",
+			"sourceModel": "google/gemini-3.8-flash",
+			"sourceProvider": "google-vertex",
+			"sourceEffort": "low",
+			"writerOutputScale": 1,
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2560,
+			"verifierCompletionTokenCap": 5120,
+			"basis": "Smoke-2 tokens repriced; unmeasured efforts use the nearest lower observed effort (or lowest available) and writer output scaled by completion-cap ratio. Verifier charge stays per session. Not measured new-effort/BYOK usage or latency.",
+			"measuredSourceWriterTokens": [
+				{
+					"caseId": "r2-t06-injection",
+					"input": 1077,
+					"output": 264
+				},
+				{
+					"caseId": "r2-t07-injection",
+					"input": 1052,
+					"output": 208
+				},
+				{
+					"caseId": "r2-t11-injection",
+					"input": 1062,
+					"output": 568
+				}
+			],
+			"pairCostsMicros": [7916, 5679, 9314],
+			"openRouterPairCostsMicros": [7916, 5679, 9314],
+			"openaiPairCostsMicros": [0, 0, 0],
+			"smokeSessions": 3,
+			"fullSessions": 252,
+			"smokeUsd": 0.022909,
+			"costPerSessionUsd": 0.007636333333333333,
+			"fullUsd": 1.924356
+		}
+	],
+	"smokeSessions": 36,
+	"fullSessions": 3024,
+	"openRouter": {
+		"expectedSmokeUsd": 0.07759,
+		"expectedFullUsd": 6.51756,
+		"expectedTotalUsd": 6.59515,
+		"minimumBudgetUsd": 8.22454,
+		"conservativeReservationFullUsd": 19.191921,
+		"conservativeReservationTotalUsd": 19.269511,
+		"uncalibratedWorstCaseFullUsd": 138.37974899999998
+	},
+	"openai": {
+		"expectedSmokeUsd": 0.191161,
+		"expectedFullUsd": 16.057524,
+		"expectedTotalUsd": 16.248685,
+		"minimumBudgetUsd": 20.263066,
+		"conservativeReservationFullUsd": 41.747502000000004,
+		"conservativeReservationTotalUsd": 41.938664,
+		"uncalibratedWorstCaseFullUsd": 181.53105600000004
+	},
+	"expectedSmokeUsd": 0.268751,
+	"expectedFullUsd": 22.575084,
+	"expectedTotalUsd": 22.843835,
+	"with25PercentFullHeadroomUsd": 28.487606,
+	"minimumBudgetUsd": 8.22454,
+	"minimumOpenaiBudgetUsd": 20.263066,
+	"conservativeReservationFullUsd": 60.93942299999999,
+	"conservativeReservationTotalUsd": 61.208175000000004,
+	"reservationPerVariant": [
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2560,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 2.009784,
+			"openaiEstimatedUsd": 0.663558,
+			"openRouterUpperBoundUsd": 2.009784,
+			"openaiUpperBoundUsd": 0.663558,
+			"model": "openai/gpt-6-luna",
+			"provider": "openai",
+			"reasoning": "low",
+			"inputPerMillion": 0.5,
+			"outputPerMillion": 1.5,
+			"verifier": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low",
+				"inputPerMillion": 0.3,
+				"outputPerMillion": 1.2
+			},
+			"generationEstimatedUsd": 0.2690025,
+			"verifierEstimatedUsd": 0.2940031800000001,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 2.673342,
+			"estimatedUsd": 2.673342
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 4096,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 1.725855,
+			"openaiEstimatedUsd": 1.358658,
+			"openRouterUpperBoundUsd": 1.725855,
+			"openaiUpperBoundUsd": 1.358658,
+			"model": "openai/gpt-6-luna",
+			"provider": "openai",
+			"reasoning": "medium",
+			"inputPerMillion": 0.5,
+			"outputPerMillion": 1.5,
+			"verifier": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low",
+				"inputPerMillion": 0.3,
+				"outputPerMillion": 1.2
+			},
+			"generationEstimatedUsd": 0.318156,
+			"verifierEstimatedUsd": 0.2940031800000001,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 3.084513,
+			"estimatedUsd": 3.084513
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 10240,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 1.054209,
+			"openaiEstimatedUsd": 1.299408,
+			"openRouterUpperBoundUsd": 1.054209,
+			"openaiUpperBoundUsd": 1.299408,
+			"model": "openai/gpt-6-luna",
+			"provider": "openai",
+			"reasoning": "high",
+			"inputPerMillion": 0.5,
+			"outputPerMillion": 1.5,
+			"verifier": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low",
+				"inputPerMillion": 0.3,
+				"outputPerMillion": 1.2
+			},
+			"generationEstimatedUsd": 0.515085,
+			"verifierEstimatedUsd": 0.2940031800000001,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 2.353617,
+			"estimatedUsd": 2.353617
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2048,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 2.009784,
+			"openaiEstimatedUsd": 0.577332,
+			"openRouterUpperBoundUsd": 2.009784,
+			"openaiUpperBoundUsd": 0.577332,
+			"model": "openai/gpt-6-luna",
+			"provider": "openai",
+			"reasoning": "none",
+			"inputPerMillion": 0.5,
+			"outputPerMillion": 1.5,
+			"verifier": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low",
+				"inputPerMillion": 0.3,
+				"outputPerMillion": 1.2
+			},
+			"generationEstimatedUsd": 0.252528,
+			"verifierEstimatedUsd": 0.2940031800000001,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 2.587116,
+			"estimatedUsd": 2.587116
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 40960,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 1.054209,
+			"openaiEstimatedUsd": 4.495737,
+			"openRouterUpperBoundUsd": 1.054209,
+			"openaiUpperBoundUsd": 4.495737,
+			"model": "openai/gpt-6-luna",
+			"provider": "openai",
+			"reasoning": "xhigh",
+			"inputPerMillion": 0.5,
+			"outputPerMillion": 1.5,
+			"verifier": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low",
+				"inputPerMillion": 0.3,
+				"outputPerMillion": 1.2
+			},
+			"generationEstimatedUsd": 1.49973,
+			"verifierEstimatedUsd": 0.2940031800000001,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 5.549946,
+			"estimatedUsd": 5.549946
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2560,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 1.037211,
+			"openaiEstimatedUsd": 5.258889,
+			"openRouterUpperBoundUsd": 1.037211,
+			"openaiUpperBoundUsd": 5.258889,
+			"model": "openai/gpt-6.1-terra",
+			"provider": "openai",
+			"reasoning": "low",
+			"inputPerMillion": 5,
+			"outputPerMillion": 15,
+			"verifier": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low",
+				"inputPerMillion": 0.3,
+				"outputPerMillion": 1.2
+			},
+			"generationEstimatedUsd": 2.690025,
+			"verifierEstimatedUsd": 0.2940031800000001,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 6.2961,
+			"estimatedUsd": 6.2961
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2048,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 1.037211,
+			"openaiEstimatedUsd": 4.66929,
+			"openRouterUpperBoundUsd": 1.037211,
+			"openaiUpperBoundUsd": 4.66929,
+			"model": "openai/gpt-6.1-terra",
+			"provider": "openai",
+			"reasoning": "none",
+			"inputPerMillion": 5,
+			"outputPerMillion": 15,
+			"verifier": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low",
+				"inputPerMillion": 0.3,
+				"outputPerMillion": 1.2
+			},
+			"generationEstimatedUsd": 2.52528,
+			"verifierEstimatedUsd": 0.2940031800000001,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 5.706501,
+			"estimatedUsd": 5.706501
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 4096,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 1.037211,
+			"openaiEstimatedUsd": 7.045035,
+			"openRouterUpperBoundUsd": 1.037211,
+			"openaiUpperBoundUsd": 7.045035,
+			"model": "openai/gpt-6.1-terra",
+			"provider": "openai",
+			"reasoning": "medium",
+			"inputPerMillion": 5,
+			"outputPerMillion": 15,
+			"verifier": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low",
+				"inputPerMillion": 0.3,
+				"outputPerMillion": 1.2
+			},
+			"generationEstimatedUsd": 3.18156,
+			"verifierEstimatedUsd": 0.2940031800000001,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 8.082246,
+			"estimatedUsd": 8.082246
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 10240,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 1.037211,
+			"openaiEstimatedUsd": 14.180892,
+			"openRouterUpperBoundUsd": 1.037211,
+			"openaiUpperBoundUsd": 14.180892,
+			"model": "openai/gpt-6.1-terra",
+			"provider": "openai",
+			"reasoning": "high",
+			"inputPerMillion": 5,
+			"outputPerMillion": 15,
+			"verifier": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low",
+				"inputPerMillion": 0.3,
+				"outputPerMillion": 1.2
+			},
+			"generationEstimatedUsd": 5.15085,
+			"verifierEstimatedUsd": 0.2940031800000001,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 15.218103,
+			"estimatedUsd": 15.218103
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2048,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 0.752685,
+			"openaiEstimatedUsd": 1.194462,
+			"openRouterUpperBoundUsd": 0.752685,
+			"openaiUpperBoundUsd": 1.194462,
+			"model": "deepseek/deepseek-v4.1-flash-1017",
+			"provider": "together",
+			"reasoning": "none",
+			"inputPerMillion": 0.3,
+			"outputPerMillion": 1.2,
+			"verifier": {
+				"model": "openai/gpt-6-luna",
+				"provider": "openai",
+				"reasoning": "low",
+				"inputPerMillion": 0.5,
+				"outputPerMillion": 1.5
+			},
+			"generationEstimatedUsd": 0.17372526749999997,
+			"verifierEstimatedUsd": 0.43122,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 1.947147,
+			"estimatedUsd": 1.947147
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2560,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 2.398422,
+			"openaiEstimatedUsd": 1.004241,
+			"openRouterUpperBoundUsd": 2.398422,
+			"openaiUpperBoundUsd": 1.004241,
+			"model": "deepseek/deepseek-v4.1-flash-1017",
+			"provider": "together",
+			"reasoning": "low",
+			"inputPerMillion": 0.3,
+			"outputPerMillion": 1.2,
+			"verifier": {
+				"model": "openai/gpt-6-luna",
+				"provider": "openai",
+				"reasoning": "low",
+				"inputPerMillion": 0.5,
+				"outputPerMillion": 1.5
+			},
+			"generationEstimatedUsd": 0.18762974550000003,
+			"verifierEstimatedUsd": 0.43122,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 3.402663,
+			"estimatedUsd": 3.402663
+		},
+		{
+			"writerVisibleOutputTokens": 2048,
+			"writerCompletionTokenCap": 2560,
+			"verifierCompletionTokenCap": 5120,
+			"openRouterEstimatedUsd": 4.038129,
+			"openaiEstimatedUsd": 0,
+			"openRouterUpperBoundUsd": 4.038129,
+			"openaiUpperBoundUsd": 0,
+			"model": "google/gemini-4-hydrogen",
+			"provider": "google-vertex",
+			"providerEndpoint": "google-vertex/global",
+			"reasoning": "low",
+			"inputPerMillion": 1.5,
+			"outputPerMillion": 7.5,
+			"verifier": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low",
+				"inputPerMillion": 0.3,
+				"outputPerMillion": 1.2
+			},
+			"generationEstimatedUsd": 1.0249045425,
+			"verifierEstimatedUsd": 0.2940031800000001,
+			"calls": 252,
+			"providerCalls": 504,
+			"upperBoundUsd": 4.038129,
+			"estimatedUsd": 4.038129
+		}
+	]
+}

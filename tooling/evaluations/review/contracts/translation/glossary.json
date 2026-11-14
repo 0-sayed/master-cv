@@ -1,0 +1,14 @@
+{
+	"version": "t006-translation-glossary-v1",
+	"entries": [
+		{ "source": "محلل بيانات", "target": "Data Analyst" },
+		{ "source": "منسق عمليات", "target": "Operations Coordinator" },
+		{ "source": "أخصائي دعم فني", "target": "Technical Support Specialist" },
+		{ "source": "بكالوريوس علوم الحاسب", "target": "Bachelor of Computer Science" },
+		{ "source": "دبلوم إدارة الأعمال", "target": "Diploma in Business Administration" },
+		{ "source": "شركة مدار الورق التجريبية", "target": "Madar Paper Synthetic" },
+		{ "source": "شركة روافد السجلات التجريبية", "target": "Rawafid Records Synthetic" },
+		{ "source": "إكسل", "target": "Excel" },
+		{ "source": "ساب", "target": "SAP" }
+	]
+}

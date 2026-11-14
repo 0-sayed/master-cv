@@ -85,3 +85,9 @@ temp
 /apps/mobile/assets/launch-kit/
 /apps/mobile/assets/reactive-resume-launch-kit.zip
 /apps/mobile/assets/reactive-resume-mobile-launch-assets.zip
+
+# Local evaluation outputs and review/planning artifacts
+/tooling/evaluations/results/
+**/*.private.json
+/docs/superpowers/
+**/pr.md

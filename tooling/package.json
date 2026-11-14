@@ -4,6 +4,7 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
+		"review:evaluate:synthetic": "tsx evaluations/review/run-synthetic.ts",
 		"copy:check": "tsx locales/check-copy.ts",
 		"copy:check:bindings": "tsx locales/check-copy.ts --bindings",
 		"copy:generate:auth-mail": "tsx locales/generate-auth-mail.ts",
@@ -16,7 +17,15 @@
 		"test:ci": "vp test run --reporter=default --reporter=github-actions --reporter=json --reporter=junit --outputFile.json=reports/vitest-results.json --outputFile.junit=reports/vitest-junit.xml --passWithNoTests",
 		"typecheck": "tsrs --noEmit",
 		"pdf:translations": "tsx locales/generate.ts",
-		"icons:pdf": "tsx icons/phosphor-pdf.ts"
+		"icons:pdf": "tsx icons/phosphor-pdf.ts",
+		"eval:review": "tsx evaluations/review/cli.ts",
+		"eval:review:replay": "node --import tsx evaluations/review/fairness-replay-cli.ts",
+		"eval:review:repair": "tsx evaluations/review/repair-cli.ts",
+		"eval:review:rescore": "node --import tsx evaluations/review/rescore-cli.ts",
+		"eval:review:lexical-lost-fact-replay": "node --import tsx evaluations/review/lexical-lost-fact-replay-cli.ts",
+		"eval:review:owner-review": "node --import tsx evaluations/review/owner-review-cli.ts",
+		"eval:review:safety-replay": "node --import tsx evaluations/review/safety-replay-cli.ts",
+		"eval:review:reguard": "node --import tsx evaluations/review/reguard-cli.ts"
 	},
 	"dependencies": {
 		"@reactive-resume/schema": "workspace:*"
@@ -27,6 +36,7 @@
 		"@lingui/message-utils": "catalog:",
 		"@phosphor-icons/react": "^2.1.10",
 		"@playwright/test": "^1.64.1",
+		"@reactive-resume/api": "workspace:*",
 		"@reactive-resume/config": "workspace:*",
 		"@reactive-resume/env": "workspace:*",
 		"@reactive-resume/import": "workspace:*",
@@ -37,6 +47,7 @@
 		"@types/react-dom": "catalog:",
 		"drizzle-orm": "catalog:",
 		"esbuild": "catalog:",
+		"happy-dom": "^21.0.4",
 		"node-html-parser": "9.0.5",
 		"pdfjs-dist": "6.4.299",
 		"pg": "catalog:",

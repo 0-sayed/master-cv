@@ -1,0 +1,147 @@
+{
+	"version": "reviewed-question-equivalences-v1",
+	"basis": "Lane 17 agent-authored and locally reviewed equivalence controls, including the owner-specified report/store/request examples. No independent human review or blind model ratings are claimed.",
+	"countRequests": ["كم", "عدد", "how many", "number", "count", "volume", "quantity", "total"],
+	"controls": [
+		{
+			"target": "المواقع",
+			"topics": ["مواقع", "موقع", "site"],
+			"requests": "count",
+			"positive": "كم موقع شمله التفتيش؟",
+			"negative": "ما موقع الشركة؟"
+		},
+		{
+			"target": "النظام",
+			"topics": ["نظام", "system"],
+			"requests": ["نوع", "اسم", "which", "what"],
+			"positive": "ما اسم النظام المستخدم؟",
+			"negative": "كم موظفا استخدم النظام؟"
+		},
+		{
+			"target": "العيادات",
+			"topics": ["عيادة", "عيادات", "clinic"],
+			"requests": "count",
+			"positive": "كم عيادة تابعت؟",
+			"negative": "أين العيادة؟"
+		},
+		{
+			"target": "الجرد",
+			"topics": ["جرد", "inventory", "stocktake"],
+			"requests": ["دورية", "تكرار", "frequency", "how often", "schedule"],
+			"positive": "كم مرة أجريت الجرد؟",
+			"negative": "كم صنفا في الجرد؟"
+		},
+		{
+			"target": "الشبكة",
+			"topics": ["شبكة", "network", "شبكات"],
+			"requests": ["نوع", "which", "what type", "what kind"],
+			"positive": "ما نوع الشبكات؟",
+			"negative": "كم عطل شبكة سجلت؟"
+		},
+		{
+			"target": "volume",
+			"topics": ["request", "طلب", "طلبات"],
+			"requests": "count",
+			"positive": "How many service requests did you handle?",
+			"negative": "What was your volume?"
+		},
+		{
+			"target": "language",
+			"topics": ["لغة", "language"],
+			"requests": ["اي", "ما", "which", "what"],
+			"positive": "What language was used?",
+			"negative": "How many languages do you speak?"
+		},
+		{
+			"target": "الموظفين",
+			"topics": ["موظف", "موظفين", "employee", "staff", "موظفا"],
+			"requests": "count",
+			"positive": "كم موظفا شملت العقود؟",
+			"negative": "ما أسماء الموظفين؟"
+		},
+		{
+			"target": "الغرف",
+			"topics": ["غرفة", "غرف", "room"],
+			"requests": "count",
+			"positive": "What was the room count?",
+			"negative": "أين الغرف؟"
+		},
+		{
+			"target": "التقارير",
+			"topics": ["تقرير", "تقارير", "report"],
+			"requests": "count",
+			"positive": "كم تقرير خرسانة راجعت؟",
+			"negative": "ما نوع التقرير؟"
+		},
+		{
+			"target": "stores",
+			"topics": ["store", "متجر", "متاجر"],
+			"requests": "count",
+			"positive": "What was the store count?",
+			"negative": "What was the store address?"
+		},
+		{
+			"target": "equipment",
+			"topics": ["equipment", "device", "معدات", "جهاز", "اجهزة"],
+			"requests": ["نوع", "which", "what type", "what kind", "equipment type", "equipment kind"],
+			"positive": "What type of equipment did you log?",
+			"negative": "How many devices failed?"
+		},
+		{
+			"target": "class",
+			"topics": ["class", "فصل", "طلاب", "طلبة", "classes", "student"],
+			"requests": ["كم", "عدد", "how many", "size", "count", "number"],
+			"positive": "What was the class size?",
+			"negative": "Where was the class?"
+		},
+		{
+			"target": "capacity",
+			"topics": ["workshop", "ورشة"],
+			"requests": ["سعة", "استيعاب", "عدد", "كم", "capacity", "how many", "size"],
+			"positive": "How many people could the workshop accommodate?",
+			"negative": "Where was the workshop?"
+		},
+		{
+			"target": "قناة",
+			"topics": ["قناة", "channel"],
+			"requests": ["ما", "اي", "which", "what"],
+			"positive": "Which service channel did you handle?",
+			"negative": "How many service requests?"
+		},
+		{
+			"target": "الدراسة",
+			"topics": ["دراسة", "دراسه", "study", "program", "برنامج"],
+			"requests": ["مدة", "مده", "كم استغرقت", "duration", "how long", "length"],
+			"positive": "How long was the study program?",
+			"negative": "Where did you study?"
+		},
+		{
+			"target": "التطبيق",
+			"topics": ["تطبيق", "app", "application"],
+			"requests": ["نوع", "ما", "which", "what type", "what kind"],
+			"positive": "Which application type?",
+			"negative": "How many applications?"
+		},
+		{
+			"target": "العقود",
+			"topics": ["عقد", "عقود", "contract"],
+			"requests": ["نطاق", "مجال", "scope", "coverage", "type", "نوع"],
+			"positive": "What scope of contracts did you review?",
+			"negative": "What was the company name?"
+		},
+		{
+			"target": "الشحنات",
+			"topics": ["شحنة", "شحنات", "shipment", "cargo"],
+			"requests": ["نوع", "which", "what type", "what kind"],
+			"positive": "What kind of shipments did you prepare?",
+			"negative": "How many shipments?"
+		},
+		{
+			"target": "دورية",
+			"topics": ["عمل", "حجوزات", "work", "booking", "schedule", "دورية"],
+			"requests": ["دورية", "تكرار", "كم مرة", "how often", "frequency", "schedule", "periodicity"],
+			"positive": "What was the work frequency?",
+			"negative": "Where did you work?"
+		}
+	]
+}

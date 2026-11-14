@@ -1,0 +1,90 @@
+[
+	{
+		"model": "openai/gpt-6-luna",
+		"provider": "openai",
+		"reasoning": "low",
+		"inputPerMillion": 0.5,
+		"outputPerMillion": 1.5,
+		"optional": false
+	},
+	{
+		"model": "openai/gpt-6-luna",
+		"provider": "openai",
+		"reasoning": "medium",
+		"inputPerMillion": 0.5,
+		"outputPerMillion": 1.5,
+		"optional": false
+	},
+	{
+		"model": "openai/gpt-6-luna",
+		"provider": "openai",
+		"reasoning": "high",
+		"inputPerMillion": 0.5,
+		"outputPerMillion": 1.5,
+		"optional": false
+	},
+	{
+		"model": "openai/gpt-6-luna",
+		"provider": "openai",
+		"reasoning": "none",
+		"inputPerMillion": 0.5,
+		"outputPerMillion": 1.5,
+		"optional": false
+	},
+	{
+		"model": "openai/gpt-6-luna",
+		"provider": "openai",
+		"reasoning": "xhigh",
+		"inputPerMillion": 0.5,
+		"outputPerMillion": 1.5,
+		"optional": false
+	},
+	{
+		"model": "openai/gpt-6.1-terra",
+		"provider": "openai",
+		"reasoning": "low",
+		"inputPerMillion": 5,
+		"outputPerMillion": 15,
+		"optional": false
+	},
+	{
+		"model": "openai/gpt-6.1-terra",
+		"provider": "openai",
+		"reasoning": "none",
+		"inputPerMillion": 5,
+		"outputPerMillion": 15,
+		"optional": false
+	},
+	{
+		"model": "openai/gpt-6.1-terra",
+		"provider": "openai",
+		"reasoning": "medium",
+		"inputPerMillion": 5,
+		"outputPerMillion": 15,
+		"optional": false
+	},
+	{
+		"model": "openai/gpt-6.1-terra",
+		"provider": "openai",
+		"reasoning": "high",
+		"inputPerMillion": 5,
+		"outputPerMillion": 15,
+		"optional": false
+	},
+	{
+		"model": "deepseek/deepseek-v4.1-flash-1017",
+		"provider": "together",
+		"reasoning": "none",
+		"inputPerMillion": 0.3,
+		"outputPerMillion": 1.2,
+		"optional": false
+	},
+	{
+		"model": "deepseek/deepseek-v4.1-flash-1017",
+		"provider": "together",
+		"reasoning": "low",
+		"inputPerMillion": 0.3,
+		"outputPerMillion": 1.2,
+		"optional": false
+	}
+]

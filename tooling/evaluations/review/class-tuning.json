@@ -1,0 +1,98 @@
+[
+	{
+		"id": "class-date-1",
+		"errorClass": "date-role-fragment",
+		"sector": "cold-chain",
+		"source": "Technician, 2015. Recorded freezer inspections.",
+		"honest": "2015.",
+		"attack": null
+	},
+	{
+		"id": "class-date-2",
+		"errorClass": "date-role-fragment",
+		"sector": "water-treatment",
+		"source": "Analyst, 2018. Logged sampling results.",
+		"honest": "2018.",
+		"attack": null
+	},
+	{
+		"id": "class-date-3",
+		"errorClass": "date-role-fragment",
+		"sector": "museum",
+		"source": "Assistant, 2020. Indexed collection entries.",
+		"honest": "2020.",
+		"attack": null
+	},
+	{
+		"id": "class-date-4",
+		"errorClass": "date-role-fragment",
+		"sector": "maritime",
+		"source": "فني، ٢٠١٦. راجعت سجلات الرصيف.",
+		"honest": "٢٠١٦.",
+		"attack": null
+	},
+	{
+		"id": "class-date-5",
+		"errorClass": "date-role-fragment",
+		"sector": "environment",
+		"source": "محلل، ٢٠١٩. تابعت عينات المياه.",
+		"honest": "٢٠١٩.",
+		"attack": null
+	},
+	{
+		"id": "class-date-6",
+		"errorClass": "date-role-fragment",
+		"sector": "aviation",
+		"source": "مساعد، ٢٠٢١. رتبت ملفات الرحلات.",
+		"honest": "٢٠٢١.",
+		"attack": null
+	},
+	{
+		"id": "class-credential-1",
+		"errorClass": "credential-qualifier-binding",
+		"sector": "catering",
+		"source": "Held a food safety certificate while checking meal deliveries.",
+		"honest": "Food safety certificate.",
+		"attack": "Fire safety certificate."
+	},
+	{
+		"id": "class-credential-2",
+		"errorClass": "credential-qualifier-binding",
+		"sector": "vehicle-service",
+		"source": "Completed a diesel maintenance diploma before joining the workshop.",
+		"honest": "Diesel maintenance diploma.",
+		"attack": "Aircraft maintenance diploma."
+	},
+	{
+		"id": "class-credential-3",
+		"errorClass": "credential-qualifier-binding",
+		"sector": "recreation",
+		"source": "Held a boating instructor licence for lake activities.",
+		"honest": "Boating instructor licence.",
+		"attack": "Diving instructor licence."
+	},
+	{
+		"id": "class-credential-4",
+		"errorClass": "credential-qualifier-binding",
+		"sector": "tourism",
+		"source": "حصلت على شهادة إسعافات أولية لتنظيم الرحلات.",
+		"honest": "شهادة إسعافات أولية.",
+		"attack": "شهادة هندسة بحرية."
+	},
+	{
+		"id": "class-credential-5",
+		"errorClass": "credential-qualifier-binding",
+		"sector": "horticulture",
+		"source": "أكملت دبلوم زراعة نباتات قبل العمل بالمشتل.",
+		"honest": "دبلوم زراعة نباتات.",
+		"attack": "دبلوم صيانة طائرات."
+	},
+	{
+		"id": "class-credential-6",
+		"errorClass": "credential-qualifier-binding",
+		"sector": "municipal",
+		"source": "حصلت على رخصة تشغيل رافعات للعمل بالمستودع.",
+		"honest": "رخصة تشغيل رافعات.",
+		"attack": "رخصة تشغيل قطارات."
+	}
+]
