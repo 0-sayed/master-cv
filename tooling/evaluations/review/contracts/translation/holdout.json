@@ -175,7 +175,13 @@
 			"synthetic": true,
 			"authoredBy": "codex lane",
 			"declaration": "جميع الأشخاص والجهات في هذه الحالة مختلقة، ولا تستند بياناتها إلى أشخاص أو جهات حقيقية. All people and organisations in this case are fictional."
-		}
+		},
+		"translationAliases": [
+			{
+				"source": "شركة مدار الورق التجريبية",
+				"target": "Madar Paper Synthetic"
+			}
+		]
 	},
 	{
 		"id": "translation-ar-holdout-05",
@@ -1217,7 +1223,13 @@
 			"synthetic": true,
 			"authoredBy": "codex lane",
 			"declaration": "جميع الأشخاص والجهات في هذه الحالة مختلقة، ولا تستند بياناتها إلى أشخاص أو جهات حقيقية. All people and organisations in this case are fictional."
-		}
+		},
+		"translationAliases": [
+			{
+				"source": "شركة روافد السجلات التجريبية",
+				"target": "Rawafid Records Synthetic"
+			}
+		]
 	},
 	{
 		"id": "translation-ar-holdout-11",
@@ -1573,7 +1585,13 @@
 			"synthetic": true,
 			"authoredBy": "codex lane",
 			"declaration": "جميع الأشخاص والجهات في هذه الحالة مختلقة، ولا تستند بياناتها إلى أشخاص أو جهات حقيقية. All people and organisations in this case are fictional."
-		}
+		},
+		"translationAliases": [
+			{
+				"source": "Madar Paper Synthetic",
+				"target": "شركة مدار الورق التجريبية"
+			}
+		]
 	},
 	{
 		"id": "translation-en-holdout-05",
@@ -2615,7 +2633,13 @@
 			"synthetic": true,
 			"authoredBy": "codex lane",
 			"declaration": "جميع الأشخاص والجهات في هذه الحالة مختلقة، ولا تستند بياناتها إلى أشخاص أو جهات حقيقية. All people and organisations in this case are fictional."
-		}
+		},
+		"translationAliases": [
+			{
+				"source": "Rawafid Records Synthetic",
+				"target": "شركة روافد السجلات التجريبية"
+			}
+		]
 	},
 	{
 		"id": "translation-en-holdout-11",

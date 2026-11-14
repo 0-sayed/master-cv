@@ -17,7 +17,8 @@
 		"./social-meta": "./src/social-meta.ts",
 		"./stylesheet": "./src/stylesheet/index.ts",
 		"./stylesheet/registry": "./src/stylesheet/registry/index.ts",
-		"./stylesheet/types": "./src/stylesheet/semantic-types.ts"
+		"./stylesheet/types": "./src/stylesheet/semantic-types.ts",
+		"./translation": "./src/translation.ts"
 	},
 	"scripts": {
 		"typecheck": "tsrs --noEmit",

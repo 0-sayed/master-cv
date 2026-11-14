@@ -37,6 +37,7 @@ vi.mock("@reactive-resume/db/schema", () => ({
 		updatedAt: "updated_at",
 		createdAt: "created_at",
 	},
+	resumeVariantSource: { userId: "user_id", resumeId: "resume_id" },
 	resumeStatistics: {
 		resumeId: "resume_id",
 		views: "views",
@@ -173,7 +174,14 @@ const createRestoreHarness = (currentData: ResumeData, restoredData: ResumeData)
 		return { where };
 	});
 	dbMock.transaction.mockImplementationOnce(async (callback: (tx: unknown) => Promise<unknown>) =>
-		callback({ select: () => lockedSelect.chain, update: () => ({ set }) }),
+		callback({
+			select: vi
+				.fn()
+				.mockReturnValueOnce(lockedSelect.chain)
+				.mockReturnValueOnce(lockedSelect.chain)
+				.mockReturnValue(createLockedSelectChain([]).chain),
+			update: () => ({ set }),
+		}),
 	);
 };
 

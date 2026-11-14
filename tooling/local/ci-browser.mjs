@@ -18,6 +18,8 @@ export function ciBrowserEnvironment({ parent, databaseUrl, migrationUrl, direct
 	return {
 		PATH: resolve(repository, ".cache/document-toolchain/bin") + ":" + parent.PATH,
 		HOME: parent.HOME,
+		NODE_OPTIONS: `--import=${new URL("./test-isolation.mjs", import.meta.url).href}`,
+		TEST_INFERENCE_ISOLATION: "true",
 		// Match GitHub Ubuntu: Chromium must encode Arabic download filenames as UTF-8.
 		LANG: "C.UTF-8",
 		LC_ALL: "C.UTF-8",
@@ -25,6 +27,7 @@ export function ciBrowserEnvironment({ parent, databaseUrl, migrationUrl, direct
 		APP_URL: "http://localhost:3030",
 		PORT: "3030",
 		DATABASE_URL: databaseUrl,
+		COVER_LETTER_TEST_DATABASE_URL: databaseUrl,
 		DATABASE_MIGRATION_URL: migrationUrl,
 		AUTH_SECRET: randomBytes(32).toString("hex"),
 		ENCRYPTION_SECRET: randomBytes(32).toString("hex"),
@@ -110,9 +113,17 @@ async function main() {
 	await mkdir(env.LOCAL_STORAGE_PATH, { recursive: true, mode: 0o700 });
 	if (await run(["--filter", "@reactive-resume/db", "db:migrate"])) throw new Error("CI database migration failed");
 	env.DATABASE_URL = await provisionRuntimeRole(migrationUrl, role);
+	env.COVER_LETTER_TEST_DATABASE_URL = env.DATABASE_URL;
 	const args = process.argv.slice(2);
 	const skipBuild = args.includes("--skip-build");
-	if (!skipBuild && (await run(["build"]))) throw new Error("Production build failed");
+	if (!skipBuild) {
+		// Avoid Turbo's .env* input hashing: sanitized synthetic builds must not read local environment files.
+		if (
+			(await run(["pdf:translations"])) ||
+			(await run(["--recursive", "--workspace-concurrency=1", "--if-present", "run", "build"]))
+		)
+			throw new Error("Production build failed");
+	}
 	process.exitCode = await run([
 		"exec",
 		"playwright",

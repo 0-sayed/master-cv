@@ -2318,17 +2318,11 @@
 						},
 						{
 							"sourceId": "canary-context",
-							"text": "Assisted with report preparation. Did not manage a team. Received training in Hijri year 1442. Managed a team.",
+							"text": "Assisted with report preparation. Managed a team. Received training in Hijri year 1442.",
 							"claims": [
 								{
-									"id": "canary-honest",
-									"text": "Assisted with report preparation. Did not manage a team. Received training in Hijri year 1442.",
-									"evidenceIds": ["canary-context"],
-									"kind": "translation"
-								},
-								{
 									"id": "canary-defect",
-									"text": "Managed a team.",
+									"text": "Assisted with report preparation. Managed a team. Received training in Hijri year 1442.",
 									"evidenceIds": ["canary-context"],
 									"kind": "translation"
 								}
@@ -2477,11 +2471,11 @@
 				},
 				{
 					"sourceId": "canary-context",
-					"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ.",
+					"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. جرى التدريب في عام 1442 هـ.",
 					"claims": [
 						{
 							"id": "canary-honest",
-							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ.",
+							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. جرى التدريب في عام 1442 هـ.",
 							"evidenceIds": ["canary-context"],
 							"kind": "translation"
 						}
@@ -2511,11 +2505,11 @@
 						},
 						{
 							"sourceId": "canary-context",
-							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ. زاد الإيرادات بمقدار 45 وحدة.",
+							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. جرى التدريب في عام 1442 هـ. زاد الإيرادات بمقدار 45 وحدة.",
 							"claims": [
 								{
 									"id": "canary-honest",
-									"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ.",
+									"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. جرى التدريب في عام 1442 هـ.",
 									"evidenceIds": ["canary-context"],
 									"kind": "translation"
 								},
@@ -2552,11 +2546,11 @@
 						},
 						{
 							"sourceId": "canary-context",
-							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ. قاد القسم بأكمله.",
+							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. جرى التدريب في عام 1442 هـ. قاد القسم بأكمله.",
 							"claims": [
 								{
 									"id": "canary-honest",
-									"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ.",
+									"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. جرى التدريب في عام 1442 هـ.",
 									"evidenceIds": ["canary-context"],
 									"kind": "translation"
 								},
@@ -2593,17 +2587,11 @@
 						},
 						{
 							"sourceId": "canary-context",
-							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ. تولى إدارة فريق.",
+							"text": "ساعد في إعداد التقارير. تولى إدارة فريق. جرى التدريب في عام 1442 هـ.",
 							"claims": [
 								{
-									"id": "canary-honest",
-									"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ.",
-									"evidenceIds": ["canary-context"],
-									"kind": "translation"
-								},
-								{
 									"id": "canary-defect",
-									"text": "تولى إدارة فريق.",
+									"text": "ساعد في إعداد التقارير. تولى إدارة فريق. جرى التدريب في عام 1442 هـ.",
 									"evidenceIds": ["canary-context"],
 									"kind": "translation"
 								}
@@ -2634,17 +2622,17 @@
 						},
 						{
 							"sourceId": "canary-context",
-							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ. تلقى التدريب في عام 1443 هـ.",
+							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. جرى التدريب في عام 1442 هـ. جرى التدريب في عام 1443 هـ.",
 							"claims": [
 								{
 									"id": "canary-honest",
-									"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ.",
+									"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. جرى التدريب في عام 1442 هـ.",
 									"evidenceIds": ["canary-context"],
 									"kind": "translation"
 								},
 								{
 									"id": "canary-defect",
-									"text": "تلقى التدريب في عام 1443 هـ.",
+									"text": "جرى التدريب في عام 1443 هـ.",
 									"evidenceIds": ["canary-context"],
 									"kind": "translation"
 								}
@@ -2675,11 +2663,11 @@
 						},
 						{
 							"sourceId": "canary-context",
-							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ. استخدم SAP في العمل.",
+							"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. جرى التدريب في عام 1442 هـ. استخدم SAP في العمل.",
 							"claims": [
 								{
 									"id": "canary-honest",
-									"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. تلقى التدريب في عام 1442 هـ.",
+									"text": "ساعد في إعداد التقارير. لم يتول إدارة فريق. جرى التدريب في عام 1442 هـ.",
 									"evidenceIds": ["canary-context"],
 									"kind": "translation"
 								},
@@ -2868,17 +2856,11 @@
 						},
 						{
 							"sourceId": "canary-context",
-							"text": "Assisted with report preparation. Did not manage a team. Received training in Hijri year 1442. Managed a team.",
+							"text": "Assisted with report preparation. Managed a team. Received training in Hijri year 1442.",
 							"claims": [
 								{
-									"id": "canary-honest",
-									"text": "Assisted with report preparation. Did not manage a team. Received training in Hijri year 1442.",
-									"evidenceIds": ["canary-context"],
-									"kind": "translation"
-								},
-								{
 									"id": "canary-defect",
-									"text": "Managed a team.",
+									"text": "Assisted with report preparation. Managed a team. Received training in Hijri year 1442.",
 									"evidenceIds": ["canary-context"],
 									"kind": "translation"
 								}

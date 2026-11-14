@@ -42,7 +42,7 @@ it("separates guard rejects, semantic rejects and final verifier faults using la
 	expect(result.sessions.find((s) => s.key === "c")).toMatchObject({
 		safetyAccepted: false,
 		semanticRejected: false,
-		verifierFault: "VERIFIER_UNKNOWN_ABSENCE",
+		verifierFault: "AI_VERIFICATION_INCOMPLETE",
 	});
 });
 

@@ -23,18 +23,19 @@ async function recordings(options: RunOptions = base) {
 	return raw;
 }
 function replay(raw: RawRecord[], delay: (r: RawRecord) => number = () => 5): typeof fetch {
+	// Prepare each fixture once, rather than rebuilding its payload for every candidate record.
+	const sources = new Map(selected.map((c) => [c.id, required(prepareCase(c).payload.selections[0]).text]));
 	return async (_url, init) => {
 		const body = JSON.parse(String(init?.body));
 		const verifier = String(body.messages[0].content).includes("usefulness");
+		const text = JSON.parse(body.messages.at(-1).content).selections[0].text;
 		const record = required(
 			raw.find((r) => {
-				const c = required(selected.find((c) => c.id === r.caseId));
-				const source = prepareCase(c).payload.selections[0];
 				return (
 					r.model === body.model &&
 					(!verifier ? r.reasoning === body.reasoning.effort : true) &&
 					r.key.endsWith(":verify") === verifier &&
-					JSON.parse(body.messages.at(-1).content).selections[0].text === source?.text
+					text === required(sources.get(r.caseId))
 				);
 			}),
 		);

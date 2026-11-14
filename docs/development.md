@@ -210,6 +210,24 @@ database settings pointed at that same synthetic runtime. `PLAYWRIGHT_CHANNEL=ch
 
 ## Synthetic review browser runtime
 
+For bounded offline verification, use Node 24 and explicit disposable test URLs; do not load environment files.
+Preload `tooling/local/test-isolation.mjs` before application imports. It disables native dotenv loading,
+rejects inference credentials, disables Vite dotenv discovery and blocks fetch to listed inference-provider hosts while retaining
+loopback transports and the application's normal `NODE_ENV`. The browser runner supplies this preload
+through its own controlled `NODE_OPTIONS`; inherited Node options and provider credentials are not forwarded.
+
+```sh
+NODE_OPTIONS="--import=$(pwd)/tooling/local/test-isolation.mjs" \
+COVER_LETTER_TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:55432/postgres \
+INTEGRATIONS_TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:55432/postgres \
+OAUTH_TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:55432/job_language_oauth_test \
+pnpm --filter @reactive-resume/api test
+```
+
+The OAuth database must be separately created and migrated on that same disposable instance.
+The AI suites create/migrate fresh databases with restricted `NOBYPASSRLS` roles and remove their own
+databases/roles after execution. Database-backed skips are missing verification, not a passing result.
+
 The synthetic review browser suite uses `tests/e2e/reviewable-ai-runtime.config.ts`. Its web-server
 command, `pnpm --filter server test:review-runtime`, starts `tests/e2e/reviewable-ai-runtime-server.ts`
 with deterministic transports; it requires no paid inference. Pass `--config tests/e2e/reviewable-ai-runtime.config.ts`

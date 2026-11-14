@@ -1,5 +1,9 @@
 {
 	"review.wording": { "model": "openai/gpt-6-luna", "reasoningEffort": "low" },
 	"review.extraction": { "model": "openai/gpt-6-luna", "reasoningEffort": "high" },
-	"review.questions": { "model": "openai/gpt-6.1-terra", "reasoningEffort": "medium" }
+	"review.questions": { "model": "openai/gpt-6.1-terra", "reasoningEffort": "medium" },
+	"review.job-evidence": { "model": "openai/gpt-6-luna", "reasoningEffort": "low" },
+	"review.tailoring": { "model": "openai/gpt-6-luna", "reasoningEffort": "low" },
+	"review.translation": { "model": "openai/gpt-6-luna", "reasoningEffort": "low" },
+	"review.summary": { "model": "openai/gpt-6-luna", "reasoningEffort": "low" }
 }

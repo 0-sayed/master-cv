@@ -3,8 +3,10 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { HARD_FACTS_VERSION } from "@reactive-resume/api/features/ai/hard-facts";
+import { translationOutputSchema } from "@reactive-resume/schema/resume/variant-outputs";
 import { buildModelPayload } from "../../production";
 import { guardTaskClaims } from "../guard";
+import { alignVariantContract } from "../variant-adapter";
 import { tasksVerifierSchema } from "../verifier/schema";
 import { tasksVerifier } from "../verifier/verifier";
 
@@ -17,22 +19,7 @@ export type TranslationCase = TaskCase & {
 	direction: z.infer<typeof direction>;
 	sourceRevision: string;
 };
-export const translationOutputSchema = z.strictObject({
-	direction,
-	sourceRevision: id,
-	segments: z
-		.array(
-			z.strictObject({
-				sourceId: id,
-				text,
-				claims: z
-					.array(z.strictObject({ id, text, evidenceIds: z.array(id).min(1).max(50), kind: z.literal("translation") }))
-					.max(50),
-			}),
-		)
-		.max(49),
-	notes: z.array(text).max(5),
-});
+export { translationOutputSchema } from "@reactive-resume/schema/resume/variant-outputs";
 export type TranslationOutput = z.infer<typeof translationOutputSchema>;
 const glossaryBytes = readFileSync(new URL("./glossary.json", import.meta.url));
 export const translationGlossary = z
@@ -229,7 +216,7 @@ function score(c: TaskCase, raw: TranslationOutput, rawVerdict: unknown | null):
 }
 
 /** Synthetic benchmark draft. Actual tasks-v1 freeze/approval integration belongs to Task 10. */
-export const translationContract: TaskContract<TaskCase, TranslationOutput> = {
+export const translationContract: TaskContract<TaskCase, TranslationOutput> = alignVariantContract({
 	category: "translation",
 	promptVersion: `t006-translation-v1:glossary-sha256:${translationGlossaryHash}`,
 	schemaVersion: "t006-translation-schema-v1",
@@ -265,4 +252,4 @@ export const translationContract: TaskContract<TaskCase, TranslationOutput> = {
 		retention: "applicable",
 		absenceChecks: [],
 	}),
-};
+});

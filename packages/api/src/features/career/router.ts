@@ -19,6 +19,7 @@ import {
 } from "../../dto/career";
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
 import { generateCareer } from "./generate";
+import { jobTargetsRouter } from "./job-router";
 import { careerJobs } from "./jobs";
 import { masterRouter, personalWorkspaceRouter } from "./master-router";
 import { careerService } from "./service";
@@ -32,6 +33,7 @@ const savedItemOutput = savedItemSchema.extend({
 });
 
 export const careerRouter = {
+	jobTargets: jobTargetsRouter,
 	master: masterRouter,
 	personalWorkspace: personalWorkspaceRouter,
 	voice: careerVoiceRouter,

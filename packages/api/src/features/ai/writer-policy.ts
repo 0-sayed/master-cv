@@ -11,6 +11,10 @@ const configurationSchema = z.strictObject({
 	"review.wording": selectionSchema,
 	"review.extraction": selectionSchema,
 	"review.questions": selectionSchema,
+	"review.job-evidence": selectionSchema,
+	"review.tailoring": selectionSchema,
+	"review.translation": selectionSchema,
+	"review.summary": selectionSchema,
 });
 
 export type WriterRouteApproval = Pick<

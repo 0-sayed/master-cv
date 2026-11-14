@@ -3,7 +3,7 @@
 **Task:** T007 · **PR size:** L · **Branch:** `feat/t007-job-language-variants`
 **Depends on:** T006 · **Priority:** 70
 **Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
-**Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
+**Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until the PR is first shipped (owner decision 2026-11-14).
 
 ## Goal
 
@@ -124,4 +124,4 @@ Implement this inventory with existing shared components, the appropriate shared
 - The scoped implementation and recovery paths meet the stated acceptance evidence, with no fabricated completion.
 - Requirement/screen ownership, source conflicts, unsupported cases and external approvals are recorded honestly.
 - Required checks/reviews pass for the proposed merge scope; unresolved release gates remain explicit and disabled.
-- Update the single graph status and Mermaid class only after authorized merge, preserving all 16 large PRs.
+- Update the single graph status and Mermaid class when its PR is first shipped (owner decision 2026-11-14), preserving all 16 large PRs.

@@ -110,7 +110,9 @@
 				"BLOB_*",
 				"DEPLOYMENT_NAMESPACE",
 				"ALLOW_PREVIEW_MIGRATIONS",
-				"NODE_ENV"
+				"NODE_ENV",
+				"NODE_OPTIONS",
+				"TEST_INFERENCE_ISOLATION"
 			],
 			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*"]
 		},
@@ -157,7 +159,9 @@
 				"BLOB_*",
 				"DEPLOYMENT_NAMESPACE",
 				"ALLOW_PREVIEW_MIGRATIONS",
-				"NODE_ENV"
+				"NODE_ENV",
+				"NODE_OPTIONS",
+				"TEST_INFERENCE_ISOLATION"
 			],
 			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*"],
 			"outputs": ["coverage/**"]
@@ -205,7 +209,9 @@
 				"BLOB_*",
 				"DEPLOYMENT_NAMESPACE",
 				"ALLOW_PREVIEW_MIGRATIONS",
-				"NODE_ENV"
+				"NODE_ENV",
+				"NODE_OPTIONS",
+				"TEST_INFERENCE_ISOLATION"
 			],
 			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*"],
 			"outputs": ["reports/**"]
@@ -253,7 +259,9 @@
 				"BLOB_*",
 				"DEPLOYMENT_NAMESPACE",
 				"ALLOW_PREVIEW_MIGRATIONS",
-				"NODE_ENV"
+				"NODE_ENV",
+				"NODE_OPTIONS",
+				"TEST_INFERENCE_ISOLATION"
 			],
 			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*"],
 			"outputs": ["reports/**"]
@@ -282,6 +290,8 @@
 	},
 	"globalDependencies": ["vitest.shared.mts", "vitest.setup.ts", "vite.config.ts"],
 	"globalPassThroughEnv": [
+		"NODE_OPTIONS",
+		"TEST_INFERENCE_ISOLATION",
 		"PORT",
 		"SERVER_PORT",
 		"APP_URL",

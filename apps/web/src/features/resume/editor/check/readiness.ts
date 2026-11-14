@@ -1,3 +1,4 @@
+import type { ReadinessResults } from "@reactive-resume/resume/ats";
 /** Each run owns its signal and publication right. Cancelled work can finish but cannot publish. */
 export function scheduleReadiness<T>(
 	run: (signal: AbortSignal) => Promise<T>,
@@ -17,4 +18,9 @@ export function scheduleReadiness<T>(
 		clearTimeout(timer);
 		controller.abort();
 	};
+}
+
+/** PDF/writing work has no authority over independently selected job evidence. */
+export function mergeDocumentReadiness(current: ReadinessResults, completed: ReadinessResults): ReadinessResults {
+	return { ...completed, job: current.job };
 }

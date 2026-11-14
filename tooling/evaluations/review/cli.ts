@@ -12,7 +12,7 @@ import {
 	pruneTaskVariants,
 	taskVariantId,
 } from "./config";
-import { readBenchmarkKey } from "./credentials";
+import { readBenchmarkKey, readBenchmarkKeyFile } from "./credentials";
 import { diagnostic } from "./diagnostics";
 import { dispatchLimits } from "./dispatch";
 import { assertFrozenStudy } from "./freeze";
@@ -68,7 +68,7 @@ async function main() {
 		import("./metrics"),
 		import("./study"),
 	]);
-	const cases = options.study === "core" ? coreCases : loadStudyCases(options.study);
+	const cases = options.study === "core" ? coreCases : loadStudyCases(options.study, options.categories);
 	const config =
 		options.config ??
 		(options.study === "tasks-v1" ? new URL("./models-tasks.json", import.meta.url).pathname : undefined);
@@ -76,12 +76,20 @@ async function main() {
 	if (options.study === "tasks-v1" && options.variants !== undefined)
 		models = pruneTaskVariants(models, options.variants);
 	if (options.study === "tasks-v1" && options.smokeCategory) throw new Error("TASKS_SMOKE_SCOPE_FORBIDDEN");
+	const categories = options.categories;
+	if (categories)
+		models = models
+			.map((model) => ({
+				...model,
+				categories: categories.filter((category) => !model.categories || model.categories.includes(category)),
+			}))
+			.filter((model) => model.categories.length > 0);
 	if (options.stage === "full") requireFullModels(models);
 	const selectedCases =
 		options.stage === "smoke" ? smokeCases(cases, models, options.smokeCategory) : cases.filter((c) => !c.exploratory);
 	const runs = options.stage === "smoke" ? 1 : options.runs;
 	const tuningControl = controls(cases.filter((c) => !c.holdout && !c.exploratory));
-	const control = recordedControls(undefined, options.study) ?? {
+	const control = recordedControls(undefined, options.study, options.categories) ?? {
 		...tuningControl,
 		pass: false,
 		failures: [...tuningControl.failures, { id: "sealed", control: "freeze", reason: "SEALED_CONTROLS_REQUIRED" }],
@@ -150,7 +158,7 @@ async function main() {
 			priorSpendMicros = Math.ceil(smoke.reservedUsd * 1e6);
 			priorOpenaiSpendMicros = Math.ceil((smoke.reservedOpenaiUsd ?? 0) * 1e6);
 		}
-		key = await readBenchmarkKey(options.envFile);
+		key = options.keyFile ? await readBenchmarkKeyFile(options.keyFile) : await readBenchmarkKey(options.envFile);
 	}
 	if ((options.fake || options.dryRun) && options.smokeFile) {
 		const smoke = JSON.parse(await readFile(resolve(options.smokeFile), "utf8")) as BenchmarkArtifact;

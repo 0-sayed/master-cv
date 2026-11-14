@@ -3,6 +3,7 @@ import type { IconName } from "@reactive-resume/ui/components/icon";
 import { plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useCopyToClipboard } from "usehooks-ts";
 import { Button } from "@reactive-resume/ui/components/button";
@@ -239,6 +240,7 @@ export function DocumentMenuContent({
 	variant = "dropdown",
 }: DocumentMenuProps) {
 	const actions = useDocumentActions();
+	const navigate = useNavigate();
 	const session = useCurrentSession();
 	const [, copy] = useCopyToClipboard();
 	const url = publicResumeUrl(document, session?.user.username);
@@ -262,8 +264,22 @@ export function DocumentMenuContent({
 		{ icon: "pencil-simple", label: t`Rename`, onSelect: onRename, disabled: document.isLocked },
 		{ icon: "copy", label: t`Duplicate`, onSelect: () => void actions.duplicate(document) },
 		document.type === "resume"
-			? { icon: "briefcase", label: t`Copy for a job…`, onSelect: () => actions.copyForJob(document) }
+			? {
+					icon: "briefcase",
+					label: t`Copy for a job…`,
+					onSelect: () => void navigate({ to: "/dashboard/resumes/$resumeId/job", params: { resumeId: document.id } }),
+				}
 			: { icon: "briefcase", label: t`Link to application…`, onSelect: onLink, disabled: document.isLocked },
+		...(document.type === "resume"
+			? [
+					{
+						icon: "translate",
+						label: t`Copies and languages`,
+						onSelect: () =>
+							void navigate({ to: "/dashboard/resumes/$resumeId/languages", params: { resumeId: document.id } }),
+					} satisfies MenuEntry,
+				]
+			: []),
 		{ icon: "tag", label: t`Tags…`, onSelect: onTags, disabled: document.isLocked },
 		document.isLocked
 			? { icon: "lock-open", label: t`Unlock`, onSelect: () => actions.setLocked(document, false) }

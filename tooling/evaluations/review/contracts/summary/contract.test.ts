@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, it } from "vite-plus/test";
 import { z } from "zod";
+import { variantVerifierSchema as tasksVerifierSchema } from "@reactive-resume/api/features/ai/variant-verifier";
 import { loadModels } from "../../config";
 import { evaluateOutput, goldOutput, prepareCase } from "../../execution";
 import { appendEvent, readJournal } from "../../journal";
@@ -12,7 +13,6 @@ import { required } from "../../required";
 import { runBenchmark } from "../../runner";
 import { loadTaskFixtures, taskReviewItems } from "../fixtures";
 import { getTaskContract } from "../index";
-import { tasksVerifierSchema } from "../verifier/schema";
 import { tasksVerifier } from "../verifier/verifier";
 import { restoreSummaryNames, summaryContract, summaryOutputSchema, type SummaryOutput } from "./contract";
 
@@ -160,7 +160,7 @@ it("measures required key-fact coverage separately from safety and audits verifi
 	const verdict = tasksVerifier.fakeVerdict(c, value);
 	expect(summaryContract.score(c, value, verdict).quality.value).toBe(1);
 	const uncovered = { ...verdict, coverage: { status: "uncovered", reason: "Unannotated assertion." } };
-	expect(summaryContract.score(c, value, uncovered).unsupportedClaims).toContain("SUMMARY_VERIFIER_REJECTED");
+	expect(summaryContract.score(c, value, uncovered).unsupportedClaims).toContain("AI_VERIFICATION_FAILED");
 	expect(summaryContract.score(c, value, { ...verdict, verdicts: [] }).safetyDeterministic.pass).toBe(false);
 	const advisory = { ...verdict, quality: { status: "inappropriate", reason: "Too repetitive." } };
 	expect(summaryContract.score(c, value, advisory).safetyDeterministic.pass).toBe(true);

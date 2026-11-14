@@ -33,7 +33,7 @@ and HTML prototypes are not required. Follow `Planning/roadmap/tasks.md` for the
   blanket latest-version upgrade, second app or mandatory native-mobile release.
 - All scheduled PRs remain L; commit-sized steps stay inside their task PR.
 - Each task PR ticks its row in `Planning/roadmap/tasks.md` and updates its class in `Planning/roadmap/dependencies.mmd`
-  in the same final commit, once CI is green, so main shows the task done when the PR merges.
+  when the PR is first shipped (owner decision 2026-11-14), so the opened PR carries its completion bookkeeping.
   Run `python3 Planning/roadmap/check.py` (must report 0 errors). Never commit directly to main.
 
 ## Design source

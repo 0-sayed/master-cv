@@ -38,35 +38,39 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await page.screenshot({ path: testInfo.outputPath("not-enabled.png") });
 			// Presentation-only doubles. They do not register handlers or enable server-side processing.
 			for (const state of ["unavailable", "exhausted", "busy"] as const) {
-				await page.route("**/api/rpc/ai/**", (route) => {
+				// The batch URL follows its first request, which may be a non-AI query.
+				await page.route("**/api/rpc/**/__batch__", async (route) => {
 					const requests = route.request().postDataJSON() as Array<{ url: string }>;
-					const responses = requests.map(({ url }, index) => ({
-						index,
-						status: 200,
-						body: {
-							json: url.endsWith("/availability")
-								? {
-										state: state === "unavailable" ? "unavailable" : "ready",
-										reason: state === "unavailable" ? "WORKER_UNAVAILABLE" : null,
-									}
-								: url.endsWith("/latest")
-									? null
-									: {
-											plan: "start",
-											operations: {
-												limit: 5,
-												used: state === "busy" ? 4 : 5,
-												reserved: state === "busy" ? 1 : 0,
-												remaining: 0,
-											},
-											baseCvs: { limit: 1, used: 1 },
-										},
-						},
-					}));
+					if (!requests.some(({ url }) => new URL(url).pathname.startsWith("/api/rpc/ai/"))) return route.continue();
+					const response = await route.fetch();
+					const body = (await response.text())
+						.split("\n")
+						.map((line) => {
+							if (!line.startsWith("data: ")) return line;
+							const event = JSON.parse(line.slice(6)) as { index: number; body: { json: unknown } };
+							const url = requests[event.index]?.url;
+							if (url?.endsWith("/ai/availability"))
+								event.body.json = {
+									state: state === "unavailable" ? "unavailable" : "ready",
+									reason: state === "unavailable" ? "WORKER_UNAVAILABLE" : null,
+								};
+							else if (url?.endsWith("/ai/usage/get"))
+								event.body.json = {
+									plan: "start",
+									operations: {
+										limit: 5,
+										used: state === "busy" ? 4 : 5,
+										reserved: state === "busy" ? 1 : 0,
+										remaining: 0,
+									},
+									baseCvs: { limit: 1, used: 1 },
+								};
+							return `data: ${JSON.stringify(event)}`;
+						})
+						.join("\n");
 					return route.fulfill({
-						status: 207,
-						contentType: "text/event-stream",
-						body: responses.map((response) => `event: message\ndata: ${JSON.stringify(response)}\n\n`).join(""),
+						response,
+						body,
 					});
 				});
 				await page.reload();
@@ -95,7 +99,7 @@ for (const locale of ["en-US", "ar-SA"] as const)
 				await settleScreen(page);
 				await page.screenshot({ path: testInfo.outputPath(`${state}.png`) });
 				expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-				await page.unroute("**/api/rpc/ai/**");
+				await page.unroute("**/api/rpc/**/__batch__");
 			}
 			await page.goto("/dashboard");
 			await page.getByRole("button", { name: ar ? "جديد" : "New", exact: true }).click();

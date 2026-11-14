@@ -4,7 +4,7 @@ import { afterEach, expect, it } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { Button } from "@reactive-resume/ui/components/button";
-import { FindingCard } from "./check-sections";
+import { FindingCard, SummaryRow } from "./check-sections";
 
 afterEach(cleanup);
 it.each(["blocker", "warning", "tip"] as const)(
@@ -42,3 +42,15 @@ it.each(["blocker", "warning", "tip"] as const)(
 		);
 	},
 );
+
+it("labels a completed evidence check neutrally when blocker findings do not apply", () => {
+	i18n.load("en", {});
+	i18n.activate("en");
+	render(
+		<I18nProvider i18n={i18n}>
+			<SummaryRow title="Job evidence" state="complete" findings={[]} completedLabel="Checked" />
+		</I18nProvider>,
+	);
+	expect(screen.getByRole("status")).toHaveTextContent("Checked");
+	expect(screen.queryByText("No blockers")).not.toBeInTheDocument();
+});

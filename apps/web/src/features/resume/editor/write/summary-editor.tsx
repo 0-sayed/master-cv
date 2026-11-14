@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { SummaryReview } from "../../variants/summary-review";
 import { RichTextEditor } from "./rich-text-editor";
 import { useCurrentBuilderResumeSelector, useUpdateResumeData } from "@/features/resume/builder/draft";
 
@@ -9,19 +10,22 @@ export function SummaryEditor({ locked }: { locked: boolean }) {
 	const updateResumeData = useUpdateResumeData();
 
 	return (
-		<RichTextEditor
-			label={t`Summary`}
-			value={content}
-			disabled={locked}
-			hint={<Trans>2–3 sentences reads best</Trans>}
-			onChange={(html) =>
-				updateResumeData(
-					(draft) => {
-						draft.summary.content = html;
-					},
-					{ coalesceKey: "summary.content" },
-				)
-			}
-		/>
+		<>
+			<RichTextEditor
+				label={t`Summary`}
+				value={content}
+				disabled={locked}
+				hint={<Trans>2–3 sentences reads best</Trans>}
+				onChange={(html) =>
+					updateResumeData(
+						(draft) => {
+							draft.summary.content = html;
+						},
+						{ coalesceKey: "summary.content" },
+					)
+				}
+			/>
+			<SummaryReview locked={locked} />
+		</>
 	);
 }

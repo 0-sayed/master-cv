@@ -2006,5 +2006,331 @@
 				"honestFalseRejects": []
 			}
 		}
+	},
+	{
+		"name": "tasks-job-language-contract-alignment",
+		"date": "2026-11-14",
+		"reason": "Runtime job/language contract alignment and explicit four-operation benchmark scope",
+		"priorStudyId": "t006-tasks-v1-v26-ci-repair",
+		"priorStudyHash": "5b96876041eb3811e7802d34f32ecf1636a77fa8b4b7e34108af178098fc2fd2",
+		"priorByteHash": "661caaf77f645ca3f55b098fed8cb7fdbc4a711dfdb2f92e1f80f79822c3a9f1",
+		"studyId": "tasks-v1-job-language-v27",
+		"studyHash": "27b16636ecb39d68a29c6dedbedc883e72a3ed46ab89b553e5d7ae23217e1257",
+		"approval": "UNAPPROVED",
+		"controlsBasis": "Final offline deterministic/scripted controls recorded in guard-controls-tasks-v1.json; not semantic qualification.",
+		"changedDependencies": [
+			{
+				"path": "packages/api/src/features/ai/operation-worker.ts",
+				"priorByteHash": "ba2ebae22693133940783b561ce453e8da2a194f6938c11599bed4be1ab2b374",
+				"sha256": "8da66b2014c2ef565c0fdb802d93441df7efb18006625e9331091fb0c3b5bc9e"
+			},
+			{
+				"path": "packages/api/src/features/ai/route-policy.ts",
+				"priorByteHash": "55fa2fb7baff4698bb8826bc75b38ed7ae7076e5daa413059bf2fbbc45d3325b",
+				"sha256": "55796165217bdfe340aa9ca9ff29f98b737d93528fa057ff02edb91668fbf43a"
+			},
+			{
+				"path": "tooling/evaluations/review/canaries.ts",
+				"priorByteHash": "d1ae5963703b16a021f5b7006420cf35e5c5e3c0ac80b608151fce8d7290de18",
+				"sha256": "edcada59950fb69236ab3bfafb7c7405840a96e1a7808d34cd8926013c085dd2"
+			},
+			{
+				"path": "tooling/evaluations/review/cli.ts",
+				"priorByteHash": "bdd31f81b82f3dd3ba953f4df59851b2772fc90e70263479d8592c36d6ca03ef",
+				"sha256": "57da40ddf663967dc7a0fa609fa813524e307ba10e0c8b343761652b3f7c0227"
+			},
+			{
+				"path": "tooling/evaluations/review/config.ts",
+				"priorByteHash": "5182ad5ff71dea8c70b117cb7a406eb14ec5662c36151c984c485739f1bb5a3f",
+				"sha256": "029ed2c8fdff3de357a8f8cd7e5943e4472ea1cf2d2b86f24c03cd3e6280fbb3"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/job-evidence/contract.ts",
+				"priorByteHash": "ebc474631dfba0badfbbe4290f5ad37df407938b7cc942b933875096e5d61fbb",
+				"sha256": "229762f436e46dd611dab671fce632330d950e0d9b9ed8b97218193030bd4a0f"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/job-evidence/prompt.md",
+				"priorByteHash": "3f663486b8d11287d127eb4bfa3a13061051e32309b0f1d649effdf127ec3ca1",
+				"sha256": "3dd64df89578088abe048162f297335f07b455828728ccded9897bf71407bd92"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/runtime.ts",
+				"priorByteHash": "2614ef6594feea4b7ec6c96221fc3a914a137a9e82daa537f8cfc74c12900c54",
+				"sha256": "0a1f806171f766bd61ec5a4c80e3c7be4c18df8c0399297189c18a60648094b9"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/summary/contract.ts",
+				"priorByteHash": "584d8352e086954093b3b7f0b2291b965844ece427a65c51a75cf99827989b75",
+				"sha256": "9ad13b61c27aee626141a1a1654f2b373c81bf56d3a35039cfa55732740e2b16"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/summary/prompt.md",
+				"priorByteHash": "9e2345a5ff5e4680eacd7a35eb6f525079d1e44b2f1069c55e04f0fec1f3d891",
+				"sha256": "86c77f02c4a68443dba57e4678aa96cd84335cd7f6cc76e1619834677343565a"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/tailoring/contract.ts",
+				"priorByteHash": "1ee42deb43c09311140a7d20334ab833ed4a763470f05435ad30353b00e8a30a",
+				"sha256": "785efd1c6563ca9ac405c759d9753efaa8eaec373a9b750920ea3931dd5f154f"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/tailoring/prompt.md",
+				"priorByteHash": "e07e4f7e3f07dce88bbe9066b49fae99d618c641fe82e7eeec2a1f4a3dd30a1c",
+				"sha256": "c82c9345ccf08e479c81fb0ba8420c351e716e9407bd6fb5dab941baf0fc1042"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/translation/contract.ts",
+				"priorByteHash": "dde6660fee25703139ddbcd20a9a72f2add6cec2eb2d4f0a2f7f7e549fe090e4",
+				"sha256": "9f2da9aec87da335c6770e1620e7e4187de82c4c3af9898bc4204cbc719c01ca"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/translation/prompt.md",
+				"priorByteHash": "98ed398f145b78cd8c50dd0f52387e0879b799249ba330e07cc6658909e11e0d",
+				"sha256": "6e915b0e58694e286e404b8e79fbe0f7c15df12f795fb62a4031fe98b279e166"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/verifier/verifier.ts",
+				"priorByteHash": "38de44b9b83d52b908871087ffb191116e3609d4ce946df48936727d452d2c18",
+				"sha256": "539b193f4255442bbc70ca85579d73739ea1e9f3191e8edd3566668cb726bd51"
+			},
+			{
+				"path": "tooling/evaluations/review/execution.ts",
+				"priorByteHash": "0da464e5f7ce303bd65a28884ec7d950ae13445195c54f1d95af4694d894433a",
+				"sha256": "acbcec85f3180b0d93ed24a54886d9734243f740443ab4cc64bab64023348ae5"
+			},
+			{
+				"path": "tooling/evaluations/review/owner-review-cli.ts",
+				"priorByteHash": "2afe0dc175d9a8a3b1012c21eba7e748825cd33cfb7a59c4c08cd5aea6c36a01",
+				"sha256": "1c0baa69c36bbf7f7e49407a581b3d0c3bf4984aaf5eb124a9d4020d6a303f64"
+			},
+			{
+				"path": "tooling/evaluations/review/study.ts",
+				"priorByteHash": "0f1d4ce9ed20546a207fa2820f5dfbc41ee151845c919f881566b7ad30d161bc",
+				"sha256": "daef72973fca2fcbe819615dc94ef1771cb3f194f783f2fc465253dd78f9e56a"
+			},
+			{
+				"path": "tooling/evaluations/review/verifier.ts",
+				"priorByteHash": "0039cc080014c527ebc3e92451c6c6d4248ae0231af2ecc0f643f936a9f6f606",
+				"sha256": "77bb685d2be8dcbaacd544cd92148c9822cfa80283675fe9c0c60928cdd2977b"
+			},
+			{
+				"path": "tooling/local/test-ai-guard.mjs",
+				"priorByteHash": "d6a13569564ce37c275de0960faa39499002aadf51f1392210849a9fab6fcb64",
+				"sha256": "171e7b5723b5a30bf3d49b9d3719daa647775819663db32a4b4416601a428660"
+			},
+			{
+				"path": "tooling/evaluations/review/safety-replay-cli.ts",
+				"priorByteHash": "9679086397c8aa57fc8fc10e5ea11f64e4a0b4454a2938237670e87c12929390",
+				"sha256": "489eb9eefb344870324559cd598c3d97bf222495b441055d45d82510542a9393"
+			},
+			{
+				"path": "tooling/evaluations/review/safety-replay.test.ts",
+				"priorByteHash": "ae18e586845d7943f27292e645c4cb41d4feeeeced885b502ebf0e715b4d0219",
+				"sha256": "3c0ad005ccc7296e6bf2584e8df5646310863874643a4de208174581f6cfa446"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-types.ts",
+				"priorByteHash": null,
+				"sha256": "28b3593a980a34dbcddbb8aaa85d04673a6a96fc29676d09d27fbbca734966f0"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-contracts.ts",
+				"priorByteHash": null,
+				"sha256": "2abb62fe273dc04a26f642ede15e30a851d4314925537a0e1820d51c0a8b9194"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-prompts.json",
+				"priorByteHash": null,
+				"sha256": "b9e209f0377d4897b2176baf9af4139af94839e4caee9f5d3d34f7dfa802c3c8"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-validation.ts",
+				"priorByteHash": null,
+				"sha256": "ee844d353e2ea8be99456475181815b705b9b8f9e140f6b6d79274007a3016fb"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-verifier.ts",
+				"priorByteHash": null,
+				"sha256": "51760bcf9c6e01944f0fdd8b4154c8a312413916a970b5020a64c732ea53dc04"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-guard.ts",
+				"priorByteHash": null,
+				"sha256": "34157528614440aad13fb00200dc603ab3a3024f5e52d8b15fbbfa58dcda110d"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-sources.ts",
+				"priorByteHash": null,
+				"sha256": "8e166de422970f91f0aa2d0d58dbab3e9464a4b558e63d2a0f891342895a24ae"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-handlers.ts",
+				"priorByteHash": null,
+				"sha256": "1b2a8d3c79a5475c1470ea3f933f2ba0ef85d77f9efdb7c7e1ddf0fd2a5d5140"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-decisions.ts",
+				"priorByteHash": null,
+				"sha256": "a350f5bcc21d7635fbd5a13a20e64462a0c932f780f20d651ca2f1fddc6e8c1c"
+			},
+			{
+				"path": "packages/api/src/features/resume/variants.ts",
+				"priorByteHash": null,
+				"sha256": "f00105aa223c1689791d1decb84916b1aeea5e1dcd82b748d1159952f7d0365e"
+			},
+			{
+				"path": "packages/api/src/features/career/jobs.ts",
+				"priorByteHash": null,
+				"sha256": "e08380ce60b24b068116e26cad8e1ac9aa05370ac4c1fdb9c01842f9a2130b3a"
+			},
+			{
+				"path": "packages/schema/src/resume/variant-outputs.ts",
+				"priorByteHash": null,
+				"sha256": "c2fdbd9cd66e52854da2ad6776a75a68a588329988766c5170e5265ad272647d"
+			},
+			{
+				"path": "packages/schema/src/resume/variants.ts",
+				"priorByteHash": null,
+				"sha256": "60bc7a9139ee3f2587236d4d6db1bf567adaf37e3dac5a1b34b138e4d56f5cfb"
+			},
+			{
+				"path": "packages/schema/src/job-evidence.ts",
+				"priorByteHash": null,
+				"sha256": "766dc207e0477f0e65caab525837858bdd034c799b2e6d4c4d3a78bce2e9931c"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/variant-adapter.ts",
+				"priorByteHash": null,
+				"sha256": "f1c4b6c553e71cb98798d3afabefc74301048954e86133a0382c622356f3af92"
+			},
+			{
+				"path": "tooling/evaluations/review/credentials.ts",
+				"priorByteHash": "f63f9d7cc787c709698f73d704a1c154c98330b7a3e272c4c841a3115f9bb880",
+				"sha256": "af51e0228968d0d2662b7c5a969c132c0d667dba406545b04fa278c93c39aa45"
+			}
+		]
+	},
+	{
+		"name": "tasks-job-language-review-repairs",
+		"date": "2026-11-14",
+		"reason": "T007 browser QA repairs: resolve owner-visible translation terms, initialize first rejection and local undo, attach pinned job requirements to clarification, and restrict the test network guard to AI providers. No fixtures, golds, prompts, scoring, model pins, paid inference or approval changes. Historical core identity stays unchanged and stale. Fresh deterministic/scripted controls only; approvals and semantic qualification remain UNAPPROVED.",
+		"priorStudyId": "tasks-v1-job-language-v27",
+		"priorStudyHash": "27b16636ecb39d68a29c6dedbedc883e72a3ed46ab89b553e5d7ae23217e1257",
+		"priorByteHash": "9045cb6fef6eee440084d934c5a4a8e4d36eaebed01fd78a6ada56f62ff328d4",
+		"studyId": "tasks-v1-job-language-v28",
+		"studyHash": "a87539f48d077499af4d768824fc5550a0e84f67343a12e8174190492ba2fa8f",
+		"approval": "UNAPPROVED",
+		"controlsBasis": "Fresh all-category, scoped and canary deterministic/scripted scans; no semantic qualification.",
+		"changedDependencies": [
+			{
+				"path": "tooling/local/test-ai-guard.mjs",
+				"priorByteHash": "171e7b5723b5a30bf3d49b9d3719daa647775819663db32a4b4416601a428660",
+				"sha256": "c5d0b313719687c96450c4b226dfd01fd2abc93427a8bc2a8dc4df34a8689ee1"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-decisions.ts",
+				"priorByteHash": "a350f5bcc21d7635fbd5a13a20e64462a0c932f780f20d651ca2f1fddc6e8c1c",
+				"sha256": "c2fe3e518b2b31fd2ab360c833fc8aa3d1b098438fc217f507d49d0598bf94f0"
+			}
+		]
+	},
+	{
+		"name": "tasks-arabic-fixture-review-corrections",
+		"date": "2026-11-14",
+		"reason": "Arabic fixture review corrections",
+		"priorStudyId": "tasks-v1-job-language-v28",
+		"priorStudyHash": "a87539f48d077499af4d768824fc5550a0e84f67343a12e8174190492ba2fa8f",
+		"priorByteHash": "0741d3f5b98157b0587482161d5d1ad979cfc3093e8b08a56829c0015a914342",
+		"studyId": "tasks-v1-job-language-v29",
+		"studyHash": "f09a6017b1e859897825864422526222f365ece9097b15966aef9f30d13c2271",
+		"approval": "UNAPPROVED",
+		"controlsBasis": "Fresh all-category, scoped and canary deterministic/scripted scans; no semantic qualification.",
+		"changedDependencies": [
+			{
+				"path": "tooling/evaluations/review/contracts/canaries.json",
+				"priorByteHash": "bfdd42e53f85249a904494134cdf86f9481017a2c5ea69e58caefa0656c9ea15",
+				"sha256": "3888f49b6ceb7e1802a23ff2571e205498ce75674093349788c2f18170999f5a"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/job-evidence/holdout.json",
+				"priorByteHash": "609ba3da8522d14ad2b4b66d1839dcb94c535a7fbf1952ad2e7e4567fdca2d80",
+				"sha256": "7b5d5a6fce36200a41c381e608057513f38291297cdadb1da0e30e8672ab1ba6"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/job-evidence/tuning.json",
+				"priorByteHash": "c8ad02ef9581533b85b7f6447eae9a90e31449c9b98a2313c8a44798b7ca2d99",
+				"sha256": "a42612d88532f0445e16faf119faac7604125c82a8f470d1108f52f3dbf82b18"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/translation/holdout.json",
+				"priorByteHash": "5f8868216425df34571a479709c92886d9eac40ce4a4985ac1a7e26161a7042c",
+				"sha256": "bbb6ede266f207b8912ebef29f9ca344de06eb6f4f3e6ff41b21965535174693"
+			}
+		]
+	},
+	{
+		"name": "tasks-job-language-review-corrections",
+		"date": "2026-11-14",
+		"reason": "PR #21 review corrections: split confirmed CV evidence from untrusted job instructions with versioned production prompts; retain deterministic job-assessment safety; normalize source offsets, dates and selected-job evidence; enforce 49 source passages and protected translation revisions; restore previews literally; accept explicit complete-category receipts. Current reviewed runtime dependencies are resealed without fixture, gold, model-pin or verifier changes. Fresh deterministic/scripted scans only. Historical core identity remains unchanged and stale; prior live/offline artifacts cannot qualify this study. No paid inference, environment-file reads, approval or release.",
+		"priorStudyId": "tasks-v1-job-language-v29",
+		"priorStudyHash": "f09a6017b1e859897825864422526222f365ece9097b15966aef9f30d13c2271",
+		"priorByteHash": "d88b0eb8973c35fcb2074ffe74f56059c4b7227236435a0910be739e77a9a4de",
+		"studyId": "tasks-v1-job-language-v30",
+		"studyHash": "6713168003b162efe54ca92727bbabcd5f13dfcfe41a815a99c3238815533ba2",
+		"approval": "UNAPPROVED",
+		"controlsBasis": "Fresh all-category, scoped and canary deterministic/scripted scans; no semantic qualification.",
+		"changedDependencies": [
+			{
+				"path": "tooling/evaluations/review/study.ts",
+				"priorByteHash": "daef72973fca2fcbe819615dc94ef1771cb3f194f783f2fc465253dd78f9e56a",
+				"sha256": "933e543cdd521a9c5510b4b41cd7e660f1babaea3677b52eabf7ad8555d9b1d5"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-contracts.ts",
+				"priorByteHash": "2abb62fe273dc04a26f642ede15e30a851d4314925537a0e1820d51c0a8b9194",
+				"sha256": "d21f44b20a6def028f17811db4d6cd542123615c8db7b153e7e6578e50ea90a8"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-prompts.json",
+				"priorByteHash": "b9e209f0377d4897b2176baf9af4139af94839e4caee9f5d3d34f7dfa802c3c8",
+				"sha256": "a1f98463a3c75e3b5f65aead32f1bc8415d4862df85e4c2f4547ce726707c330"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-validation.ts",
+				"priorByteHash": "ee844d353e2ea8be99456475181815b705b9b8f9e140f6b6d79274007a3016fb",
+				"sha256": "ccb5cd3b8b7965d6099375c7e23647577f26e4f24b7615695b11a8cb2ccf1e44"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-sources.ts",
+				"priorByteHash": "8e166de422970f91f0aa2d0d58dbab3e9464a4b558e63d2a0f891342895a24ae",
+				"sha256": "57306fd042f7cb1af43780c67141cf8b17aca6eb929465ad2fae3f9e1218e89c"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-decisions.ts",
+				"priorByteHash": "c2fe3e518b2b31fd2ab360c833fc8aa3d1b098438fc217f507d49d0598bf94f0",
+				"sha256": "0b80cc5d49fc29ca70aeaf564f30f33bf3e0aaab8fb052aa6d0a199f115d3b3c"
+			},
+			{
+				"path": "packages/api/src/features/resume/variants.ts",
+				"priorByteHash": "f00105aa223c1689791d1decb84916b1aeea5e1dcd82b748d1159952f7d0365e",
+				"sha256": "83fbc4bbac3b3a1a9ed8ca5073103047d838d8f40975f9cc415d75c63ebba098"
+			},
+			{
+				"path": "packages/schema/src/resume/variants.ts",
+				"priorByteHash": "60bc7a9139ee3f2587236d4d6db1bf567adaf37e3dac5a1b34b138e4d56f5cfb",
+				"sha256": "8d119088b9bdd876fcddb0faa42dc1a794b682fb9196357e8484e73e6f1bf710"
+			},
+			{
+				"path": "packages/schema/src/job-evidence.ts",
+				"priorByteHash": "766dc207e0477f0e65caab525837858bdd034c799b2e6d4c4d3a78bce2e9931c",
+				"sha256": "19ee8a34261f0975ced167ca26b992d2423bc72b32f8c39d39bab63ccc230b7e"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/variant-adapter.ts",
+				"priorByteHash": "f1c4b6c553e71cb98798d3afabefc74301048954e86133a0382c622356f3af92",
+				"sha256": "9784648896f26cb62593e1adf6488290d442348b37718cd54b07b55a54809699"
+			}
+		]
 	}
 ]

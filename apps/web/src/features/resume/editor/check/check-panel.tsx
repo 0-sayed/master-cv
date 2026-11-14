@@ -22,6 +22,7 @@ import { useCheckActions, editWithUndo, scrollToIssue } from "./actions";
 import { FindingCard, FindingGroup, SummaryRow, KeptFindings } from "./check-sections";
 import { acceptFix } from "./fix-preview";
 import { getSectionName } from "./issues";
+import { JobMatchTab } from "./job-match";
 import { pdfFindingKey, pdfFieldTarget } from "./pdf-findings";
 import { useCheck } from "./use-check";
 import { useReadiness } from "./use-readiness";
@@ -89,9 +90,8 @@ export function CheckPanel() {
 				</h3>
 				<SummaryRow title={t`PDF readability`} state={pdf.state} findings={current ? visiblePdf : []} />
 				<SummaryRow title={t`Writing notes`} state={results.writing.state} findings={writing} />
-				<p className="type-meta text-ink-3">
-					<Trans>Job evidence · Available later</Trans>
-				</p>
+				<SummaryRow title={t`Job evidence`} state={results.job.state} findings={[]} completedLabel={t`Checked`} />
+				<JobMatchTab />
 			</SectionCard>
 			{locked && (
 				<Alert variant="info">

@@ -18,8 +18,13 @@ const severityTone = {
 	tip: { alert: "info", badge: "info", icon: "info" },
 } as const;
 type FindingCount = { severity: PdfSeverity };
-type SummaryRowProps = { title: string; state: ReadinessState; findings: readonly FindingCount[] };
-export function SummaryRow({ title, state, findings }: SummaryRowProps) {
+type SummaryRowProps = {
+	title: string;
+	state: ReadinessState;
+	findings: readonly FindingCount[];
+	completedLabel?: string;
+};
+export function SummaryRow({ title, state, findings, completedLabel }: SummaryRowProps) {
 	const current = state === "complete" || state === "partial";
 	const counts = (["blocker", "warning", "tip"] as const).map((severity) => ({
 		severity,
@@ -57,9 +62,9 @@ export function SummaryRow({ title, state, findings }: SummaryRowProps) {
 							),
 					)}
 				{state === "complete" && findings.length === 0 && (
-					<Badge variant="accent">
-						<Icon name="check-circle" />
-						<Trans>No blockers</Trans>
+					<Badge variant={completedLabel ? "neutral" : "accent"}>
+						{!completedLabel && <Icon name="check-circle" />}
+						{completedLabel ?? <Trans>No blockers</Trans>}
 					</Badge>
 				)}
 			</div>

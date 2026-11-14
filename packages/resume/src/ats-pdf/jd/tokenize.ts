@@ -1,3 +1,5 @@
+import { normalizeWithOffsets } from "./normalize";
+
 /**
  * Word segmentation that keeps technical surface forms intact.
  *
@@ -84,4 +86,41 @@ export function splitIntoRuns(text: string): string[] {
 		.split(/[\n\r]+|(?<=[.!?;:])\s+|[•▪◦‣·|,()[\]{}]/)
 		.map((run) => run.trim())
 		.filter(Boolean);
+}
+
+/** Token windows use the matcher's run boundaries, carrying original UTF-16 source positions. */
+export function matchingWindows(value: string, maxLength: number) {
+	const normalized = normalizeWithOffsets(value);
+	const windows: Array<{ text: string; start: number; end: number; quote: string }> = [];
+	let runCursor = 0;
+	for (const run of splitIntoRuns(normalized.text)) {
+		const runStart = normalized.text.indexOf(run, runCursor);
+		runCursor = runStart + run.length;
+		let cursor = runStart;
+		const tokens = tokenize(run).map((text) => {
+			const start = normalized.text.indexOf(text, cursor);
+			cursor = start + text.length;
+			return { text, start, end: cursor };
+		});
+		for (let size = 1; size <= maxLength; size++) {
+			for (let index = 0; index + size <= tokens.length; index++) {
+				const first = tokens[index];
+				const last = tokens[index + size - 1];
+				if (!first || !last) continue;
+				const start = normalized.offsets[first.start]?.start;
+				const end = normalized.offsets[last.end - 1]?.end;
+				if (start === undefined || end === undefined) continue;
+				windows.push({
+					text: tokens
+						.slice(index, index + size)
+						.map((token) => token.text)
+						.join(" "),
+					start,
+					end,
+					quote: value.slice(start, end),
+				});
+			}
+		}
+	}
+	return windows;
 }

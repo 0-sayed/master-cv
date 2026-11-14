@@ -3,11 +3,17 @@ import type { Claim, TaskCase } from "../types";
 import { readFileSync } from "node:fs";
 import { isDeepStrictEqual } from "node:util";
 import { normalizeFact } from "@reactive-resume/api/features/ai/hard-facts";
+import {
+	buildVariantVerificationPayload,
+	parseVariantVerification,
+	variantVerificationInventory,
+} from "@reactive-resume/api/features/ai/variant-verifier";
 import { buildModelPayload } from "../../production";
-import { taskContractFor } from "../runtime";
+import { isProductionVariantCase, taskContractFor } from "../runtime";
+import { variantSnapshot } from "../variant-adapter";
 import { tasksVerifierSchema, type TasksVerification } from "./schema";
 
-export const tasksVerifierVersion = "t006-tasks-verifier-v2-exact-ids";
+export const tasksVerifierVersion = "tasks-verifier-v3-production-variant-dispatch";
 const systemPrompt = readFileSync(new URL("./prompt.md", import.meta.url), "utf8");
 const identifierKeys = new Set([
 	"id",
@@ -95,6 +101,7 @@ function sanitizer(c: TaskCase) {
 }
 
 function buildInput(c: TaskCase, output: Record<string, unknown>) {
+	if (isProductionVariantCase(c)) return buildVariantVerificationPayload(variantSnapshot(c), output);
 	const { claims, context, premises } = verification(c, output);
 	if (c.cv.length + (c.jobAd?.segments.length ?? 0) > 50) throw new Error("TASK_SELECTION_LIMIT");
 	const clean = sanitizer(c);
@@ -151,6 +158,14 @@ const quoteText = (text: string) =>
 		.trim();
 
 function auditFault(c: TaskCase, output: Record<string, unknown>, raw: unknown): string | null {
+	if (isProductionVariantCase(c)) {
+		try {
+			parseVariantVerification(variantSnapshot(c), output, raw);
+			return null;
+		} catch (error) {
+			return error instanceof Error ? error.message : "INVALID_VERIFIER_OUTPUT";
+		}
+	}
 	const parsed = tasksVerifierSchema.safeParse(raw);
 	if (!parsed.success) return "INVALID_VERIFIER_OUTPUT";
 	const verdict = parsed.data;
@@ -227,7 +242,14 @@ function assess(c: TaskCase, output: Record<string, unknown>, raw: Record<string
 
 /** Scripted oracle only. Equality to a synthetic gold output is never measured semantic evidence. */
 function fakeVerdict(c: TaskCase, output: Record<string, unknown>): TasksVerification {
-	const { claims, context, premises } = verification(c, output);
+	const inventory = isProductionVariantCase(c) ? variantVerificationInventory(variantSnapshot(c), output) : null;
+	const { claims, context, premises } = inventory
+		? {
+				claims: inventory.claims,
+				premises: inventory.premises,
+				context: { retention: inventory.retention ? "applicable" : "not_applicable", absenceChecks: inventory.absence },
+			}
+		: verification(c, output);
 	const gold = isDeepStrictEqual(output, c.gold);
 	const reason = "Scripted fixture oracle only; not measured semantic evidence.";
 	return {

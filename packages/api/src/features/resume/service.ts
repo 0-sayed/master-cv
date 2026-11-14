@@ -4,6 +4,7 @@ import type { JsonPatchOperation } from "@reactive-resume/resume/patch";
 import type { ResumeCreationKind } from "@reactive-resume/schema/ai-usage";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { Locale } from "@reactive-resume/utils/locale";
+import { isDeepStrictEqual } from "node:util";
 import { ORPCError } from "@orpc/client";
 import { compare, hash } from "bcryptjs";
 import { and, arrayContains, asc, desc, eq, gte, isNotNull, isNull, sql } from "drizzle-orm";
@@ -586,6 +587,45 @@ export const resumeService = {
 					data: version.data,
 					expectedUpdatedAt: current.updatedAt,
 				});
+				const [variant] = await tx
+					.select()
+					.from(schema.resumeVariantSource)
+					.where(
+						and(
+							eq(schema.resumeVariantSource.userId, input.userId),
+							eq(schema.resumeVariantSource.resumeId, input.resumeId),
+						),
+					)
+					.for("update");
+				if (variant) {
+					const decisions = await tx
+						.select()
+						.from(schema.aiReviewDecision)
+						.where(
+							and(
+								eq(schema.aiReviewDecision.userId, input.userId),
+								eq(schema.aiReviewDecision.resumeId, input.resumeId),
+							),
+						)
+						.orderBy(desc(schema.aiReviewDecision.createdAt));
+					const matching = decisions.find(
+						(event) => event.variantPayload?.after && isDeepStrictEqual(event.variantPayload.after.data, restored.data),
+					);
+					const provenance = matching?.variantPayload?.after?.provenance ?? {
+						acceptedSourceRevision: null,
+						terminology: { schemaVersion: 1 as const, terms: [] },
+						acceptedFactRevisions: variant.acceptedFactRevisions,
+					};
+					await tx
+						.update(schema.resumeVariantSource)
+						.set(provenance)
+						.where(
+							and(
+								eq(schema.resumeVariantSource.userId, input.userId),
+								eq(schema.resumeVariantSource.resumeId, input.resumeId),
+							),
+						);
+				}
 				await writeVersion(tx, {
 					resumeId: input.resumeId,
 					userId: input.userId,
@@ -878,6 +918,15 @@ export const resumeService = {
 			if (resume.isLocked) throw new ORPCError("RESUME_LOCKED", { status: 403 });
 
 			// Copies keep their own content/history when their original base is purged.
+			await tx
+				.update(schema.resumeVariantSource)
+				.set({ sourceResumeId: null })
+				.where(
+					and(
+						eq(schema.resumeVariantSource.userId, input.userId),
+						eq(schema.resumeVariantSource.sourceResumeId, input.id),
+					),
+				);
 			await tx
 				.update(schema.resume)
 				.set({ baseResumeId: null, variantKind: "base" })

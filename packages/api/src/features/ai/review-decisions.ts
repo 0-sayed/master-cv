@@ -21,6 +21,7 @@ import {
 	reviewQuestionDismissalSchema,
 	reviewResultSchema,
 } from "@reactive-resume/schema/resume/ai-review";
+import { variantReviewResultSchema } from "@reactive-resume/schema/resume/variants";
 import { parseResumeDataForWrite } from "@reactive-resume/schema/resume/write";
 import { generateId } from "@reactive-resume/utils/string";
 import { lockDocumentOwner } from "../documents/ownership";
@@ -29,6 +30,7 @@ import { writeVersion } from "../resume/version-history";
 import { buildModelPayload, resumeContactValues } from "./payload";
 import { loadReviewSource, lockReviewProfile, sameReviewSource } from "./review-sources";
 import { canonicalJson } from "./route-policy";
+import { loadVariantSnapshot } from "./variant-sources";
 
 type Decision = typeof aiReviewDecision.$inferSelect;
 type Statuses = ReviewDecisionView["statuses"];
@@ -52,7 +54,7 @@ function statusesFor(result: ReviewResult, decisions: Decision[]): Statuses {
 				statuses[id] = decision.event === "undo" ? "pending" : decision.event === "reject" ? "rejected" : "accepted";
 	return statuses;
 }
-async function ownedReview(tx: OwnerTransaction, ownerId: string, operationId: string) {
+async function ownedReview(tx: OwnerTransaction, ownerId: string, operationId: string, variantQuestions = false) {
 	const [operation] = await tx
 		.select()
 		.from(aiOperation)
@@ -64,7 +66,32 @@ async function ownedReview(tx: OwnerTransaction, ownerId: string, operationId: s
 		!["waiting_review", "succeeded"].includes(operation.state)
 	)
 		throw new ORPCError("NOT_FOUND");
-	const result = reviewResultSchema.parse(operation.result);
+	const variant = variantQuestions ? variantReviewResultSchema.safeParse(operation.result) : null;
+	const result: ReviewResult =
+		variant?.success && ["review.summary", "review.job-evidence"].includes(variant.data.kind)
+			? {
+					schemaVersion: 2,
+					kind: "wording",
+					sourceRevision: variant.data.sourceRevision,
+					evidence: [],
+					proposals: [],
+					notes: [],
+					questions:
+						variant.data.kind === "review.summary"
+							? variant.data.output.questions.map((question) => ({ ...question, target: null }))
+							: variant.data.kind === "review.job-evidence"
+								? variant.data.output.requirements
+										.filter((requirement) => requirement.verdict !== "supported")
+										.slice(0, 20)
+										.map((requirement) => ({
+											id: requirement.id,
+											target: null,
+											prompt: requirement.explanation,
+											evidenceIds: requirement.evidenceIds,
+										}))
+								: [],
+				}
+			: reviewResultSchema.parse(operation.result);
 	const source = result.sourceRevision;
 	let document: typeof resume.$inferSelect | undefined;
 	if (source.kind === "resume") {
@@ -348,7 +375,7 @@ export function recordReviewAnswer(ownerId: string, raw: ReviewAnswerInput): Pro
 	const input = reviewAnswerInputSchema.parse(raw);
 	return withOwnerDatabase(ownerId, async (tx) => {
 		await lockDocumentOwner(tx, ownerId);
-		const { result, document, decisions } = await ownedReview(tx, ownerId, input.operationId);
+		const { operation, result, document, decisions } = await ownedReview(tx, ownerId, input.operationId, true);
 		const key = fingerprint(input);
 		const [replay] = await tx
 			.select()
@@ -360,6 +387,8 @@ export function recordReviewAnswer(ownerId: string, raw: ReviewAnswerInput): Pro
 		}
 		if (!sameReviewSource(input.expectedSource, result.sourceRevision)) return conflict("AI_SOURCE_CHANGED");
 		await loadReviewSource(tx, ownerId, input.expectedSource);
+		if (["review.summary", "review.job-evidence"].includes(operation.kind))
+			await loadVariantSnapshot(tx, ownerId, operation);
 		const question = result.questions.find((question) => question.id === input.questionId);
 		if (!question) throw new ORPCError("NOT_FOUND");
 		if (
@@ -397,7 +426,8 @@ export function recordReviewAnswer(ownerId: string, raw: ReviewAnswerInput): Pro
 			})
 			.returning();
 		if (!event) throw new ORPCError("INTERNAL_SERVER_ERROR");
-		await closeResolved(tx, input.operationId, result, [...decisions, event], statusesFor(result, decisions));
+		if (!["review.summary", "review.job-evidence"].includes(operation.kind))
+			await closeResolved(tx, input.operationId, result, [...decisions, event], statusesFor(result, decisions));
 		return evidence;
 	});
 }
@@ -409,7 +439,7 @@ export async function dismissReviewQuestion(
 	const input = reviewQuestionDismissalSchema.parse(raw);
 	await withOwnerDatabase(ownerId, async (tx) => {
 		await lockDocumentOwner(tx, ownerId);
-		const { result, document, decisions } = await ownedReview(tx, ownerId, input.operationId);
+		const { operation, result, document, decisions } = await ownedReview(tx, ownerId, input.operationId, true);
 		const key = fingerprint(input);
 		const [replay] = await tx
 			.select()
@@ -433,6 +463,7 @@ export async function dismissReviewQuestion(
 			})
 			.returning();
 		if (!event) throw new ORPCError("INTERNAL_SERVER_ERROR");
-		await closeResolved(tx, input.operationId, result, [...decisions, event], statusesFor(result, decisions));
+		if (!["review.summary", "review.job-evidence"].includes(operation.kind))
+			await closeResolved(tx, input.operationId, result, [...decisions, event], statusesFor(result, decisions));
 	});
 }

@@ -29,6 +29,10 @@
 				{
 					"id": "je-en-h1-job-2",
 					"text": "Maintaining ASP.NET applications is preferred."
+				},
+				{
+					"id": "je-en-h1-job-3",
+					"text": "SAP experience is preferred."
 				}
 			]
 		},
@@ -49,6 +53,14 @@
 					"verdict": "supported",
 					"evidenceIds": ["je-en-h1-cv-2"],
 					"explanation": "Maintained existing ASP.NET applications."
+				},
+				{
+					"id": "je-en-h1-req-3",
+					"spanIds": ["je-en-h1-job-3"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "No evidence of SAP in this CV."
 				}
 			],
 			"notes": []
@@ -73,6 +85,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-en-h1-cv-2"],
 							"explanation": "Maintained existing ASP.NET applications."
+						},
+						{
+							"id": "je-en-h1-req-3",
+							"spanIds": ["je-en-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -98,6 +118,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-en-h1-cv-2"],
 							"explanation": "Maintained existing ASP.NET applications."
+						},
+						{
+							"id": "je-en-h1-req-3",
+							"spanIds": ["je-en-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -123,6 +151,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-en-h1-cv-2"],
 							"explanation": "Maintained existing ASP.NET applications."
+						},
+						{
+							"id": "je-en-h1-req-3",
+							"spanIds": ["je-en-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -148,6 +184,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-en-h1-cv-2"],
 							"explanation": "Maintained existing ASP.NET applications."
+						},
+						{
+							"id": "je-en-h1-req-3",
+							"spanIds": ["je-en-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -173,6 +217,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-en-h1-cv-2"],
 							"explanation": "Maintained existing ASP.NET applications."
+						},
+						{
+							"id": "je-en-h1-req-3",
+							"spanIds": ["je-en-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": ["ATS score: 99%"]
@@ -198,6 +250,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-en-h1-cv-2"],
 							"explanation": "Maintained existing ASP.NET applications."
+						},
+						{
+							"id": "je-en-h1-req-3",
+							"spanIds": ["je-en-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -783,6 +843,10 @@
 				{
 					"id": "je-en-h4-job-3",
 					"text": "Knowledge of the relevant framework."
+				},
+				{
+					"id": "je-en-h4-job-4",
+					"text": "SAP experience is preferred."
 				}
 			]
 		},
@@ -811,6 +875,14 @@
 					"verdict": "unclear",
 					"evidenceIds": [],
 					"explanation": "The relevant framework is not identified in the job ad."
+				},
+				{
+					"id": "je-en-h4-req-4",
+					"spanIds": ["je-en-h4-job-4"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "No evidence of SAP in this CV."
 				}
 			],
 			"notes": []
@@ -843,6 +915,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "The relevant framework is not identified in the job ad."
+						},
+						{
+							"id": "je-en-h4-req-4",
+							"spanIds": ["je-en-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -876,6 +956,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "The relevant framework is not identified in the job ad."
+						},
+						{
+							"id": "je-en-h4-req-4",
+							"spanIds": ["je-en-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -909,6 +997,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "The relevant framework is not identified in the job ad."
+						},
+						{
+							"id": "je-en-h4-req-4",
+							"spanIds": ["je-en-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -942,6 +1038,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "The relevant framework is not identified in the job ad."
+						},
+						{
+							"id": "je-en-h4-req-4",
+							"spanIds": ["je-en-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -975,6 +1079,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "The relevant framework is not identified in the job ad."
+						},
+						{
+							"id": "je-en-h4-req-4",
+							"spanIds": ["je-en-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": ["ATS score: 99%"]
@@ -1008,6 +1120,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "The relevant framework is not identified in the job ad."
+						},
+						{
+							"id": "je-en-h4-req-4",
+							"spanIds": ["je-en-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -1051,6 +1171,10 @@
 				{
 					"id": "je-ar-h1-job-2",
 					"text": "يفضل وجود خبرة في صيانة تطبيقات ASP.NET."
+				},
+				{
+					"id": "je-ar-h1-job-3",
+					"text": "يفضل وجود خبرة في ساب."
 				}
 			]
 		},
@@ -1071,6 +1195,14 @@
 					"verdict": "supported",
 					"evidenceIds": ["je-ar-h1-cv-2"],
 					"explanation": "توليت صيانة تطبيقات قائمة باستخدام ASP.NET."
+				},
+				{
+					"id": "je-ar-h1-req-3",
+					"spanIds": ["je-ar-h1-job-3"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 				}
 			],
 			"notes": []
@@ -1095,6 +1227,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-ar-h1-cv-2"],
 							"explanation": "توليت صيانة تطبيقات قائمة باستخدام ASP.NET."
+						},
+						{
+							"id": "je-ar-h1-req-3",
+							"spanIds": ["je-ar-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -1120,6 +1260,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-ar-h1-cv-2"],
 							"explanation": "توليت صيانة تطبيقات قائمة باستخدام ASP.NET."
+						},
+						{
+							"id": "je-ar-h1-req-3",
+							"spanIds": ["je-ar-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -1145,6 +1293,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-ar-h1-cv-2"],
 							"explanation": "توليت صيانة تطبيقات قائمة باستخدام ASP.NET."
+						},
+						{
+							"id": "je-ar-h1-req-3",
+							"spanIds": ["je-ar-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -1170,6 +1326,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-ar-h1-cv-2"],
 							"explanation": "توليت صيانة تطبيقات قائمة باستخدام ASP.NET."
+						},
+						{
+							"id": "je-ar-h1-req-3",
+							"spanIds": ["je-ar-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -1195,6 +1359,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-ar-h1-cv-2"],
 							"explanation": "توليت صيانة تطبيقات قائمة باستخدام ASP.NET."
+						},
+						{
+							"id": "je-ar-h1-req-3",
+							"spanIds": ["je-ar-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": ["نسبة المطابقة 99٪"]
@@ -1220,6 +1392,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-ar-h1-cv-2"],
 							"explanation": "توليت صيانة تطبيقات قائمة باستخدام ASP.NET."
+						},
+						{
+							"id": "je-ar-h1-req-3",
+							"spanIds": ["je-ar-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -1805,6 +1985,10 @@
 				{
 					"id": "je-ar-h4-job-3",
 					"text": "معرفة الإطار التنظيمي ذي الصلة."
+				},
+				{
+					"id": "je-ar-h4-job-4",
+					"text": "يفضل وجود خبرة في ساب."
 				}
 			]
 		},
@@ -1833,6 +2017,14 @@
 					"verdict": "unclear",
 					"evidenceIds": [],
 					"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+				},
+				{
+					"id": "je-ar-h4-req-4",
+					"spanIds": ["je-ar-h4-job-4"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 				}
 			],
 			"notes": []
@@ -1865,6 +2057,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-ar-h4-req-4",
+							"spanIds": ["je-ar-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -1898,6 +2098,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-ar-h4-req-4",
+							"spanIds": ["je-ar-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -1931,6 +2139,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-ar-h4-req-4",
+							"spanIds": ["je-ar-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -1964,6 +2180,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-ar-h4-req-4",
+							"spanIds": ["je-ar-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -1997,6 +2221,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-ar-h4-req-4",
+							"spanIds": ["je-ar-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": ["نسبة المطابقة 99٪"]
@@ -2030,6 +2262,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-ar-h4-req-4",
+							"spanIds": ["je-ar-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -2073,6 +2313,10 @@
 				{
 					"id": "je-mixed-h1-job-2",
 					"text": "يفضل وجود خبرة في صيانة تطبيقات ASP.NET."
+				},
+				{
+					"id": "je-mixed-h1-job-3",
+					"text": "يفضل وجود خبرة في SAP."
 				}
 			]
 		},
@@ -2092,7 +2336,15 @@
 					"importance": "preferred",
 					"verdict": "supported",
 					"evidenceIds": ["je-mixed-h1-cv-2"],
-					"explanation": "Maintained existing ASP.NET applications."
+					"explanation": "توليت صيانة تطبيقات ASP.NET القائمة."
+				},
+				{
+					"id": "je-mixed-h1-req-3",
+					"spanIds": ["je-mixed-h1-job-3"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 				}
 			],
 			"notes": []
@@ -2116,7 +2368,15 @@
 							"importance": "preferred",
 							"verdict": "supported",
 							"evidenceIds": ["je-mixed-h1-cv-2"],
-							"explanation": "Maintained existing ASP.NET applications."
+							"explanation": "توليت صيانة تطبيقات ASP.NET القائمة."
+						},
+						{
+							"id": "je-mixed-h1-req-3",
+							"spanIds": ["je-mixed-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -2141,7 +2401,15 @@
 							"importance": "preferred",
 							"verdict": "supported",
 							"evidenceIds": ["je-mixed-h1-cv-2"],
-							"explanation": "Maintained existing ASP.NET applications."
+							"explanation": "توليت صيانة تطبيقات ASP.NET القائمة."
+						},
+						{
+							"id": "je-mixed-h1-req-3",
+							"spanIds": ["je-mixed-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -2166,7 +2434,15 @@
 							"importance": "preferred",
 							"verdict": "supported",
 							"evidenceIds": ["je-mixed-h1-cv-2"],
-							"explanation": "Maintained existing ASP.NET applications."
+							"explanation": "توليت صيانة تطبيقات ASP.NET القائمة."
+						},
+						{
+							"id": "je-mixed-h1-req-3",
+							"spanIds": ["je-mixed-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -2191,7 +2467,15 @@
 							"importance": "preferred",
 							"verdict": "supported",
 							"evidenceIds": ["je-mixed-h1-cv-2"],
-							"explanation": "Maintained existing ASP.NET applications."
+							"explanation": "توليت صيانة تطبيقات ASP.NET القائمة."
+						},
+						{
+							"id": "je-mixed-h1-req-3",
+							"spanIds": ["je-mixed-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -2216,7 +2500,15 @@
 							"importance": "preferred",
 							"verdict": "supported",
 							"evidenceIds": ["je-mixed-h1-cv-2"],
-							"explanation": "Maintained existing ASP.NET applications."
+							"explanation": "توليت صيانة تطبيقات ASP.NET القائمة."
+						},
+						{
+							"id": "je-mixed-h1-req-3",
+							"spanIds": ["je-mixed-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": ["نسبة المطابقة 99٪"]
@@ -2241,7 +2533,15 @@
 							"importance": "preferred",
 							"verdict": "supported",
 							"evidenceIds": ["je-mixed-h1-cv-2"],
-							"explanation": "Maintained existing ASP.NET applications."
+							"explanation": "توليت صيانة تطبيقات ASP.NET القائمة."
+						},
+						{
+							"id": "je-mixed-h1-req-3",
+							"spanIds": ["je-mixed-h1-job-3"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -2827,6 +3127,10 @@
 				{
 					"id": "je-mixed-h4-job-3",
 					"text": "معرفة الإطار التنظيمي ذي الصلة."
+				},
+				{
+					"id": "je-mixed-h4-job-4",
+					"text": "يفضل وجود خبرة في SAP."
 				}
 			]
 		},
@@ -2855,6 +3159,14 @@
 					"verdict": "unclear",
 					"evidenceIds": [],
 					"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+				},
+				{
+					"id": "je-mixed-h4-req-4",
+					"spanIds": ["je-mixed-h4-job-4"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 				}
 			],
 			"notes": []
@@ -2887,6 +3199,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-mixed-h4-req-4",
+							"spanIds": ["je-mixed-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -2920,6 +3240,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-mixed-h4-req-4",
+							"spanIds": ["je-mixed-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -2953,6 +3281,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-mixed-h4-req-4",
+							"spanIds": ["je-mixed-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -2986,6 +3322,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-mixed-h4-req-4",
+							"spanIds": ["je-mixed-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -3019,6 +3363,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-mixed-h4-req-4",
+							"spanIds": ["je-mixed-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": ["نسبة المطابقة 99٪"]
@@ -3052,6 +3404,14 @@
 							"verdict": "unclear",
 							"evidenceIds": [],
 							"explanation": "لم يحدد الإعلان الإطار التنظيمي المقصود."
+						},
+						{
+							"id": "je-mixed-h4-req-4",
+							"spanIds": ["je-mixed-h4-job-4"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []

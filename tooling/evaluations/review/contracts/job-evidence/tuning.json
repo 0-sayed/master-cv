@@ -227,6 +227,10 @@
 				{
 					"id": "je-en-t2-job-1",
 					"text": "At least 3 years maintaining stock records with Excel is essential."
+				},
+				{
+					"id": "je-en-t2-job-2",
+					"text": "SAP experience is preferred."
 				}
 			]
 		},
@@ -239,6 +243,14 @@
 					"verdict": "partial",
 					"evidenceIds": ["je-en-t2-cv-1"],
 					"explanation": "Used Excel for stock records for 2 years."
+				},
+				{
+					"id": "je-en-t2-req-2",
+					"spanIds": ["je-en-t2-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "No evidence of SAP in this CV."
 				}
 			],
 			"notes": []
@@ -255,6 +267,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-en-t2-cv-1"],
 							"explanation": "Used Excel for stock records for 2 years;"
+						},
+						{
+							"id": "je-en-t2-req-2",
+							"spanIds": ["je-en-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -272,6 +292,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-en-t2-job-1"],
 							"explanation": "Used Excel for stock records for 2 years."
+						},
+						{
+							"id": "je-en-t2-req-2",
+							"spanIds": ["je-en-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -289,6 +317,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-en-t2-cv-1"],
 							"explanation": "Used SAP."
+						},
+						{
+							"id": "je-en-t2-req-2",
+							"spanIds": ["je-en-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -306,6 +342,14 @@
 							"verdict": "no_evidence",
 							"evidenceIds": [],
 							"explanation": "You do not know SAP."
+						},
+						{
+							"id": "je-en-t2-req-2",
+							"spanIds": ["je-en-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -323,6 +367,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-en-t2-cv-1"],
 							"explanation": "Used Excel for stock records for 2 years."
+						},
+						{
+							"id": "je-en-t2-req-2",
+							"spanIds": ["je-en-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": ["ATS score: 99%"]
@@ -340,6 +392,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-en-t2-cv-1"],
 							"explanation": "Used Excel for stock records for 2 years."
+						},
+						{
+							"id": "je-en-t2-req-2",
+							"spanIds": ["je-en-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "No evidence of SAP in this CV."
 						}
 					],
 					"notes": []
@@ -792,6 +852,10 @@
 				{
 					"id": "je-ar-t2-job-1",
 					"text": "يشترط وجود خبرة لا تقل عن ثلاث سنوات في تسجيل المخزون باستخدام إكسل."
+				},
+				{
+					"id": "je-ar-t2-job-2",
+					"text": "يفضل وجود خبرة في ساب."
 				}
 			]
 		},
@@ -804,6 +868,14 @@
 					"verdict": "partial",
 					"evidenceIds": ["je-ar-t2-cv-1"],
 					"explanation": "استخدمت إكسل لتسجيل المخزون لمدة سنتين."
+				},
+				{
+					"id": "je-ar-t2-req-2",
+					"spanIds": ["je-ar-t2-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 				}
 			],
 			"notes": []
@@ -820,6 +892,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-ar-t2-cv-1"],
 							"explanation": "استخدمت إكسل لتسجيل المخزون لمدة سنتين؛"
+						},
+						{
+							"id": "je-ar-t2-req-2",
+							"spanIds": ["je-ar-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -837,6 +917,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-ar-t2-job-1"],
 							"explanation": "استخدمت إكسل لتسجيل المخزون لمدة سنتين."
+						},
+						{
+							"id": "je-ar-t2-req-2",
+							"spanIds": ["je-ar-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -854,6 +942,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-ar-t2-cv-1"],
 							"explanation": "استخدمت SAP."
+						},
+						{
+							"id": "je-ar-t2-req-2",
+							"spanIds": ["je-ar-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -871,6 +967,14 @@
 							"verdict": "no_evidence",
 							"evidenceIds": [],
 							"explanation": "أنت لا تجيد SAP."
+						},
+						{
+							"id": "je-ar-t2-req-2",
+							"spanIds": ["je-ar-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -888,6 +992,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-ar-t2-cv-1"],
 							"explanation": "استخدمت إكسل لتسجيل المخزون لمدة سنتين."
+						},
+						{
+							"id": "je-ar-t2-req-2",
+							"spanIds": ["je-ar-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": ["نسبة المطابقة 99٪"]
@@ -905,6 +1017,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-ar-t2-cv-1"],
 							"explanation": "استخدمت إكسل لتسجيل المخزون لمدة سنتين."
+						},
+						{
+							"id": "je-ar-t2-req-2",
+							"spanIds": ["je-ar-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في ساب."
 						}
 					],
 					"notes": []
@@ -1357,6 +1477,10 @@
 				{
 					"id": "je-mixed-t2-job-1",
 					"text": "يشترط وجود خبرة لا تقل عن ثلاث سنوات في تسجيل المخزون باستخدام Excel."
+				},
+				{
+					"id": "je-mixed-t2-job-2",
+					"text": "يفضل وجود خبرة في SAP."
 				}
 			]
 		},
@@ -1369,6 +1493,14 @@
 					"verdict": "partial",
 					"evidenceIds": ["je-mixed-t2-cv-1"],
 					"explanation": "استخدمت Excel لتسجيل المخزون لمدة سنتين."
+				},
+				{
+					"id": "je-mixed-t2-req-2",
+					"spanIds": ["je-mixed-t2-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 				}
 			],
 			"notes": []
@@ -1385,6 +1517,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-mixed-t2-cv-1"],
 							"explanation": "استخدمت Excel لتسجيل المخزون لمدة سنتين؛"
+						},
+						{
+							"id": "je-mixed-t2-req-2",
+							"spanIds": ["je-mixed-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -1402,6 +1542,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-mixed-t2-job-1"],
 							"explanation": "استخدمت Excel لتسجيل المخزون لمدة سنتين."
+						},
+						{
+							"id": "je-mixed-t2-req-2",
+							"spanIds": ["je-mixed-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -1419,6 +1567,14 @@
 							"verdict": "supported",
 							"evidenceIds": ["je-mixed-t2-cv-1"],
 							"explanation": "استخدمت SAP."
+						},
+						{
+							"id": "je-mixed-t2-req-2",
+							"spanIds": ["je-mixed-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -1436,6 +1592,14 @@
 							"verdict": "no_evidence",
 							"evidenceIds": [],
 							"explanation": "أنت لا تجيد SAP."
+						},
+						{
+							"id": "je-mixed-t2-req-2",
+							"spanIds": ["je-mixed-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []
@@ -1453,6 +1617,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-mixed-t2-cv-1"],
 							"explanation": "استخدمت Excel لتسجيل المخزون لمدة سنتين."
+						},
+						{
+							"id": "je-mixed-t2-req-2",
+							"spanIds": ["je-mixed-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": ["نسبة المطابقة 99٪"]
@@ -1470,6 +1642,14 @@
 							"verdict": "partial",
 							"evidenceIds": ["je-mixed-t2-cv-1"],
 							"explanation": "استخدمت Excel لتسجيل المخزون لمدة سنتين."
+						},
+						{
+							"id": "je-mixed-t2-req-2",
+							"spanIds": ["je-mixed-t2-job-2"],
+							"importance": "preferred",
+							"verdict": "no_evidence",
+							"evidenceIds": [],
+							"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
 						}
 					],
 					"notes": []

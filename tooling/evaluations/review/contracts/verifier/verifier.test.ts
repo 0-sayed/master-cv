@@ -1,6 +1,7 @@
 import type { TaskCase, TaskContract, VerifierTaskContext } from "../types";
 import { expect, it } from "vite-plus/test";
 import { z } from "zod";
+import { VARIANT_VERIFIER_VERSION, variantVerifierSchema } from "@reactive-resume/api/features/ai/variant-verifier";
 import { loadModels } from "../../config";
 import { preflightRequests } from "../../preflight";
 import { buildModelPayload, completionTokenLimit } from "../../production";
@@ -9,7 +10,7 @@ import { routeFor, runBenchmark, verifierModelFor } from "../../runner";
 import { benchmarkInput, benchmarkVerifierSpec, verifierAuditFault } from "../../verifier";
 import { withTaskRuntime } from "../runtime";
 import { tasksVerifierSchema } from "./schema";
-import { tasksVerifier, tasksVerifierVersion } from "./verifier";
+import { tasksVerifier } from "./verifier";
 
 const outputSchema = z.strictObject({
 	text: z.string(),
@@ -198,7 +199,10 @@ it("verifier caps fit route-policy limits", async () =>
 	}));
 
 it("dispatches the versioned default without changing core schemas", () => {
-	expect(benchmarkVerifierSpec(task)).toMatchObject({ version: tasksVerifierVersion, schema: tasksVerifierSchema });
+	expect(benchmarkVerifierSpec(task)).toMatchObject({
+		version: VARIANT_VERIFIER_VERSION,
+		schema: variantVerifierSchema,
+	});
 });
 
 it("quality advisory cannot override safety", () =>

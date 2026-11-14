@@ -24,6 +24,10 @@ it("binds the recorded task controls to the current freeze and the actual guard 
 	const actual = study.controls(tasks);
 	expect(actual).toMatchObject({ checked: 1056, pass: true, failures: [] });
 	expect(study.recordedControls(undefined, "tasks-v1")).toEqual(actual);
+	const scope = config.parseTaskCategories("summary,job-evidence,tailoring,translation");
+	const scoped = study.controls(study.loadStudyCases("tasks-v1", scope));
+	expect(scoped).toMatchObject({ checked: 699, pass: true, failures: [] });
+	expect(study.recordedControls(undefined, "tasks-v1", scope)).toEqual(scoped);
 });
 
 it("tasks-v1 hash covers contracts, glossary, verifier+guard+payload versions, fixtures", () => {

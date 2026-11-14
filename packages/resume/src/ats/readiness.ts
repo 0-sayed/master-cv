@@ -1,4 +1,5 @@
 import type { PdfAtsReport } from "../ats-pdf/types";
+import type { JobTermReport } from "@reactive-resume/schema/job-evidence";
 export type ReadinessDimension = "pdf" | "writing" | "job";
 export type ReadinessState = "not-checked" | "checking" | "complete" | "skipped" | "partial" | "stale" | "failed";
 export type ReadinessSource = {
@@ -12,7 +13,12 @@ export type PdfReadinessSource = ReadinessSource & {
 	bytesHash: string;
 	versions: { renderer: string; template: string; fonts: string; locale: string };
 };
-export type JobReadinessSource = ReadinessSource & { jobId: string; jobRevision: string };
+export type JobReadinessSource = ReadinessSource & {
+	jobId: string;
+	jobRevision: string;
+	rubricVersion: string;
+	normalizationVersion: string;
+};
 export type ReadinessIssue = {
 	id: string;
 	rule: string;
@@ -84,5 +90,41 @@ export function invalidateReadiness(results: ReadinessResults, dimension: Readin
 	return {
 		...results,
 		[dimension]: current.source && current.checkedAt ? { ...current, state: "stale" } : emptyReadiness(dimension),
+	};
+}
+
+/** Literal occurrences only. A late result cannot be relabelled with the current source. */
+export function jobReadiness(source: JobReadinessSource, report: JobTermReport): ReadinessResult {
+	const identity = report.identity;
+	if (
+		source.resumeId !== identity.resumeId ||
+		source.baseRevision !== identity.resumeRevision ||
+		source.contentHash !== identity.contentHash ||
+		source.jobId !== identity.jobId ||
+		source.jobRevision !== identity.jobRevision ||
+		source.rubricVersion !== identity.rubricVersion ||
+		source.normalizationVersion !== identity.normalizationVersion
+	)
+		throw new Error("JOB_SOURCE_CHANGED");
+	if (report.state === "not-checked") return emptyReadiness("job");
+	return {
+		dimension: "job",
+		...(report.state === "not-checkable"
+			? { state: "skipped" as const, checkedAt: null }
+			: {
+					state: report.selection.truncated ? ("partial" as const) : ("complete" as const),
+					checkedAt: new Date().toISOString(),
+				}),
+		source,
+		checker: identity.rubricVersion,
+		extractor: identity.normalizationVersion,
+		options: {
+			denominator: report.denominator,
+			matchedCount: report.matchedCount,
+			unmatchedCount: report.unmatchedCount,
+			truncated: report.selection.truncated,
+		},
+		coverage: report.exclusions,
+		issues: [],
 	};
 }

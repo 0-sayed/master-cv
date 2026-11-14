@@ -4,8 +4,13 @@ import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { HARD_FACTS_VERSION } from "@reactive-resume/api/features/ai/hard-facts";
 import { PAYLOAD_VERSION } from "@reactive-resume/api/features/ai/payload";
+import {
+	VARIANT_VERIFIER_VERSION,
+	variantVerifierPrompt,
+	variantVerifierSchema,
+} from "@reactive-resume/api/features/ai/variant-verifier";
 import { splitReviewClaims } from "@reactive-resume/schema/resume/ai-review";
-import { type StudyName } from "./config";
+import { type TaskScope, type StudyName } from "./config";
 import { loadModels, variantCases, type ModelConfig } from "./config";
 import { loadTaskFixtures, taskReviewItems, type TaskReviewContext } from "./contracts/fixtures";
 import { tasksGuardVersion } from "./contracts/guard";
@@ -35,18 +40,18 @@ export const taskCategories = [
 	"cover-letter",
 	"interview-prep",
 ] as const;
-export function loadStudyCases(study: StudyName): ExecutionCase[] {
+export function loadStudyCases(study: StudyName, scope: TaskScope = [...taskCategories]): ExecutionCase[] {
 	return study === "core"
 		? cases
 		: loadTaskFixtures(
-				taskCategories.flatMap((c) =>
+				scope.flatMap((c) =>
 					["tuning", "holdout"].map((part) => new URL(`./contracts/${c}/${part}.json`, import.meta.url).pathname),
 				),
 			);
 }
 /** Canonical review context, shared by owner export and approval validation. No gold-dependent instruction. */
-export function taskReviewContexts(): TaskReviewContext[] {
-	return taskCategories.map((category) => {
+export function taskReviewContexts(scope: TaskScope = [...taskCategories]): TaskReviewContext[] {
+	return scope.map((category) => {
 		const contract = getTaskContract(category);
 		return {
 			category,
@@ -64,9 +69,11 @@ export function studyReviewItems(study: StudyName, fixtures: ExecutionCase[]) {
 	return taskReviewItems(
 		[
 			...(fixtures as TaskCase[]),
-			...loadTaskFixtures([new URL("./contracts/canaries.json", import.meta.url).pathname]),
+			...loadTaskFixtures([new URL("./contracts/canaries.json", import.meta.url).pathname]).filter((c) =>
+				fixtures.some((fixture) => fixture.category === c.category),
+			),
 		],
-		taskReviewContexts(),
+		taskReviewContexts(taskCategories.filter((category) => fixtures.some((fixture) => fixture.category === category))),
 	);
 }
 export function taskStudyIdentity() {
@@ -75,6 +82,9 @@ export function taskStudyIdentity() {
 		hardFactsVersion: HARD_FACTS_VERSION,
 		tasksGuardVersion,
 		tasksVerifierVersion,
+		variantVerifierVersion: VARIANT_VERIFIER_VERSION,
+		variantVerifierPromptHash: hash(variantVerifierPrompt),
+		variantVerifierSchemaHash: hash(z.toJSONSchema(variantVerifierSchema)),
 		glossaryHash: translationGlossaryHash,
 		verifierPromptHash: hash(tasksVerifier.systemPrompt),
 		verifierSchemaHash: hash(z.toJSONSchema(tasksVerifier.schema)),
@@ -285,25 +295,38 @@ export function recordedControls(
 			"utf8",
 		),
 	study: StudyName = "core",
+	scope?: TaskScope,
 ) {
 	try {
-		const receipt = JSON.parse(read()) as { freezeHash?: string; all?: ReturnType<typeof controls> };
+		const receipt = JSON.parse(read()) as {
+			freezeHash?: string;
+			all?: ReturnType<typeof controls>;
+			scoped?: { categories: string[]; result: ReturnType<typeof controls> };
+		};
+		const fullScope =
+			scope?.length === taskCategories.length && taskCategories.every((category) => scope.includes(category));
+		const result =
+			scope && !fullScope
+				? receipt.scoped && JSON.stringify(scope) === JSON.stringify(receipt.scoped.categories)
+					? receipt.scoped.result
+					: null
+				: receipt.all;
 		if (
 			receipt.freezeHash !== hash(frozenStudyFor(study)) ||
-			!receipt.all ||
-			typeof receipt.all.pass !== "boolean" ||
-			!Array.isArray(receipt.all.failures)
+			!result ||
+			typeof result.pass !== "boolean" ||
+			!Array.isArray(result.failures)
 		)
 			return null;
-		const expected = loadStudyCases(study)
+		const expected = loadStudyCases(study, scope)
 			.filter((c) => !c.exploratory)
 			.reduce(
 				(n, c) =>
 					n + (c.kind === "task" ? 1 + c.mutants.length : c.acceptableOutputs.length + Number(Boolean(c.attack))),
 				0,
 			);
-		if (receipt.all.checked !== expected || receipt.all.pass !== (receipt.all.failures.length === 0)) return null;
-		return receipt.all;
+		if (result.checked !== expected || result.pass !== (result.failures.length === 0)) return null;
+		return result;
 	} catch {
 		return null;
 	}

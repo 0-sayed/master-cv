@@ -85,7 +85,8 @@ it("preserves Hijri dates and Arabic-Indic numeric values without converting cal
 		...task,
 		cv: [{ id: "cv-1", section: "experience", text: "عملت من ١٤٤٢ - ١٤٤٥ هـ باستخدام Node.js وASP.NET." }],
 	};
-	expect(score(output("Worked from 1442 - 1445 AH using Node.js and ASP.NET."), c).safetyDeterministic.pass).toBe(true);
+	const rangeScore = score(output("Worked from 1442 - 1445 AH using Node.js and ASP.NET."), c);
+	expect(rangeScore.safetyDeterministic, JSON.stringify(rangeScore)).toMatchObject({ pass: true });
 	expect(score(output("Worked from 2019 - 2022 AD using Node.js and ASP.NET."), c).safetyDeterministic.pass).toBe(
 		false,
 	);
@@ -176,8 +177,11 @@ it("rejects literal protected names in model output before local restoration", (
 
 it("preserves opaque unicode source ids and revision values through contact minimization", () => {
 	const c: TranslationCase = { ...task, sourceRevision: "1234567-🔖", cv: [{ ...required(task.cv[0]), id: "cv-🔖" }] };
-	const metadata = translationContract.buildInput(c).selections.find((s) => "id" in s && s.id === "translation-task");
-	expect(JSON.parse(required(metadata).text)).toMatchObject({ sourceRevision: "1234567-🔖", sourceIds: ["cv-🔖"] });
+	const payload = translationContract.buildInput(c);
+	const metadata = payload.selections.find((s) => "id" in s && s.id === "variant-task");
+	expect(JSON.parse(required(metadata).text)).toMatchObject({ sourceRevision: "1234567-🔖" });
+	const evidence = payload.selections.find((s) => "id" in s && s.id === "variant-cv-evidence");
+	expect(JSON.parse(required(evidence).text)).toMatchObject([{ id: "cv-🔖" }]);
 });
 
 it("requires every source segment exactly once and keeps protected entities within their segment", () => {
@@ -304,11 +308,12 @@ it("scores validated MQM major/minor target spans as advisory, with unknown qual
 		).toBeNull();
 });
 
-it("hashes exact glossary bytes into prompt identity, payload and owner-review envelopes", () => {
+it("keeps the historical glossary in owner-review envelopes without authorizing global production aliases", () => {
 	const bytes = readFileSync(new URL("./glossary.json", import.meta.url));
 	expect(translationGlossaryHash).toBe(createHash("sha256").update(bytes).digest("hex"));
-	expect(translationContract.promptVersion).toContain(translationGlossaryHash);
-	expect(JSON.stringify(prepareCase(task).payload)).toContain(translationGlossaryHash);
+	expect(translationContract.promptVersion).toBe("translation-v3-source-boundary");
+	expect(JSON.stringify(prepareCase(task).payload)).not.toContain(translationGlossaryHash);
+	expect(JSON.parse(required(prepareCase(task).payload.selections[0]).text).translationAliases).toBeUndefined();
 	const items = taskReviewItems(
 		[task],
 		[

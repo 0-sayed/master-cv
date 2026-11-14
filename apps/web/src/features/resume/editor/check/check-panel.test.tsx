@@ -5,6 +5,9 @@ import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { useEditorStore } from "../store";
+vi.mock("./job-match", () => ({
+	JobMatchTab: () => <a href="/dashboard/resumes/synthetic/job">Compare with a job</a>,
+}));
 import { CheckPanel } from "./check-panel";
 
 const documentState = vi.hoisted(() => ({

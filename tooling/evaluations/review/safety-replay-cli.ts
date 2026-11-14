@@ -56,6 +56,9 @@ const legacy = JSON.parse(await readFile(diagnosis, "utf8")) as {
 const originalFixtures = loadTaskFixtures([historicalFixtures]);
 const models = loadModels(new URL("./models-tasks.json", import.meta.url).pathname);
 const currentPlan = planJudgeCanaries(models);
+const { isProductionVariantCase } = await import("./contracts/runtime");
+const { variantSnapshot } = await import("./contracts/variant-adapter");
+const { variantVerificationInventory } = await import("@reactive-resume/api/features/ai/variant-verifier");
 const rows = receipt.results.map((result) => {
 	const c = originalFixtures.find((c) => c.id === result.caseId);
 	const saved = legacy.rows.find((r) => r.key === result.key);
@@ -95,8 +98,13 @@ function inventoryIssues(c: TaskCase, output: Record<string, unknown>, raw: unkn
 	const verdict = parsed.data;
 	const payload = tasksVerifier.buildInput(c, output);
 	const pool = (id: string) => JSON.parse(payload.selections.find((s) => "id" in s && s.id === id)?.text ?? "null");
-	const response = pool("task-verification-response");
-	const context = pool("task-verification-task");
+	const inventory = isProductionVariantCase(c) ? variantVerificationInventory(variantSnapshot(c), output) : null;
+	const response = inventory
+		? { claims: inventory.claims, premiseChecks: inventory.premises }
+		: pool("task-verification-response");
+	const context = inventory
+		? { absenceChecks: inventory.absence, retention: inventory.retention ? "applicable" : "not_applicable" }
+		: pool("task-verification-task");
 	const issues: string[] = [];
 	const compare = (name: string, expected: string[], actual: string[]) => {
 		if (

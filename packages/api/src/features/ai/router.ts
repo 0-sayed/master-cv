@@ -40,6 +40,7 @@ import { createImportReviewSource, prepareResumeReview } from "./review-sources"
 import { getAiAvailability } from "./route-policy";
 import { fileInputSchema } from "./service";
 import { usageService } from "./usage";
+import { variantReviewRouter } from "./variant-router";
 
 /**
  * Every AI procedure fails the same ways: no ENCRYPTION_SECRET, a bad base URL, the provider erroring (its cause kept
@@ -75,6 +76,7 @@ async function getRunnableProvider(userId: string, aiProviderId?: string) {
 }
 
 export const aiRouter = {
+	variantReview: variantReviewRouter,
 	review: {
 		latest: protectedProcedure
 			.route({ method: "GET", path: "/ai/reviews/latest", tags: ["AI"], operationId: "latestResumeReview" })

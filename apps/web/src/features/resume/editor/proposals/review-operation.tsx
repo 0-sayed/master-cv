@@ -1,6 +1,7 @@
 import type { OperationRequest, SourceRevision } from "@reactive-resume/schema/ai-operation";
 import type { ReactNode } from "react";
 import { Trans } from "@lingui/react/macro";
+import { ORPCError } from "@orpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
@@ -18,11 +19,20 @@ import { useAssistantCopy } from "@/features/assistant/copy.generated";
 import { assistantAvailability } from "@/features/assistant/operation-state";
 import { client, orpc } from "@/libs/orpc/client";
 
-export function ReviewNotice({ children, retry }: { children: ReactNode; retry?: (() => void) | undefined }) {
+export function ReviewNotice({
+	children,
+	retry,
+	title,
+}: {
+	children: ReactNode;
+	retry?: (() => void) | undefined;
+	title?: ReactNode;
+}) {
 	return (
 		<Alert variant="warn">
 			<Icon name="warning-circle" />
-			<AlertTitle>{children}</AlertTitle>
+			<AlertTitle>{title ?? <Trans>Review needs attention</Trans>}</AlertTitle>
+			<AlertDescription>{children}</AlertDescription>
 
 			<AlertActions>
 				{retry && (
@@ -42,7 +52,13 @@ export function ReviewLaunch({
 	children,
 	disabled = false,
 }: {
-	kind: "review.wording" | "review.extraction";
+	kind:
+		| "review.wording"
+		| "review.extraction"
+		| "review.job-evidence"
+		| "review.tailoring"
+		| "review.translation"
+		| "review.summary";
 	prepare: () => Promise<{ sources: SourceRevision[]; parameters: Record<string, unknown> }>;
 	onStarted: (operationId: string) => void;
 	children: ReactNode;
@@ -69,7 +85,8 @@ export function ReviewLaunch({
 				await client.ai.processing.grant({ route: notice.route, purpose: kind, noticeVersion: notice.noticeVersion });
 				const prepared = await prepare();
 				pending = {
-					...prepared,
+					sources: prepared.sources,
+					parameters: prepared.parameters,
 					requestKey: crypto.randomUUID(),
 					kind,
 					route: notice.route,
@@ -111,19 +128,23 @@ export function ReviewLaunch({
 	if (state === "unavailable")
 		return (
 			<ReviewNotice
+				title={copy("review.assistant.error.unavailableTitle")}
 				retry={() => {
 					void availability.refetch();
 					void usage.refetch();
 				}}
 			>
-				{copy("review.assistant.error.unavailableTitle")}
+				{copy("review.assistant.error.unavailableHint")}
 			</ReviewNotice>
 		);
-	if (state === "exhausted") return <ReviewNotice>{copy("billing.usage.startOperationsLimitHint")}</ReviewNotice>;
+	if (state === "exhausted")
+		return (
+			<ReviewNotice retry={() => void usage.refetch()}>{copy("billing.usage.startOperationsLimitHint")}</ReviewNotice>
+		);
 	if (state === "busy")
 		return (
-			<ReviewNotice>
-				<Trans>An operation is already in progress. Your writing is kept.</Trans>
+			<ReviewNotice title={<Trans>An operation is already in progress. Your writing is kept.</Trans>}>
+				<Trans>Your draft is kept while the assistant works.</Trans>
 			</ReviewNotice>
 		);
 	return (
@@ -158,8 +179,17 @@ export function ReviewLaunch({
 					</DialogDescription>
 					<p className="type-metadata text-ink-2">{copy("billing.usage.startOperationsHint")}</p>
 					{start.error && (
-						<ReviewNotice>
-							<Trans>Could not start this review. Your draft is kept. Retry this request or cancel.</Trans>
+						<ReviewNotice retry={() => start.mutate()}>
+							{start.error instanceof ORPCError &&
+							start.error.code === "CONFLICT" &&
+							start.error.data?.reason === "TRANSLATION_STRUCTURE_CHANGED" ? (
+								<Trans>
+									The source and language copy have different sections or text blocks. Open the saved CV and align its
+									structure with the source before requesting a translation.
+								</Trans>
+							) : (
+								<Trans>Could not start this review. Your draft is kept. Retry this request or cancel.</Trans>
+							)}
 						</ReviewNotice>
 					)}
 					<DialogFooter>
@@ -215,7 +245,7 @@ export function ReviewOperationPanel({ operationId, children }: { operationId: s
 	if (status.data.resultId) return children;
 	if (status.data.state === "failed" || status.data.state === "cancelled")
 		return (
-			<ReviewNotice>
+			<ReviewNotice retry={() => void status.refetch()}>
 				<Trans>
 					No review was delivered. No operation was deducted. You can request a new review or keep editing manually.
 				</Trans>

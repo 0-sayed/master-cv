@@ -1,9 +1,9 @@
 {
 	"study": "tasks-v1",
-	"freezeHash": "5b96876041eb3811e7802d34f32ecf1636a77fa8b4b7e34108af178098fc2fd2",
-	"reason": "Owner-requested PR #20 CI repair: seal the trailing blank-line removal in derive-cases.py (48bce4dab) and the production durable-worker retry ownership fix in adapter.ts and operation-worker.ts (7a713404b). No corpus, gold, prompt, model or scoring changes. Historical core seal stays unchanged and stale. Offline deterministic scans only; no inference, environment-file reads, approval or live qualification.",
-	"controlsBasis": "Fresh deterministic/scripted scans: tasks 1056, core 126, canaries 108. No semantic evidence or live qualification.",
-	"scannedAt": "2026-11-14T07:23:33.860Z",
+	"freezeHash": "6713168003b162efe54ca92727bbabcd5f13dfcfe41a815a99c3238815533ba2",
+	"reason": "PR #21 review corrections: split confirmed CV evidence from untrusted job instructions with versioned production prompts; retain deterministic job-assessment safety; normalize source offsets, dates and selected-job evidence; enforce 49 source passages and protected translation revisions; restore previews literally; accept explicit complete-category receipts. Current reviewed runtime dependencies are resealed without fixture, gold, model-pin or verifier changes. Fresh deterministic/scripted scans only. Historical core identity remains unchanged and stale; prior live/offline artifacts cannot qualify this study. No paid inference, environment-file reads, approval or release.",
+	"controlsBasis": "Fresh all-category and scoped deterministic/scripted scans plus scoped deterministic canary scan. No paid calls or measured semantic qualification.",
+	"scannedAt": "2026-11-14T13:24:51.554Z",
 	"all": {
 		"checked": 1056,
 		"pass": true,
@@ -11,8 +11,18 @@
 		"knownLimitations": [],
 		"honestFalseRejects": []
 	},
+	"scoped": {
+		"categories": ["summary", "job-evidence", "tailoring", "translation"],
+		"result": {
+			"checked": 699,
+			"pass": true,
+			"failures": [],
+			"knownLimitations": [],
+			"honestFalseRejects": []
+		}
+	},
 	"canaries": {
-		"checked": 108,
+		"checked": 72,
 		"pass": true,
 		"failures": [],
 		"knownLimitations": [],

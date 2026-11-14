@@ -8,6 +8,69 @@ import { describe, expect, it, vi } from "vite-plus/test";
 import { createVitestProjectConfig } from "../../vitest.shared.mts";
 
 const guard = fileURLToPath(new URL("./test-ai-guard.mjs", import.meta.url));
+it.each([undefined, "postgresql://postgres:postgres@localhost:55432/postgres"])(
+	"never inherits a runtime database outside the explicit disposable test URL (%s)",
+	(disposable) => {
+		const preload = fileURLToPath(new URL("./test-isolation.mjs", import.meta.url));
+		const result = spawnSync(
+			process.execPath,
+			["--import", preload, "--input-type=module", "-e", "console.log(process.env.DATABASE_URL ?? 'unset')"],
+			{
+				env: {
+					PATH: process.env.PATH,
+					DATABASE_URL: "postgresql://unapproved.invalid/never-connect",
+					...(disposable ? { COVER_LETTER_TEST_DATABASE_URL: disposable } : {}),
+				},
+				encoding: "utf8",
+			},
+		);
+		expect(result.status, result.stderr).toBe(0);
+		expect(result.stdout.trim()).toBe(disposable ?? "unset");
+	},
+);
+it("isolates production-mode child imports before native environment loading", () => {
+	const preload = fileURLToPath(new URL("./test-isolation.mjs", import.meta.url));
+	const result = spawnSync(
+		process.execPath,
+		[
+			"--import",
+			preload,
+			"--input-type=module",
+			"-e",
+			`
+		process.loadEnvFile("/forbidden-test-environment");
+		const { testViteEnvironment, installTestNetworkGuard } = await import(${JSON.stringify(new URL("./test-ai-guard.mjs", import.meta.url).href)});
+		if (process.env.NODE_ENV !== "production") throw new Error("RUNTIME_MODE_CHANGED");
+		if (testViteEnvironment("/workspace") !== false) throw new Error("DOTENV_ENABLED");
+		globalThis.fetch = async () => new Response("fixture-font");
+		installTestNetworkGuard();
+		for (const url of ["https://api.openai.com/v1/responses", "https://example.openai.azure.com/", "https://api.together.xyz/", "https://inference.together.ai/", "https://api.anthropic.com/", "https://generativelanguage.googleapis.com/", "https://api.deepseek.com/"]) {
+			let blocked = false;
+			try { await fetch(url); } catch (error) { blocked = error.message === "TEST_EXTERNAL_NETWORK_FORBIDDEN"; }
+			if (!blocked) throw new Error("EGRESS_ENABLED");
+		}
+		if (await (await fetch("https://fonts.googleapis.com/css2")).text() !== "fixture-font") throw new Error("FONT_FETCH_BLOCKED");
+		console.log("isolated");
+	`,
+		],
+		{ env: { PATH: process.env.PATH, NODE_ENV: "production" }, encoding: "utf8" },
+	);
+	expect(result.status, result.stderr).toBe(0);
+	expect(result.stdout).toContain("isolated");
+});
+
+it.each(["OPENAI_API_KEY", "AZURE_OPENAI_API_KEY", "TOGETHER_API_KEY", "ANTHROPIC_API_KEY"])(
+	"rejects direct inference credential %s without disclosure",
+	(key) => {
+		const result = spawnSync(process.execPath, [guard], {
+			env: { PATH: process.env.PATH, [key]: "synthetic-private-value" },
+			encoding: "utf8",
+		});
+		expect(result.status).toBe(1);
+		expect(result.stderr).toContain(`TEST_AI_CREDENTIAL_FORBIDDEN: ${key}`);
+		expect(result.stderr).not.toContain("synthetic-private-value");
+	},
+);
 it("loads the guard through Playwright's CommonJS transform and blocks credentials and fetch", () => {
 	const out = mkdtempSync(join(tmpdir(), "playwright-guard-"));
 	try {
@@ -129,5 +192,58 @@ it("all checked-in Vitest entry points inherit dotenv isolation", async () => {
 		const text = readFileSync(`${root}/${path}`, "utf8");
 		expect(text, path).toMatch(/createVitestProjectConfig|\.\/vitest\.config/u);
 		expect(text, path).not.toMatch(/envDir\s*:/u);
+	}
+});
+
+it("pins transitive server connections to the supplied disposable integration database", () => {
+	const preload = fileURLToPath(new URL("./test-isolation.mjs", import.meta.url));
+	const supplied = "postgresql://postgres:postgres@localhost:55432/postgres";
+	const result = spawnSync(
+		process.execPath,
+		["--import", preload, "--input-type=module", "-e", "console.log(process.env.DATABASE_URL)"],
+		{
+			env: {
+				PATH: process.env.PATH,
+				COVER_LETTER_TEST_DATABASE_URL: supplied,
+				DATABASE_URL: "postgresql://unused:unused@localhost:1/unused",
+			},
+			encoding: "utf8",
+		},
+	);
+	expect(result.status).toBe(0);
+	expect(result.stdout.trim()).toBe(supplied);
+});
+
+it("allows font and document hosts while blocking only inference providers before dispatch", async () => {
+	const { installTestNetworkGuard } = await import("./test-ai-guard.mjs");
+	const original = globalThis.fetch;
+	try {
+		globalThis.fetch = async () => new Response("font-bytes");
+		installTestNetworkGuard();
+		for (const host of [
+			"fonts.googleapis.com",
+			"fonts.gstatic.com",
+			"cdn.jsdelivr.net",
+			"openrouter.ai.example.test",
+			"example.test",
+		])
+			expect(await (await fetch(`https://${host}/asset`)).text()).toBe("font-bytes");
+		for (const host of [
+			"openrouter.ai",
+			"sub.openrouter.ai",
+			"api.openai.com",
+			"deployment.openai.azure.com",
+			"api.together.xyz",
+			"api.together.ai",
+			"together.ai",
+			"api.anthropic.com",
+			"generativelanguage.googleapis.com",
+			"api.deepseek.com",
+		])
+			expect(() => fetch(`https://${host}/inference`)).toThrow(
+				host.endsWith("openrouter.ai") ? "TEST_OPENROUTER_NETWORK_FORBIDDEN" : "TEST_EXTERNAL_NETWORK_FORBIDDEN",
+			);
+	} finally {
+		globalThis.fetch = original;
 	}
 });
