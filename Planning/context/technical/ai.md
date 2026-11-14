@@ -108,7 +108,25 @@ Findings cite CV fact IDs and job/source spans or explicitly state absent eviden
 
 **No production model has passed Master CV Arabic/English evaluation.** D16 selects opt-in overseas OpenRouter; real-CV use still requires explicit first-use consent, processing/PDPL transfer safeguards and A11 evidence. Other routes require a separate decision. Existing model-cost figures below are evaluation assumptions, not quotes or release approval.
 
+**T006 defaults (2026-11-14):** use the provisional per-operation writer/effort in the [benchmark default table](../../../docs/t006-benchmark-history.md#tasks-v1-status-at-pause-2026-11-14-0130), not as production qualification. [Re-test rules](../../../docs/t006-benchmark-history.md#re-test-rules): price-only changes update costs; new model versions need affected-task single-variant runs; prompt/schema/fixture/guard/verifier/scorer changes require affected-task runs under a new study hash. [Pilot promptfoo for the next benchmark](../../../docs/t006-benchmark-history.md#future-tooling-migrate-the-plumbing-to-an-existing-eval-framework), retaining custom safety assertions and the dual-payer ledger.
+
 ### OpenRouter evaluation candidates
+
+T006 round 2 implementation evidence (2026-11-12): deterministic retained-clause and relational checks run before verification. Verification uses a separately pinned configurable policy inside the same consented T005 route bundle and usage settlement: default `deepseek/deepseek-v4.1-flash-1017@low` on Together; a DeepSeek writer instead uses `openai/gpt-6-luna@low` on Azure. The approved bundle must name verifier evidence and a separate per-call bound; same-family overrides are denied. Both requests require ZDR, deny data collection and provider fallback. Verifier v2 checks each cited claim, explicit source-fact retention and outcome/causal assertions. Missing approval, unavailable verification or any unsupported/partial/contradicted claim withholds proposals. This is synthetic implementation evidence, not processor approval: A02, A11 and the default closed runtime remain unchanged. See [T006 evidence](../../../docs/t006-evidence.md).
+
+#### Verifier availability (2026-11-13)
+
+**Owner-requested planning notes, not approvals:** the incident and provider statistics below are dated observations; the backup proposal and production routing intent do not change A-gates or D-decisions.
+
+During the paid T006 full benchmark, the default verifier `deepseek/deepseek-v4.1-flash-1017@low` pinned to Together returned repeated upstream 429 “temporarily rate-limited” responses and one 30 s no-response timeout. Refused calls incurred no charge. The benchmark harness was fixed to treat these as per-session transient failures (resumable), not provider mismatch.
+
+OpenRouter public provider statistics observed 2026-11-13, not an availability guarantee: Together P50 0.49 s / 203 tok/s (fastest typical), P99 26.29 s / 10 tok/s (worst tail), uptime 99.63%. Lower-tail candidates at the same $0.30/$1.20 per million input/output tokens: Parasail (P50 0.59 s, P99 3.74 s, uptime 100%), Crusoe (0.52 s, 4.16 s, 100%), Baseten (0.49 s, 3.62 s, 99.36%) and CoreWeave (0.67 s, 2.79 s, 98.44%). DeepSeek first-party is listed as not routable and is not a candidate. Source: [OpenRouter DeepSeek V4.1 Flash 1017, providers tab](https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017).
+
+A single pinned verifier endpoint is an availability risk under A13. **Proposal, pending approval:** at most one separately approved, explicitly pinned backup verifier endpoint for the same model, preferably Parasail, selected by our own code after the primary is rate-limited/unavailable; never OpenRouter automatic provider fallback or a silent jurisdiction change. Before approval, verify the exact endpoint's ZDR, no training/data collection, full-precision (not quantized) weights, structured-output support and Arabic verifier quality in a recalibration smoke, and name it in A11/D16 consent and the route bundle. Until approved, primary unavailable means withhold proposals and show unavailable/retry; never present unverified edits.
+
+The T006 benchmark compares variants on frozen fixtures, prompts, scorer and verifier. A later writer candidate needs only its own smoke and full sessions against that same frozen setup (approximately $1–2), compared with stored results; a full rerun is needed only if fixtures, prompts, scorer, guard or verifier change. Incremental single-variant runs are a planned harness follow-up, not yet verified.
+
+Benchmark-only exception to the ZDR route contract above: Luna/Terra are measured via the owner's OpenAI key through OpenRouter BYOK (non-ZDR, synthetic data only). The owner-requested production plan routes those models via Azure ZDR; this note does not approve the route or real-CV processing under A11/D16.
 
 | Candidate route      | Standard input / output per 1 million tokens | Purpose                                            | Gate                                                                                              |
 | -------------------- | -------------------------------------------: | -------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -305,3 +323,5 @@ Use the [evaluation corpus and release gates](../business/requirements.md#evalua
 <a id="t-s46"></a>
 
 - **T-S46 — Alternative local gateway inquiry:** [DEEP.SA alAPI](https://www.deep.sa/products/alapi), [pricing endpoint](https://alapi.deep.sa/pricing). Earlier advertised local/global offering retained as a lead; current pages/pricing were not reliably retrievable in the v0.2 reconciliation. Quote, local route and retention terms required.
+
+Gemini 4 Hydrogen dropped from the T006 study by owner decision on 2026-11-13 on cost/latency/legal grounds; can be re-added as a single-variant run.
