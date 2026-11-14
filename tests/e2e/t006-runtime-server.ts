@@ -67,7 +67,8 @@ const runtime = {
 				Object.assign(proposal, { claims: splitReviewClaims(proposal.text, proposal.evidenceIds) });
 		const finalResult = verify
 			? {
-					schemaVersion: 2,
+					schemaVersion: 3,
+					responseAssessment: { status: "appropriate", reason: "Synthetic response assessment." },
 					factRetention: {
 						status: "retained",
 						evidenceIds: [
