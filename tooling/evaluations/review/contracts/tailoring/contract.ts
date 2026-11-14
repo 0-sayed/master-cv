@@ -2,25 +2,19 @@ import type { Claim, TaskCase, TaskContract, TaskScore } from "../types";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { claimsCoverText, proposalTargetSchema, reviewTargetSchema } from "@reactive-resume/schema/resume/ai-review";
+import { tailoringOutputSchema } from "@reactive-resume/schema/resume/variant-outputs";
 import { buildModelPayload } from "../../production";
 import { guardTaskClaims } from "../guard";
+import { alignVariantContract } from "../variant-adapter";
 import { tasksVerifierSchema } from "../verifier/schema";
 import { tasksVerifier } from "../verifier/verifier";
 
 const id = z.string().trim().min(1).max(200);
-const text = z
-	.string()
-	.trim()
-	.min(1)
-	.max(4000)
-	.refine((s) => !/<[^>]*>/u.test(s), "Plain text required");
 const evidenceIds = z
 	.array(id)
 	.min(1)
 	.max(50)
 	.refine((ids) => new Set(ids).size === ids.length);
-const claimFields = { id, text, evidenceIds, kind: z.literal("fact") };
-const claimSchema = z.union([z.strictObject(claimFields), z.strictObject({ ...claimFields, jobSpanIds: evidenceIds })]);
 const fieldAddress = {
 	sectionId: proposalTargetSchema.shape.sectionId,
 	itemId: proposalTargetSchema.shape.itemId.unwrap().nullable(),
@@ -35,25 +29,7 @@ const variantSchema = z.strictObject({
 	order: z.array(orderSchema).max(50),
 });
 export type TailoringCase = TaskCase & { category: "tailoring"; variant: z.infer<typeof variantSchema> };
-export const tailoringOutputSchema = z.strictObject({
-	resumeId: id,
-	baseRevision: id,
-	patches: z
-		.array(
-			z.strictObject({
-				id,
-				target: z.strictObject({ resumeId: id, baseRevision: id, ...fieldAddress }),
-				before: z.string().max(4000),
-				after: text,
-				why: text,
-				evidenceIds,
-				claims: z.array(claimSchema).min(1).max(100),
-			}),
-		)
-		.max(50),
-	order: z.array(orderSchema).max(50),
-	notes: z.array(text).max(20),
-});
+export { tailoringOutputSchema } from "@reactive-resume/schema/resume/variant-outputs";
 export type TailoringOutput = z.infer<typeof tailoringOutputSchema>;
 const policy = { lostFact: true, subsetEntities: true } as const;
 const addressKey = (
@@ -272,7 +248,7 @@ function score(c: TaskCase, raw: TailoringOutput, verdict: unknown | null): Task
 	};
 }
 /** Draft benchmark contract; no persistence, application or release approval. */
-export const tailoringContract: TaskContract<TaskCase, TailoringOutput> = {
+export const tailoringContract: TaskContract<TaskCase, TailoringOutput> = alignVariantContract({
 	category: "tailoring",
 	promptVersion: "t006-tailoring-prompt-v2-cited-bridge",
 	schemaVersion: "t006-tailoring-schema-v2",
@@ -290,4 +266,4 @@ export const tailoringContract: TaskContract<TaskCase, TailoringOutput> = {
 		retention: "applicable",
 		absenceChecks: [],
 	}),
-};
+});

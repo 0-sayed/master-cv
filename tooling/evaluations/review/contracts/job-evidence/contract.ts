@@ -1,28 +1,15 @@
 import type { Claim, TaskCase, TaskContract, TaskScore } from "../types";
+import type { z } from "zod";
 import { readFileSync } from "node:fs";
-import { z } from "zod";
 import { matchJobDescription } from "@reactive-resume/resume/ats-pdf";
+import { jobEvidenceSchema } from "@reactive-resume/schema/resume/variant-outputs";
 import { buildModelPayload } from "../../production";
 import { required } from "../../required";
 import { guardTaskClaims } from "../guard";
+import { alignVariantContract } from "../variant-adapter";
 
-const identifier = z.string().trim().min(1).max(200);
 /** Required fields and closed objects work across the installed strict-schema routes. */
-export const jobEvidenceSchema = z.strictObject({
-	requirements: z
-		.array(
-			z.strictObject({
-				id: identifier,
-				spanIds: z.array(identifier).max(50),
-				importance: z.enum(["essential", "preferred", "unstated"]),
-				verdict: z.enum(["supported", "partial", "no_evidence", "unclear"]),
-				evidenceIds: z.array(identifier).max(50),
-				explanation: z.string().trim().min(1).max(2000),
-			}),
-		)
-		.max(50),
-	notes: z.array(z.string().trim().min(1).max(1000)).max(10),
-});
+export { jobEvidenceSchema } from "@reactive-resume/schema/resume/variant-outputs";
 export type JobEvidenceOutput = z.infer<typeof jobEvidenceSchema>;
 const guardPolicy = { lostFact: false, subsetEntities: true } as const;
 const notChecked = "No job ad supplied; comparison not checked.";
@@ -122,7 +109,7 @@ function score(c: TaskCase, output: JobEvidenceOutput): TaskScore {
 	};
 }
 
-export const jobEvidenceContract: TaskContract<TaskCase, JobEvidenceOutput> = {
+export const jobEvidenceContract: TaskContract<TaskCase, JobEvidenceOutput> = alignVariantContract({
 	category: "job-evidence",
 	promptVersion: "t006-job-evidence-v1",
 	schemaVersion: "t006-job-evidence-schema-v1",
@@ -199,4 +186,4 @@ export const jobEvidenceContract: TaskContract<TaskCase, JobEvidenceOutput> = {
 			})),
 	}),
 	score,
-};
+});

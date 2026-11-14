@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { parseTaskCategories } from "./config";
 import { required } from "./required";
 
 // Offline export only: install before any transitive app import can load credentials.
@@ -14,11 +15,14 @@ const { values } = parseArgs({
 	options: {
 		fixtures: { type: "string", multiple: true },
 		study: { type: "string" },
+		categories: { type: "string" },
 		"context-file": { type: "string", multiple: true },
 		out: { type: "string", short: "o" },
 	},
 	strict: true,
 });
+if (values.categories !== undefined && values.study !== "tasks-v1")
+	throw new Error("TASK_CATEGORIES_REQUIRE_TASKS_STUDY");
 if (!values.out) throw new Error("EXPLICIT_OUTPUT_REQUIRED");
 if (values.study && values.study !== "tasks-v1") throw new Error("INVALID_REVIEW_STUDY");
 if (values.study && (values.fixtures || values["context-file"])) throw new Error("REVIEW_SCOPE_CONFLICT");
@@ -32,7 +36,13 @@ const { loadTaskFixtures, loadTaskReviewContexts, taskReviewItems } = await impo
 const { fixtureHash, loadStudyCases, studyReviewItems } = await import("./study");
 const items =
 	values.study === "tasks-v1"
-		? (studyReviewItems("tasks-v1", loadStudyCases("tasks-v1")) as import("./contracts/fixtures").TaskReviewItem[])
+		? (studyReviewItems(
+				"tasks-v1",
+				loadStudyCases(
+					"tasks-v1",
+					values.categories === undefined ? undefined : parseTaskCategories(values.categories),
+				),
+			) as import("./contracts/fixtures").TaskReviewItem[])
 		: taskReviewItems(
 				loadTaskFixtures(required(values.fixtures)),
 				loadTaskReviewContexts(required(values["context-file"])),

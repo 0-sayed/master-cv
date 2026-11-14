@@ -1,31 +1,14 @@
 import type { Claim, TaskCase, TaskContract, TaskScore } from "../types";
+import type { z } from "zod";
 import { readFileSync } from "node:fs";
-import { z } from "zod";
+import { summaryOutputSchema } from "@reactive-resume/schema/resume/variant-outputs";
 import { buildModelPayload } from "../../production";
 import { guardTaskClaims } from "../guard";
+import { alignVariantContract } from "../variant-adapter";
 import { tasksVerifierSchema } from "../verifier/schema";
 import { tasksVerifier } from "../verifier/verifier";
 
-const id = z.string().trim().min(1).max(200);
-export const summaryOutputSchema = z.strictObject({
-	summary: z.strictObject({
-		text: z.string().max(4000),
-		claims: z
-			.array(
-				z.strictObject({
-					id,
-					text: z.string().trim().min(1).max(4000),
-					evidenceIds: z.array(id).min(1).max(50),
-					kind: z.literal("fact"),
-				}),
-			)
-			.max(20),
-	}),
-	questions: z
-		.array(z.strictObject({ id, prompt: z.string().trim().min(1).max(600), evidenceIds: z.array(id).max(50) }))
-		.max(5),
-	notes: z.array(z.string().trim().min(1).max(600)).max(5),
-});
+export { summaryOutputSchema } from "@reactive-resume/schema/resume/variant-outputs";
 export type SummaryOutput = z.infer<typeof summaryOutputSchema>;
 
 function protectedNames(c: TaskCase): string[] {
@@ -115,7 +98,7 @@ function score(c: TaskCase, output: SummaryOutput, rawVerdict: unknown | null): 
 	};
 }
 
-export const summaryContract: TaskContract<TaskCase, SummaryOutput> = {
+export const summaryContract: TaskContract<TaskCase, SummaryOutput> = alignVariantContract({
 	category: "summary",
 	promptVersion: "t006-summary-v1",
 	schemaVersion: "t006-summary-schema-v1",
@@ -155,4 +138,4 @@ export const summaryContract: TaskContract<TaskCase, SummaryOutput> = {
 		absenceChecks: [],
 	}),
 	score,
-};
+});

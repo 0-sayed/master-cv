@@ -4,7 +4,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, it } from "vite-plus/test";
 import { z } from "zod";
-import { matchJobDescription } from "@reactive-resume/resume/ats-pdf";
+import { buildVariantWriterPayload } from "@reactive-resume/api/features/ai/variant-contracts";
+import { variantVerificationInventory } from "@reactive-resume/api/features/ai/variant-verifier";
 import { loadModels } from "../../config";
 import { cases as coreCases } from "../../corpus";
 import { assertTaskGoldFits, evaluateOutput, prepareCase } from "../../execution";
@@ -16,6 +17,7 @@ import { controls } from "../../study";
 import { vertexFixture } from "../../vertex-test-fixture";
 import { loadTaskFixtures } from "../fixtures";
 import { getTaskContract } from "../index";
+import { variantSnapshot } from "../variant-adapter";
 import { tasksVerifier } from "../verifier/verifier";
 import { jobEvidenceContract, jobEvidenceSchema } from "./contract";
 
@@ -68,31 +70,12 @@ it("registers the production job-evidence contract with a strict portable schema
 	expect(jobEvidenceSchema.safeParse({ ...gold(), score: 100 }).success).toBe(false);
 });
 
-it("computes deterministic term coverage first with the existing matcher and sends it as context", () => {
-	const expected = matchJobDescription({
-		jobDescription: required(c.jobAd)
-			.segments.map((s) => s.text)
-			.join("\n"),
-		resumeText: c.cv.map((f) => f.text).join("\n"),
-	});
-	const payload = prepareCase(c).payload;
-	const context = JSON.parse(
-		required(payload.selections.find((s) => "id" in s && s.id === "job-evidence-term-coverage")).text,
-	);
-	expect(context).toMatchObject({
-		matchedTerms: expected.matchedTerms,
-		missingTerms: expected.missingTerms,
-		totalTerms: expected.totalTerms,
-		matchedCount: expected.matchedCount,
-	});
-	expect(context.normalization).toContain("existing");
+it("uses the production snapshot and keeps literal coverage outside semantic model evidence", () => {
+	expect(prepareCase(c).payload).toEqual(buildVariantWriterPayload(variantSnapshot(c)));
+	const context = JSON.parse(required(prepareCase(c).payload.selections[0]).text);
+	expect(context.cv.map((fact: { id: string }) => fact.id)).toEqual(["cv-reports"]);
+	expect(context.jobAd).toEqual(c.jobAd);
 	expect(context).not.toHaveProperty("score");
-	expect(payload).toHaveProperty("jobAd.trust", "untrusted");
-	expect(
-		payload.selections
-			.filter((s) => "kind" in s && s.kind === "confirmed_content")
-			.map((s) => ("id" in s ? s.id : null)),
-	).toEqual(["cv-reports"]);
 });
 
 it("verdict accuracy vs gold is quality, independent of deterministic safety", () => {
@@ -210,7 +193,7 @@ it("claims cover candidate explanations, while no_evidence uses an independent a
 	expect(context.absenceChecks).toEqual([{ id: "absence:req-sap", claim: expect.stringContaining("SAP") }]);
 	const input = tasksVerifier.buildInput(c, gold());
 	expect(input.selections.map((s) => JSON.parse(s.text))).toContainEqual(
-		expect.objectContaining({ absenceChecks: [{ id: "absence:req-sap", claim: expect.stringContaining("SAP") }] }),
+		expect.objectContaining(variantVerificationInventory(variantSnapshot(c), gold())),
 	);
 	const raw = tasksVerifier.fakeVerdict(c, gold());
 	expect(tasksVerifier.assess(c, gold(), raw).accepted).toBe(true);
@@ -275,12 +258,12 @@ it("missing job is not checked rather than fabricated requirements", () => {
 	expect(score(gold(), input).safetyDeterministic.pass).toBe(false);
 });
 
-it("enforces the shared 50-selection boundary including derived context", () => {
+it("enforces the production 49-passage boundary", () => {
 	const input = {
 		...c,
-		cv: Array.from({ length: 48 }, (_, i) => ({ id: `f-${i}`, section: "experience", text: "Prepared reports." })),
+		cv: Array.from({ length: 50 }, (_, i) => ({ id: `f-${i}`, section: "experience", text: "Prepared reports." })),
 	};
-	expect(() => prepareCase(input)).toThrow("TASK_SELECTION_LIMIT");
+	expect(() => prepareCase(input)).toThrow("AI_INPUT_LIMIT");
 });
 
 it("synthetic fixtures meet tuning and holdout counts with gold/honest/mutant controls", () => {

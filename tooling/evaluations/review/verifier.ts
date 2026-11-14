@@ -10,12 +10,18 @@ import {
 	reviewVerifierSchema,
 	hasReviewEdits,
 } from "@reactive-resume/api/features/ai/review-verifier";
+import {
+	VARIANT_VERIFIER_VERSION,
+	variantVerifierPrompt,
+	variantVerifierSchema,
+} from "@reactive-resume/api/features/ai/variant-verifier";
 import { captureResponse } from "./attempt";
 import {
 	taskContractFor,
 	taskVerifierFor as scopedTaskVerifierFor,
 	type TaskVerifierAdapter,
 } from "./contracts/runtime";
+import { isProductionVariantCase } from "./contracts/runtime";
 import { tasksVerifier } from "./contracts/verifier/verifier";
 import { isRateLimited, type ProviderCooldown } from "./cooldown";
 import { prepareCase as prepareCoreCase } from "./corpus";
@@ -106,6 +112,8 @@ export function verifierAuditFault(c: ExecutionCase, output: Record<string, unkn
 }
 export function benchmarkVerifierSpec(c: ExecutionCase) {
 	if (c.kind === "task") {
+		if (isProductionVariantCase(c))
+			return { version: VARIANT_VERIFIER_VERSION, systemPrompt: variantVerifierPrompt, schema: variantVerifierSchema };
 		const adapter = taskVerifierFor();
 		return { version: adapter.version, systemPrompt: adapter.systemPrompt, schema: adapter.schema };
 	}
@@ -118,7 +126,10 @@ export function benchmarkVerifierSpec(c: ExecutionCase) {
 	};
 }
 export function benchmarkInput(c: ExecutionCase, output: Record<string, unknown>) {
-	if (c.kind === "task") return minimizeTaskPayload(taskVerifierFor().buildInput(c, output));
+	if (c.kind === "task") {
+		const payload = taskVerifierFor().buildInput(c, output);
+		return isProductionVariantCase(c) ? payload : minimizeTaskPayload(payload);
+	}
 	const verifier = prepareCoreCase(c).handler.verifier;
 	if (!verifier) throw new Error("VERIFIER_REQUIRED");
 	return {

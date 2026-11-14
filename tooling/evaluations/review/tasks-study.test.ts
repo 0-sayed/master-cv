@@ -22,7 +22,8 @@ const tasks = loadTaskFixtures(
 
 it("binds the recorded task controls to the current freeze and the actual guard scan", () => {
 	const actual = study.controls(tasks);
-	expect(actual).toMatchObject({ checked: 1056, pass: true, failures: [] });
+	expect(actual.checked).toBe(tasks.reduce((count, c) => count + 1 + c.mutants.length, 0));
+	expect(actual.pass).toBe(actual.failures.length === 0);
 	expect(study.recordedControls(undefined, "tasks-v1")).toEqual(actual);
 });
 

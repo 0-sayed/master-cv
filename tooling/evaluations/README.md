@@ -143,3 +143,15 @@ Offline chaos smoke uses the same CLI, for example `pnpm --filter @reactive-resu
 ## Lane 21: owner grid reduction (2026-11-13)
 
 Current freeze is `t006-review-fairness-v8-lane21`; previous study/controls are preserved with `before-lane21` filenames. Prompts, schemas, fixtures, scoring, verifier pins and completion caps are unchanged. Fixture-bound owner Arabic approval must be checked offline; no old smoke qualifies or resumes this new study. Gemini 4 Hydrogen was dropped for cost (~20× DeepSeek), Vertex concurrency-one latency and the 90-day safety-retention legal gate. A later single-variant run requires its own study and authorization. Vertex JSON object adapter and three-route unit fault matrix remain; active dispatch has no Vertex-specific limit or flag.
+
+## Four-operation job/language qualification package
+
+The unapproved T007 package uses production job-evidence, tailoring, translation
+and selected-fact summary contracts, with strict `--categories` scope. Its owner
+commands explicitly use Luna none, Luna low and Terra medium with `--runs 3`;
+existing unscoped six-category/default repetition behavior is preserved.
+See [the benchmark handoff](../../docs/t007-benchmark-handoff.md) for the exact
+freeze, unsigned review artifacts, observed offline controls, dated separate payer
+forecasts and owner-only smoke/full commands. A plain-token `--key-file` supports
+those live recipes without an environment file; offline modes do not load it.
+No fake/preflight result authorizes a paid run, model selection or release.

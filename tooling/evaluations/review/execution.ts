@@ -2,6 +2,7 @@ import type { TaskCase } from "./contracts/types";
 import type { ModelPayload } from "@reactive-resume/api/features/ai/payload";
 import type { z } from "zod";
 import { taskContractFor } from "./contracts/runtime";
+import { isProductionVariantCase } from "./contracts/runtime";
 import { toEvaluation } from "./contracts/types";
 import {
 	prepareCase as prepareCoreCase,
@@ -14,9 +15,6 @@ import { buildModelPayload } from "./production";
 import { required } from "./required";
 
 export type ExecutionCase = BenchmarkCase | TaskCase;
-type TaskPayload = ModelPayload & {
-	jobAd: { trust: "untrusted"; segments: { id: string; text: string }[] } | null;
-};
 
 /** Apply the same contact boundary to contract-built writer and verifier selections. */
 export function minimizeTaskPayload(payload: ModelPayload): ModelPayload {
@@ -33,20 +31,22 @@ export function prepareCase(c: ExecutionCase) {
 	const jobSegments = c.jobAd?.segments ?? [];
 	if (input.selections.length + jobSegments.length > 50) throw new Error("TASK_SELECTION_LIMIT");
 	// Reapply contact minimisation to contract input and job text; keep the two pools distinct.
-	const payload: TaskPayload = {
-		...minimizeTaskPayload(input),
-		jobAd: c.jobAd
-			? {
-					trust: "untrusted",
-					segments: jobSegments.length
-						? buildModelPayload({
-								selections: jobSegments.map((s) => ({ ...s, section: "summary", kind: "user_supplied" })),
-								contactValues: [],
-							}).selections.map((s, i) => ({ id: required(jobSegments[i]).id, text: s.text }))
-						: [],
-				}
-			: null,
-	};
+	const payload = isProductionVariantCase(c)
+		? input
+		: {
+				...minimizeTaskPayload(input),
+				jobAd: c.jobAd
+					? {
+							trust: "untrusted",
+							segments: jobSegments.length
+								? buildModelPayload({
+										selections: jobSegments.map((s) => ({ ...s, section: "summary", kind: "user_supplied" })),
+										contactValues: [],
+									}).selections.map((s, i) => ({ id: required(jobSegments[i]).id, text: s.text }))
+								: [],
+						}
+					: null,
+			};
 	return {
 		handler: {
 			output: contract.outputSchema as z.ZodType<Record<string, unknown>>,

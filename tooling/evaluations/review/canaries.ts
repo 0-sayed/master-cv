@@ -31,39 +31,41 @@ export function planJudgeCanaries(models: ModelConfig[], catalog?: ModelConfig[]
 		models.find((m) => m.provider === "openai") ?? loadModels().find((m) => m.provider === "openai"),
 	);
 	const model = verifierModelFor(writer, catalog);
-	return loadJudgeCanaries().flatMap((c) => {
-		const priority = {
-			summary: "invented-skill",
-			"job-evidence": "unsupported-supported",
-			tailoring: "job-only-keyword",
-			translation: "wrong-hijri-year",
-			"cover-letter": "job-only-keyword",
-			"interview-prep": "escalation",
-		}[c.category];
-		let specific: unknown;
-		if (c.category === "summary") {
-			specific = required(c.mutants.find((m) => m.id === "job-only-keyword")).output;
-		} else if (c.category === "job-evidence") {
-			const output = jobEvidenceSchema.parse(structuredClone(c.gold));
-			const target = required(output.requirements.find((r) => r.verdict === "no_evidence"));
-			target.verdict = "supported";
-			target.evidenceIds = [required(c.cv[0]).id];
-			target.explanation = required(c.jobAd?.segments.find((s) => target.spanIds.includes(s.id))).text;
-			specific = output;
-		} else specific = required(c.mutants.find((m) => m.id === priority)).output;
-		return [
-			{ id: "gold", output: c.gold, expect: "honest" },
-			...["invented-metric", "dropped-negation"].map((id) => required(c.mutants.find((m) => m.id === id))),
-			{ id: priority, output: specific, expect: "unsafe" },
-		].map((probe) => ({
-			key: hash([model.model, model.provider, model.reasoning, c.id, probe.id]),
-			model,
-			c,
-			defect: probe.id,
-			output: probe.output as Record<string, unknown>,
-			expectedAccepted: probe.expect === "honest",
-		}));
-	});
+	return loadJudgeCanaries()
+		.filter((c) => models.some((model) => !model.categories || model.categories.includes(c.category)))
+		.flatMap((c) => {
+			const priority = {
+				summary: "invented-skill",
+				"job-evidence": "unsupported-supported",
+				tailoring: "job-only-keyword",
+				translation: "wrong-hijri-year",
+				"cover-letter": "job-only-keyword",
+				"interview-prep": "escalation",
+			}[c.category];
+			let specific: unknown;
+			if (c.category === "summary") {
+				specific = required(c.mutants.find((m) => m.id === "job-only-keyword")).output;
+			} else if (c.category === "job-evidence") {
+				const output = jobEvidenceSchema.parse(structuredClone(c.gold));
+				const target = required(output.requirements.find((r) => r.verdict === "no_evidence"));
+				target.verdict = "supported";
+				target.evidenceIds = [required(c.cv[0]).id];
+				target.explanation = required(c.jobAd?.segments.find((s) => target.spanIds.includes(s.id))).text;
+				specific = output;
+			} else specific = required(c.mutants.find((m) => m.id === priority)).output;
+			return [
+				{ id: "gold", output: c.gold, expect: "honest" },
+				...["invented-metric", "dropped-negation"].map((id) => required(c.mutants.find((m) => m.id === id))),
+				{ id: priority, output: specific, expect: "unsafe" },
+			].map((probe) => ({
+				key: hash([model.model, model.provider, model.reasoning, c.id, probe.id]),
+				model,
+				c,
+				defect: probe.id,
+				output: probe.output as Record<string, unknown>,
+				expectedAccepted: probe.expect === "honest",
+			}));
+		});
 }
 type CanaryResult = {
 	key: string;

@@ -127,7 +127,7 @@ it("tailoring rejects unsupported claim from job ad with valid CV citations", ()
 it("rejects stale before and baseRevision including reorder-only outputs", () => {
 	const staleBefore = structuredClone(gold);
 	required(staleBefore.patches[0]).before = "Outdated text.";
-	expect(score(staleBefore).safetyDeterministic.reasons).toContain("TAILORING_STALE_BEFORE");
+	expect(score(staleBefore).safetyDeterministic.reasons).toContain("TAILORING_INVALID_TARGET");
 	const stalePatch = structuredClone(gold);
 	required(stalePatch.patches[0]).target.baseRevision = "revision-old";
 	expect(safe(stalePatch)).toBe(false);
@@ -199,7 +199,7 @@ it("master unchanged through input, score and claims; targets supplied to writer
 	const outputBefore = JSON.stringify(gold);
 	const input = tailoringContract.buildInput(c);
 	expect(
-		JSON.parse(required(input.selections.find((s) => "id" in s && s.id === "tailoring-variant")).text),
+		JSON.parse(required(input.selections.find((s) => "id" in s && s.id === "variant-task")).text).variant,
 	).toMatchObject({
 		baseRevision: "revision-a",
 		fields: [{ itemId: "item-a", evidenceIds: ["cv-a"] }],
@@ -245,7 +245,7 @@ it("stable claim ids and semantic verifier safety remain independent of quality"
 				reason: "Not supported.",
 			})),
 		};
-		expect(score(gold, task, bad).unsupportedClaims).toContain("patch:p1:c1");
+		expect(score(gold, task, bad).unsupportedClaims).toContain("AI_VERIFICATION_FAILED");
 		expect(score(gold, task, bad).safetyDeterministic.pass).toBe(false);
 	});
 });
@@ -312,7 +312,7 @@ it("offline preflight and fake transport session round-trip through journal", as
 		expect(run.calls[0]).toMatchObject({ schemaValid: true, guardAccepted: true, verifierAccepted: true });
 		expect((await readJournal(path)).previousCalls).toEqual(run.calls);
 		expect(evaluateOutput(c, c.gold).guardAccepted).toBe(true);
-		expect(prepareCase(c).payload).toMatchObject({ jobAd: { trust: "untrusted" } });
+		expect(JSON.parse(required(prepareCase(c).payload.selections[0]).text).jobAd).toEqual(c.jobAd);
 		expect(readFileSync(path, "utf8")).toContain("targeted-change-coverage");
 	} finally {
 		await rm(folder, { recursive: true });
@@ -328,7 +328,9 @@ it("preserves non-BMP and numeric target identifiers", () => {
 	c.variant.resumeId = "resume-🧪";
 	c.variant.baseRevision = "14420315";
 	const payload = tailoringContract.buildInput(c);
-	const snapshot = JSON.parse(required(payload.selections.find((s) => "id" in s && s.id === "tailoring-variant")).text);
+	const snapshot = JSON.parse(
+		required(payload.selections.find((s) => "id" in s && s.id === "variant-task")).text,
+	).variant;
 	expect(snapshot).toMatchObject({ resumeId: "resume-🧪", baseRevision: "14420315" });
 });
 
@@ -339,7 +341,7 @@ it("compares before against the exact snapshot without trimming source text", ()
 	required(out.patches[0]).before = ` ${source} `;
 	expect(safe(out, c)).toBe(true);
 	required(out.patches[0]).before = source;
-	expect(score(out, c).safetyDeterministic.reasons).toContain("TAILORING_STALE_BEFORE");
+	expect(score(out, c).safetyDeterministic.reasons).toContain("TAILORING_INVALID_TARGET");
 });
 
 it("rejects invalid evidence with a supplied verifier verdict without throwing", () => {

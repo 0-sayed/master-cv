@@ -161,6 +161,25 @@ export function pruneTaskVariants(models: ModelConfig[], selected?: string[]): M
 		throw new Error("INVALID_TASK_VARIANTS");
 	return models.filter((m) => selected.includes(taskVariantId(m)));
 }
+const taskCategoryNames = [
+	"summary",
+	"job-evidence",
+	"tailoring",
+	"translation",
+	"cover-letter",
+	"interview-prep",
+] as const;
+export type TaskScope = (typeof taskCategoryNames)[number][];
+export function parseTaskCategories(value: string): TaskScope {
+	const values = value.split(",");
+	if (
+		!values.length ||
+		new Set(values).size !== values.length ||
+		values.some((category) => !taskCategoryNames.some((name) => name === category))
+	)
+		throw new Error("INVALID_TASK_CATEGORIES");
+	return taskCategoryNames.filter((category) => values.includes(category));
+}
 export function parseOptions(args: string[]) {
 	const { values } = parseArgs({
 		args,
@@ -178,7 +197,9 @@ export function parseOptions(args: string[]) {
 			preflight: { type: "boolean", default: false },
 			"startup-check": { type: "boolean", default: false },
 			"smoke-category": { type: "string" },
+			categories: { type: "string" },
 			"env-file": { type: "string" },
+			"key-file": { type: "string" },
 			models: { type: "string" },
 			config: { type: "string" },
 			runs: { type: "string" },
@@ -200,9 +221,13 @@ export function parseOptions(args: string[]) {
 	});
 	if (values["startup-check"] && (values.fake || values["dry-run"] || values.preflight || values["refresh-catalog"]))
 		throw new Error("STARTUP_CHECK_MODE_CONFLICT");
+	if (values["key-file"] && values["env-file"]) throw new Error("DUPLICATE_CREDENTIAL_SOURCE");
 	if (values.chaos && !values.fake) throw new Error("CHAOS_REQUIRES_FAKE");
 	if (values.variants !== undefined && values.study !== "tasks-v1")
 		throw new Error("TASK_VARIANTS_REQUIRE_TASKS_STUDY");
+	if (values.categories !== undefined && values.study !== "tasks-v1")
+		throw new Error("TASK_CATEGORIES_REQUIRE_TASKS_STUDY");
+	if (values.categories !== undefined && values["smoke-category"] !== undefined) throw new Error("TASK_SCOPE_CONFLICT");
 	const runs = z.coerce
 		.number()
 		.int()
@@ -234,8 +259,10 @@ export function parseOptions(args: string[]) {
 		dryRun: values["dry-run"],
 		preflight: values.preflight,
 		startupCheck: values["startup-check"],
+		categories: values.categories === undefined ? undefined : parseTaskCategories(values.categories),
 		smokeCategory: z.enum(["extraction", "wording-extraction"]).optional().parse(values["smoke-category"]),
 		envFile: values["env-file"],
+		keyFile: values["key-file"],
 		selected: values.models?.split(","),
 		variants: values.variants?.split(","),
 		config: values.config,
