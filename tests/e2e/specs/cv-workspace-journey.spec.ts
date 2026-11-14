@@ -121,7 +121,7 @@ test("ignored writing notes can be restored after reloading on mobile", async ({
 		.click();
 	const key = "MISSING_EMAIL:/basics/email";
 	const note = page.locator(`[data-issue-card="${key}"]`);
-	await note.getByRole("button", { name: "Keep as it is", exact: true }).click();
+	await note.getByRole("button", { name: "Keep as is", exact: true }).click();
 	await expect
 		.poll(
 			async () =>
@@ -173,7 +173,7 @@ for (const locale of ["en-US", "ar-SA"] as const) {
 		expect((await read()).basics.website.url).toBe("example.com");
 		await settleScreen(page);
 		await page.screenshot({ path: testInfo.outputPath("mobile-fix-review.png") });
-		await dialog.getByRole("button", { name: ar ? "رفض" : "Reject", exact: true }).click();
+		await dialog.getByRole("button", { name: ar ? "إلغاء" : "Cancel", exact: true }).click();
 		await expect(dialog).not.toBeVisible();
 		expect((await read()).basics.website.url).toBe("example.com");
 		await issue.getByRole("button", { name: ar ? "عرض على الصفحة" : "Show on page", exact: true }).click();

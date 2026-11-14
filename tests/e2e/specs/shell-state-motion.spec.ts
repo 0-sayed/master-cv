@@ -31,7 +31,8 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					const frames: OverlayFrame[] = [];
 					let running = true;
 					const sample = () => {
-						const el = document.querySelector("main > header");
+						const el = document.querySelector(".shell-toolbar");
+						if (!el) throw new Error("Shell toolbar missing");
 						if (el) {
 							const r = el.getBoundingClientRect();
 							const main = document.querySelector("main");
@@ -63,17 +64,17 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				await settleScreen(page);
 				await page.keyboard.press("Escape");
 				const themeButton = page
-					.locator('main > header button[data-size="header-icon"]:not([data-slot="shell-search"])')
+					.locator('.shell-toolbar button[data-size="header-icon"]:not([data-slot="shell-search"])')
 					.filter({ visible: true });
 				if (width >= 640) {
 					await themeButton.click();
 					if (theme === "light") await expect(page.locator("html")).toHaveClass(/dark/);
 					else await expect(page.locator("html")).not.toHaveClass(/dark/);
 				}
-				await page.locator('main > header button[data-size="language"]').click();
+				await page.locator('.shell-toolbar button[data-size="language"]').click();
 				await expect(page.locator("html")).toHaveAttribute("lang", locale === "ar-SA" ? "en-US" : "ar-SA");
 				await settleScreen(page);
-				await page.locator('main > header button[data-size="language"]').click();
+				await page.locator('.shell-toolbar button[data-size="language"]').click();
 				await expect(page.locator("html")).toHaveAttribute("lang", locale);
 				await settleScreen(page);
 				const frames = await page.evaluate(() =>

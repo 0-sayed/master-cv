@@ -26,7 +26,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					await expect(authPage.getByRole("dialog")).not.toBeVisible();
 				} else if (width >= 1024) {
 					const aside = await authPage.getByRole("complementary").boundingBox();
-					const canvas = await authPage.locator("main").locator("..").boundingBox();
+					const canvas = await authPage.locator(".dashboard-shell").boundingBox();
 					if (!aside || !canvas) throw new Error("Dashboard navigation or canvas missing");
 					expect(aside?.width).toBe(236);
 					// Navigation stays on the canvas edge with normal browser scrolling.
