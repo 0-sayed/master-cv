@@ -13,15 +13,38 @@ const { serve } = createRequire(new URL("../../apps/server/package.json", import
 import { reviewHandlers } from "../../packages/api/src/features/ai/review-handlers";
 import { withAiRuntime } from "../../packages/api/src/features/ai/route-policy";
 import { syntheticReviewRuntime as syntheticRuntime } from "../../packages/api/src/features/ai/testing/runtime";
+import { variantReviewHandlers } from "../../packages/api/src/features/ai/variant-handlers";
 import { splitReviewClaims } from "../../packages/schema/src/resume/ai-review";
+import { scriptedVariantResponse } from "./fixtures/variant-transport";
 
 type Selection = { id: string; kind: string; section: string; text: string };
 const runtime = {
 	...syntheticRuntime,
-	handlers: reviewHandlers,
+	handlers: { ...reviewHandlers, ...variantReviewHandlers },
 	fetch: (_url: unknown, init?: RequestInit) => {
 		const body = JSON.parse(String(init?.body));
 		const selections: Selection[] = JSON.parse(body.messages.at(-1).content).selections;
+		const variantResult = scriptedVariantResponse(selections);
+		if (variantResult instanceof Response) return Promise.resolve(variantResult);
+		if (variantResult !== undefined)
+			return Promise.resolve(
+				new Response(
+					JSON.stringify({
+						id: "synthetic-variant",
+						model: "synthetic/model",
+						provider: "Test",
+						choices: [
+							{
+								index: 0,
+								message: { role: "assistant", content: JSON.stringify(variantResult) },
+								finish_reason: "stop",
+							},
+						],
+						usage: { prompt_tokens: 5, completion_tokens: 5, total_tokens: 10, cost: 0.00001 },
+					}),
+					{ headers: { "content-type": "application/json" } },
+				),
+			);
 		const source = selections.find((selection) => selection.id !== "intent");
 		if (!source) throw new Error("Missing synthetic source");
 		const intent = selections.find((selection) => selection.id === "intent")?.text ?? "";

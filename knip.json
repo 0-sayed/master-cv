@@ -103,7 +103,7 @@
 		},
 		"tooling": {
 			"entry": ["**/*.mjs", "mcp/seed.ts", "vitest.documents.config.ts", "document-qualification/run.qualification.ts"],
-			"ignoreDependencies": ["@formepdf/core", "@orpc/client", "css-tree"]
+			"ignoreDependencies": ["@formepdf/core", "css-tree"]
 		},
 		"packages/api": {
 			"ignoreDependencies": ["ioredis"]
