@@ -26,6 +26,8 @@ export async function provisionRuntimeRole(migrationUrl, role = "master_cv_runti
 		await pool.query(`GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO "${role}"`);
 		await pool.query(`REVOKE UPDATE,DELETE ON career_fact_revision FROM "${role}"`);
 		await pool.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_usage_ledger FROM "${role}"`);
+		await pool.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_review_decision FROM "${role}"`);
+		await pool.query(`REVOKE UPDATE,TRUNCATE ON ai_import_review_source FROM "${role}"`);
 		await pool.query(`REVOKE ALL ON ai_platform_budget FROM "${role}"`);
 		await pool.query(`REVOKE DELETE ON ai_operation,ai_operation_attempt FROM "${role}"`);
 		await pool.query(

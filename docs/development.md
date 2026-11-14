@@ -207,3 +207,31 @@ To use an already provisioned isolated browser runtime, set `E2E_REUSE_SERVER=tr
 must already send to that loopback capture port and the sink must already write to that directory.
 Playwright cannot retrofit SMTP settings into an existing process. Keep `APP_URL`, `PORT`, storage and
 database settings pointed at that same synthetic runtime. `PLAYWRIGHT_CHANNEL=chrome` remains supported.
+
+## Local real AI (synthetic CVs only)
+
+With Node 24 on PATH and the local database/storage configured in `.env.local`, build the web app
+(`pnpm --filter web build`) and run `pnpm dev:real-ai`. It serves the normal built web app at
+`http://localhost:3060`, binds loopback only, and refuses production mode or a missing app key.
+It loads the existing restricted-role `.env.runtime.local` first when present, then `.env.local` and
+ignored `.env.openrouter.local`; it does not alter servers on 3000/3050. Provision the restricted runtime
+role using the local database setup above before launching; unsafe database credentials fail closed.
+The banner reads **LOCAL REAL AI — dev only, provisional models**. Writer: Luna low/Azure;
+verifier: DeepSeek Flash 1017 low/Together. ZDR, deny collection, no provider fallbacks, consent,
+owner scope, durable accounting and fail-closed review remain enforced. This is not route/release approval.
+
+Put `OPENROUTER_API_KEY=<app-key>` and, separately, `OPENROUTER_BENCHMARK_KEY=<benchmark-key>` in
+`.env.openrouter.local`. The owner must set hard key caps in OpenRouter: **$3 app / $5 benchmark**.
+The benchmark reads only its explicitly passed file's benchmark key, never the app key or inherited shell keys.
+Set `LOCAL_REAL_AI_OWNER_ID=<local-account-user-id>` in `.env.local` to give only that account
+50 operations in this launcher; without it the standard five apply. Production always retains five.
+Operation allowances are not dollar limits; provider key caps are owner-managed.
+Use synthetic/sample CVs only until Saudi processing compliance is approved. Each paid run still needs
+explicit owner permission; launcher/test verification does not authorize paid calls.
+
+Vitest, integration setups, browser CI, Playwright and the T005/T006 synthetic servers reject either key
+variable when present (including empty values), before running tests. They never load `.env.openrouter.local`.
+For offline launcher verification, `pnpm dev:real-ai --env-file /tmp/fake-openrouter.env` replaces the
+credential file. Use a fake app key, `OPENROUTER_BASE_URL=http://127.0.0.1:<stub-port>/api/v1` and
+`FLAG_ALLOW_UNSAFE_AI_BASE_URL=true`; only explicit numeric loopback HTTP stubs are accepted and redirects
+are forbidden. Ordinary launches use the canonical OpenRouter endpoint. Do not export real keys into test shells.

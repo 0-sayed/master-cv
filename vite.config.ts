@@ -1,3 +1,4 @@
+import "./tooling/local/test-ai-guard.mjs";
 import { defineConfig } from "vite-plus";
 
 const workspaceImportPatterns = [
@@ -13,6 +14,7 @@ const workspaceImportPatterns = [
 ];
 
 export default defineConfig({
+	envDir: false,
 	lint: {
 		plugins: ["typescript", "unicorn", "oxc", "react", "jsx-a11y"],
 		jsPlugins: ["@shadcn/lint"],
@@ -166,6 +168,7 @@ export default defineConfig({
 			functions: ["clsx", "cva", "cn"],
 		},
 		ignorePatterns: [
+			"tooling/evaluations/results/**",
 			"**/.archon/**",
 			"**/.turbo/**",
 			"**/.output/**",

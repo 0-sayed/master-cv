@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { closeSync, mkdtempSync, openSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -8,14 +8,26 @@ const repository = fileURLToPath(new URL("../../", import.meta.url));
 const weights = JSON.parse(readFileSync(new URL("./e2e-weights.json", import.meta.url), "utf8"));
 
 function playwright(args) {
-	const result = spawnSync("pnpm", ["exec", "playwright", "test", ...args], {
-		cwd: repository,
-		encoding: "utf8",
-		maxBuffer: 16 * 1024 * 1024,
-	});
-	if (result.error) throw result.error;
-	if (result.status !== 0) throw new Error(`Playwright exited ${result.status}: ${result.stderr}\n${result.stdout}`);
-	return result.stdout;
+	// File-backed capture also works in workers where subprocess pipes are forbidden.
+	const directory = mkdtempSync(join(tmpdir(), "e2e-discovery-"));
+	const descriptors = [];
+	try {
+		const stdout = join(directory, "stdout");
+		const stderr = join(directory, "stderr");
+		descriptors.push(openSync(stdout, "w"), openSync(stderr, "w"));
+		const result = spawnSync("pnpm", ["exec", "playwright", "test", ...args], {
+			cwd: repository,
+			stdio: ["ignore", ...descriptors],
+		});
+		if (result.error) throw result.error;
+		const output = readFileSync(stdout, "utf8");
+		if (result.status !== 0)
+			throw new Error(`Playwright exited ${result.status}: ${readFileSync(stderr, "utf8")}\n${output}`);
+		return output;
+	} finally {
+		for (const descriptor of descriptors) closeSync(descriptor);
+		rmSync(directory, { recursive: true, force: true });
+	}
 }
 
 export function discoverTests(args = []) {

@@ -1,3 +1,4 @@
+import "./tooling/local/test-ai-guard.mjs";
 import { defineConfig, devices } from "@playwright/test";
 
 const port = Number.parseInt(process.env.PORT ?? "3000", 10);
@@ -10,6 +11,7 @@ const smtpPort = process.env.E2E_SMTP_PORT ?? String(port + 3);
 
 export default defineConfig({
 	testDir: "./tests/e2e/specs",
+	testIgnore: ["**/reviewable-ai*.spec.ts"],
 	fullyParallel: true,
 	forbidOnly: isCI,
 	retries: 0,

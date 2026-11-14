@@ -40,3 +40,12 @@ it("keeps the browser workflow's feature flags, isolated storage and SMTP settin
 		E2E_MAIL_DIRECTORY: fixture.directory + "/mail",
 	});
 });
+
+it.each(["OPENROUTER_API_KEY", "OPENROUTER_BENCHMARK_KEY"])(
+	"refuses inherited %s before filtering the browser environment",
+	(key) => {
+		expect(() => ciBrowserEnvironment({ ...fixture, parent: { ...fixture.parent, [key]: "fake-key" } })).toThrow(
+			`TEST_AI_CREDENTIAL_FORBIDDEN: ${key}`,
+		);
+	},
+);
