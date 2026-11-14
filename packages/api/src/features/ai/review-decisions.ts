@@ -84,7 +84,7 @@ async function ownedReview(tx: OwnerTransaction, ownerId: string, operationId: s
 										.filter((requirement) => requirement.verdict !== "supported")
 										.slice(0, 20)
 										.map((requirement) => ({
-											id: `clarify:${requirement.id}`,
+											id: requirement.id,
 											target: null,
 											prompt: requirement.explanation,
 											evidenceIds: requirement.evidenceIds,

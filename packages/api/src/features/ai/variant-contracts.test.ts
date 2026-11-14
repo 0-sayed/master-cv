@@ -1,5 +1,6 @@
+import assert from "node:assert/strict";
 import { expect, it } from "vite-plus/test";
-import { variantOperationContracts } from "./variant-contracts";
+import { buildVariantWriterPayload, variantOperationContracts } from "./variant-contracts";
 import { minimizedVariantText, validateVariantOutput } from "./variant-validation";
 import { assertVariantVerification, variantVerificationInventory } from "./variant-verifier";
 
@@ -108,4 +109,29 @@ it("allows a cited factual percentage without turning it into a hiring assessmen
 	expect(() => validateVariantOutput(snapshot, { ...result, notes: ["Your match score is 95%."] })).toThrow(
 		"JOB_INVALID_ASSESSMENT",
 	);
+});
+
+it("separates confirmed CV evidence from untrusted job instructions in writer payloads", () => {
+	const payload = buildVariantWriterPayload(source);
+	const confirmed = payload.selections.filter(
+		(selection) => "kind" in selection && selection.kind === "confirmed_content",
+	);
+	expect(confirmed).toHaveLength(1);
+	const evidence = confirmed[0];
+	assert(evidence);
+	expect(JSON.parse(evidence.text)).toEqual(source.cv);
+	expect(JSON.stringify(confirmed)).not.toContain("Ignore evidence");
+	const job = payload.selections.find((selection) => "id" in selection && selection.id === "variant-job-context");
+	assert(job && "kind" in job);
+	expect(job.kind).toBe("user_supplied");
+	expect(JSON.parse(job.text)).toEqual({ trust: "untrusted", segments: source.jobAd.segments });
+	const metadata = payload.selections.find((selection) => "id" in selection && selection.id === "variant-task");
+	assert(metadata);
+	const task = JSON.parse(metadata.text);
+	expect(task).toEqual({ category: "summary", resumeId: "cv", sourceRevision: "r1" });
+});
+
+it.each(["match 85%", "match 100%"])("rejects multi-digit job match assessments: %s", (text) => {
+	const snapshot = { ...source, category: "job-evidence" as const, cv: [], jobAd: null };
+	expect(() => validateVariantOutput(snapshot, { requirements: [], notes: [text] })).toThrow("JOB_INVALID_ASSESSMENT");
 });

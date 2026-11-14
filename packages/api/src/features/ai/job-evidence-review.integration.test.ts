@@ -5,6 +5,7 @@ import { withOwnerDatabase } from "@reactive-resume/db/client";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { saveJobTarget, selectResumeJob } from "../career/job-targets";
 import { resumeService } from "../resume/service";
+import { dismissReviewQuestion, recordReviewAnswer } from "./review-decisions";
 import { aiTestDatabase } from "./testing/database";
 import { getVariantReview } from "./variant-decisions";
 import { prepareVariantReview, loadVariantSnapshot } from "./variant-sources";
@@ -59,16 +60,14 @@ it("pins exact CV/job selection, minimizes contacts, and rejects late or foreign
 	const span = snapshot.jobAd?.segments[0];
 	assert(span);
 	const result = validateVariantOutput(snapshot, {
-		requirements: [
-			{
-				id: "requirement",
-				spanIds: [span.id],
-				importance: "essential",
-				verdict: "no_evidence",
-				evidenceIds: [],
-				explanation: "No supporting evidence was found in this CV.",
-			},
-		],
+		requirements: ["a".repeat(200), "b".repeat(200)].map((id) => ({
+			id,
+			spanIds: [span.id],
+			importance: "essential",
+			verdict: "no_evidence",
+			evidenceIds: [],
+			explanation: "No supporting evidence was found in this CV.",
+		})),
 		notes: [],
 	});
 	const operationId = randomUUID();
@@ -80,6 +79,26 @@ it("pins exact CV/job selection, minimizes contacts, and rejects late or foreign
 		);
 	const review = await database.run(() => getVariantReview("alice", operationId));
 	expect(review.sourceSegments).toEqual([{ id: span.id, text: "React, SAP required" }]);
+	const answer = await database.run(() =>
+		recordReviewAnswer("alice", {
+			operationId,
+			requestKey: randomUUID(),
+			questionId: "a".repeat(200),
+			expectedSource: result.sourceRevision,
+			text: "Used SAP in a study project.",
+		}),
+	);
+	expect(answer.quote).toBe("Used SAP in a study project.");
+	await database.run(() =>
+		dismissReviewQuestion("alice", {
+			operationId,
+			requestKey: randomUUID(),
+			questionId: "b".repeat(200),
+		}),
+	);
+	const resolved = await database.run(() => getVariantReview("alice", operationId));
+	expect(resolved.answeredQuestionIds).toEqual(["a".repeat(200)]);
+	expect(resolved.dismissedQuestionIds).toEqual(["b".repeat(200)]);
 
 	await expect(load("bob")).rejects.toMatchObject({ code: "NOT_FOUND" });
 	await database.run(() =>

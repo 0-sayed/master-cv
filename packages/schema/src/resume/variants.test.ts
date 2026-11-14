@@ -1,5 +1,11 @@
 import { expect, it } from "vite-plus/test";
-import { createVariantInputSchema, translationTargetSchema, variantOperationKindSchema } from "./variants";
+import {
+	createVariantInputSchema,
+	translationTargetSchema,
+	variantOperationKindSchema,
+	variantOperationParameters,
+	variantReviewViewSchema,
+} from "./variants";
 
 it("requires exactly the job or language parameters for an intentional copy", () => {
 	const common = { sourceResumeId: "cv", expectedUpdatedAt: "2026-11-14T00:00:00.000Z", requestKey: "copy" };
@@ -57,4 +63,25 @@ it("addresses every supported visible translation field without widening contact
 		{ sectionId: "education", itemId: "school", field: "location" },
 	])
 		expect(translationTargetSchema.safeParse(target).success).toBe(false);
+});
+
+it("accepts full-length job text in review source segments and rejects text above the job limit", () => {
+	const schema = variantReviewViewSchema.shape.sourceSegments;
+	expect(schema.safeParse([{ id: "job", text: "x".repeat(32000) }]).success).toBe(true);
+	expect(schema.safeParse([{ id: "job", text: "x".repeat(32001) }]).success).toBe(false);
+});
+
+it("bounds summary evidence selection to the model payload's 49 passages", () => {
+	const input = {
+		resumeId: "cv",
+		expectedUpdatedAt: "2026-11-14T00:00:00.000Z",
+		selectedEvidenceIds: Array.from({ length: 49 }, (_, index) => `evidence-${index}`),
+	};
+	expect(variantOperationParameters["review.summary"].safeParse(input).success).toBe(true);
+	expect(
+		variantOperationParameters["review.summary"].safeParse({
+			...input,
+			selectedEvidenceIds: [...input.selectedEvidenceIds, "evidence-49"],
+		}).success,
+	).toBe(false);
 });

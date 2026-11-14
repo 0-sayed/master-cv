@@ -1,11 +1,19 @@
 import type { OwnerTransaction } from "@reactive-resume/db/client";
-import type { SaveJobTargetInput, SelectResumeJobInput } from "@reactive-resume/schema/job-evidence";
+import type {
+	SaveAndSelectResumeJobInput,
+	SaveJobTargetInput,
+	SelectResumeJobInput,
+} from "@reactive-resume/schema/job-evidence";
 import { createHash } from "node:crypto";
 import { ORPCError } from "@orpc/client";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { withOwnerDatabase } from "@reactive-resume/db/client";
 import { jobTarget, jobTargetRevision, resume, resumeJobSelection } from "@reactive-resume/db/schema";
-import { saveJobTargetInputSchema, selectResumeJobInputSchema } from "@reactive-resume/schema/job-evidence";
+import {
+	saveAndSelectResumeJobInputSchema,
+	saveJobTargetInputSchema,
+	selectResumeJobInputSchema,
+} from "@reactive-resume/schema/job-evidence";
 import { generateId } from "@reactive-resume/utils/string";
 import { lockDocumentOwner } from "../documents/ownership";
 
@@ -98,5 +106,21 @@ export function selectResumeJob(ownerId: string, raw: SelectResumeJobInput) {
 				set: { jobId: input.jobId, jobRevision: input.jobRevision, updatedAt },
 			});
 		return { resumeId: cv.id, jobId: input.jobId, jobRevision: input.jobRevision, revision: updatedAt.toISOString() };
+	});
+}
+
+/** Editing one CV's pasted ad forks it; saving and selecting commit together. */
+export function saveAndSelectResumeJob(ownerId: string, raw: SaveAndSelectResumeJobInput) {
+	const input = saveAndSelectResumeJobInputSchema.parse(raw);
+	return withOwnerDatabase(ownerId, async (tx) => {
+		await lockDocumentOwner(tx, ownerId);
+		const job = await saveJobTarget(ownerId, { role: input.role, employer: input.employer, text: input.text });
+		return selectResumeJob(ownerId, {
+			resumeId: input.resumeId,
+			expectedUpdatedAt: input.expectedUpdatedAt,
+			expectedSelectionRevision: input.expectedSelectionRevision,
+			jobId: job.jobId,
+			jobRevision: job.revision,
+		});
 	});
 }

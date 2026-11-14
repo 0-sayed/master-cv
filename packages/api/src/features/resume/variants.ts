@@ -17,6 +17,7 @@ import {
 import {
 	buildTranslationInventory,
 	translationPlaceholders,
+	translationStructureMatches,
 	writeTranslationTarget,
 } from "@reactive-resume/resume/translation";
 import { createVariantInputSchema } from "@reactive-resume/schema/resume/variants";
@@ -238,6 +239,8 @@ export async function applyReviewedTranslation(
 		!provenance.targetLocale
 	)
 		throw new ORPCError("CONFLICT");
+	if (!translationStructureMatches(source.data, input.data))
+		throw new ORPCError("CONFLICT", { data: { reason: "TRANSLATION_STRUCTURE_CHANGED" } });
 	const inventory = buildTranslationInventory(source.data);
 	const placeholders = translationPlaceholders(source.data);
 	if (
@@ -258,7 +261,7 @@ export async function applyReviewedTranslation(
 				(text, entry) =>
 					text.replaceAll(
 						entry.token,
-						input.payload.terms.terms.find((term) => term.source === entry.value)?.value ?? entry.value,
+						() => input.payload.terms.terms.find((term) => term.source === entry.value)?.value ?? entry.value,
 					),
 				approved.text,
 			);

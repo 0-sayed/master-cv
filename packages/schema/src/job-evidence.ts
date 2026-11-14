@@ -52,6 +52,14 @@ export const selectResumeJobInputSchema = z.strictObject({
 });
 export type SelectResumeJobInput = z.infer<typeof selectResumeJobInputSchema>;
 
+export const saveAndSelectResumeJobInputSchema = z.strictObject({
+	...selectResumeJobInputSchema.omit({ jobId: true, jobRevision: true }).shape,
+	role: saveJobTargetInputSchema.shape.role,
+	employer: saveJobTargetInputSchema.shape.employer,
+	text: saveJobTargetInputSchema.shape.text,
+});
+export type SaveAndSelectResumeJobInput = z.infer<typeof saveAndSelectResumeJobInputSchema>;
+
 export const jobTermAnalysisInputSchema = z
 	.strictObject({
 		identity: analysisIdentitySchema,

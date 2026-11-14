@@ -12,6 +12,22 @@ msgstr ""
 msgid "Close"
 msgstr "Close"
 
+#: src/features/resume/variants/clarification.tsx
+msgid "Could not skip this question. Try again."
+msgstr "Could not skip this question. Try again."
+
+#: src/features/resume/variants/summary-review.tsx
+msgid "Select up to 49 facts for one summary review."
+msgstr "Select up to 49 facts for one summary review."
+
+#: src/features/resume/variants/clarification.tsx
+msgid "Skipped. You can request another review when you have more information."
+msgstr "Skipped. You can request another review when you have more information."
+
+#: src/features/resume/editor/proposals/review-operation.tsx
+msgid "The source and language copy have different sections or text blocks. Open the saved CV and align its structure with the source before requesting a translation."
+msgstr "The source and language copy have different sections or text blocks. Open the saved CV and align its structure with the source before requesting a translation."
+
 #. placeholder {0}: application.role
 #. placeholder {1}: application.company
 #: src/features/applications/components/application-actions-menu.tsx

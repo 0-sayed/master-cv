@@ -3,7 +3,7 @@ import type { TranslationTarget } from "@reactive-resume/schema/resume/variants"
 import { translationTargetSchema } from "@reactive-resume/schema/resume/variants";
 import { escapeHtml } from "@reactive-resume/utils/string";
 import { isRenderedSection, walkSections } from "./ats/walk";
-import { blockText } from "./proposals";
+import { blockText, replaceBlockText, splitBlocks } from "./proposals";
 import { hashReviewTarget } from "./review-evidence";
 
 const fields: Record<string, readonly string[]> = {
@@ -44,6 +44,13 @@ export function buildTranslationInventory(data: ResumeData) {
 	const add = (raw: unknown, source: unknown) => {
 		if (typeof source !== "string" || !blockText(source)) return;
 		const target = translationTargetSchema.parse(raw);
+		if ((target.field === "content" || target.field === "description") && !("blockIndex" in target)) {
+			const blocks = splitBlocks(source);
+			if (blocks.length) {
+				blocks.forEach((block, blockIndex) => add({ ...target, blockIndex }, block.html));
+				return;
+			}
+		}
 		segments.push({
 			id: `translation-${hashReviewTarget(JSON.stringify(target))}`,
 			target,
@@ -95,6 +102,30 @@ export function buildTranslationInventory(data: ResumeData) {
 	};
 }
 
+/** A refresh may replace wording, but never silently add/remove independent copy content. */
+export function translationStructureMatches(source: ResumeData, copy: ResumeData): boolean {
+	const structure = (data: ResumeData) => {
+		const inventory = buildTranslationInventory(data);
+		return JSON.stringify({
+			targets: inventory.segments.map((segment) => segment.id).sort(),
+			blocking: inventory.blocking.toSorted(),
+		});
+	};
+	return structure(source) === structure(copy);
+}
+
+function writeRichText(current: string, target: TranslationTarget, value: string): string {
+	if (!("blockIndex" in target) || target.blockIndex === undefined) return `<p>${escapeHtml(value)}</p>`;
+	const blocks = splitBlocks(current);
+	const selected = blocks[target.blockIndex];
+	if (!selected) throw new Error("TRANSLATION_TARGET_CHANGED");
+	let offset = 0;
+	for (const block of blocks.slice(0, target.blockIndex))
+		offset = current.indexOf(block.html, offset) + block.html.length;
+	const start = current.indexOf(selected.html, offset);
+	return current.slice(0, start) + replaceBlockText(selected.html, value) + current.slice(start + selected.html.length);
+}
+
 /** No arbitrary path setter: even callers inside a transaction must pass the closed schema. */
 export function writeTranslationTarget(data: ResumeData, raw: TranslationTarget, value: string) {
 	const target = translationTargetSchema.parse(raw);
@@ -104,7 +135,7 @@ export function writeTranslationTarget(data: ResumeData, raw: TranslationTarget,
 	}
 	if (target.sectionId === "summary") {
 		if (target.field === "title") data.summary.title = value;
-		else data.summary.content = `<p>${escapeHtml(value)}</p>`;
+		else data.summary.content = writeRichText(data.summary.content, target, value);
 		return;
 	}
 	const section = data.sections[target.sectionId];
@@ -126,7 +157,10 @@ export function writeTranslationTarget(data: ResumeData, raw: TranslationTarget,
 		if (!Array.isArray(record.keywords) || typeof record.keywords[target.index] !== "string")
 			throw new Error("TRANSLATION_TARGET_CHANGED");
 		record.keywords[target.index] = value;
-	} else record[target.field] = target.field === "description" ? `<p>${escapeHtml(value)}</p>` : value;
+	} else if (target.field === "description") {
+		if (typeof record.description !== "string") throw new Error("TRANSLATION_TARGET_CHANGED");
+		record.description = writeRichText(record.description, target, value);
+	} else record[target.field] = value;
 }
 
 /** The registry stays in the owner's transaction; only tokens are sent to inference. */

@@ -54,6 +54,31 @@ describe("independent readiness", () => {
 	});
 	it("never labels partial, truncated or unmeasured output complete", () => {
 		expect(pdfReadiness(source, report(true)).state).toBe("partial");
+		const jobSource = {
+			...source,
+			jobId: "job",
+			jobRevision: "j1",
+			rubricVersion: "literal-v1",
+			normalizationVersion: "matching-v2",
+		};
+		const jobReport = analyzeJobTerms({
+			identity: {
+				resumeId: source.resumeId,
+				resumeRevision: source.baseRevision,
+				contentHash: source.contentHash,
+				jobId: "job",
+				jobRevision: "j1",
+				rubricVersion: "literal-v1",
+				normalizationVersion: "matching-v2",
+			},
+			jobText: Array.from({ length: 70 }, (_, n) => `tech${String(n).padStart(2, "0")}`).join(", "),
+			passages: [],
+		});
+		expect(jobReport.selection.truncated).toBe(true);
+		expect(jobReadiness(jobSource, jobReport)).toMatchObject({
+			state: "partial",
+			options: { denominator: 35, truncated: true },
+		});
 		expect(pdfReadiness(source, { ...report(), document: { ...report().document, truncated: true } }).state).toBe(
 			"partial",
 		);

@@ -3,6 +3,7 @@ import type { VariantDecisionInput } from "@reactive-resume/schema/resume/varian
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
+import { blockText } from "@reactive-resume/resume/proposals";
 import { Button } from "@reactive-resume/ui/components/button";
 import { SectionCard } from "@reactive-resume/ui/components/section-card";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
@@ -80,7 +81,7 @@ export function TranslationReview({ operationId, onSaved }: { operationId: strin
 					after: segments[segment.sourceId]?.text ?? segment.text,
 				}))
 			: result.kind === "review.summary"
-				? [{ id: "summary", before: review.data.beforeSummary, after: result.output.summary.text }]
+				? [{ id: "summary", before: blockText(review.data.beforeSummary), after: result.output.summary.text }]
 				: result.kind === "review.tailoring"
 					? [
 							...result.output.patches.map((patch) => ({ id: patch.id, before: patch.before, after: patch.after })),
@@ -181,7 +182,11 @@ export function TranslationReview({ operationId, onSaved }: { operationId: strin
 							<p>
 								{term.status === "confirmed" ? <Trans>Confirmed</Trans> : copy("language.translation.status.pending")}
 							</p>
-							<Button variant="secondary" disabled={stale || decision.isPending} onClick={() => setTermId(term.id)}>
+							<Button
+								variant="secondary"
+								disabled={stale || decision.isPending || statuses.translation !== "pending"}
+								onClick={() => setTermId(term.id)}
+							>
 								{copy("language.term.confirm")}
 							</Button>
 						</SectionCard>
@@ -198,7 +203,6 @@ export function TranslationReview({ operationId, onSaved }: { operationId: strin
 					onEdit={(proposal) =>
 						setEditing({ id: proposal.id, text: items.find((item) => item.id === proposal.id)?.after ?? "" })
 					}
-					onSuggestAgain={() => void review.refetch()}
 				/>
 			)}
 			{items
@@ -319,7 +323,7 @@ export function TranslationReview({ operationId, onSaved }: { operationId: strin
 										.filter((requirement) => requirement.verdict !== "supported")
 										.slice(0, 20)
 										.map((requirement) => ({
-											id: `clarify:${requirement.id}`,
+											id: requirement.id,
 											context:
 												review.data?.sourceSegments
 													.filter((span) => requirement.spanIds.includes(span.id))
@@ -329,7 +333,8 @@ export function TranslationReview({ operationId, onSaved }: { operationId: strin
 										}))
 								: []
 					}
-					resolved={[...review.data.answeredQuestionIds, ...review.data.dismissedQuestionIds]}
+					resolved={review.data.answeredQuestionIds}
+					dismissed={review.data.dismissedQuestionIds}
 					stale={stale}
 					onSaved={() => void review.refetch()}
 				/>

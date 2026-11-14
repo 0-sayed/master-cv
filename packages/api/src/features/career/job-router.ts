@@ -2,15 +2,26 @@ import { z } from "zod";
 import {
 	jobEvidenceViewSchema,
 	jobTargetRevisionSchema,
+	saveAndSelectResumeJobInputSchema,
 	saveJobTargetInputSchema,
 	selectedResumeJobSchema,
 	selectResumeJobInputSchema,
 } from "@reactive-resume/schema/job-evidence";
 import { protectedProcedure } from "../../context";
 import { getJobEvidence } from "./job-evidence";
-import { getJobTargetRevision, saveJobTarget, selectResumeJob } from "./job-targets";
+import { getJobTargetRevision, saveAndSelectResumeJob, saveJobTarget, selectResumeJob } from "./job-targets";
 
 export const jobTargetsRouter = {
+	saveAndSelect: protectedProcedure
+		.route({
+			method: "POST",
+			path: "/career/job-targets/comparisons",
+			tags: ["Internal"],
+			operationId: "saveAndSelectResumeJobTarget",
+		})
+		.input(saveAndSelectResumeJobInputSchema)
+		.output(selectedResumeJobSchema)
+		.handler(({ context, input }) => saveAndSelectResumeJob(context.user.id, input)),
 	save: protectedProcedure
 		.route({
 			method: "POST",

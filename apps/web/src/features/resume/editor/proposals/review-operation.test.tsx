@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
+import { ORPCError } from "@orpc/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { operationRequestSchema } from "@reactive-resume/schema/ai-operation";
 const state = vi.hoisted(() => ({ reserved: 1, remaining: 0, usageReads: 0, started: vi.fn() }));
@@ -12,7 +13,7 @@ vi.mock("@/libs/orpc/client", () => ({
 			processing: {
 				notices: async () => [
 					{
-						purposes: ["review.summary", "review.job-evidence"],
+						purposes: ["review.summary", "review.job-evidence", "review.translation"],
 						route: { routeId: "synthetic", routeRevision: "1", configRevision: "1" },
 						noticeVersion: "1",
 					},
@@ -152,6 +153,39 @@ it.each(["failed", "cancelled"])("provides a complete recoverable notice when a 
 	expect(notice?.querySelector('[data-slot="alert-title"]')?.textContent).toBeTruthy();
 	expect(notice?.querySelector('[data-slot="alert-description"]')?.textContent).toContain("No operation was deducted");
 	expect(screen.getByRole("button", { name: "Retry" })).toBeDefined();
+	view.unmount();
+	cache.clear();
+});
+
+it("explains how to recover when independent copy structure prevents translation", async () => {
+	state.remaining = 5;
+	state.reserved = 0;
+	i18n.loadAndActivate({ locale: "en-US", messages: {} });
+	const cache = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const onStarted = vi.fn();
+	const view = render(
+		<I18nProvider i18n={i18n}>
+			<QueryClientProvider client={cache}>
+				<ReviewLaunch
+					kind="review.translation"
+					prepare={async () => {
+						throw new ORPCError("CONFLICT", { data: { reason: "TRANSLATION_STRUCTURE_CHANGED" } });
+					}}
+					onStarted={onStarted}
+				>
+					Translate copy
+				</ReviewLaunch>
+			</QueryClientProvider>
+		</I18nProvider>,
+	);
+	fireEvent.click(await screen.findByRole("button", { name: "Translate copy" }));
+	fireEvent.click(screen.getByRole("button", { name: "Start review" }));
+	expect(
+		await screen.findByText(
+			"The source and language copy have different sections or text blocks. Open the saved CV and align its structure with the source before requesting a translation.",
+		),
+	).toBeDefined();
+	expect(onStarted).not.toHaveBeenCalled();
 	view.unmount();
 	cache.clear();
 });

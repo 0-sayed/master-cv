@@ -90,7 +90,7 @@ export function CheckPanel() {
 				</h3>
 				<SummaryRow title={t`PDF readability`} state={pdf.state} findings={current ? visiblePdf : []} />
 				<SummaryRow title={t`Writing notes`} state={results.writing.state} findings={writing} />
-				<SummaryRow title={t`Job evidence`} state={results.job.state} findings={[]} />
+				<SummaryRow title={t`Job evidence`} state={results.job.state} findings={[]} completedLabel={t`Checked`} />
 				<JobMatchTab />
 			</SectionCard>
 			{locked && (

@@ -227,7 +227,7 @@ export const operationService = {
 				return { operationCost: 1 as const, available: true, reason: null, requestFingerprint };
 			if (
 				error instanceof ORPCError &&
-				["PRECONDITION_FAILED", "CONFLICT", "NOT_FOUND", "BAD_REQUEST"].includes(error.code)
+				["PRECONDITION_FAILED", "CONFLICT", "NOT_FOUND", "BAD_REQUEST", "RESUME_LOCKED"].includes(error.code)
 			) {
 				const data = error.data as { reason?: string } | undefined;
 				if (!data?.reason && error.code === "CONFLICT") throw error;
@@ -236,11 +236,13 @@ export const operationService = {
 					available: false,
 					reason:
 						data?.reason ??
-						(error.code === "NOT_FOUND"
-							? "AI_SOURCE_UNAVAILABLE"
-							: error.code === "BAD_REQUEST"
-								? "AI_INVALID_REQUEST"
-								: "AI_UNAVAILABLE"),
+						(error.code === "RESUME_LOCKED"
+							? "AI_SOURCE_LOCKED"
+							: error.code === "NOT_FOUND"
+								? "AI_SOURCE_UNAVAILABLE"
+								: error.code === "BAD_REQUEST"
+									? "AI_INVALID_REQUEST"
+									: "AI_UNAVAILABLE"),
 					requestFingerprint,
 				};
 			}

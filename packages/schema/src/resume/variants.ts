@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { sourceRevisionSchema } from "../ai-operation";
+import { JOB_TEXT_LIMIT } from "../job-evidence";
 import { reviewDecisionViewSchema } from "./ai-review";
 import { resumeDataSchema } from "./data";
 import {
@@ -36,7 +37,7 @@ export const variantOperationParameters = {
 		...operationCommon,
 		selectedEvidenceIds: z
 			.array(id)
-			.max(50)
+			.max(49)
 			.refine((ids) => new Set(ids).size === ids.length),
 	}),
 } as const;
@@ -67,45 +68,74 @@ export const translationSectionSchema = z.enum([
 	"publications",
 	"volunteer",
 ]);
-export const translationTargetSchema = z.union([
-	z.strictObject({ sectionId: z.literal("basics"), field: z.literal("headline") }),
-	z.strictObject({ sectionId: translationSectionSchema, field: z.literal("title") }),
-	z.strictObject({ sectionId: z.literal("summary"), field: z.literal("content") }),
-	z.strictObject({
-		sectionId: z.literal("experience"),
-		itemId: id,
-		roleId: id.optional(),
-		field: z.enum(["position", "description"]),
-	}),
-	z.strictObject({ sectionId: z.literal("experience"), itemId: id, field: z.literal("company") }),
-	z.strictObject({
-		sectionId: z.literal("education"),
-		itemId: id,
-		field: z.enum(["school", "degree", "area", "description"]),
-	}),
-	z.strictObject({ sectionId: z.literal("skills"), itemId: id, field: z.enum(["name", "proficiency"]) }),
-	z.strictObject({
-		sectionId: z.enum(["skills", "interests"]),
-		itemId: id,
-		field: z.literal("keywords"),
-		index: z.number().int().nonnegative().max(500),
-	}),
-	z.strictObject({ sectionId: z.literal("interests"), itemId: id, field: z.literal("name") }),
-	z.strictObject({ sectionId: z.literal("awards"), itemId: id, field: z.enum(["title", "awarder", "description"]) }),
-	z.strictObject({
-		sectionId: z.literal("certifications"),
-		itemId: id,
-		field: z.enum(["title", "issuer", "description"]),
-	}),
-	z.strictObject({ sectionId: z.literal("projects"), itemId: id, field: z.enum(["name", "description"]) }),
-	z.strictObject({
-		sectionId: z.literal("publications"),
-		itemId: id,
-		field: z.enum(["title", "publisher", "description"]),
-	}),
-	z.strictObject({ sectionId: z.literal("volunteer"), itemId: id, field: z.enum(["organization", "description"]) }),
-	z.strictObject({ sectionId: z.literal("languages"), itemId: id, field: z.enum(["language", "fluency"]) }),
-]);
+const blockIndex = z.number().int().nonnegative().max(500).optional();
+export const translationTargetSchema = z
+	.union([
+		z.strictObject({ sectionId: z.literal("basics"), field: z.literal("headline") }),
+		z.strictObject({ sectionId: translationSectionSchema, field: z.literal("title") }),
+		z.strictObject({ sectionId: z.literal("summary"), field: z.literal("content"), blockIndex }),
+		z.strictObject({
+			sectionId: z.literal("experience"),
+			itemId: id,
+			roleId: id.optional(),
+			field: z.enum(["position", "description"]),
+			blockIndex,
+		}),
+		z.strictObject({ sectionId: z.literal("experience"), itemId: id, field: z.literal("company") }),
+		z.strictObject({
+			sectionId: z.literal("education"),
+			itemId: id,
+			field: z.enum(["school", "degree", "area", "description"]),
+			blockIndex,
+		}),
+		z.strictObject({ sectionId: z.literal("skills"), itemId: id, field: z.enum(["name", "proficiency"]) }),
+		z.strictObject({
+			sectionId: z.enum(["skills", "interests"]),
+			itemId: id,
+			field: z.literal("keywords"),
+			index: z.number().int().nonnegative().max(500),
+		}),
+		z.strictObject({ sectionId: z.literal("interests"), itemId: id, field: z.literal("name") }),
+		z.strictObject({
+			sectionId: z.literal("awards"),
+			itemId: id,
+			field: z.enum(["title", "awarder", "description"]),
+			blockIndex,
+		}),
+		z.strictObject({
+			sectionId: z.literal("certifications"),
+			itemId: id,
+			field: z.enum(["title", "issuer", "description"]),
+			blockIndex,
+		}),
+		z.strictObject({
+			sectionId: z.literal("projects"),
+			itemId: id,
+			field: z.enum(["name", "description"]),
+			blockIndex,
+		}),
+		z.strictObject({
+			sectionId: z.literal("publications"),
+			itemId: id,
+			field: z.enum(["title", "publisher", "description"]),
+			blockIndex,
+		}),
+		z.strictObject({
+			sectionId: z.literal("volunteer"),
+			itemId: id,
+			field: z.enum(["organization", "description"]),
+			blockIndex,
+		}),
+		z.strictObject({ sectionId: z.literal("languages"), itemId: id, field: z.enum(["language", "fluency"]) }),
+	])
+	.refine(
+		(target) =>
+			!("blockIndex" in target) ||
+			target.blockIndex === undefined ||
+			target.field === "content" ||
+			target.field === "description",
+		"Block index requires rich text",
+	);
 export type TranslationTarget = z.infer<typeof translationTargetSchema>;
 
 export const variantTerminologySchema = z
@@ -221,7 +251,7 @@ export const variantReviewViewSchema = z.strictObject({
 	statuses: variantDecisionViewSchema.shape.statuses,
 	terms: variantTerminologySchema,
 	segments: variantDecisionPayloadSchema.shape.segments,
-	sourceSegments: z.array(z.strictObject({ id, text: z.string().max(4000) })).max(49),
+	sourceSegments: z.array(z.strictObject({ id, text: z.string().max(JOB_TEXT_LIMIT) })).max(49),
 	updatedAt: z.iso.datetime(),
 	latestDecisionId: id.nullable(),
 	stale: z.boolean(),

@@ -8,8 +8,14 @@ import { useReadiness, useReadinessLifecycle } from "./use-readiness";
 const state = vi.hoisted(() => ({
 	query: { data: undefined as unknown, error: null, isFetching: false },
 	data: undefined as unknown,
+	options: undefined as { queryKey: unknown[] } | undefined,
 }));
-vi.mock("@tanstack/react-query", () => ({ useQuery: () => state.query }));
+vi.mock("@tanstack/react-query", () => ({
+	useQuery: (options: { queryKey: unknown[] }) => {
+		state.options = options;
+		return state.query;
+	},
+}));
 vi.mock("@/libs/orpc/client", () => ({
 	orpc: { career: { jobTargets: { evidence: { queryOptions: () => ({ queryKey: ["selected-job"] }) } } } },
 }));
@@ -100,4 +106,19 @@ it("clears owner-bound job evidence on an owner or CV switch", async () => {
 	state.query = { data: undefined, error: null, isFetching: false };
 	act(() => useEditorStore.getState().setIdentity({ ...identity, ownerId: "another", resumeId: "other" }));
 	expect(hook.result.current.results.job.source).toBeNull();
+});
+
+it("keeps the evidence request stable while typing and refreshes after an acknowledged save", async () => {
+	state.query = { data: undefined, error: null, isFetching: false };
+	const hook = show();
+	state.query = { data: { literal: await report("A") }, error: null, isFetching: false };
+	hook.rerender();
+	await waitFor(() => expect(hook.result.current.results.job.state).toBe("complete"));
+	const savedKey = state.options?.queryKey;
+	state.data = { ...defaultResumeData, summary: { ...defaultResumeData.summary, content: "Unsaved change" } };
+	act(() => useEditorStore.getState().setIdentity({ ...identity, editGeneration: 1 }));
+	expect(state.options?.queryKey).toEqual(savedKey);
+	await waitFor(() => expect(hook.result.current.results.job.state).toBe("stale"));
+	act(() => useEditorStore.getState().setIdentity({ ...identity, editGeneration: 1, baseRevision: "v2" }));
+	expect(state.options?.queryKey).not.toEqual(savedKey);
 });

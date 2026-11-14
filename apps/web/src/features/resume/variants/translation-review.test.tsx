@@ -1,4 +1,4 @@
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 // @vitest-environment happy-dom
 import { i18n } from "@lingui/core";
@@ -20,6 +20,7 @@ vi.mock("./clarification", () => ({
 		<>
 			{questions.map((question) => (
 				<div key={question.id}>
+					<span>{question.id}</span>
 					<p>{question.context}</p>
 					<p>{question.prompt}</p>
 				</div>
@@ -69,6 +70,57 @@ it("enables final approval only after all segments and terminology are reviewed"
 	expect(screen.getByRole("button", { name: "Approve language copy" }).hasAttribute("disabled")).toBe(false);
 });
 
+function showSummary(stale = false) {
+	i18n.loadAndActivate({ locale: "en-US", messages: {} });
+	state.data = {
+		result: {
+			kind: "review.summary",
+			sourceRevision: { id: "cv" },
+			output: { summary: { text: "Proposed summary" }, questions: [] },
+		},
+		beforeSummary: "<p>Research &amp; development</p>",
+		terms: { terms: [] },
+		segments: {},
+		statuses: { summary: "pending" },
+		stale,
+		undoable: [],
+		answeredQuestionIds: [],
+		dismissedQuestionIds: [],
+	};
+	render(
+		<I18nProvider i18n={i18n}>
+			<TranslationReview operationId="operation" />
+		</I18nProvider>,
+	);
+}
+
+it("renders the original summary as decoded text while editing", () => {
+	showSummary();
+	fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+	const original = Array.from(document.querySelectorAll("blockquote")).find(
+		(node) => node.textContent === "Research & development",
+	);
+	expect(original).toBeDefined();
+	expect(screen.queryByText("<p>Research &amp; development</p>")).toBeNull();
+});
+
+it("does not offer a Suggest again action that cannot create a new review", () => {
+	showSummary(true);
+	expect(screen.getByText("Out of date: the text has changed since.")).toBeDefined();
+	expect(screen.queryByRole("button", { name: "Suggest again" })).toBeNull();
+});
+
+it.each(["accepted", "rejected"])("locks official terms after final translation is %s", (status) => {
+	show(["school"], "accepted").unmount();
+	(state.data.statuses as Record<string, string>).translation = status;
+	render(
+		<I18nProvider i18n={i18n}>
+			<TranslationReview operationId="operation" />
+		</I18nProvider>,
+	);
+	expect(screen.getByRole("button", { name: "Confirm term" }).hasAttribute("disabled")).toBe(true);
+});
+
 it("shows the cited job requirement, localized verdict and an actionable clarification instead of an enum and repeated explanation", () => {
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	state.data = {
@@ -107,6 +159,7 @@ it("shows the cited job requirement, localized verdict and an actionable clarifi
 	expect(screen.getByText(/No evidence found/)).toBeDefined();
 	expect(screen.getByText("What experience, study or project can you confirm for this requirement?")).toBeDefined();
 	expect(screen.getAllByText(/No supporting evidence was found in this CV/)).toHaveLength(1);
+	expect(screen.getByText("requirement")).toBeDefined();
 });
 
 it("explains partial job evidence with a visible recovery action", () => {

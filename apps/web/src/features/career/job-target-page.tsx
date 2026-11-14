@@ -104,15 +104,10 @@ export function JobTargetPage({ resumeId }: { resumeId: string }) {
 		mutationFn: async (input: Pick<SaveJobTargetInput, "role" | "employer" | "text">) => {
 			if (!cv.data) throw new Error("SOURCE_UNAVAILABLE");
 			const selected = evidence.data?.selection;
-			const job = await client.career.jobTargets.save({
+			await client.career.jobTargets.saveAndSelect({
 				...input,
-				...(selected ? { jobId: selected.jobId, expectedRevision: selected.jobRevision } : {}),
-			});
-			await client.career.jobTargets.select({
 				resumeId,
 				expectedUpdatedAt: cv.data.updatedAt.toISOString(),
-				jobId: job.jobId,
-				jobRevision: job.revision,
 				expectedSelectionRevision: selected?.revision ?? null,
 			});
 		},

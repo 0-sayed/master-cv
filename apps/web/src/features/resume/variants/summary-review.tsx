@@ -7,6 +7,7 @@ import { savePendingChanges, useResumeStore } from "../builder/draft";
 import { ReviewLaunch, ReviewOperationPanel } from "../editor/proposals/review-operation";
 import { TranslationReview } from "./translation-review";
 import { client } from "@/libs/orpc/client";
+const MAX_SELECTED_FACTS = 49;
 export function SummaryReview({ locked }: { locked: boolean }) {
 	const document = useResumeStore((state) => state.resume);
 	const [selected, setSelected] = useState<string[]>([]);
@@ -19,15 +20,22 @@ export function SummaryReview({ locked }: { locked: boolean }) {
 				<summary>
 					<Trans>Select facts for the summary</Trans>
 				</summary>
+				<p>
+					<Trans>Select up to 49 facts for one summary review.</Trans>
+				</p>
 				<div className="grid gap-2">
 					{facts.map((fact) => (
 						<Label key={fact.id}>
 							<Checkbox
 								checked={selected.includes(fact.id)}
-								disabled={locked}
+								disabled={locked || (!selected.includes(fact.id) && selected.length >= MAX_SELECTED_FACTS)}
 								onCheckedChange={(checked) =>
 									setSelected((previous) =>
-										checked ? [...previous, fact.id] : previous.filter((id) => id !== fact.id),
+										checked
+											? previous.includes(fact.id) || previous.length >= MAX_SELECTED_FACTS
+												? previous
+												: [...previous, fact.id]
+											: previous.filter((id) => id !== fact.id),
 									)
 								}
 							/>

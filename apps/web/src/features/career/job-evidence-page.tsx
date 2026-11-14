@@ -7,6 +7,7 @@ import { useState } from "react";
 import { buildJobPassages } from "@reactive-resume/resume/ats";
 import { Button } from "@reactive-resume/ui/components/button";
 import { SectionCard } from "@reactive-resume/ui/components/section-card";
+import { LiteralJobEvidence } from "./literal-job-evidence";
 import { ReviewLaunch, ReviewNotice, ReviewOperationPanel } from "@/features/resume/editor/proposals/review-operation";
 import { useVariantsCopy } from "@/features/resume/variants/copy.generated";
 import { TranslationReview } from "@/features/resume/variants/translation-review";
@@ -43,65 +44,13 @@ export function JobEvidencePage({
 		},
 		onSuccess: (copy) => void navigate({ to: "/dashboard/resumes/$resumeId/job", params: { resumeId: copy.resumeId } }),
 	});
-	const literal = data.literal;
 	const selection = data.selection;
 	return (
 		<div className="grid gap-4">
 			<h2 className="type-section" dir="auto">
 				{copy("jobs.comparison.resultTitle", { jobTitle: data.job?.role ?? "" })}
 			</h2>
-			<SectionCard>
-				<h3 className="type-label">
-					<Trans>Literal text coverage</Trans>
-				</h3>
-				{literal ? (
-					<>
-						<p>
-							<Trans>
-								{literal.matchedCount} of {literal.denominator} selected terms appear in this CV.
-							</Trans>
-						</p>
-						<p className="type-metadata text-ink-2">
-							<Trans>
-								Up to 35 distinct ranked terms. Arabic marks and digit forms, case and known aliases are normalized.
-								This checks text occurrence, not ability or all advertised requirements.
-							</Trans>
-						</p>
-						{literal.state === "not-checkable" && (
-							<p>
-								<Trans>No terms stood out in this ad.</Trans>
-							</p>
-						)}
-						{literal.terms.map((term) => (
-							<details key={term.term}>
-								<summary dir="auto">
-									{term.term} · {term.matched ? <Trans>Found in CV</Trans> : <Trans>Not found in CV</Trans>}
-								</summary>
-								<div className="grid gap-2">
-									{term.jobSpans.map((span) => (
-										<blockquote key={span.id} dir="auto">
-											{span.quote}
-										</blockquote>
-									))}
-									{term.cvSpans.map((span) => (
-										<div key={span.id}>
-											<blockquote dir="auto">{span.quote}</blockquote>
-											<Link to="/builder/$resumeId" params={{ resumeId }} search={{ source: span.target }}>
-												{copy("jobs.evidence.showInCv")}
-											</Link>
-										</div>
-									))}
-								</div>
-							</details>
-						))}
-						{literal.selection.truncated && (
-							<p>
-								<Trans>Additional terms were excluded by the ranked limit.</Trans> {literal.excludedTerms.join(", ")}
-							</p>
-						)}
-					</>
-				) : null}
-			</SectionCard>
+			{data.literal && <LiteralJobEvidence report={data.literal} resumeId={resumeId} />}
 			<SectionCard>
 				<h3 className="type-label">{copy("jobs.evidence.principleTitle")}</h3>
 				{data.semantic.state === "complete" ? (

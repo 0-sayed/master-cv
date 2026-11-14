@@ -5,6 +5,7 @@ import {
 	variantViewSchema,
 } from "@reactive-resume/schema/resume/variants";
 import { protectedProcedure } from "../../context";
+import { resumeMutationRateLimit } from "../../middleware/rate-limit";
 import { createVariant, getVariantFreshness, listVariants } from "./variants";
 
 export const variantsRouter = {
@@ -32,6 +33,7 @@ export const variantsRouter = {
 		)
 		.handler(({ context, input }) => listVariants(context.user.id, input.resumeId)),
 	create: protectedProcedure
+		.use(resumeMutationRateLimit)
 		.route({ method: "POST", path: "/resumes/variants", tags: ["Internal"], operationId: "createResumeVariant" })
 		.input(createVariantInputSchema)
 		.output(variantViewSchema)

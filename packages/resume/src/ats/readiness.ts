@@ -111,7 +111,10 @@ export function jobReadiness(source: JobReadinessSource, report: JobTermReport):
 		dimension: "job",
 		...(report.state === "not-checkable"
 			? { state: "skipped" as const, checkedAt: null }
-			: { state: "complete" as const, checkedAt: new Date().toISOString() }),
+			: {
+					state: report.selection.truncated ? ("partial" as const) : ("complete" as const),
+					checkedAt: new Date().toISOString(),
+				}),
 		source,
 		checker: identity.rubricVersion,
 		extractor: identity.normalizationVersion,

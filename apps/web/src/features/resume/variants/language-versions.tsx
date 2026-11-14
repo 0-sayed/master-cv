@@ -1,7 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { SectionCard } from "@reactive-resume/ui/components/section-card";
 import { ReviewLaunch, ReviewNotice, ReviewOperationPanel } from "../editor/proposals/review-operation";
@@ -15,18 +15,23 @@ export function LanguageVersions({ resumeId }: { resumeId: string }) {
 	const family = useQuery(orpc.resume.variants.list.queryOptions({ input: { resumeId } }));
 	const base = family.data?.find((cv) => cv.variantKind === "base");
 	const language = family.data?.find((cv) => cv.variantKind === "language");
+	const request = useRef<{ fingerprint: string; requestKey: string } | null>(null);
 	const create = useMutation({
 		mutationFn: () => {
 			if (!base) throw new Error("SOURCE_UNAVAILABLE");
+			const fingerprint = JSON.stringify([base.resumeId, base.updatedAt, base.documentLocale]);
+			if (request.current?.fingerprint !== fingerprint)
+				request.current = { fingerprint, requestKey: crypto.randomUUID() };
 			return client.resume.variants.create({
 				sourceResumeId: base.resumeId,
 				expectedUpdatedAt: base.updatedAt,
 				variantKind: "language",
 				targetLocale: base.documentLocale === "ar-SA" ? "en-US" : "ar-SA",
-				requestKey: crypto.randomUUID(),
+				requestKey: request.current.requestKey,
 			});
 		},
 		onSuccess: () => {
+			request.current = null;
 			void family.refetch();
 		},
 	});

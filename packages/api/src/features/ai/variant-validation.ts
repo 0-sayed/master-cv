@@ -80,7 +80,7 @@ export function validateVariantOutput(snapshot: VariantSnapshot, raw: unknown) {
 		}
 		for (const text of [...output.requirements.map((requirement) => requirement.explanation), ...output.notes])
 			if (
-				/\b(?:(?:ATS|match|compatibility|hiring) (?:score|probability|chance)|hiring chance|match\s+\d)\b|احتمال التوظيف|نسبة المطابقة|درجة التوافق|\byou lack\b|يفتقر المرشح/iu.test(
+				/\b(?:(?:ATS|match|compatibility|hiring) (?:score|probability|chance)|hiring chance|match\s+\d+)\b|احتمال التوظيف|نسبة المطابقة|درجة التوافق|\byou lack\b|يفتقر المرشح/iu.test(
 					text,
 				)
 			)

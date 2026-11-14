@@ -20,6 +20,7 @@ export function Clarification({
 	source,
 	questions,
 	resolved,
+	dismissed = [],
 	stale,
 	onSaved,
 }: {
@@ -27,6 +28,7 @@ export function Clarification({
 	source: SourceRevision;
 	questions: Array<{ id: string; prompt: string; context?: string }>;
 	resolved: string[];
+	dismissed?: string[];
 	stale: boolean;
 	onSaved: () => void;
 }) {
@@ -66,13 +68,23 @@ export function Clarification({
 				<div key={question.id} className="grid gap-2">
 					{question.context && <blockquote dir="auto">{question.context}</blockquote>}
 					<p dir="auto">{question.prompt}</p>
-					{resolved.includes(question.id) ? (
+					{dismissed.includes(question.id) ? (
+						<p>
+							<Trans>Skipped. You can request another review when you have more information.</Trans>
+						</p>
+					) : resolved.includes(question.id) ? (
 						<p>
 							<Trans>Recorded. Supplied information needs explicit confirmation before reanalysis.</Trans>
 						</p>
 					) : (
 						<div className="flex flex-wrap gap-2">
-							<Button disabled={stale || answer.isPending} onClick={() => setSelected(question.id)}>
+							<Button
+								disabled={stale || answer.isPending}
+								onClick={() => {
+									answer.reset();
+									setSelected(question.id);
+								}}
+							>
 								<Trans>Add information</Trans>
 							</Button>
 							<Button
@@ -86,6 +98,15 @@ export function Clarification({
 					)}
 				</div>
 			))}
+			{answer.error && !question && (
+				<ReviewNotice>
+					{answer.variables?.text === undefined ? (
+						<Trans>Could not skip this question. Try again.</Trans>
+					) : (
+						<Trans>Could not save your answer. Your text is kept.</Trans>
+					)}
+				</ReviewNotice>
+			)}
 			{questions.length > 0 && (
 				<Link to="/dashboard/career/information">
 					<Trans>Review and confirm career information</Trans>

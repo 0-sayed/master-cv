@@ -3,7 +3,11 @@ import type { VariantSnapshot } from "@reactive-resume/api/features/ai/variant-t
 export function scriptedVariantResponse(selections: Array<{ id: string; text: string }>): unknown {
 	const task = selections.find((item) => item.id === "variant-task");
 	if (task) {
-		const source = JSON.parse(task.text) as VariantSnapshot;
+		const metadata = JSON.parse(task.text) as Omit<VariantSnapshot, "cv" | "jobAd">;
+		const cv = selections.find((item) => item.id === "variant-cv-evidence");
+		const job = selections.find((item) => item.id === "variant-job-context");
+		if (!cv || !job) throw new Error("Missing synthetic writer evidence pools");
+		const source: VariantSnapshot = { ...metadata, cv: JSON.parse(cv.text), jobAd: JSON.parse(job.text) };
 		if (source.jobAd?.segments.some((span) => span.text === "Synthetic provider failure"))
 			return new Response(JSON.stringify({ error: "Synthetic provider failure" }), { status: 503 });
 		if (source.category === "job-evidence")

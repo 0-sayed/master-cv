@@ -59,15 +59,20 @@ const runtime = {
 				quality: { status: "appropriate", reason: "Advisory only" },
 			};
 		} else {
-			const snapshot = JSON.parse(payload.selections[0].text);
+			const cvEvidence = JSON.parse(
+				payload.selections.find((entry: { id: string }) => entry.id === "variant-cv-evidence").text,
+			);
+			const jobContext = JSON.parse(
+				payload.selections.find((entry: { id: string }) => entry.id === "variant-job-context").text,
+			);
 			output = {
 				requirements: [
 					{
 						id: "react",
-						spanIds: [snapshot.jobAd.segments[0].id],
+						spanIds: [jobContext.segments[0].id],
 						importance: "essential",
 						verdict: "supported",
-						evidenceIds: [snapshot.cv[0].id],
+						evidenceIds: [cvEvidence[0].id],
 						explanation: mode === "fabricated" ? "Used React and SAP and increased revenue 30%." : "Used React.",
 					},
 				],

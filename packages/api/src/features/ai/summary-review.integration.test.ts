@@ -4,17 +4,63 @@ import { expect, it } from "vite-plus/test";
 import { withOwnerDatabase } from "@reactive-resume/db/client";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { resumeService } from "../resume/service";
+import { operationService } from "./operations";
 import { recordReviewAnswer, dismissReviewQuestion } from "./review-decisions";
+import { withAiRuntime } from "./route-policy";
 import { aiTestDatabase } from "./testing/database";
+import { syntheticReviewRuntime } from "./testing/runtime";
 import { decideVariantReview, getVariantReview } from "./variant-decisions";
 import { loadVariantSnapshot, prepareVariantReview } from "./variant-sources";
 import { validateVariantOutput } from "./variant-validation";
 
 const database = aiTestDatabase();
 const run = <T>(work: () => T) => database.run(work);
+it("returns a source-lock reason from preflight without starting an operation", async () => {
+	const id = await run(() =>
+		resumeService.create({
+			userId: "bob",
+			name: "Locked CV",
+			tags: [],
+			data: structuredClone(defaultResumeData),
+			locale: "en-US",
+		}),
+	);
+	const revision = (
+		await database.admin().query("SELECT updated_at FROM resume WHERE id=$1", [id])
+	).rows[0].updated_at.toISOString();
+	const prepared = await run(() =>
+		prepareVariantReview("bob", {
+			kind: "review.summary",
+			resumeId: id,
+			expectedUpdatedAt: revision,
+			selectedEvidenceIds: [],
+		}),
+	);
+	await database.admin().query("UPDATE resume SET is_locked=true WHERE id=$1", [id]);
+	await database
+		.admin()
+		.query(
+			"INSERT INTO ai_processing_consent(id,user_id,route_id,route_revision,notice_version,purpose,config_revision) VALUES ('summary-consent','bob','synthetic','1','1','review.summary','1')",
+		);
+	const result = await run(() =>
+		withAiRuntime(syntheticReviewRuntime, () =>
+			operationService.preflight("bob", {
+				kind: prepared.kind,
+				sources: prepared.sources,
+				parameters: prepared.parameters,
+				requestKey: randomUUID(),
+				route: { routeId: "synthetic", routeRevision: "1", configRevision: "1" },
+				consentVersion: "1",
+			}),
+		),
+	);
+	expect(result).toMatchObject({ available: false, reason: "AI_SOURCE_LOCKED" });
+	expect((await database.admin().query("SELECT count(*)::int n FROM ai_operation")).rows[0].n).toBe(0);
+});
 it("applies a selected-fact summary, records ordinary history, replays, and rejects an undo over manual work", async () => {
 	const data = structuredClone(defaultResumeData);
-	data.summary.content = "<p>Used React. Did not manage a budget.</p>";
+	data.basics.name = "Alice $&";
+	data.summary.content = "<p>Alice $& used React. Did not manage a budget.</p>";
 	data.summary.hidden = false;
 	data.basics.headline = "Unselected headline";
 	data.metadata.layout.pages = [{ fullWidth: false, main: ["summary"], sidebar: [] }];
@@ -45,11 +91,11 @@ it("applies a selected-fact summary, records ordinary history, replays, and reje
 		}),
 	);
 	const snapshot = await run(() => withOwnerDatabase("alice", (tx) => loadVariantSnapshot(tx, "alice", prepared)));
-	expect(snapshot.cv.map((fact) => fact.text)).toEqual(["Used React. Did not manage a budget."]);
+	expect(snapshot.cv.map((fact) => fact.text)).toEqual(["[NAME_1] used React. Did not manage a budget."]);
 	const raw = {
 		summary: {
-			text: "Used React.",
-			claims: [{ id: "claim", text: "Used React.", evidenceIds: [selected], kind: "fact" }],
+			text: "[NAME_1] used React.",
+			claims: [{ id: "claim", text: "[NAME_1] used React.", evidenceIds: [selected], kind: "fact" }],
 		},
 		questions: [
 			{ id: "clarify", prompt: "What other work can you confirm?", evidenceIds: [] },
@@ -76,6 +122,9 @@ it("applies a selected-fact summary, records ordinary history, replays, and reje
 	expect(await run(() => recordReviewAnswer("alice", answerInput))).toEqual(answer);
 	await run(() => dismissReviewQuestion("alice", { operationId, questionId: "skip", requestKey: randomUUID() }));
 	const answered = await run(() => getVariantReview("alice", operationId));
+	expect(answered.result).toMatchObject({
+		output: { summary: { text: "Alice $& used React.", claims: [{ text: "Alice $& used React." }] } },
+	});
 	expect(answered.answeredQuestionIds).toContain("clarify");
 	expect(answered.dismissedQuestionIds).toContain("skip");
 	expect(
@@ -90,7 +139,7 @@ it("applies a selected-fact summary, records ordinary history, replays, and reje
 		decision: "accept" as const,
 	};
 	const saved = await run(() => decideVariantReview("alice", input));
-	expect(saved.data.summary.content).toBe("<p>Used React.</p>");
+	expect(saved.data.summary.content).toBe("<p>Alice $&amp; used React.</p>");
 	expect(saved.data.basics.headline).toBe("Unselected headline");
 	expect(await run(() => decideVariantReview("alice", input))).toEqual(saved);
 	expect(

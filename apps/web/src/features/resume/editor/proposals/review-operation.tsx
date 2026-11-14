@@ -1,6 +1,7 @@
 import type { OperationRequest, SourceRevision } from "@reactive-resume/schema/ai-operation";
 import type { ReactNode } from "react";
 import { Trans } from "@lingui/react/macro";
+import { ORPCError } from "@orpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
@@ -179,7 +180,16 @@ export function ReviewLaunch({
 					<p className="type-metadata text-ink-2">{copy("billing.usage.startOperationsHint")}</p>
 					{start.error && (
 						<ReviewNotice retry={() => start.mutate()}>
-							<Trans>Could not start this review. Your draft is kept. Retry this request or cancel.</Trans>
+							{start.error instanceof ORPCError &&
+							start.error.code === "CONFLICT" &&
+							start.error.data?.reason === "TRANSLATION_STRUCTURE_CHANGED" ? (
+								<Trans>
+									The source and language copy have different sections or text blocks. Open the saved CV and align its
+									structure with the source before requesting a translation.
+								</Trans>
+							) : (
+								<Trans>Could not start this review. Your draft is kept. Retry this request or cancel.</Trans>
+							)}
 						</ReviewNotice>
 					)}
 					<DialogFooter>

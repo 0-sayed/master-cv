@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { expect, it } from "vite-plus/test";
 import { withDatabaseOwner, withOwnerDatabase } from "@reactive-resume/db/client";
+import { blockText } from "@reactive-resume/resume/proposals";
 import { educationItemSchema } from "@reactive-resume/schema/resume/data";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { resumeService } from "../resume/service";
@@ -12,16 +13,16 @@ import { loadVariantSnapshot, prepareVariantReview } from "./variant-sources";
 import { validateVariantOutput } from "./variant-validation";
 
 const database = aiTestDatabase();
-async function fixture(official = false) {
+async function fixture(official = false, protectedName?: string) {
 	await database.admin().query("DELETE FROM resume_variant_source WHERE user_id='alice'");
 	await database.admin().query("DELETE FROM resume WHERE user_id='alice'");
 	const data = structuredClone(defaultResumeData);
-	data.basics.name = "اسم خاص";
+	data.basics.name = protectedName ?? "اسم خاص";
 	data.basics.email = "private@example.test";
 	data.basics.headline = "مهندس";
 	data.summary.hidden = false;
 	data.summary.title = "نبذة";
-	data.summary.content = "<p>استخدمت React في 1445 هـ. لم أدر ميزانية.</p>";
+	data.summary.content = `<p>${protectedName ? `${protectedName} ` : ""}استخدمت React في 1445 هـ. لم أدر ميزانية.</p>`;
 	data.metadata.layout.pages = [{ fullWidth: false, main: ["summary"], sidebar: [] }];
 	if (official) {
 		data.sections.education.hidden = false;
@@ -79,7 +80,10 @@ async function fixture(official = false) {
 					: fact.text === "نبذة"
 						? "Summary"
 						: fact.text.includes("React")
-							? "Used React in 1445 AH. Did not manage a budget."
+							? fact.text.replace(
+									"استخدمت React في 1445 هـ. لم أدر ميزانية.",
+									"Used React in 1445 AH. Did not manage a budget.",
+								)
 							: fact.text;
 			return { sourceId: fact.id, text, claims: [{ id: "claim", text, evidenceIds: [fact.id], kind: "translation" }] };
 		}),
@@ -212,6 +216,22 @@ it("blocks partial approval, foreign ownership, source changes and manual target
 	).rejects.toMatchObject({ code: "CONFLICT" });
 });
 
+it("does not offer or execute an undo of an undo event", async () => {
+	const f = await fixture();
+	for (const segment of f.raw.segments) await decide(f, [segment.sourceId]);
+	const accepted = await decide(f, ["translation"]);
+	const undone = await decide(f, ["translation"], "undo", { undoDecisionId: accepted.decisionId });
+	const view = await run(() => getVariantReview("alice", f.operationId));
+	expect(view.undoable).not.toContainEqual({ decisionId: undone.decisionId, subjectIds: ["translation"] });
+	await expect(decide(f, ["translation"], "undo", { undoDecisionId: undone.decisionId })).rejects.toMatchObject({
+		code: "CONFLICT",
+		data: { reason: "AI_UNDO_CHANGED" },
+	});
+	const unchanged = await run(() => getVariantReview("alice", f.operationId));
+	expect(unchanged.updatedAt).toBe(undone.updatedAt);
+	expect(unchanged.statuses.translation).toBe("pending");
+});
+
 it("requires persisted official terms, invalidates the affected segment, and retains user terminology only in this copy", async () => {
 	const f = await fixture(true);
 	for (const segment of f.raw.segments) await decide(f, [segment.sourceId]);
@@ -231,6 +251,40 @@ it("requires persisted official terms, invalidates the affected segment, and ret
 	expect(accepted.data.sections.education.items[0]?.period).toBe("1445 هـ");
 });
 
+it("rejects official-term corrections after final approval until that approval is undone", async () => {
+	const f = await fixture(true);
+	const initial = await run(() => getVariantReview("alice", f.operationId));
+	const term = initial.terms.terms[0];
+	assert(term);
+	for (const entry of initial.terms.terms) await decide(f, [entry.id]);
+	for (const segment of f.raw.segments) await decide(f, [segment.sourceId]);
+	const accepted = await decide(f, ["translation"]);
+	const confirmed = await run(() => getVariantReview("alice", f.operationId));
+	const correction = async () => {
+		const view = await run(() => getVariantReview("alice", f.operationId));
+		return run(() =>
+			decideVariantReview("alice", {
+				operationId: f.operationId,
+				requestKey: randomUUID(),
+				expectedUpdatedAt: view.updatedAt,
+				expectedDecisionId: view.latestDecisionId,
+				subjectIds: [term.id],
+				decision: "accept_edited",
+				editedText: "Corrected official term",
+			}),
+		);
+	};
+	await expect(correction()).rejects.toMatchObject({ code: "CONFLICT", data: { reason: "AI_DECISION_CHANGED" } });
+	const unchanged = await run(() => getVariantReview("alice", f.operationId));
+	expect(unchanged.latestDecisionId).toBe(accepted.decisionId);
+	expect(unchanged.terms).toEqual(confirmed.terms);
+	await decide(f, ["translation"], "undo", { undoDecisionId: accepted.decisionId });
+	await correction();
+	await decide(f, [term.id.slice("term:".length)]);
+	const corrected = await decide(f, ["translation"]);
+	expect(JSON.stringify(corrected.data)).toContain("Corrected official term");
+});
+
 it("rolls back content, locale, provenance and history when recording final approval fails", async () => {
 	const f = await fixture();
 	for (const segment of f.raw.segments) await decide(f, [segment.sourceId]);
@@ -244,7 +298,7 @@ it("rolls back content, locale, provenance and history when recording final appr
 		.query(
 			"CREATE FUNCTION reject_translation_commit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.subject_ids='[\"translation\"]'::jsonb THEN RAISE EXCEPTION 'Synthetic approval failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER reject_translation_commit BEFORE INSERT ON ai_review_decision FOR EACH ROW EXECUTE FUNCTION reject_translation_commit()",
 		);
-	await expect(decide(f, ["translation"])).rejects.toThrow();
+	await expect(decide(f, ["translation"])).rejects.toMatchObject({ cause: { message: "Synthetic approval failure" } });
 	expect(
 		(await database.admin().query("SELECT data,updated_at FROM resume WHERE id=$1", [f.copy.resumeId])).rows[0],
 	).toEqual(before);
@@ -316,3 +370,55 @@ it("resolves local names in review text before confirmation, after term edits an
 	expect(applied.data.sections.education.items[0]?.school).toBe(reviewedName);
 	expect(JSON.stringify(applied.data)).not.toMatch(/\[LOCAL_\d+\]/u);
 });
+
+it("restores protected values with replacement metacharacters verbatim on final approval", async () => {
+	const name = "$& $$ $` $'";
+	const f = await fixture(false, name);
+	const review = await run(() => getVariantReview("alice", f.operationId));
+	assert(review.result.kind === "review.translation");
+	expect(review.result.output.segments.find((segment) => segment.text.includes("React"))?.text).toBe(
+		`${name} Used React in 1445 AH. Did not manage a budget.`,
+	);
+	for (const segment of f.raw.segments) await decide(f, [segment.sourceId]);
+	const accepted = await decide(f, ["translation"]);
+	expect(accepted.data.basics.name).toBe(name);
+	expect(blockText(accepted.data.summary.content)).toBe(`${name} Used React in 1445 AH. Did not manage a budget.`);
+});
+
+it.each(["addition", "removal"] as const)(
+	"blocks a source structural %s before preparing paid translation",
+	async (change) => {
+		const f = await fixture(true);
+		const before = (await database.admin().query("SELECT data FROM resume WHERE id=$1", [f.copy.resumeId])).rows[0]
+			.data;
+		const changed = structuredClone(before);
+		if (change === "addition")
+			changed.sections.education.items.push({ ...changed.sections.education.items[0], id: "added-school" });
+		else changed.sections.education.items = [];
+		await database
+			.admin()
+			.query("UPDATE resume SET data=$2, updated_at=updated_at+interval '1 second' WHERE id=$1", [
+				f.source,
+				JSON.stringify(changed),
+			]);
+		const sourceRevision = (
+			await database.admin().query("SELECT updated_at FROM resume WHERE id=$1", [f.source])
+		).rows[0].updated_at.toISOString();
+		const operations = (await database.admin().query("SELECT count(*)::int n FROM ai_operation")).rows[0].n;
+		await expect(
+			run(() =>
+				prepareVariantReview("alice", {
+					kind: "review.translation",
+					resumeId: f.copy.resumeId,
+					expectedUpdatedAt: f.copy.updatedAt,
+					expectedSourceRevision: sourceRevision,
+				}),
+			),
+		).rejects.toMatchObject({ code: "CONFLICT", data: { reason: "TRANSLATION_STRUCTURE_CHANGED" } });
+		expect((await database.admin().query("SELECT count(*)::int n FROM ai_operation")).rows[0].n).toBe(operations);
+		expect((await database.admin().query("SELECT count(*)::int n FROM ai_usage_ledger")).rows[0].n).toBe(0);
+		expect(
+			(await database.admin().query("SELECT data FROM resume WHERE id=$1", [f.copy.resumeId])).rows[0].data,
+		).toEqual(before);
+	},
+);

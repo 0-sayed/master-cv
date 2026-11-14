@@ -110,7 +110,7 @@ test("editing the CV after preparing tailoring makes proposals stale and preserv
 	await expect(
 		page.locator("[data-proposal-index]").filter({ hasText: "Out of date: the text has changed since." }),
 	).toHaveCount(3);
-	await expect(page.getByRole("button", { name: "Suggest again", exact: true })).toHaveCount(3);
+	await expect(page.getByRole("button", { name: "Suggest again", exact: true })).toHaveCount(0);
 	await expect(page.getByRole("button", { name: "Accept", exact: true })).toHaveCount(0);
 	await stale.getByRole("button", { name: "Retry", exact: true }).click();
 	await expect(stale).toBeVisible();

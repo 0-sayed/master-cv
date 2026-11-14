@@ -21,11 +21,10 @@ export function normalizeForMatching(value: string): string {
 
 /** Each normalized UTF-16 unit points back to its complete source grapheme. */
 export function normalizeWithOffsets(value: string) {
-	let text = "";
+	const text = normalizeForMatching(value);
 	const offsets: Array<{ start: number; end: number }> = [];
 	for (const entry of new Intl.Segmenter("en", { granularity: "grapheme" }).segment(value)) {
 		const normalized = normalizeForMatching(entry.segment);
-		text += normalized;
 		for (let unit = 0; unit < normalized.length; unit++)
 			offsets.push({ start: entry.index, end: entry.index + entry.segment.length });
 	}

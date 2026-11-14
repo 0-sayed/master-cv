@@ -13,8 +13,12 @@ import {
 	resumeVariantSource,
 } from "@reactive-resume/db/schema";
 import { buildJobPassages } from "@reactive-resume/resume/ats";
-import { readTarget } from "@reactive-resume/resume/proposals";
-import { buildTranslationInventory, translationPlaceholders } from "@reactive-resume/resume/translation";
+import { blockText, readTarget } from "@reactive-resume/resume/proposals";
+import {
+	buildTranslationInventory,
+	translationPlaceholders,
+	translationStructureMatches,
+} from "@reactive-resume/resume/translation";
 import { reviewTargetSchema } from "@reactive-resume/schema/resume/ai-review";
 import { readJobRevision } from "../career/job-targets";
 import { lockDocumentOwner } from "../documents/ownership";
@@ -131,7 +135,7 @@ export async function loadVariantSnapshot(
 					...passage.target,
 					itemId: passage.target.itemId ?? null,
 					roleId: passage.target.roleId ?? null,
-					text: clean(readTarget(cv.data, passage.target) ?? ""),
+					text: clean(blockText(readTarget(cv.data, passage.target) ?? "")),
 					evidenceIds: [passage.id],
 				})),
 			order: Object.entries(cv.data.sections).map(([sectionId, section]) => ({
@@ -147,6 +151,8 @@ export async function loadVariantSnapshot(
 			provenance.targetLocale === translationSource.data.metadata.page.locale
 		)
 			conflict();
+		if (!translationStructureMatches(translationSource.data, cv.data))
+			throw new ORPCError("CONFLICT", { data: { reason: "TRANSLATION_STRUCTURE_CHANGED" } });
 		const inventory = buildTranslationInventory(translationSource.data);
 		if (inventory.blocking.length)
 			throw new ORPCError("PRECONDITION_FAILED", { data: { reason: "TRANSLATION_PARTIAL_COVERAGE" } });

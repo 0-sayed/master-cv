@@ -91,3 +91,35 @@ it("rejects false policy identity and duplicate passage/target inventory", () =>
 		analyzeJobTerms({ identity: valid, jobText: "React", passages: [passage("React"), passage("SAP")] }),
 	).toThrow();
 });
+
+it("matches visible certification issuers, awarders and publishers as cited CV evidence", () => {
+	const data = structuredClone(defaultResumeData);
+	const common = { hidden: false, date: "", description: "", website: { url: "", label: "", inlineLink: false } };
+	data.sections.certifications.items = [
+		{ ...common, id: "certificate", title: "Cloud certificate", issuer: "Microsoft" },
+	];
+	data.sections.awards.items = [{ ...common, id: "award", title: "Research award", awarder: "IEEE" }];
+	data.sections.publications.items = [{ ...common, id: "publication", title: "Research paper", publisher: "Springer" }];
+	data.metadata.layout.pages = [{ fullWidth: false, main: ["certifications", "awards", "publications"], sidebar: [] }];
+	const passages = buildJobPassages(data);
+	for (const [sectionId, field, text] of [
+		["certifications", "issuer", "Microsoft"],
+		["awards", "awarder", "IEEE"],
+		["publications", "publisher", "Springer"],
+	]) {
+		expect(passages).toContainEqual(
+			expect.objectContaining({ target: expect.objectContaining({ sectionId, field }), text }),
+		);
+	}
+	const report = analyzeJobTerms({ identity, jobText: "Microsoft, IEEE, Springer", passages });
+	expect(report.matchedCount).toBe(3);
+	expect(report.terms.every((term) => term.cvSpans.length > 0)).toBe(true);
+});
+
+it("cites Greek uppercase terms using whole-word lowercase normalization", () => {
+	const text = "😀 ΟΔΟΣ";
+	const report = analyzeJobTerms({ identity, jobText: "ΟΔΟΣ", passages: [passage(text)] });
+	expect(report).toMatchObject({ matchedCount: 1 });
+	expect(report.terms[0]?.jobSpans).toEqual([{ id: "job-0-0", start: 0, end: 4, quote: "ΟΔΟΣ" }]);
+	expect(report.terms[0]?.cvSpans).toContainEqual(expect.objectContaining({ start: 3, end: 7, quote: "ΟΔΟΣ" }));
+});

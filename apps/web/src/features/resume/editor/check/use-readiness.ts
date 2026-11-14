@@ -1,5 +1,6 @@
 import type { ReadinessResults } from "@reactive-resume/resume/ats";
 import type { PdfAtsReport } from "@reactive-resume/resume/ats-pdf";
+import type { JobTermReport } from "@reactive-resume/schema/job-evidence";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { create } from "zustand/react";
@@ -21,11 +22,13 @@ const empty = (): ReadinessResults => ({
 const useReadinessStore = create<{
 	results: ReadinessResults;
 	pdfReport: PdfAtsReport | null;
+	jobReport: JobTermReport | null;
 	retry: number;
 	requestRetry: () => void;
 }>((set) => ({
 	results: empty(),
 	pdfReport: null,
+	jobReport: null,
 	retry: 0,
 	requestRetry: () => set((state) => ({ retry: state.retry + 1 })),
 }));
@@ -37,7 +40,7 @@ export function useReadinessLifecycle() {
 	const jobOptions = orpc.career.jobTargets.evidence.queryOptions({ input: { resumeId: identity?.resumeId ?? "" } });
 	const job = useQuery({
 		...jobOptions,
-		queryKey: [...jobOptions.queryKey, identity?.ownerId, identity?.baseRevision, identity?.editGeneration, retry],
+		queryKey: [...jobOptions.queryKey, identity?.ownerId, identity?.baseRevision, retry],
 		enabled: Boolean(identity),
 		staleTime: 0,
 	});
@@ -46,6 +49,7 @@ export function useReadinessLifecycle() {
 		let cancelled = false;
 		if (!job.data?.literal) {
 			useReadinessStore.setState((state) => ({
+				jobReport: null,
 				results: {
 					...state.results,
 					job: {
@@ -75,6 +79,7 @@ export function useReadinessLifecycle() {
 					report,
 				);
 				useReadinessStore.setState((state) => ({
+					jobReport: report,
 					results: {
 						...state.results,
 						job:
@@ -96,14 +101,14 @@ export function useReadinessLifecycle() {
 	}, [identity, data, job.data, job.error, job.isFetching]);
 	useEffect(() => {
 		if (!identity || !data) {
-			useReadinessStore.setState({ results: empty(), pdfReport: null });
+			useReadinessStore.setState({ results: empty(), pdfReport: null, jobReport: null });
 			return;
 		}
 		if (
 			useReadinessStore.getState().results.pdf.source?.ownerId !== identity.ownerId ||
 			useReadinessStore.getState().results.pdf.source?.resumeId !== identity.resumeId
 		)
-			useReadinessStore.setState({ results: empty(), pdfReport: null });
+			useReadinessStore.setState({ results: empty(), pdfReport: null, jobReport: null });
 		useReadinessStore.setState({
 			results: invalidateReadiness(invalidateReadiness(useReadinessStore.getState().results, "pdf"), "writing"),
 			pdfReport: null,
@@ -130,7 +135,7 @@ export function useReadinessLifecycle() {
 			isEditableElementFocused() ? TYPING_DEBOUNCE_MS : UPDATE_DEBOUNCE_MS,
 		);
 	}, [identity, data, retry]);
-	useEffect(() => () => useReadinessStore.setState({ results: empty(), pdfReport: null }), []);
+	useEffect(() => () => useReadinessStore.setState({ results: empty(), pdfReport: null, jobReport: null }), []);
 }
 /** Hook consumers get no obsolete success during the effect-cleanup boundary. */
 export function useReadiness() {

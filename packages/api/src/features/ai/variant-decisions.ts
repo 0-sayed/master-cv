@@ -60,6 +60,8 @@ async function context(tx: OwnerTransaction, ownerId: string, operationId: strin
 	return { operation, result, document, decisions, provenance };
 }
 type Context = Awaited<ReturnType<typeof context>>;
+const restoreSummaryNames = (text: string, ctx: Context) =>
+	text.replaceAll("[NAME_1]", () => ctx.document.data.basics.name);
 const subjectIds = (result: VariantReviewResult): string[] =>
 	result.kind === "review.translation"
 		? [...result.output.segments.map((segment) => segment.sourceId), "translation"]
@@ -193,7 +195,7 @@ export function getVariantReview(ownerId: string, operationId: string) {
 						(value, entry) =>
 							value.replaceAll(
 								entry.token,
-								payload.terms.terms.find((term) => term.source === entry.value)?.value ?? entry.value,
+								() => payload.terms.terms.find((term) => term.source === entry.value)?.value ?? entry.value,
 							),
 						text,
 					);
@@ -206,6 +208,11 @@ export function getVariantReview(ownerId: string, operationId: string) {
 				}
 				result.output.notes = result.output.notes.map(resolve);
 			}
+		} else if (result.kind === "review.summary") {
+			result.output.summary.text = restoreSummaryNames(result.output.summary.text, ctx);
+			for (const claim of result.output.summary.claims) claim.text = restoreSummaryNames(claim.text, ctx);
+			for (const question of result.output.questions) question.prompt = restoreSummaryNames(question.prompt, ctx);
+			result.output.notes = result.output.notes.map((note) => restoreSummaryNames(note, ctx));
 		}
 		return {
 			beforeSummary: ctx.document.data.summary.content,
@@ -226,6 +233,7 @@ export function getVariantReview(ownerId: string, operationId: string) {
 			undoable: ctx.decisions
 				.filter(
 					(event) =>
+						["accept", "accept_edited", "reject"].includes(event.event) &&
 						(event.variantPayload?.after ||
 							(ctx.result.kind === "review.translation" &&
 								["accept", "accept_edited", "reject"].includes(event.event) &&
@@ -274,6 +282,7 @@ export async function decideVariantReview(ownerId: string, raw: VariantDecisionI
 			const accepted = ctx.decisions.find((event) => event.id === input.undoDecisionId);
 			if (
 				!accepted ||
+				!["accept", "accept_edited", "reject"].includes(accepted.event) ||
 				ctx.decisions.some((event) => event.previousDecisionId === accepted.id) ||
 				canonicalJson([...input.subjectIds].sort()) !== canonicalJson([...accepted.subjectIds].sort()) ||
 				accepted.afterRevision !== ctx.document.updatedAt.toISOString()
@@ -308,6 +317,7 @@ export async function decideVariantReview(ownerId: string, raw: VariantDecisionI
 				save = true;
 			}
 		} else if (input.subjectIds.some((id) => terms.has(id))) {
+			if (currentStatuses.translation !== "pending") conflict("AI_DECISION_CHANGED");
 			if (input.subjectIds.length !== 1 || input.decision === "reject") throw new ORPCError("BAD_REQUEST");
 			const term = payload.terms.terms.find((term) => term.id === input.subjectIds[0]);
 			if (!term) throw new ORPCError("NOT_FOUND");
@@ -352,11 +362,13 @@ export async function decideVariantReview(ownerId: string, raw: VariantDecisionI
 						}
 					}
 			} else if (input.decision !== "reject" && ctx.result.kind === "review.summary") {
-				const text = input.editedText ?? ctx.result.output.summary.text;
+				const text = restoreSummaryNames(input.editedText ?? ctx.result.output.summary.text, ctx);
 				if (!text.trim()) throw new ORPCError("BAD_REQUEST");
 				data.summary.content = `<p>${escapeHtml(text)}</p>`;
 				save = true;
 			} else if (input.decision !== "reject" && ctx.result.kind === "review.tailoring") {
+				if (input.subjectIds.includes("order") && input.decision === "accept_edited")
+					throw new ORPCError("BAD_REQUEST");
 				for (const patch of ctx.result.output.patches.filter((patch) => input.subjectIds.includes(patch.id))) {
 					const target = reviewTargetSchema.parse({
 						sectionId: patch.target.sectionId,
