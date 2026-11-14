@@ -141,8 +141,13 @@ function waitForRetry(ms: number, signal: AbortSignal): Promise<void> {
 /** Transport retries only; invalid model output is never retried here. */
 export async function executeApprovedStep(
 	input: ApprovedStepInput,
-	/** Explicit synthetic-benchmark override; never sourced from route/runtime/environment config. */
-	options?: { concurrencyLimit: number; onAttempt?: (result: ApprovedStepResult) => Promise<void> },
+	/** Explicit caller controls; never sourced from route/runtime/environment config. */
+	options?: {
+		concurrencyLimit?: number;
+		/** Durable workers persist and bound each retry themselves. */
+		retry?: boolean;
+		onAttempt?: (result: ApprovedStepResult) => Promise<void>;
+	},
 ): Promise<ApprovedStepResult> {
 	const concurrencyLimit = options?.concurrencyLimit ?? 2;
 	if (!Number.isSafeInteger(concurrencyLimit) || concurrencyLimit < 1 || concurrencyLimit > 8)
@@ -211,7 +216,13 @@ export async function executeApprovedStep(
 				outputTokens: result.outputTokens === null && !tokens.outputTokens ? null : tokens.outputTokens,
 				cachedTokens: result.cachedTokens === null && !tokens.cachedTokens ? null : tokens.cachedTokens,
 			};
-			if (result.outcome !== "transient" || attempt === 4 || unknownCost || cost >= input.route.maxCallCostMicros)
+			if (
+				options?.retry === false ||
+				result.outcome !== "transient" ||
+				attempt === 4 ||
+				unknownCost ||
+				cost >= input.route.maxCallCostMicros
+			)
 				break;
 			const backoff = Math.max(retryAfterMs ?? 0, 5000 * 2 ** attempt * (1 + Math.random() * 0.2));
 			if (Date.now() + backoff >= deadline) break;

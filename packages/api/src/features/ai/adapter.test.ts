@@ -5,7 +5,7 @@ import { masterFields } from "@reactive-resume/schema/career-master";
 import { executeApprovedStep } from "./adapter";
 import { reviewHandlers } from "./review-handlers";
 import { withAiRuntime } from "./route-policy";
-import { syntheticRoute } from "./testing/runtime";
+import { syntheticRoute, syntheticRuntime } from "./testing/runtime";
 
 it("supplies the exact extraction field contract and executable claim-boundary examples to writers", () => {
 	const extraction = reviewHandlers["review.extraction"].systemPrompt ?? "";
@@ -409,6 +409,32 @@ it.each([200, 429, 502, 503])(
 		}
 	},
 );
+it("leaves transient retries to the durable caller when transport retries are disabled", async () => {
+	vi.useFakeTimers();
+	try {
+		const fetch = vi.fn(async () => Response.json(throttled, { status: 503 }));
+		const pending = withAiRuntime({ ...syntheticRuntime, fetch }, () =>
+			executeApprovedStep(
+				{
+					route: syntheticRoute,
+					operationId: "op",
+					attemptId: "attempt",
+					stepId: "generate",
+					payload: { selections: [] },
+					outputSchema: z.strictObject({ text: z.string() }),
+					signal: new AbortController().signal,
+				},
+				{ retry: false },
+			),
+		);
+		await vi.runAllTimersAsync();
+		expect(await pending).toMatchObject({ outcome: "transient", output: null, costMicros: 0 });
+		expect(fetch).toHaveBeenCalledTimes(1);
+	} finally {
+		vi.useRealTimers();
+	}
+});
+
 it("limits concurrent calls to two per model and releases slots", async () => {
 	let active = 0;
 	let peak = 0;

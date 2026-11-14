@@ -168,20 +168,23 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 				if (!row) throw new Error("AI_ATTEMPT_UNAVAILABLE");
 				return row;
 			});
-			const outcome = await executeApprovedStep({
-				route,
-				operationId: lease.operationId,
-				attemptId: attempt.id,
-				stepId,
-				payload,
-				outputSchema: stepId === "verify" && handler.verifier ? handler.verifier.output : handler.output,
-				...(stepId === "verify" && handler.verifier
-					? { systemPrompt: handler.verifier.systemPrompt }
-					: handler.systemPrompt
-						? { systemPrompt: handler.systemPrompt }
-						: {}),
-				signal,
-			});
+			const outcome = await executeApprovedStep(
+				{
+					route,
+					operationId: lease.operationId,
+					attemptId: attempt.id,
+					stepId,
+					payload,
+					outputSchema: stepId === "verify" && handler.verifier ? handler.verifier.output : handler.output,
+					...(stepId === "verify" && handler.verifier
+						? { systemPrompt: handler.verifier.systemPrompt }
+						: handler.systemPrompt
+							? { systemPrompt: handler.systemPrompt }
+							: {}),
+					signal,
+				},
+				{ retry: false },
+			);
 			// Late accounting may finish after cancellation/lease loss, but may never publish a result.
 			await withOwnerDatabase(lease.ownerId, async (tx) => {
 				await lockDocumentOwner(tx, lease.ownerId);
