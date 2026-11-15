@@ -185,6 +185,7 @@ export function useGenerate(applicationId: string) {
 				type: "error",
 				description: getOrpcErrorMessage(error, {
 					fallback: t`${name} didn't respond. Nothing was changed; try again.`,
+					byCode: { PRECONDITION_FAILED: t`Connect an AI provider in Settings` },
 				}),
 			});
 		},

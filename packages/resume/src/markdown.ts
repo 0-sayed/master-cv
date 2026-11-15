@@ -16,8 +16,12 @@ export type SectionTitleResolver = (sectionId: string) => string | undefined;
  * into AI agents. Scope the input first with `getResumeExportData(data, target)` to emit only
  * the resume or the cover letter.
  */
-export function buildMarkdown(source: ResumeData, resolveTitle?: SectionTitleResolver): string {
-	const data = localizeResumeEntries(source);
+export function buildMarkdown(
+	source: ResumeData,
+	resolveTitle?: SectionTitleResolver,
+	options: { localizeEntries?: boolean } = {},
+): string {
+	const data = options.localizeEntries === false ? source : localizeResumeEntries(source);
 	const blocks: string[] = isCoverLetterOnlyDocument(data) ? [] : [...renderHeader(data.basics)];
 
 	for (const page of data.metadata.layout.pages) {

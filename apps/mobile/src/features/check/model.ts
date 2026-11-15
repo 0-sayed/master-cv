@@ -19,7 +19,10 @@ export function checkStateOf(draft: ResumeData) {
 
 export function matchPosting(data: ResumeData, posting: string) {
 	const hidden = new Set(data.metadata.check?.hiddenTerms ?? []);
-	const terms = matchJobDescription({ jobDescription: posting, resumeText: buildMarkdown(data) })
+	const terms = matchJobDescription({
+		jobDescription: posting,
+		resumeText: buildMarkdown(data, undefined, { localizeEntries: false }),
+	})
 		.terms.filter((term) => !hidden.has(term.term))
 		.map((term) => ({
 			...term,

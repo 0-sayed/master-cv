@@ -157,7 +157,7 @@ export const CSV_FIELDS: readonly CsvField[] = [
 export const autoMapHeaders = (headers: readonly string[]): (CsvField | null)[] =>
 	headers.map((header) => HEADER_ALIASES[header.trim().toLowerCase()] ?? null);
 
-const csvLine = (cells: readonly string[]) => cells.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(",");
+const csvLine = (cells: readonly string[]) => cells.map(csvCell).join(",");
 
 /** Rows back to CSV text (for downloading the rows an import skipped), header first. */
 export const rowsToCsv = (headers: readonly string[], rows: readonly string[][]) =>

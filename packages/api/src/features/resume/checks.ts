@@ -89,7 +89,10 @@ export const matchResume = protectedProcedure
 	.handler(async ({ input, context }) => {
 		const { data } = await resumeService.getById({ id: input.id, userId: context.user.id });
 		const hidden = new Set(data.metadata.check?.hiddenTerms ?? []);
-		const terms = matchJobDescription({ jobDescription: input.jobDescription, resumeText: buildMarkdown(data) })
+		const terms = matchJobDescription({
+			jobDescription: input.jobDescription,
+			resumeText: buildMarkdown(data, undefined, { localizeEntries: false }),
+		})
 			.terms.filter((term) => !hidden.has(term.term))
 			.map((term) => ({
 				...term,

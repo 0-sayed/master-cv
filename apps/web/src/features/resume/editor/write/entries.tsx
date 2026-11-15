@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { EMPTY_RESUME_DATES } from "@reactive-resume/schema/resume/dates";
+import { findEntryOption, fluencyOptions, skillOptions } from "@reactive-resume/schema/resume/entry-options";
 import { Button } from "@reactive-resume/ui/components/button";
 import { FormControl, FormItem, FormLabel } from "@reactive-resume/ui/components/form";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
@@ -144,7 +145,8 @@ function PresetField({
 	const onChange = (value: string, level: number) =>
 		write(field, (target) => {
 			target[field] = value;
-			if (field !== "language") target.level = level;
+			if (field !== "language" && findEntryOption(value, field === "fluency" ? fluencyOptions : skillOptions))
+				target.level = level;
 		});
 	const props = { value: str(valuesOf(entry)[field]), onChange, label, name: field, autoFocus };
 	return field === "language" ? (

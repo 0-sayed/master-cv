@@ -204,6 +204,28 @@ describe("job page content", () => {
 			completeness: "unknown",
 		});
 	};
+	it("reads structured job descriptions even beside a login form", async () => {
+		page(
+			`<script type="application/ld+json">${JSON.stringify({ "@type": "JobPosting", title: "Engineer", description: "Build accessible tools" })}</script><form><input type="password"><label>Email or phone</label></form>`,
+		);
+		expect((await fetchJobPosting("https://www.linkedin.com/jobs/view/123456", context)).text).toBe(
+			"Build accessible tools",
+		);
+	});
+	it("recognizes chrome markers in later class tokens", async () => {
+		page(
+			'<html><body><main><nav class="layout navigation">Unrelated chrome</nav><section class="layout show-more-less-html__markup">Build accessible tools</section></main></body></html>',
+		);
+		expect((await fetchJobPosting("https://www.linkedin.com/jobs/view/123456", context)).text).toBe(
+			"Build accessible tools",
+		);
+	});
+	it("preserves retrieved text when HTML is unavailable", async () => {
+		page("", "Engineer\nBuild accessible tools");
+		expect((await fetchJobPosting("https://www.linkedin.com/jobs/view/123456", context)).text).toBe(
+			"Engineer\nBuild accessible tools",
+		);
+	});
 	it("rejects a synthetic sign-in wall even when a role teaser is present", async () => {
 		page(`<html><body><a>Skip to main content</a><main><h1>Product Engineer</h1>
 			<p>Example Learning</p><p>Riyadh, Saudi Arabia</p>

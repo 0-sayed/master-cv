@@ -22,7 +22,8 @@ export async function fetchJobPosting(input: string, context: WebAccessContext) 
 	const structured = readJobPosting(html ?? "");
 	const page = structured?.description ? structured : extracted.page;
 	const text = cleanPostingText(page?.description || extracted.text);
-	assertJobContent(text);
+	if (!page?.description) assertJobContent(text);
+	else if (!text.trim()) throw new WebAccessError("empty");
 	const truncated = source.truncated || text.length > MAX_POSTING_CHARS;
 	return {
 		page,
@@ -115,7 +116,7 @@ function extractJobContent(html: string, fallback: string): { page: PagePosting 
 		exclusiveFilter(frame) {
 			const text = frame.text.trim();
 			const marker = `${frame.attribs.class ?? ""} ${frame.attribs.id ?? ""} ${frame.attribs.itemprop ?? ""}`;
-			if (/^(?:cookie|consent|navigation|sign-in|login)(?:[-_\s]|$)/i.test(marker.trim())) return true;
+			if (/(?:^|\s)(?:cookie|consent|navigation|sign-in|login)(?:[-_\s]|$)/i.test(marker.trim())) return true;
 			if (frame.tag === "h1" && !role) role = text;
 			if (/(?:topcard__org-name-link|hiringOrganization|company-name)/i.test(marker) && !company) company = text;
 			if (/(?:topcard__flavor--bullet|job-location|jobLocation)/i.test(marker) && !location) location = text;
@@ -136,7 +137,7 @@ function extractJobContent(html: string, fallback: string): { page: PagePosting 
 			return false;
 		},
 	});
-	const text = description || main || body || (html ? htmlToText(html) : fallback);
+	const text = description || main || body || htmlToText(html) || fallback;
 	// A title teaser above a sign-in wall is not a job description.
 	if (!description && !readJobPosting(html)?.description) {
 		if (/<input\b[^>]*type\s*=\s*["']?password\b/i.test(html)) throw new WebAccessError("auth");
