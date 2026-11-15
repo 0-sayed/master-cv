@@ -219,6 +219,8 @@ test("device timezone applies immediately and remains selected after reload", as
 	await page.goto("/dashboard/settings/preferences");
 	const timezone = page.getByRole("combobox").last();
 	await expect(timezone).toContainText("UTC");
+	await timezone.click();
+	await page.getByRole("option", { name: /Asia\/Riyadh/ }).click();
 	const device = await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
 	await page.getByRole("button", { name: `Use this device's timezone (${device})`, exact: true }).click();
 	await expect(timezone).toContainText(device);

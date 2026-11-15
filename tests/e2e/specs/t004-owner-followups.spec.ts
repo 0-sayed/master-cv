@@ -17,9 +17,16 @@ for (const locale of ["en-US", "ar-SA"] as const)
 				data: { uiLocale: locale },
 			});
 			await page.goto(`/dashboard?locale=${locale}`);
-			await page.getByRole("button", { name: ar ? "سيرة ذاتية جديدة" : "New CV", exact: true }).click();
+			await page
+				.locator("#main-content")
+				.getByRole("button", { name: ar ? "سيرة ذاتية جديدة" : "New CV", exact: true })
+				.click();
 			await page.getByRole("button", { name: ar ? /^رفع سيرة ذاتية موجودة/ : /^Upload an existing CV/ }).click();
-			await page.locator('input[type="file"]').setInputFiles(ownerImportPdf());
+			await page
+				.getByRole("dialog")
+				.and(page.locator('[data-slot="dialog-content"], [data-slot="sheet-content"]'))
+				.locator('input[type="file"]')
+				.setInputFiles(ownerImportPdf());
 			await expect(page).toHaveURL(/\/dashboard\/import\//, { timeout: 30000 });
 			await settleScreen(page);
 			await expect(page.locator('[data-slot="dashboard-page"]')).toHaveCount(1);
@@ -75,10 +82,15 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 			await page.getByRole("button", { name: ar ? "إلغاء" : "Cancel", exact: true }).click();
 			await expect(page).toHaveURL(/\/dashboard(?:\?|$)/);
-			await page.getByRole("button", { name: ar ? "سيرة ذاتية جديدة" : "New CV", exact: true }).click();
+			await page
+				.locator("#main-content")
+				.getByRole("button", { name: ar ? "سيرة ذاتية جديدة" : "New CV", exact: true })
+				.click();
 			await page.getByRole("button", { name: ar ? /^الكتابة من الصفر/ : /^Write from scratch/ }).click();
 			await expect(page).toHaveURL(/\/builder\//);
-			await expect(page.getByRole("dialog")).not.toBeVisible();
+			await expect(
+				page.getByRole("dialog").and(page.locator('[data-slot="dialog-content"], [data-slot="sheet-content"]')),
+			).not.toBeVisible();
 			if (width === 1440) await page.getByRole("tab", { name: /^(Check|فحص|مراجعة)/u }).click();
 			else await page.getByRole("button", { name: /^(Check|فحص|مراجعة)/u }).click();
 			const check = page.getByRole("region", { name: ar ? "قابلية قراءة PDF" : "PDF readability" });

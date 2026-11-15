@@ -92,7 +92,9 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await expect(page).not.toHaveURL(/welcome/);
 			await expect(page.locator("h1")).toBeAttached();
 			await expect(
-				page.getByRole("button", { name: locale === "en-US" ? "New CV" : "سيرة ذاتية جديدة", exact: true }),
+				page
+					.locator("#main-content")
+					.getByRole("button", { name: locale === "en-US" ? "New CV" : "سيرة ذاتية جديدة", exact: true }),
 			).toBeVisible();
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("documents-empty.png"), fullPage: true });
@@ -243,6 +245,7 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("mfa.png"), fullPage: true });
 			await page.locator('[data-slot="otp-field-input"]').first().fill(currentTotp(totpURI));
+			await page.getByRole("button", { name: locale === "en-US" ? "Verify" : "تحقّق", exact: true }).click();
 			await expect(page).toHaveURL(/dashboard/);
 			expect((await page.request.get("/api/openapi/career/master")).ok()).toBe(true);
 		});
@@ -252,7 +255,10 @@ for (const locale of ["en-US", "ar-SA"] as const)
 		test(`base CV quota recovery preserves library ${locale} at ${width}`, async ({ authPage: page }, testInfo) => {
 			await page.setViewportSize({ width, height: 950 });
 			await page.goto(`/dashboard?locale=${locale}`);
-			await page.getByRole("button", { name: locale === "en-US" ? "New CV" : "سيرة ذاتية جديدة", exact: true }).click();
+			await page
+				.locator("#main-content")
+				.getByRole("button", { name: locale === "en-US" ? "New CV" : "سيرة ذاتية جديدة", exact: true })
+				.click();
 			await page.route("**/api/rpc/resume/create", (route) =>
 				route.fulfill({
 					status: 412,
@@ -282,7 +288,9 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await expect(page.locator('[data-slot="dialog-content"]')).not.toBeVisible();
 			await expect(page.locator("h1")).toBeAttached();
 			await expect(
-				page.getByRole("button", { name: locale === "en-US" ? "New CV" : "سيرة ذاتية جديدة", exact: true }),
+				page
+					.locator("#main-content")
+					.getByRole("button", { name: locale === "en-US" ? "New CV" : "سيرة ذاتية جديدة", exact: true }),
 			).toBeVisible();
 			await expect(page).toHaveURL(/dashboard/);
 		});

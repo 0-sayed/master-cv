@@ -1,9 +1,17 @@
-import { Pool } from "pg";
+import { createRequire } from "node:module";
+import { resolve } from "node:path";
+import { privacyDatabase, seedPrivacyAccount } from "../fixtures/privacy";
 import { expect, test } from "../fixtures/test";
+
+const { unzipSync, strFromU8 } = createRequire(resolve(process.cwd(), "packages/api/package.json"))("fflate") as {
+	unzipSync(bytes: Uint8Array): Record<string, Uint8Array>;
+	strFromU8(bytes: Uint8Array): string;
+};
 
 test("stores a private AI report, exports it, and deletes it only after account confirmation", async ({
 	authPage: page,
 	browser,
+	account,
 }) => {
 	const sent = await page.request.post("/api/openapi/ai/content-reports", {
 		data: {
@@ -15,35 +23,44 @@ test("stores a private AI report, exports it, and deletes it only after account 
 	});
 	await expect(sent).toBeOK();
 	const receipt = await sent.json();
-	const exported = await page.request.get("/api/openapi/auth/account/export");
+	const fixture = await seedPrivacyAccount(
+		{ locale: "en-US", state: "export_ready", includeQueuedWork: false },
+		{ page, password: account.password },
+	);
+	const path = `/api/privacy/exports/${fixture.requestId}`;
+	const exported = await page.request.get(path);
 	await expect(exported).toBeOK();
-	const data = await exported.json();
-	expect(data.aiContentReports).toEqual([
-		expect.objectContaining({ id: receipt.id, content: "Fictional unsafe generated content" }),
-	]);
-	const anonymous = await browser.newContext();
+	const json = unzipSync(await exported.body())["account.json"];
+	if (!json) throw new Error("Account archive absent");
+	expect(strFromU8(json)).toContain(receipt.id);
+	expect(strFromU8(json)).toContain("Fictional unsafe generated content");
+	const anonymous = await browser.newContext({ baseURL: new URL(page.url()).origin });
 	try {
-		expect((await anonymous.request.get("/api/openapi/auth/account/export")).status()).toBe(401);
+		expect((await anonymous.request.get(path)).status()).toBe(401);
 	} finally {
 		await anonymous.close();
 	}
-	await page.goto("/dashboard/settings/account?deleteAccount=true");
-	const dialog = page.getByRole("alertdialog");
-	await expect(dialog).toBeVisible();
-	await expect(dialog.getByRole("button", { name: "Delete", exact: true })).toBeDisabled();
-	await dialog.getByRole("button", { name: "Keep account" }).click();
+	await page.goto("/dashboard/settings/delete-account");
+	await expect(page.getByRole("button", { name: "Permanently delete my account", exact: true })).toBeDisabled();
+	await page.getByRole("link", { name: "Cancel", exact: true }).click();
+	await expect(await page.request.get(path)).toBeOK();
+	await page.goto("/dashboard/settings/delete-account");
+	await page.getByRole("button", { name: "Confirm access", exact: true }).click();
+	const dialog = page.getByRole("dialog");
+	await dialog.getByLabel("Password", { exact: true }).fill(account.password);
+	await dialog.getByRole("button", { name: "Confirm access", exact: true }).click();
 	await expect(dialog).not.toBeVisible();
-	await expect(await page.request.get("/api/openapi/auth/account/export")).toBeOK();
-	await page.reload();
-	await expect(dialog).toBeVisible();
-	await dialog.getByRole("textbox").fill("delete");
-	await dialog.getByRole("button", { name: "Delete", exact: true }).click();
-	await page.waitForURL("/");
-	const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-	try {
-		const reports = await pool.query("select id from ai_content_report where user_id = $1", [data.user.id]);
-		expect(reports.rows).toEqual([]);
-	} finally {
-		await pool.end();
-	}
+	await page.getByRole("checkbox").check();
+	await page.getByRole("button", { name: "Permanently delete my account", exact: true }).click();
+	await page.waitForURL("/deletion-requested");
+	await expect
+		.poll(
+			() =>
+				privacyDatabase(
+					async (pool) =>
+						(await pool.query("SELECT id FROM ai_content_report WHERE user_id=$1", [fixture.userId])).rowCount,
+				),
+			{ timeout: 30000 },
+		)
+		.toBe(0);
 });

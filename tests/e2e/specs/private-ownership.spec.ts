@@ -1,8 +1,10 @@
+import { createHash } from "node:crypto";
 import { mkdir, writeFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { createAuthenticatedContext } from "../fixtures/auth";
 import { createAccount } from "../fixtures/data";
 import { deleteE2EUser } from "../fixtures/db";
+import { privacyDatabase } from "../fixtures/privacy";
 import { test, expect } from "../fixtures/test";
 
 test("real HTTP and restricted PostgreSQL deny foreign master, CV and file access", async ({
@@ -91,6 +93,17 @@ test("real HTTP and restricted PostgreSQL deny foreign master, CV and file acces
 		folder = join(storage, "uploads", session.user.id, "t003-proof");
 		await mkdir(folder, { recursive: true });
 		await writeFile(join(folder, "synthetic.txt"), "synthetic owner-only bytes");
+		await privacyDatabase((pool) =>
+			pool.query(
+				"INSERT INTO stored_file(id,user_id,key,purpose,content_type,size,digest) VALUES (gen_random_uuid()::text,$1,$2,'original','text/plain',$3,$4)",
+				[
+					session.user.id,
+					`uploads/${session.user.id}/t003-proof/synthetic.txt`,
+					Buffer.byteLength("synthetic owner-only bytes"),
+					createHash("sha256").update("synthetic owner-only bytes").digest("hex"),
+				],
+			),
+		);
 		const path = `/uploads/${session.user.id}/t003-proof/synthetic.txt`;
 		const own = await alice.request.get(path);
 		expect(own.status()).toBe(200);
@@ -113,6 +126,17 @@ test("real HTTP and restricted PostgreSQL deny foreign master, CV and file acces
 		await mkdir(foreignFolder, { recursive: true });
 		const foreignBytes = "synthetic foreign-owner traversal target";
 		await writeFile(join(foreignFolder, "foreign.txt"), foreignBytes);
+		await privacyDatabase((pool) =>
+			pool.query(
+				"INSERT INTO stored_file(id,user_id,key,purpose,content_type,size,digest) VALUES (gen_random_uuid()::text,$1,$2,'original','text/plain',$3,$4)",
+				[
+					foreignSession.user.id,
+					`uploads/${foreignSession.user.id}/t003-proof/foreign.txt`,
+					Buffer.byteLength(foreignBytes),
+					createHash("sha256").update(foreignBytes).digest("hex"),
+				],
+			),
+		);
 		const foreignPath = `/uploads/${foreignSession.user.id}/t003-proof/foreign.txt`;
 		const foreignOwnerRead = await other.get(foreignPath);
 		expect(foreignOwnerRead.status()).toBe(200);
@@ -128,7 +152,14 @@ test("real HTTP and restricted PostgreSQL deny foreign master, CV and file acces
 		}
 		expect(await (await other.get(foreignPath)).text()).toBe(foreignBytes);
 		// An authenticated foreign viewer gets public access, never the owner's private scope.
-		expect((await alice.request.put(`/api/openapi/resumes/${resumeId}`, { data: { isPublic: true } })).ok()).toBe(true);
+		const current = await (await alice.request.get(`/api/openapi/resumes/${resumeId}`)).json();
+		expect(
+			(
+				await alice.request.put(`/api/openapi/resumes/${resumeId}`, {
+					data: { isPublic: true, expectedUpdatedAt: current.updatedAt },
+				})
+			).ok(),
+		).toBe(true);
 		expect((await other.get(sharedEndpoint)).status()).toBe(200);
 		expect((await other.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(200);
 		expect((await other.get(`/api/openapi/resumes/${resumeId}`)).status()).toBe(404);

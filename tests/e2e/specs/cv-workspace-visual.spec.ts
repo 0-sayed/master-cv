@@ -11,14 +11,21 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			});
 			await page.goto(`/dashboard?locale=${locale}`);
 			await expect(page.locator("html")).toHaveAttribute("dir", ar ? "rtl" : "ltr");
-			await page.getByRole("button", { name: ar ? "سيرة ذاتية جديدة" : "New CV", exact: true }).click();
+			await page
+				.locator("#main-content")
+				.getByRole("button", { name: ar ? "سيرة ذاتية جديدة" : "New CV", exact: true })
+				.click();
 			await expect(
 				page.getByRole("heading", { name: ar ? "كيف تحب أن تبدأ؟" : "How would you like to start?", exact: true }),
 			).toBeVisible();
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("start.png") });
 			await page.getByRole("button", { name: ar ? /^رفع سيرة ذاتية موجودة/ : /^Upload an existing CV/ }).click();
-			await page.locator('input[type="file"]').setInputFiles("tooling/document-qualification/native/en.pdf");
+			await page
+				.getByRole("dialog")
+				.and(page.locator('[data-slot="dialog-content"], [data-slot="sheet-content"]'))
+				.locator('input[type="file"]')
+				.setInputFiles("tooling/document-qualification/native/en.pdf");
 			await expect(page).toHaveURL(/\/dashboard\/import\//, { timeout: 30000 });
 			await expect(
 				page.getByRole("heading", {
@@ -36,10 +43,15 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 			await page.getByRole("button", { name: ar ? "إلغاء" : "Cancel", exact: true }).click();
 			await expect(page).toHaveURL(/\/dashboard(?:\?|$)/);
-			await page.getByRole("button", { name: ar ? "سيرة ذاتية جديدة" : "New CV", exact: true }).click();
+			await page
+				.locator("#main-content")
+				.getByRole("button", { name: ar ? "سيرة ذاتية جديدة" : "New CV", exact: true })
+				.click();
 			await page.getByRole("button", { name: ar ? /^الكتابة من الصفر/u : /^Write from scratch/u }).click();
 			await expect(page).toHaveURL(/\/builder\//);
-			await expect(page.getByRole("dialog")).not.toBeVisible();
+			await expect(
+				page.getByRole("dialog").and(page.locator('[data-slot="dialog-content"], [data-slot="sheet-content"]')),
+			).not.toBeVisible();
 			await page
 				.getByLabel(ar ? "الاسم الكامل" : "Full name", { exact: true })
 				.fill(ar ? "سارة الاختبار" : "Synthetic visual author");

@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { once } from "node:events";
 import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { connect, createServer } from "node:net";
@@ -53,9 +54,9 @@ it("recovers removed capture directories and replies 451 on failed writes withou
 		socket.write(line + "\r\n");
 		return reply();
 	};
-	const message = async (subject: string) => {
+	const message = async (subject: string, recipient = "recipient@example.test") => {
 		expect(await command("MAIL FROM:<sender@example.test>")).toMatch(/^250 /);
-		expect(await command("RCPT TO:<recipient@example.test>")).toMatch(/^250 /);
+		expect(await command(`RCPT TO:<${recipient}>`)).toMatch(/^250 /);
 		expect(await command("DATA")).toMatch(/^354 /);
 		return command(`Subject: ${subject}\r\n\r\nSynthetic body\r\n.`);
 	};
@@ -67,6 +68,15 @@ it("recovers removed capture directories and replies 451 on failed writes withou
 		const files = await readdir(directory);
 		expect(files).toHaveLength(1);
 		expect(JSON.parse(await readFile(join(directory, files[0] ?? ""), "utf8")).raw).toContain("After removal");
+		const stateFile = join(
+			directory,
+			`transport-state-${createHash("sha256").update("recipient@example.test").digest("hex")}`,
+		);
+		await writeFile(stateFile, "offline");
+		expect(await message("Offline recipient")).toMatch(/^451 /);
+		expect(await message("Unaffected recipient", "other@example.test")).toMatch(/^250 /);
+		await writeFile(stateFile, "online");
+		expect(await message("Recipient recovered")).toMatch(/^250 /);
 		await rm(directory, { recursive: true });
 		await writeFile(directory, "Blocks directory creation");
 		expect(await message("Temporary failure")).toMatch(/^451 /);

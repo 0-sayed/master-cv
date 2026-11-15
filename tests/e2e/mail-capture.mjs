@@ -28,7 +28,7 @@ const server = createServer((socket) => {
 				data = false;
 				const key = createHash("sha256").update(recipient.toLowerCase()).digest("hex");
 				try {
-					const state = await readFile(resolve(directory, "transport-state"), "utf8").catch((error) => {
+					const state = await readFile(resolve(directory, `transport-state-${key}`), "utf8").catch((error) => {
 						if (error.code !== "ENOENT") throw error;
 						return "online";
 					});

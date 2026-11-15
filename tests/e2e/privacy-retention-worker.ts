@@ -9,7 +9,10 @@ if (
 	process.env.TEST_INFERENCE_ISOLATION !== "true" ||
 	!["localhost", "127.0.0.1"].includes(database.hostname) ||
 	database.port !== "55432" ||
-	!database.pathname.startsWith("/ci_browser_")
+	!(
+		database.pathname.startsWith("/ci_browser_") ||
+		(process.env.GITHUB_ACTIONS === "true" && database.pathname === "/postgres")
+	)
 )
 	throw new Error("Disposable privacy browser runtime required");
 const controller = new AbortController();

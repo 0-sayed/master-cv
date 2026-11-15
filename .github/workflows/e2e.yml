@@ -172,7 +172,11 @@ jobs:
       # Discover the complete suite and balance measured spec durations across six runners.
       - name: Run E2E Tests
         if: matrix.part == 'browser'
-        run: node tooling/local/e2e-partition.mjs ${{ matrix.shard }} 6 --output test-results/browser
+        run: |
+          pnpm --filter server exec tsx ../../tests/e2e/privacy-retention-worker.ts &
+          worker=$!
+          trap 'kill "$worker" 2>/dev/null || true; wait "$worker" 2>/dev/null || true' EXIT
+          node tooling/local/e2e-partition.mjs ${{ matrix.shard }} 6 --output test-results/browser
 
       - name: Run Bounded AI Runtime Browser Test
         if: matrix.part == 'browser' && matrix.shard == 6

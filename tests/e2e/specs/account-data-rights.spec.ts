@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
@@ -110,9 +111,12 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 }
 
 test("offline export mail remains retryable and sends after recovery", async ({ authPage: page, account }) => {
-	const directory = process.env.E2E_MAIL_DIRECTORY;
-	if (!directory) throw new Error("Runner mail sink required");
-	await writeFile(resolve(directory, "transport-state"), "offline");
+	const directory = process.env.E2E_MAIL_DIRECTORY ?? "test-results/mail";
+	const stateFile = resolve(
+		directory,
+		`transport-state-${createHash("sha256").update(account.email.toLowerCase()).digest("hex")}`,
+	);
+	await writeFile(stateFile, "offline");
 	try {
 		const fixture = await seedPrivacyAccount(
 			{ locale: "en-US", state: "export_ready", includeQueuedWork: false },
@@ -133,7 +137,7 @@ test("offline export mail remains retryable and sends after recovery", async ({ 
 				{ timeout: 30000 },
 			)
 			.toBeGreaterThan(0);
-		await writeFile(resolve(directory, "transport-state"), "online");
+		await writeFile(stateFile, "online");
 		await privacyDatabase(async (pool) => {
 			await pool.query(
 				"UPDATE privacy_work SET due_at=now() WHERE user_id=$1 AND kind='send_notice' AND status='retry'",
@@ -142,7 +146,7 @@ test("offline export mail remains retryable and sends after recovery", async ({ 
 		});
 		await capturedPrivacyNotice(account.email, "export_ready", "en-US");
 	} finally {
-		await writeFile(resolve(directory, "transport-state"), "online");
+		await writeFile(stateFile, "online");
 	}
 });
 test("proof only reviews; accepted deletion signs out and reaches public receipt", async ({
