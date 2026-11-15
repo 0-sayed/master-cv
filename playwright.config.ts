@@ -1,5 +1,6 @@
 import "./tooling/local/test-ai-guard.mjs";
 import { defineConfig, devices } from "@playwright/test";
+import { syntheticMailEnvironment } from "./tooling/local/e2e-mail.mjs";
 
 const port = Number.parseInt(process.env.PORT ?? "3000", 10);
 const baseURL = process.env.APP_URL ?? `http://localhost:${port}`;
@@ -59,12 +60,7 @@ export default defineConfig({
 				APP_URL: baseURL,
 				NODE_ENV: "production",
 				PORT: String(port),
-				SMTP_HOST: "127.0.0.1",
-				SMTP_PORT: smtpPort,
-				SMTP_SECURE: "false",
-				SMTP_USER: "synthetic",
-				SMTP_PASS: "synthetic",
-				SMTP_FROM: "Master CV <mail@example.test>",
+				...syntheticMailEnvironment({ E2E_SMTP_PORT: smtpPort }),
 			},
 		},
 	],
