@@ -314,8 +314,8 @@ export function EnableTwoFactorDialog(_: DialogProps<"auth.two-factor.enable">) 
 						{backupCodes && (
 							<div className="space-y-4">
 								<div className="grid grid-cols-2 gap-2">
-									{backupCodes.map((code) => (
-										<Input key={code} readOnly dir="ltr" aria-label={t`Copy Backup Codes`} value={code} />
+									{backupCodes.map((code, index) => (
+										<Input key={code} readOnly dir="ltr" aria-label={`${t`Backup code`} ${index + 1}`} value={code} />
 									))}
 								</div>
 

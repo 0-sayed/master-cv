@@ -39,7 +39,7 @@ export function getOrpcErrorMessage(
 	const mappedMessage = options.byCode?.[error.code];
 	if (mappedMessage) return mappedMessage;
 
-	return options.fallback;
+	return getReadableErrorMessage(error, options.fallback);
 }
 
 export function getResumeErrorMessage(error: unknown): string {

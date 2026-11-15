@@ -70,3 +70,16 @@ it("preserves immediate timezone saving and refreshes the account after success"
 	await waitFor(() => expect(state.invalidate).toHaveBeenCalledOnce());
 	expect(screen.getByRole("combobox", { name: "Timezone" })).toHaveValue("Asia/Riyadh");
 });
+
+it("previews the selected timezone instead of forcing Riyadh", async () => {
+	vi.useFakeTimers({ toFake: ["Date"] });
+	vi.setSystemTime(new Date("2026-01-01T12:00:00Z"));
+	try {
+		show();
+		expect(document.querySelector("time")).toHaveTextContent("12:00 PM");
+		fireEvent.change(screen.getByRole("combobox", { name: "Timezone" }), { target: { value: "Asia/Riyadh" } });
+		await waitFor(() => expect(document.querySelector("time")).toHaveTextContent("3:00 PM"));
+	} finally {
+		vi.useRealTimers();
+	}
+});

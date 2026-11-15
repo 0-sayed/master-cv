@@ -539,16 +539,6 @@ msgstr "{length}m"
 msgid "{lines, plural, one {Runs onto page {next} by about # line} other {Runs onto page {next} by about # lines}}"
 msgstr "{lines, plural, one {Runs onto page {next} by about # line} other {Runs onto page {next} by about # lines}}"
 
-#: src/features/resume/import/start.tsx
-#~ msgctxt "onboarding.upload.sizeLimit"
-#~ msgid "{maxMb} MB"
-#~ msgstr "{maxMb} MB"
-
-#: src/features/resume/import/start.tsx
-#~ msgctxt "onboarding.upload.pageLimit"
-#~ msgid "{maxPages} pages"
-#~ msgstr "{maxPages} pages"
-
 #: src/features/career/offers.tsx
 msgid "{minimum} minimum"
 msgstr "{minimum} minimum"
@@ -2435,6 +2425,7 @@ msgstr "Backed by"
 msgid "Background Color"
 msgstr "Background Color"
 
+#: src/dialogs/auth/enable-two-factor.tsx
 #: src/features/auth/pages/verify-2fa.tsx
 msgid "Backup code"
 msgstr "Backup code"
@@ -3556,6 +3547,7 @@ msgstr "Connect an AI provider"
 msgid "Connect an AI provider above to use the assistant. Saving and preparing jobs doesn't need one."
 msgstr "Connect an AI provider above to use the assistant. Saving and preparing jobs doesn't need one."
 
+#: src/features/career/hooks.ts
 #: src/features/career/schedule-sheet.tsx
 #: src/features/career/workspace/fit.tsx
 #: src/features/career/workspace/prepare.tsx
@@ -6568,6 +6560,7 @@ msgstr "Help"
 #: src/features/help/public-shell.tsx
 #: src/features/homepage/footer.tsx
 #: src/features/settings/privacy/deletion-page.tsx
+#: src/libs/route-titles.ts
 #: src/routes/help.tsx
 msgctxt "help.page.title"
 msgid "Help and contact"
@@ -6804,6 +6797,11 @@ msgstr "If the app did not open, try again on a device where it is installed."
 #: src/features/ats-checker/messages.ts
 msgid "If you still work there, use \"Present\" instead of an end date."
 msgstr "If you still work there, use \"Present\" instead of an end date."
+
+#: src/features/settings/privacy/deletion-page.tsx
+msgctxt "privacy.deletion.appleHint"
+msgid "If you used Sign in with Apple, Master CV may remain listed in your Apple Account. You can remove it there."
+msgstr "If you used Sign in with Apple, Master CV may remain listed in your Apple Account. You can remove it there."
 
 #: src/features/resume/editor/check/check-panel.tsx
 msgid "Ignore"
@@ -8053,6 +8051,11 @@ msgstr "Malay"
 #: src/libs/locale.ts
 msgid "Malayalam"
 msgstr "Malayalam"
+
+#: src/features/settings/privacy/deletion-page.tsx
+msgctxt "privacy.deletion.appleAction"
+msgid "Manage your Apple Account"
+msgstr "Manage your Apple Account"
 
 #: src/features/settings/ai/web-access.tsx
 msgid "Managed by server"
@@ -10197,6 +10200,7 @@ msgstr "Printing is turned off for this resume."
 #: src/features/help/page.tsx
 #: src/features/settings/account/data.tsx
 #: src/features/settings/root.tsx
+#: src/libs/route-titles.ts
 #: src/routes/dashboard/settings/route.tsx
 msgctxt "privacy.navigation.data"
 msgid "Privacy & data"
@@ -12473,6 +12477,11 @@ msgstr "Sign in to continue"
 msgid "Sign in to see the email address involved."
 msgstr "Sign in to see the email address involved."
 
+#: src/features/settings/privacy/deletion-page.tsx
+msgctxt "privacy.deletion.appleTitle"
+msgid "Sign in with Apple"
+msgstr "Sign in with Apple"
+
 #: src/features/settings/account/security.tsx
 msgctxt "workspace.privacy.ff70ac11c171"
 msgid "Sign in with your fingerprint, face or device PIN"
@@ -14590,11 +14599,6 @@ msgid "Unusual sizes can crop content in other viewers."
 msgstr "Unusual sizes can crop content in other viewers."
 
 #: src/features/resume/import/start.tsx
-#~ msgctxt "onboarding.upload.sizeLimit"
-#~ msgid "Up to {maxMb} MB"
-#~ msgstr "Up to {maxMb} MB"
-
-#: src/features/resume/import/start.tsx
 msgctxt "onboarding.upload.pageLimit"
 msgid "Up to {maxPages} pages"
 msgstr "Up to {maxPages} pages"
@@ -15012,6 +15016,7 @@ msgid "Verify with a Backup Code"
 msgstr "Verify with a Backup Code"
 
 #: src/features/auth/copy.generated.ts
+#: src/features/help/page.tsx
 #: src/libs/route-titles.ts
 msgctxt "auth.verifyEmail.title"
 msgid "Verify your email address"
@@ -15887,6 +15892,11 @@ msgstr "Your AI connection"
 #: src/features/career/workspace/practise.tsx
 msgid "Your answer"
 msgstr "Your answer"
+
+#: src/features/settings/privacy/deletion-page.tsx
+msgctxt "privacy.deletion.accessScope"
+msgid "Your API keys, connected applications and public links"
+msgstr "Your API keys, connected applications and public links"
 
 #: src/features/career/workspace/practise.tsx
 #: src/features/homepage/prepare.tsx

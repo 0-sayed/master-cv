@@ -231,15 +231,16 @@ const getAuthConfig = () => {
 				if (ctx.path === "/change-email")
 					throw new APIError("FORBIDDEN", { message: "Use the verified account email transition." });
 				if (ctx.path === "/verify-email" && typeof ctx.query?.token === "string") {
-					let payload: JWTPayload;
+					let payload: JWTPayload | undefined;
 					try {
 						({ payload } = await jwtVerify(ctx.query.token, new TextEncoder().encode(env.AUTH_SECRET), {
 							algorithms: ["HS256"],
 						}));
 					} catch {
-						throw new APIError("UNAUTHORIZED", { message: "Invalid verification proof." });
+						// Let Better Auth's verification endpoint return its existing expired-link
+						// redirect. Only a valid legacy change-email payload needs interception.
 					}
-					if (payload.updateTo)
+					if (payload?.updateTo)
 						throw new APIError("FORBIDDEN", { message: "Use the verified account email transition." });
 				}
 				const user = accountUser.getStore();

@@ -533,16 +533,6 @@ msgstr "{length} د"
 msgid "{lines, plural, one {Runs onto page {next} by about # line} other {Runs onto page {next} by about # lines}}"
 msgstr "{lines, plural, zero {يتجاوز إلى الصفحة {next} قليلًا} one {يتجاوز إلى الصفحة {next} بنحو سطر واحد} two {يتجاوز إلى الصفحة {next} بنحو سطرين} few {يتجاوز إلى الصفحة {next} بنحو # أسطر} many {يتجاوز إلى الصفحة {next} بنحو # سطرًا} other {يتجاوز إلى الصفحة {next} بنحو # سطر}}"
 
-#: src/features/resume/import/start.tsx
-#~ msgctxt "onboarding.upload.sizeLimit"
-#~ msgid "{maxMb} MB"
-#~ msgstr "{maxMb} MB"
-
-#: src/features/resume/import/start.tsx
-#~ msgctxt "onboarding.upload.pageLimit"
-#~ msgid "{maxPages} pages"
-#~ msgstr "{maxPages} صفحة"
-
 #: src/features/career/offers.tsx
 msgid "{minimum} minimum"
 msgstr "{minimum} كحد أدنى"
@@ -2429,6 +2419,7 @@ msgstr "مدعومة بـ"
 msgid "Background Color"
 msgstr "لون الخلفية"
 
+#: src/dialogs/auth/enable-two-factor.tsx
 #: src/features/auth/pages/verify-2fa.tsx
 msgid "Backup code"
 msgstr "رمز النسخ الاحتياطي"
@@ -3550,6 +3541,7 @@ msgstr "قم بتوصيل مزود AI"
 msgid "Connect an AI provider above to use the assistant. Saving and preparing jobs doesn't need one."
 msgstr "قم بتوصيل مزود AI أعلاه لاستخدام المساعد. حفظ وإعداد الوظائف لا يحتاج إلى واحد."
 
+#: src/features/career/hooks.ts
 #: src/features/career/schedule-sheet.tsx
 #: src/features/career/workspace/fit.tsx
 #: src/features/career/workspace/prepare.tsx
@@ -6562,6 +6554,7 @@ msgstr "المساعدة"
 #: src/features/help/public-shell.tsx
 #: src/features/homepage/footer.tsx
 #: src/features/settings/privacy/deletion-page.tsx
+#: src/libs/route-titles.ts
 #: src/routes/help.tsx
 msgctxt "help.page.title"
 msgid "Help and contact"
@@ -6798,6 +6791,11 @@ msgstr "إذا لم يتم فتح التطبيق، حاول مرة أخرى عل
 #: src/features/ats-checker/messages.ts
 msgid "If you still work there, use \"Present\" instead of an end date."
 msgstr "إذا كنت لا تزال تعمل هناك، استخدم «حتى الآن» بدلًا من تاريخ النهاية."
+
+#: src/features/settings/privacy/deletion-page.tsx
+msgctxt "privacy.deletion.appleHint"
+msgid "If you used Sign in with Apple, Master CV may remain listed in your Apple Account. You can remove it there."
+msgstr "إذا استخدمت تسجيل الدخول باستخدام Apple، فقد يظل Master CV مدرجًا في حساب Apple الخاص بك. يمكنك إزالته من هناك."
 
 #: src/features/resume/editor/check/check-panel.tsx
 msgid "Ignore"
@@ -8047,6 +8045,11 @@ msgstr "الملايوية"
 #: src/libs/locale.ts
 msgid "Malayalam"
 msgstr "المالايالام"
+
+#: src/features/settings/privacy/deletion-page.tsx
+msgctxt "privacy.deletion.appleAction"
+msgid "Manage your Apple Account"
+msgstr "إدارة حساب Apple الخاص بك"
 
 #: src/features/settings/ai/web-access.tsx
 msgid "Managed by server"
@@ -10191,6 +10194,7 @@ msgstr "تم إيقاف الطباعة لهذه السيرة الذاتية."
 #: src/features/help/page.tsx
 #: src/features/settings/account/data.tsx
 #: src/features/settings/root.tsx
+#: src/libs/route-titles.ts
 #: src/routes/dashboard/settings/route.tsx
 msgctxt "privacy.navigation.data"
 msgid "Privacy & data"
@@ -12467,6 +12471,11 @@ msgstr "سجّل الدخول للمتابعة"
 msgid "Sign in to see the email address involved."
 msgstr "سجّل الدخول لعرض عنوان البريد الإلكتروني المعني."
 
+#: src/features/settings/privacy/deletion-page.tsx
+msgctxt "privacy.deletion.appleTitle"
+msgid "Sign in with Apple"
+msgstr "تسجيل الدخول باستخدام Apple"
+
 #: src/features/settings/account/security.tsx
 msgctxt "workspace.privacy.ff70ac11c171"
 msgid "Sign in with your fingerprint, face or device PIN"
@@ -14584,11 +14593,6 @@ msgid "Unusual sizes can crop content in other viewers."
 msgstr "قد تؤدي المقاسات غير المعتادة إلى اقتطاع المحتوى عند عرضه."
 
 #: src/features/resume/import/start.tsx
-#~ msgctxt "onboarding.upload.sizeLimit"
-#~ msgid "Up to {maxMb} MB"
-#~ msgstr "حتى {maxMb} MB"
-
-#: src/features/resume/import/start.tsx
 msgctxt "onboarding.upload.pageLimit"
 msgid "Up to {maxPages} pages"
 msgstr "حتى {maxPages} صفحة"
@@ -15006,6 +15010,7 @@ msgid "Verify with a Backup Code"
 msgstr "التحقق باستخدام رمز نسخ احتياطي"
 
 #: src/features/auth/copy.generated.ts
+#: src/features/help/page.tsx
 #: src/libs/route-titles.ts
 msgctxt "auth.verifyEmail.title"
 msgid "Verify your email address"
@@ -15881,6 +15886,11 @@ msgstr "اتصال الذكاء الاصطناعي لديك"
 #: src/features/career/workspace/practise.tsx
 msgid "Your answer"
 msgstr "إجابتك"
+
+#: src/features/settings/privacy/deletion-page.tsx
+msgctxt "privacy.deletion.accessScope"
+msgid "Your API keys, connected applications and public links"
+msgstr "مفاتيح API الخاصة بك والتطبيقات المتصلة والروابط العامة"
 
 #: src/features/career/workspace/practise.tsx
 #: src/features/homepage/prepare.tsx

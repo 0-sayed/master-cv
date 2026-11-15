@@ -91,7 +91,9 @@
 				"workspace.entryOptions.russian",
 				"workspace.entryOptions.bengali",
 				"workspace.entryOptions.indonesian",
-				"workspace.entryOptions.malay"
+				"workspace.entryOptions.malay",
+				"privacy.navigation.data",
+				"help.page.title"
 			],
 			"status": "active",
 			"owner": "T002",
@@ -224,7 +226,11 @@
 				"account.interface.06f0e210b27d",
 				"account.interface.65ad6aaaab73",
 				"account.interface.4f7838402f37",
-				"account.interface.6725e7bbcd28"
+				"account.interface.6725e7bbcd28",
+				"privacy.deletion.accessScope",
+				"privacy.deletion.appleTitle",
+				"privacy.deletion.appleAction",
+				"privacy.deletion.appleHint"
 			],
 			"status": "active",
 			"owner": "T009",
@@ -1534,7 +1540,9 @@
 				"applications.entry.readerNeedsSignIn",
 				"applications.entry.waitForReader",
 				"applications.import.mappingHint",
-				"help.contact.replyAddress"
+				"help.contact.replyAddress",
+				"auth.verifyEmail.title",
+				"workspace.auth.backup.code_lvyVXB"
 			],
 			"status": "active",
 			"owner": "T002/A13 feature owners",
@@ -1981,7 +1989,12 @@
 				"account.interface.925a815b954b",
 				"account.interface.5589c25d4592",
 				"account.interface.6725e7bbcd28",
-				"help.contact.replyAddress"
+				"help.contact.replyAddress",
+				"auth.verifyEmail.title",
+				"privacy.deletion.accessScope",
+				"privacy.deletion.appleTitle",
+				"privacy.deletion.appleAction",
+				"privacy.deletion.appleHint"
 			],
 			"status": "active",
 			"owner": "T009",

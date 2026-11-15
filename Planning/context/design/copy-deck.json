@@ -109791,6 +109791,158 @@
 					"version": "T004 D36 / 2026-11-11"
 				}
 			}
+		},
+		{
+			"key": "privacy.deletion.accessScope",
+			"messages": {
+				"en-US": "Your API keys, connected applications and public links",
+				"ar-SA": "مفاتيح API الخاصة بك والتطبيقات المتصلة والروابط العامة"
+			},
+			"context": {
+				"surfaces": ["screens:S30"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Requirement-driven account deletion scope and Apple recovery guidance."]
+			},
+			"nodeIds": [],
+			"source": "translated",
+			"sourceReferences": ["apps/web/src/features/settings/privacy/deletion-page.tsx"],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Your API keys, connected applications and public links",
+				"msgctxt": "privacy.deletion.accessScope",
+				"runtimeId": "wQ6GIk",
+				"mappingStatus": "verified temporary extraction and compilation",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/settings/privacy/deletion-page.tsx",
+				"verification": "Saved temporary Lingui extraction and compilation evidence; owner locale review remains pending."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "export9 / 2026-11-03"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "export9 / 2026-11-03"
+				}
+			}
+		},
+		{
+			"key": "privacy.deletion.appleTitle",
+			"messages": {
+				"en-US": "Sign in with Apple",
+				"ar-SA": "تسجيل الدخول باستخدام Apple"
+			},
+			"context": {
+				"surfaces": ["screens:S30"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Requirement-driven account deletion scope and Apple recovery guidance."]
+			},
+			"nodeIds": [],
+			"source": "translated",
+			"sourceReferences": ["apps/web/src/features/settings/privacy/deletion-page.tsx"],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Sign in with Apple",
+				"msgctxt": "privacy.deletion.appleTitle",
+				"runtimeId": "dULCdw",
+				"mappingStatus": "verified temporary extraction and compilation",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/settings/privacy/deletion-page.tsx",
+				"verification": "Saved temporary Lingui extraction and compilation evidence; owner locale review remains pending."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "export9 / 2026-11-03"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "export9 / 2026-11-03"
+				}
+			}
+		},
+		{
+			"key": "privacy.deletion.appleAction",
+			"messages": {
+				"en-US": "Manage your Apple Account",
+				"ar-SA": "إدارة حساب Apple الخاص بك"
+			},
+			"context": {
+				"surfaces": ["screens:S30"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Requirement-driven account deletion scope and Apple recovery guidance."]
+			},
+			"nodeIds": [],
+			"source": "translated",
+			"sourceReferences": ["apps/web/src/features/settings/privacy/deletion-page.tsx"],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Manage your Apple Account",
+				"msgctxt": "privacy.deletion.appleAction",
+				"runtimeId": "IJmQ6j",
+				"mappingStatus": "verified temporary extraction and compilation",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/settings/privacy/deletion-page.tsx",
+				"verification": "Saved temporary Lingui extraction and compilation evidence; owner locale review remains pending."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "export9 / 2026-11-03"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "export9 / 2026-11-03"
+				}
+			}
+		},
+		{
+			"key": "privacy.deletion.appleHint",
+			"messages": {
+				"en-US": "If you used Sign in with Apple, Master CV may remain listed in your Apple Account. You can remove it there.",
+				"ar-SA": "إذا استخدمت تسجيل الدخول باستخدام Apple، فقد يظل Master CV مدرجًا في حساب Apple الخاص بك. يمكنك إزالته من هناك."
+			},
+			"context": {
+				"surfaces": ["screens:S30"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Requirement-driven account deletion scope and Apple recovery guidance."]
+			},
+			"nodeIds": [],
+			"source": "translated",
+			"sourceReferences": ["apps/web/src/features/settings/privacy/deletion-page.tsx"],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "If you used Sign in with Apple, Master CV may remain listed in your Apple Account. You can remove it there.",
+				"msgctxt": "privacy.deletion.appleHint",
+				"runtimeId": "FSdDGb",
+				"mappingStatus": "verified temporary extraction and compilation",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/settings/privacy/deletion-page.tsx",
+				"verification": "Saved temporary Lingui extraction and compilation evidence; owner locale review remains pending."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "export9 / 2026-11-03"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "export9 / 2026-11-03"
+				}
+			}
 		}
 	],
 	"screens": {
@@ -111141,7 +111293,11 @@
 				"privacy.deletion.paymentRetention",
 				"privacy.deletion.cvCount.compact",
 				"privacy.deletion.careerScope.compact",
-				"privacy.deletion.paymentRetention.compact"
+				"privacy.deletion.paymentRetention.compact",
+				"privacy.deletion.accessScope",
+				"privacy.deletion.appleTitle",
+				"privacy.deletion.appleAction",
+				"privacy.deletion.appleHint"
 			]
 		},
 		"S31": {

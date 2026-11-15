@@ -47,6 +47,7 @@ function ReviewSession({ draft }: { draft: ReviewDraft | null }) {
 	const mounted = useRef(true);
 	const completedResume = useRef<string | undefined>(undefined);
 	const [error, setError] = useState(false);
+	const [celebrateCreated] = useState(() => prepareFirstCvCelebration(queryClient));
 	useEffect(() => {
 		mounted.current = true;
 		return () => {
@@ -116,7 +117,7 @@ function ReviewSession({ draft }: { draft: ReviewDraft | null }) {
 					onCheckpoint={checkpoint}
 					onBack={() => void leave()}
 					onSaved={(id) => {
-						prepareFirstCvCelebration(queryClient)();
+						celebrateCreated();
 						void leave(id);
 					}}
 				/>

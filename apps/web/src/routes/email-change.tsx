@@ -44,9 +44,9 @@ function EmailChangeResult() {
 		},
 	});
 	const resend = useMutation({ mutationFn: () => client.privacy.resendEmailChange() });
-	const pending = status === "confirmed_old" || status === "verification_sent";
+	const pending = status === "confirmed_old" || status === "verification_sent" || resend.isSuccess;
 	const complete = status === "complete";
-	const failed = status === "delivery_failed";
+	const failed = status === "delivery_failed" && !resend.isSuccess;
 	const address = complete
 		? current.data?.user.email
 		: pending || failed

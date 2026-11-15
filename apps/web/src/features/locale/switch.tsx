@@ -32,7 +32,7 @@ export function LocaleSwitch({ compact = false }: LocaleSwitchProps) {
 				}}
 			>
 				{!compact && <Icon name="globe" size={18} className="hidden lg:inline-block" />}
-				<span lang={locale}>
+				<span lang="en-US">
 					{arabic
 						? t({ message: "EN", context: "language.switch.english" })
 						: t({ message: "Arabic", context: "language.switch.arabic" })}

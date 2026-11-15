@@ -85,7 +85,7 @@ export function TrashPage() {
 						<caption className="sr-only">
 							<Trans>Trash</Trans>
 						</caption>
-						<thead className="max-sm:sr-only">
+						<thead>
 							<tr className="border-b border-line type-metadata text-ink-3">
 								<th className="w-10 py-3 ps-3">
 									<Checkbox

@@ -3,6 +3,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { cn } from "@reactive-resume/utils/style";
 import { PageHeader } from "@/components/layout/page-header";
 
 type Page = {
@@ -39,7 +40,11 @@ export const Route = createFileRoute("/dashboard/settings")({ component: RouteCo
 function RouteComponent() {
 	const pathname = useRouterState({ select: (state) => state.location.pathname });
 	const isRoot = pathname.replace(/\/$/, "") === "/dashboard/settings";
-	const current = SETTINGS_PAGES.find((page) => page.to === pathname.replace(/\/$/, ""));
+	const selected =
+		pathname.replace(/\/$/, "") === "/dashboard/settings/delete-account"
+			? "/dashboard/settings/privacy"
+			: pathname.replace(/\/$/, "");
+	const current = SETTINGS_PAGES.find((page) => page.to === selected);
 
 	return (
 		<div className="settings-content grid min-w-0 gap-6 max-sm:gap-4">
@@ -69,7 +74,11 @@ function RouteComponent() {
 						<Link
 							key={page.to}
 							to={page.to}
-							className="flex min-h-11 shrink-0 items-center gap-2.5 rounded-lg px-2.5 type-label text-ink-2 transition-colors duration-quick hover:bg-hover"
+							aria-current={page.to === selected ? "page" : undefined}
+							className={cn(
+								"flex min-h-11 shrink-0 items-center gap-2.5 rounded-lg px-2.5 type-label text-ink-2 transition-colors duration-quick hover:bg-hover",
+								page.to === selected && "bg-sunken text-ink",
+							)}
 							activeProps={{ className: "bg-sunken text-ink", "aria-current": "page" }}
 						>
 							<Icon name={page.icon} size={20} />

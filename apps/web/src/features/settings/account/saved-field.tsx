@@ -50,7 +50,11 @@ export function SavedField({
 	const commit = async () => {
 		if (saving) return;
 		const next = draft.trim();
-		if (next === value) return setError(null);
+		if (next === value) {
+			setDraft(value);
+			setSaved(true);
+			return setError(null);
+		}
 		const invalid = validate(next);
 		if (invalid) return setError(invalid);
 		setError(null);
@@ -65,6 +69,7 @@ export function SavedField({
 		setSaving(false);
 		setError(failure);
 		setSaved(failure === null);
+		if (failure === null) setDraft(next);
 	};
 
 	const inputProps = {
@@ -112,9 +117,11 @@ export function SavedField({
 					? t({ message: "Saving…", context: "editor.save.status.saving" })
 					: saved
 						? (savedMessage ?? t({ message: "Saved", context: "editor.save.status.saved" }))
-						: draft !== value
-							? t`Unsaved changes — leave this field to save`
-							: (savedMessage ?? t({ message: "Saved", context: "editor.save.status.saved" }))}
+						: error
+							? null
+							: draft !== value
+								? t`Unsaved changes — leave this field to save`
+								: (savedMessage ?? t({ message: "Saved", context: "editor.save.status.saved" }))}
 			</FormDescription>
 			{error ? <FormMessage role="alert" errors={[error]} /> : hint && <FormDescription>{hint}</FormDescription>}
 		</FormItem>

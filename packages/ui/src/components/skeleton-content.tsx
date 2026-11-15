@@ -1,7 +1,8 @@
 import { buttonVariants } from "./button";
 import { CollectionGrid, CollectionGridGroup, SectionCollection } from "./collection-grid";
 import { documentCardLayout } from "./document-card-layout";
-import { SectionCard, SectionCardEmpty, SectionCardHeader, SectionCardRow } from "./section-card";
+import { EmptyState } from "./empty-state";
+import { SectionCard, SectionCardHeader, SectionCardRow } from "./section-card";
 import { Skeleton, SkeletonText } from "./skeleton";
 
 export type SkeletonShape =
@@ -37,23 +38,27 @@ export function ProfileSectionsSkeleton({ emptyLabel, noticeLabel, noticeHint }:
 						<Skeleton className="box-content size-4.5 p-2" />
 						<Skeleton className="h-lh w-1/2 type-section" />
 					</SectionCardHeader>
-					<SectionCardEmpty>
-						<p>
+					<EmptyState
+						density="compact"
+						icon="plus"
+						title={
 							<Skeleton as="span" className="text-transparent">
 								{index === 4 ? noticeLabel : emptyLabel}
 							</Skeleton>
-						</p>
-						{index === 4 && (
-							<p>
+						}
+						description={
+							index === 4 ? (
 								<Skeleton as="span" className="text-transparent">
 									{noticeHint}
 								</Skeleton>
-							</p>
-						)}
-					</SectionCardEmpty>
-					<div className={buttonVariants({ variant: "link", size: "link-compact", className: "justify-start" })}>
-						<Skeleton className="h-lh w-1/3" />
-					</div>
+							) : undefined
+						}
+						actions={
+							<div className={buttonVariants({ variant: "secondary" })}>
+								<Skeleton className="h-lh w-24" />
+							</div>
+						}
+					/>
 				</SectionCard>
 			))}
 		</SectionCollection>

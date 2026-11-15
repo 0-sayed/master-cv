@@ -23,6 +23,7 @@ describe("localized error messages", () => {
 			data: { issues: [{ code: "too_big", origin: "file", maximum: 10485760, message: "private" }] },
 		});
 		expect(getReadableErrorMessage(error, "fallback")).toBe("يجب أن يكون حجم الملف أقل من 10 ميجابايت.");
+		expect(getOrpcErrorMessage(error, { fallback: "fallback" })).toBe("يجب أن يكون حجم الملف أقل من 10 ميجابايت.");
 	});
 	it("uses the caller fallback for unknown validation issues", () => {
 		const error = new ORPCError("BAD_REQUEST", { data: { issues: [{ code: "custom", message: "private" }] } });

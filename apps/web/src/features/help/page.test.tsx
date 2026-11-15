@@ -72,6 +72,35 @@ it("FAQ keeps PDF and interface-language independence explicit", () => {
 	expect(screen.queryByText("The privacy policy and retention periods will be published before launch.")).toBeNull();
 });
 
+it("retries unchanged content with the same nonce and edits with a new nonce", async () => {
+	submit.mockRejectedValue(new Error("offline"));
+	show();
+	fill();
+	const send = screen.getByRole("button", { name: "Send message" });
+	fireEvent.click(send);
+	await screen.findByRole("alert");
+	const first = submit.mock.calls[0]?.[0].requestNonce;
+	expect(first).toBeTypeOf("string");
+	fireEvent.click(send);
+	await waitFor(() => expect(submit).toHaveBeenCalledTimes(2));
+	expect(submit.mock.calls[1]?.[0].requestNonce).toBe(first);
+	await waitFor(() => expect(send).not.toBeDisabled());
+	fireEvent.change(screen.getByLabelText("Your message"), { target: { value: "Edited support question" } });
+	fireEvent.click(send);
+	await waitFor(() => expect(submit).toHaveBeenCalledTimes(3));
+	expect(submit.mock.calls[2]?.[0].requestNonce).not.toBe(first);
+});
+
+it("offers verification recovery to an unverified signed-in owner", () => {
+	context.session = { user: { email: "pending@example.test", emailVerified: false } };
+	show();
+	expect(screen.queryByRole("button", { name: "Send message" })).toBeNull();
+	expect(screen.getByRole("link", { name: "Verify your email address" })).toHaveAttribute(
+		"href",
+		"/auth/verify-email?email=pending%40example.test",
+	);
+});
+
 it.each([
 	["Export problem", "export"],
 	["Plan question", "plan"],

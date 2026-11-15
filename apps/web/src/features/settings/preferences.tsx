@@ -8,7 +8,6 @@ import { useId, useState, useEffect } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
 import { toast } from "@reactive-resume/ui/components/toast";
-import { formatUiTimestamp } from "@reactive-resume/utils/ui-format";
 import { SettingsSection, SettingsRow } from "./section";
 import { Combobox } from "@/components/ui/combobox";
 import { LocaleCombobox } from "@/features/locale/combobox";
@@ -103,11 +102,13 @@ function TimezoneSetting({ id }: { id: string }) {
 						<Trans>Current local time</Trans>
 						{": "}
 						<time dateTime={now.toISOString()}>
-							{formatUiTimestamp(now, i18n.locale === "en-US" ? "en-US" : "ar-SA", {
+							{new Intl.DateTimeFormat(i18n.locale, {
 								timeZone: value,
+								calendar: "gregory",
+								numberingSystem: "latn",
 								hour: "numeric",
 								minute: "2-digit",
-							})}
+							}).format(now)}
 						</time>
 						<br />
 						<Trans>Interview times, reminders and schedules in Career use it.</Trans>

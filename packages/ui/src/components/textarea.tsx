@@ -12,7 +12,7 @@ function Textarea({ className, size = "default", ...props }: TextareaProps) {
 			data-size={size}
 			className={cn(
 				inputSurfaceClassName,
-				"flex field-sizing-content min-h-16 px-3 py-2 type-body",
+				"flex field-sizing-content min-h-16 px-3 py-2 type-input",
 				size === "message" &&
 					"max-h-(--textarea-message-max-height) min-h-(--textarea-message-min-height) overflow-y-auto",
 				className,

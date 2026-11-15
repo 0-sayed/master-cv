@@ -26,6 +26,7 @@ export function HelpPage() {
 	const [message, setMessage] = useState("");
 	const [subject, setSubject] = useState<"export" | "plan" | "privacy" | "other">("export");
 	const [nonce, setNonce] = useState(() => crypto.randomUUID());
+	const lastSubmission = useRef<string | null>(null);
 	const emailError =
 		!accountEmail && !z.email().max(254).safeParse(email).success
 			? t({ message: "Enter a valid email address.", context: "help.contact.emailError" })
@@ -38,14 +39,20 @@ export function HelpPage() {
 	const count = String(message.length);
 	const limit = "10000";
 	const send = useMutation({
-		mutationFn: () =>
-			client.privacy.support({
+		mutationFn: () => {
+			const fingerprint = JSON.stringify([accountEmail ?? email, subject, message, i18n.locale]);
+			const requestNonce =
+				lastSubmission.current !== null && lastSubmission.current !== fingerprint ? crypto.randomUUID() : nonce;
+			lastSubmission.current = fingerprint;
+			setNonce(requestNonce);
+			return client.privacy.support({
 				...(accountEmail ? {} : { email }),
 				subject,
 				message,
-				requestNonce: nonce,
+				requestNonce,
 				locale: i18n.locale === "en-US" ? "en-US" : "ar-SA",
-			}),
+			});
+		},
 	});
 	useEffect(() => {
 		if (send.isSuccess) receiptRef.current?.focus();
@@ -64,7 +71,19 @@ export function HelpPage() {
 						</a>
 					}
 				>
-					{send.isSuccess ? (
+					{session && !session.user.emailVerified ? (
+						<PrivacyNotice
+							title={<Trans context="auth.verifyEmail.title">Verify your email address</Trans>}
+							action={
+								<a
+									className={buttonVariants({ variant: "secondary" })}
+									href={`/auth/verify-email?email=${encodeURIComponent(session.user.email)}`}
+								>
+									<Trans context="auth.verifyEmail.title">Verify your email address</Trans>
+								</a>
+							}
+						/>
+					) : send.isSuccess ? (
 						<div ref={receiptRef} role="status" tabIndex={-1}>
 							<PrivacyNotice
 								title={<Trans context="help.contact.receivedTitle">Message received</Trans>}

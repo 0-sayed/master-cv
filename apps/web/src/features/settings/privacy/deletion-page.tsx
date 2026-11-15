@@ -50,6 +50,9 @@ export function DeletionPage() {
 				<p>
 					<Trans context="privacy.deletion.accountScope">Your account and sign-in information</Trans>
 				</p>
+				<p>
+					<Trans context="privacy.deletion.accessScope">Your API keys, connected applications and public links</Trans>
+				</p>
 				{counts.isPending ? (
 					<QuerySkeleton
 						shape="settings"
@@ -80,6 +83,23 @@ export function DeletionPage() {
 					<Trans context="privacy.deletion.careerScope.compact">Your career information and uploaded files</Trans>
 				</p>
 			</SettingsSection>
+			<PrivacyNotice
+				title={<Trans context="privacy.deletion.appleTitle">Sign in with Apple</Trans>}
+				action={
+					<a
+						href="https://account.apple.com/account/manage"
+						target="_blank"
+						rel="noopener noreferrer"
+						className={buttonVariants({ variant: "link", size: "link-touch" })}
+					>
+						<Trans context="privacy.deletion.appleAction">Manage your Apple Account</Trans>
+					</a>
+				}
+			>
+				<Trans context="privacy.deletion.appleHint">
+					If you used Sign in with Apple, Master CV may remain listed in your Apple Account. You can remove it there.
+				</Trans>
+			</PrivacyNotice>
 			<SettingsSection title={<Trans context="privacy.deletion.retentionTitle">What may remain</Trans>}>
 				<p>
 					<Trans context="workspace.privacy.4a8e98f2ed75">

@@ -16,6 +16,7 @@ it("waits for acknowledged creation and celebrates a known first CV only once", 
 	const client = new QueryClient();
 	client.setQueryData(["documents", "counts"], { resume: 0, trash: 0 });
 	const acknowledge = prepareFirstCvCelebration(client);
+	client.setQueryData(["documents", "counts"], { resume: 1, trash: 0 });
 	expect(add).not.toHaveBeenCalled();
 	acknowledge();
 	acknowledge();

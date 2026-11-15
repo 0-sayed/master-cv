@@ -230,11 +230,13 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 					dropzone
 					dragging={dragging}
 					aria-label={t({ context: "onboarding.upload.title", message: "Upload an existing CV" })}
+					aria-describedby="cv-upload-requirements"
 					icon={<Icon name="upload-simple" />}
 					title={t({ context: "onboarding.upload.title", message: "Upload an existing CV" })}
 					description={<Trans context="onboarding.upload.dropAction">Drop a PDF here or choose a file</Trans>}
 					details={
 						<span
+							id="cv-upload-requirements"
 							role="list"
 							aria-label={t({ context: "onboarding.upload.requirements", message: "File requirements" })}
 							className="flex flex-wrap items-center gap-2"
