@@ -141,6 +141,11 @@ Step 3 above applies to what changed, not the whole app on every task.
   rerun them.
 - Do not rerun a suite on unchanged source. After an infrastructure failure (disk full, server
   loss), fix the cause and rerun only the failed cases.
+- **Local browser workers:** `ci-browser.mjs` sets `CI=true`, which forces one Playwright worker. Locally,
+  pass `--workers=N` (it is forwarded to Playwright). Choose N from the machine: check `nproc` and free
+  memory (`free -g`), use about half the cores, at most 6, and about 1.5 GB of free memory per worker.
+  On a 16-core, 23 GB machine, 4 workers ran 340 tests in 8.5 minutes instead of 34. If a test fails
+  only with several workers, confirm with `--workers=1` and report it as parallel-unsafe. CI keeps one worker.
 
 ## Existing repository guidance and reconciled scope
 

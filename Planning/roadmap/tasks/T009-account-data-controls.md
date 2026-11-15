@@ -2,8 +2,8 @@
 
 **Task:** T009 · **PR size:** L · **Branch:** `feat/t009-account-data-controls`
 **Depends on:** T005 · **Priority:** 80
-**Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
-**Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
+**Status:** Implementation approved for PR delivery, 2026-11-15. Release and external-service gates remain open.
+**Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; tick the T009 row and update its Mermaid class when the task PR is first shipped, per AGENTS.md (owner decision 2026-11-14).
 
 ## Goal
 
@@ -111,4 +111,31 @@ Implement this inventory with existing shared components, the appropriate shared
 - The scoped implementation and recovery paths meet the stated acceptance evidence, with no fabricated completion.
 - Requirement/screen ownership, source conflicts, unsupported cases and external approvals are recorded honestly.
 - Required checks/reviews pass for the proposed merge scope; unresolved release gates remain explicit and disabled.
-- Update the single graph status and Mermaid class only after authorized merge, preserving all 16 large PRs.
+- When the task PR is first shipped, tick its row in tasks.md and update its class in dependencies.mmd, preserving all 16 large PRs (AGENTS.md; owner decision 2026-11-14).
+
+## Delivery evidence - 2026-11-15
+
+Requirements: B-C12, B-O01 and B-O05; implementation, recovery inventory and exact S28–S31/S36 master/state/dialog IDs are recorded in [account/data evidence](../../../docs/t009-account-data-controls-evidence.md) and [browser verification](../../../docs/t009-browser-verification.md). This delivery uses the owner-approved implemented UI as the D36 layout reference; no new live Figma verification is claimed.
+
+- Recorded host validation: `pnpm validate:static` PASS; `pnpm test:ci` completed all 20 package tasks successfully. Subsequent focused web/tooling runs passed after UI changes. A later root attempt failed because its selected disposable OAuth database was absent; this does not replace the earlier completed package run.
+- Recorded browser acceptance: 51 spec files, 340 cases with four workers. The full run passed 338 and failed two real-zoom cases; the subsequent 56-case recovery run passed, covering both failures after restoring shared mobile navigation typography. All 340 cases therefore have passing evidence across the full and recovery runs, not one clean full rerun.
+- Browser review ledger: 89 decisions, **80 fixture/assertion updates** to follow approved UI while preserving contracts, and **9 product-fix decisions**. The nine are: visible paste clipping (1), equal mobile navigation height (1), profile-photo session refresh in AR/EN (2), wrapping the Arabic device-timezone action in light/dark (2), sidebar brand flex alignment in AR/EN (2), and measured mobile-navigation toast clearance (1). These correspond to six distinct fixes; the later zoom typography correction is recorded separately above. Evidence source: owner browser-fixes decision ledger, 2026-11-15.
+- The root schema dependency is required by root-owned Playwright specs/fixtures importing `@reactive-resume/schema/resume/*`; tooling's own dependency does not provide root resolution.
+
+D36 owner-approved deviations (2026-11-15):
+
+- Center all settings headings, tabs, dividers and stacked cards in the same 720px column to prevent tab shifts; let fields fill the owning card and align stacked actions to the label start.
+- Move New CV to the sidebar top, group Trash with main destinations and consolidate account actions at the bottom; place the shared sidebar-panel toggle by the logo and use capped count badges for stable, discoverable navigation.
+- Keep signed-in Help in the app shell and signed-out Help public; use a growing seven-line textarea and localized inline errors for reachable, consistent recovery.
+- Use dashed EmptyState only for empty collections, separate failed/filtered/status outcomes, and center decorative empty-CV previews to communicate first use without implying an operation succeeded.
+- Replace upload prose with validator-derived PDF/size/page chips and LTR size isolation for readable Arabic limits; retain warnings at the point they apply.
+- Offer language/fluency/skill presets plus custom text while preserving saved facts and document-language independence.
+- Split CSV import into choose/match/review steps and job saving into Link/Paste tabs to make input and explicit approval clear.
+- Apply the shared subtle Sadu tile, once-only logo check and confirmed-success celebration to add character while keeping document paper unchanged and respecting reduced motion.
+- Remove repeated trust footnotes, the Help/Privacy publication promise and Help draft notice to reduce noise and avoid unapproved promises; legal/retention gates remain open.
+
+Final pre-commit verification: `pnpm validate:static` PASS (format, token lint, 22 workspace typechecks, Knip and boundaries); roadmap checker PASS with 0 errors. Production build PASS through the isolated browser runner. Four affected upload/first-use/import specs have 16 passing cases across the initial 12 passes and the four-case recovery run, with four workers and no skips. No spec was modified after the recorded 51-file run until this final validation exposed ambiguous import fixture selectors; the two changed specs were rerun. Upload component tests: 7 passed. Focused locale-binding/cache tests: 15 passed, zero binding diagnostics.
+
+The final checks exposed a static PO module import without a declaration and import fixtures matching both sidebar/page creation actions, both hidden file inputs, or a celebration toast as a task dialog. Reuse the app's typed catalog loader and scope fixture selectors to the main action/task dialog; preserve CV persistence, approval, cancel and document-language assertions. The initial static invocation also used a relative isolation preload; rerun with its absolute repository path passed. Commit scanning identified two synthetic credential literals; replace them with repeated fixture values. API configuration checks passed 12 inventory/support tests and 8 passkey integration tests against a disposable database after these changes. No product behavior changed in these fixes.
+
+No production activation, paid inference, real-CV processing, SMS, payment, or backup-restore qualification is asserted.
