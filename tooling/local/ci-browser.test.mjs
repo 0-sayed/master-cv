@@ -1,6 +1,26 @@
 import { readFileSync } from "node:fs";
 import { expect, it } from "vite-plus/test";
-import { ciBrowserEnvironment } from "./ci-browser.mjs";
+import { ciBrowserEnvironment, ciBrowserWorkers } from "./ci-browser.mjs";
+
+it.each([
+	[16, 23, 4],
+	[8, 23, 4],
+	[7, 23, 3],
+	[16, 5, 3],
+	[1, 23, 1],
+	[16, 1, 1],
+])("chooses local workers for %i cores and %i GB of free memory", (cores, gb, expected) => {
+	expect(ciBrowserWorkers({ args: [], cores, freeMemory: gb * 1024 ** 3 })).toBe(expected);
+});
+
+it.each(["--workers=4", "--workers", "-j", "-j4", "-j=4"])("preserves explicit %s", (arg) => {
+	expect(ciBrowserWorkers({ args: [arg, "4"], cores: 16, freeMemory: 23 * 1024 ** 3 })).toBeNull();
+});
+
+it("leaves GitHub Actions worker selection unchanged", () => {
+	expect(ciBrowserWorkers({ args: [], githubActions: "true", cores: 16, freeMemory: 23 * 1024 ** 3 })).toBeNull();
+	expect(ciBrowserWorkers({ args: [], githubActions: "false", cores: 8, freeMemory: 23 * 1024 ** 3 })).toBe(4);
+});
 
 const fixture = {
 	parent: {

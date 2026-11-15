@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import { copyFile, mkdir, mkdtemp } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { createConnection } from "node:net";
-import { tmpdir } from "node:os";
+import { availableParallelism, freemem, tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { provisionRuntimeRole } from "./database-roles.mjs";
@@ -11,6 +11,11 @@ import { assertNoAiCredentials } from "./test-ai-guard.mjs";
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
 const { Pool } = createRequire(new URL("../../packages/db/package.json", import.meta.url))("pg");
+
+export function ciBrowserWorkers({ args, githubActions, cores, freeMemory }) {
+	if (githubActions === "true" || args.some((arg) => /^(?:--workers(?:=|$)|-j(?:=?\d|$))/u.test(arg))) return null;
+	return Math.max(1, Math.min(4, Math.floor(cores / 2), Math.floor(freeMemory / 1024 ** 3 / 1.5)));
+}
 
 /** Allowlist the browser CI environment; personal .env/browser settings must never alter the contract. */
 export function ciBrowserEnvironment({ parent, databaseUrl, migrationUrl, directory }) {
@@ -115,6 +120,15 @@ async function main() {
 	env.DATABASE_URL = await provisionRuntimeRole(migrationUrl, role);
 	env.COVER_LETTER_TEST_DATABASE_URL = env.DATABASE_URL;
 	const args = process.argv.slice(2);
+	const cores = availableParallelism();
+	const freeMemory = freemem();
+	const workers = ciBrowserWorkers({ args, githubActions: process.env.GITHUB_ACTIONS, cores, freeMemory });
+	if (workers !== null) {
+		args.push(`--workers=${workers}`);
+		console.info(
+			`ci-browser: using ${workers} workers (cores ${cores}, free memory ${(freeMemory / 1024 ** 3).toFixed(1)} GB)`,
+		);
+	}
 	const skipBuild = args.includes("--skip-build");
 	if (!skipBuild) {
 		// Avoid Turbo's .env* input hashing: sanitized synthetic builds must not read local environment files.
