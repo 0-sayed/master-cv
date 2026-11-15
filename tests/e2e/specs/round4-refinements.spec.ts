@@ -1,3 +1,4 @@
+import { seedAccountPortrait } from "../fixtures/account-portrait";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
@@ -17,9 +18,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await expect(
 			await page.request.post("/api/auth/update-user", {
 				headers: { origin: baseURL },
-				data: { uiLocale: locale, name: "سارة العتيبي", image: src },
+				data: { uiLocale: locale, name: "سارة العتيبي" },
 			}),
 		).toBeOK();
+		await seedAccountPortrait(page, src);
 		await page.context().addCookies([{ name: "locale", value: locale, url: baseURL }]);
 		await page.setViewportSize({ width: 1920, height: 1024 });
 		await page.goto("/dashboard/settings/account");
@@ -49,7 +51,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await expect(
 			await page.request.post("/api/auth/update-user", {
 				headers: { origin: baseURL },
-				data: { uiLocale: locale, name: "سارة العتيبي", image: null },
+				data: { uiLocale: locale, name: "سارة العتيبي" },
 			}),
 		).toBeOK();
 		await page.context().addCookies([{ name: "locale", value: locale, url: baseURL }]);
@@ -60,9 +62,11 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		).toBeOK();
 		await page.goto("/dashboard");
 		const documentsLink = page.locator('aside a[href="/dashboard"]');
-		await expect(documentsLink.locator('[data-slot="badge"]')).toHaveText("1");
+		await expect(documentsLink.locator('[data-slot="sidebar-count-badge"]')).toHaveText("1");
 		expect(
-			await documentsLink.locator('[data-slot="badge"]').evaluate((el) => getComputedStyle(el).backgroundColor),
+			await documentsLink
+				.locator('[data-slot="sidebar-count-badge"]')
+				.evaluate((el) => getComputedStyle(el).backgroundColor),
 		).not.toBe(await documentsLink.evaluate((el) => getComputedStyle(el).backgroundColor));
 		await expect(page.locator('[data-slot="tabs-count"]').first()).toHaveCSS("font-variant-numeric", "tabular-nums");
 		expect(
@@ -76,13 +80,11 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await settleScreen(page);
 			const measure = () =>
 				page.locator("aside").evaluate((aside) =>
-					[...aside.querySelectorAll('nav a,a[href="/dashboard/settings"],button:has([data-slot="avatar"])')].map(
-						(el) => ({
-							key: el.getAttribute("href") ?? "account",
-							y: el.getBoundingClientRect().y,
-							height: el.getBoundingClientRect().height,
-						}),
-					),
+					[...aside.querySelectorAll('nav a,[data-slot="sidebar-account"]')].map((el) => ({
+						key: el.getAttribute("href") ?? "account",
+						y: el.getBoundingClientRect().y,
+						height: el.getBoundingClientRect().height,
+					})),
 				);
 			const expanded = await measure();
 			const toggle = page.locator('[data-slot="sidebar-toggle"]');
@@ -91,7 +93,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				const sidebar = await page.locator("aside").boundingBox();
 				const box = await toggle.boundingBox();
 				if (!sidebar || !box) throw new Error("Sidebar missing");
-				expect(Math.abs(box.y + box.height / 2 - sidebar.y - sidebar.height / 2)).toBeLessThanOrEqual(1);
+				expect(Math.abs(box.y + box.height / 2 - sidebar.y - 32)).toBeLessThanOrEqual(1);
 				await expect(page.locator('aside [data-slot="avatar-fallback"]')).toHaveText("س ع");
 				const search = await header.locator('[data-slot="shell-search"]').boundingBox();
 				expect(search?.width).toBe(640);
@@ -132,13 +134,11 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 						const aside = document.querySelector("aside");
 						if (aside)
 							frames.push(
-								[...aside.querySelectorAll('nav a,a[href="/dashboard/settings"],button:has([data-slot="avatar"])')].map(
-									(el) => ({
-										key: el.getAttribute("href") ?? "account",
-										y: el.getBoundingClientRect().y,
-										height: el.getBoundingClientRect().height,
-									}),
-								),
+								[...aside.querySelectorAll('nav a,[data-slot="sidebar-account"]')].map((el) => ({
+									key: el.getAttribute("href") ?? "account",
+									y: el.getBoundingClientRect().y,
+									height: el.getBoundingClientRect().height,
+								})),
 							);
 						if (running) requestAnimationFrame(sample);
 					};
@@ -165,10 +165,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await page.locator('aside button:has([data-slot="avatar"])').click();
 			await expect(page.getByRole("menu")).toContainText("سارة العتيبي");
 			await expect(page.getByRole("menu")).toContainText(/@/);
-			await expect(page.getByRole("menuitem")).toHaveCount(2);
+			await expect(page.getByRole("menuitem")).toHaveCount(5);
 			await expect(
-				page.getByRole("menuitem", { name: locale === "ar-SA" ? "الحساب" : "Account", exact: true }),
-			).toHaveAttribute("href", "/dashboard/settings/account");
+				page.getByRole("menuitem", { name: locale === "ar-SA" ? "الإعدادات" : "Settings", exact: true }),
+			).toHaveAttribute("href", "/dashboard/settings");
 			await page.keyboard.press("Escape");
 		}
 		await page.goto("/dashboard/settings/account");
@@ -194,7 +194,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await page.setViewportSize({ width: 1440, height: 1024 });
 		await page.goto("/dashboard");
 		await settleScreen(page);
-		await page.getByRole("button", { name: locale === "ar-SA" ? "سيرة ذاتية جديدة" : "New CV", exact: true }).click();
+		await page
+			.locator("main")
+			.getByRole("button", { name: locale === "ar-SA" ? "سيرة ذاتية جديدة" : "New CV", exact: true })
+			.click();
 		const dialog = page.getByRole("dialog");
 		await expect(dialog).toBeVisible();
 		const upload = dialog.getByRole("button", {

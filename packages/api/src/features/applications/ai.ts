@@ -210,6 +210,11 @@ export const aiRouter = {
 		.errors({
 			...aiErrors,
 			POSTING_UNREADABLE: { message: "That link couldn't be read. Paste the posting text instead.", status: 422 },
+			POSTING_SIGN_IN_REQUIRED: {
+				message: "This site needs you to be signed in. Paste the job description instead.",
+				status: 422,
+			},
+			POSTING_BLOCKED: { message: "This site blocked the job reader. Paste the job description instead.", status: 422 },
 			RATE_LIMIT_EXCEEDED: { message: "Too many web requests. Try again later.", status: 429 },
 		})
 		.handler(async ({ context, input, signal }) => {
@@ -235,6 +240,10 @@ export const aiRouter = {
 				} catch (error) {
 					if (error instanceof PostingFetchError && error.reason === "rate-limit")
 						throw new ORPCError("RATE_LIMIT_EXCEEDED", { status: 429 });
+					if (error instanceof PostingFetchError && error.reason === "auth")
+						throw new ORPCError("POSTING_SIGN_IN_REQUIRED", { status: 422, cause: error });
+					if (error instanceof PostingFetchError && error.reason === "challenge")
+						throw new ORPCError("POSTING_BLOCKED", { status: 422, cause: error });
 					if (error instanceof PostingFetchError)
 						throw new ORPCError("POSTING_UNREADABLE", { status: 422, cause: error });
 					throw error;

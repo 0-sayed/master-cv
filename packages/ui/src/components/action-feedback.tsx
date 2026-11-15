@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Icon } from "./icon";
 import { Spinner } from "./spinner";
-import { SuccessTick } from "./success-tick";
+import { SuccessCelebration } from "./success-celebration";
 
 export type ActionFeedbackState = "idle" | "pending" | "ready" | "failed";
 type AcknowledgmentPhase = "drawing" | "holding" | "complete";
@@ -58,7 +58,7 @@ export function ActionFeedback({
 				)}
 				{visualState === "ready" && (
 					<span className="action-result" aria-hidden="true">
-						<SuccessTick
+						<SuccessCelebration
 							onAnimationEnd={(event) => {
 								if (event.animationName === "signature-draw") setAcknowledgment({ source: state, phase: "holding" });
 							}}

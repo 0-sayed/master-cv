@@ -1,40 +1,20 @@
-import { createHmac, randomUUID } from "node:crypto";
-import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test";
+import { createHmac } from "node:crypto";
+import { describe, expect, it } from "vite-plus/test";
 import { createRouterClient } from "@orpc/server";
 import { eq } from "drizzle-orm";
-import { Pool } from "pg";
 import { auth } from "@reactive-resume/auth/config";
 import { db, withDatabasePool } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
 import { env } from "@reactive-resume/env/server";
+import { privacyTestDatabase } from "../privacy/testing/database";
 import { authRouter } from "./router";
 
-// Like the OAuth CI checks, this uses a disposable, migrated database, with isolated fixture tables.
-describe.skipIf(!process.env.OAUTH_TEST_DATABASE_URL)("account wrapper ownership", () => {
-	const schemaName = `account_test_${randomUUID().replaceAll("-", "")}`;
-	let admin: Pool;
-	let pool: Pool;
-
-	beforeAll(async () => {
-		admin = new Pool({ connectionString: process.env.OAUTH_TEST_DATABASE_URL });
-		await admin.query(`CREATE SCHEMA ${schemaName}`);
-		for (const table of ["user", "session", "apikey", "oauth_resource", "jwks"]) {
-			await admin.query(`CREATE TABLE ${schemaName}."${table}" (LIKE public."${table}" INCLUDING ALL)`);
-		}
-		pool = new Pool({
-			connectionString: process.env.OAUTH_TEST_DATABASE_URL,
-			options: `-c search_path=${schemaName}`,
-		});
-	});
-
-	afterAll(async () => {
-		await pool?.end();
-		await admin?.query(`DROP SCHEMA IF EXISTS ${schemaName} CASCADE`);
-		await admin?.end();
-	});
+// Migrate an owned disposable database; never copy potentially stale shared tables.
+describe("account wrapper ownership", () => {
+	const database = privacyTestDatabase();
 
 	it("reads only the authenticated profile, ignoring supplied identity and excluding private columns", async () => {
-		await withDatabasePool(pool, async () => {
+		await withDatabasePool(database.admin(), async () => {
 			const [owner, other] = await db
 				.insert(schema.user)
 				.values([
@@ -93,7 +73,7 @@ describe.skipIf(!process.env.OAUTH_TEST_DATABASE_URL)("account wrapper ownership
 	});
 
 	it("persists a validated timezone through the account bridge without changing another user", async () => {
-		await withDatabasePool(pool, async () => {
+		await withDatabasePool(database.admin(), async () => {
 			const [owner, other] = await db
 				.insert(schema.user)
 				.values([
@@ -138,7 +118,7 @@ describe.skipIf(!process.env.OAUTH_TEST_DATABASE_URL)("account wrapper ownership
 	});
 
 	it("confines concurrent account calls to their authenticated users, despite another user's cookie", async () => {
-		await withDatabasePool(pool, async () => {
+		await withDatabasePool(database.admin(), async () => {
 			const methods = ["session", "bearer", "apiKey"] as const;
 			const users = await db
 				.insert(schema.user)

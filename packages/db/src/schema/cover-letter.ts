@@ -47,7 +47,11 @@ export const coverLetter = pg.pgTable.withRLS(
 			.defaultNow()
 			.$onUpdate(() => new Date()),
 	},
-	(table) => [ownerPolicy(table.userId), pg.index().on(table.userId, table.updatedAt.desc(), table.id.desc())],
+	(table) => [
+		ownerPolicy(table.userId),
+		pg.pgPolicy("discovery_owner_read", { for: "select", to: "current_user", using: sql`true` }),
+		pg.index().on(table.userId, table.updatedAt.desc(), table.id.desc()),
+	],
 );
 
 export const COVER_LETTER_VERSION_KINDS = ["created", "auto", "named", "before-restore", "restored", "sent"] as const;

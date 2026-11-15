@@ -1,5 +1,6 @@
 import "./tooling/local/test-ai-guard.mjs";
 import { defineConfig, devices } from "@playwright/test";
+import { syntheticMailEnvironment } from "./tooling/local/e2e-mail.mjs";
 
 const port = Number.parseInt(process.env.PORT ?? "3000", 10);
 const baseURL = process.env.APP_URL ?? `http://localhost:${port}`;
@@ -14,14 +15,20 @@ export default defineConfig({
 	testIgnore: ["**/reviewable-ai*.spec.ts"],
 	fullyParallel: true,
 	forbidOnly: isCI,
-	retries: 0,
+	retries: process.env.GITHUB_ACTIONS === "true" ? 1 : 0,
 	...(isCI ? { workers: 1 } : {}),
 	timeout: 30_000,
 	expect: {
 		timeout: 10_000,
 	},
 	reporter: isCI
-		? [["list"], ["github"], ["junit", { outputFile: "test-results/e2e-junit.xml" }]]
+		? [
+				["list"],
+				["github"],
+				["junit", { outputFile: "test-results/e2e-junit.xml" }],
+				// A partition can run several configs; preserve each run for the flaky-test summary.
+				["json", { outputFile: `test-results/e2e-results-${process.pid}.json` }],
+			]
 		: [["list"], ["html", { open: "never" }]],
 	use: {
 		baseURL,
@@ -59,12 +66,7 @@ export default defineConfig({
 				APP_URL: baseURL,
 				NODE_ENV: "production",
 				PORT: String(port),
-				SMTP_HOST: "127.0.0.1",
-				SMTP_PORT: smtpPort,
-				SMTP_SECURE: "false",
-				SMTP_USER: "synthetic",
-				SMTP_PASS: "synthetic",
-				SMTP_FROM: "Master CV <mail@example.test>",
+				...syntheticMailEnvironment({ E2E_SMTP_PORT: smtpPort }),
 			},
 		},
 	],

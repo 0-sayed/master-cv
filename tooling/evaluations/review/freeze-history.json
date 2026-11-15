@@ -2332,5 +2332,32 @@
 				"sha256": "9784648896f26cb62593e1adf6488290d442348b37718cd54b07b55a54809699"
 			}
 		]
+	},
+	{
+		"name": "tasks-private-accounting-dependency",
+		"date": "2026-11-14",
+		"reason": "Deletion-aware account accounting dependency update after host root-CI validation: bind the worker and its account-state lock helper to a new tasks study identity. Corpus, golds, prompts, model pins, verifier and scoring are unchanged. Prior study/control bytes remain immutable Git objects recorded in history; historical core identity and receipts remain unchanged and stale. Fresh deterministic/scripted controls only; no paid inference, environment-file reads, human approval, semantic qualification or release.",
+		"priorStudyId": "tasks-v1-job-language-v30",
+		"priorStudyHash": "6713168003b162efe54ca92727bbabcd5f13dfcfe41a815a99c3238815533ba2",
+		"priorByteHash": "b135777b19767465a28a674ce50b25b391002293ac4d8c88371a6bc5f15e61b4",
+		"priorFreezeGitBlob": "a1d9396c123cd105c80bc59245418b556307c41f",
+		"priorControlsGitBlob": "858468eee16321b03e0d977d0e6238619c50d4a5",
+		"priorControlsByteHash": "58f18f28abe2d523fb79db327c90e80dd99acca7d468711be351aa065f94269f",
+		"studyId": "tasks-v1-private-accounting-v31",
+		"studyHash": "a28e82fb560c4405077d29ca31c9c66424c5757aa993b7952dae1d52a4ac2dcb",
+		"approval": "UNAPPROVED",
+		"controlsBasis": "Fresh all-category, scoped and canary deterministic/scripted scans; no semantic qualification.",
+		"changedDependencies": [
+			{
+				"path": "packages/api/src/features/ai/operation-worker.ts",
+				"priorByteHash": "8da66b2014c2ef565c0fdb802d93441df7efb18006625e9331091fb0c3b5bc9e",
+				"sha256": "68ba5a019c48f5f7644cfa2b2bbabd6bc4bc8f861188e7862f11470bf24a8f24"
+			},
+			{
+				"path": "packages/db/src/account-state.ts",
+				"priorByteHash": null,
+				"sha256": "886297d1dfd2850ba6189c653845222f16c78837aedf95e621c69f6f9844be0d"
+			}
+		]
 	}
 ]

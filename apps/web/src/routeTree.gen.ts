@@ -13,6 +13,9 @@ import { Route as HomeRouteRouteImport } from "./routes/_home/route";
 import { Route as AgentRouteRouteImport } from "./routes/agent/route";
 import { Route as AuthRouteRouteImport } from "./routes/auth/route";
 import { Route as DashboardRouteRouteImport } from "./routes/dashboard/route";
+import { Route as DeletionRequestedRouteImport } from "./routes/deletion-requested";
+import { Route as EmailChangeRouteImport } from "./routes/email-change";
+import { Route as HelpRouteImport } from "./routes/help";
 import { Route as UsernameSlugRouteImport } from "./routes/$username/$slug";
 import { Route as HomeIndexRouteImport } from "./routes/_home/index";
 import { Route as HomeAtsCheckerRouteImport } from "./routes/_home/ats-checker";
@@ -52,9 +55,11 @@ import { Route as DashboardSettingsIndexRouteImport } from "./routes/dashboard/s
 import { Route as DashboardSettingsAccountRouteImport } from "./routes/dashboard/settings/account";
 import { Route as DashboardSettingsAiRouteImport } from "./routes/dashboard/settings/ai";
 import { Route as DashboardSettingsApiKeysRouteImport } from "./routes/dashboard/settings/api-keys";
+import { Route as DashboardSettingsDeleteAccountRouteImport } from "./routes/dashboard/settings/delete-account";
 import { Route as DashboardSettingsIntegrationsRouteRouteImport } from "./routes/dashboard/settings/integrations/route";
 import { Route as DashboardSettingsJobSearchRouteImport } from "./routes/dashboard/settings/job-search";
 import { Route as DashboardSettingsPreferencesRouteImport } from "./routes/dashboard/settings/preferences";
+import { Route as DashboardSettingsPrivacyRouteImport } from "./routes/dashboard/settings/privacy";
 import { Route as DashboardSettingsProfileRouteImport } from "./routes/dashboard/settings/profile";
 import { Route as DashboardApplicationsApplicationIdChar123TabChar125RouteImport } from "./routes/dashboard/applications/$applicationId.{-$tab}";
 import { Route as DashboardCareerCoachChar123ConversationIdChar125RouteImport } from "./routes/dashboard/career/coach.{-$conversationId}";
@@ -82,6 +87,21 @@ const AuthRouteRoute = AuthRouteRouteImport.update({
 const DashboardRouteRoute = DashboardRouteRouteImport.update({
   id: "/dashboard",
   path: "/dashboard",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const DeletionRequestedRoute = DeletionRequestedRouteImport.update({
+  id: "/deletion-requested",
+  path: "/deletion-requested",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const EmailChangeRoute = EmailChangeRouteImport.update({
+  id: "/email-change",
+  path: "/email-change",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const HelpRoute = HelpRouteImport.update({
+  id: "/help",
+  path: "/help",
   getParentRoute: () => rootRouteImport,
 } as any);
 const UsernameSlugRoute = UsernameSlugRouteImport.update({
@@ -285,6 +305,12 @@ const DashboardSettingsApiKeysRoute =
     path: "/api-keys",
     getParentRoute: () => DashboardSettingsRouteRoute,
   } as any);
+const DashboardSettingsDeleteAccountRoute =
+  DashboardSettingsDeleteAccountRouteImport.update({
+    id: "/delete-account",
+    path: "/delete-account",
+    getParentRoute: () => DashboardSettingsRouteRoute,
+  } as any);
 const DashboardSettingsIntegrationsRouteRoute =
   DashboardSettingsIntegrationsRouteRouteImport.update({
     id: "/integrations",
@@ -301,6 +327,12 @@ const DashboardSettingsPreferencesRoute =
   DashboardSettingsPreferencesRouteImport.update({
     id: "/preferences",
     path: "/preferences",
+    getParentRoute: () => DashboardSettingsRouteRoute,
+  } as any);
+const DashboardSettingsPrivacyRoute =
+  DashboardSettingsPrivacyRouteImport.update({
+    id: "/privacy",
+    path: "/privacy",
     getParentRoute: () => DashboardSettingsRouteRoute,
   } as any);
 const DashboardSettingsProfileRoute =
@@ -363,6 +395,9 @@ export interface FileRoutesByFullPath {
   "/agent": typeof AgentRouteRouteWithChildren;
   "/auth": typeof AuthRouteRouteWithChildren;
   "/dashboard": typeof DashboardRouteRouteWithChildren;
+  "/deletion-requested": typeof DeletionRequestedRoute;
+  "/email-change": typeof EmailChangeRoute;
+  "/help": typeof HelpRoute;
   "/builder/$resumeId": typeof BuilderResumeIdRouteRouteWithChildren;
   "/dashboard/career": typeof DashboardCareerRouteRouteWithChildren;
   "/dashboard/settings": typeof DashboardSettingsRouteRouteWithChildren;
@@ -397,8 +432,10 @@ export interface FileRoutesByFullPath {
   "/dashboard/settings/account": typeof DashboardSettingsAccountRoute;
   "/dashboard/settings/ai": typeof DashboardSettingsAiRoute;
   "/dashboard/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
+  "/dashboard/settings/delete-account": typeof DashboardSettingsDeleteAccountRoute;
   "/dashboard/settings/job-search": typeof DashboardSettingsJobSearchRoute;
   "/dashboard/settings/preferences": typeof DashboardSettingsPreferencesRoute;
+  "/dashboard/settings/privacy": typeof DashboardSettingsPrivacyRoute;
   "/dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
   "/builder/$resumeId/": typeof BuilderResumeIdIndexRoute;
   "/dashboard/applications/": typeof DashboardApplicationsIndexRoute;
@@ -415,6 +452,9 @@ export interface FileRoutesByFullPath {
   "/dashboard/career/knowledge/stories/{-$storyId}": typeof DashboardCareerKnowledgeStoriesChar123StoryIdChar125Route;
 }
 export interface FileRoutesByTo {
+  "/deletion-requested": typeof DeletionRequestedRoute;
+  "/email-change": typeof EmailChangeRoute;
+  "/help": typeof HelpRoute;
   "/$username/$slug": typeof UsernameSlugRoute;
   "/ats-checker": typeof HomeAtsCheckerRoute;
   "/agent/$threadId": typeof AgentThreadIdRoute;
@@ -447,8 +487,10 @@ export interface FileRoutesByTo {
   "/dashboard/settings/account": typeof DashboardSettingsAccountRoute;
   "/dashboard/settings/ai": typeof DashboardSettingsAiRoute;
   "/dashboard/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
+  "/dashboard/settings/delete-account": typeof DashboardSettingsDeleteAccountRoute;
   "/dashboard/settings/job-search": typeof DashboardSettingsJobSearchRoute;
   "/dashboard/settings/preferences": typeof DashboardSettingsPreferencesRoute;
+  "/dashboard/settings/privacy": typeof DashboardSettingsPrivacyRoute;
   "/dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
   "/builder/$resumeId": typeof BuilderResumeIdIndexRoute;
   "/dashboard/applications": typeof DashboardApplicationsIndexRoute;
@@ -470,6 +512,9 @@ export interface FileRoutesById {
   "/agent": typeof AgentRouteRouteWithChildren;
   "/auth": typeof AuthRouteRouteWithChildren;
   "/dashboard": typeof DashboardRouteRouteWithChildren;
+  "/deletion-requested": typeof DeletionRequestedRoute;
+  "/email-change": typeof EmailChangeRoute;
+  "/help": typeof HelpRoute;
   "/builder/$resumeId": typeof BuilderResumeIdRouteRouteWithChildren;
   "/dashboard/career": typeof DashboardCareerRouteRouteWithChildren;
   "/dashboard/settings": typeof DashboardSettingsRouteRouteWithChildren;
@@ -505,8 +550,10 @@ export interface FileRoutesById {
   "/dashboard/settings/account": typeof DashboardSettingsAccountRoute;
   "/dashboard/settings/ai": typeof DashboardSettingsAiRoute;
   "/dashboard/settings/api-keys": typeof DashboardSettingsApiKeysRoute;
+  "/dashboard/settings/delete-account": typeof DashboardSettingsDeleteAccountRoute;
   "/dashboard/settings/job-search": typeof DashboardSettingsJobSearchRoute;
   "/dashboard/settings/preferences": typeof DashboardSettingsPreferencesRoute;
+  "/dashboard/settings/privacy": typeof DashboardSettingsPrivacyRoute;
   "/dashboard/settings/profile": typeof DashboardSettingsProfileRoute;
   "/builder/$resumeId/": typeof BuilderResumeIdIndexRoute;
   "/dashboard/applications/": typeof DashboardApplicationsIndexRoute;
@@ -529,6 +576,9 @@ export interface FileRouteTypes {
     | "/agent"
     | "/auth"
     | "/dashboard"
+    | "/deletion-requested"
+    | "/email-change"
+    | "/help"
     | "/builder/$resumeId"
     | "/dashboard/career"
     | "/dashboard/settings"
@@ -563,8 +613,10 @@ export interface FileRouteTypes {
     | "/dashboard/settings/account"
     | "/dashboard/settings/ai"
     | "/dashboard/settings/api-keys"
+    | "/dashboard/settings/delete-account"
     | "/dashboard/settings/job-search"
     | "/dashboard/settings/preferences"
+    | "/dashboard/settings/privacy"
     | "/dashboard/settings/profile"
     | "/builder/$resumeId/"
     | "/dashboard/applications/"
@@ -581,6 +633,9 @@ export interface FileRouteTypes {
     | "/dashboard/career/knowledge/stories/{-$storyId}";
   fileRoutesByTo: FileRoutesByTo;
   to:
+    | "/deletion-requested"
+    | "/email-change"
+    | "/help"
     | "/$username/$slug"
     | "/ats-checker"
     | "/agent/$threadId"
@@ -613,8 +668,10 @@ export interface FileRouteTypes {
     | "/dashboard/settings/account"
     | "/dashboard/settings/ai"
     | "/dashboard/settings/api-keys"
+    | "/dashboard/settings/delete-account"
     | "/dashboard/settings/job-search"
     | "/dashboard/settings/preferences"
+    | "/dashboard/settings/privacy"
     | "/dashboard/settings/profile"
     | "/builder/$resumeId"
     | "/dashboard/applications"
@@ -635,6 +692,9 @@ export interface FileRouteTypes {
     | "/agent"
     | "/auth"
     | "/dashboard"
+    | "/deletion-requested"
+    | "/email-change"
+    | "/help"
     | "/builder/$resumeId"
     | "/dashboard/career"
     | "/dashboard/settings"
@@ -670,8 +730,10 @@ export interface FileRouteTypes {
     | "/dashboard/settings/account"
     | "/dashboard/settings/ai"
     | "/dashboard/settings/api-keys"
+    | "/dashboard/settings/delete-account"
     | "/dashboard/settings/job-search"
     | "/dashboard/settings/preferences"
+    | "/dashboard/settings/privacy"
     | "/dashboard/settings/profile"
     | "/builder/$resumeId/"
     | "/dashboard/applications/"
@@ -693,6 +755,9 @@ export interface RootRouteChildren {
   AgentRouteRoute: typeof AgentRouteRouteWithChildren;
   AuthRouteRoute: typeof AuthRouteRouteWithChildren;
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren;
+  DeletionRequestedRoute: typeof DeletionRequestedRoute;
+  EmailChangeRoute: typeof EmailChangeRoute;
+  HelpRoute: typeof HelpRoute;
   BuilderResumeIdRouteRoute: typeof BuilderResumeIdRouteRouteWithChildren;
   UsernameSlugRoute: typeof UsernameSlugRoute;
   TemplatesSplatRoute: typeof TemplatesSplatRoute;
@@ -727,6 +792,27 @@ declare module "@tanstack/react-router" {
       path: "/dashboard";
       fullPath: "/dashboard";
       preLoaderRoute: typeof DashboardRouteRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/deletion-requested": {
+      id: "/deletion-requested";
+      path: "/deletion-requested";
+      fullPath: "/deletion-requested";
+      preLoaderRoute: typeof DeletionRequestedRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/email-change": {
+      id: "/email-change";
+      path: "/email-change";
+      fullPath: "/email-change";
+      preLoaderRoute: typeof EmailChangeRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/help": {
+      id: "/help";
+      path: "/help";
+      fullPath: "/help";
+      preLoaderRoute: typeof HelpRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/$username/$slug": {
@@ -1002,6 +1088,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DashboardSettingsApiKeysRouteImport;
       parentRoute: typeof DashboardSettingsRouteRoute;
     };
+    "/dashboard/settings/delete-account": {
+      id: "/dashboard/settings/delete-account";
+      path: "/delete-account";
+      fullPath: "/dashboard/settings/delete-account";
+      preLoaderRoute: typeof DashboardSettingsDeleteAccountRouteImport;
+      parentRoute: typeof DashboardSettingsRouteRoute;
+    };
     "/dashboard/settings/integrations": {
       id: "/dashboard/settings/integrations";
       path: "/integrations";
@@ -1021,6 +1114,13 @@ declare module "@tanstack/react-router" {
       path: "/preferences";
       fullPath: "/dashboard/settings/preferences";
       preLoaderRoute: typeof DashboardSettingsPreferencesRouteImport;
+      parentRoute: typeof DashboardSettingsRouteRoute;
+    };
+    "/dashboard/settings/privacy": {
+      id: "/dashboard/settings/privacy";
+      path: "/privacy";
+      fullPath: "/dashboard/settings/privacy";
+      preLoaderRoute: typeof DashboardSettingsPrivacyRouteImport;
       parentRoute: typeof DashboardSettingsRouteRoute;
     };
     "/dashboard/settings/profile": {
@@ -1199,8 +1299,10 @@ interface DashboardSettingsRouteRouteChildren {
   DashboardSettingsAccountRoute: typeof DashboardSettingsAccountRoute;
   DashboardSettingsAiRoute: typeof DashboardSettingsAiRoute;
   DashboardSettingsApiKeysRoute: typeof DashboardSettingsApiKeysRoute;
+  DashboardSettingsDeleteAccountRoute: typeof DashboardSettingsDeleteAccountRoute;
   DashboardSettingsJobSearchRoute: typeof DashboardSettingsJobSearchRoute;
   DashboardSettingsPreferencesRoute: typeof DashboardSettingsPreferencesRoute;
+  DashboardSettingsPrivacyRoute: typeof DashboardSettingsPrivacyRoute;
   DashboardSettingsProfileRoute: typeof DashboardSettingsProfileRoute;
   DashboardSettingsIndexRoute: typeof DashboardSettingsIndexRoute;
   DashboardSettingsAuthenticationIndexRoute: typeof DashboardSettingsAuthenticationIndexRoute;
@@ -1213,8 +1315,10 @@ const DashboardSettingsRouteRouteChildren: DashboardSettingsRouteRouteChildren =
     DashboardSettingsAccountRoute: DashboardSettingsAccountRoute,
     DashboardSettingsAiRoute: DashboardSettingsAiRoute,
     DashboardSettingsApiKeysRoute: DashboardSettingsApiKeysRoute,
+    DashboardSettingsDeleteAccountRoute: DashboardSettingsDeleteAccountRoute,
     DashboardSettingsJobSearchRoute: DashboardSettingsJobSearchRoute,
     DashboardSettingsPreferencesRoute: DashboardSettingsPreferencesRoute,
+    DashboardSettingsPrivacyRoute: DashboardSettingsPrivacyRoute,
     DashboardSettingsProfileRoute: DashboardSettingsProfileRoute,
     DashboardSettingsIndexRoute: DashboardSettingsIndexRoute,
     DashboardSettingsAuthenticationIndexRoute:
@@ -1278,6 +1382,9 @@ const rootRouteChildren: RootRouteChildren = {
   AgentRouteRoute: AgentRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  DeletionRequestedRoute: DeletionRequestedRoute,
+  EmailChangeRoute: EmailChangeRoute,
+  HelpRoute: HelpRoute,
   BuilderResumeIdRouteRoute: BuilderResumeIdRouteRouteWithChildren,
   UsernameSlugRoute: UsernameSlugRoute,
   TemplatesSplatRoute: TemplatesSplatRoute,

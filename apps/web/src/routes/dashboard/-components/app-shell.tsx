@@ -1,15 +1,16 @@
 import type { IconName } from "@reactive-resume/ui/components/icon";
-import type { ReactNode } from "react";
-import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
+import { plural } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useMatchRoute, useRouteContext, useRouterState } from "@tanstack/react-router";
+import { useEffect, useRef, type ReactNode } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@reactive-resume/ui/components/avatar";
-import { CountBadge } from "@reactive-resume/ui/components/badge";
+import { SidebarCountBadge } from "@reactive-resume/ui/components/badge";
 import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
@@ -46,6 +47,7 @@ type NavItem = {
 };
 
 function useNavItems() {
+	const { t } = useLingui();
 	const copy = useDocumentsCopy();
 	const { data: counts } = useQuery(orpc.documents.counts.queryOptions());
 	const { data: applications } = useQuery(applicationsListQueryOptions());
@@ -73,16 +75,14 @@ function useNavItems() {
 		icon: "user",
 		label: t({ message: "Career information", context: "editor.navigation.career" }),
 	});
-	const settings: NavItem = {
-		to: "/dashboard/settings",
-		icon: "gear-six",
-		label: t({ message: "Settings", context: "account.navigation.settings" }),
+	const trash: NavItem = {
+		to: "/dashboard/trash",
+		icon: "trash",
+		label: t`Trash`,
+		...(counts?.trash ? { count: counts.trash } : {}),
 	};
-	const trash: NavItem | null = counts?.trash
-		? { to: "/dashboard/trash", icon: "trash", label: t`Trash`, count: counts.trash }
-		: null;
 
-	return { items, settings, trash };
+	return { items, trash };
 }
 
 /** Whether the item is the current page: Documents is exact, the others match their section. */
@@ -99,10 +99,12 @@ function useIsCurrent() {
 type AppShellProps = { children: ReactNode };
 
 export function AppShell({ children }: AppShellProps) {
+	const { t } = useLingui();
 	const copy = useDocumentsCopy();
 	const careerCopy = useCareerCopy();
 	const breakpoint = useBreakpoint();
-	const { session } = useRouteContext({ from: "/dashboard" });
+	const { session } = useRouteContext({ from: "__root__" });
+	if (!session) throw new Error("AppShell requires an authenticated session");
 	const { collapsed, toggle } = useSidebarPreference(session.user.id);
 	const desktop = breakpoint === "desktop" || breakpoint === "wide";
 	const rail = breakpoint === "tablet" || (desktop && collapsed);
@@ -112,7 +114,7 @@ export function AppShell({ children }: AppShellProps) {
 	const careerInformation = Boolean(matchRoute({ to: "/dashboard/career/information" }));
 	// Select the destination width before its outlet mounts, including the Settings index redirect.
 	const pageWidth = useRouterState({
-		select: (state) => dashboardWidth(state.location.pathname),
+		select: (state) => (state.location.pathname === "/help" ? "wide" : dashboardWidth(state.location.pathname)),
 	});
 	const documents = Boolean(matchRoute({ to: "/dashboard", fuzzy: false }));
 	const workspaceTitle = careerInformation
@@ -127,6 +129,10 @@ export function AppShell({ children }: AppShellProps) {
 	useHotkey("N", () => {
 		if (isEditableElementFocused() || useDialogStore.getState().open) return;
 		openDialog("document.new", undefined);
+	});
+	useHotkey("Mod+B", () => {
+		if (!desktop || isEditableElementFocused() || useDialogStore.getState().open) return;
+		toggle();
 	});
 	if (welcome)
 		return (
@@ -202,39 +208,30 @@ export function AppShell({ children }: AppShellProps) {
 }
 
 function SidebarToggle({ collapsed, toggle }: { collapsed: boolean; toggle: () => void }) {
+	const { t } = useLingui();
 	const label = collapsed ? t`Expand sidebar` : t`Collapse sidebar`;
 	return (
-		<Tooltip>
-			<TooltipTrigger
-				data-slot="sidebar-toggle"
-				render={
-					<Button
-						data-slot="sidebar-toggle"
-						className="sidebar-border-toggle absolute"
-						size="sidebar-toggle"
-						variant="sidebar-toggle"
-						aria-label={label}
-						aria-expanded={!collapsed}
-						onClick={toggle}
-					/>
-				}
-			>
-				<span data-slot="sidebar-toggle-circle" className="sidebar-toggle-circle">
-					<Icon name={collapsed ? "caret-right" : "caret-left"} size={16} />
-				</span>
-			</TooltipTrigger>
-			<TooltipContent>{label}</TooltipContent>
-		</Tooltip>
+		<IconButton
+			data-slot="sidebar-toggle"
+			icon={collapsed ? "sidebar-simple" : "sidebar"}
+			label={label}
+			shortcut="Mod+B"
+			size="icon-lg"
+			variant="quiet"
+			aria-expanded={!collapsed}
+			onClick={toggle}
+		/>
 	);
 }
 
 /** Expanded and rail navigation share every vertical dimension, including the account row. */
 function SidebarFrame({ rail = false, children }: { rail?: boolean; children: ReactNode }) {
+	const { t } = useLingui();
 	return (
 		<aside
 			aria-label={t`App navigation`}
 			className={cn(
-				"sticky top-0 flex h-svh flex-col gap-1 border-e border-line bg-surface pb-3 [view-transition-name:app-nav]",
+				"sticky top-0 z-30 flex h-svh flex-col gap-1 border-e border-line bg-surface pb-3 [view-transition-name:app-nav]",
 				rail ? "items-center" : "px-(--app-sidebar-inset)",
 			)}
 		>
@@ -243,150 +240,190 @@ function SidebarFrame({ rail = false, children }: { rail?: boolean; children: Re
 	);
 }
 
-function Sidebar({ toggle }: { toggle: () => void }) {
-	const { items, settings, trash } = useNavItems();
-	const isCurrent = useIsCurrent();
+function NewCvAction({ rail = false }: { rail?: boolean }) {
+	const { t } = useLingui();
+	const openDialog = useDialogStore((state) => state.openDialog);
+	const label = t({ message: "New CV", context: "editor.navigation.newCv" });
+	const button = (
+		<Button
+			size={rail ? "icon-lg" : "toolbar"}
+			aria-label={label}
+			className={rail ? undefined : "w-full"}
+			onClick={() => openDialog("document.new", undefined)}
+		>
+			<Icon name="plus" />
+			{!rail && label}
+		</Button>
+	);
+	return rail ? (
+		<Tooltip>
+			<TooltipTrigger render={button} />
+			<TooltipContent side="inline-end">{label}</TooltipContent>
+		</Tooltip>
+	) : (
+		button
+	);
+}
 
+function AccountButton({ rail = false, mobile = false }: { rail?: boolean; mobile?: boolean }) {
+	const { t } = useLingui();
+	const isCurrent = useIsCurrent();
+	const help = useMatchRoute()({ to: "/help" });
+	const current = isCurrent("/dashboard/settings") || Boolean(help);
+	const account = t({ message: "Account", context: "account.settings.accountTab" });
+	return (
+		<UserDropdownMenu>
+			{({ session }) => (
+				<Button
+					data-slot="sidebar-account"
+					variant="ghost"
+					size={mobile ? "mobile-nav" : rail ? "sidebar-account-icon" : "sidebar-account"}
+					aria-label={rail || mobile ? account : undefined}
+					aria-current={current ? "page" : undefined}
+					className={cn("text-start", !rail && "w-full justify-start", current && "bg-accent-soft text-accent-text")}
+				>
+					<Avatar size={mobile ? "sm" : "sidebar"}>
+						<AvatarImage src={session.user.image ?? undefined} />
+						<AvatarFallback>{getInitials(session.user.name)}</AvatarFallback>
+					</Avatar>
+					{!rail &&
+						(mobile ? (
+							<span className="mobile-nav-label">{account}</span>
+						) : (
+							<span className="grid min-w-0 flex-1">
+								<bdi className="truncate type-body font-medium">{session.user.name}</bdi>
+								<bdi dir="ltr" className="truncate type-metadata text-ink-2">
+									{session.user.email || session.user.username}
+								</bdi>
+							</span>
+						))}
+					{!rail && !mobile && <Icon name="caret-down" />}
+				</Button>
+			)}
+		</UserDropdownMenu>
+	);
+}
+
+function Sidebar({ toggle }: { toggle: () => void }) {
+	const { t } = useLingui();
+	const { items, trash } = useNavItems();
+	const isCurrent = useIsCurrent();
 	return (
 		<SidebarFrame>
-			<div>
-				<Link to="/" className="sidebar-brand-inset shell-brand-row">
+			<div className="shell-brand-row justify-between gap-2">
+				<Link to="/" className="flex min-w-0 items-center">
 					<BrandIcon variant="logo" />
 				</Link>
 				<SidebarToggle collapsed={false} toggle={toggle} />
 			</div>
-
+			<div className="py-3">
+				<NewCvAction />
+			</div>
 			<nav aria-label={t`App`} className="grid gap-0.5">
 				{items.map((item) => (
 					<NavLink key={item.to} item={item} current={isCurrent(item.to)} />
 				))}
+				<div className="my-2 border-t border-line" />
+				<NavLink item={trash} current={isCurrent(trash.to)} />
 			</nav>
-
-			<div className="mt-auto grid gap-2">
-				{trash && <NavLink item={trash} current={isCurrent(trash.to)} />}
-				<NavLink item={settings} current={isCurrent(settings.to)} />
-				<UserDropdownMenu>
-					{({ session }) => (
-						<button
-							type="button"
-							className="flex h-16 items-center gap-2.5 rounded-lg px-2.5 py-2 text-start transition-colors duration-quick hover:bg-hover"
-						>
-							<Avatar size="sidebar">
-								<AvatarImage src={session.user.image ?? undefined} />
-								<AvatarFallback>{getInitials(session.user.name)}</AvatarFallback>
-							</Avatar>
-							<span className="grid min-w-0 flex-1">
-								<span className="truncate type-body font-medium">{session.user.name}</span>
-								<span className="type-metadata text-ink-3">
-									<Trans context="account.settings.accountTab">Account</Trans>
-								</span>
-							</span>
-						</button>
-					)}
-				</UserDropdownMenu>
+			<div className="mt-auto border-t border-line pt-3">
+				<AccountButton />
 			</div>
 		</SidebarFrame>
 	);
 }
 
-function NavLink({ item, current }: { item: NavItem; current: boolean }) {
-	const skeletonWait1 = useSkeletonLoading(Boolean(item.countLoading));
-	return (
+function NavLink({ item, current, rail = false }: { item: NavItem; current: boolean; rail?: boolean }) {
+	const { t } = useLingui();
+	const loading = useSkeletonLoading(Boolean(item.countLoading));
+	const count = item.count ?? 0;
+	const label = item.label;
+	const total = String(count);
+	const accessibleName =
+		count > 0 && !item.countLoading
+			? t`${label}, ${plural(count, { one: `${total} item`, other: `${total} items` })}`
+			: label;
+	const link = (
 		<Link
 			to={item.to}
+			aria-label={accessibleName}
 			aria-current={current ? "page" : undefined}
 			className={cn(
-				"flex min-h-11 items-center gap-2.5 rounded-lg sidebar-item-inset type-body transition-[background-color,color,scale] duration-quick ease-enter active:scale-[0.97]",
+				"flex min-h-11 items-center rounded-lg transition-[background-color,color,scale] duration-quick ease-enter",
+				rail ? "relative size-11 justify-center" : "gap-2.5 sidebar-item-inset type-body active:scale-[0.97]",
 				current ? "bg-accent-soft font-semibold text-accent-text" : "text-ink-2 hover:bg-hover hover:text-ink",
 			)}
 		>
 			<Icon name={item.icon} className="size-(--app-nav-icon)" />
-			<span className="flex-1">{item.label}</span>
-			{skeletonWait1.pending || item.countLoading ? (
-				<QuerySkeleton shape="badge" label={<Trans>Loading the total</Trans>} />
-			) : item.count ? (
-				<CountBadge variant={current ? "solid" : "accent"}>{item.count}</CountBadge>
-			) : null}
+			{!rail && <span className="flex-1">{label}</span>}
+			{loading.pending || item.countLoading ? (
+				!rail && <QuerySkeleton shape="badge" label={<Trans>Loading the total</Trans>} />
+			) : (
+				<SidebarCountBadge count={count} current={current} rail={rail} />
+			)}
 		</Link>
+	);
+	return rail ? (
+		<Tooltip>
+			<TooltipTrigger render={link} />
+			<TooltipContent side="inline-end">{accessibleName}</TooltipContent>
+		</Tooltip>
+	) : (
+		link
 	);
 }
 
 /** Tablets and collapsed desktops share the same destinations, sizes and label tooltips. */
 function Rail({ toggle }: { toggle?: (() => void) | undefined }) {
-	const { items, settings, trash } = useNavItems();
+	const { t } = useLingui();
+	const { items, trash } = useNavItems();
 	const isCurrent = useIsCurrent();
-
 	return (
 		<SidebarFrame rail>
-			<Link to="/" aria-label="Master CV" className="shell-brand-row w-full justify-center">
-				<BrandIcon variant="icon" alt="" className="size-6" />
-			</Link>
-			{toggle && <SidebarToggle collapsed toggle={toggle} />}
+			<div className="relative shell-brand-row w-full justify-center">
+				<Link to="/" aria-label="Master CV" className="grid size-11 place-items-center">
+					<BrandIcon variant="icon" alt="" className="size-6" />
+				</Link>
+				{toggle && (
+					<div className="absolute inset-y-0 inset-s-full z-30 ms-2 flex items-center">
+						<SidebarToggle collapsed toggle={toggle} />
+					</div>
+				)}
+			</div>
+			<div className="py-3">
+				<NewCvAction rail />
+			</div>
 			<nav aria-label={t`App`} className="grid gap-0.5">
 				{items.map((item) => (
-					<RailNavLink key={item.to} item={item} current={isCurrent(item.to)} />
+					<NavLink rail key={item.to} item={item} current={isCurrent(item.to)} />
 				))}
+				<div className="my-2 border-t border-line" />
+				<NavLink rail item={trash} current={isCurrent(trash.to)} />
 			</nav>
-			<div className="mt-auto grid justify-items-center gap-2">
-				{trash && (
-					<RailTip label={trash.label} icon={trash.icon}>
-						<Link
-							to={trash.to}
-							aria-label={t`Trash`}
-							className="grid size-11 place-items-center rounded-lg text-ink-2 transition-[background-color,scale] duration-quick ease-enter hover:bg-hover active:scale-[0.97]"
-						/>
-					</RailTip>
-				)}
-				<RailNavLink item={settings} current={isCurrent(settings.to)} />
-				<UserDropdownMenu>
-					{({ session }) => (
-						<button
-							type="button"
-							aria-label={t({ message: "Account", context: "account.settings.accountTab" })}
-							className="grid h-16 w-11 place-items-center rounded-lg hover:bg-hover"
-						>
-							<Avatar size="sidebar">
-								<AvatarImage src={session.user.image ?? undefined} />
-								<AvatarFallback>{getInitials(session.user.name)}</AvatarFallback>
-							</Avatar>
-						</button>
-					)}
-				</UserDropdownMenu>
+			<div className="mt-auto border-t border-line pt-3">
+				<AccountButton rail />
 			</div>
 		</SidebarFrame>
 	);
 }
 
-/** A rail button: its icon inside the given trigger, and its name in a tooltip. */
-function RailNavLink({ item, current }: { item: NavItem; current: boolean }) {
-	return (
-		<RailTip label={item.label} icon={item.icon}>
-			<Link
-				to={item.to}
-				aria-label={item.label}
-				aria-current={current ? "page" : undefined}
-				className={cn(
-					"grid size-11 place-items-center rounded-lg transition-[background-color,color,scale] duration-quick ease-enter active:scale-[0.97]",
-					current ? "bg-sunken text-ink" : "text-ink-2 hover:bg-hover",
-				)}
-			/>
-		</RailTip>
-	);
-}
-
-function RailTip({ label, icon, children }: { label: string; icon: IconName; children: React.ReactElement }) {
-	return (
-		<Tooltip>
-			<TooltipTrigger render={children}>
-				<Icon name={icon} className="size-(--app-nav-icon)" />
-			</TooltipTrigger>
-			<TooltipContent side="inline-end">{label}</TooltipContent>
-		</Tooltip>
-	);
-}
-
-/** Phones keep four navigation destinations; creation stays on the page and in the command palette. */
+/** Phones keep the bottom-tab pattern, including Trash and the shared account menu. */
 function MobileTabs() {
+	const { t } = useLingui();
+	const ref = useRef<HTMLElement>(null);
+	useEffect(() => {
+		const nav = ref.current;
+		if (!nav) return;
+		const update = () =>
+			document.documentElement.style.setProperty("--app-bottom-inset", `${nav.getBoundingClientRect().height}px`);
+		update();
+		const observer = new ResizeObserver(update);
+		observer.observe(nav);
+		return () => {
+			observer.disconnect();
+			document.documentElement.style.removeProperty("--app-bottom-inset");
+		};
+	}, []);
 	const isCurrent = useIsCurrent();
 
 	const tab = (icon: IconName, label: string, current: boolean) => (
@@ -395,13 +432,18 @@ function MobileTabs() {
 				{current && <MobileTabIndicator pill />}
 				<Icon name={icon} size={24} className={cn("relative", current && "text-accent-text")} />
 			</span>
-			<span className={cn("type-mobile-nav", current ? "font-semibold text-accent-text" : "text-ink-2")}>{label}</span>
+			<span
+				className={cn("mobile-nav-label type-mobile-nav", current ? "font-semibold text-accent-text" : "text-ink-2")}
+			>
+				{label}
+			</span>
 		</>
 	);
 
 	return (
 		<nav
 			aria-label={t`App`}
+			ref={ref}
 			data-slot="app-bottom-nav"
 			className="sticky bottom-0 z-30 grid grid-cols-[repeat(var(--app-mobile-nav-columns),minmax(0,1fr))] border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] [view-transition-name:app-nav]"
 		>
@@ -409,7 +451,7 @@ function MobileTabs() {
 				to="/dashboard"
 				aria-current={isCurrent("/dashboard") ? "page" : undefined}
 				viewTransition={false}
-				className="relative flex min-h-16 flex-col items-center justify-center gap-0.5 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
+				className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
 			>
 				{tab("files", t({ message: "Documents", context: "editor.mobileNav.documents" }), isCurrent("/dashboard"))}
 			</Link>
@@ -417,7 +459,7 @@ function MobileTabs() {
 				to="/dashboard/career/information"
 				aria-current={isCurrent("/dashboard/career/information") ? "page" : undefined}
 				viewTransition={false}
-				className="relative flex min-h-16 flex-col items-center justify-center gap-0.5 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
+				className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
 			>
 				{tab(
 					"user",
@@ -429,7 +471,7 @@ function MobileTabs() {
 				to="/dashboard/applications"
 				aria-current={isCurrent("/dashboard/applications") ? "page" : undefined}
 				viewTransition={false}
-				className="relative flex min-h-16 flex-col items-center justify-center gap-0.5 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
+				className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
 			>
 				{tab(
 					"briefcase",
@@ -438,17 +480,14 @@ function MobileTabs() {
 				)}
 			</Link>
 			<Link
-				to="/dashboard/settings"
-				aria-current={isCurrent("/dashboard/settings") ? "page" : undefined}
+				to="/dashboard/trash"
+				aria-current={isCurrent("/dashboard/trash") ? "page" : undefined}
 				viewTransition={false}
-				className="relative flex min-h-16 flex-col items-center justify-center gap-0.5 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
+				className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2"
 			>
-				{tab(
-					"gear-six",
-					t({ message: "Settings", context: "account.navigation.settings" }),
-					isCurrent("/dashboard/settings"),
-				)}
+				{tab("trash", t`Trash`, isCurrent("/dashboard/trash"))}
 			</Link>
+			<AccountButton mobile />
 		</nav>
 	);
 }

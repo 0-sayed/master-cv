@@ -126,6 +126,8 @@ and HTML prototypes are not required. Follow `Planning/roadmap/tasks.md` for the
 
 Step 3 above applies to what changed, not the whole app on every task.
 
+- CI retries a failed browser test once; a test that passes only on retry is flaky, is listed in the CI job summary, must be recorded in the backlog and fixed, never ignored; local runs keep zero retries.
+
 - **Light (after each edit):** format/lint only the changed files
   (`pnpm exec vp fmt --check <files>`, `pnpm exec vp lint --deny-warnings <files>`) and run their
   unit tests (e.g. `pnpm --filter web test <test-file>`). No browser suite.
@@ -134,13 +136,18 @@ Step 3 above applies to what changed, not the whole app on every task.
   (`node --env-file=.env.test.local tooling/local/ci-browser.mjs <spec-files>`). Broaden specs only for shared shell/auth
   changes. Capture AR/EN, desktop/mobile evidence for changed screens only.
 - **Deep (once, before a commit):** `pnpm validate:static`, `pnpm test:ci`,
-  and only the affected browser specs (`node --env-file=.env.test.local tooling/local/ci-browser.mjs <spec-files>`).
+  and the full browser suite locally (`node --env-file=.env.test.local tooling/local/ci-browser.mjs`, no spec list).
   The full browser suite and `pnpm --filter @reactive-resume/tooling test:documents` run on the PR
   in CI, which is authoritative.
 - **After a push:** On CI failures, fix, then rerun only the failed specs locally or let CI
   rerun them.
 - Do not rerun a suite on unchanged source. After an infrastructure failure (disk full, server
   loss), fix the cause and rerun only the failed cases.
+- **Local browser workers:** automatic: `max(1, min(4, floor(cores / 2), floor(free GB / 1.5)))`.
+  Capped at 4 because higher counts overheat laptops. Override with `--workers=N`.
+  Confirm parallel-only failures with `--workers=1` and report them as parallel-unsafe. GitHub CI keeps one worker.
+- **Before pushing:** if a failure occurred only in CI, reproduce its exact browser shard with `node tooling/local/ci-browser.mjs --partition=N/10` (export a local synthetic `E2E_DATABASE_ADMIN_URL` first).
+- **CI browser reproduction:** `node tooling/local/ci-browser.mjs --partition=N/10` uses CI's weighted test list, shard 6 synthetic runtime suites, UTC and one worker; native `--shard` selects a different list.
 
 ## Existing repository guidance and reconciled scope
 

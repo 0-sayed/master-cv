@@ -14,9 +14,8 @@ it("loads career sections as compact empty cards, including the certification hi
 	);
 	const cards = [...container.querySelectorAll('[data-slot="section-card"]')];
 	expect(cards).toHaveLength(5);
-	expect(cards.map((card) => card.querySelectorAll('[data-slot="section-card-empty"] > p').length)).toEqual([
-		1, 1, 1, 1, 2,
-	]);
+	expect(cards.map((card) => card.querySelectorAll('[data-slot="empty-state"]').length)).toEqual([1, 1, 1, 1, 1]);
+	expect(cards.map((card) => card.querySelectorAll('[data-slot="empty-state"] > p').length)).toEqual([0, 0, 0, 0, 1]);
 	expect(container.querySelector("[data-capacity]")).toBeNull();
 	expect(cards[4]).toHaveTextContent("Professional certificates and accredited courses, if applicable.");
 });

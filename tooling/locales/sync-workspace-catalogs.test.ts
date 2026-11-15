@@ -18,10 +18,12 @@ afterEach(() => {
 	vi.resetModules();
 });
 
-it("synchronizes active auth-route copy from the deck without updating unrelated or obsolete messages", async () => {
+it("synchronizes active auth, account and application copy without updating unrelated or obsolete messages", async () => {
 	const format = formatter({ lineNumbers: false });
 	const source = [
 		'#: src/routes/auth/native-callback.tsx\nmsgid "Native callback"\nmsgstr "Old callback"\n',
+		'#: src/features/user/dropdown-menu.tsx\nmsgid "Account menu"\nmsgstr "Old menu"\n',
+		'#: src/features/applications/components/import-applications-sheet.tsx\nmsgid "Choose file"\nmsgstr "Old file choice"\n',
 		'#: src/features/legacy/example.tsx\nmsgid "Legacy copy"\nmsgstr "Old legacy"\n',
 		'#: src/routes/auth/native-callback.tsx\n#~ msgid "Obsolete callback"\n#~ msgstr "Old obsolete"\n',
 	].join("\n");
@@ -47,6 +49,8 @@ it("synchronizes active auth-route copy from the deck without updating unrelated
 			Object.values(catalog).map((message) => [message.message, message.translation]),
 		);
 		expect(messages["Native callback"]).toBe(locale === "en-US" ? "Updated Native callback" : "محدث Native callback");
+		expect(messages["Account menu"]).toBe(locale === "en-US" ? "Updated Account menu" : "محدث Account menu");
+		expect(messages["Choose file"]).toBe(locale === "en-US" ? "Updated Choose file" : "محدث Choose file");
 		expect(messages["Legacy copy"]).toBe("Old legacy");
 		expect(messages["Obsolete callback"]).toBe("Old obsolete");
 	}

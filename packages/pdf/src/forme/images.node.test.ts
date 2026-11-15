@@ -1,5 +1,3 @@
-import { once } from "node:events";
-import { createServer } from "node:http";
 import { expect, it, vi } from "vite-plus/test";
 import { MAX_IMAGE_BYTES } from "./images";
 import { readServerImage } from "./images.node";
@@ -12,42 +10,39 @@ vi.mock("node:dns", () => ({
 	) => callback(null, [{ address: "127.0.0.1", family: 4 }]),
 }));
 
-it("bounds trusted uploads and rejects private redirects, rebinding, and unrelated internal paths", async () => {
-	let requests = 0;
-	let mode = "ok";
-	const server = createServer((_request, response) => {
-		requests++;
-		if (mode === "redirect") {
-			response.writeHead(302, { location: "/private.png" });
-			response.end();
-		} else if (mode === "size") {
-			response.writeHead(200);
-			response.end(Buffer.alloc(MAX_IMAGE_BYTES + 1));
-		} else if (mode === "hang") {
-			/* Wait for the client's deadline. */
-		} else response.end("image bytes");
-	});
-	server.listen(0, "127.0.0.1");
-	await once(server, "listening");
-	try {
-		const address = server.address();
-		if (!address || typeof address === "string") throw new Error("Missing listener");
-		const origin = `http://127.0.0.1:${address.port}`;
-		const picture = `${origin}/api/uploads/user/pictures/picture.png`;
-		expect(Buffer.from(await readServerImage(picture, origin)).toString()).toBe("image bytes");
-		await expect(readServerImage(`${origin}/private.png`, origin)).rejects.toThrow(/refused/);
-		await expect(readServerImage(`http://rebound.example:${address.port}/picture.png`)).rejects.toThrow(/Private/);
-		expect(requests).toBe(1);
-		mode = "redirect";
-		await expect(readServerImage(picture, origin)).rejects.toThrow(/refused/);
-		expect(requests).toBe(2);
-		mode = "size";
-		await expect(readServerImage(picture, origin)).rejects.toThrow(/12 MB/);
-		mode = "hang";
-		await expect(readServerImage(picture, origin, AbortSignal.timeout(20))).rejects.toThrow();
-	} finally {
-		server.close();
-		server.closeAllConnections();
-		await once(server, "close");
-	}
+it("rejects private origins and requires scoped authorization even for matching upload paths", async () => {
+	await expect(readServerImage("http://127.0.0.1/private.png")).rejects.toThrow(/refused/);
+	await expect(readServerImage("http://rebound.example/picture.png")).rejects.toThrow(/Private/);
+	await expect(
+		readServerImage("http://localhost/api/uploads/user/pictures/picture.png", "http://localhost"),
+	).rejects.toThrow(/authorization/);
+});
+it("bounds scoped picture bytes and honors cancellation", async () => {
+	const picture = "http://localhost/api/uploads/user/pictures/picture.png";
+	await expect(
+		readServerImage(picture, "http://localhost", undefined, 0, () =>
+			Promise.resolve(Buffer.alloc(MAX_IMAGE_BYTES + 1)),
+		),
+	).rejects.toThrow(/12 MB/);
+	const controller = new AbortController();
+	controller.abort();
+	expect(() =>
+		readServerImage(picture, "http://localhost", controller.signal, 0, () => Promise.resolve(new Uint8Array([1]))),
+	).toThrow();
+});
+it("own_picture_requires_scoped_reader_and_never_fetches_as_public", async () => {
+	await expect(
+		readServerImage("http://localhost:3030/api/uploads/alice/pictures/a.png", "http://localhost:3030"),
+	).rejects.toThrow();
+	const reader = vi.fn().mockResolvedValue(new Uint8Array([1]));
+	expect(
+		await readServerImage(
+			"http://localhost:3030/api/uploads/alice/pictures/a.png",
+			"http://localhost:3030",
+			AbortSignal.timeout(100),
+			0,
+			reader,
+		),
+	).toEqual(new Uint8Array([1]));
+	expect(reader).toHaveBeenCalledWith("uploads/alice/pictures/a.png");
 });

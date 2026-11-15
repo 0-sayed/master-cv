@@ -3,6 +3,7 @@ import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { Template } from "@reactive-resume/schema/templates";
 import type { ReactNode } from "react";
 import { createContext, use, useMemo } from "react";
+import { localizeResumeEntries } from "@reactive-resume/schema/resume/entry-options";
 import { templateLayouts } from "@reactive-resume/schema/templates";
 import { isRTL } from "@reactive-resume/utils/locale";
 
@@ -44,7 +45,7 @@ export const RenderProvider = ({
 	const ownSide = template ? templateLayouts[template].sidebarSide : null;
 	const columnsReversed = chosenSide && ownSide ? chosenSide !== ownSide : rtl;
 	const contextValue = useMemo<RenderContextValue>(
-		() => ({ ...data, resolveSectionTitle, renderOptions, rtl, columnsReversed }),
+		() => ({ ...localizeResumeEntries(data), resolveSectionTitle, renderOptions, rtl, columnsReversed }),
 		[data, resolveSectionTitle, renderOptions, rtl, columnsReversed],
 	);
 

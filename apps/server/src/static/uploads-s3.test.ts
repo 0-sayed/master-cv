@@ -14,6 +14,10 @@ const envMock = vi.hoisted(() => ({
 }));
 vi.mock("@reactive-resume/env/server", () => ({ env: envMock }));
 
+vi.mock("../../../../packages/api/src/features/storage/ownership", () => ({
+	authorizeOwnedFile: vi.fn().mockResolvedValue({ id: "synthetic-registry-file" }),
+}));
+
 type StoredObject = { data: Buffer; contentType: string };
 type StorageRequest = { method: string; path: string; headers: IncomingHttpHeaders };
 const resolveAuthentication = vi.hoisted(() => vi.fn());
@@ -85,6 +89,7 @@ it("stores images without ACLs and serves them through the signed application pr
 	expect(requests[0]?.headers["x-amz-acl"]).toBeUndefined();
 	const direct = await fetch(`${envMock.S3_ENDPOINT}/${envMock.S3_BUCKET}/${key}`);
 	expect(direct.status).toBe(403);
+	resolveAuthentication.mockResolvedValue({ user: { id: "user-1" }, permissions: ["read"] });
 	const response = await handleUpload(new Request(`${envMock.APP_URL}/api/${key}`));
 	expect(response.status).toBe(200);
 	expect(response.headers.get("Content-Type")).toBe("image/png");

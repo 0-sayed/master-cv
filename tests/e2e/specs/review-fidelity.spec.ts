@@ -49,9 +49,15 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				["/dashboard", "files"],
 				["/dashboard/career/information", "user"],
 				["/dashboard/applications", "briefcase"],
-				["/dashboard/settings", "gear-six"],
+				["/dashboard/trash", "trash"],
 			] as const)
 				await expectGlyph(sidebar.locator(`a[href="${href}"] svg`), name);
+			await sidebar.locator('[data-slot="sidebar-account"]').click();
+			await expectGlyph(
+				page.getByRole("menuitem", { name: locale === "ar-SA" ? "الإعدادات" : "Settings", exact: true }).locator("svg"),
+				"gear-six",
+			);
+			await page.keyboard.press("Escape");
 		}
 		await page.setViewportSize({ width: 390, height: 844 });
 		await page.reload();
@@ -59,9 +65,17 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			["/dashboard", "files"],
 			["/dashboard/career/information", "user"],
 			["/dashboard/applications", "briefcase"],
-			["/dashboard/settings", "gear-six"],
+			["/dashboard/trash", "trash"],
 		] as const)
 			await expectGlyph(page.getByRole("navigation").locator(`a[href="${href}"] svg`), name);
+		await page
+			.getByRole("navigation")
+			.getByRole("button", { name: locale === "ar-SA" ? "الحساب" : "Account", exact: true })
+			.click();
+		await expectGlyph(
+			page.getByRole("menuitem", { name: locale === "ar-SA" ? "الإعدادات" : "Settings", exact: true }).locator("svg"),
+			"gear-six",
+		);
 	});
 }
 

@@ -1,8 +1,8 @@
 import { and, asc, eq } from "drizzle-orm";
 import { sql } from "drizzle-orm";
+import { lockAccountForAccounting } from "@reactive-resume/db/account-state";
 import { withOwnerDatabase } from "@reactive-resume/db/owner-scope";
 import { aiOperation, aiOperationAttempt } from "@reactive-resume/db/schema";
-import { lockDocumentOwner } from "../documents/ownership";
 import { executeApprovedStep } from "./adapter";
 import {
 	assertSourceRevisions,
@@ -203,10 +203,23 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 			);
 			// Late accounting may finish after cancellation/lease loss, but may never publish a result.
 			await withOwnerDatabase(lease.ownerId, async (tx) => {
-				await lockDocumentOwner(tx, lease.ownerId);
+				const account = await lockAccountForAccounting(tx, lease.ownerId);
+				if (!account) return;
 				await tx
 					.update(aiOperationAttempt)
-					.set({ ...outcome, finishedAt: new Date() })
+					.set(
+						account.deleting
+							? {
+									outcome: outcome.outcome,
+									output: null,
+									costMicros: outcome.costMicros,
+									inputTokens: outcome.inputTokens,
+									outputTokens: outcome.outputTokens,
+									cachedTokens: outcome.cachedTokens,
+									finishedAt: new Date(),
+								}
+							: { ...outcome, finishedAt: new Date() },
+					)
 					.where(and(eq(aiOperationAttempt.id, attempt.id), eq(aiOperationAttempt.leaseToken, lease.token)));
 				const [current] = await tx
 					.select()

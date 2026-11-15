@@ -1,14 +1,15 @@
 import type { DbOrTx } from "@reactive-resume/db/client";
 import { ORPCError } from "@orpc/client";
-import { eq } from "drizzle-orm";
-import * as schema from "@reactive-resume/db/schema";
+import { lockActiveAccount } from "@reactive-resume/db/account-state";
 
 /** Match application submission's owner-first order before document/application FK writes. */
 export async function lockDocumentOwner(tx: DbOrTx, userId: string) {
-	const [owner] = await tx
-		.select({ id: schema.user.id })
-		.from(schema.user)
-		.where(eq(schema.user.id, userId))
-		.for("no key update");
-	if (!owner) throw new ORPCError("NOT_FOUND");
+	try {
+		await lockActiveAccount(tx, userId);
+	} catch (error) {
+		if (error instanceof Error && error.message === "ACCOUNT_UNAVAILABLE") throw new ORPCError("NOT_FOUND");
+		if (error instanceof Error && error.message === "ACCOUNT_DELETION_PENDING")
+			throw new ORPCError("FORBIDDEN", { message: "ACCOUNT_DELETION_PENDING" });
+		throw error;
+	}
 }

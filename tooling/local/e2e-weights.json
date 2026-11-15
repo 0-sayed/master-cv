@@ -1,246 +1,373 @@
 {
-	"sourceRun": "42900521575",
+	"sourceRuns": ["43718714464", "43715152006"],
+	"measurement": "Latest per-test list-reporter duration; prefer passing observations; seconds include test bodies and hooks, not runner build/startup.",
 	"defaultTestSeconds": 5,
 	"specs": {
+		"account-consistency.spec.ts": {
+			"seconds": 436.6,
+			"tests": 20
+		},
 		"account-controls.spec.ts": {
-			"seconds": 33.7,
+			"seconds": 14.481,
 			"tests": 9
 		},
+		"account-credential-recovery.spec.ts": {
+			"seconds": 68.7,
+			"tests": 8
+		},
+		"account-data-rights.spec.ts": {
+			"seconds": 54.7,
+			"tests": 7
+		},
 		"account-menu-avatar.spec.ts": {
-			"seconds": 89.2,
+			"seconds": 50.7,
 			"tests": 10
 		},
+		"account-security.spec.ts": {
+			"seconds": 22.787,
+			"tests": 8
+		},
 		"ai-reports.spec.ts": {
-			"seconds": 3.0,
+			"seconds": 3.8,
 			"tests": 1
 		},
+		"ai-runtime-usage-visual.spec.ts": {
+			"seconds": 25.4,
+			"tests": 4
+		},
+		"ai-runtime-usage.spec.ts": {
+			"seconds": 3.8,
+			"tests": 1
+		},
+		"alert-notices-visual.spec.ts": {
+			"seconds": 9.7,
+			"tests": 4
+		},
 		"arabic-copy.spec.ts": {
-			"seconds": 10.5,
+			"seconds": 7.2,
 			"tests": 2
 		},
 		"assistant.spec.ts": {
-			"seconds": 12.1,
-			"tests": 1
-		},
-		"auth.spec.ts": {
-			"seconds": 5.4,
-			"tests": 1
-		},
-		"bilingual-entry.spec.ts": {
-			"seconds": 50.5,
-			"tests": 16
-		},
-		"bilingual-shell.spec.ts": {
-			"seconds": 26.5,
-			"tests": 16
-		},
-		"brand-discovery.spec.ts": {
-			"seconds": 2.778,
-			"tests": 3
-		},
-		"brand-fidelity.spec.ts": {
-			"seconds": 50.4,
-			"tests": 21
-		},
-		"builder-save-navigation.spec.ts": {
-			"seconds": 14.4,
-			"tests": 2
-		},
-		"career-information.spec.ts": {
-			"seconds": 49.4,
-			"tests": 13
-		},
-		"career.spec.ts": {
-			"seconds": 7.7,
-			"tests": 2
-		},
-		"collection-toolbar.spec.ts": {
-			"seconds": 21.9,
-			"tests": 6
-		},
-		"control-sizing.spec.ts": {
-			"seconds": 5.1,
-			"tests": 2
-		},
-		"cross-shell-motion.spec.ts": {
-			"seconds": 492.0,
-			"tests": 2
-		},
-		"d35-contract.spec.ts": {
-			"seconds": 45.305,
-			"tests": 27
-		},
-		"dashboard-centering.spec.ts": {
-			"seconds": 12.8,
-			"tests": 3
-		},
-		"dashboard-consistency.spec.ts": {
-			"seconds": 92.5,
-			"tests": 14
-		},
-		"dashboard-density.spec.ts": {
-			"seconds": 57.8,
-			"tests": 8
-		},
-		"dashboard-header-motion.spec.ts": {
-			"seconds": 82.0,
-			"tests": 4
-		},
-		"dashboard-loading-motion.spec.ts": {
-			"seconds": 37.8,
-			"tests": 2
-		},
-		"dashboard-width.spec.ts": {
-			"seconds": 46.8,
-			"tests": 4
-		},
-		"design-foundations.spec.ts": {
-			"seconds": 12.6,
-			"tests": 5
-		},
-		"document-previews.spec.ts": {
-			"seconds": 27.7,
-			"tests": 6
-		},
-		"form-consistency.spec.ts": {
-			"seconds": 22.7,
-			"tests": 8
-		},
-		"header-search.spec.ts": {
-			"seconds": 26.7,
-			"tests": 6
-		},
-		"impeccable-polish.spec.ts": {
-			"seconds": 20.6,
-			"tests": 8
-		},
-		"implicit-state.spec.ts": {
-			"seconds": 30.7,
-			"tests": 6
-		},
-		"job-saving.spec.ts": {
-			"seconds": 15.0,
-			"tests": 4
-		},
-		"json-export-import.spec.ts": {
-			"seconds": 9.2,
-			"tests": 1
-		},
-		"keyboard-hints.spec.ts": {
-			"seconds": 14.9,
-			"tests": 4
-		},
-		"landing-shell-motion.spec.ts": {
-			"seconds": 46.1,
-			"tests": 2
-		},
-		"locale-draft-preservation.spec.ts": {
-			"seconds": 12.9,
-			"tests": 3
-		},
-		"locale-preference.spec.ts": {
 			"seconds": 1.6,
 			"tests": 1
 		},
+		"auth.spec.ts": {
+			"seconds": 3.0,
+			"tests": 1
+		},
+		"bilingual-entry.spec.ts": {
+			"seconds": 29.093,
+			"tests": 16
+		},
+		"bilingual-shell.spec.ts": {
+			"seconds": 13.574,
+			"tests": 16
+		},
+		"brand-discovery.spec.ts": {
+			"seconds": 1.416,
+			"tests": 3
+		},
+		"brand-fidelity.spec.ts": {
+			"seconds": 56.5,
+			"tests": 21
+		},
+		"builder-save-navigation.spec.ts": {
+			"seconds": 7.2,
+			"tests": 2
+		},
+		"career-information.spec.ts": {
+			"seconds": 48.8,
+			"tests": 17
+		},
+		"career.spec.ts": {
+			"seconds": 3.7,
+			"tests": 2
+		},
+		"check-panel-scroll.spec.ts": {
+			"seconds": 17.2,
+			"tests": 4
+		},
+		"check-panel-visual.spec.ts": {
+			"seconds": 50.0,
+			"tests": 4
+		},
+		"collection-toolbar.spec.ts": {
+			"seconds": 14.3,
+			"tests": 6
+		},
+		"consumed-proof-recovery.spec.ts": {
+			"seconds": 7.2,
+			"tests": 4
+		},
+		"control-sizing.spec.ts": {
+			"seconds": 2.696,
+			"tests": 2
+		},
+		"cross-shell-motion.spec.ts": {
+			"seconds": 468.0,
+			"tests": 2
+		},
+		"cv-check-boundaries.spec.ts": {
+			"seconds": 0.554,
+			"tests": 1
+		},
+		"cv-document-fonts.spec.ts": {
+			"seconds": 27.5,
+			"tests": 4
+		},
+		"cv-import-review.spec.ts": {
+			"seconds": 7.1,
+			"tests": 3
+		},
+		"cv-native-import.spec.ts": {
+			"seconds": 2.5,
+			"tests": 1
+		},
+		"cv-persistence.spec.ts": {
+			"seconds": 12.0,
+			"tests": 2
+		},
+		"cv-readiness-export.spec.ts": {
+			"seconds": 5.0,
+			"tests": 1
+		},
+		"cv-workspace-journey.spec.ts": {
+			"seconds": 26.1,
+			"tests": 6
+		},
+		"cv-workspace-visual.spec.ts": {
+			"seconds": 40.0,
+			"tests": 6
+		},
+		"d35-contract.spec.ts": {
+			"seconds": 30.395,
+			"tests": 27
+		},
+		"dashboard-centering.spec.ts": {
+			"seconds": 7.9,
+			"tests": 3
+		},
+		"dashboard-consistency.spec.ts": {
+			"seconds": 61.432,
+			"tests": 14
+		},
+		"dashboard-density.spec.ts": {
+			"seconds": 37.6,
+			"tests": 8
+		},
+		"dashboard-empty-states.spec.ts": {
+			"seconds": 41.2,
+			"tests": 7
+		},
+		"dashboard-header-motion.spec.ts": {
+			"seconds": 70.3,
+			"tests": 4
+		},
+		"dashboard-loading-motion.spec.ts": {
+			"seconds": 19.3,
+			"tests": 2
+		},
+		"dashboard-width.spec.ts": {
+			"seconds": 38.4,
+			"tests": 4
+		},
+		"design-foundations.spec.ts": {
+			"seconds": 7.825,
+			"tests": 5
+		},
+		"document-previews.spec.ts": {
+			"seconds": 17.4,
+			"tests": 6
+		},
+		"form-consistency.spec.ts": {
+			"seconds": 14.824,
+			"tests": 8
+		},
+		"guest.spec.ts": {
+			"seconds": 5,
+			"tests": 1
+		},
+		"header-search.spec.ts": {
+			"seconds": 25.6,
+			"tests": 6
+		},
+		"impeccable-polish.spec.ts": {
+			"seconds": 14.299,
+			"tests": 8
+		},
+		"implicit-state.spec.ts": {
+			"seconds": 21.5,
+			"tests": 6
+		},
+		"job-saving.spec.ts": {
+			"seconds": 10.7,
+			"tests": 4
+		},
+		"json-export-import.spec.ts": {
+			"seconds": 2.9,
+			"tests": 1
+		},
+		"keyboard-hints.spec.ts": {
+			"seconds": 9.8,
+			"tests": 4
+		},
+		"landing-shell-motion.spec.ts": {
+			"seconds": 41.9,
+			"tests": 2
+		},
+		"layout-scrolling.spec.ts": {
+			"seconds": 42.9,
+			"tests": 14
+		},
+		"locale-draft-preservation.spec.ts": {
+			"seconds": 7.4,
+			"tests": 3
+		},
+		"locale-preference.spec.ts": {
+			"seconds": 1.3,
+			"tests": 1
+		},
 		"oauth-consent.spec.ts": {
-			"seconds": 2.3,
+			"seconds": 1.7,
 			"tests": 1
 		},
 		"pdf-text.spec.ts": {
-			"seconds": 52.6,
+			"seconds": 30.101,
 			"tests": 9
 		},
+		"pending-import.spec.ts": {
+			"seconds": 4.3,
+			"tests": 2
+		},
+		"privacy-help.spec.ts": {
+			"seconds": 0.917,
+			"tests": 1
+		},
 		"private-ownership.spec.ts": {
-			"seconds": 1.2,
+			"seconds": 1.5,
+			"tests": 1
+		},
+		"private-picture-delivery.spec.ts": {
+			"seconds": 1.0,
 			"tests": 1
 		},
 		"private-workspace.spec.ts": {
-			"seconds": 67.3,
+			"seconds": 57.6,
 			"tests": 26
 		},
 		"product-brand.spec.ts": {
-			"seconds": 5.075,
+			"seconds": 3.507,
 			"tests": 6
 		},
 		"public-sharing.spec.ts": {
-			"seconds": 11.7,
+			"seconds": 4.3,
 			"tests": 1
 		},
 		"query-skeleton.spec.ts": {
-			"seconds": 40.5,
-			"tests": 18
+			"seconds": 43.8,
+			"tests": 26
 		},
 		"review-fidelity.spec.ts": {
-			"seconds": 34.2,
+			"seconds": 16.806,
 			"tests": 12
 		},
 		"round4-refinements.spec.ts": {
-			"seconds": 24.2,
+			"seconds": 16.8,
 			"tests": 6
 		},
 		"route-titles.spec.ts": {
-			"seconds": 80.0,
+			"seconds": 36.5,
 			"tests": 10
 		},
 		"section-editing.spec.ts": {
-			"seconds": 14.5,
+			"seconds": 6.1,
 			"tests": 2
 		},
 		"settings-stability.spec.ts": {
-			"seconds": 22.0,
+			"seconds": 15.1,
 			"tests": 10
 		},
 		"share-history.spec.ts": {
-			"seconds": 9.2,
+			"seconds": 1.9,
 			"tests": 1
 		},
 		"shared-controls.spec.ts": {
-			"seconds": 4.7,
+			"seconds": 2.283,
 			"tests": 2
 		},
 		"shared-copy.spec.ts": {
-			"seconds": 9.9,
+			"seconds": 5.466,
 			"tests": 6
 		},
 		"sharing-password.spec.ts": {
-			"seconds": 12.0,
+			"seconds": 4.3,
 			"tests": 1
 		},
 		"shell-accessibility.spec.ts": {
-			"seconds": 15.7,
+			"seconds": 9.8,
 			"tests": 4
 		},
 		"shell-brand-alignment.spec.ts": {
-			"seconds": 63.7,
+			"seconds": 37.2,
 			"tests": 6
 		},
 		"shell-improvements.spec.ts": {
-			"seconds": 65.2,
+			"seconds": 46.9,
 			"tests": 4
 		},
 		"shell-regressions.spec.ts": {
-			"seconds": 5.3,
+			"seconds": 3.12,
 			"tests": 2
 		},
 		"shell-state-motion.spec.ts": {
-			"seconds": 44.7,
+			"seconds": 36.7,
 			"tests": 4
+		},
+		"shell.spec.ts": {
+			"seconds": 15.0,
+			"tests": 2
 		},
 		"signature-motion.spec.ts": {
-			"seconds": 117.3,
+			"seconds": 69.7,
 			"tests": 8
 		},
-		"template-previews.spec.ts": {
-			"seconds": 17.9,
+		"t004-owner-followups.spec.ts": {
+			"seconds": 25.1,
 			"tests": 4
 		},
+		"t004-terra-audit.spec.ts": {
+			"seconds": 27.1,
+			"tests": 6
+		},
+		"template-previews.spec.ts": {
+			"seconds": 7.1,
+			"tests": 4
+		},
+		"trash-retention.spec.ts": {
+			"seconds": 13.394,
+			"tests": 8
+		},
 		"ui-audit.spec.ts": {
-			"seconds": 107.0,
+			"seconds": 75.788,
 			"tests": 10
 		},
 		"web-access.spec.ts": {
-			"seconds": 4.7,
+			"seconds": 2.7,
 			"tests": 1
 		}
-	}
+	},
+	"runtimeSuites": [
+		{
+			"shard": 6,
+			"config": "tests/e2e/t005-runtime.config.ts",
+			"output": "runtime-browser",
+			"seconds": 26
+		},
+		{
+			"shard": 6,
+			"config": "tests/e2e/reviewable-ai-runtime.config.ts",
+			"output": "review-browser",
+			"seconds": 256
+		}
+	]
 }

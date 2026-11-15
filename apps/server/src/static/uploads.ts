@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { basename, normalize } from "node:path";
-import { getStorageService, inferContentType } from "@reactive-resume/api/features/storage";
+import { getStorageService, inferContentType, authorizeOwnedFile } from "@reactive-resume/api/features/storage";
 
 // Uploads share the app origin and S3/Blob hand back the client-declared type, so only raster
 // images render inline. Anything else (HTML, SVG, PDF, unknown) downloads, whatever was stored.
@@ -14,23 +14,21 @@ export async function handleUpload(request: Request) {
 	if (!isValidPath(userId) || !isValidPathSegments(filePath)) return new Response("Forbidden", { status: 403 });
 	if (isPrivateUploadPath(filePath)) return new Response("Not Found", { status: 404 });
 
-	const storageService = getStorageService();
+	const { resolveAuthenticationFromRequestHeaders } = await import("@reactive-resume/api/context");
+	const authentication = await resolveAuthenticationFromRequestHeaders(request.headers).catch(() => null);
+	const denied = () => new Response("Not Found", { status: 404, headers: { "Cache-Control": "private, no-store" } });
+	if (authentication?.user.id !== userId || !authentication.permissions.includes("read")) return denied();
 	const key = `uploads/${userId}/${filePath}`;
-	const storedFile = await storageService.read(key);
-	if (!storedFile) return new Response("Not Found", { status: 404 });
-
+	try {
+		await authorizeOwnedFile({ userId, key });
+	} catch {
+		return denied();
+	}
+	const storedFile = await getStorageService().read(key);
+	if (!storedFile) return denied();
 	const filename = filePath.split("/").pop() ?? filePath;
 	const contentType = storedFile.contentType ?? inferContentType(filename);
-	const isPublicPicture = filePath.startsWith("pictures/") && INLINE_CONTENT_TYPES.has(contentType);
-	if (!isPublicPicture) {
-		const { resolveAuthenticationFromRequestHeaders } = await import("@reactive-resume/api/context");
-		const authentication = await resolveAuthenticationFromRequestHeaders(request.headers).catch(() => null);
-		if (authentication?.user.id !== userId || !authentication.permissions.includes("read"))
-			return new Response("Not Found", { status: 404, headers: { "Cache-Control": "no-store" } });
-	}
 	const etag = createEtag(storedFile);
-
-	if (isPublicPicture && isNotModified(request.headers, etag)) return makeNotModifiedResponse(etag);
 
 	const shouldForceDownload = !INLINE_CONTENT_TYPES.has(contentType);
 
@@ -42,7 +40,7 @@ export async function handleUpload(request: Request) {
 		headers.set("Content-Disposition", `attachment; filename="${encodeURIComponent(basename(filename))}"`);
 	}
 
-	headers.set("Cache-Control", isPublicPicture ? "public, max-age=31536000, immutable" : "private, no-store");
+	headers.set("Cache-Control", "private, no-store");
 	headers.set("ETag", etag);
 	headers.set("X-Content-Type-Options", "nosniff");
 	headers.set("X-Robots-Tag", "noindex, nofollow");
@@ -84,20 +82,6 @@ function isValidPathSegments(path: string): boolean {
 
 function isPrivateUploadPath(path: string): boolean {
 	return path.split("/")[0] === "agent";
-}
-
-function isNotModified(headers: Headers, etag: string): boolean {
-	const ifNoneMatch = headers.get("If-None-Match");
-	const candidates = ifNoneMatch?.split(",").map((s) => s.trim()) ?? [];
-
-	return candidates.includes(etag);
-}
-
-function makeNotModifiedResponse(etag: string): Response {
-	return new Response(null, {
-		status: 304,
-		headers: { ETag: etag, "Cache-Control": "public, max-age=31536000, immutable" },
-	});
 }
 
 function toArrayBuffer(data: Uint8Array): ArrayBuffer {

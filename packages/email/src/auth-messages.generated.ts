@@ -132,4 +132,29 @@ export const authMessages = {
 		"ar-SA": "لا تشارك رموز التحقّق أو الاسترداد مع أي شخص. لا يعيد الدعم تعيين كلمة المرور بناءً على الادعاءات وحدها.",
 		"en-US": "Never share verification or recovery codes. Support never resets a password based on claims alone.",
 	},
+	"email.privacy.export_ready": {
+		"ar-SA": "نسخة بيانات حسابك جاهزة. سجّل الدخول إلى إعدادات الخصوصية لتنزيلها.",
+		"en-US": "Your account data copy is ready. Sign in to privacy settings to download it.",
+	},
+	"email.privacy.deletion_received": {
+		"ar-SA": "استلمنا طلب حذف حسابك وأوقفنا الوصول إليه. إزالة البيانات النشطة قيد التنفيذ.",
+		"en-US": "We received your account deletion request and revoked access. Active data removal is in progress.",
+	},
+	"email.privacy.deletion_complete": {
+		"ar-SA": "اكتملت إزالة بيانات الحساب النشطة. تخضع النسخ الاحتياطية لسياسة منفصلة؛ هذه الرسالة لا تؤكد حذفها.",
+		"en-US":
+			"Active account data removal is complete. Backups follow a separate policy; this notice does not confirm their deletion.",
+	},
+	"email.privacy.security_change": {
+		"ar-SA": "تم تحديث إعدادات أمان حسابك. يمكنك مراجعتها بعد تسجيل الدخول.",
+		"en-US": "Your account security settings changed. Sign in to review them.",
+	},
+	"email.privacy.support_received": {
+		"ar-SA": "استلمنا رسالتك وحفظناها. هذا إشعار استلام ولا يعني حل الطلب.",
+		"en-US": "Your message was received and saved. This receipt does not mean the request is resolved.",
+	},
+	"email.privacy.action": {
+		"ar-SA": "فتح ماستر سي في",
+		"en-US": "Open Master CV",
+	},
 } as const;

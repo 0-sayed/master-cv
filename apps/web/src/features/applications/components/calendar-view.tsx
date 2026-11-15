@@ -7,6 +7,7 @@ import { Trans } from "@lingui/react/macro";
 import { useState } from "react";
 import { INTERVIEW_KINDS } from "@reactive-resume/schema/applications/data";
 import { Button } from "@reactive-resume/ui/components/button";
+import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Popover, PopoverContent, PopoverTrigger } from "@reactive-resume/ui/components/popover";
 import { cn } from "@reactive-resume/utils/style";
@@ -235,23 +236,20 @@ export function ApplicationCalendar({ applications, allApplications, onOpen }: A
 				</h3>
 
 				{upcoming.length === 0 ? (
-					<div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-line px-4 py-8 text-center">
-						<div className="flex size-10 items-center justify-center rounded-full bg-sunken">
-							<Icon name="calendar-blank" size={20} className="text-ink-3" />
-						</div>
-						<div className="space-y-1">
-							<p className="text-sm font-medium">
-								<Trans>Nothing scheduled yet</Trans>
-							</p>
-							<p className="text-xs text-ink-3">
-								<Trans>Add screening calls and technical interviews to see them here and on the calendar.</Trans>
-							</p>
-						</div>
-						<Button size="sm" variant="secondary" onClick={() => schedule()}>
-							<Icon name="calendar-plus" size={16} />
-							<Trans>Schedule interview</Trans>
-						</Button>
-					</div>
+					<EmptyState
+						density="compact"
+						icon="calendar-blank"
+						title={<Trans>Nothing scheduled yet</Trans>}
+						description={
+							<Trans>Add screening calls and technical interviews to see them here and on the calendar.</Trans>
+						}
+						actions={
+							<Button variant="secondary" onClick={() => schedule()}>
+								<Icon name="calendar-plus" />
+								<Trans>Schedule interview</Trans>
+							</Button>
+						}
+					/>
 				) : (
 					upcomingByDay.map((group) => {
 						const first = group[0];

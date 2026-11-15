@@ -6,7 +6,9 @@
 	"exports": {
 		"./config": "./src/config.ts",
 		"./trusted-origins": "./src/trusted-origins.ts",
-		"./types": "./src/types.ts"
+		"./types": "./src/types.ts",
+		"./account-access": "./src/account-access.ts",
+		"./account-changes": "./src/account-changes.ts"
 	},
 	"scripts": {
 		"typecheck": "tsrs --noEmit",

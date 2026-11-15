@@ -13,6 +13,9 @@ vi.mock("../resume/service", () => ({ resumeService: resumeServiceMock }));
 vi.mock("../cover-letters/service", () => ({ coverLetterService: { getById: vi.fn(), update: vi.fn() } }));
 vi.mock("../applications/service", () => ({ applicationService: applicationServiceMock }));
 
+const requestPurge = vi.hoisted(() => vi.fn());
+vi.mock("./purge", () => ({ requestDocumentPurge: requestPurge }));
+
 const { documentsService } = await import("./service");
 
 // `select().from().where()` resolving to `rows`.
@@ -60,7 +63,7 @@ describe("Trash", () => {
 
 		dbMock.select.mockReturnValueOnce(rows([{ isLocked: false, trashedAt: new Date() }]));
 		await documentsService.purge({ userId: "u1", type: "resume", id: "r1" });
-		expect(resumeServiceMock.delete).toHaveBeenCalledWith({ id: "r1", userId: "u1" });
+		expect(requestPurge).toHaveBeenCalledWith({ id: "r1", userId: "u1", type: "resume" });
 	});
 });
 

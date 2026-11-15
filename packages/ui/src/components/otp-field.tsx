@@ -1,45 +1,94 @@
-import { OTPField as OTPFieldPrimitive } from "@base-ui/react/otp-field";
+import type * as React from "react";
+import { useState } from "react";
 import { normalizeNumericDigits } from "@reactive-resume/utils/string";
 import { cn } from "@reactive-resume/utils/style";
 
+type OTPFieldProps = Omit<
+	React.ComponentProps<"input">,
+	"size" | "value" | "defaultValue" | "onChange" | "children"
+> & {
+	length: number;
+	value?: string;
+	defaultValue?: string;
+	onValueChange?: (value: string) => void;
+	validationType?: "numeric" | "alpha" | "alphanumeric" | "none";
+	normalizeValue?: (value: string) => string;
+};
+
+/** One semantic input preserves native paste, selection and OTP autofill across all segments. */
 function OTPField({
 	className,
 	length,
-	children,
+	value,
+	defaultValue = "",
+	onValueChange,
 	validationType = "numeric",
 	normalizeValue,
+	onFocus,
+	onBlur,
+	onSelect,
 	...props
-}: OTPFieldPrimitive.Root.Props) {
+}: OTPFieldProps) {
+	const [internalValue, setInternalValue] = useState(defaultValue);
+	const [focused, setFocused] = useState(false);
+	const [selection, setSelection] = useState(0);
+	const current = value ?? internalValue;
+	const numeric = validationType === "numeric";
 	return (
-		<OTPFieldPrimitive.Root
+		<div
 			data-slot="otp-field"
-			length={length}
 			dir="ltr"
-			inputMode={validationType === "numeric" ? "numeric" : "text"}
-			validationType={validationType === "numeric" ? "none" : validationType}
-			normalizeValue={(value) => {
-				const normalized = validationType === "numeric" ? normalizeNumericDigits(value).replace(/\D/g, "") : value;
-				return normalizeValue ? normalizeValue(normalized) : normalized;
-			}}
-			className={cn("group flex items-center gap-1.5", className)}
-			{...props}
+			className={cn("group relative mx-auto flex w-fit max-w-full items-center justify-center gap-1.5", className)}
 		>
-			{children ?? Array.from({ length }, (_, index) => <OTPFieldInput key={index} />)}
-		</OTPFieldPrimitive.Root>
+			<input
+				{...props}
+				data-slot="otp-field-input"
+				type="text"
+				autoComplete="one-time-code"
+				inputMode={numeric ? "numeric" : "text"}
+				pattern={numeric ? "[0-9]*" : undefined}
+				value={current}
+				className="absolute inset-0 z-10 h-full w-full cursor-text opacity-0 disabled:cursor-not-allowed"
+				onChange={(event) => {
+					let next = event.target.value;
+					if (numeric) next = normalizeNumericDigits(next).replace(/\D/g, "");
+					else if (validationType === "alpha") next = next.replace(/[^a-z]/gi, "");
+					else if (validationType === "alphanumeric") next = next.replace(/[^a-z0-9]/gi, "");
+					next = (normalizeValue ? normalizeValue(next) : next).slice(0, length);
+					setInternalValue(next);
+					setSelection(Math.min(event.target.selectionStart ?? next.length, length - 1));
+					onValueChange?.(next);
+				}}
+				onFocus={(event) => {
+					setFocused(true);
+					onFocus?.(event);
+				}}
+				onBlur={(event) => {
+					setFocused(false);
+					onBlur?.(event);
+				}}
+				onSelect={(event) => {
+					setSelection(Math.min(event.currentTarget.selectionStart ?? 0, length - 1));
+					onSelect?.(event);
+				}}
+			/>
+			{Array.from({ length }, (_, index) => (
+				<span
+					key={index}
+					data-slot="otp-field-segment"
+					aria-hidden="true"
+					className={cn(
+						"flex h-11 w-9 shrink-0 items-center justify-center rounded-lg border border-line-2 bg-transparent type-body font-mono transition-[color,background-color,border-color,box-shadow]",
+						props["aria-invalid"] && "border-danger ring-3 ring-danger/20",
+						focused && index === selection && "border-accent ring-3 ring-accent/50",
+						props.disabled && "bg-line-2/50 opacity-50",
+					)}
+				>
+					{current[index] ?? ""}
+				</span>
+			))}
+		</div>
 	);
 }
 
-function OTPFieldInput({ className, ...props }: OTPFieldPrimitive.Input.Props) {
-	return (
-		<OTPFieldPrimitive.Input
-			data-slot="otp-field-input"
-			className={cn(
-				"size-9 rounded-lg border border-line-2 bg-transparent text-center font-mono text-sm transition-[color,background-color,border-color,box-shadow] outline-none group-aria-invalid:border-danger group-aria-invalid:ring-3 group-aria-invalid:ring-danger/20 focus-visible:border-accent focus-visible:ring-3 focus-visible:ring-accent/50 disabled:cursor-not-allowed disabled:bg-line-2/50 disabled:opacity-50",
-				className,
-			)}
-			{...props}
-		/>
-	);
-}
-
-export { OTPField, OTPFieldInput };
+export { OTPField };

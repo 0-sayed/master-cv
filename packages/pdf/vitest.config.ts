@@ -14,6 +14,9 @@ export default {
 	// rasterizes twice. Both land within a second or two of the default on a CI runner.
 	test: {
 		...config.test,
+		// PDF.js rasterization loads native canvas/Skia. Separate processes keep native
+		// font and renderer state out of concurrently recycled worker-thread isolates.
+		pool: "forks" as const,
 		setupFiles: [...((config.test?.setupFiles ?? []) as string[]), "./src/forme/test-setup.ts"],
 		testTimeout: 30_000,
 	},

@@ -31,14 +31,6 @@ const messages = {
 	"auth.welcome.start": msg({ message: "Get started", context: "auth.welcome.start" }),
 	"editor.career.title": msg({ message: "My career information", context: "editor.career.title" }),
 	"editor.navigation.career": msg({ message: "Career information", context: "editor.navigation.career" }),
-	"editor.career.subtitle": msg({
-		message: "One source for all your CVs. Choose what each copy shows. This source changes only with your approval.",
-		context: "editor.career.subtitle",
-	}),
-	"editor.career.ownershipHint": msg({
-		message: "One source for all your CVs. Changes only with your approval.",
-		context: "editor.career.ownershipHint",
-	}),
 	"editor.career.emptyTitle": msg({ message: "No information added yet", context: "editor.career.emptyTitle" }),
 	"editor.career.emptyHint": msg({
 		message: "Start by adding your information from the content panel.",
@@ -54,10 +46,6 @@ const messages = {
 	"review.fact.entryHint": msg({
 		message: "Write the information as you want it saved.",
 		context: "review.fact.entryHint",
-	}),
-	"review.fact.approvalHint": msg({
-		message: "No information is added without your approval.",
-		context: "review.fact.approvalHint",
 	}),
 	"editor.experience.save": msg({ message: "Save information", context: "editor.experience.save" }),
 	"editor.education.title": msg({ message: "Education", context: "editor.education.title" }),

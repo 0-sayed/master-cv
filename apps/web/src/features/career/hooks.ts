@@ -88,7 +88,6 @@ export function useWorkspace(applicationId: string) {
 				type: "error",
 				description: getOrpcErrorMessage(error, {
 					fallback: t`Couldn't save that change. Check your connection and try again.`,
-					allowServerMessage: true,
 				}),
 			});
 		},
@@ -186,7 +185,7 @@ export function useGenerate(applicationId: string) {
 				type: "error",
 				description: getOrpcErrorMessage(error, {
 					fallback: t`${name} didn't respond. Nothing was changed; try again.`,
-					allowServerMessage: true,
+					byCode: { PRECONDITION_FAILED: t`Connect an AI provider in Settings` },
 				}),
 			});
 		},

@@ -29,15 +29,22 @@ function useFormControl(): FormControlContextValue {
 	return React.use(FormControlContext) ?? {};
 }
 
-type FormItemProps = React.ComponentProps<"div"> & { hasError?: boolean };
+type FormItemProps = React.ComponentProps<"div"> & { hasError?: boolean; orientation?: "vertical" | "horizontal" };
 
-function FormItem({ className, hasError = false, ...props }: FormItemProps) {
+function FormItem({ className, hasError = false, orientation = "vertical", ...props }: FormItemProps) {
 	const id = React.useId();
 	const contextValue = React.useMemo<FormItemContextValue>(() => ({ id, hasError }), [hasError, id]);
 
 	return (
 		<FormItemContext.Provider value={contextValue}>
-			<div data-slot="form-item" className={cn("grid gap-1.5", className)} {...props} />
+			<div
+				data-slot="form-item"
+				className={cn(
+					orientation === "horizontal" ? "flex items-center gap-2 [&>[data-slot=form-label]]:min-h-11" : "grid gap-1.5",
+					className,
+				)}
+				{...props}
+			/>
 		</FormItemContext.Provider>
 	);
 }

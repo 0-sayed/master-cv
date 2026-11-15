@@ -7,14 +7,13 @@ import { Plural, Trans } from "@lingui/react/macro";
 import { useId, useState } from "react";
 import { getProposalState } from "@reactive-resume/resume/proposals";
 import { Button } from "@reactive-resume/ui/components/button";
-import { Icon } from "@reactive-resume/ui/components/icon";
 import { Kbd } from "@reactive-resume/ui/components/kbd";
+import { SuccessStatus } from "@reactive-resume/ui/components/success-celebration";
 import { cn } from "@reactive-resume/utils/style";
 import { useEditorStore } from "../store";
 import { acceptResumeProposals } from "./proposals";
 import { WordingDiff } from "./wording-diff";
 import { useIsResumeLocked } from "@/features/resume/builder/draft";
-import { ENTER_CLASS, POP_CLASS } from "@/libs/motion";
 
 /** The visible text of a passage's HTML, for the card. */
 const passageText = (html: string) =>
@@ -229,7 +228,7 @@ function ProposalItem(props: ProposalItemProps) {
 				)}
 			</div>
 
-			{state === "pending" ? (
+			{state === "pending" && (
 				<div className="flex flex-wrap gap-2">
 					<Button size="sm" disabled={locked} onClick={props.onAccept}>
 						<Trans>Accept</Trans>
@@ -243,40 +242,30 @@ function ProposalItem(props: ProposalItemProps) {
 						{props.keepLabel ?? <Trans>Reject</Trans>}
 					</Button>
 				</div>
-			) : (
-				<p
-					key={state}
-					className={cn(
-						ENTER_CLASS,
-						"flex min-h-7 items-center gap-2 text-xs font-medium",
-						state === "accepted" && "text-accent-text",
-						state === "rejected" && "text-ink-3",
-						state === "stale" && "text-warn-text",
-					)}
-				>
-					{state === "accepted" && (
-						<>
-							<Icon name="check" size={16} className={POP_CLASS} />
-							<Trans context="A proposed change has been applied">Applied</Trans>
-						</>
-					)}
-					{state === "rejected" && <Trans>Rejected</Trans>}
-					{state === "stale" && (
-						<>
-							<Trans>Out of date: the text has changed since.</Trans>
-							{props.onSuggestAgain && (
-								<button
-									type="button"
-									className="text-ink-2 underline underline-offset-2"
-									onClick={props.onSuggestAgain}
-								>
-									<Trans>Suggest again</Trans>
-								</button>
-							)}
-						</>
-					)}
-				</p>
 			)}
+			<SuccessStatus
+				complete={state === "accepted"}
+				className={cn(
+					"min-h-7 type-metadata",
+					state === "pending" && "sr-only",
+					state === "accepted" && "text-accent-text",
+					state === "rejected" && "text-ink-3",
+					state === "stale" && "text-warn-text",
+				)}
+			>
+				{state === "accepted" && <Trans context="A proposed change has been applied">Applied</Trans>}
+				{state === "rejected" && <Trans>Rejected</Trans>}
+				{state === "stale" && (
+					<>
+						<Trans>Out of date: the text has changed since.</Trans>
+						{props.onSuggestAgain && (
+							<button type="button" className="text-ink-2 underline underline-offset-2" onClick={props.onSuggestAgain}>
+								<Trans>Suggest again</Trans>
+							</button>
+						)}
+					</>
+				)}
+			</SuccessStatus>
 			{props.details}
 		</li>
 	);

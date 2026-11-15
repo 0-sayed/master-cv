@@ -1,4 +1,5 @@
 import { writeFile } from "node:fs/promises";
+import { navigateDashboard } from "../fixtures/dashboard-navigation";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
@@ -115,7 +116,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			"/dashboard/settings",
 			"/dashboard",
 		]) {
-			await page.locator(`aside a[href="${route}"]`).click();
+			await navigateDashboard(page, route);
 			await settleScreen(page);
 			if (locale === "ar-SA")
 				for (const label of await page.getByRole("button").allTextContents())

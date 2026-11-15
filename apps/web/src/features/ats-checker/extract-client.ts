@@ -13,7 +13,7 @@ import { HARVEST_DEFAULTS, harvestPdfDocument } from "@reactive-resume/resume/at
  */
 
 /** Refused before PDF.js is even loaded: nothing good happens after this size in a browser tab. */
-const MAX_UPLOAD_BYTES = 25_000_000;
+export const MAX_UPLOAD_BYTES = 25_000_000;
 
 export type ExtractProgress = HarvestProgress | { phase: "loading"; page: 0; pageCount: 0 };
 

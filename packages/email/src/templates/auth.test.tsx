@@ -13,7 +13,7 @@ describe("transactional auth mail", () => {
 		expect(authMessages).toEqual(
 			Object.fromEntries(
 				deck.entries
-					.filter(({ key }) => /^email\.(verification|reset|emailChange|passwordResetNotice)\./.test(key))
+					.filter(({ key }) => /^email\.(verification|reset|emailChange|passwordResetNotice|privacy)\./.test(key))
 					.map(({ key, messages }) => [key, messages]),
 			),
 		);

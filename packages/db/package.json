@@ -14,7 +14,9 @@
 		},
 		"./schema": {
 			"default": "./src/schema/index.ts"
-		}
+		},
+		"./account-state": "./src/account-state.ts",
+		"./runtime-role": "./src/runtime-role.mjs"
 	},
 	"scripts": {
 		"db:generate": "drizzle-kit generate",

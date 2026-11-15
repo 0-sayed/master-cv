@@ -3,6 +3,13 @@
 	"tags": ["-lintignore"],
 	"ignoreBinaries": ["pdftotext", "pdftoppm", "gitleaks", "dpkg-deb"],
 	"workspaces": {
+		".": {
+			"entry": [
+				"tests/e2e/privacy-retention-worker.ts",
+				"tests/e2e/t005-runtime.config.ts",
+				"tests/e2e/reviewable-ai-runtime.config.ts"
+			]
+		},
 		"apps/mobile": {
 			"ignoreExportsUsedInFile": true,
 			"ignoreIssues": {
@@ -102,7 +109,13 @@
 			]
 		},
 		"tooling": {
-			"entry": ["**/*.mjs", "mcp/seed.ts", "vitest.documents.config.ts", "document-qualification/run.qualification.ts"],
+			"entry": [
+				"**/*.mjs",
+				"locales/bind-privacy-copy.mts",
+				"mcp/seed.ts",
+				"vitest.documents.config.ts",
+				"document-qualification/run.qualification.ts"
+			],
 			"ignoreDependencies": ["@formepdf/core", "css-tree"]
 		},
 		"packages/api": {

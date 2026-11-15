@@ -169,6 +169,7 @@ for (const locale of ["ar-SA", "en-US"] as const)
 					const rtl = document.documentElement.dir === "rtl";
 					return {
 						brandBottom: b.bottom,
+						inset: Number.parseFloat(getComputedStyle(aside).paddingInlineStart),
 						headerBottom: h.bottom,
 						headerStart: rtl ? h.right : h.left,
 						brandStart: rtl ? b.right : b.left,
@@ -185,8 +186,8 @@ for (const locale of ["ar-SA", "en-US"] as const)
 				});
 				expect(corner.headerStart).toBe(corner.asideEnd);
 				expect(corner.brandBottom).toBe(corner.headerBottom);
-				expect(corner.brandStart).toBe(corner.asideStart);
-				expect(Math.abs(corner.brandEnd - corner.asideEnd)).toBe(1);
+				expect(Math.abs(corner.brandStart - corner.asideStart)).toBe(corner.inset);
+				expect(Math.abs(corner.brandEnd - corner.asideEnd)).toBe(corner.inset + 1);
 				expect(corner.lineStart).toBe("0px");
 				expect(corner.lineEnd).toBe("0px");
 				expect(corner.brandBorder).toBe(corner.headerBorder);

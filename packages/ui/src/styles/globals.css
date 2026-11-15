@@ -80,6 +80,11 @@
 	--motion-brand-tick: 250ms;
 	--motion-brand-total: 550ms;
 	--motion-brand-rest: 1800ms;
+	--motion-delight: 800ms;
+	--ease-delight: cubic-bezier(0.16, 1, 0.3, 1);
+	--sadu-opacity: 0.03;
+	--sadu-tile-width: 96px;
+	--sadu-tile-height: 64px;
 	--motion-acknowledge: 400ms;
 	--motion-edit-highlight: 600ms;
 	--motion-review-highlight: 1200ms;
@@ -97,12 +102,16 @@
 	--app-nav-gutter: calc(var(--space-20) / 2);
 	--app-nav-icon: var(--space-20);
 	--app-brand-mark: var(--space-32);
-	--app-mobile-nav-columns: 4;
+	--app-mobile-nav-columns: 5;
 	--settings-action: calc(var(--space-48) * 4);
+	/* Seven to sixteen text lines, plus shared padding and the two input borders. */
+	--textarea-message-min-height: calc(7lh + var(--space-16) + 2px);
+	--textarea-message-max-height: calc(16lh + var(--space-16) + 2px);
 	--dashboard-gutter: 18px;
 	--dashboard-content-width: 1120px;
 	--dashboard-wide-width: 1360px;
 	--dashboard-form-width: 640px;
+	--dashboard-settings-width: 720px;
 	--header-search-width: calc(var(--space-32) * 20);
 	--header-side-width: calc(var(--space-32) * 4);
 	/* Retain Reactive Resume's bounded dashboard board/skeleton scrolling contract. */
@@ -402,6 +411,12 @@
 	}
 }
 
+@utility settings-content {
+	width: 100%;
+	max-width: var(--dashboard-settings-width);
+	margin-inline: auto;
+}
+
 @utility form-content {
 	width: 100%;
 	max-width: var(--dashboard-form-width);
@@ -452,6 +467,29 @@
 	align-items: center;
 	block-size: var(--app-toolbar-height);
 	flex-shrink: 0;
+}
+
+/* Compact navigation totals: identical metrics in the sidebar and icon rail. */
+@utility sidebar-count-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	block-size: var(--space-16);
+	min-inline-size: var(--space-16);
+	padding-inline: var(--space-4);
+	border-radius: var(--radius-2xl);
+	font-size: var(--type-sidebar-count-size);
+	line-height: var(--type-count-line);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+@utility sidebar-count-corner {
+	position: absolute;
+	inset-block-start: calc(-1 * var(--space-4));
+	inset-inline-end: 0;
+	box-shadow: 0 0 0 2px var(--surface);
 }
 
 @utility sidebar-item-inset {
@@ -569,6 +607,7 @@
 	--type-metadata-line: 20px;
 	--type-metadata-weight: 400;
 	--type-count-line: 1;
+	--type-sidebar-count-size: 11px;
 	--space-0: 0px;
 	--space-4: 4px;
 	--space-6: 6px;
@@ -670,6 +709,11 @@
 	font-weight: 400;
 }
 
+@utility mobile-nav-label {
+	@apply w-full min-w-0 px-1 text-center type-mobile-nav wrap-anywhere;
+	min-block-size: 2lh;
+}
+
 @utility type-mobile-nav {
 	font-family: var(--font-ui);
 	font-size: var(--type-metadata-size);
@@ -677,21 +721,21 @@
 	font-weight: 400;
 }
 
-/* Compact page thumbnails keep their empty-state icon and label inside the page footprint. */
+/* Compact unavailable previews keep their icon and label inside the page footprint. */
 @container thumbnail (width < 6rem) {
-	[data-slot="preview-placeholder"][data-variant="thumbnail"] {
+	[data-slot="preview-placeholder"][data-variant="thumbnail"][data-appearance="unavailable"] {
 		gap: var(--space-4);
 		padding: var(--space-4);
 	}
-	[data-slot="preview-placeholder"][data-variant="thumbnail"] > :first-child {
+	[data-slot="preview-placeholder"][data-variant="thumbnail"][data-appearance="unavailable"] > :first-child {
 		width: var(--space-16);
 		height: var(--space-16);
 	}
-	[data-slot="preview-placeholder"][data-variant="thumbnail"] [data-slot="icon"] {
+	[data-slot="preview-placeholder"][data-variant="thumbnail"][data-appearance="unavailable"] [data-slot="icon"] {
 		width: 100%;
 		height: 100%;
 	}
-	[data-slot="preview-placeholder"][data-variant="thumbnail"] > :last-child {
+	[data-slot="preview-placeholder"][data-variant="thumbnail"][data-appearance="unavailable"] > :last-child {
 		line-height: var(--space-20);
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
@@ -726,6 +770,72 @@
 @utility field-content-direction {
 	& :is(p, h1, h2, h3, h4, h5, h6, li) {
 		unicode-bidi: plaintext;
+	}
+}
+
+/* One original tile, tinted by the enclosing surface; never applied to document paper. */
+.sadu-surface {
+	position: relative;
+	isolation: isolate;
+}
+.sadu-surface::before {
+	position: absolute;
+	z-index: -1;
+	inset: 0;
+	border-radius: inherit;
+	background: var(--accent);
+	opacity: var(--sadu-opacity);
+	mask: url("../assets/sadu.svg") repeat 0 0 / var(--sadu-tile-width) var(--sadu-tile-height);
+	pointer-events: none;
+	content: "";
+}
+.sadu-inverse::before {
+	background: var(--on-brand);
+}
+.success-celebration {
+	position: relative;
+	isolation: isolate;
+	display: inline-grid;
+	width: var(--space-20);
+	height: var(--space-20);
+	flex-shrink: 0;
+	place-items: center;
+	border-radius: 50%;
+	background: var(--accent-soft);
+	color: var(--accent-text);
+}
+.success-celebration::before {
+	position: absolute;
+	z-index: -1;
+	inset: calc(var(--space-8) * -1);
+	border-radius: inherit;
+	background: radial-gradient(closest-side, var(--accent), transparent);
+	opacity: 0;
+	content: "";
+}
+.success-celebration .success-tick {
+	color: inherit;
+}
+.success-celebration[data-animated="true"]::before {
+	animation: success-glow var(--motion-delight) var(--ease-delight) both;
+}
+.success-celebration .success-tick[data-animated="true"] path {
+	animation-duration: var(--motion-delight);
+	animation-timing-function: var(--ease-delight);
+}
+@keyframes success-glow {
+	0%,
+	100% {
+		opacity: 0;
+	}
+	45% {
+		opacity: 0.24;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.success-celebration::before,
+	.success-celebration .success-tick path {
+		animation: none !important;
 	}
 }
 
@@ -797,6 +907,16 @@
 }
 .brand-mark[data-playing="true"] .brand-tint {
 	animation: brand-tint var(--motion-brand-total) var(--ease) both;
+}
+.brand-mark[data-once="true"][data-playing="true"] .brand-approval {
+	animation-duration: var(--motion-delight);
+}
+.brand-mark[data-once="true"][data-playing="true"] .brand-c-reveal,
+.brand-mark[data-once="true"][data-playing="true"] .brand-tint {
+	animation: none;
+}
+.brand-mark[data-once="true"][data-playing="true"] .brand-tick-reveal {
+	animation: signature-draw var(--motion-delight) var(--ease-delight) both;
 }
 @keyframes brand-approved {
 	from,
@@ -1050,4 +1170,18 @@ button .success-tick {
 		animation: none;
 		opacity: 0.7;
 	}
+}
+
+/* Appearance thumbnails keep their represented theme independent of the surrounding app. */
+.appearance-preview[data-theme="light"] {
+	background: var(--paper);
+}
+.appearance-preview[data-theme="dark"] {
+	background: var(--brand-mark-light-ink);
+}
+.appearance-preview[data-theme="system"] {
+	background: linear-gradient(to right, var(--paper) 50%, var(--brand-mark-light-ink) 50%);
+}
+.appearance-preview-sidebar {
+	background: var(--sunken);
 }

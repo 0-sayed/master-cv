@@ -159,6 +159,7 @@ test("five groups review facts explicitly, survive reload and keep language chan
 	] as const) {
 		await page.getByRole("button", { name: button, exact: true }).click();
 		await page.getByRole("dialog").locator(`input[name="${field}"]`).fill(value);
+		if (field === "language") await page.keyboard.press("Escape");
 		await page.getByRole("button", { name: "Review changes", exact: true }).click();
 		await expect(page.getByRole("heading", { name: "Review your changes" })).toBeVisible();
 		const before = await page.request.get("/api/openapi/career/master");

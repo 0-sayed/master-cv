@@ -79,7 +79,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			});
 
 			if (width === 1440)
-				test("desktop fact dialog uses its indexed entry and approval hints", async ({ authPage: page }) => {
+				test("desktop fact dialog retains its entry hint and explicit review action", async ({ authPage: page }) => {
 					await page.getByRole("button", { name: ar ? "إضافة خبرة" : "Add experience", exact: true }).click();
 					const dialog = page.getByRole("dialog");
 					await expect(
@@ -88,10 +88,11 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 						}),
 					).toBeVisible();
 					await expect(
-						dialog.getByText(ar ? "لا تُضاف معلومة دون موافقتك." : "No information is added without your approval.", {
-							exact: true,
-						}),
+						dialog.getByRole("button", { name: ar ? "مراجعة التغييرات" : "Review changes", exact: true }),
 					).toBeVisible();
+					await expect(
+						dialog.getByRole("button", { name: ar ? "تأكيد التغييرات" : "Confirm changes", exact: true }),
+					).toHaveCount(0);
 				});
 
 			test("language name and level remain grouped in a compact row", async ({ authPage: page }) => {
@@ -99,6 +100,9 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				const level = ar ? "اللغة الأم" : "Advanced";
 				await page.getByRole("button", { name: ar ? "إضافة لغة" : "Add language", exact: true }).click();
 				await page.locator('input[name="language"]').fill(language);
+				await page.keyboard.press("Escape");
+				await page.getByRole("combobox", { name: ar ? "الطلاقة" : "Fluency", exact: true }).click();
+				await page.getByRole("option", { name: ar ? "أخرى" : "Other", exact: true }).click();
 				await page.locator('input[name="fluency"]').fill(level);
 				await page.getByRole("button", { name: ar ? "مراجعة التغييرات" : "Review changes", exact: true }).click();
 				await page.getByRole("button", { name: ar ? "تأكيد التغييرات" : "Confirm changes", exact: true }).click();
@@ -131,6 +135,9 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				test("long language values wrap without horizontal overflow", async ({ authPage: page }) => {
 					await page.getByRole("button", { name: ar ? "إضافة لغة" : "Add language", exact: true }).click();
 					await page.locator('input[name="language"]').fill(ar ? "العربية" : "English");
+					await page.keyboard.press("Escape");
+					await page.getByRole("combobox", { name: ar ? "الطلاقة" : "Fluency", exact: true }).click();
+					await page.getByRole("option", { name: ar ? "أخرى" : "Other", exact: true }).click();
 					await page.locator('input[name="fluency"]').fill("Advanced".repeat(8));
 					await page.getByRole("button", { name: ar ? "مراجعة التغييرات" : "Review changes", exact: true }).click();
 					await page.getByRole("button", { name: ar ? "تأكيد التغييرات" : "Confirm changes", exact: true }).click();

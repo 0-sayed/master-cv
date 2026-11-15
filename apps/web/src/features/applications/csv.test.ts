@@ -77,3 +77,10 @@ describe("column matching", () => {
 		expect(rowsToCsv(["Company", "Role"], [["", 'Say "hi"']])).toBe('"Company","Role"\r\n"","Say ""hi"""\r\n');
 	});
 });
+
+it.each(['=HYPERLINK("https://example.test")', "+SUM(1)", " @cmd", "\tformula"])(
+	"makes skipped CSV cells safe for spreadsheets: %s",
+	(value) => {
+		expect(parseCsv(rowsToCsv([value], [[value]]))).toEqual([["'" + value], ["'" + value]]);
+	},
+);

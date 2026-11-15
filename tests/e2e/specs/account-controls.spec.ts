@@ -1,3 +1,4 @@
+import { seedAccountPortrait } from "../fixtures/account-portrait";
 import { createSampleResumeFromDashboard } from "../fixtures/resume";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
@@ -11,7 +12,7 @@ for (const locale of ["ar-SA", "en-US"]) {
 			await page.goto("/dashboard");
 			await settleScreen(page);
 			if (width === 390) {
-				const entry = page.locator('[data-slot="app-bottom-nav"] a[href="/dashboard/settings"]');
+				const entry = page.locator('[data-slot="app-bottom-nav"] [data-slot="sidebar-account"]');
 				await expect(entry).toBeVisible();
 				const padding = await entry.evaluate((el) => {
 					const style = getComputedStyle(el);
@@ -26,7 +27,7 @@ for (const locale of ["ar-SA", "en-US"]) {
 				const avatarElement = el.querySelector('[data-slot="avatar"]');
 				if (!avatarElement) throw new Error("Account avatar missing");
 				const avatar = avatarElement.getBoundingClientRect();
-				const text = el.querySelector(':scope > span:not([data-slot="avatar"])')?.getBoundingClientRect();
+				const text = el.lastElementChild?.getBoundingClientRect();
 				const rtl = document.documentElement.dir === "rtl";
 				return {
 					start: rtl ? box.right - avatar.right : avatar.left - box.left,
@@ -56,9 +57,10 @@ for (const image of ["broken", "transparent", "visible"]) {
 		await expect(
 			await page.request.post("/api/auth/update-user", {
 				headers: { origin: baseURL },
-				data: { name: "سارة العتيبي", image: src },
+				data: { name: "سارة العتيبي" },
 			}),
 		).toBeOK();
+		await seedAccountPortrait(page, src);
 		await page.setViewportSize({ width: 1440, height: 1024 });
 		await page.goto("/dashboard/settings/account");
 		const avatars = page.locator('[data-slot="avatar"]').filter({ visible: true });

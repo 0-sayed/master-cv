@@ -4,6 +4,9 @@ import { msg } from "@lingui/core/macro";
 
 // Reuse the visible surface's Lingui identity, including its copy-deck context.
 const pageNames: Record<string, MessageDescriptor> = {
+	"/help": msg({ message: "Help and contact", context: "help.page.title" }),
+	"/dashboard/settings/privacy": msg({ message: "Privacy & data", context: "privacy.navigation.data" }),
+	"/dashboard/settings/delete-account": msg({ message: "Privacy & data", context: "privacy.navigation.data" }),
 	"/auth/login": msg({ message: "Sign in", context: "common.navigation.signIn" }),
 	"/auth/register": msg({ message: "Create an account", context: "auth.signUp.title" }),
 	"/auth/forgot-password": msg({ message: "Reset password", context: "auth.reset.title" }),

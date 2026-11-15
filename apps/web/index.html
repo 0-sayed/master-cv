@@ -96,7 +96,7 @@
 			#initial-loader {
 				--boot-ink: var(--brand-mark-light-ink, #1c1b15);
 				--boot-tick: var(--brand-mark-light-tick, #337344);
-				--boot-cycle: calc(var(--motion-brand-total, 550ms) + var(--motion-brand-rest, 1800ms));
+				--boot-draw: var(--motion-delight, 800ms);
 				position: fixed;
 				inset: 0;
 				display: flex;
@@ -129,53 +129,20 @@
 			.initial-loader__tint {
 				fill: var(--boot-tick);
 			}
-			.initial-loader__curve-reveal {
-				animation: boot-curve var(--boot-cycle) var(--ease, cubic-bezier(0.2, 0.8, 0.2, 1)) infinite;
-			}
 			.initial-loader__tick-reveal {
-				animation: boot-tick var(--boot-cycle) var(--ease, cubic-bezier(0.2, 0.8, 0.2, 1)) infinite;
+				animation: boot-tick var(--boot-draw) var(--ease-delight, cubic-bezier(0.16, 1, 0.3, 1)) both;
 			}
 			.initial-loader__tint {
 				opacity: 0;
-				animation: boot-tint var(--boot-cycle) var(--ease, cubic-bezier(0.2, 0.8, 0.2, 1)) infinite;
-			}
-			/* 300ms curve, 250ms tick, then 1800ms rest, matching BrandIcon's loop. */
-			@keyframes boot-curve {
-				0% {
-					stroke-dasharray: 1;
-					stroke-dashoffset: 1;
-				}
-				12.766%,
-				100% {
-					stroke-dasharray: 1;
-					stroke-dashoffset: 0;
-				}
 			}
 			@keyframes boot-tick {
-				0%,
-				12.766% {
+				from {
 					stroke-dasharray: 1;
 					stroke-dashoffset: 1;
 				}
-				21.277% {
-					stroke-dasharray: 1;
-					stroke-dashoffset: -0.03;
-				}
-				23.404%,
-				100% {
+				to {
 					stroke-dasharray: 1;
 					stroke-dashoffset: 0;
-				}
-			}
-			@keyframes boot-tint {
-				0%,
-				8.191%,
-				23.404%,
-				100% {
-					opacity: 0;
-				}
-				15.213% {
-					opacity: 0.85;
 				}
 			}
 			@media (prefers-reduced-motion: reduce) {

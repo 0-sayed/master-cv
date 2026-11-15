@@ -1,5 +1,9 @@
-import { createHash, randomBytes } from "node:crypto";
-import { describe, expect, it } from "vite-plus/test";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { fileURLToPath } from "node:url";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vite-plus/test";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { Pool } from "pg";
 
 const verificationLinks = new Map<string, string>();
 async function captureVerification() {
@@ -17,21 +21,54 @@ async function verifyEmail(email: string, handleAuth: (request: Request) => Prom
 	expect(response.status).toBeLessThan(400);
 }
 
-// Run only against an explicitly supplied disposable database, after applying migrations.
-const databaseURL = process.env.OAUTH_TEST_DATABASE_URL;
+// Own a freshly migrated database; a selected shared database may have an older schema.
+describe("MCP OAuth flow with PostgreSQL", () => {
+	const origin = "http://localhost:33920";
+	const databaseName = `oauth_flow_${randomUUID().replaceAll("-", "")}`;
+	let admin: Pool;
+	let fixture: Pool;
+	let application: Pool;
+	beforeAll(async () => {
+		const selected = process.env.OAUTH_TEST_DATABASE_URL;
+		if (!selected) throw new Error("An explicit disposable OAuth database is required");
+		const url = new URL(selected);
+		if (
+			url.protocol !== "postgresql:" ||
+			!["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) ||
+			url.port !== "55432" ||
+			url.search ||
+			url.hash
+		)
+			throw new Error("Designated local synthetic database required");
+		admin = new Pool({ connectionString: selected });
+		await admin.query(`CREATE DATABASE "${databaseName}"`);
+		url.pathname = `/${databaseName}`;
+		fixture = new Pool({ connectionString: url.toString() });
+		await migrate(drizzle({ client: fixture }), {
+			migrationsFolder: fileURLToPath(new URL("../../../../migrations", import.meta.url)),
+		});
+		vi.stubEnv("DATABASE_URL", url.toString());
+		vi.stubEnv("APP_URL", origin);
+		vi.stubEnv("AUTH_SECRET", "synthetic-oauth-flow-auth-secret");
+		vi.stubEnv("ENCRYPTION_SECRET", "synthetic-oauth-flow-encryption-secret-32");
+		application = (await import("@reactive-resume/db/client")).getPool();
+	}, 60_000);
+	afterAll(async () => {
+		await application?.end();
+		await fixture?.end();
+		if (admin) {
+			await admin.query(`DROP DATABASE IF EXISTS "${databaseName}"`);
+			await admin.end();
+		}
+		vi.unstubAllEnvs();
+	});
 
-describe.skipIf(!databaseURL)("MCP OAuth flow with PostgreSQL", () => {
 	it("registers public clients, resumes login, and exchanges a resource-bound PKCE code", async () => {
-		if (!databaseURL) return;
-		process.env.DATABASE_URL = databaseURL;
-		process.env.APP_URL = "http://localhost:33920";
-		process.env.AUTH_SECRET ??= "oauth-integration-test-secret-only";
 		const { handleAuth, handleOAuth } = await import("./auth");
 		await captureVerification();
 		// Better Auth disables origin checks by default in test mode; exercise production behavior.
 		const { auth } = await import("@reactive-resume/auth/config");
 		(await auth.$context).skipOriginCheck = false;
-		const origin = process.env.APP_URL;
 		const redirectURI = "http://127.0.0.1:33921/callback";
 		const request = (path: string, body: object, cookie = "") =>
 			new Request(`${origin}/api/auth/${path}`, {
@@ -179,13 +216,8 @@ describe.skipIf(!databaseURL)("MCP OAuth flow with PostgreSQL", () => {
 	it.each(["login", "max-age", "create"])(
 		"requires fresh authentication for %s without looping",
 		async (mode) => {
-			if (!databaseURL) return;
-			process.env.DATABASE_URL = databaseURL;
-			process.env.APP_URL = "http://localhost:33920";
-			process.env.AUTH_SECRET ??= "oauth-integration-test-secret-only";
 			const { handleAuth, handleOAuth } = await import("./auth");
 			await captureVerification();
-			const origin = process.env.APP_URL;
 			const cookieOf = (response: Response) =>
 				response.headers
 					.getSetCookie()

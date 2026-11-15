@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import { copyFile, mkdir, mkdtemp } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { createConnection } from "node:net";
-import { tmpdir } from "node:os";
+import { availableParallelism, freemem, tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { provisionRuntimeRole } from "./database-roles.mjs";
@@ -11,6 +11,28 @@ import { assertNoAiCredentials } from "./test-ai-guard.mjs";
 
 const repository = fileURLToPath(new URL("../../", import.meta.url));
 const { Pool } = createRequire(new URL("../../packages/db/package.json", import.meta.url))("pg");
+
+export function ciBrowserWorkers({ args, githubActions, cores, freeMemory }) {
+	if (githubActions === "true" || args.some((arg) => /^(?:--workers(?:=|$)|-j(?:=?\d|$))/u.test(arg))) return null;
+	if (args.some((arg) => arg.startsWith("--partition="))) return 1;
+	return Math.max(1, Math.min(4, Math.floor(cores / 2), Math.floor(freeMemory / 1024 ** 3 / 1.5)));
+}
+
+export function ciBrowserTestCommand(args) {
+	const partition = args.find((arg) => arg.startsWith("--partition="));
+	if (!partition) return ["exec", "playwright", "test", ...args];
+	const match = /^--partition=(\d+)\/(\d+)$/u.exec(partition);
+	if (!match || Number(match[1]) < 1 || Number(match[1]) > Number(match[2]))
+		throw new Error("--partition must be N/M with 1 <= N <= M");
+	return [
+		"exec",
+		"node",
+		"tooling/local/e2e-partition.mjs",
+		match[1],
+		match[2],
+		...args.filter((arg) => arg !== partition),
+	];
+}
 
 /** Allowlist the browser CI environment; personal .env/browser settings must never alter the contract. */
 export function ciBrowserEnvironment({ parent, databaseUrl, migrationUrl, directory }) {
@@ -24,6 +46,7 @@ export function ciBrowserEnvironment({ parent, databaseUrl, migrationUrl, direct
 		LANG: "C.UTF-8",
 		LC_ALL: "C.UTF-8",
 		CI: "true",
+		TZ: "UTC",
 		APP_URL: "http://localhost:3030",
 		PORT: "3030",
 		DATABASE_URL: databaseUrl,
@@ -115,6 +138,15 @@ async function main() {
 	env.DATABASE_URL = await provisionRuntimeRole(migrationUrl, role);
 	env.COVER_LETTER_TEST_DATABASE_URL = env.DATABASE_URL;
 	const args = process.argv.slice(2);
+	const cores = availableParallelism();
+	const freeMemory = freemem();
+	const workers = ciBrowserWorkers({ args, githubActions: process.env.GITHUB_ACTIONS, cores, freeMemory });
+	if (workers !== null) {
+		args.push(`--workers=${workers}`);
+		console.info(
+			`ci-browser: using ${workers} workers (cores ${cores}, free memory ${(freeMemory / 1024 ** 3).toFixed(1)} GB)`,
+		);
+	}
 	const skipBuild = args.includes("--skip-build");
 	if (!skipBuild) {
 		// Avoid Turbo's .env* input hashing: sanitized synthetic builds must not read local environment files.
@@ -124,14 +156,32 @@ async function main() {
 		)
 			throw new Error("Production build failed");
 	}
-	process.exitCode = await run([
-		"exec",
-		"playwright",
-		"test",
-		...args.filter((arg) => arg !== "--skip-build"),
-		"--output",
-		resolve(directory, "browser"),
-	]);
+	// Synthetic retention policy is runner-only; production startup stays disabled.
+	const retentionWorker = spawn(
+		"pnpm",
+		[
+			"--config.verifyDepsBeforeRun=false",
+			"--filter",
+			"server",
+			"exec",
+			"tsx",
+			"../../tests/e2e/privacy-retention-worker.ts",
+		],
+		{
+			cwd: repository,
+			env,
+			stdio: "inherit",
+		},
+	);
+	try {
+		process.exitCode = await run([
+			...ciBrowserTestCommand(args.filter((arg) => arg !== "--skip-build")),
+			"--output",
+			resolve(directory, "browser"),
+		]);
+	} finally {
+		retentionWorker.kill("SIGTERM");
+	}
 	await copyFile(resolve(repository, "test-results/e2e-junit.xml"), resolve(directory, "junit.xml"));
 	// Retain only this new synthetic database/storage for failure investigation; never reuse it on the next run.
 }

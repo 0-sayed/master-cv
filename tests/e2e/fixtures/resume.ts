@@ -48,8 +48,12 @@ export async function openDownloadDialog(page: Page) {
 export async function makeResumePublic(page: Page) {
 	const resumeId = new URL(page.url()).pathname.split("/").at(-1);
 	await expect(page.getByRole("button", { name: /^Share\b/ })).toHaveCount(0);
+	// A deliberate publish uses the current saved revision, as owner review actions do.
+	const current = await page.request.get(`/api/openapi/resumes/${resumeId}`);
+	await expect(current).toBeOK();
+	const { updatedAt } = (await current.json()) as { updatedAt: string };
 	const response = await page.request.put(`/api/openapi/resumes/${resumeId}`, {
-		data: { isPublic: true, showDownloadButtons: true },
+		data: { isPublic: true, showDownloadButtons: true, expectedUpdatedAt: updatedAt },
 	});
 	expect(response.ok()).toBe(true);
 	const { slug } = (await response.json()) as { slug: string };

@@ -138,6 +138,7 @@ import {
 	ScissorsIcon,
 	SealCheckIcon,
 	ShareNetworkIcon,
+	SidebarIcon,
 	SidebarSimpleIcon,
 	SignOutIcon,
 	SlidersHorizontalIcon,
@@ -338,6 +339,7 @@ const icons = {
 	scissors: ScissorsIcon,
 	"seal-check": SealCheckIcon,
 	"share-network": ShareNetworkIcon,
+	sidebar: SidebarIcon,
 	"sidebar-simple": SidebarSimpleIcon,
 	"sign-out": SignOutIcon,
 	"sliders-horizontal": SlidersHorizontalIcon,
@@ -391,6 +393,8 @@ type IconName = keyof typeof icons;
 
 // Icons that point somewhere are mirrored in right-to-left layouts.
 const DIRECTIONAL_ICONS = new Set<IconName>([
+	"sidebar",
+	"sidebar-simple",
 	"arrow-left",
 	"arrow-right",
 	"arrow-u-up-left",

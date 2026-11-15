@@ -206,17 +206,24 @@ describe("web app fallback classification", () => {
 		expect(response.headers.get("Content-Security-Policy-Report-Only")).toContain("frame-ancestors 'none'");
 	});
 
-	it.each(["/auth/login", "/dashboard", "/builder/resume-1", "/agent", "/templates", "/templates/azurill.pdf"])(
-		"serves noindex shell for known app prefix %s",
-		async (pathname) => {
-			const response = await handleWebApp(new Request(`https://example.com${pathname}`));
+	it.each([
+		"/auth/login",
+		"/dashboard",
+		"/builder/resume-1",
+		"/agent",
+		"/templates",
+		"/templates/azurill.pdf",
+		"/help",
+		"/deletion-requested",
+		"/email-change",
+	])("serves noindex shell for known app prefix %s", async (pathname) => {
+		const response = await handleWebApp(new Request(`https://example.com${pathname}`));
 
-			expect(response.status).toBe(200);
-			expect(response.headers.get("Content-Type")).toBe("text/html; charset=UTF-8");
-			expect(response.headers.get("X-Robots-Tag")).toBe("noindex, follow");
-			expect(await response.text()).toBe("<html>app</html>");
-		},
-	);
+		expect(response.status).toBe(200);
+		expect(response.headers.get("Content-Type")).toBe("text/html; charset=UTF-8");
+		expect(response.headers.get("X-Robots-Tag")).toBe("noindex, follow");
+		expect(await response.text()).toBe("<html>app</html>");
+	});
 });
 
 describe("configured root shell", () => {

@@ -27,6 +27,7 @@ function InputGroup({
 
 	return (
 		<fieldset
+			{...props}
 			data-slot="input-group"
 			data-size={size}
 			id={fieldsetId}
@@ -37,7 +38,6 @@ function InputGroup({
 				controlHeights[size],
 				className,
 			)}
-			{...props}
 		/>
 	);
 }
@@ -156,13 +156,13 @@ function InputGroupInput({
 
 	return (
 		<Input
+			{...props}
 			variant="group"
 			data-slot="input-group-control"
 			id={controlId}
 			aria-describedby={describedBy}
 			aria-invalid={invalid}
 			className={className}
-			{...props}
 		/>
 	);
 }

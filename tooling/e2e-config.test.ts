@@ -6,7 +6,15 @@ afterEach(() => {
 });
 
 async function loadConfig(overrides: Record<string, string> = {}) {
-	for (const name of ["CI", "PORT", "APP_URL", "E2E_SMTP_PORT", "E2E_MAIL_DIRECTORY", "E2E_REUSE_SERVER"])
+	for (const name of [
+		"CI",
+		"GITHUB_ACTIONS",
+		"PORT",
+		"APP_URL",
+		"E2E_SMTP_PORT",
+		"E2E_MAIL_DIRECTORY",
+		"E2E_REUSE_SERVER",
+	])
 		vi.stubEnv(name, undefined);
 	for (const [name, value] of Object.entries(overrides)) vi.stubEnv(name, value);
 	// @boundaries-ignore root browser-test configuration
@@ -16,6 +24,29 @@ async function loadConfig(overrides: Record<string, string> = {}) {
 		throw new Error("Expected application and capture servers");
 	return { ...config, capture: servers[0], application: servers[1] };
 }
+
+it.each([
+	[{}, 0],
+	[{ CI: "true" }, 0],
+	[{ CI: "1" }, 0],
+	[{ GITHUB_ACTIONS: "false" }, 0],
+	[{ GITHUB_ACTIONS: "1" }, 0],
+	[{ CI: "true", GITHUB_ACTIONS: "true" }, 1],
+	[{ GITHUB_ACTIONS: "true" }, 1],
+] as const)("retries only in GitHub Actions: %j", async (environment, retries) => {
+	const config = await loadConfig(environment);
+	expect(config.retries).toBe(retries);
+});
+
+it("retains existing CI reporters and a separate JSON report for each Playwright process", async () => {
+	const config = await loadConfig({ CI: "true", GITHUB_ACTIONS: "true" });
+	expect(config.reporter).toEqual([
+		["list"],
+		["github"],
+		["junit", { outputFile: "test-results/e2e-junit.xml" }],
+		["json", { outputFile: `test-results/e2e-results-${process.pid}.json` }],
+	]);
+});
 
 it("starts its own application and capture sink instead of silently reusing local services", async () => {
 	const config = await loadConfig();

@@ -1,4 +1,5 @@
 import { settleScreen } from "../fixtures/screen";
+import { expectSettingsColumn } from "../fixtures/settings-layout";
 import { expect, test } from "../fixtures/test";
 
 const routes = [
@@ -69,7 +70,8 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 						overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
 					};
 				});
-				expect.soft(Math.abs(layout.titleStart - layout.headerStart), route).toBeLessThanOrEqual(1);
+				if (route.startsWith("/dashboard/settings")) await expectSettingsColumn(page);
+				else expect.soft(Math.abs(layout.titleStart - layout.headerStart), route).toBeLessThanOrEqual(1);
 				if (width === 1920) expect.soft(Math.abs(layout.centerGapDifference), route).toBeLessThanOrEqual(2);
 				expect.soft(layout.sidebar.width, route).toBe(236);
 				firstSidebar ??= layout.sidebar;

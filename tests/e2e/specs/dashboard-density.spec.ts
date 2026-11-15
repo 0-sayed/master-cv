@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { createSampleCareer } from "../fixtures/career";
 import { createSampleResumeFromDashboard, openSidebarSection } from "../fixtures/resume";
 import { settleScreen } from "../fixtures/screen";
+import { expectSettingsColumn } from "../fixtures/settings-layout";
 import { expect, test } from "../fixtures/test";
 
 const evidence = process.env.DENSITY_EVIDENCE_DIRECTORY;
@@ -78,12 +79,28 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				}
 				expect.soft(measured.contentWidth, `${route} at ${width}`).toBeLessThanOrEqual(width >= 1600 ? 1360 : 1120);
 				expect.soft(Math.abs(measured.edge - measured.headerEdge), route).toBeLessThanOrEqual(1);
-				if (width >= 640) expect.soft(Math.abs(measured.titleEdge - measured.headerEdge), route).toBeLessThanOrEqual(1);
+				if (route.startsWith("/dashboard/settings")) await expectSettingsColumn(page);
+				else if (width >= 640)
+					expect.soft(Math.abs(measured.titleEdge - measured.headerEdge), route).toBeLessThanOrEqual(1);
 				expect.soft(measured.body, route).toBe(locale === "ar-SA" ? "16px" : "14px");
 				expect.soft(measured.overflow, route).toBe(false);
 				if (route.endsWith("account")) {
 					for (const input of await page.locator("main input:not([type=file])").all())
-						expect.soft((await bounds(input)).width).toBeLessThanOrEqual(640);
+						expect
+							.soft(
+								await input.evaluate((element) => {
+									const section = element.closest("section");
+									if (!section) throw new Error("Settings card missing");
+									const style = getComputedStyle(section);
+									return Math.abs(
+										(element.closest('[data-slot="input-group"]') ?? element).getBoundingClientRect().width -
+											section.clientWidth +
+											Number.parseFloat(style.paddingLeft) +
+											Number.parseFloat(style.paddingRight),
+									);
+								}),
+							)
+							.toBeLessThanOrEqual(1);
 				}
 			}
 		}

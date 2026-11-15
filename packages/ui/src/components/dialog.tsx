@@ -117,7 +117,7 @@ function DialogFooter({
 	return (
 		<div
 			data-slot="dialog-footer"
-			className={cn("mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
+			className={cn("flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end", className)}
 			{...props}
 		>
 			{children}
@@ -160,3 +160,8 @@ export {
 	DialogTitle,
 	DialogTrigger,
 };
+
+/** Setup content shares the title inset; each logical step has the same internal rhythm. */
+export function DialogSteps(props: React.ComponentProps<"ol">) {
+	return <ol data-slot="dialog-steps" className="grid list-none gap-6 [&>li]:grid [&>li]:gap-3" {...props} />;
+}

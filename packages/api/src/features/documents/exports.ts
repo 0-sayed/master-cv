@@ -10,6 +10,7 @@ import { protectedProcedure } from "../../context";
 import { pdfExportRateLimit } from "../../middleware/rate-limit";
 import { coverLetterService } from "../cover-letters/service";
 import { resumeService } from "../resume/service";
+import { readOwnedPicture } from "../storage/ownership";
 
 const exportInput = z.object({
 	id: z.string().min(1),
@@ -23,6 +24,7 @@ async function fileResponse(
 	name: string,
 	format: z.infer<typeof exportInput>["format"],
 	json: unknown,
+	userId: string,
 	includeCoverLetterHeader = false,
 ) {
 	const filename = generateFilename(name, format);
@@ -35,6 +37,7 @@ async function fileResponse(
 				data,
 				filename,
 				uploadOrigin: env.APP_URL,
+				ownerPictureReader: (key) => readOwnedPicture({ userId, key }),
 				renderOptions: { includeCoverLetterHeader },
 			});
 		} else {
@@ -72,7 +75,13 @@ export const documentExports = {
 		.use(pdfExportRateLimit)
 		.handler(async ({ context, input }) => {
 			const resume = await resumeService.getById({ id: input.id, userId: context.user.id });
-			return fileResponse(getResumeExportData(resume.data, "resume"), resume.name, input.format, resume.data);
+			return fileResponse(
+				getResumeExportData(resume.data, "resume"),
+				resume.name,
+				input.format,
+				resume.data,
+				context.user.id,
+			);
 		}),
 	letter: protectedProcedure
 		.route({
@@ -125,6 +134,7 @@ export const documentExports = {
 				letter.name,
 				input.format,
 				json,
+				context.user.id,
 				true,
 			);
 		}),

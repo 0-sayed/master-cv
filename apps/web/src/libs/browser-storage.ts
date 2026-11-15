@@ -84,7 +84,7 @@ export async function runPersonalRequest<T>(
 		throw error;
 	}
 }
-export function clearPersonalStorage() {
+export function clearPersonalStorage(deletedOwnerId?: string) {
 	invalidatePersonalRequests();
 	for (const kind of ["localStorage", "sessionStorage"] as const) {
 		try {
@@ -93,7 +93,9 @@ export function clearPersonalStorage() {
 				const entry = entryFor(key);
 				const unboundOwner =
 					entry?.scope === "owner" && !/^(?!anonymous:)[^:]+:.+/.test(key.slice(entry.prefix.length));
-				if (entry?.scope === "personal" || unboundOwner) storage.removeItem(key);
+				const deletedOwner =
+					entry?.scope === "owner" && deletedOwnerId && key.startsWith(`${entry.prefix}${deletedOwnerId}:`);
+				if (entry?.scope === "personal" || unboundOwner || deletedOwner) storage.removeItem(key);
 			}
 		} catch {
 			/* Storage can be blocked; private memory still must be cleared. */

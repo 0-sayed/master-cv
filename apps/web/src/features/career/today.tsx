@@ -131,7 +131,7 @@ function SectionHeading({ id, title, count, note }: SectionHeadingProps) {
 }
 
 const failed = (error: unknown, fallback: string) =>
-	toast.add({ type: "error", description: getOrpcErrorMessage(error, { fallback, allowServerMessage: true }) });
+	toast.add({ type: "error", description: getOrpcErrorMessage(error, { fallback }) });
 
 // ---- Needs you ----
 

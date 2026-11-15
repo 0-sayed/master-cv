@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { resolve } from "node:path";
 
@@ -28,6 +28,11 @@ const server = createServer((socket) => {
 				data = false;
 				const key = createHash("sha256").update(recipient.toLowerCase()).digest("hex");
 				try {
+					const state = await readFile(resolve(directory, `transport-state-${key}`), "utf8").catch((error) => {
+						if (error.code !== "ENOENT") throw error;
+						return "online";
+					});
+					if (state === "offline") throw new Error("Synthetic transport offline");
 					await mkdir(directory, { recursive: true, mode: 0o700 });
 					await writeFile(
 						resolve(directory, `${key}-${Date.now()}-${randomUUID()}.json`),

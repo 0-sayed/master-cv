@@ -62,6 +62,8 @@ test("an already open export sheet cannot download after a conflicting save", as
 	const id = new URL(url).pathname.split("/").at(-1);
 	const second = await page.context().newPage();
 	await second.goto(url);
+	// Both editors must initialize before either tab writes the shared local recovery draft.
+	await expect(second.getByLabel("Full name", { exact: true })).toBeVisible();
 	let release!: () => void;
 	const held = new Promise<void>((resolve) => {
 		release = resolve;

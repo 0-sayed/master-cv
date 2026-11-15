@@ -1,5 +1,5 @@
 import type { SourceRevision } from "@reactive-resume/schema/ai-operation";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMutation } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
@@ -32,6 +32,7 @@ export function Clarification({
 	stale: boolean;
 	onSaved: () => void;
 }) {
+	const { t } = useLingui();
 	const [selected, setSelected] = useState<string | null>(null);
 	const [drafts, setDrafts] = useState<Record<string, string>>({});
 	const request = useRef<{ fingerprint: string; requestKey: string } | null>(null);
@@ -125,7 +126,7 @@ export function Clarification({
 					<TaskOverlayDescription dir="auto">{question?.prompt}</TaskOverlayDescription>
 					{question?.context && <blockquote dir="auto">{question.context}</blockquote>}
 					<Textarea
-						aria-label="Your information"
+						aria-label={t`Your information`}
 						dir="auto"
 						maxLength={4000}
 						value={drafts[selected ?? ""] ?? ""}

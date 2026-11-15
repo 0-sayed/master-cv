@@ -21,3 +21,24 @@ it("keeps every delivered copy binding synchronized with the deck and extracted 
 	};
 	expect(validateCopyBindings(input)).toEqual([]);
 });
+
+it("translates every extracted web message in both product locales without fallback", async () => {
+	const parse = async (locale: "ar-SA" | "en-US") =>
+		formatter().parse(await readFile(new URL(`../../apps/web/locales/${locale}.po`, import.meta.url), "utf8"), {
+			locale,
+			sourceLocale: "en-US",
+			filename: `${locale}.po`,
+		});
+	const catalogs = await Promise.all([parse("ar-SA"), parse("en-US")]);
+	const [arabic, english] = catalogs;
+	const missing = Object.entries(english).flatMap(([id, entry]) => {
+		if (!entry.message || entry.obsolete) return [];
+		return catalogs.flatMap((catalog, index) =>
+			!catalog[id]?.translation?.trim() || catalog[id]?.obsolete
+				? [`${index === 0 ? "ar-SA" : "en-US"}: ${entry.message}`]
+				: [],
+		);
+	});
+	expect(missing).toEqual([]);
+	expect(Object.keys(arabic).length).toBeGreaterThan(0);
+});

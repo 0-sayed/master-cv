@@ -787,7 +787,6 @@ function HearIt({ text, voice }: { text: string; voice: VoiceSettings }) {
 				type: "error",
 				description: getOrpcErrorMessage(error, {
 					fallback: t`Spoken audio is unavailable. Continue with the text question.`,
-					allowServerMessage: true,
 				}),
 			});
 		} finally {

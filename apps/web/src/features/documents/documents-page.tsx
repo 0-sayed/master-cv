@@ -29,6 +29,7 @@ import { LinkApplicationDialog, TagsDialog, useBatchActions } from "./document-a
 import { DocumentCard, DocumentRow } from "./document-card";
 import { collectTags, filterDocuments } from "./filter";
 import { LibraryError } from "./library-error";
+import { useStartDocument } from "./new-document-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { useDialogStore } from "@/dialogs/store";
@@ -98,7 +99,8 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 	const all = documents ?? [];
 	const failed = isError && !documents;
 	const loading = useSkeletonLoading(isPending);
-	const firstRun = !loading.pending && all.length === 0;
+	const filtered = search.q.trim() !== "" || search.tags.length > 0 || search.public === true;
+	const firstRun = !loading.pending && all.length === 0 && search.type === "all" && !filtered;
 	const shown = filterDocuments(all, search, locale);
 	const tags = collectTags(all, locale);
 	const counts = {
@@ -107,7 +109,6 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 		letter: all.filter((document) => document.type === "letter").length,
 	};
 	const hasPublic = all.some((document) => document.isPublic);
-	const filtered = search.type !== "all" || search.q.trim() !== "" || search.tags.length > 0 || search.public === true;
 	// Actions apply to the selected documents the filters show.
 	const selection = shown.filter((document) => selected.has(documentKey(document)));
 	const selecting = selection.length > 0;
@@ -243,7 +244,7 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 			{isError && <LibraryError retrying={isFetching} onRetry={() => void refetch()} />}
 
 			{failed ? null : firstRun ? (
-				<FirstRun onChooseFile={() => openDialog("document.new", undefined)} />
+				<FirstRun />
 			) : (
 				<>
 					{(tags.length > 0 || hasPublic) && (
@@ -259,29 +260,34 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 
 					{loading.pending ? (
 						<QuerySkeleton shape={view === "list" ? "document-rows" : "documents"} count={6} />
+					) : shown.length === 0 && !filtered ? (
+						search.type === "letter" ? (
+							<FirstLetter />
+						) : (
+							<FirstRun />
+						)
 					) : shown.length === 0 ? (
-						<EmptyState>
-							<Icon name="magnifying-glass" size={28} className="text-ink-3" />
-							<p className="font-semibold">
-								{search.q.trim() ? (
+						<EmptyState
+							icon="magnifying-glass"
+							title={
+								search.q.trim() ? (
 									<Trans>Nothing matches “{search.q.trim()}”</Trans>
 								) : (
 									<Trans>Nothing matches these filters</Trans>
-								)}
-							</p>
-							<p className="type-body text-ink-2">
-								<Trans>Search covers titles, tags and linked applications.</Trans>
-							</p>
-							{filtered && (
-								<Button
-									variant="secondary"
-									className="mt-2"
-									onClick={() => onSearchChange({ q: "", tags: [], type: "all", public: false })}
-								>
-									<Trans>Clear search and filters</Trans>
-								</Button>
-							)}
-						</EmptyState>
+								)
+							}
+							description={<Trans>Search covers titles, tags and linked applications.</Trans>}
+							actions={
+								filtered && (
+									<Button
+										variant="secondary"
+										onClick={() => onSearchChange({ q: "", tags: [], type: "all", public: false })}
+									>
+										<Trans>Clear search and filters</Trans>
+									</Button>
+								)
+							}
+						/>
 					) : view === "list" ? (
 						<table className={cn("w-full table-fixed border-collapse", viewEnter)}>
 							<caption className="sr-only">
@@ -380,23 +386,64 @@ function storeView(view: "grid" | "list") {
 	}
 }
 
-/** The first visit: import is the filled button here, and only here. */
-function FirstRun({ onChooseFile }: { onChooseFile: () => void }) {
-	const copy = useDocumentsCopy();
+/** First use offers writing and import as separate, explicit entry points. */
+function FirstLetter() {
+	const { newLetter, creating } = useStartDocument();
 	return (
-		<section className="grid gap-4">
-			<h2 className="type-title-s">{copy("editor.documents.empty.title")}</h2>
-			<p className="type-body text-ink-2">
-				<Trans>
-					Import a readable PDF or write from scratch. Review your information before saving. Word import is not
-					available.
-				</Trans>
+		<EmptyState
+			icon="file-text"
+			title={<Trans context="editor.documents.letters.emptyTitle">No cover letters yet</Trans>}
+			description={
+				<Trans context="editor.documents.letters.emptyHint">Create a cover letter for your next application.</Trans>
+			}
+			actions={
+				<Button loading={creating} onClick={() => void newLetter()}>
+					<Icon name="plus" />
+					<Trans context="editor.documents.letters.new">New cover letter</Trans>
+				</Button>
+			}
+		/>
+	);
+}
+
+function FirstRun() {
+	const open = useDialogStore((state) => state.openDialog);
+	const fileInput = useRef<HTMLInputElement>(null);
+	return (
+		<EmptyState
+			icon="file-text"
+			title={<Trans>Build a CV that grows with you</Trans>}
+			description={<Trans>Your CVs, tailored copies and cover letters will appear here.</Trans>}
+			actions={
+				<>
+					<Button onClick={() => open("document.new", undefined)}>
+						<Icon name="plus" />
+						<Trans>New CV</Trans>
+					</Button>
+					<Button variant="secondary" onClick={() => fileInput.current?.click()}>
+						<Icon name="upload" />
+						<Trans>Import PDF</Trans>
+					</Button>
+				</>
+			}
+		>
+			<input
+				ref={fileInput}
+				className="sr-only"
+				type="file"
+				accept=".pdf,application/pdf"
+				tabIndex={-1}
+				aria-hidden="true"
+				onChange={(event) => {
+					const file = event.target.files?.[0];
+					if (file) open("document.new", { file });
+					event.target.value = "";
+				}}
+			/>
+			<p className="type-metadata text-ink-3">
+				<Trans>Word import is not available.</Trans>
 			</p>
-			<Button className="w-fit" onClick={onChooseFile}>
-				<Icon name="plus" />
-				<Trans>New CV</Trans>
-			</Button>
-		</section>
+		</EmptyState>
 	);
 }
 

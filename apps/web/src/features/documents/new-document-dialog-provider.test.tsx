@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
@@ -93,7 +93,10 @@ it("reads PDF natively and hands off to the review route without server persiste
 });
 it("keeps Word unavailable without a provider lookup or model call", async () => {
 	mount(new File([new Uint8Array([0x50, 0x4b, 0x03, 0x04])], "resume.docx"));
-	await screen.findByText("Choose a readable PDF. Word import is not available.");
+	const alert = await screen.findByRole("alert");
+	expect(within(alert).getByText("Choose a readable PDF. Word import is not available.")).toBeVisible();
+	expect(screen.getByRole("button", { name: "Upload an existing CV" })).toBeEnabled();
+	expect(api.navigate).not.toHaveBeenCalled();
 	expect(api.providers).not.toHaveBeenCalled();
 	expect(api.parseDocx).not.toHaveBeenCalled();
 	expect(api.extractPdfText).not.toHaveBeenCalled();

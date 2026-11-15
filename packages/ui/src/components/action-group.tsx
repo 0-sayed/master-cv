@@ -7,6 +7,7 @@ const actionGroupVariants = cva(
 	"flex flex-wrap items-center justify-start gap-2 [&_[data-slot=button]:not([data-variant=primary]):not([data-variant=danger])]:bg-surface [&_[data-slot=button]:not([data-variant=primary]):not([data-variant=danger]):hover]:bg-hover",
 	{
 		variants: {
+			responsive: { wrap: "", stack: "max-sm:flex-col max-sm:items-stretch max-sm:[&>*]:w-full" },
 			tone: {
 				default:
 					"[&_[data-slot=button]:not([data-variant=primary]):not([data-variant=danger])]:border-line-2 [&_[data-slot=button]:not([data-variant=primary]):not([data-variant=danger])]:text-ink",
@@ -18,10 +19,12 @@ const actionGroupVariants = cva(
 					"[&_[data-slot=button]:not([data-variant=primary]):not([data-variant=danger])]:border-accent-text [&_[data-slot=button]:not([data-variant=primary]):not([data-variant=danger])]:text-accent-text",
 			},
 		},
-		defaultVariants: { tone: "default" },
+		defaultVariants: { tone: "default", responsive: "wrap" },
 	},
 );
 type ActionGroupProps = ComponentProps<"div"> & VariantProps<typeof actionGroupVariants>;
-export function ActionGroup({ className, tone, ...props }: ActionGroupProps) {
-	return <div data-slot="action-group" className={cn(actionGroupVariants({ tone }), className)} {...props} />;
+export function ActionGroup({ className, tone, responsive, ...props }: ActionGroupProps) {
+	return (
+		<div data-slot="action-group" className={cn(actionGroupVariants({ tone, responsive }), className)} {...props} />
+	);
 }

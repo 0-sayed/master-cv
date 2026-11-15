@@ -1,0 +1,1 @@
+ALTER TABLE "account_email_change" ADD COLUMN "approved_token_hash" text;

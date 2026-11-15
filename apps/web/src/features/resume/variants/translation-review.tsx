@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { blockText } from "@reactive-resume/resume/proposals";
 import { Button } from "@reactive-resume/ui/components/button";
 import { SectionCard } from "@reactive-resume/ui/components/section-card";
+import { SuccessStatus } from "@reactive-resume/ui/components/success-celebration";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { escapeHtml } from "@reactive-resume/utils/string";
 import { ChangeSet } from "../editor/proposals/proposal-list";
@@ -217,7 +218,7 @@ export function TranslationReview({ operationId, onSaved }: { operationId: strin
 						<p dir="auto" className="type-body break-words whitespace-pre-wrap">
 							{item.after}
 						</p>
-						<p role="status">
+						<SuccessStatus complete={statuses[item.id] === "accepted"}>
 							{statuses[item.id] === "accepted" ? (
 								<Trans>Accepted</Trans>
 							) : statuses[item.id] === "rejected" ? (
@@ -225,11 +226,11 @@ export function TranslationReview({ operationId, onSaved }: { operationId: strin
 							) : (
 								<Trans>Pending</Trans>
 							)}
-						</p>
+						</SuccessStatus>
 						{editing?.id === item.id ? (
 							<>
 								<Textarea
-									aria-label="Edited text"
+									aria-label={t`Edited text`}
 									dir="auto"
 									maxLength={4000}
 									value={editing.text}

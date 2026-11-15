@@ -15,13 +15,13 @@ import { init } from "@formepdf/core/worker";
 import { Pool } from "pg";
 import { configureAgentStreamLifetime } from "@reactive-resume/api/features/agent/streams";
 import { runCareerJobs } from "@reactive-resume/api/features/career/jobs";
-import { configureStorageService, getStorageService } from "@reactive-resume/api/features/storage";
+import { runPrivacyWork } from "@reactive-resume/api/features/privacy/work";
+import { configureStorageService } from "@reactive-resume/api/features/storage";
 import { initializeAuth } from "@reactive-resume/auth/config";
 import { withDatabasePool } from "@reactive-resume/db/client";
 import { configureCoordination } from "@reactive-resume/db/coordination";
 import { env } from "@reactive-resume/env/server";
 import { configureFontReader, downloadFont } from "@reactive-resume/pdf/native";
-import { configureOwnPictureReader } from "@reactive-resume/pdf/server";
 import { TRUSTED_IP_HEADERS } from "@reactive-resume/utils/rate-limit";
 import { createApp } from "../http/app";
 import { R2StorageService } from "./r2";
@@ -49,11 +49,6 @@ configureAgentStreamLifetime((promise) => {
 	const store = requests.getStore();
 	store?.background.push(promise);
 	store?.ctx.waitUntil(promise);
-});
-configureOwnPictureReader(async (key) => {
-	const file = await getStorageService().read(key);
-	if (!file || file.size > 12_000_000) throw new Error("Picture unavailable or exceeds 12 MB");
-	return file.data;
 });
 
 const sharedCall = async <T>(key: string, input: object): Promise<T> => {
@@ -226,6 +221,14 @@ export default {
 	},
 	scheduled(_controller: ScheduledController, bindings: CloudflareBindings, ctx: ExecutionContext): void {
 		const { pool, store, run } = createInvocation(bindings, ctx);
-		ctx.waitUntil(run(runCareerJobs).finally(() => closePool(pool, store)));
+		ctx.waitUntil(
+			run(async () => {
+				try {
+					await runCareerJobs();
+				} finally {
+					await runPrivacyWork();
+				}
+			}).finally(() => closePool(pool, store)),
+		);
 	},
 };

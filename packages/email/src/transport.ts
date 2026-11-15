@@ -87,3 +87,31 @@ export async function sendCareerNotification({
 		throw new Error("Career notification email could not be delivered.");
 	}
 }
+
+/** Privacy mail never falls back to console output or reports an unattempted send. */
+export async function sendPrivacyEmail(input: SendEmailOptions & { key: string }): Promise<void> {
+	if (!/^[^\s,;<>@]+@[^\s,;<>@]+\.[^\s,;<>@]+$/.test(input.to) || input.to.length > 254)
+		throw new Error("PRIVACY_MAIL_RECIPIENT_INVALID");
+	const transport = getTransport();
+	if (!transport) throw new Error("PRIVACY_MAIL_UNAVAILABLE");
+	const html = await render(input.react);
+	const text = await render(input.react, { plainText: true });
+	try {
+		await transport.sendMail({
+			to: input.to,
+			from: env.SMTP_FROM,
+			subject: input.subject,
+			html,
+			text,
+			messageId: `<privacy-${createHash("sha256").update(input.key).digest("hex")}@master-cv.local>`,
+		});
+	} catch (error) {
+		const responseCode =
+			typeof error === "object" && error !== null && "responseCode" in error ? error.responseCode : undefined;
+		throw new Error(
+			typeof responseCode === "number" && responseCode >= 500 && responseCode <= 599
+				? "PRIVACY_MAIL_REJECTED"
+				: "PRIVACY_MAIL_RETRY_REQUIRED",
+		);
+	}
+}

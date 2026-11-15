@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { prepareFirstCvCelebration } from "@/features/documents/first-cv-celebration";
 import { useNewDocumentsStore } from "@/features/documents/new-documents";
 import { ImportReview } from "@/features/resume/import/review";
 import {
@@ -46,6 +47,7 @@ function ReviewSession({ draft }: { draft: ReviewDraft | null }) {
 	const mounted = useRef(true);
 	const completedResume = useRef<string | undefined>(undefined);
 	const [error, setError] = useState(false);
+	const [celebrateCreated] = useState(() => prepareFirstCvCelebration(queryClient));
 	useEffect(() => {
 		mounted.current = true;
 		return () => {
@@ -114,7 +116,10 @@ function ReviewSession({ draft }: { draft: ReviewDraft | null }) {
 					issues={draft.issues}
 					onCheckpoint={checkpoint}
 					onBack={() => void leave()}
-					onSaved={(id) => void leave(id)}
+					onSaved={(id) => {
+						celebrateCreated();
+						void leave(id);
+					}}
 				/>
 			) : (
 				<Alert variant="warn">

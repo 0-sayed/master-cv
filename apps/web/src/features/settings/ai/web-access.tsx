@@ -138,7 +138,7 @@ export function WebAccessSection() {
 					<QuerySkeleton shape="settings" count={1} label={<Trans>Loading connection…</Trans>} />
 				) : !status ? (
 					<Button variant="secondary" className="w-fit" onClick={() => void refetch()}>
-						<Trans>Try again</Trans>
+						<Trans context="workspace.privacy.d8b8392e2c54">Try again</Trans>
 					</Button>
 				) : (
 					<>
@@ -334,7 +334,7 @@ export function WebAccessSection() {
 												save.reset();
 											}}
 										>
-											<Trans>Cancel</Trans>
+											<Trans context="workspace.privacy.19766ed6ccb2">Cancel</Trans>
 										</Button>
 										<Button type="submit" disabled={pending || !apiKey.trim()} loading={save.isPending}>
 											<Trans>Save connection</Trans>

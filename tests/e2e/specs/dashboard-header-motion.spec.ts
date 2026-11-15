@@ -208,7 +208,8 @@ for (const locale of ["ar-SA", "en-US"]) {
 				(globalThis as RecordingWindow).shellAction = "intentional scroll";
 			});
 			// Include scroll restoration from the longest primary sidebar surface.
-			await page.locator('aside a[href="/dashboard/settings"]').click();
+			await page.locator('aside [data-slot="sidebar-account"]').click();
+			await page.getByRole("menuitem", { name: locale === "ar-SA" ? "الإعدادات" : "Settings", exact: true }).click();
 			await settleScreen(page);
 			await page.evaluate(() => window.scrollTo(0, 300));
 			await page.locator('aside a[href="/dashboard"]').click();

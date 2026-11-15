@@ -5,6 +5,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
+import { ORPCError } from "@orpc/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const api = vi.hoisted(() => ({
@@ -152,18 +153,106 @@ it.each(["ai", "page"])(
 			postingSource: { method: "fetch", format: "text", truncated: false, completeness: "unknown" },
 		});
 		mount(<AddApplicationDialog open onOpenChange={vi.fn()} onAdded={vi.fn()} />);
-		fireEvent.change(await screen.findByRole("textbox", { name: "Job link or posting text" }), {
+		fireEvent.change(await screen.findByRole("textbox", { name: "Job link" }), {
 			target: { value: "https://example.test/careers" },
 		});
-		fireEvent.click(screen.getByRole("button", { name: "Read posting" }));
+		fireEvent.click(screen.getByRole("button", { name: "Read job" }));
 		await screen.findByText(/Some job details couldn't be read/);
 		expect(screen.queryByText(/Found (the )?role,? (and )?company/)).toBeNull();
 		expect((screen.getByRole("button", { name: "Save job" }) as HTMLButtonElement).disabled).toBe(true);
-		expect((screen.getByRole("textbox", { name: "Saved description" }) as HTMLTextAreaElement).value).toBe(
-			"A general careers landing page",
-		);
+		expect(screen.getByText("A general careers landing page")).toBeTruthy();
 		fireEvent.change(screen.getByRole("textbox", { name: "Role" }), { target: { value: "Engineer" } });
 		fireEvent.change(screen.getByRole("textbox", { name: "Company" }), { target: { value: "Known Company" } });
 		expect((screen.getByRole("button", { name: "Save job" }) as HTMLButtonElement).disabled).toBe(false);
 	},
 );
+
+it("switches a blocked link to paste mode without retaining a junk description", async () => {
+	api.parsePosting.mockRejectedValue(new ORPCError("POSTING_SIGN_IN_REQUIRED", { status: 422 }));
+	mount(<AddApplicationDialog open onOpenChange={vi.fn()} onAdded={vi.fn()} />);
+	fireEvent.change(screen.getByRole("textbox", { name: "Job link" }), {
+		target: { value: "https://jobs.example/123" },
+	});
+	fireEvent.click(screen.getByRole("button", { name: "Read job" }));
+	await screen.findByText("This site needs you to be signed in. Paste the job description instead.");
+	expect(screen.getByRole("tab", { name: "Paste text" }).getAttribute("aria-selected")).toBe("true");
+	expect(
+		Number((screen.getByRole("textbox", { name: "Job description" }) as HTMLTextAreaElement).rows),
+	).toBeGreaterThanOrEqual(8);
+	expect(screen.queryByText("Saved description")).toBeNull();
+});
+
+it("keeps a long retrieved description collapsed until requested and enables tailoring with valid details", async () => {
+	api.parsePosting.mockResolvedValue({
+		role: "Engineer",
+		company: "Example",
+		location: "Riyadh, Saudi Arabia",
+		salary: "",
+		requirements: [],
+		jobDescription: "Build useful tools.\n".repeat(50),
+		filledBy: "page",
+		postingSource: { method: "builtin", format: "text", truncated: false, completeness: "unknown" },
+	});
+	mount(<AddApplicationDialog open onOpenChange={vi.fn()} onAdded={vi.fn()} />);
+	fireEvent.change(screen.getByRole("textbox", { name: "Job link" }), {
+		target: { value: "https://jobs.example/123" },
+	});
+	fireEvent.click(screen.getByRole("button", { name: "Read job" }));
+	const expand = await screen.findByRole("button", { name: "Show all" });
+	expect(expand.getAttribute("aria-expanded")).toBe("false");
+	expect((screen.getByRole("textbox", { name: "Role" }) as HTMLInputElement).value).toBe("Engineer");
+	expect((screen.getByRole("button", { name: "Save and tailor CV" }) as HTMLButtonElement).disabled).toBe(false);
+	fireEvent.click(expand);
+	expect(screen.getByRole("button", { name: "Show less" }).getAttribute("aria-expanded")).toBe("true");
+});
+
+it("saves pasted text without a reader or provider call", async () => {
+	api.create.mockResolvedValue("saved-job");
+	mount(<AddApplicationDialog open onOpenChange={vi.fn()} onAdded={vi.fn()} />);
+	fireEvent.click(screen.getByRole("tab", { name: "Paste text" }));
+	fireEvent.change(screen.getByRole("textbox", { name: "Job description" }), {
+		target: { value: "Build accessible tools for learners." },
+	});
+	fireEvent.change(screen.getByRole("textbox", { name: "Role" }), { target: { value: "Engineer" } });
+	fireEvent.change(screen.getByRole("textbox", { name: "Company" }), { target: { value: "Example" } });
+	fireEvent.click(screen.getByRole("button", { name: "Save job" }));
+	await waitFor(() =>
+		expect(api.create).toHaveBeenCalledWith(
+			expect.objectContaining({ jobDescription: "Build accessible tools for learners." }),
+			expect.anything(),
+		),
+	);
+	expect(api.parsePosting).not.toHaveBeenCalled();
+});
+
+it("announces reading and preserves details edited while the request is pending", async () => {
+	let finish!: (result: object) => void;
+	api.parsePosting.mockImplementationOnce(
+		() =>
+			new Promise((resolve) => {
+				finish = resolve;
+			}),
+	);
+	mount(<AddApplicationDialog open onOpenChange={vi.fn()} onAdded={vi.fn()} />);
+	fireEvent.change(screen.getByRole("textbox", { name: "Job link" }), {
+		target: { value: "https://jobs.example/123" },
+	});
+	fireEvent.click(screen.getByRole("button", { name: "Read job" }));
+	await screen.findByText("Reading the link…");
+	expect((screen.getByRole("button", { name: "Save and tailor CV" }) as HTMLButtonElement).disabled).toBe(true);
+	fireEvent.change(screen.getByRole("textbox", { name: "Role" }), { target: { value: "My edited role" } });
+	finish({
+		role: "Engineer",
+		company: "Example",
+		location: "Riyadh",
+		salary: "",
+		requirements: [],
+		jobDescription: "Build accessible tools.",
+		filledBy: "page",
+		postingSource: { method: "builtin", format: "text", truncated: false, completeness: "unknown" },
+	});
+	await screen.findByRole("button", { name: "Show all" });
+	expect((screen.getByRole("textbox", { name: "Role" }) as HTMLInputElement).value).toBe("My edited role");
+	expect((screen.getByRole("textbox", { name: "Company" }) as HTMLInputElement).value).toBe("Example");
+	expect((screen.getByRole("button", { name: "Save and tailor CV" }) as HTMLButtonElement).disabled).toBe(false);
+});

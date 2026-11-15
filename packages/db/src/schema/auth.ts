@@ -27,6 +27,7 @@ export const user = pg.pgTable(
 		timezone: pg.text("timezone").notNull().default("UTC"),
 		/** Interface preference only; CV language and content remain document-owned. */
 		uiLocale: pg.text("ui_locale").$type<"ar-SA" | "en-US">(),
+		dataDeletionRequestedAt: pg.timestamp("data_deletion_requested_at", { withTimezone: true }),
 		lastActiveAt: pg.timestamp("last_active_at", { withTimezone: true }),
 		role: pg.text("role").default("user"),
 		banned: pg.boolean("banned").default(false),

@@ -44,6 +44,15 @@ describe("htmlToMarkdown", () => {
 });
 
 describe("buildMarkdown", () => {
+	it("keeps canonical job-matching terms independent of the document display locale", () => {
+		const data = structuredClone(sampleResumeData);
+		data.metadata.page.locale = "ar-SA";
+		data.sections.languages.items = [{ id: "arabic", hidden: false, language: "Arabic", fluency: "Native", level: 5 }];
+		const canonical = buildMarkdown(data, undefined, { localizeEntries: false });
+		expect(canonical).toContain("Arabic");
+		expect(buildMarkdown(data)).toContain("العربية");
+		expect(data.sections.languages.items[0]?.language).toBe("Arabic");
+	});
 	it("keeps experience descriptions when visible or blank roles are present", () => {
 		const data = structuredClone(sampleResumeData);
 		const item = data.sections.experience.items[0];

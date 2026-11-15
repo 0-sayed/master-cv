@@ -351,7 +351,6 @@ function RefreshSwitch({ application, interview }: RefreshSwitchProps) {
 				type: "error",
 				description: getOrpcErrorMessage(error, {
 					fallback: t`Couldn't change the schedule.`,
-					allowServerMessage: true,
 				}),
 			}),
 	});

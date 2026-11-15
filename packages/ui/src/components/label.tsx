@@ -9,7 +9,7 @@ function Label({ className, htmlFor, ...props }: React.ComponentProps<"label">) 
 			htmlFor={htmlFor}
 			data-slot="label"
 			className={cn(
-				"flex items-center gap-2 type-label text-ink-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:text-ink-3 peer-disabled:cursor-not-allowed peer-disabled:text-ink-3",
+				"flex items-center gap-2 type-label text-ink-2 select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:text-ink-3 peer-disabled:cursor-not-allowed peer-disabled:text-ink-3 has-[[data-slot=checkbox]]:min-h-11 has-[[data-slot=radio-group-item]]:min-h-11",
 				className,
 			)}
 			{...props}

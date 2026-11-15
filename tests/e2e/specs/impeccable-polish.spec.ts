@@ -74,16 +74,24 @@ test("settings actions use the shared trailing column with readable compact cont
 		const label = group.getBoundingClientRect();
 		const action = button.getBoundingClientRect();
 		const row = parent.getBoundingClientRect();
-		return { endDelta: action.left - row.left, gap: label.left - action.right, rowWidth: row.width };
+		const card = parent.closest("section");
+		if (!card) throw new Error("Settings card missing");
+		const style = getComputedStyle(card);
+		return {
+			endDelta: action.left - row.left,
+			gap: label.left - action.right,
+			rowWidth: row.width,
+			cardContentWidth: card.clientWidth - Number.parseFloat(style.paddingLeft) - Number.parseFloat(style.paddingRight),
+		};
 	});
 	expect(alignment.endDelta).toBe(0);
 	expect(alignment.gap).toBeGreaterThanOrEqual(12);
-	expect(alignment.rowWidth).toBeLessThanOrEqual(640);
+	expect(alignment.rowWidth).toBe(alignment.cardContentWidth);
 	await expect(change).toHaveCSS("font-size", "16px");
 	await expect(change).toHaveCSS("font-weight", "600");
 	const box = await change.boundingBox();
 	if (!box) throw new Error("Settings action missing");
-	expect(box.height).toBe(36);
+	expect(box.height).toBe(44);
 });
 
 for (const locale of ["ar-SA", "en-US"]) {

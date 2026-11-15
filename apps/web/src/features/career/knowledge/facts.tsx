@@ -9,6 +9,7 @@ import { AnimatePresence, m } from "motion/react";
 import { useEffect, useId, useRef, useState } from "react";
 import { factCategorySchema } from "@reactive-resume/schema/career";
 import { Button } from "@reactive-resume/ui/components/button";
+import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { NativeSelect } from "@reactive-resume/ui/components/native-select";
@@ -181,16 +182,20 @@ export function FactsPage({ highlight }: FactsPageProps) {
 							))}
 						</AnimatePresence>
 						{visible.length === 0 && (
-							<div className="grid justify-items-center gap-2 p-6 text-center text-sm text-ink-3">
-								<p>
-									{facts.length === 0 ? t`No facts yet. Add one above.` : t`No facts match. Try another word or type.`}
-								</p>
-								{type !== null && (
-									<Button variant="link" size="sm" onClick={() => setType(null)}>
-										<Trans>Show all types</Trans>
-									</Button>
-								)}
-							</div>
+							<EmptyState
+								density="compact"
+								icon={facts.length === 0 ? "file-text" : "magnifying-glass"}
+								title={
+									facts.length === 0 ? t`No facts yet. Add one above.` : t`No facts match. Try another word or type.`
+								}
+								actions={
+									type !== null && (
+										<Button variant="secondary" onClick={() => setType(null)}>
+											<Trans>Show all types</Trans>
+										</Button>
+									)
+								}
+							/>
 						)}
 					</div>
 				)}

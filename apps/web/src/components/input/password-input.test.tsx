@@ -26,6 +26,9 @@ it.each([true, false])(
 			</I18nProvider>,
 		);
 		const input = screen.getByLabelText("Account password");
+		expect(input.closest('[data-slot="input-group"]')).toContainElement(
+			screen.getByRole("button", { name: "Show password" }),
+		);
 		expect(input.getAttribute("type")).toBe("password");
 		fireEvent.click(screen.getByRole("button", { name: "Show password" }));
 		expect(input.getAttribute("type")).toBe("text");

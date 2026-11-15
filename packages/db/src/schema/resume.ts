@@ -57,6 +57,7 @@ export const resume = pg.pgTable.withRLS(
 	},
 	(t) => [
 		ownerPolicy(t.userId),
+		pg.pgPolicy("discovery_owner_read", { for: "select", to: "current_user", using: sql`true` }),
 		pg.unique("resume_import_flow_unique").on(t.userId, t.importFlowId),
 		pg.check("resume_import_flow_pair", sql`(${t.importFlowId} IS NULL) = (${t.importFlowHash} IS NULL)`),
 		pg.pgPolicy("shared_read", {

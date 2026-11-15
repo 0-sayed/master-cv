@@ -2,7 +2,8 @@ import { ORPCError } from "@orpc/server";
 import z from "zod";
 import { protectedProcedure } from "../../context";
 import { storageDeleteRateLimit, storageUploadRateLimit } from "../../middleware/rate-limit";
-import { getStorageService, isImageFile, processImageForUpload, uploadFile } from "./service";
+import { deleteOwnedFile } from "./ownership";
+import { isImageFile, processImageForUpload, uploadFile } from "./service";
 
 const fileSchema = z.file().max(10 * 1024 * 1024, "File size must be less than 10MB");
 
@@ -19,7 +20,7 @@ function isUnsafeStorageKey(key: string): boolean {
 }
 
 export const uploadFileOutputSchema = z.object({
-	url: z.string().describe("The download URL. Profile images are public; other files require owner authentication."),
+	url: z.string().describe("The private download URL requires current owner authentication."),
 	path: z.string().describe("The storage path of the uploaded file."),
 	contentType: z.string().describe("The MIME type of the uploaded file."),
 });
@@ -96,8 +97,11 @@ export const storageRouter = {
 				throw new ORPCError("FORBIDDEN");
 			}
 
-			const deleted = await getStorageService().delete(key);
-
-			if (!deleted) throw new ORPCError("NOT_FOUND");
+			try {
+				await deleteOwnedFile({ userId: context.user.id, key });
+			} catch (error) {
+				if (error instanceof Error && error.message === "FILE_UNAVAILABLE") throw new ORPCError("NOT_FOUND");
+				throw error;
+			}
 		}),
 };

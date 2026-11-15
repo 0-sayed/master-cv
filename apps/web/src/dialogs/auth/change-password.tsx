@@ -4,6 +4,7 @@ import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useSelector } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import z from "zod";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
@@ -19,9 +20,10 @@ import {
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useDialogStore } from "../store";
 import { PasswordInput } from "@/components/input/password-input";
+import { AccountFormError } from "@/features/auth/components/account-form-error";
+import { accountSecurityQueryOptions } from "@/features/settings/account/auth-hooks";
 import { useFormBlocker } from "@/hooks/use-form-blocker";
 import { authClient } from "@/libs/auth/client";
-import { getReadableErrorMessage } from "@/libs/error-message";
 import { useAppForm } from "@/libs/tanstack-form";
 
 export function ChangePasswordDialog(_: DialogProps<"auth.change-password">) {
@@ -38,6 +40,7 @@ export function ChangePasswordDialog(_: DialogProps<"auth.change-password">) {
 		});
 	const queryClient = useQueryClient();
 	const closeDialog = useDialogStore((state) => state.closeDialog);
+	const [failure, setFailure] = useState<unknown>(null);
 
 	const form = useAppForm({
 		defaultValues: {
@@ -49,38 +52,31 @@ export function ChangePasswordDialog(_: DialogProps<"auth.change-password">) {
 			onSubmit: formSchema,
 		},
 		onSubmit: async ({ value }) => {
-			const toastId = toast.add({ type: "loading", description: t`Updating your password...` });
-
-			const { error } = await authClient.changePassword({
-				currentPassword: value.currentPassword,
-				newPassword: value.newPassword,
-				revokeOtherSessions: value.revokeOtherSessions,
-			});
-
-			if (error) {
-				toast.add({
-					type: "error",
-					description: getReadableErrorMessage(
-						error,
-						t({
-							comment: "Fallback toast when changing account password fails",
-							message: "Failed to update your password. Please try again.",
-						}),
-					),
-					id: toastId,
+			setFailure(null);
+			try {
+				const { error } = await authClient.changePassword({
+					currentPassword: value.currentPassword,
+					newPassword: value.newPassword,
+					revokeOtherSessions: value.revokeOtherSessions,
 				});
+				if (error) {
+					setFailure(error);
+					return;
+				}
+			} catch (error) {
+				setFailure(error);
 				return;
 			}
-
-			toast.add({ type: "success", description: t`Your password has been updated.`, id: toastId });
+			toast.add({ type: "success", description: t`Your password has been updated.` });
 			void queryClient.invalidateQueries({ queryKey: ["auth", "accounts"] });
+			void queryClient.invalidateQueries({ queryKey: accountSecurityQueryOptions().queryKey });
 			closeDialog();
 		},
 	});
 
 	const isSubmitting = useSelector(form.store, (state) => state.isSubmitting);
 
-	useFormBlocker(form);
+	const { requestClose } = useFormBlocker(form);
 
 	return (
 		<TaskOverlayContent closeLabel={t`Close`}>
@@ -152,7 +148,7 @@ export function ChangePasswordDialog(_: DialogProps<"auth.change-password">) {
 
 				<form.Field name="revokeOtherSessions">
 					{(field) => (
-						<FormItem className="flex items-center gap-2.5">
+						<FormItem orientation="horizontal">
 							<FormControl
 								render={<Checkbox name={field.name} checked={field.state.value} onCheckedChange={field.handleChange} />}
 							/>
@@ -163,7 +159,12 @@ export function ChangePasswordDialog(_: DialogProps<"auth.change-password">) {
 					)}
 				</form.Field>
 
+				<AccountFormError error={failure} pending={isSubmitting} onRetry={() => void form.handleSubmit()} />
+
 				<TaskOverlayFooter>
+					<Button type="button" variant="secondary" disabled={isSubmitting} onClick={requestClose}>
+						<Trans context="workspace.privacy.19766ed6ccb2">Cancel</Trans>
+					</Button>
 					<Button type="submit" disabled={isSubmitting}>
 						<Trans comment="Primary action button to submit changed password">Update Password</Trans>
 					</Button>

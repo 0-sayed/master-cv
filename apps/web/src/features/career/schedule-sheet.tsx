@@ -240,7 +240,6 @@ export function ScheduleSheet({ schedule, onScheduleChange, onDelete }: Schedule
 						type: "error",
 						description: getOrpcErrorMessage(error, {
 							fallback: t`Couldn't save this schedule.`,
-							allowServerMessage: true,
 						}),
 					}),
 			},

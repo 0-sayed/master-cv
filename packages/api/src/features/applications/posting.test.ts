@@ -189,3 +189,76 @@ describe("posting retrieval", () => {
 		expect(searchWeb).toHaveBeenCalledWith("designer Berlin job posting", context);
 	});
 });
+
+describe("job page content", () => {
+	const context = { userId: "synthetic-user", connection: null };
+	const page = (html: string, content = htmlToText(html)) => {
+		vi.mocked(readPage).mockResolvedValue({
+			requestedUrl: "https://www.linkedin.com/jobs/view/123456",
+			html,
+			content,
+			format: "text",
+			method: "builtin",
+			truncated: false,
+			retrievedAt: "2026-11-15T12:00:00Z",
+			completeness: "unknown",
+		});
+	};
+	it("reads structured job descriptions even beside a login form", async () => {
+		page(
+			`<script type="application/ld+json">${JSON.stringify({ "@type": "JobPosting", title: "Engineer", description: "Build accessible tools" })}</script><form><input type="password"><label>Email or phone</label></form>`,
+		);
+		expect((await fetchJobPosting("https://www.linkedin.com/jobs/view/123456", context)).text).toBe(
+			"Build accessible tools",
+		);
+	});
+	it("recognizes chrome markers in later class tokens", async () => {
+		page(
+			'<html><body><main><nav class="layout navigation">Unrelated chrome</nav><section class="layout show-more-less-html__markup">Build accessible tools</section></main></body></html>',
+		);
+		expect((await fetchJobPosting("https://www.linkedin.com/jobs/view/123456", context)).text).toBe(
+			"Build accessible tools",
+		);
+	});
+	it("preserves retrieved text when HTML is unavailable", async () => {
+		page("", "Engineer\nBuild accessible tools");
+		expect((await fetchJobPosting("https://www.linkedin.com/jobs/view/123456", context)).text).toBe(
+			"Engineer\nBuild accessible tools",
+		);
+	});
+	it("rejects a synthetic sign-in wall even when a role teaser is present", async () => {
+		page(`<html><body><a>Skip to main content</a><main><h1>Product Engineer</h1>
+			<p>Example Learning</p><p>Riyadh, Saudi Arabia</p>
+			<h2>Join or sign in to find your next job</h2><form>
+			<label>Email or phone</label><input><label>Password</label><input type="password">
+			<button>Sign in</button></form><p>New to LinkedIn? Join now</p></main></body></html>`);
+		await expect(fetchJobPosting("https://www.linkedin.com/jobs/view/123456", context)).rejects.toMatchObject({
+			reason: "auth",
+		});
+	});
+	it.each(["<main></main>", "<main><h1>Just a moment</h1><p>Verify you are human</p></main>"])(
+		"rejects an empty or bot-blocked page: %s",
+		async (html) => {
+			page(html);
+			await expect(fetchJobPosting("https://www.linkedin.com/jobs/view/123456", context)).rejects.toThrow();
+		},
+	);
+	it("extracts only the job content and editable fields from a synthetic public page", async () => {
+		page(`<html><body><nav>Home Jobs Sign in</nav><main>
+			<h1>Product Engineer</h1><a class="topcard__org-name-link">Example Learning</a>
+			<span class="topcard__flavor--bullet">Riyadh, Saudi Arabia</span>
+			<section class="show-more-less-html__markup"><h2>About this job</h2>
+			<p>Build accessible learning tools with TypeScript and help students learn.</p>
+			<ul><li>Work with designers to deliver reliable interfaces.</li></ul></section>
+			<form><label>Password</label><button>Sign in</button></form>
+			<aside>People also viewed other jobs</aside></main><footer>Privacy Cookies</footer></body></html>`);
+		const result = await fetchJobPosting("https://www.linkedin.com/jobs/view/123456", context);
+		expect(result.page).toMatchObject({
+			role: "Product Engineer",
+			company: "Example Learning",
+			location: "Riyadh, Saudi Arabia",
+		});
+		expect(result.text).toContain("Build accessible learning tools");
+		expect(result.text).not.toMatch(/Password|Sign in|Home|People also|Privacy|Cookies/);
+	});
+});

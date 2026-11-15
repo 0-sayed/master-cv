@@ -4,6 +4,7 @@ import { Trans } from "@lingui/react/macro";
 import { useSelector } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
+import { useState } from "react";
 import z from "zod";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
@@ -18,9 +19,10 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useDialogStore } from "../store";
 import { PasswordInput } from "@/components/input/password-input";
+import { AccountFormError } from "@/features/auth/components/account-form-error";
+import { accountSecurityQueryOptions } from "@/features/settings/account/auth-hooks";
 import { useFormBlocker } from "@/hooks/use-form-blocker";
 import { authClient } from "@/libs/auth/client";
-import { getReadableErrorMessage } from "@/libs/error-message";
 import { sessionQueryKey } from "@/libs/root-context";
 import { useAppForm } from "@/libs/tanstack-form";
 
@@ -32,38 +34,25 @@ export function DisableTwoFactorDialog(_: DialogProps<"auth.two-factor.disable">
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const closeDialog = useDialogStore((state) => state.closeDialog);
+	const [failure, setFailure] = useState<unknown>(null);
 
 	const form = useAppForm({
 		defaultValues: { password: "" },
 		validators: { onSubmit: formSchema },
 		onSubmit: async ({ value }) => {
-			const toastId = toast.add({
-				type: "loading",
-				description: t`Disabling two-factor authentication...`,
-			});
-
-			const { error } = await authClient.twoFactor.disable({ password: value.password });
-
-			if (error) {
-				toast.add({
-					type: "error",
-					description: getReadableErrorMessage(
-						error,
-						t({
-							comment: "Fallback toast when disabling two-factor authentication fails",
-							message: "Failed to disable two-factor authentication. Please try again.",
-						}),
-					),
-					id: toastId,
-				});
+			setFailure(null);
+			try {
+				const { error } = await authClient.twoFactor.disable({ password: value.password });
+				if (error) {
+					setFailure(error);
+					return;
+				}
+			} catch (error) {
+				setFailure(error);
 				return;
 			}
-
-			toast.add({
-				type: "success",
-				description: t`Two-factor authentication is now disabled.`,
-				id: toastId,
-			});
+			toast.add({ type: "success", description: t`Two-factor authentication is now disabled.` });
+			void queryClient.invalidateQueries({ queryKey: accountSecurityQueryOptions().queryKey });
 			void queryClient.invalidateQueries({ queryKey: sessionQueryKey }).then(() => router.invalidate());
 			closeDialog();
 			form.reset();
@@ -72,7 +61,7 @@ export function DisableTwoFactorDialog(_: DialogProps<"auth.two-factor.disable">
 
 	const isSubmitting = useSelector(form.store, (state) => state.isSubmitting);
 
-	useFormBlocker(form);
+	const { requestClose } = useFormBlocker(form);
 
 	return (
 		<DialogContent>
@@ -121,7 +110,12 @@ export function DisableTwoFactorDialog(_: DialogProps<"auth.two-factor.disable">
 					)}
 				</form.Field>
 
+				<AccountFormError error={failure} pending={isSubmitting} onRetry={() => void form.handleSubmit()} />
+
 				<DialogFooter>
+					<Button type="button" variant="secondary" disabled={isSubmitting} onClick={requestClose}>
+						<Trans context="workspace.privacy.19766ed6ccb2">Cancel</Trans>
+					</Button>
 					<Button type="submit" variant="danger" disabled={isSubmitting}>
 						<Trans comment="Destructive action button to turn off two-factor authentication">Disable 2FA</Trans>
 					</Button>

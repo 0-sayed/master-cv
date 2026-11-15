@@ -2,6 +2,7 @@ import type { SectionTitleResolver } from "./builder";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { Packer } from "docx";
 import { parseResumeData } from "@reactive-resume/schema/resume/data";
+import { localizeResumeEntries } from "@reactive-resume/schema/resume/entry-options";
 import { buildDocument } from "./builder";
 
 /**
@@ -10,6 +11,6 @@ import { buildDocument } from "./builder";
  */
 // oxlint-disable-next-line require-await -- keep synchronous renderer errors on the public Promise rejection path.
 export async function buildDocx(data: ResumeData, resolveTitle?: SectionTitleResolver): Promise<Blob> {
-	const doc = buildDocument(parseResumeData(data), resolveTitle);
+	const doc = buildDocument(localizeResumeEntries(parseResumeData(data)), resolveTitle);
 	return Packer.toBlob(doc);
 }

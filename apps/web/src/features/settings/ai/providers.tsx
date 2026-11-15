@@ -117,7 +117,6 @@ export function ProvidersSection() {
 																type: "error",
 																description: getOrpcErrorMessage(failure, {
 																	fallback: t`Couldn't make it the default.`,
-																	allowServerMessage: true,
 																}),
 															}),
 													},

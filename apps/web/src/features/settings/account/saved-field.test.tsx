@@ -30,6 +30,7 @@ it("clears superseded errors and announces saving, success and failure", async (
 	fireEvent.change(input, { target: { value: "x" } });
 	fireEvent.blur(input);
 	expect(screen.getByRole("alert").textContent).toBe("Too short");
+	expect(screen.getByRole("status").textContent).toBe("");
 	fireEvent.change(input, { target: { value: "After" } });
 	expect(screen.queryByRole("alert")).toBeNull();
 	fireEvent.blur(input);
@@ -41,6 +42,22 @@ it("clears superseded errors and announces saving, success and failure", async (
 	fireEvent.blur(input);
 	finish("Couldn't save. Try again.");
 	await waitFor(() => expect(screen.getByRole("alert").textContent).toBe("Couldn't save. Try again."));
+	expect(screen.getByRole("status").textContent).toBe("");
+});
+
+it("normalizes a trimmed no-op without announcing unsaved changes", () => {
+	const save = vi.fn();
+	render(
+		<I18nProvider i18n={i18n}>
+			<SavedField label="Name" value="Before" validate={() => null} save={save} />
+		</I18nProvider>,
+	);
+	const input = screen.getByRole("textbox", { name: "Name" });
+	fireEvent.change(input, { target: { value: " Before " } });
+	fireEvent.blur(input);
+	expect(input).toHaveProperty("value", "Before");
+	expect(screen.getByRole("status").textContent).toBe("Saved");
+	expect(save).not.toHaveBeenCalled();
 });
 
 it("keeps the host and identifier in one LTR group under RTL", () => {

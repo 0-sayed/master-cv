@@ -70,6 +70,28 @@ it("plays the landing approval once on mount, not on later renders", () => {
 	expect(frames).toHaveLength(1);
 });
 
+it("draws an entrance once without replaying on hover or focus", () => {
+	const frames: FrameRequestCallback[] = [];
+	vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => {
+		frames.push(callback);
+		return frames.length;
+	});
+	vi.stubGlobal("cancelAnimationFrame", vi.fn());
+	const { container, rerender } = render(<BrandIcon animateOnce />);
+	act(() => frames[0]?.(0));
+	const mark = container.querySelector('[data-slot="brand-mark"]');
+	assert(mark);
+	expect(mark).toHaveAttribute("data-playing", "true");
+	const svg = mark.querySelector("svg");
+	assert(svg);
+	fireEvent.animationEnd(svg, { animationName: "brand-approved" });
+	fireEvent.pointerEnter(mark);
+	fireEvent.focus(mark);
+	rerender(<BrandIcon animateOnce />);
+	expect(mark).toHaveAttribute("data-playing", "false");
+	expect(frames).toHaveLength(1);
+});
+
 it.each(["1800ms", "1.8s"])(
 	"repeats after the shared rest interval (%s) and stops for reduced motion",
 	async (rest) => {

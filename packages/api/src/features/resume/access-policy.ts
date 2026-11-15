@@ -62,7 +62,10 @@ export function redactResumeForViewer<T extends { name: string; data: ResumeData
 	const data = structuredClone(resume.data);
 	data.metadata.notes = "";
 	data.metadata.check = undefined;
-	if (data.picture.hidden) data.picture.url = "";
+	// Stored uploads are private artifacts. Public sharing does not grant access to
+	// their owner-only URLs; omit them rather than expose an unusable private reference.
+	const pictureUrl = URL.parse(data.picture.url || "/", "https://resume.invalid");
+	if (data.picture.hidden || !pictureUrl || /^\/(?:api\/)?uploads\//.test(pictureUrl.pathname)) data.picture.url = "";
 	if (data.summary.hidden) data.summary.content = "";
 	data.customSections = data.customSections.filter((section) => !section.hidden);
 	const sections: { hidden: boolean; items: { hidden: boolean }[] }[] = [

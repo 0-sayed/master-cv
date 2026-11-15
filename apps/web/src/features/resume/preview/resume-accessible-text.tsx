@@ -21,6 +21,7 @@ import type {
 import type { ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Fragment } from "react";
+import { localizeResumeEntries } from "@reactive-resume/schema/resume/entry-options";
 import { stripHtml } from "@reactive-resume/utils/string";
 import { useResumeData } from "@/features/resume/builder/draft";
 import { getSectionTitle } from "@/libs/resume/section";
@@ -369,7 +370,7 @@ export function ResumeAccessibleText({ data }: ResumeAccessibleTextProps) {
 
 	if (!resumeData) return null;
 
-	const { basics, summary, sections, customSections } = resumeData;
+	const { basics, summary, sections, customSections } = localizeResumeEntries(resumeData);
 	const summaryText = summary && !summary.hidden ? summary.content : "";
 	const website = basics.website;
 

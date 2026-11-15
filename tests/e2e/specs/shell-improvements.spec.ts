@@ -45,7 +45,12 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					"/dashboard/applications",
 					"/dashboard/settings",
 				]) {
-					await aside.locator(`a[href="${path}"]`).click();
+					if (path === "/dashboard/settings") {
+						await aside.locator('[data-slot="sidebar-account"]').click();
+						await page
+							.getByRole("menuitem", { name: locale === "ar-SA" ? "الإعدادات" : "Settings", exact: true })
+							.click();
+					} else await aside.locator(`a[href="${path}"]`).click();
 					await settleScreen(page);
 					const bounds = await page.locator('[data-slot="dashboard-page"]').boundingBox();
 					const band = await header.locator('[data-slot="dashboard-header-content"]').boundingBox();
@@ -142,7 +147,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await expect(control).toHaveCSS("cursor", "pointer");
 		}
 		await page.goto("/dashboard/settings/account");
-		for (const selector of ['[role="switch"]', 'input[type="email"]']) {
+		for (const selector of ['button[data-variant="secondary"]', 'input[autocomplete="name"]']) {
 			await expect(page.locator(selector).filter({ visible: true }).first()).toHaveCSS(
 				"cursor",
 				selector.startsWith("input") ? "text" : "pointer",

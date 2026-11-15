@@ -29,6 +29,7 @@ const getColumns = (): { id: string; title: string; links: FooterLink[] }[] => [
 		title: t`Resources`,
 		links: [
 			{ label: t`Source code`, href: githubUrl },
+			{ label: t({ message: "Help and contact", context: "help.page.title" }), href: "/help" },
 			{ label: t`Report an issue`, href: `${githubUrl}/issues` },
 			{ label: t`Upstream documentation`, href: "https://docs.rxresu.me" },
 		],

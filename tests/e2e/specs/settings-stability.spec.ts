@@ -8,7 +8,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 	}) => {
 		if (!baseURL) throw new Error("Browser baseURL missing");
 		await page.context().addCookies([{ name: "locale", value: locale, url: baseURL }]);
-		await page.route("**/api/auth/list-accounts**", async (route) => {
+		await page.route("**/api/rpc/**", async (route) => {
 			const response = await route.fetch();
 			await new Promise((resolve) => setTimeout(resolve, 600));
 			await route.fulfill({ response });
@@ -20,13 +20,15 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				const section = [...document.querySelectorAll("main section")].find((el) =>
 					/^(Sign-in & security|تسجيل الدخول والأمن)$/u.test(el.querySelector("h2")?.textContent ?? ""),
 				);
-				if (section) frames.push(!!section.querySelector('[role="switch"]'));
+				if (section) frames.push(!/You sign in without one|تسجل الدخول بدونها/u.test(section.textContent ?? ""));
 				requestAnimationFrame(sample);
 			};
 			requestAnimationFrame(sample);
 		});
 		await page.goto(`/dashboard/settings/account?locale=${locale}`);
-		await expect(page.getByRole("switch").first()).toBeVisible();
+		await expect(
+			page.getByText(locale === "en-US" ? "Password is set" : "كلمة المرور مفعّلة", { exact: true }),
+		).toBeVisible();
 		const frames = await page.evaluate(
 			() => (globalThis as typeof globalThis & { credentialFrames: boolean[] }).credentialFrames,
 		);
@@ -80,7 +82,8 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await page.setViewportSize({ width, height: 1024 });
 			await page.goto(`/dashboard?locale=${locale}`);
 			await page.evaluate(recordTabs);
-			await page.locator('aside a[href="/dashboard/settings"]').click();
+			await page.locator('aside [data-slot="sidebar-account"]').click();
+			await page.getByRole("menuitem", { name: locale === "ar-SA" ? "الإعدادات" : "Settings", exact: true }).click();
 			await expect(page.locator('main nav a[href="/dashboard/settings/account"]')).toBeVisible();
 			await page.evaluate(async () => {
 				await document.fonts.ready;
@@ -130,16 +133,18 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await page.setViewportSize({ width, height: 1024 });
 			await page.goto(`/dashboard/settings/account?locale=${locale}`);
 			await expect(
-				page.getByRole("button", { name: locale === "ar-SA" ? "إضافة مفتاح المرور" : "Add passkey", exact: true }),
+				page.getByRole("button", { name: locale === "ar-SA" ? "إضافة مفتاح مرور" : "Add passkey", exact: true }),
 			).toBeVisible();
 			const actions = await page.locator('main [data-slot="settings-row-action"]').evaluateAll((containers) =>
-				containers.map((container) => {
-					// Base UI switches append a hidden native input after their visible control.
-					const el = [...container.querySelectorAll('button, a[href], [role="switch"]')].at(-1);
-					if (!el) throw new Error("Settings row action missing");
-					const r = el.getBoundingClientRect();
-					return { edge: document.dir === "rtl" ? r.left : r.right, height: r.height, text: el.textContent };
-				}),
+				containers
+					.filter((container) => container.querySelector('button, a[href], [role="switch"]'))
+					.map((container) => {
+						// Base UI switches append a hidden native input after their visible control.
+						const el = [...container.querySelectorAll('button, a[href], [role="switch"]')].at(-1);
+						if (!el) throw new Error("Settings row action missing");
+						const r = el.getBoundingClientRect();
+						return { edge: document.dir === "rtl" ? r.left : r.right, height: r.height, text: el.textContent };
+					}),
 			);
 			expect(actions.length).toBeGreaterThanOrEqual(5);
 			for (const action of actions) expect.soft(action.edge).toBeCloseTo(actions[0].edge, 0);

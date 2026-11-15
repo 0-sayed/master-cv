@@ -6,11 +6,11 @@ import type { ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { EMPTY_RESUME_DATES } from "@reactive-resume/schema/resume/dates";
+import { findEntryOption, fluencyOptions, skillOptions } from "@reactive-resume/schema/resume/entry-options";
 import { Button } from "@reactive-resume/ui/components/button";
-import { FormControl, FormDescription, FormItem, FormLabel } from "@reactive-resume/ui/components/form";
+import { FormControl, FormItem, FormLabel } from "@reactive-resume/ui/components/form";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { PopoverTrigger } from "@reactive-resume/ui/components/popover";
-import { Slider } from "@reactive-resume/ui/components/slider";
 import { generateId } from "@reactive-resume/utils/string";
 import { DatesField } from "./dates-field";
 import { MoreOptions, TextField, WebsiteField } from "./fields";
@@ -18,6 +18,7 @@ import { RichTextEditor } from "./rich-text-editor";
 import { ChipInput } from "@/components/input/chip-input";
 import { ColorPicker } from "@/components/input/color-picker";
 import { IconPicker } from "@/components/input/icon-picker";
+import { LanguageField, ProficiencyField } from "@/features/career/information/entry-fields";
 
 export type PageSettings = { locale: string; dateFormat?: DateFormat | undefined };
 
@@ -134,30 +135,24 @@ function Keywords({ entry, write, label }: FieldSetProps & { label: ReactNode })
 	);
 }
 
-function Level({ entry, write }: FieldSetProps) {
-	const level = Number(valuesOf(entry).level ?? 0);
-	return (
-		<FormItem className="col-span-full gap-3">
-			<FormLabel>
-				<Trans>Level</Trans>
-			</FormLabel>
-			<FormControl
-				render={
-					<Slider
-						min={0}
-						max={5}
-						step={1}
-						value={[level]}
-						onValueChange={(value) =>
-							write("level", (target) => {
-								target.level = Array.isArray(value) ? value[0] : value;
-							})
-						}
-					/>
-				}
-			/>
-			<FormDescription>{level === 0 ? t`Hidden` : `${level} / 5`}</FormDescription>
-		</FormItem>
+function PresetField({
+	entry,
+	write,
+	field,
+	label,
+	autoFocus,
+}: FieldSetProps & { field: "language" | "fluency" | "proficiency"; label: string; autoFocus?: boolean | undefined }) {
+	const onChange = (value: string, level: number) =>
+		write(field, (target) => {
+			target[field] = value;
+			if (field !== "language" && findEntryOption(value, field === "fluency" ? fluencyOptions : skillOptions))
+				target.level = level;
+		});
+	const props = { value: str(valuesOf(entry)[field]), onChange, label, name: field, autoFocus };
+	return field === "language" ? (
+		<LanguageField {...props} />
+	) : (
+		<ProficiencyField {...props} kind={field === "fluency" ? "language" : "skill"} />
 	);
 }
 
@@ -350,10 +345,9 @@ export function EntryFields({
 			return (
 				<>
 					<Text {...props} field="name" label={<Trans>Name</Trans>} autoFocus={autoFocus} />
-					<Text {...props} field="proficiency" label={<Trans>Proficiency</Trans>} />
+					<PresetField {...props} field="proficiency" label={t`Proficiency`} />
 					<Keywords {...props} label={<Trans>Keywords</Trans>} />
 					<MoreOptions>
-						<Level {...props} />
 						<IconAndColor {...props} />
 					</MoreOptions>
 				</>
@@ -361,11 +355,8 @@ export function EntryFields({
 		case "languages":
 			return (
 				<>
-					<Text {...props} field="language" label={<Trans>Language</Trans>} autoFocus={autoFocus} />
-					<Text {...props} field="fluency" label={<Trans>Fluency</Trans>} />
-					<MoreOptions>
-						<Level {...props} />
-					</MoreOptions>
+					<PresetField {...props} field="language" label={t`Language`} autoFocus={autoFocus} />
+					<PresetField {...props} field="fluency" label={t`Fluency`} />
 				</>
 			);
 		case "interests":

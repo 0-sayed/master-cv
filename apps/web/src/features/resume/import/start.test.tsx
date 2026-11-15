@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { Messages } from "@lingui/core";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
@@ -14,7 +15,10 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 vi.mock("@/libs/orpc/client", () => ({
 	client: { resume: { create: mocks.create }, documents: { linkApplication: mocks.linkApplication } },
-	orpc: { documents: { key: () => ["documents"] }, applications: { key: () => ["applications"] } },
+	orpc: {
+		documents: { counts: { queryKey: () => ["documents", "counts"] }, key: () => ["documents"] },
+		applications: { key: () => ["applications"] },
+	},
 }));
 beforeEach(() => {
 	vi.resetAllMocks();
@@ -59,15 +63,61 @@ it("groups language before matching option cards and keeps upload limits and fil
 	);
 	const choices = container.ownerDocument.querySelectorAll('[data-slot="action-choice"]');
 	expect(choices).toHaveLength(2);
-	expect(choices[0]?.className).toBe(choices[1]?.className);
+	expect(choices[0]).toHaveClass("border-dashed");
 	const upload = screen.getByRole("button", { name: /^Upload an existing CV/ });
-	expect(upload).toHaveTextContent("Choose a file");
-	expect(upload).toHaveTextContent("25 MB");
+	expect(upload).toHaveTextContent("Drop a PDF here or choose a file");
+	expect(upload.querySelectorAll('[data-slot="badge"]')).toHaveLength(3);
+	const requirements = screen.getByRole("list", { name: "File requirements" });
+	expect(upload).toContainElement(requirements);
+	expect(
+		within(requirements)
+			.getAllByRole("listitem")
+			.map((item) => item.textContent),
+	).toEqual(["PDF only", "Up to 25 MB", "Up to 30 pages"]);
+	expect(within(requirements).getByText("25 MB")).toHaveAttribute("dir", "ltr");
+	expect(within(requirements).getByText("25 MB").tagName).toBe("BDI");
+	expect(upload).not.toHaveTextContent("Scanned");
+	expect(upload).not.toHaveTextContent("unfinished review");
+	fireEvent.dragOver(upload);
+	expect(upload).toHaveAttribute("data-dragging", "true");
+	fireEvent.dragLeave(upload);
+	expect(upload).not.toHaveAttribute("data-dragging");
+	expect(upload).toHaveTextContent("Up to 25 MB");
+	const picker = screen.getByLabelText("Choose a file to import");
+	const choose = vi.spyOn(picker, "click");
+	fireEvent.click(upload);
+	expect(choose).toHaveBeenCalledOnce();
 	expect(
 		screen.getByRole("group", { name: "CV language" }).compareDocumentPosition(upload) &
 			Node.DOCUMENT_POSITION_FOLLOWING,
 	).toBeTruthy();
 	expect(screen.getByRole("button", { name: "Cancel" })).toHaveClass("border-line-2");
+});
+
+it("keeps the Arabic size value and unit together while retaining the page-count wording", async () => {
+	const catalogs = import.meta.glob<{ messages: Messages }>("../../../../locales/*.po");
+	const load = catalogs["../../../../locales/ar-SA.po"];
+	if (!load) throw new Error("Arabic catalog is missing");
+	const { messages } = await load();
+	i18n.loadAndActivate({ locale: "ar-SA", messages });
+	render(
+		<I18nProvider i18n={i18n}>
+			<QueryClientProvider client={new QueryClient()}>
+				<Dialog open>
+					<StartCvDialog />
+				</Dialog>
+			</QueryClientProvider>
+		</I18nProvider>,
+	);
+	const requirements = screen.getByRole("list", { name: "متطلبات الملف" });
+	const size = within(requirements).getByText("25 MB");
+	expect(size.tagName).toBe("BDI");
+	expect(size).toHaveAttribute("dir", "ltr");
+	expect(
+		within(requirements)
+			.getAllByRole("listitem")
+			.map((item) => item.textContent),
+	).toEqual(["PDF فقط", "حتى 25 MB", "حتى 30 صفحة"]);
 });
 
 it("offers creation retry after a manual start fails, rather than opening the file picker", async () => {

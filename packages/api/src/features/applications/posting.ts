@@ -1,4 +1,5 @@
 import type { WebAccessContext } from "../web-access/contracts";
+import sanitizeHtml from "sanitize-html";
 import { z } from "zod";
 import { htmlToText } from "../web-access/builtin";
 import { MAX_CONTENT_CHARS, WebAccessError } from "../web-access/contracts";
@@ -17,8 +18,12 @@ export async function fetchJobPosting(input: string, context: WebAccessContext) 
 	const { content, html, ...source } = await readPage(input, context);
 	if (isListingUrl(source.resolvedUrl ?? input) || jobPostingsIn(html ?? "").length > 1)
 		throw new WebAccessError("not-a-page");
-	const page = readJobPosting(html ?? "");
-	const text = page?.description || content;
+	const extracted = extractJobContent(html ?? "", content);
+	const structured = readJobPosting(html ?? "");
+	const page = structured?.description ? structured : extracted.page;
+	const text = cleanPostingText(page?.description || extracted.text);
+	if (!page?.description) assertJobContent(text);
+	else if (!text.trim()) throw new WebAccessError("empty");
 	const truncated = source.truncated || text.length > MAX_POSTING_CHARS;
 	return {
 		page,
@@ -29,6 +34,118 @@ export async function fetchJobPosting(input: string, context: WebAccessContext) 
 			truncated,
 			completeness: truncated ? ("incomplete" as const) : source.completeness,
 		},
+	};
+}
+
+/** Do not retain navigation, application controls or authentication chrome as job evidence. */
+function cleanPostingText(text: string) {
+	return text
+		.split("\n")
+		.map((line) => line.trim())
+		.filter(
+			(line) =>
+				line &&
+				!/^(?:skip to main content|show (?:more|less)|apply(?: now)?|save(?: job)?|sign in|join now|forgot password\??|email or phone|password|privacy policy|cookie policy|user agreement)$/i.test(
+					line,
+				),
+		)
+		.join("\n");
+}
+
+function assertJobContent(text: string) {
+	if (!text.trim()) throw new WebAccessError("empty");
+	if (
+		/just a moment|checking your browser|verify (?:that )?you(?:'re| are) human|access denied|captcha challenge|enable javascript and cookies/i.test(
+			text,
+		)
+	)
+		throw new WebAccessError("challenge");
+	if (
+		/join or sign in|sign in to (?:view|see|read|continue|find)|log in to (?:view|see|read|continue)|email or phone|forgot (?:your )?password|تسجيل الدخول (?:لعرض|لمتابعة)/i.test(
+			text,
+		)
+	)
+		throw new WebAccessError("auth");
+}
+
+/** Parse public job content with the installed sanitizer, excluding page chrome. */
+function extractJobContent(html: string, fallback: string): { page: PagePosting | null; text: string } {
+	let main = "";
+	let body = "";
+	let description = "";
+	let role = "";
+	let company = "";
+	let location = "";
+	sanitizeHtml(html, {
+		allowedTags: [
+			"html",
+			"body",
+			"main",
+			"article",
+			"section",
+			"div",
+			"h1",
+			"h2",
+			"h3",
+			"p",
+			"ul",
+			"ol",
+			"li",
+			"span",
+			"a",
+			"strong",
+			"b",
+			"em",
+			"br",
+		],
+		allowedAttributes: { "*": ["class", "id", "itemprop", "role"] },
+		nonTextTags: [
+			"script",
+			"style",
+			"noscript",
+			"template",
+			"textarea",
+			"head",
+			"svg",
+			"nav",
+			"footer",
+			"aside",
+			"form",
+			"button",
+		],
+		exclusiveFilter(frame) {
+			const text = frame.text.trim();
+			const marker = `${frame.attribs.class ?? ""} ${frame.attribs.id ?? ""} ${frame.attribs.itemprop ?? ""}`;
+			if (/(?:^|\s)(?:cookie|consent|navigation|sign-in|login)(?:[-_\s]|$)/i.test(marker.trim())) return true;
+			if (frame.tag === "h1" && !role) role = text;
+			if (/(?:topcard__org-name-link|hiringOrganization|company-name)/i.test(marker) && !company) company = text;
+			if (/(?:topcard__flavor--bullet|job-location|jobLocation)/i.test(marker) && !location) location = text;
+			if (
+				/(?:show-more-less-html__markup|jobs-description__content|job-description|posting-description|description__text|^description$)/i.test(
+					marker.trim(),
+				) &&
+				text.length > description.length
+			)
+				description = text;
+			if (
+				(frame.tag === "main" || frame.tag === "article" || frame.attribs.role === "main") &&
+				text.length > main.length
+			)
+				main = text;
+			if (frame.tag === "body") body = text;
+			frame.text = text + "\n";
+			return false;
+		},
+	});
+	const text = description || main || body || htmlToText(html) || fallback;
+	// A title teaser above a sign-in wall is not a job description.
+	if (!description && !readJobPosting(html)?.description) {
+		if (/<input\b[^>]*type\s*=\s*["']?password\b/i.test(html)) throw new WebAccessError("auth");
+		assertJobContent(text);
+	}
+	return {
+		text,
+		page: description ? { role, company, location, description: cleanPostingText(description), closesAt: "" } : null,
 	};
 }
 

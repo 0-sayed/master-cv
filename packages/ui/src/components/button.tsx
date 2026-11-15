@@ -19,6 +19,7 @@ const buttonVariants = cva(
 				primary: "bg-accent font-semibold text-on-accent hover:bg-accent-hover disabled:bg-sunken disabled:text-ink-3",
 				secondary:
 					"border-line-2 bg-surface text-ink hover:bg-sunken active:bg-press disabled:border-line disabled:text-ink-3 aria-expanded:bg-sunken",
+				quiet: "text-ink-2 hover:bg-hover hover:text-ink focus-visible:bg-hover active:bg-press disabled:text-ink-3",
 				ghost: "text-ink hover:bg-hover active:bg-press disabled:text-ink-3 aria-expanded:bg-hover",
 				danger:
 					"bg-danger text-on-danger hover:brightness-[0.92] focus-visible:outline-danger disabled:bg-sunken disabled:text-ink-3",
@@ -26,12 +27,15 @@ const buttonVariants = cva(
 				link: "h-auto! border-0 px-0! text-accent-text underline-offset-4 hover:underline",
 			},
 			size: {
+				"mobile-nav": "h-auto min-h-16 flex-col justify-start gap-0.5 rounded-md px-0 py-2",
+				"sidebar-account": "h-auto min-h-18 rounded-lg px-3 py-2",
+				"sidebar-account-icon": "h-18 w-11 rounded-lg p-0",
 				"sidebar-toggle": "size-10 rounded-full p-2 pointer-coarse:min-h-10 pointer-coarse:min-w-10",
 				default: `${controlHeights.default} rounded-md px-3 py-0`,
 				sm: `${controlHeights.sm} gap-1.5 rounded-sm px-3`,
 				lg: `${controlHeights.lg} rounded-lg px-4 py-0`,
 				"link-touch": "min-h-12 rounded-md px-0 py-0",
-				"link-compact": "rounded-md px-0 py-0",
+				"link-compact": "rounded-md px-0 py-0 type-metadata",
 				chip: "h-auto min-h-7 rounded-full px-3 py-0 wrap-anywhere",
 				row: "h-auto min-h-11 rounded-md px-3 py-2",
 				icon: "size-9 rounded-md",

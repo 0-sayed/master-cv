@@ -45,7 +45,7 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 		);
 		await fixture.query(`REVOKE UPDATE,DELETE ON career_fact_revision FROM "${role}"`);
 		await fixture.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_usage_ledger FROM "${role}"`);
-		await fixture.query(`REVOKE ALL ON ai_platform_budget FROM "${role}"`);
+		await fixture.query(`REVOKE ALL ON ai_platform_budget,deletion_replay_record,support_access_log FROM "${role}"`);
 		await fixture.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_review_decision FROM "${role}"`);
 		await fixture.query(`REVOKE UPDATE,TRUNCATE ON ai_import_review_source FROM "${role}"`);
 		await fixture.query(
@@ -76,6 +76,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 		["ai_platform_budget", "SELECT", "spent_micros"],
 		["ai_platform_budget", "INSERT", "spent_micros"],
 		["ai_platform_budget", "UPDATE", "spent_micros"],
+		["deletion_replay_record", "SELECT", "subject_user_ids"],
+		["support_access_log", "INSERT", "purpose"],
 	])("rejects column-only %s %s privileges at startup", async (table, privilege, column) => {
 		await expect(assertRuntimeDatabaseRole(runtime)).resolves.toBeUndefined();
 		await fixture.query(`GRANT ${privilege} (${column}) ON ${table} TO "${role}"`);
@@ -85,6 +87,21 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 			await fixture.query(`REVOKE ${privilege} (${column}) ON ${table} FROM "${role}"`);
 		}
 	});
+
+	it.each(["deletion_replay_record", "support_access_log"])(
+		"rejects direct privileges on %s at startup",
+		async (table) => {
+			for (const privilege of ["SELECT", "INSERT", "UPDATE", "DELETE", "TRUNCATE"]) {
+				await fixture.query(`GRANT ${privilege} ON ${table} TO "${role}"`);
+				try {
+					await expect(assertRuntimeDatabaseRole(runtime)).rejects.toThrow("Unsafe runtime database role");
+				} finally {
+					await fixture.query(`REVOKE ${privilege} ON ${table} FROM "${role}"`);
+				}
+				await expect(assertRuntimeDatabaseRole(runtime)).resolves.toBeUndefined();
+			}
+		},
+	);
 
 	it("deletes an owner with a bound thread and accounts for attempts without app.user_id", async () => {
 		const connection = await fixture.connect();

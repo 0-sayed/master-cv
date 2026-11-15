@@ -18,6 +18,7 @@ import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { normalizeNumericDigits } from "@reactive-resume/utils/string";
 import { useCareerCopy } from "../copy.generated";
 import { useSessionDraft } from "../hooks";
+import { LanguageField, ProficiencyField } from "./entry-fields";
 import { draftSchema, entryInputs, formatFactValue, initialDraft, mergeLatestDraft, sectionFields } from "./model";
 import { AuthErrorSummary } from "@/features/auth/components/auth-error-summary";
 import { client, orpc } from "@/libs/orpc/client";
@@ -290,30 +291,50 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 				) : (
 					<form onSubmit={review} className="grid gap-4">
 						<fieldset disabled={pending} className="grid gap-4">
-							{fields.map((field, index) => (
-								<label key={field} className="grid gap-2 font-medium">
-									{fieldLabel(field)}
-									{field === "description" ? (
-										<Textarea
-											name={field}
-											dir="auto"
-											rows={4}
-											value={values[field] ?? ""}
-											maxLength={10000}
-											onChange={(e) => change(field, e.target.value)}
-										/>
-									) : (
-										<Input
-											name={field}
-											dir="auto"
-											required={index === 0}
-											maxLength={500}
-											value={values[field] ?? ""}
-											onChange={(e) => change(field, e.target.value)}
-										/>
-									)}
-								</label>
-							))}
+							{fields.map((field, index) =>
+								field === "language" ? (
+									<LanguageField
+										key={field}
+										label={fieldLabel(field)}
+										name={field}
+										required
+										value={values[field] ?? ""}
+										onChange={(value) => change(field, value)}
+									/>
+								) : field === "fluency" || field === "proficiency" ? (
+									<ProficiencyField
+										key={field}
+										kind={field === "fluency" ? "language" : "skill"}
+										label={fieldLabel(field)}
+										name={field}
+										value={values[field] ?? ""}
+										onChange={(value) => change(field, value)}
+									/>
+								) : (
+									<label key={field} className="grid gap-2 font-medium">
+										{fieldLabel(field)}
+										{field === "description" ? (
+											<Textarea
+												name={field}
+												dir="auto"
+												rows={4}
+												value={values[field] ?? ""}
+												maxLength={10000}
+												onChange={(e) => change(field, e.target.value)}
+											/>
+										) : (
+											<Input
+												name={field}
+												dir="auto"
+												required={index === 0}
+												maxLength={500}
+												value={values[field] ?? ""}
+												onChange={(e) => change(field, e.target.value)}
+											/>
+										)}
+									</label>
+								),
+							)}
 							{hasDates && (
 								<>
 									<div className="grid grid-cols-2 gap-3">
@@ -369,9 +390,8 @@ export function CareerEntryDialog({ section, entityId, facts, profileRevision, o
 						</fieldset>
 					</form>
 				)}
-				<p className="hidden type-metadata text-ink-3 sm:block">{copy("review.fact.approvalHint")}</p>
 				<p role="status" className="type-metadata text-ink-3">
-					{pending ? copy("editor.save.status.saving") : copy("editor.career.ownershipHint")}
+					{pending && copy("editor.save.status.saving")}
 				</p>
 			</TaskOverlayContent>
 		</TaskOverlay>

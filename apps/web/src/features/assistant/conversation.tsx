@@ -418,7 +418,6 @@ export function Conversation(props: ConversationProps) {
 								{props.providerLabel} returned “
 								{getOrpcErrorMessage(error, {
 									fallback: t`an error`,
-									allowServerMessage: true,
 								})}
 								”. Your message is kept.
 							</Trans>

@@ -112,9 +112,12 @@
 				"ALLOW_PREVIEW_MIGRATIONS",
 				"NODE_ENV",
 				"NODE_OPTIONS",
-				"TEST_INFERENCE_ISOLATION"
+				"TEST_INFERENCE_ISOLATION",
+				"COVER_LETTER_TEST_DATABASE_URL",
+				"INTEGRATIONS_TEST_DATABASE_URL",
+				"OAUTH_TEST_DATABASE_URL"
 			],
-			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*"]
+			"inputs": ["$TURBO_DEFAULT$"]
 		},
 		"test:coverage": {
 			"dependsOn": ["transit"],
@@ -161,9 +164,12 @@
 				"ALLOW_PREVIEW_MIGRATIONS",
 				"NODE_ENV",
 				"NODE_OPTIONS",
-				"TEST_INFERENCE_ISOLATION"
+				"TEST_INFERENCE_ISOLATION",
+				"COVER_LETTER_TEST_DATABASE_URL",
+				"INTEGRATIONS_TEST_DATABASE_URL",
+				"OAUTH_TEST_DATABASE_URL"
 			],
-			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*"],
+			"inputs": ["$TURBO_DEFAULT$"],
 			"outputs": ["coverage/**"]
 		},
 		"test:ci": {
@@ -211,9 +217,12 @@
 				"ALLOW_PREVIEW_MIGRATIONS",
 				"NODE_ENV",
 				"NODE_OPTIONS",
-				"TEST_INFERENCE_ISOLATION"
+				"TEST_INFERENCE_ISOLATION",
+				"COVER_LETTER_TEST_DATABASE_URL",
+				"INTEGRATIONS_TEST_DATABASE_URL",
+				"OAUTH_TEST_DATABASE_URL"
 			],
-			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*"],
+			"inputs": ["$TURBO_DEFAULT$"],
 			"outputs": ["reports/**"]
 		},
 		"test:agent": {
@@ -261,9 +270,12 @@
 				"ALLOW_PREVIEW_MIGRATIONS",
 				"NODE_ENV",
 				"NODE_OPTIONS",
-				"TEST_INFERENCE_ISOLATION"
+				"TEST_INFERENCE_ISOLATION",
+				"COVER_LETTER_TEST_DATABASE_URL",
+				"INTEGRATIONS_TEST_DATABASE_URL",
+				"OAUTH_TEST_DATABASE_URL"
 			],
-			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*"],
+			"inputs": ["$TURBO_DEFAULT$"],
 			"outputs": ["reports/**"]
 		},
 		"dev": {
@@ -375,6 +387,9 @@
 		"DEPLOYMENT_NAMESPACE",
 		"ALLOW_PREVIEW_MIGRATIONS",
 		"NODE_ENV",
-		"EMAIL_PORT"
+		"EMAIL_PORT",
+		"COVER_LETTER_TEST_DATABASE_URL",
+		"INTEGRATIONS_TEST_DATABASE_URL",
+		"OAUTH_TEST_DATABASE_URL"
 	]
 }

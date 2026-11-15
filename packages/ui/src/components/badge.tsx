@@ -36,6 +36,26 @@ function CountBadge(props: React.ComponentProps<typeof Badge>) {
 	return <Badge variant="accent" {...props} className={cn("h-6 font-semibold tabular-nums", props.className)} />;
 }
 
+type SidebarCountBadgeProps = { count: number; current?: boolean; rail?: boolean };
+
+/** Sidebar totals share one compact size; the full count lives in the navigation link's name. */
+function SidebarCountBadge({ count, current = false, rail = false }: SidebarCountBadgeProps) {
+	if (count <= 0) return null;
+	return (
+		<span
+			data-slot="sidebar-count-badge"
+			aria-hidden="true"
+			className={cn(
+				"sidebar-count-badge",
+				current ? "bg-accent text-on-accent" : "bg-accent-soft text-accent-text",
+				rail && "sidebar-count-corner",
+			)}
+		>
+			<bdi dir="ltr">{count > 99 ? "99+" : String(count)}</bdi>
+		</span>
+	);
+}
+
 function Badge({
 	className,
 	variant = "neutral",
@@ -59,4 +79,4 @@ function Badge({
 	});
 }
 
-export { Badge, CountBadge, badgeVariants };
+export { Badge, CountBadge, SidebarCountBadge, badgeVariants };

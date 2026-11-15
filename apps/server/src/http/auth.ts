@@ -1,5 +1,6 @@
 import { isIP } from "node:net";
 import { APIError } from "better-auth/api";
+import { verifyEmailChange } from "@reactive-resume/auth/account-changes";
 import { auth } from "@reactive-resume/auth/config";
 import { env } from "@reactive-resume/env/server";
 import { TRUSTED_IP_HEADERS } from "@reactive-resume/utils/rate-limit";
@@ -137,6 +138,24 @@ async function validateDynamicClientRegistrationRequest(request: Request): Promi
 }
 
 export async function handleAuth(incomingRequest: Request, trustedClient = "unknown") {
+	const incomingUrl = new URL(incomingRequest.url);
+	if (incomingUrl.pathname === "/api/auth/confirm-email-change") {
+		if (incomingRequest.method !== "GET") return new Response(null, { status: 405 });
+		let status = "invalid";
+		try {
+			status = (await verifyEmailChange(incomingUrl.searchParams.get("token") ?? "")).status;
+		} catch (error) {
+			if (error instanceof Error && error.message === "EMAIL_CHANGE_DELIVERY_FAILED") status = "delivery_failed";
+			/* Expired, cancelled and invalid links share recovery. */
+		}
+		const target = new URL("/email-change", env.APP_URL);
+		target.searchParams.set("status", status);
+		return new Response(null, {
+			status: 303,
+			headers: { Location: target.toString(), "Cache-Control": "private, no-store", "Referrer-Policy": "no-referrer" },
+		});
+	}
+
 	// Only the server adapter may supply the client address. Never forward client-sent proxy headers to auth.
 	const headers = new Headers(incomingRequest.headers);
 	for (const name of TRUSTED_IP_HEADERS) headers.delete(name);

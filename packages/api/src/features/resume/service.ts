@@ -111,6 +111,11 @@ type ResumeUpdateInput = {
 };
 
 export async function updateResumeTx(tx: DbOrTx, input: ResumeUpdateInput) {
+	if (input.isPublic === true) {
+		await lockDocumentOwner(tx, input.userId);
+		if (!input.expectedUpdatedAt)
+			throw new ORPCError("CONFLICT", { message: "Review the current document before publishing." });
+	}
 	const [existing] = await tx
 		.select({
 			name: schema.resume.name,
@@ -532,6 +537,34 @@ async function updateResumePassword(input: { id: string; userId: string; passwor
 	});
 }
 
+export async function deleteResumeRows(
+	tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+	input: { id: string; userId: string },
+) {
+	await lockDocumentOwner(tx, input.userId);
+	const [resume] = await tx
+		.select({ isLocked: schema.resume.isLocked })
+		.from(schema.resume)
+		.where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)));
+
+	if (!resume) throw new ORPCError("NOT_FOUND");
+	if (resume.isLocked) throw new ORPCError("RESUME_LOCKED", { status: 403 });
+
+	// Copies keep their own content/history when their original base is purged.
+	await tx
+		.update(schema.resumeVariantSource)
+		.set({ sourceResumeId: null })
+		.where(
+			and(eq(schema.resumeVariantSource.userId, input.userId), eq(schema.resumeVariantSource.sourceResumeId, input.id)),
+		);
+	await tx
+		.update(schema.resume)
+		.set({ baseResumeId: null, variantKind: "base" })
+		.where(and(eq(schema.resume.userId, input.userId), eq(schema.resume.baseResumeId, input.id)));
+
+	await tx.delete(schema.resume).where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)));
+}
+
 export const resumeService = {
 	tags,
 	statistics,
@@ -859,7 +892,9 @@ export const resumeService = {
 		const [resume] = await db
 			.update(schema.resume)
 			.set({ isLocked: input.isLocked })
-			.where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)))
+			.where(
+				and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId), isNull(schema.resume.trashedAt)),
+			)
 			.returning({ id: schema.resume.id, updatedAt: schema.resume.updatedAt });
 
 		if (!resume) throw new ORPCError("NOT_FOUND");
@@ -908,31 +943,7 @@ export const resumeService = {
 
 	delete: async (input: { id: string; userId: string }) => {
 		await db.transaction(async (tx) => {
-			await lockDocumentOwner(tx, input.userId);
-			const [resume] = await tx
-				.select({ isLocked: schema.resume.isLocked })
-				.from(schema.resume)
-				.where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)));
-
-			if (!resume) throw new ORPCError("NOT_FOUND");
-			if (resume.isLocked) throw new ORPCError("RESUME_LOCKED", { status: 403 });
-
-			// Copies keep their own content/history when their original base is purged.
-			await tx
-				.update(schema.resumeVariantSource)
-				.set({ sourceResumeId: null })
-				.where(
-					and(
-						eq(schema.resumeVariantSource.userId, input.userId),
-						eq(schema.resumeVariantSource.sourceResumeId, input.id),
-					),
-				);
-			await tx
-				.update(schema.resume)
-				.set({ baseResumeId: null, variantKind: "base" })
-				.where(and(eq(schema.resume.userId, input.userId), eq(schema.resume.baseResumeId, input.id)));
-
-			await tx.delete(schema.resume).where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)));
+			await deleteResumeRows(tx, input);
 		});
 
 		// Clean up storage files after the DB transaction succeeds

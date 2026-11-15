@@ -4,6 +4,8 @@ import { cn } from "@reactive-resume/utils/style";
 type Props = React.ComponentProps<"img"> & {
 	variant?: "logo" | "icon";
 	approveOnMount?: boolean;
+	/** A single checkmark entrance; never replay it on hover or focus. */
+	animateOnce?: boolean;
 	/** Repeat the approval motion with a quiet interval while a screen is loading. */
 	loop?: boolean;
 	/** Landing story surfaces can change without changing the global theme. */
@@ -15,12 +17,14 @@ export function BrandIcon({
 	className,
 	alt,
 	approveOnMount = false,
+	animateOnce = false,
 	loop = false,
 	tone,
 	...props
 }: Props) {
 	const ref = useRef<HTMLSpanElement>(null);
 	const locked = useRef(false);
+	const entered = useRef(false);
 	const [playing, setPlaying] = useState(false);
 	const id = useId();
 	useEffect(() => {
@@ -30,7 +34,8 @@ export function BrandIcon({
 		const media = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)");
 		let repeat: ReturnType<typeof setTimeout> | undefined;
 		const play = () => {
-			if (locked.current || media?.matches) return;
+			if (locked.current || media?.matches || (animateOnce && entered.current)) return;
+			entered.current = true;
 			clearTimeout(repeat);
 			locked.current = true;
 			setPlaying(true);
@@ -40,7 +45,7 @@ export function BrandIcon({
 				clearTimeout(repeat);
 				locked.current = false;
 				setPlaying(false);
-			} else if (loop) {
+			} else if (loop && !animateOnce) {
 				play();
 			}
 		};
@@ -48,7 +53,7 @@ export function BrandIcon({
 			if (event.animationName !== "brand-approved") return;
 			locked.current = false;
 			setPlaying(false);
-			if (loop && !media?.matches) {
+			if (loop && !animateOnce && !media?.matches) {
 				const token = getComputedStyle(element).getPropertyValue("--motion-brand-rest").trim();
 				const rest = Number.parseFloat(token) * (token.endsWith("ms") ? 1 : 1000);
 				repeat = setTimeout(play, rest);
@@ -56,9 +61,11 @@ export function BrandIcon({
 		};
 		element.addEventListener("animationend", ended);
 		media?.addEventListener?.("change", stop);
-		target.addEventListener("pointerenter", play);
-		target.addEventListener("focus", play);
-		const frame = approveOnMount || loop ? requestAnimationFrame(play) : undefined;
+		if (!animateOnce) {
+			target.addEventListener("pointerenter", play);
+			target.addEventListener("focus", play);
+		}
+		const frame = animateOnce || approveOnMount || loop ? requestAnimationFrame(play) : undefined;
 		return () => {
 			clearTimeout(repeat);
 			if (frame !== undefined) cancelAnimationFrame(frame);
@@ -67,9 +74,17 @@ export function BrandIcon({
 			target.removeEventListener("focus", play);
 			media?.removeEventListener?.("change", stop);
 		};
-	}, [approveOnMount, loop]);
+	}, [animateOnce, approveOnMount, loop]);
 	const mark = (
-		<span ref={ref} dir="ltr" data-slot="brand-mark" data-playing={playing} data-tone={tone} className="brand-mark">
+		<span
+			ref={ref}
+			dir="ltr"
+			data-slot="brand-mark"
+			data-playing={playing}
+			data-once={animateOnce}
+			data-tone={tone}
+			className="brand-mark"
+		>
 			<img
 				src={"/master-cv/dark.svg"}
 				alt={alt ?? (variant === "icon" ? "Master CV" : "")}

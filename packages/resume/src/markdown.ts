@@ -1,4 +1,5 @@
 import type { CustomSection, CustomSectionType, ResumeData, SectionType } from "@reactive-resume/schema/resume/data";
+import { localizeResumeEntries } from "@reactive-resume/schema/resume/entry-options";
 import { isCoverLetterOnlyDocument } from "./export-sections";
 
 type Sections = ResumeData["sections"];
@@ -15,7 +16,12 @@ export type SectionTitleResolver = (sectionId: string) => string | undefined;
  * into AI agents. Scope the input first with `getResumeExportData(data, target)` to emit only
  * the resume or the cover letter.
  */
-export function buildMarkdown(data: ResumeData, resolveTitle?: SectionTitleResolver): string {
+export function buildMarkdown(
+	source: ResumeData,
+	resolveTitle?: SectionTitleResolver,
+	options: { localizeEntries?: boolean } = {},
+): string {
+	const data = options.localizeEntries === false ? source : localizeResumeEntries(source);
 	const blocks: string[] = isCoverLetterOnlyDocument(data) ? [] : [...renderHeader(data.basics)];
 
 	for (const page of data.metadata.layout.pages) {

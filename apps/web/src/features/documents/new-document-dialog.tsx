@@ -18,6 +18,7 @@ import { generateRandomName } from "@reactive-resume/utils/string";
 import { cn } from "@reactive-resume/utils/style";
 import { StartCvDialog } from "../resume/import/start";
 import { isBaseCvLimit } from "./creation-error";
+import { prepareFirstCvCelebration } from "./first-cv-celebration";
 import { useNewDocumentsStore } from "./new-documents";
 import { useDialogStore } from "@/dialogs/store";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
@@ -77,6 +78,7 @@ function useResumeImport(
 	const refreshDocuments = () => queryClient.invalidateQueries({ queryKey: orpc.documents.key() });
 
 	const importFile = async (file: File) => {
+		const celebrateCreated = prepareFirstCvCelebration(queryClient);
 		const attempt = ++run.current;
 		const current = () => run.current === attempt;
 		const advance = (stage: number, note: string) => {
@@ -126,6 +128,7 @@ function useResumeImport(
 
 			const resumeId = await client.resume.import({ data: resume });
 			if (!current()) return;
+			celebrateCreated();
 			if (applicationId) await client.documents.linkApplication({ type: "resume", id: resumeId, applicationId });
 			if (!current()) return;
 			markNew(resumeId);
@@ -424,14 +427,16 @@ function ImportStep({ step, creating, onCancel, onStartBlank, onChooseFile, onCl
 }
 
 /** Start blank, try a sample, or a new letter: each creates the document at once and opens it. */
-function useStartDocument(applicationId?: string) {
+export function useStartDocument(applicationId?: string) {
 	const [baseCvLimit, setBaseCvLimit] = useState(false);
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const closeDialog = useDialogStore((state) => state.closeDialog);
 	const markNew = useNewDocumentsStore((state) => state.markNew);
 	const { mutateAsync: createResume, isPending: creating } = useMutation(orpc.resume.create.mutationOptions());
-	const { mutateAsync: createLetter } = useMutation(orpc.coverLetters.create.mutationOptions());
+	const { mutateAsync: createLetter, isPending: creatingLetter } = useMutation(
+		orpc.coverLetters.create.mutationOptions(),
+	);
 
 	const created = async (id: string, type: "resume" | "letter") => {
 		if (applicationId) await client.documents.linkApplication({ type, id, applicationId });
@@ -457,8 +462,9 @@ function useStartDocument(applicationId?: string) {
 
 	return {
 		baseCvLimit,
-		creating,
+		creating: creating || creatingLetter,
 		startBlank: async () => {
+			const celebrateCreated = prepareFirstCvCelebration(queryClient);
 			try {
 				const resumeId = await createResume({
 					name: t`Untitled resume`,
@@ -466,6 +472,7 @@ function useStartDocument(applicationId?: string) {
 					autoName: true,
 					withSampleData: false,
 				});
+				celebrateCreated();
 				await created(resumeId, "resume");
 				void navigate({ to: "/builder/$resumeId", params: { resumeId } });
 			} catch (error) {
@@ -473,10 +480,12 @@ function useStartDocument(applicationId?: string) {
 			}
 		},
 		trySample: async () => {
+			const celebrateCreated = prepareFirstCvCelebration(queryClient);
 			try {
 				const resumeId = await createResume({ name: generateRandomName(), tags: [], withSampleData: true });
 				await created(resumeId, "resume");
-				toast.add({ description: t`Sample resume added. Delete it anytime.` });
+				const description = t`Sample resume added. Delete it anytime.`;
+				if (!celebrateCreated(description)) toast.add({ description });
 				void navigate({ to: "/builder/$resumeId", params: { resumeId } });
 			} catch (error) {
 				failed(error);

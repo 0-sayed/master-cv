@@ -22,7 +22,6 @@ function compiledTranslation(catalog: Awaited<ReturnType<typeof loadCatalog>>[1]
 // Regressions from the contextual audit: these are the rendered meanings, not just valid PO/ICU syntax.
 it.each([
 	["Left", "يسار"],
-	["Check your email", "تحقّق من بريدك الإلكتروني"],
 	["Saving...", "جارٍ الحفظ…"],
 	["Fieldnote · Remote, EU", "Fieldnote · عمل عن بُعد، الاتحاد الأوروبي"],
 	["heard back", "تلقّت ردًا"],
@@ -47,6 +46,13 @@ it.each([
 	expect(entry?.translation, message).toBeTruthy();
 	const i18n = setupI18n({ locale, messages: { [locale]: { [id]: compiledTranslation(catalog, id) } } });
 	expect(i18n._(id)).toBe(expected);
+});
+
+it("renders the current contextual password-reset email heading", async () => {
+	const [locale, catalog] = (await catalogs)[0];
+	const id = generateMessageId("Check your email", "auth.reset.sentTitle");
+	const i18n = setupI18n({ locale, messages: { [locale]: { [id]: compiledTranslation(catalog, id) } } });
+	expect(i18n._(id)).toBe("تحقق من بريدك");
 });
 
 it("preserves the minimum value in advice about overlapping lines", async () => {

@@ -351,6 +351,9 @@ importers:
       '@reactive-resume/config':
         specifier: workspace:*
         version: link:packages/config
+      '@reactive-resume/schema':
+        specifier: workspace:*
+        version: link:packages/schema
       '@shadcn/lint':
         specifier: ^0.2.3
         version: 0.2.3
@@ -2033,6 +2036,9 @@ importers:
       '@reactive-resume/config':
         specifier: workspace:*
         version: link:../packages/config
+      '@reactive-resume/db':
+        specifier: workspace:*
+        version: link:../packages/db
       '@reactive-resume/env':
         specifier: workspace:*
         version: link:../packages/env

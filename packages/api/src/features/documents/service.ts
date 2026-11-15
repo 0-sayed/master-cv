@@ -1,6 +1,6 @@
 import type { DocumentSummary } from "../../dto/documents";
 import { ORPCError } from "@orpc/client";
-import { and, count, eq, isNotNull, isNull, lt, sql } from "drizzle-orm";
+import { and, count, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
 import { applicationService } from "../applications/service";
@@ -10,9 +10,6 @@ import { lockDocumentOwner } from "./ownership";
 
 type DocumentType = DocumentSummary["type"];
 type DocumentRef = { userId: string; type: DocumentType; id: string };
-
-// Trash keeps documents this long before deleting them for good.
-const TRASH_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 // Resumes keep their existing error code, which API and MCP clients already handle.
 const locked = (type: DocumentType) =>
@@ -52,17 +49,26 @@ type ResumeChanges = Partial<typeof schema.resume.$inferInsert>;
 type LetterChanges = Partial<typeof schema.coverLetter.$inferInsert>;
 
 /** The same change to either table; `letter` differs only where the columns do (the linked application). */
-async function update(ref: DocumentRef, resume: ResumeChanges, letter: LetterChanges = resume as LetterChanges) {
+async function update(
+	ref: DocumentRef,
+	resume: ResumeChanges,
+	letter: LetterChanges = resume as LetterChanges,
+	trashedOnly = false,
+) {
 	await db.transaction(async (tx) => {
 		await lockDocumentOwner(tx, ref.userId);
 		const rows =
 			ref.type === "resume"
-				? await tx.update(schema.resume).set(resume).where(owned(ref)).returning({ id: schema.resume.id })
+				? await tx
+						.update(schema.resume)
+						.set(resume)
+						.where(and(owned(ref), trashedOnly ? isNotNull(schema.resume.trashedAt) : undefined))
+						.returning({ id: schema.resume.id })
 				: await tx
 						.update(schema.coverLetter)
 						// Letters carry a revision for their editor's optimistic saves; any change moves it on.
 						.set({ ...letter, revision: sql`${schema.coverLetter.revision} + 1` })
-						.where(owned(ref))
+						.where(and(owned(ref), trashedOnly ? isNotNull(schema.coverLetter.trashedAt) : undefined))
 						.returning({ id: schema.coverLetter.id });
 
 		if (rows.length === 0) throw new ORPCError("NOT_FOUND");
@@ -91,33 +97,11 @@ async function assertUnlocked(ref: DocumentRef) {
 	return state;
 }
 
-/** Deletes for good: resumes through their own path (storage too), letters directly. */
-async function deleteForGood(ref: DocumentRef) {
-	if (ref.type === "resume") return resumeService.delete({ id: ref.id, userId: ref.userId });
-	await db.transaction(async (tx) => {
-		await lockDocumentOwner(tx, ref.userId);
-		await tx.delete(schema.coverLetter).where(owned(ref));
-	});
-}
-
-/** Documents trashed more than 30 days ago go for good. Runs only through the explicit authenticated cleanup operation. */
-async function purgeExpired(userId: string) {
-	const cutoff = new Date(Date.now() - TRASH_RETENTION_MS);
-	const [resumes, letters] = await Promise.all([
-		db
-			.select({ id: schema.resume.id })
-			.from(schema.resume)
-			.where(and(eq(schema.resume.userId, userId), lt(schema.resume.trashedAt, cutoff))),
-		db
-			.select({ id: schema.coverLetter.id })
-			.from(schema.coverLetter)
-			.where(and(eq(schema.coverLetter.userId, userId), lt(schema.coverLetter.trashedAt, cutoff))),
-	]);
-
-	await Promise.allSettled([
-		...resumes.map(({ id }) => deleteForGood({ userId, type: "resume", id })),
-		...letters.map(({ id }) => deleteForGood({ userId, type: "letter", id })),
-	]);
+/** Automatic retention is policy gated and runs through the recorded worker, never a customer maintenance call. */
+function purgeExpired(_userId: string): Promise<void> {
+	return Promise.reject(
+		new ORPCError("FORBIDDEN", { message: "Automatic purge requires an approved retention policy." }),
+	);
 }
 
 export const documentsService = {
@@ -252,16 +236,21 @@ export const documentsService = {
 	/** Undoable: Trash hides the document and stops its public link; Restore brings it back intact. */
 	trash: async (input: DocumentRef) => {
 		await assertUnlocked(input);
-		await update(input, { trashedAt: new Date() });
+		const trashedAt = new Date();
+		await update(input, { trashedAt, isPublic: false }, { trashedAt });
 	},
 
-	restore: (input: DocumentRef) => update(input, { trashedAt: null }),
+	restore: async (input: DocumentRef) => {
+		const state = await readState(input);
+		if (!state.trashedAt) throw new ORPCError("BAD_REQUEST", { message: "Document is not in Trash." });
+		return update(input, { trashedAt: null, isPublic: false, showDownloadButtons: false }, { trashedAt: null }, true);
+	},
 
 	/** "Delete now…": only for documents already in Trash. */
 	purge: async (input: DocumentRef) => {
 		const state = await readState(input);
 		if (!state.trashedAt) throw new ORPCError("BAD_REQUEST", { message: "Move the document to Trash first." });
-		await deleteForGood(input);
+		await (await import("./purge")).requestDocumentPurge(input);
 	},
 
 	/** Duplicates a resume for a job, selecting the working copy while preserving submitted versions. */

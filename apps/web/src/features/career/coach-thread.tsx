@@ -469,9 +469,7 @@ function ChatView(props: ChatViewProps) {
 							<span className="flex gap-2">
 								<Icon name="warning-circle" size={18} className="shrink-0" />
 								{/* Say why when the server knows (a switched-off connection, a limit); otherwise that it didn't answer. */}
-								<span>
-									{getOrpcErrorMessage(error, { fallback: t`${connection} didn't respond.`, allowServerMessage: true })}
-								</span>
+								<span>{getOrpcErrorMessage(error, { fallback: t`${connection} didn't respond.` })}</span>
 							</span>
 							<span className="flex flex-wrap gap-1.5">
 								<Button size="sm" variant="secondary" onClick={retry}>

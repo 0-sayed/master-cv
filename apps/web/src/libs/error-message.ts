@@ -1,5 +1,6 @@
 import { plural, t } from "@lingui/core/macro";
 import { ORPCError } from "@orpc/client";
+import { authErrorMessage } from "@/features/auth/errors";
 import { getCreationLimit } from "@/features/documents/creation-error";
 
 export function getReadableErrorMessage(error: unknown, fallback: string): string {
@@ -8,24 +9,17 @@ export function getReadableErrorMessage(error: unknown, fallback: string): strin
 	if (error instanceof ORPCError && error.code === "BAD_REQUEST") {
 		const data: unknown = error.data;
 		if (typeof data === "object" && data !== null && "issues" in data && Array.isArray(data.issues)) {
-			const messages = new Set<string>();
 			for (const issue of data.issues) {
-				if (typeof issue !== "object" || issue === null || typeof issue.message !== "string") continue;
-				const message = issue.message.trim();
-				if (message) messages.add(message);
-				if (messages.size === 3) break;
+				if (typeof issue !== "object" || issue === null) continue;
+				if (issue.code === "too_big" && issue.origin === "file" && issue.maximum === 10 * 1024 * 1024)
+					return t`File size must be less than 10MB`;
 			}
-			if (messages.size > 0) return [...messages].join(" ");
 		}
 	}
 
-	if (typeof error === "string" && error) return error;
-	if (error instanceof Error && error.message) return error.message;
-	// Better Auth client errors are plain objects ({ code, message, status }), not Error instances.
-	if (typeof error === "object" && error !== null && "message" in error) {
-		const { message } = error as { message?: unknown };
-		if (typeof message === "string" && message) return message;
-	}
+	// Server prose is not product copy. Only stable codes select localized messages.
+	if (typeof error === "object" && error !== null && "code" in error && typeof error.code === "string")
+		return authErrorMessage(error.code, fallback);
 	return fallback;
 }
 
@@ -36,7 +30,6 @@ export function getOrpcErrorMessage(
 	options: {
 		fallback: string;
 		byCode?: ErrorMessageByCode;
-		allowServerMessage?: boolean;
 	},
 ): string {
 	if (!(error instanceof ORPCError)) return getReadableErrorMessage(error, options.fallback);
@@ -46,8 +39,7 @@ export function getOrpcErrorMessage(
 	const mappedMessage = options.byCode?.[error.code];
 	if (mappedMessage) return mappedMessage;
 
-	if (options.allowServerMessage && error.message) return error.message;
-	return options.fallback;
+	return getReadableErrorMessage(error, options.fallback);
 }
 
 export function getResumeErrorMessage(error: unknown): string {
@@ -59,10 +51,10 @@ export function getResumeErrorMessage(error: unknown): string {
 		return t`You already have a language copy for this base CV. Your selections are kept.`;
 	return getOrpcErrorMessage(error, {
 		byCode: {
-			RESUME_SLUG_ALREADY_EXISTS: "A resume with this slug already exists.",
-			RESUME_LOCKED: "This resume is locked. Unlock it first to make changes.",
+			RESUME_SLUG_ALREADY_EXISTS: t`A resume with this slug already exists.`,
+			RESUME_LOCKED: t`This resume is locked. Unlock it first to make changes.`,
 		},
-		fallback: "Something went wrong. Please try again.",
+		fallback: t`Something went wrong. Please try again.`,
 	});
 }
 

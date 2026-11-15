@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vite-plus/test";
+import { beforeAll, describe, expect, it, vi } from "vite-plus/test";
 import { processingConsentService } from "./consent";
 import { runAiOperations } from "./operation-worker";
 import { claimNextOperation, heartbeatOperation, operationService } from "./operations";
@@ -48,10 +48,14 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("review worker life
 		const entered = Promise.withResolvers<void>();
 		const input = Promise.withResolvers<Awaited<ReturnType<typeof review.buildInput>>>();
 		const controller = new AbortController();
+		const deadline = new AbortController();
+		const timeout =
+			cause === "deadline" ? vi.spyOn(AbortSignal, "timeout").mockReturnValue(deadline.signal) : undefined;
+		let clock: { mockRestore(): void } | undefined;
 		let calls = 0;
 		const runtime = {
 			...syntheticRuntime,
-			routes: [{ ...syntheticRoute, deadlineMs: cause === "deadline" ? 30 : 120000 }],
+			routes: [{ ...syntheticRoute, deadlineMs: cause === "deadline" ? 5000 : 120000 }],
 			handlers: {
 				review: {
 					...review,
@@ -68,9 +72,22 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("review worker life
 		};
 		const operation = await database.run(() => withAiRuntime(runtime, () => operationService.start(owner, request)));
 		const pending = database.run(() => withAiRuntime(runtime, () => runAiOperations(controller.signal)));
-		await entered.promise;
-		if (cause === "shutdown") controller.abort();
 		try {
+			await Promise.race([
+				entered.promise,
+				pending.then(() => {
+					throw new Error("Worker exited before input preparation");
+				}),
+			]);
+			if (cause === "shutdown") controller.abort();
+			else {
+				expect(timeout).toHaveBeenCalledExactlyOnceWith(expect.any(Number));
+				const remaining = timeout?.mock.calls[0]?.[0];
+				expect(remaining).toBeGreaterThan(0);
+				expect(remaining).toBeLessThanOrEqual(5000);
+				clock = vi.spyOn(Date, "now").mockReturnValue(Date.now() + 5001);
+				deadline.abort(new DOMException("Synthetic deadline elapsed", "TimeoutError"));
+			}
 			const finished = await Promise.race([
 				pending.then(() => true),
 				new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 250)),
@@ -84,6 +101,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("review worker life
 					: { state: "running", failureCode: null },
 			);
 		} finally {
+			clock?.mockRestore();
+			timeout?.mockRestore();
 			input.resolve(await review.buildInput(owner, request));
 			await pending;
 			await run(() => operationService.cancel(owner, operation.id));
