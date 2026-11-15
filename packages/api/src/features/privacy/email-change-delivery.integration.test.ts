@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { createHash } from "node:crypto";
 import { once } from "node:events";
 import { mkdtemp, readdir, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -86,12 +87,16 @@ it("captures both steps, rolls back a failed send, and keeps duplicate approvals
 	expect(first?.recipient).toBe("alice@example.test");
 	if (!first) throw new Error("Old-address email missing");
 	const token = tokenOf(first.raw);
-	await writeFile(join(directory, "transport-state"), "offline");
+	const transportState = join(
+		directory,
+		`transport-state-${createHash("sha256").update("new-owner@example.test").digest("hex")}`,
+	);
+	await writeFile(transportState, "offline");
 	await expect(database.run(() => verifyEmailChange(token))).rejects.toThrow("EMAIL_CHANGE_DELIVERY_FAILED");
 	expect(await database.run(() => client.security())).toMatchObject({
 		pendingEmail: { stage: "confirm_old", confirmationAddress: "alice@example.test" },
 	});
-	await writeFile(join(directory, "transport-state"), "online");
+	await writeFile(transportState, "online");
 	expect(
 		await Promise.all([database.run(() => verifyEmailChange(token)), database.run(() => verifyEmailChange(token))]),
 	).toEqual([{ status: "verification_sent" }, { status: "verification_sent" }]);
