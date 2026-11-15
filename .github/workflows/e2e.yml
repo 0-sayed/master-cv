@@ -13,8 +13,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   APP_URL: http://localhost:3000
   PORT: "3000"
-  DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
-  DATABASE_MIGRATION_URL: postgresql://postgres:postgres@localhost:5432/postgres
+  DATABASE_URL: postgresql://postgres:postgres@localhost:55432/postgres
+  DATABASE_MIGRATION_URL: postgresql://postgres:postgres@localhost:55432/postgres
   FLAG_DISABLE_SIGNUPS: "false"
   FLAG_DISABLE_EMAIL_AUTH: "false"
   FLAG_ENABLE_GUEST_LOGIN: "false"
@@ -25,9 +25,9 @@ env:
   FLAG_ALLOW_UNSAFE_AI_BASE_URL: "true"
   # Real-database unit suites. The cover-letter suite works in its own schema; the OAuth flow suite writes
   # signing keys under its own secret, so it gets a database the e2e server never reads.
-  COVER_LETTER_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
-  INTEGRATIONS_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
-  OAUTH_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/oauth_test
+  COVER_LETTER_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:55432/postgres
+  INTEGRATIONS_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:55432/postgres
+  OAUTH_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:55432/oauth_test
 
 concurrency:
   group: application-${{ github.event.pull_request.number || github.ref }}
@@ -59,7 +59,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
-          - 5432:5432
+          - 55432:5432
         options: >-
           --health-cmd "pg_isready -U postgres -d postgres"
           --health-interval 10s
@@ -163,7 +163,7 @@ jobs:
       # thread pools oversubscribe the runner at once.
       - name: Run Unit Tests
         if: matrix.part == 'unit'
-        run: pnpm exec turbo run test:ci --concurrency=1
+        run: pnpm test:ci
 
       - name: Build
         if: matrix.part == 'browser'

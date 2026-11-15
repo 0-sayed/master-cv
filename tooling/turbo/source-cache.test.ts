@@ -146,3 +146,41 @@ it.each(["test:coverage", "test:ci", "test:agent"])("restores %s reports from ca
 	expect(run()).toContain("cache hit");
 	expect(await readFile(path, "utf8")).toBe("complete");
 });
+
+const databaseSelectors = [
+	"COVER_LETTER_TEST_DATABASE_URL",
+	"INTEGRATIONS_TEST_DATABASE_URL",
+	"OAUTH_TEST_DATABASE_URL",
+];
+it.each(databaseSelectors)("hashes absent versus present test selector %s", (selector) => {
+	const absent = dryRun({ [selector]: undefined });
+	const present = dryRun({ [selector]: "postgresql://synthetic.invalid/test" });
+	for (const task of tasks.filter((task) => task.startsWith("test"))) {
+		expect(present.get(`app#${task}`)?.hash).not.toBe(absent.get(`app#${task}`)?.hash);
+	}
+});
+it("propagates all three database selectors to an actual strict-mode child", async () => {
+	const path = join(directory, "packages", "app", "package.json");
+	const original = await readFile(path, "utf8");
+	const pkg = JSON.parse(original);
+	pkg.scripts.test = `node -e 'for(const key of ${JSON.stringify(databaseSelectors)}){if(!process.env[key])process.exit(1)}'`;
+	try {
+		await writeFile(path, JSON.stringify(pkg));
+		const output = execFileSync(
+			process.execPath,
+			[turbo, "run", "test", "--filter=app", "--force", "--env-mode=strict"],
+			{
+				cwd: directory,
+				encoding: "utf8",
+				env: {
+					...process.env,
+					...Object.fromEntries(databaseSelectors.map((key) => [key, "postgresql://synthetic.invalid/test"])),
+					TURBO_TELEMETRY_DISABLED: "1",
+				},
+			},
+		);
+		expect(output).toContain("successful");
+	} finally {
+		await writeFile(path, original);
+	}
+});
