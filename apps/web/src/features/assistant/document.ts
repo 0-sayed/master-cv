@@ -107,6 +107,7 @@ export function useLetterAssistantDocument(): AssistantDocument | null {
 				const content = proposals.reduce((value, proposal) => applyTo(value, proposal) ?? value, before);
 				edit({ content });
 				toast.add({
+					type: "celebration",
 					description: proposals.length === 1 ? t`Edit applied` : t`${proposals.length} edits applied`,
 					actionProps: { children: t`Undo`, onClick: () => edit({ content: before }) },
 				});

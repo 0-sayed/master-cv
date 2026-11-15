@@ -30,10 +30,15 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 						const markBox = await mark.boundingBox();
 						const navBox = await nav.boundingBox();
 						if (!markBox || !navBox) throw new Error("Missing shell brand or navigation icon");
-						if (locale === "ar-SA" && width === 1440 && !collapsed) {
-							const lockup = await mark.locator("..").boundingBox();
-							if (!lockup) throw new Error("Missing brand lockup");
-							expect.soft(Math.abs(lockup.x + lockup.width - navBox.x - navBox.width)).toBeLessThanOrEqual(0.5);
+						if (width === 1440 && !collapsed) {
+							const row = await sidebar.locator(".shell-brand-row").boundingBox();
+							const toggle = await sidebar.locator('[data-slot="sidebar-toggle"]').boundingBox();
+							if (!row || !toggle) throw new Error("Missing sidebar brand row or panel toggle");
+							expect.soft(markBox.x).toBeGreaterThanOrEqual(row.x);
+							expect.soft(markBox.x + markBox.width).toBeLessThanOrEqual(row.x + row.width);
+							expect
+								.soft(locale === "ar-SA" ? toggle.x + toggle.width <= markBox.x : markBox.x + markBox.width <= toggle.x)
+								.toBe(true);
 						} else {
 							expect
 								.soft(Math.abs(markBox.x + markBox.width / 2 - navBox.x - navBox.width / 2))
@@ -74,8 +79,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					if (!bounds) throw new Error("Missing public/auth control");
 					expect(Math.abs(box.y + box.height / 2 - bounds.y - bounds.height / 2)).toBeLessThanOrEqual(0.5);
 				}
+				await expect(mark).toHaveAttribute("data-once", String(path === "/auth/login"));
+				await expect(mark).toHaveAttribute("data-playing", "false");
 				await mark.hover();
-				await expect(mark).toHaveAttribute("data-playing", "true");
+				await expect(mark).toHaveAttribute("data-playing", path === "/auth/login" ? "false" : "true");
 				expect(await mark.boundingBox()).toEqual(box);
 				await expect(mark).toHaveAttribute("data-playing", "false");
 				expect(await mark.boundingBox()).toEqual(box);

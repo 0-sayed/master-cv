@@ -57,6 +57,9 @@ export function SettingsRoot() {
 				<Link to="/dashboard/settings/account" className={rowClass}>
 					<Row icon="user-circle" label={<Trans context="account.settings.accountTab">Account</Trans>} />
 				</Link>
+				<Link to="/dashboard/settings/privacy" className={rowClass}>
+					<Row icon="shield-check" label={<Trans context="privacy.navigation.data">Privacy &amp; data</Trans>} />
+				</Link>
 				<Link to="/dashboard/settings/preferences" className={rowClass}>
 					<Row
 						icon="sliders-horizontal"

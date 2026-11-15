@@ -8,6 +8,7 @@ import { useState } from "react";
 import * as z from "zod";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
+import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
@@ -168,16 +169,15 @@ export function StoriesPage({ storyId, edit }: StoriesPageProps) {
 					</Swap>
 				</div>
 			) : (
-				<div className="grid justify-items-center gap-2 rounded-xl border border-dashed border-line-2 p-7 text-center">
-					<h2 className="font-display text-[22px] leading-7 font-medium">
-						<Trans>No stories yet</Trans>
-					</h2>
-					<p className="max-w-[300px] text-sm text-ink-2">
+				<EmptyState
+					icon="book-open"
+					title={<Trans>No stories yet</Trans>}
+					description={
 						<Trans>
 							Write one about something you did, in five parts. Leave a part blank until you can support it.
 						</Trans>
-					</p>
-				</div>
+					}
+				/>
 			)}
 		</div>
 	);

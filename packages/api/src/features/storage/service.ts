@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import { dirname, extname, join } from "node:path";
 import {
@@ -74,12 +74,6 @@ function buildFileKey(userId: string, contentType: string): string {
 	return `uploads/${userId}/pictures/${randomUUID()}.${extension}`;
 }
 
-function buildPublicUrl(path: string): string {
-	const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-	const apiPath = normalizedPath.startsWith("/api/") ? normalizedPath : `/api${normalizedPath}`;
-	return new URL(apiPath, env.APP_URL).toString();
-}
-
 export function inferContentType(filename: string): string {
 	const extension = extname(filename).toLowerCase();
 	return CONTENT_TYPE_MAP[extension] ?? DEFAULT_CONTENT_TYPE;
@@ -115,7 +109,7 @@ export async function processImageForUpload(file: File): Promise<ProcessedImage>
 	};
 }
 
-class LocalStorageService implements StorageService {
+export class LocalStorageService implements StorageService {
 	private rootDirectory: string;
 
 	constructor() {
@@ -126,9 +120,11 @@ class LocalStorageService implements StorageService {
 		const fullPath = this.resolvePath(prefix);
 
 		try {
-			const files = await fs.readdir(fullPath, { recursive: true });
-
-			return files.map((file) => join(prefix, file));
+			const files = await fs.readdir(fullPath, { recursive: true, withFileTypes: true });
+			return files
+				.filter((file) => file.isFile())
+				.map((file) => join(prefix, file.parentPath.slice(fullPath.length), file.name))
+				.sort();
 		} catch (error: unknown) {
 			// If directory doesn't exist, return empty array
 			if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
@@ -140,16 +136,13 @@ class LocalStorageService implements StorageService {
 	}
 
 	async write({ key, data, private: isPrivate }: StorageWriteInput): Promise<void> {
-		if (isPrivate && !/^uploads\/[A-Za-z0-9_-]+\/agent\/[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+$/.test(key)) {
-			throw new Error(
-				"Private local writes must use the assistant attachment namespace, which public upload routes never serve.",
-			);
-		}
+		if (isPrivate && !/^uploads\/[A-Za-z0-9_-]+\/.+/.test(key))
+			throw new Error("Private writes require an owner namespace");
 
 		const fullPath = this.resolvePath(key);
 
-		await fs.mkdir(dirname(fullPath), { recursive: true });
-		await fs.writeFile(fullPath, data, isPrivate ? { mode: 0o600 } : undefined);
+		await fs.mkdir(dirname(fullPath), { recursive: true, mode: 0o700 });
+		await fs.writeFile(fullPath, data, { mode: 0o600 });
 	}
 
 	async read(key: string): Promise<StorageReadResult | null> {
@@ -187,9 +180,9 @@ class LocalStorageService implements StorageService {
 			}
 			await fs.unlink(fullPath);
 			return true;
-		} catch {
-			// Path does not exist
-			return false;
+		} catch (error) {
+			if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") return false;
+			throw error;
 		}
 	}
 
@@ -214,18 +207,22 @@ class LocalStorageService implements StorageService {
 	}
 
 	private resolvePath(key: string): string {
-		const normalizedKey = key.replace(/^\/*/, "");
-		const segments = normalizedKey
-			.split(/[/\\]+/)
-			.filter((segment) => segment.length > 0 && segment !== "." && segment !== "..");
-
+		if (
+			key.startsWith("/") ||
+			key.includes("\\") ||
+			key
+				.split("/")
+				.some((part, index, parts) => part === "." || part === ".." || (part === "" && index !== parts.length - 1))
+		)
+			throw new Error("Invalid storage key");
+		const segments = key.split("/").filter(Boolean);
 		if (segments.length === 0) throw new Error("Invalid storage key");
 
 		return join(this.rootDirectory, ...segments);
 	}
 }
 
-class S3StorageService implements StorageService {
+export class S3StorageService implements StorageService {
 	private readonly bucket: string;
 	private readonly client: S3Client;
 
@@ -247,10 +244,22 @@ class S3StorageService implements StorageService {
 	}
 
 	async list(prefix: string): Promise<string[]> {
-		const command = new ListObjectsV2Command({ Bucket: this.bucket, Prefix: prefix });
-		const response = await this.client.send(command);
-		if (!response.Contents) return [];
-		return response.Contents.map((object) => object.Key ?? "");
+		const keys: string[] = [];
+		let cursor: string | undefined;
+		do {
+			const response = await this.client.send(
+				new ListObjectsV2Command({
+					Bucket: this.bucket,
+					Prefix: prefix,
+					...(cursor ? { ContinuationToken: cursor } : {}),
+				}),
+			);
+			keys.push(...(response.Contents ?? []).flatMap((object) => (object.Key ? [object.Key] : [])));
+			if (response.IsTruncated && (!response.NextContinuationToken || response.NextContinuationToken === cursor))
+				throw new Error("Incomplete storage listing");
+			cursor = response.IsTruncated ? response.NextContinuationToken : undefined;
+		} while (cursor);
+		return keys;
 	}
 
 	async write({ key, data, contentType }: StorageWriteInput): Promise<void> {
@@ -270,7 +279,7 @@ class S3StorageService implements StorageService {
 		try {
 			const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
 			const response = await this.client.send(command);
-			if (!response.Body) return null;
+			if (!response.Body) throw new Error("STORAGE_BODY_UNAVAILABLE");
 
 			const arrayBuffer = await response.Body.transformToByteArray();
 
@@ -281,23 +290,30 @@ class S3StorageService implements StorageService {
 				...(response.ETag !== undefined ? { etag: response.ETag } : {}),
 				...(response.LastModified !== undefined ? { lastModified: response.LastModified } : {}),
 			};
-		} catch {
-			return null;
+		} catch (error) {
+			if (
+				error &&
+				typeof error === "object" &&
+				"name" in error &&
+				["NoSuchKey", "NotFound"].includes(String(error.name))
+			)
+				return null;
+			throw error;
 		}
 	}
 
 	async delete(keyOrPrefix: string): Promise<boolean> {
-		// Use list to find all matching keys (handles both single file and folder/prefix)
-		const keys = await this.list(keyOrPrefix);
-
-		if (keys.length === 0) return false;
-
-		// Delete all matching keys using Promise.allSettled
-		const deleteCommands = keys.map((k) => new DeleteObjectCommand({ Bucket: this.bucket, Key: k }));
-		const results = await Promise.allSettled(deleteCommands.map((c) => this.client.send(c)));
-
-		// Return true if at least one deletion succeeded
-		return results.some((r) => r.status === "fulfilled");
+		const prefix = keyOrPrefix.endsWith("/") ? keyOrPrefix : `${keyOrPrefix}/`;
+		const keys = (await this.list(keyOrPrefix)).filter((key) => key === keyOrPrefix || key.startsWith(prefix));
+		for (let offset = 0; offset < keys.length; offset += 16) {
+			const results = await Promise.allSettled(
+				keys
+					.slice(offset, offset + 16)
+					.map((Key) => this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key }))),
+			);
+			if (results.some((result) => result.status === "rejected")) throw new Error("Storage deletion incomplete");
+		}
+		return keys.length > 0;
 	}
 
 	async healthcheck(): Promise<StorageHealthResult> {
@@ -355,6 +371,22 @@ interface UploadFileResult {
 
 export async function uploadFile(input: UploadFileInput): Promise<UploadFileResult> {
 	const key = buildFileKey(input.userId, input.contentType);
-	await getStorageService().write({ key, data: input.data, contentType: input.contentType });
-	return { key, url: buildPublicUrl(key) };
+	const storage = getStorageService();
+	const { beginOwnedFileWrite, settleOwnedFileWrite, registerOwnedFile } = await import("./ownership");
+	await beginOwnedFileWrite(input.userId, key);
+	try {
+		await storage.write({ key, data: input.data, contentType: input.contentType, private: true });
+		const registered = await registerOwnedFile({
+			...input,
+			key,
+			purpose: "picture",
+			size: input.data.byteLength,
+			digest: createHash("sha256").update(input.data).digest("hex"),
+		});
+		await settleOwnedFileWrite(input.userId, key, true);
+		return { key, url: registered.url };
+	} catch (error) {
+		await settleOwnedFileWrite(input.userId, key, false);
+		throw error;
+	}
 }

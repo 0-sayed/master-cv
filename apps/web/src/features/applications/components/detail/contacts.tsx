@@ -4,6 +4,7 @@ import { Trans } from "@lingui/react/macro";
 import { useId, useState } from "react";
 import { contactSchema } from "@reactive-resume/schema/applications/data";
 import { Button } from "@reactive-resume/ui/components/button";
+import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@reactive-resume/ui/components/popover";
@@ -65,9 +66,7 @@ function ContactList({ contacts, disabled, onChange }: ContactsProps) {
 	return (
 		<div className="grid gap-2">
 			{contacts.length === 0 && !adding && (
-				<p className="text-sm text-ink-3">
-					<Trans>No contacts yet.</Trans>
-				</p>
+				<EmptyState density="compact" icon="user-circle" title={<Trans>No contacts yet.</Trans>} />
 			)}
 			{contacts.map((contact, index) => (
 				<div key={`${contact.name}-${index}`} className="flex items-start gap-2.5 text-sm">

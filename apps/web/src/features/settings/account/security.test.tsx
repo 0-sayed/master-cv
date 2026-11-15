@@ -3,36 +3,71 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SecuritySection } from "./security";
 
-vi.mock("./auth-hooks", () => ({
-	useAuthAccounts: () => ({
-		hasAccount: () => true,
-		getAccountByProviderId: () => ({ updatedAt: "2026-10-31T22:30:00Z" }),
-	}),
-	useEnabledProviders: () => ({ enabledProviders: {} }),
-	useAuthProviderActions: () => ({ link: vi.fn(), unlink: vi.fn() }),
-	getProviderName: (value: string) => value,
+const state = vi.hoisted(() => ({ value: { status: "loading" } as unknown, passkeysError: false }));
+vi.mock("./auth-hooks", () => ({ useAccountSecurity: () => state.value }));
+vi.mock("./sessions", () => ({ SessionsSection: () => null }));
+vi.mock("@/dialogs/store", () => ({ useDialogStore: () => vi.fn() }));
+vi.mock("@/hooks/use-confirm", () => ({ useConfirm: () => vi.fn(), usePrompt: () => vi.fn() }));
+vi.mock("@tanstack/react-router", () => ({
+	Link: ({ children, to }: { children: import("react").ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
-vi.mock("@tanstack/react-query", () => ({
-	useQuery: () => ({ data: [] }),
-	useMutation: () => ({}),
-	useQueryClient: () => ({ invalidateQueries: vi.fn() }),
+vi.mock("@/libs/auth/client", () => ({
+	authClient: {
+		passkey: { listUserPasskeys: async () => (state.passkeysError ? { error: { message: "offline" } } : { data: [] }) },
+	},
 }));
-vi.mock("@/hooks/use-confirm", () => ({ useConfirm: vi.fn(), usePrompt: vi.fn() }));
-vi.mock("@/hooks/use-current-session", () => ({ useCurrentSession: () => null }));
-
 afterEach(cleanup);
-
-it.each([
-	["ar-SA", "نوفمبر 2026"],
-	["en-US", "November 2026"],
-])("formats the security date in %s with Gregorian/Latin/Riyadh policy", (locale, expected) => {
-	i18n.loadAndActivate({ locale, messages: {} });
-	render(
+function show(value: unknown) {
+	state.value = value;
+	i18n.loadAndActivate({ locale: "en-US", messages: {} });
+	return render(
 		<I18nProvider i18n={i18n}>
-			<SecuritySection />
+			<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+				<SecuritySection />
+			</QueryClientProvider>
 		</I18nProvider>,
 	);
-	expect(screen.getByText(`Last changed in ${expected}`)).toBeDefined();
+}
+it("accounts error is unknown not passwordless", () => {
+	show({ status: "error", refresh: vi.fn() });
+	expect(screen.queryByText("You sign in without one")).toBeNull();
+	expect(screen.getByRole("alert")).toBeDefined();
+	expect(screen.getByRole("button", { name: "Try again" })).toBeDefined();
+});
+it("loading MFA is not disabled", () => {
+	show({ status: "loading" });
+	expect(screen.queryByRole("switch")).toBeNull();
+	expect(screen.getByRole("status")).toBeDefined();
+});
+it("successful empty is empty", () => {
+	show({
+		status: "ready",
+		data: { credentials: { hasPassword: false, mfaEnabled: false, passkeyCount: 0 }, sessions: [], pendingEmail: null },
+		refresh: vi.fn(),
+	});
+	expect(screen.getByText("You sign in without one")).toBeDefined();
+});
+it("stale known enrollment retains error label", () => {
+	show({
+		status: "error",
+		data: { credentials: { hasPassword: true, mfaEnabled: true, passkeyCount: 1 }, sessions: [], pendingEmail: null },
+		refresh: vi.fn(),
+	});
+	expect(screen.getByRole("alert")).toBeDefined();
+	expect(screen.getByText("Two-step verification is enabled")).toBeDefined();
+});
+
+it("failed passkeys query disables method changes", async () => {
+	state.passkeysError = true;
+	show({
+		status: "ready",
+		data: { credentials: { hasPassword: true, mfaEnabled: false, passkeyCount: 0 }, sessions: [], pendingEmail: null },
+		refresh: vi.fn(),
+	});
+	await screen.findByRole("alert");
+	expect(screen.getByRole("button", { name: "Add passkey" }).hasAttribute("disabled")).toBe(true);
+	state.passkeysError = false;
 });

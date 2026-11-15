@@ -5,8 +5,10 @@ import { controlHeights } from "./control-size";
 import { fieldDirectionProps } from "./field-direction";
 
 /** Shared by text inputs and textareas: focus is an accent border plus a soft 3px ring. */
-const inputBaseClassName =
-	"field-direction type-input w-full min-w-0 rounded-md border border-line-2 bg-raised text-ink outline-none transition-[border-color,box-shadow] duration-quick placeholder:text-ink-3 focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-soft)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-3 aria-invalid:border-danger aria-invalid:focus:shadow-[0_0_0_3px_var(--danger-soft)]";
+const inputSurfaceClassName =
+	"field-direction w-full min-w-0 rounded-md border border-line-2 bg-raised text-ink outline-none transition-[border-color,box-shadow] duration-quick placeholder:text-ink-3 focus:border-accent focus:shadow-[0_0_0_3px_var(--accent-soft)] focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-sunken disabled:text-ink-3 aria-invalid:border-danger aria-invalid:focus:shadow-[0_0_0_3px_var(--danger-soft)]";
+
+const inputBaseClassName = cn(inputSurfaceClassName, "type-input");
 
 type InputProps = Omit<React.ComponentProps<"input">, "size"> & {
 	size?: number | "default" | "sm" | "toolbar" | "lg" | undefined;
@@ -35,4 +37,4 @@ function Input({ className, type, size, variant = "default", ...props }: InputPr
 	);
 }
 
-export { Input, inputBaseClassName, fieldDirectionProps };
+export { Input, inputBaseClassName, inputSurfaceClassName, fieldDirectionProps };

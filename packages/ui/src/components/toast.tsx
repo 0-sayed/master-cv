@@ -1,6 +1,7 @@
 import { Toast as ToastPrimitive } from "@base-ui/react/toast";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
+import { SuccessCelebration } from "@reactive-resume/ui/components/success-celebration";
 import { useUiLabels } from "@reactive-resume/ui/components/ui-labels";
 import { cn } from "@reactive-resume/utils/style";
 
@@ -103,6 +104,7 @@ function ToastClose({ className, children, ...props }: ToastPrimitive.Close.Prop
 
 function ToastIcon({ type }: { type: string | undefined }) {
 	if (type === "loading") return <Spinner decorative />;
+	if (type === "celebration") return <SuccessCelebration />;
 	if (type === "success") return <Icon name="check-circle" />;
 	if (type === "info") return <Icon name="info" />;
 	if (type === "warning") return <Icon name="warning" />;

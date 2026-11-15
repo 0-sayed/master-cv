@@ -3,6 +3,7 @@ import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
+import { msg } from "@lingui/core/macro";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
@@ -69,6 +70,36 @@ it("labels name-only new CVs as empty without rendering a blank PDF", async () =
 	);
 	render(<ResumeThumbnail resume={summary()} />, { wrapper });
 	await expect(screen.findByText("Empty CV")).resolves.toBeVisible();
+	expect(mocks.pdf).not.toHaveBeenCalled();
+});
+
+it("updates an empty CV label on locale activation without refetching or rendering a PDF", async () => {
+	mocks.getById.mockResolvedValue(record(defaultResumeData));
+	render(<ResumeThumbnail resume={summary()} />, { wrapper });
+	await screen.findByText("Empty CV");
+	const label = msg`Empty CV`;
+	await act(async () => i18n.loadAndActivate({ locale: "ar-SA", messages: { [label.id]: "سيرة فارغة" } }));
+	expect(screen.getByText("سيرة فارغة")).toBeVisible();
+	await act(async () => i18n.loadAndActivate({ locale: "en-US", messages: {} }));
+	expect(screen.getByText("Empty CV")).toBeVisible();
+	expect(mocks.getById).toHaveBeenCalledOnce();
+	expect(mocks.pdf).not.toHaveBeenCalled();
+});
+
+it("uses the chosen template sample decoratively and falls back to a blank sheet if unavailable", async () => {
+	mocks.getById.mockResolvedValue(record(defaultResumeData));
+	const { container } = render(<ResumeThumbnail resume={summary()} />, { wrapper });
+	await screen.findByText("Empty CV");
+	const image = container.querySelector('[data-slot="empty-preview-template"]');
+	expect(image).toHaveAttribute("src", "/templates/thumb/en-US/onyx.webp");
+	expect(image).toHaveAttribute("aria-hidden", "true");
+	if (!image) throw new Error("The chosen template sample was not mounted");
+	fireEvent.load(image);
+	expect(container.querySelector('[data-slot="empty-preview-lines"]')).toBeNull();
+	fireEvent.error(image);
+	expect(container.querySelector('[data-slot="empty-preview-lines"]')).toHaveAttribute("aria-hidden", "true");
+	expect(container.querySelector("img")).toBeNull();
+	expect(screen.getByText("Empty CV")).toBeVisible();
 	expect(mocks.pdf).not.toHaveBeenCalled();
 });
 

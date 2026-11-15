@@ -32,6 +32,7 @@ const indexHtmlPath = `${staticRoot}/index.html`;
 // beside dist/ so they're never served at an address of their own.
 const prerenderRoot = `${staticRoot}-prerender`;
 const noindexShellPrefixes = ["/auth", "/dashboard", "/builder", "/agent", "/templates"];
+const accountShellPaths = new Set(["/help", "/deletion-requested", "/email-change"]);
 /**
  * Marketing pages the SPA owns that search engines should index.
  *
@@ -50,6 +51,9 @@ const reservedPublicResumeSegments = new Set([
 	"agent",
 	"templates",
 	"ats-checker",
+	"help",
+	"deletion-requested",
+	"email-change",
 ]);
 
 function isAssetPath(pathname: string): boolean {
@@ -61,7 +65,10 @@ function getPathSegments(pathname: string) {
 }
 
 function isNoindexShellPath(pathname: string): boolean {
-	return noindexShellPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+	return (
+		accountShellPaths.has(pathname) ||
+		noindexShellPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
+	);
 }
 
 function isPublicResumePath(pathname: string): boolean {

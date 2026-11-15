@@ -51,10 +51,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				expect(metrics.pinchScale).toBe(1);
 				expect(metrics.overflows).toBe(false);
 				const navigation = page.locator('nav:has(a[href="/dashboard/career/information"])');
-				// Phones keep Settings in the tab bar; the tablet rail puts it below the main nav.
-				await expect(navigation.locator("a")).toHaveCount(metrics.width < 640 ? 4 : 3);
+				// Both layouts expose Settings through the shared account menu.
+				await expect(navigation.locator("a")).toHaveCount(4);
 				const settings = page.locator(
-					`${metrics.width < 640 ? '[data-slot="app-bottom-nav"]' : "aside"} a[href="/dashboard/settings"]`,
+					`${metrics.width < 640 ? '[data-slot="app-bottom-nav"]' : "aside"} [data-slot="sidebar-account"]`,
 				);
 				await expect(settings).toHaveCount(1);
 				await expect(settings).toBeVisible();

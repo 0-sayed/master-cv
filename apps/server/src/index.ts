@@ -14,6 +14,7 @@ export async function main() {
 	await initializeAuth();
 	const { startCareerScheduler } = await import("./startup/career-scheduler");
 	const { startAiScheduler } = await import("./startup/ai-scheduler");
+	const { startPrivacyScheduler } = await import("./startup/privacy-scheduler");
 
 	// Safety net: Node 24 crashes the whole process on an unhandled rejection. One request's
 	// stray promise must not take the server down for everyone, so log and keep serving.
@@ -39,6 +40,7 @@ export async function main() {
 	);
 	const careerScheduler = startCareerScheduler();
 	const aiScheduler = startAiScheduler();
+	const privacyScheduler = startPrivacyScheduler();
 
 	let shuttingDown = false;
 	const shutdown = () => {
@@ -51,18 +53,20 @@ export async function main() {
 				else resolve();
 			});
 		});
-		void Promise.allSettled([httpDrain, careerScheduler.stop(), aiScheduler.stop()]).then(async (results) => {
-			const failed = results.some((result) => result.status === "rejected");
-			if (failed) console.error("Failed to drain server work during shutdown.");
-			try {
-				await getPool().end();
-				getRedis()?.disconnect();
-				process.exit(failed ? 1 : 0);
-			} catch {
-				console.error("Failed to close backing-service connections during shutdown.");
-				process.exit(1);
-			}
-		});
+		void Promise.allSettled([httpDrain, careerScheduler.stop(), aiScheduler.stop(), privacyScheduler.stop()]).then(
+			async (results) => {
+				const failed = results.some((result) => result.status === "rejected");
+				if (failed) console.error("Failed to drain server work during shutdown.");
+				try {
+					await getPool().end();
+					getRedis()?.disconnect();
+					process.exit(failed ? 1 : 0);
+				} catch {
+					console.error("Failed to close backing-service connections during shutdown.");
+					process.exit(1);
+				}
+			},
+		);
 	};
 	process.once("SIGTERM", shutdown);
 	process.once("SIGINT", shutdown);

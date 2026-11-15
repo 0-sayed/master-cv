@@ -18,7 +18,7 @@ export function DialogManager() {
 	const [failed, setFailed] = useState(false);
 	const [attempt, setAttempt] = useState(0);
 	const hasDialog = activeDialog !== null;
-	const isTask = activeDialog?.type === "auth.change-password";
+	const isTask = activeDialog?.type === "auth.change-password" || activeDialog?.type === "auth.change-email";
 	const Root = isTask ? TaskOverlay : Dialog;
 	const Content = isTask ? TaskOverlayContent : DialogContent;
 	const Title = isTask ? TaskOverlayTitle : DialogTitle;

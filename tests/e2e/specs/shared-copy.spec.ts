@@ -26,14 +26,12 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await page.setViewportSize({ width: 320, height: 900 });
 			await page.goto(`/dashboard/settings/preferences?locale=${locale}`);
 			const arabic = locale === "ar-SA";
-			await expect(page.getByRole("heading", { name: arabic ? "المظهر" : "Appearance", exact: true })).toBeVisible();
+			await expect(page.getByText(arabic ? "المظهر" : "Appearance", { exact: true })).toBeVisible();
 			await expect(page.getByRole("radio", { name: arabic ? "فاتح" : "Light", exact: true })).toBeAttached();
 			await expect(page.getByRole("radio", { name: arabic ? "داكن" : "Dark", exact: true })).toBeAttached();
-			const system = page.getByRole("radio", { name: arabic ? "حسب إعدادات الجهاز" : "Match my device", exact: true });
+			const system = page.getByRole("radio", { name: arabic ? "النظام" : "System", exact: true });
 			await expect(system).toBeAttached();
-			await expect(
-				page.getByRole("heading", { name: arabic ? "لغة الواجهة" : "Interface language", exact: true }),
-			).toBeVisible();
+			await expect(page.getByText(arabic ? "لغة الواجهة" : "Interface language", { exact: true })).toBeVisible();
 			await expect(
 				page.getByText(
 					arabic
@@ -44,12 +42,38 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			).toBeVisible();
 			await page.evaluate(() => document.fonts.ready);
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-			const fits = await system.evaluate((input) => {
-				const label = input.closest("label");
-				if (!label) return false;
-				return label.scrollHeight <= label.clientHeight && label.scrollWidth <= label.clientWidth;
+			for (const radio of await page.getByRole("radio").all()) {
+				const fit = await radio.evaluate((label) => {
+					const control = label.closest('[data-slot="segmented-control"]');
+					if (!control) throw new Error("Theme segmented control missing");
+					const surface = control.getBoundingClientRect();
+					const option = label.getBoundingClientRect();
+					const range = document.createRange();
+					range.selectNodeContents(label);
+					// Arabic glyphs extend beyond the line box into the shared track's reserved inset.
+					return [...range.getClientRects()].every(
+						(text) =>
+							text.left >= option.left &&
+							text.right <= option.right &&
+							text.top >= surface.top &&
+							text.bottom <= surface.bottom,
+					);
+				});
+				expect(fit, await radio.innerText()).toBe(true);
+			}
+			const deviceTimezone = page.getByRole("button", {
+				name: /Use this device's timezone|استخدم المنطقة الزمنية لهذا الجهاز/u,
 			});
-			expect(fits).toBe(true);
+			expect(
+				await deviceTimezone.evaluate((button) => {
+					const card = button.closest("section");
+					if (!card) throw new Error("Preferences card missing");
+					const bounds = card.getBoundingClientRect();
+					const range = document.createRange();
+					range.selectNodeContents(button);
+					return [...range.getClientRects()].every((text) => text.left >= bounds.left && text.right <= bounds.right);
+				}),
+			).toBe(true);
 		});
 	}
 }

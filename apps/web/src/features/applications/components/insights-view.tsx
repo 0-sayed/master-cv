@@ -45,11 +45,12 @@ export function ApplicationInsights({ applications }: { applications: Applicatio
 
 	if (outcomes.sent === 0) {
 		return (
-			<EmptyState>
-				<p className="type-body text-ink-2">
+			<EmptyState
+				icon="briefcase"
+				description={
 					<Trans>Once you've sent a few applications, this shows how far they get and how quickly people reply.</Trans>
-				</p>
-			</EmptyState>
+				}
+			/>
 		);
 	}
 
@@ -167,9 +168,7 @@ export function ApplicationInsights({ applications }: { applications: Applicatio
 					</p>
 					<div className="mt-4 flex flex-col gap-3">
 						{data.bySource.length === 0 ? (
-							<p className="text-sm text-ink-3">
-								<Trans>No source data yet.</Trans>
-							</p>
+							<EmptyState density="compact" title={<Trans>No source data yet.</Trans>} />
 						) : (
 							data.bySource.map((row, index) => (
 								<div key={row.source} className="flex items-center gap-3 text-xs">

@@ -25,6 +25,7 @@ vi.mock("./service", () => ({
 const { aiRouter, generateJson, generatePlainText } = await import("./ai");
 const { aiProvidersService } = await import("../ai-providers/service");
 const { fetchJobPosting } = await import("./posting");
+const { WebAccessError } = await import("../web-access/contracts");
 
 describe("copilot provider-failure translation", () => {
 	const schema = z.object({ summary: z.string() });
@@ -99,6 +100,18 @@ describe("posting import", () => {
 	beforeEach(() => {
 		vi.mocked(generateText).mockReset();
 		vi.mocked(aiProvidersService.getDefaultRunnable).mockReset();
+	});
+	it.each([
+		["auth", "POSTING_SIGN_IN_REQUIRED"],
+		["challenge", "POSTING_BLOCKED"],
+		["empty", "POSTING_UNREADABLE"],
+	] as const)("returns a recovery code for %s without invoking AI", async (reason, code) => {
+		vi.mocked(fetchJobPosting).mockRejectedValueOnce(new WebAccessError(reason));
+		await expect(
+			call(aiRouter.parsePosting, { input: "https://jobs.example/role" }, { context }),
+		).rejects.toMatchObject({ code });
+		expect(aiProvidersService.getDefaultRunnable).not.toHaveBeenCalled();
+		expect(generateText).not.toHaveBeenCalled();
 	});
 	it("retains fetched evidence and page fields when optional AI enrichment fails", async () => {
 		const source = {

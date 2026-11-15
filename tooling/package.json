@@ -38,6 +38,7 @@
 		"@playwright/test": "^1.64.1",
 		"@reactive-resume/api": "workspace:*",
 		"@reactive-resume/config": "workspace:*",
+		"@reactive-resume/db": "workspace:*",
 		"@reactive-resume/env": "workspace:*",
 		"@reactive-resume/import": "workspace:*",
 		"@reactive-resume/pdf": "workspace:*",

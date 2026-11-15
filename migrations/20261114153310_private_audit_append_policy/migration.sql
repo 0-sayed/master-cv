@@ -1,0 +1,2 @@
+CREATE POLICY "audit_owner_append" ON "deletion_replay_record" AS PERMISSIVE FOR INSERT TO current_user WITH CHECK (true);--> statement-breakpoint
+CREATE POLICY "audit_owner_append" ON "support_access_log" AS PERMISSIVE FOR INSERT TO current_user WITH CHECK (true);

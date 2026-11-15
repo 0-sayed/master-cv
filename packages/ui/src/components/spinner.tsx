@@ -38,17 +38,15 @@ const LOADERS = [
 
 const pickLoader = () => LOADERS[Math.floor(Math.random() * LOADERS.length)];
 
-type SpinnerProps = React.ComponentProps<"span"> & {
-	/** Hide it from assistive tech when the surrounding control already says it's busy. */
-	decorative?: boolean;
-};
+type SpinnerProps = React.ComponentProps<"span"> &
+	({ decorative: true; label?: never } | { decorative?: false; label: string });
 
 /** A 14px loader, picked at random per mount. Pair it with text that says what's happening. */
-function Spinner({ className, decorative = false, ...props }: SpinnerProps) {
+function Spinner({ className, decorative = false, label, ...props }: SpinnerProps) {
 	const [loader] = useState(pickLoader);
 	const semantics = decorative
 		? ({ "aria-hidden": true } as const)
-		: ({ role: "status", "aria-label": "Loading" } as const);
+		: ({ role: "status", "aria-label": label } as const);
 
 	return (
 		<span

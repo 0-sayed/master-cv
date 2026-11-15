@@ -1,3 +1,4 @@
+import { seedAccountPortrait } from "../fixtures/account-portrait";
 import { createSampleResumeFromDashboard } from "../fixtures/resume";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
@@ -55,7 +56,7 @@ test("resolved identity keeps the account row painted while live session refresh
 
 for (const locale of ["ar-SA", "en-US"] as const) {
 	for (const theme of ["light", "dark"] as const) {
-		test(`${locale} ${theme} account menu has identity and two account actions; preferences stay reachable in every layout`, async ({
+		test(`${locale} ${theme} account menu has identity and five account actions; preferences stay reachable in every layout`, async ({
 			authPage: page,
 			baseURL,
 		}) => {
@@ -82,19 +83,22 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					await settleScreen(page);
 					await expect(page.locator("html")).toHaveAttribute("dir", locale === "ar-SA" ? "rtl" : "ltr");
 					const navigation = page.locator(width === 390 ? '[data-slot="app-bottom-nav"]' : "aside");
-					await expect(navigation.locator('a[href="/dashboard/settings"]')).toBeVisible();
-					await expect(navigation.locator('a[href="/dashboard/settings"]')).toHaveCount(1);
+					await expect(navigation.locator('[data-slot="sidebar-account"]')).toBeVisible();
+					await expect(navigation.locator('[data-slot="sidebar-account"]')).toHaveCount(1);
 					await expect(page.locator('header button[data-size="language"]')).toHaveCount(1);
-					if (width !== 390) {
-						await expect(
-							page
-								.locator('[data-slot="dashboard-header-content"] button[aria-label]')
-								.filter({ has: page.locator("svg") }),
-						).toHaveCount(3);
-						await navigation.locator('button:has([data-slot="avatar"])').click();
-						await expect(page.getByRole("menuitem")).toHaveCount(2);
+					{
+						if (width !== 390)
+							await expect(
+								page
+									.locator('[data-slot="dashboard-header-content"] button[aria-label]')
+									.filter({ has: page.locator("svg") }),
+							).toHaveCount(3);
+						await navigation.locator('[data-slot="sidebar-account"]').click();
+						await expect(page.getByRole("menuitem")).toHaveCount(5);
 						await expect(page.getByRole("menuitem")).toHaveText(
-							locale === "ar-SA" ? ["الحساب", "تسجيل الخروج"] : ["Account", "Sign out"],
+							locale === "ar-SA"
+								? ["الإعدادات", "المساعدة", "اللغة", "المظهر", "تسجيل الخروج"]
+								: ["Settings", "Help", "Language", "Theme", "Sign out"],
 						);
 						await page.keyboard.press("Escape");
 					}
@@ -116,6 +120,8 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				await expect(palette.locator('[data-value="navigation.settings"]')).toBeVisible();
 				await page.keyboard.press("Escape");
 				if (width === 390) {
+					await page.locator('[data-slot="app-bottom-nav"] [data-slot="sidebar-account"]').click();
+					await page.getByRole("menuitem", { name: locale === "ar-SA" ? "الإعدادات" : "Settings", exact: true }).click();
 					const preferences = page.locator('a[href="/dashboard/settings/preferences"]').filter({ visible: true });
 					await expect(preferences).toHaveCount(1);
 					await preferences.click();
@@ -159,9 +165,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await expect(
 				await page.request.post("/api/auth/update-user", {
 					headers: { origin: baseURL },
-					data: { name: "سارة العتيبي", image: src },
+					data: { name: "سارة العتيبي" },
 				}),
 			).toBeOK();
+			await seedAccountPortrait(page, src);
 			try {
 				for (const width of [1440, 768, 390]) {
 					await page.setViewportSize({ width, height: 1024 });
@@ -183,12 +190,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				await expect(avatar).toHaveText("س ع");
 				await expect(avatar.locator("img")).toHaveCount(0);
 			}
-			await expect(
-				await page.request.post("/api/auth/update-user", {
-					headers: { origin: baseURL },
-					data: { image: null },
-				}),
-			).toBeOK();
+			await expect(await page.request.patch("/api/openapi/auth/profile", { data: { image: null } })).toBeOK();
 			await page.reload();
 			for (const avatar of await page.locator('[data-slot="avatar"]').filter({ visible: true }).all()) {
 				await expect(avatar).toHaveText("س ع");

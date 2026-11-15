@@ -103,7 +103,13 @@ describe.skipIf(!databaseUrl)("durable career scheduling", () => {
 			.sort();
 		for (const directory of directories) {
 			const file = new URL(`${directory}/migration.sql`, migrations);
-			if (existsSync(file)) await pool.query((await readFile(file, "utf8")).replaceAll('"public".', ""));
+			if (existsSync(file))
+				await pool.query(
+					(await readFile(file, "utf8"))
+						.replaceAll('"public".', `${schemaName}.`)
+						.replaceAll("public.", `${schemaName}.`)
+						.replaceAll(/(search_path\s*=\s*)public/g, `$1${schemaName}`),
+				);
 		}
 		({ careerJobs: jobs, runCareerJobs: run } = await import("./jobs"));
 	}, 30_000);

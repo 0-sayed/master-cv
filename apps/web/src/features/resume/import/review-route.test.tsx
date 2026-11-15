@@ -25,7 +25,7 @@ vi.mock("@tanstack/react-router", () => ({
 		useLoaderData: () => mocks.draft,
 		useRouteContext: () => ({
 			session: { user: { id: "owner" } },
-			queryClient: { invalidateQueries: mocks.invalidate },
+			queryClient: { invalidateQueries: mocks.invalidate, getQueryData: () => undefined },
 		}),
 		useParams: () => ({ flowId: mocks.flowId }),
 		useNavigate: () => mocks.navigate,
@@ -63,7 +63,9 @@ vi.mock("@/components/layout/page-header", () => ({
 vi.mock("@/features/documents/new-documents", () => ({
 	useNewDocumentsStore: { getState: () => ({ markNew: mocks.markNew }) },
 }));
-vi.mock("@/libs/orpc/client", () => ({ orpc: { documents: { key: () => ["documents"] } } }));
+vi.mock("@/libs/orpc/client", () => ({
+	orpc: { documents: { key: () => ["documents"], counts: { queryKey: () => ["documents", "counts"] } } },
+}));
 
 beforeEach(() => {
 	vi.resetAllMocks();

@@ -1,9 +1,9 @@
 {
 	"study": "tasks-v1",
-	"freezeHash": "6713168003b162efe54ca92727bbabcd5f13dfcfe41a815a99c3238815533ba2",
-	"reason": "PR #21 review corrections: split confirmed CV evidence from untrusted job instructions with versioned production prompts; retain deterministic job-assessment safety; normalize source offsets, dates and selected-job evidence; enforce 49 source passages and protected translation revisions; restore previews literally; accept explicit complete-category receipts. Current reviewed runtime dependencies are resealed without fixture, gold, model-pin or verifier changes. Fresh deterministic/scripted scans only. Historical core identity remains unchanged and stale; prior live/offline artifacts cannot qualify this study. No paid inference, environment-file reads, approval or release.",
+	"freezeHash": "a28e82fb560c4405077d29ca31c9c66424c5757aa993b7952dae1d52a4ac2dcb",
+	"reason": "Deletion-aware account accounting dependency update after host root-CI validation: bind the worker and its account-state lock helper to a new tasks study identity. Corpus, golds, prompts, model pins, verifier and scoring are unchanged. Prior study/control bytes remain immutable Git objects recorded in history; historical core identity and receipts remain unchanged and stale. Fresh deterministic/scripted controls only; no paid inference, environment-file reads, human approval, semantic qualification or release.",
 	"controlsBasis": "Fresh all-category and scoped deterministic/scripted scans plus scoped deterministic canary scan. No paid calls or measured semantic qualification.",
-	"scannedAt": "2026-11-14T13:24:51.554Z",
+	"scannedAt": "2026-11-14T17:28:39.029Z",
 	"all": {
 		"checked": 1056,
 		"pass": true,

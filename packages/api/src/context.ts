@@ -30,7 +30,12 @@ const fullPermissions: readonly RequestPermission[] = ["read", "write", "delete"
 
 async function findActiveUser(id: string): Promise<User | null> {
 	const [result] = await db.select().from(user).where(eq(user.id, id)).limit(1);
-	if (!result || !result.emailVerified || (result.banned && (!result.banExpires || result.banExpires > new Date())))
+	if (
+		!result ||
+		!result.emailVerified ||
+		result.dataDeletionRequestedAt ||
+		(result.banned && (!result.banExpires || result.banExpires > new Date()))
+	)
 		return null;
 	return result;
 }

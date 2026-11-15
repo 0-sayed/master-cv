@@ -17,7 +17,9 @@ import { username } from "better-auth/plugins/username";
 import { and, eq, gt, sql } from "drizzle-orm";
 import { createLocalJWKSet, jwtVerify } from "jose";
 import { createElement } from "react";
+import { lockActiveAccount } from "@reactive-resume/db/account-state";
 import { db } from "@reactive-resume/db/client";
+import { withOwnerDatabase } from "@reactive-resume/db/owner-scope";
 import * as schema from "@reactive-resume/db/schema";
 import {
 	authMailMessage,
@@ -32,6 +34,7 @@ import { rateLimitConfig } from "@reactive-resume/utils/rate-limit";
 import { generateId, toUsername } from "@reactive-resume/utils/string";
 import { timezoneSchema } from "@reactive-resume/utils/timezone";
 import { isAllowedOAuthRedirectUri } from "@reactive-resume/utils/url-security.node";
+import { verifyProofPasskey } from "./account-proof-ceremony";
 import { createGithubProfileMapper, createProfileMapper } from "./oauth-profile";
 import { authRateLimitStorage } from "./rate-limit";
 import { getTrustedOrigins } from "./trusted-origins";
@@ -182,6 +185,12 @@ const getAuthConfig = () => {
 
 	return betterAuth({
 		appName: "Master CV",
+		// Plugin verifier exceptions may contain challenges or credential payloads.
+		logger: {
+			log: (level) => {
+				console.error({ event: "authentication_event", level });
+			},
+		},
 		baseURL: authBaseUrl,
 		secret: env.AUTH_SECRET,
 
@@ -214,6 +223,25 @@ const getAuthConfig = () => {
 
 		hooks: {
 			before: createAuthMiddleware(async (ctx) => {
+				if (
+					ctx.path === "/update-user" &&
+					(ctx.body?.email !== undefined || (ctx.body?.image !== undefined && !accountUser.getStore()))
+				)
+					throw new APIError("FORBIDDEN", { message: "Use validated account correction." });
+				if (ctx.path === "/change-email")
+					throw new APIError("FORBIDDEN", { message: "Use the verified account email transition." });
+				if (ctx.path === "/verify-email" && typeof ctx.query?.token === "string") {
+					let payload: JWTPayload;
+					try {
+						({ payload } = await jwtVerify(ctx.query.token, new TextEncoder().encode(env.AUTH_SECRET), {
+							algorithms: ["HS256"],
+						}));
+					} catch {
+						throw new APIError("UNAUTHORIZED", { message: "Invalid verification proof." });
+					}
+					if (payload.updateTo)
+						throw new APIError("FORBIDDEN", { message: "Use the verified account email transition." });
+				}
 				const user = accountUser.getStore();
 				if (user && !ctx.request && ["/update-user", "/api-key/list", "/api-key/delete"].includes(ctx.path)) {
 					// Internal account calls reuse session-only hooks without creating a browser credential.
@@ -452,7 +480,7 @@ const getAuthConfig = () => {
 			openAPI({ disableDefaultReference: true }),
 			jwt(),
 			admin(),
-			passkey(),
+			passkey({ authentication: { afterVerification: verifyProofPasskey } }),
 			genericOAuth({ config: authConfigs }),
 			twoFactor({ issuer: "Master CV" }),
 			apiKey({
@@ -564,11 +592,54 @@ type ProfileUpdate = { name?: string; username?: string; image?: string | null; 
 // Only these server calls can install the identity; their cookie headers never leave this module.
 export const accountAuth = {
 	updateProfile: (user: User, body: ProfileUpdate) =>
-		accountUser.run(user, () =>
-			auth.api.updateUser({
-				body: { ...body, ...(body.username !== undefined ? { displayUsername: body.username } : {}) },
-			}),
-		),
+		withOwnerDatabase(user.id, async (tx) => {
+			await lockActiveAccount(tx, user.id);
+			let previousImage: string | null = null;
+			if (body.image !== undefined) {
+				const [record] = await tx
+					.select({ image: schema.user.image })
+					.from(schema.user)
+					.where(eq(schema.user.id, user.id));
+				previousImage = record?.image ?? null;
+				if (body.image) {
+					const url = new URL(body.image);
+					if (url.origin !== new URL(env.APP_URL).origin || url.search || url.hash || url.username || url.password)
+						throw new APIError("BAD_REQUEST", { message: "Invalid account picture." });
+					const key = url.pathname.replace(/^\/api\//, "");
+					const [file] = await tx
+						.select({ id: schema.storedFile.id })
+						.from(schema.storedFile)
+						.where(
+							and(
+								eq(schema.storedFile.userId, user.id),
+								eq(schema.storedFile.key, key),
+								eq(schema.storedFile.purpose, "picture"),
+								sql`${schema.storedFile.revokedAt} IS NULL`,
+							),
+						);
+					if (!file) throw new APIError("BAD_REQUEST", { message: "Invalid account picture." });
+				}
+			}
+			const result = await accountUser.run(user, () =>
+				auth.api.updateUser({
+					body: { ...body, ...(body.username !== undefined ? { displayUsername: body.username } : {}) },
+				}),
+			);
+			if (body.image !== undefined && previousImage && previousImage !== body.image) {
+				const key = new URL(previousImage, env.APP_URL).pathname.replace(/^\/api\//, "");
+				await tx
+					.update(schema.storedFile)
+					.set({ revokedAt: new Date() })
+					.where(
+						and(
+							eq(schema.storedFile.userId, user.id),
+							eq(schema.storedFile.key, key),
+							sql`${schema.storedFile.revokedAt} IS NULL`,
+						),
+					);
+			}
+			return result;
+		}),
 	listApiKeys: (user: User) => accountUser.run(user, () => auth.api.listApiKeys({})),
 	deleteApiKey: (user: User, keyId: string) => accountUser.run(user, () => auth.api.deleteApiKey({ body: { keyId } })),
 };

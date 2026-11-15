@@ -1,11 +1,12 @@
 // @vitest-environment happy-dom
 
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { cloneElement } from "react";
 import { LocaleProvider } from "@/features/locale/provider";
 
 type SignOutOptions = { fetchOptions: { onSuccess: () => void } };
@@ -53,7 +54,7 @@ vi.mock("@reactive-resume/ui/components/dropdown-menu", () => {
 			render?: ReactNode;
 		}) =>
 			element ? (
-				<a href="/dashboard/settings/account">{children}</a>
+				cloneElement(element as ReactElement<{ children: ReactNode }>, { children })
 			) : (
 				<button type="button" onClick={onClick}>
 					{children}
@@ -73,12 +74,14 @@ describe("UserDropdownMenu", () => {
 			render(
 				<I18nProvider i18n={i18n}>
 					<QueryClientProvider client={new QueryClient()}>
-						<UserDropdownMenu>{() => <button type="button" />}</UserDropdownMenu>
+						<LocaleProvider locale="en-US" session={null}>
+							<UserDropdownMenu>{() => <button type="button" />}</UserDropdownMenu>
+						</LocaleProvider>
 					</QueryClientProvider>
 				</I18nProvider>,
 			);
 			expect(screen.getByRole("button", { name: "Sign out" })).toBeVisible();
-			expect(screen.getByRole("link", { name: "Account" })).toHaveAttribute("href", "/dashboard/settings/account");
+			expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/dashboard/settings");
 			expect(screen.getByText("سارة العتيبي")).toBeVisible();
 			expect(screen.getByText("sara@example.test")).toBeVisible();
 		} finally {
@@ -112,7 +115,7 @@ describe("UserDropdownMenu", () => {
 
 		expect(screen.getAllByRole("button").map((button) => button.textContent?.trim())).toEqual(["Sign out"]);
 
-		for (const label of ["Settings", "Language", "Theme"]) expect(screen.queryByText(label)).not.toBeInTheDocument();
+		for (const label of ["Settings", "Help"]) expect(screen.getByRole("link", { name: label })).toBeVisible();
 
 		fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
 

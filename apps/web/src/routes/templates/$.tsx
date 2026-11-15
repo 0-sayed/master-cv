@@ -1,4 +1,4 @@
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { createSampleResumeData } from "@reactive-resume/schema/resume/sample";
@@ -8,7 +8,11 @@ import { createNoindexFollowMeta } from "@/libs/seo";
 
 export const Route = createFileRoute("/templates/$")({
 	component: TemplatePdfRoute,
-	errorComponent: () => <div>Template not found</div>,
+	errorComponent: () => (
+		<div>
+			<Trans>Template not found</Trans>
+		</div>
+	),
 	head: () => ({
 		meta: [createNoindexFollowMeta()],
 	}),
@@ -16,7 +20,7 @@ export const Route = createFileRoute("/templates/$")({
 
 function TemplatePdfRoute() {
 	const params = Route.useParams();
-	const { i18n } = useLingui();
+	const { i18n, t } = useLingui();
 	const locale = i18n.locale;
 	const template = templateSchema.parse(params._splat?.split(".")[0] ?? "azurill");
 	const [url, setUrl] = useState<string>();
@@ -42,7 +46,7 @@ function TemplatePdfRoute() {
 
 	return (
 		<iframe
-			title={`${template} template`}
+			title={t`${template} template`}
 			src={`${url}#toolbar=0`}
 			style={{ height: "100svh", width: "100svw", border: "none" }}
 		/>

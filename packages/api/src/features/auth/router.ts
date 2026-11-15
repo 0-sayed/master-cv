@@ -249,7 +249,9 @@ export const authRouter = {
 				}),
 			}),
 		)
-		.handler(({ context }) => authService.exportData({ userId: context.user.id })),
+		.handler(() => {
+			throw new ORPCError("FORBIDDEN", { message: "Use the purpose-bound account export workflow." });
+		}),
 
 	deleteAccount: protectedProcedure
 		.route({
@@ -265,9 +267,7 @@ export const authRouter = {
 		})
 		.input(z.object({}).optional())
 		.output(z.void())
-		.handler(async ({ context }) => {
-			if (context.authentication?.method !== "session")
-				throw new ORPCError("FORBIDDEN", { message: "Account deletion must be performed in your browser settings." });
-			await authService.deleteAccount({ userId: context.user.id });
+		.handler(() => {
+			throw new ORPCError("FORBIDDEN", { message: "Use the purpose-bound account deletion workflow." });
 		}),
 };

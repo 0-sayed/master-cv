@@ -6,6 +6,7 @@ import { getAiAvailability } from "../ai/route-policy";
 import { isCareerSchedulingEnabled } from "../career/runner";
 
 export type FeatureFlags = {
+	appUrl?: string | undefined;
 	disableSignups: boolean;
 	disableEmailAuth: boolean;
 	allowGuestLogin: boolean;
@@ -32,6 +33,7 @@ export const flagsRouter = {
 		.input(z.object({}).optional())
 		.output(
 			z.object({
+				appUrl: z.url().optional(),
 				aiAvailability: aiAvailabilitySchema,
 				disableSignups: z.boolean().describe("Whether new user signups are disabled on this instance."),
 				disableEmailAuth: z.boolean().describe("Whether email-based authentication is disabled on this instance."),
@@ -43,6 +45,7 @@ export const flagsRouter = {
 			}),
 		)
 		.handler(() => ({
+			appUrl: env.APP_URL,
 			aiAvailability: getAiAvailability(),
 			disableSignups: env.FLAG_DISABLE_SIGNUPS,
 			disableEmailAuth: env.FLAG_DISABLE_EMAIL_AUTH,

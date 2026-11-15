@@ -3,18 +3,13 @@ import { request as httpsRequest } from "node:https";
 import { fetchWorkerPublicUrl, isPrivateOrLoopbackHost, publicLookup } from "@reactive-resume/utils/url-security.node";
 import { IMAGE_TIMEOUT_MS, MAX_IMAGE_BYTES, readImageBytes } from "./images";
 
-let ownPictureReader: ((key: string) => Promise<Uint8Array>) | undefined;
-/** A platform binding can read our public pictures directly, avoiding a second HTTP request. */
-export function configureOwnPictureReader(reader: (key: string) => Promise<Uint8Array>): void {
-	ownPictureReader = reader;
-}
-
-/** Public images plus pictures served by this installation; never arbitrary internal endpoints. */
+/** Public images plus a per-render owner-authorized picture reader; never a global prefix bypass. */
 export function readServerImage(
 	source: string,
 	uploadOrigin?: string,
 	signal = AbortSignal.timeout(IMAGE_TIMEOUT_MS),
 	redirects = 0,
+	ownerPictureReader?: (key: string) => Promise<Uint8Array>,
 ): Promise<Uint8Array> {
 	if (/^data:image\/(?:png|jpeg|webp);base64,/i.test(source)) return readImageBytes(source);
 	const url = new URL(source);
@@ -31,7 +26,14 @@ export function readServerImage(
 	)
 		return Promise.reject(new Error("Private or invalid image URL refused"));
 	signal.throwIfAborted();
-	if (ownPicture && ownPictureReader) return ownPictureReader(url.pathname.replace(/^\/(?:api\/)?/, ""));
+	if (ownPicture) {
+		if (!ownerPictureReader) return Promise.reject(new Error("Owner picture authorization required"));
+		return ownerPictureReader(url.pathname.replace(/^\/(?:api\/)?/, "")).then((data) => {
+			signal.throwIfAborted();
+			if (data.byteLength > MAX_IMAGE_BYTES) throw new Error("Image exceeds 12 MB");
+			return data;
+		});
+	}
 	if (process.env.CLOUDFLARE === "1") return readWorkerImage(url, signal);
 	return new Promise((resolve, reject) => {
 		const request = url.protocol === "https:" ? httpsRequest : httpRequest;
@@ -41,7 +43,15 @@ export function readServerImage(
 				response.destroy();
 				if (redirects >= 3) return reject(new Error("Too many image redirects"));
 				try {
-					resolve(readServerImage(new URL(response.headers.location, url).href, uploadOrigin, signal, redirects + 1));
+					resolve(
+						readServerImage(
+							new URL(response.headers.location, url).href,
+							uploadOrigin,
+							signal,
+							redirects + 1,
+							ownerPictureReader,
+						),
+					);
 				} catch (error) {
 					reject(error);
 				}

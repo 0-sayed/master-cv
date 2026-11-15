@@ -9,7 +9,7 @@ test("manual creates an empty CV in the chosen document language directly in Wri
 	await page.getByRole("button", { name: /^Write from scratch/ }).click();
 	await expect(page).toHaveURL(/\/builder\/[^/?]+/);
 	expect(new URL(page.url()).searchParams.get("mode")).toBe("write");
-	await expect(page.getByRole("dialog")).not.toBeVisible();
+	await expect(page.locator('[data-slot="dialog-content"]')).not.toBeVisible();
 	await expect(page.getByRole("heading", { name: "Review imported information", exact: true })).toHaveCount(0);
 	const id = new URL(page.url()).pathname.split("/").at(-1);
 	const cv = await (await page.request.get(`/api/openapi/resumes/${id}`)).json();

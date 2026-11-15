@@ -36,7 +36,9 @@
 		"./features/ai/variant-contracts": "./src/features/ai/variant-contracts.ts",
 		"./features/ai/variant-validation": "./src/features/ai/variant-validation.ts",
 		"./features/ai/variant-verifier": "./src/features/ai/variant-verifier.ts",
-		"./features/ai/variant-guard": "./src/features/ai/variant-guard.ts"
+		"./features/ai/variant-guard": "./src/features/ai/variant-guard.ts",
+		"./features/privacy/work": "./src/features/privacy/work.ts",
+		"./features/privacy/delivery": "./src/features/privacy/delivery.ts"
 	},
 	"scripts": {
 		"typecheck": "tsrs --noEmit",

@@ -19,7 +19,7 @@ export function AiProviderLoadState({ state }: AiProviderLoadStateProps) {
 				<Trans>Couldn't load AI connections. Your saved connections haven't changed.</Trans>
 			</p>
 			<Button size="sm" variant="secondary" onClick={state.retry}>
-				<Trans>Try again</Trans>
+				<Trans context="workspace.privacy.d8b8392e2c54">Try again</Trans>
 			</Button>
 		</div>
 	);

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { useId, useState } from "react";
+import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
 import { Input } from "@reactive-resume/ui/components/input";
 import {
 	InputGroup,
@@ -9,7 +10,6 @@ import {
 	InputGroupInput,
 	InputGroupText,
 } from "@reactive-resume/ui/components/input-group";
-import { Label } from "@reactive-resume/ui/components/label";
 import { cn } from "@reactive-resume/utils/style";
 import { isImeComposing } from "@/libs/keyboard";
 
@@ -45,7 +45,7 @@ export function SavedField({
 	const [draft, setDraft] = useState(value);
 	const [error, setError] = useState<string | null>(null);
 	const [saving, setSaving] = useState(false);
-	const [saved, setSaved] = useState(false);
+	const [saved, setSaved] = useState(true);
 
 	const commit = async () => {
 		if (saving) return;
@@ -68,14 +68,11 @@ export function SavedField({
 	};
 
 	const inputProps = {
-		id,
 		type,
 		dir: type === "email" || prefix ? ("ltr" as const) : undefined,
 		disabled: saving,
 		value: draft,
 		autoComplete,
-		"aria-invalid": error ? true : undefined,
-		"aria-describedby": error ? `${id}-error` : hint ? `${id}-hint` : undefined,
 		"aria-busy": saving || undefined,
 		onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
 			setDraft(event.target.value);
@@ -94,36 +91,32 @@ export function SavedField({
 	};
 
 	return (
-		<div className={cn("grid content-start gap-1.5", className)}>
-			<Label htmlFor={id}>{label}</Label>
-			{prefix ? (
-				<InputGroup dir="ltr">
-					<InputGroupAddon>
-						<InputGroupText>{prefix}</InputGroupText>
-					</InputGroupAddon>
-					<InputGroupInput {...inputProps} />
-				</InputGroup>
-			) : (
-				<Input {...inputProps} />
-			)}
-			<p role="status" aria-live="polite" className="type-metadata text-ink-3">
+		<FormItem hasError={!!error} className={cn("w-full min-w-0 content-start", className)}>
+			<FormLabel>{label}</FormLabel>
+			<FormControl
+				render={
+					prefix ? (
+						<InputGroup dir="ltr">
+							<InputGroupAddon>
+								<InputGroupText>{prefix}</InputGroupText>
+							</InputGroupAddon>
+							<InputGroupInput {...inputProps} />
+						</InputGroup>
+					) : (
+						<Input {...inputProps} />
+					)
+				}
+			/>
+			<FormDescription id={`${id}-status`} role="status" aria-live="polite">
 				{saving
 					? t({ message: "Saving…", context: "editor.save.status.saving" })
 					: saved
 						? (savedMessage ?? t({ message: "Saved", context: "editor.save.status.saved" }))
-						: null}
-			</p>
-			{error ? (
-				<p id={`${id}-error`} role="alert" className="type-metadata text-danger-text">
-					{error}
-				</p>
-			) : (
-				hint && (
-					<p id={`${id}-hint`} className="type-metadata text-ink-3">
-						{hint}
-					</p>
-				)
-			)}
-		</div>
+						: draft !== value
+							? t`Unsaved changes — leave this field to save`
+							: (savedMessage ?? t({ message: "Saved", context: "editor.save.status.saved" }))}
+			</FormDescription>
+			{error ? <FormMessage role="alert" errors={[error]} /> : hint && <FormDescription>{hint}</FormDescription>}
+		</FormItem>
 	);
 }

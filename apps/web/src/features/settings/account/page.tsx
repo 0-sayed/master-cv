@@ -19,7 +19,7 @@ export function AccountSettings() {
 			<ProfileSection session={session} />
 			<SecuritySection />
 			<DataSection openDeletion={deleteAccount ?? false} />
-			<SettingsSection title={<Trans>Current session</Trans>}>
+			<SettingsSection width="full" presentation="card" title={<Trans>Current session</Trans>}>
 				<SettingsRow title={<bdi dir="ltr">{session.user.email}</bdi>}>
 					<SignOutButton />
 				</SettingsRow>
@@ -35,7 +35,6 @@ export function SignOutButton() {
 
 	return (
 		<Button
-			size="sm"
 			variant="secondary"
 			onClick={async () => {
 				await authClient.signOut();
@@ -46,7 +45,7 @@ export function SignOutButton() {
 			}}
 		>
 			<Icon name="sign-out" size={18} />
-			<Trans>Sign out</Trans>
+			<Trans context="workspace.privacy.48f0d3d397d4">Sign out</Trans>
 		</Button>
 	);
 }

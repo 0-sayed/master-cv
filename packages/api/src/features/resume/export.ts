@@ -5,6 +5,7 @@ import { env } from "@reactive-resume/env/server";
 import { generateFilename } from "@reactive-resume/utils/file";
 import { protectedProcedure } from "../../context";
 import { consumePdfExportLimit } from "../../middleware/rate-limit";
+import { readOwnedPicture } from "../storage/ownership";
 import { parseStoredResumeData } from "./resume-data-validation";
 import { resumeService } from "./service";
 
@@ -30,7 +31,12 @@ export async function createResumePdfDownload(input: CreateResumePdfDownloadInpu
 		// the icon drawings) only when a PDF is actually exported, instead of at server
 		// boot. Keeps cold starts light on constrained/slow-disk hosts.
 		const { createResumePdfFile } = await import("@reactive-resume/pdf/server");
-		const body = await createResumePdfFile({ data, filename, uploadOrigin: env.APP_URL });
+		const body = await createResumePdfFile({
+			data,
+			filename,
+			uploadOrigin: env.APP_URL,
+			ownerPictureReader: (key) => readOwnedPicture({ userId: input.userId, key }),
+		});
 
 		const current = await resumeService.getById({ id: input.id, userId: input.userId });
 		if (current.updatedAt.getTime() !== resume.updatedAt.getTime())

@@ -344,7 +344,7 @@ function NewKeyDialog({ open, onOpenChange, onCreated }: NewKeyDialogProps) {
 						)}
 						<DialogFooter>
 							<Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-								<Trans>Cancel</Trans>
+								<Trans context="workspace.privacy.19766ed6ccb2">Cancel</Trans>
 							</Button>
 							<Button type="submit" disabled={!name.trim() || creating} loading={creating}>
 								<Trans>Create key</Trans>

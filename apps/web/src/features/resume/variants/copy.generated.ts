@@ -4,7 +4,7 @@ import { useLingui } from "@lingui/react";
 const messages = {
 	"language.document.arabic": msg({ message: "Arabic CV", context: "language.document.arabic" }),
 	"language.switch.english": msg({ message: "EN", context: "language.switch.english" }),
-	"language.switch.arabic": msg({ message: "عربي", context: "language.switch.arabic" }),
+	"language.switch.arabic": msg({ message: "Arabic", context: "language.switch.arabic" }),
 	"jobs.copy.type": msg({ message: "Tailored copy", context: "jobs.copy.type" }),
 	"jobs.copy.open": msg({ message: "Open copy", context: "jobs.copy.open" }),
 	"jobs.copy.toast.created": msg({ message: "Tailored copy created", context: "jobs.copy.toast.created" }),
@@ -22,7 +22,7 @@ const messages = {
 		message: "Arabic CV · Original",
 		context: "language.document.originalArabic",
 	}),
-	"language.switch.arabicName": msg({ message: "العربية", context: "language.switch.arabicName" }),
+	"language.switch.arabicName": msg({ message: "Arabic", context: "language.switch.arabicName" }),
 	"language.document.englishCopy": msg({ message: "English copy", context: "language.document.englishCopy" }),
 	"language.terms.confirmationCount": msg({
 		message: "{count, plural, one {# term needs your confirmation} other {# terms need your confirmation}}",

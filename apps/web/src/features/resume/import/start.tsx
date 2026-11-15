@@ -6,8 +6,10 @@ import { Trans } from "@lingui/react/macro";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { HARVEST_DEFAULTS } from "@reactive-resume/resume/ats-pdf";
 import { ActionChoice } from "@reactive-resume/ui/components/action-choice";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
+import { Badge } from "@reactive-resume/ui/components/badge";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	DialogContent,
@@ -22,7 +24,9 @@ import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { detectImportKind, readResumeFile } from "./read-file";
 import { createReviewState, saveReviewDraft } from "./review-draft";
 import { useDialogStore } from "@/dialogs/store";
+import { MAX_UPLOAD_BYTES } from "@/features/ats-checker/extract-client";
 import { isBaseCvLimit } from "@/features/documents/creation-error";
+import { prepareFirstCvCelebration } from "@/features/documents/first-cv-celebration";
 import { useNewDocumentsStore } from "@/features/documents/new-documents";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { client, orpc } from "@/libs/orpc/client";
@@ -34,6 +38,9 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 	const { i18n } = useLingui();
 	const [locale, setLocale] = useState(i18n.locale === "ar-SA" ? "ar-SA" : "en-US");
 	const [busy, setBusy] = useState<"reading" | "creating" | null>(null);
+	const [dragging, setDragging] = useState(false);
+	const maxMb = String(MAX_UPLOAD_BYTES / 1_000_000);
+	const maxPages = String(HARVEST_DEFAULTS.maxPages);
 	const [error, setError] = useState<string | null>(null);
 	const [failedAction, setFailedAction] = useState<"read" | "create">("read");
 	const input = useRef<HTMLInputElement>(null);
@@ -54,6 +61,7 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 		attempt.current = controller;
 		setBusy("creating");
 		setError(null);
+		const celebrateCreated = prepareFirstCvCelebration(queryClient);
 		try {
 			const resumeId = await client.resume.create(
 				{
@@ -67,6 +75,7 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 				{ signal: controller.signal },
 			);
 			controller.signal.throwIfAborted();
+			celebrateCreated();
 			if (initial?.applicationId) {
 				await client.documents.linkApplication(
 					{ type: "resume", id: resumeId, applicationId: initial.applicationId },
@@ -101,7 +110,11 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 		try {
 			if (!session?.user.id) throw new Error(t`Sign in to continue`);
 			const kind = await detectImportKind(file);
-			if (kind !== "pdf") throw new Error(t`Choose a readable PDF. Word import is not available.`);
+			if (kind !== "pdf") {
+				setFailedAction("read");
+				setError(t`Choose a readable PDF. Word import is not available.`);
+				return;
+			}
 			let partial = false;
 			let pages: { page: number; text: string }[] = [];
 			const issues: ImportReviewIssue[] = [];
@@ -214,35 +227,63 @@ export function StartCvDialog({ data: initial }: StartCvDialogProps) {
 					</RadioGroup>
 				</fieldset>
 				<ActionChoice
+					dropzone
+					dragging={dragging}
+					aria-label={t({ context: "onboarding.upload.title", message: "Upload an existing CV" })}
 					icon={<Icon name="upload-simple" />}
 					title={t({ context: "onboarding.upload.title", message: "Upload an existing CV" })}
-					description={
-						<>
-							<span className="block">
-								<Trans context="onboarding.upload.chooseFile">Choose a file</Trans>
-							</span>
-							<span className="block">
-								<Trans>
-									Readable PDFs up to 25 MB and 30 pages. Scanned files are not supported. Partial reading requires
-									review.
-								</Trans>
-							</span>
-							<span className="block">
-								<Trans context="onboarding.upload.privateHint">
-									Your CV and career information are saved after review. This device keeps an unfinished review for 24
-									hours.
-								</Trans>
-							</span>
-						</>
+					description={<Trans context="onboarding.upload.dropAction">Drop a PDF here or choose a file</Trans>}
+					details={
+						<span
+							role="list"
+							aria-label={t({ context: "onboarding.upload.requirements", message: "File requirements" })}
+							className="flex flex-wrap items-center gap-2"
+						>
+							<Badge role="listitem">
+								<Icon name="file-pdf" />
+								<span>
+									<Trans context="onboarding.upload.fileType">PDF only</Trans>
+								</span>
+							</Badge>
+							<Badge role="listitem">
+								<Icon name="scales" />
+								<span>
+									<Trans context="onboarding.upload.sizeLimit">
+										Up to <bdi dir="ltr">{maxMb} MB</bdi>
+									</Trans>
+								</span>
+							</Badge>
+							<Badge role="listitem">
+								<Icon name="files" />
+								<span>
+									<Trans context="onboarding.upload.pageLimit">Up to {maxPages} pages</Trans>
+								</span>
+							</Badge>
+						</span>
 					}
 					onClick={() => input.current?.click()}
-					onDragOver={(event) => event.preventDefault()}
+					onDragOver={(event) => {
+						event.preventDefault();
+						if (!busy) setDragging(true);
+					}}
+					onDragLeave={(event) => {
+						if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragging(false);
+					}}
 					onDrop={(event) => {
 						event.preventDefault();
+						setDragging(false);
 						const file = event.dataTransfer.files[0];
 						if (file && !busy) void read(file);
 					}}
 				/>
+				<p className="flex items-start gap-2 type-metadata text-ink-2">
+					<Icon name="info" />
+					<span>
+						<Trans context="onboarding.upload.storageHint">
+							CV and career info saved after review; unfinished review stays on this device for 24 hours.
+						</Trans>
+					</span>
+				</p>
 				<ActionChoice
 					icon={<Icon name="pencil-simple" />}
 					title={t({ context: "onboarding.method.write", message: "Write from scratch" })}

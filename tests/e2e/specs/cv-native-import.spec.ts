@@ -4,7 +4,7 @@ test("native PDF opens editable review before any CV or master is written", asyn
 	await page.goto("/dashboard");
 	const before = await (await page.request.get("/api/openapi/resumes")).json();
 	await openPdfReview(page);
-	await expect(page.getByRole("dialog")).not.toBeVisible();
+	await expect(page.locator('[data-slot="dialog-content"]')).not.toBeVisible();
 	await expect(page.getByRole("region", { name: "Original PDF", exact: true })).toBeVisible();
 	expect(await (await page.request.get("/api/openapi/resumes")).json()).toEqual(before);
 	await page.getByLabel("Full name", { exact: true }).fill("Corrected native author");

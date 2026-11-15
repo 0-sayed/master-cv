@@ -11,6 +11,7 @@ import { TrashPage } from "./trash-page";
 import { LocaleProvider } from "@/features/locale/provider";
 
 const { loadDocuments } = vi.hoisted(() => ({ loadDocuments: vi.fn() }));
+const newLetter = vi.hoisted(() => vi.fn());
 
 vi.mock("@/libs/orpc/client", () => ({
 	orpc: { documents: { list: { queryOptions: () => ({ queryKey: ["documents"], queryFn: loadDocuments }) } } },
@@ -27,7 +28,7 @@ vi.mock("./document-actions", () => ({
 }));
 vi.mock("./document-card", () => ({ DocumentCard: () => null, DocumentRow: () => null }));
 vi.mock("./new-document-dialog", () => ({
-	useStartDocument: () => ({ startBlank: vi.fn(), trySample: vi.fn(), creating: false }),
+	useStartDocument: () => ({ startBlank: vi.fn(), trySample: vi.fn(), newLetter, creating: false }),
 }));
 
 it.each(["documents", "trash"])("keeps %s load failures distinct from empty state and retries", async (page) => {
@@ -49,11 +50,63 @@ it.each(["documents", "trash"])("keeps %s load failures distinct from empty stat
 	);
 
 	expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't load documents");
-	expect(screen.queryByText("No documents yet")).not.toBeInTheDocument();
+	expect(screen.queryByText("Build a CV that grows with you")).not.toBeInTheDocument();
 	expect(screen.queryByText("Trash is empty")).not.toBeInTheDocument();
 	fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-	expect(await screen.findByText(page === "documents" ? "No documents yet" : "Trash is empty")).toBeVisible();
+	expect(
+		await screen.findByText(page === "documents" ? "Build a CV that grows with you" : "Trash is empty"),
+	).toBeVisible();
 	expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 	view.unmount();
 	queryClient.clear();
 });
+
+it.each([
+	["letter", "", [], false, "No cover letters yet"],
+	["resume", "", [], false, "Build a CV that grows with you"],
+	["letter", "missing", [], false, "Nothing matches “missing”"],
+	["letter", "", ["tag"], false, "Nothing matches these filters"],
+	["letter", "", [], true, "Nothing matches these filters"],
+] as const)(
+	"distinguishes an empty %s collection from search (%s, %s, %s)",
+	async (type, q, tags, publicOnly, title) => {
+		i18n.loadAndActivate({ locale: "en-US", messages: {} });
+		loadDocuments.mockReset().mockResolvedValue([
+			{
+				id: "other",
+				type: type === "letter" ? "resume" : "letter",
+				name: "Existing",
+				tags: [],
+				updatedAt: new Date(),
+				createdAt: new Date(),
+			},
+		]);
+		const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+		const onSearchChange = vi.fn();
+		const view = render(
+			<I18nProvider i18n={i18n}>
+				<QueryClientProvider client={queryClient}>
+					<LocaleProvider locale="en-US" session={null}>
+						<DocumentsPage
+							search={{ type, q, tags: [...tags], public: publicOnly, sort: "edited" }}
+							onSearchChange={onSearchChange}
+						/>
+					</LocaleProvider>
+				</QueryClientProvider>
+			</I18nProvider>,
+		);
+		expect(await screen.findByText(title)).toBeVisible();
+		if (q || tags.length || publicOnly) {
+			fireEvent.click(screen.getByRole("button", { name: "Clear search and filters" }));
+			expect(onSearchChange).toHaveBeenCalledWith({ q: "", tags: [], type: "all", public: false });
+		} else {
+			expect(screen.queryByRole("button", { name: "Clear search and filters" })).not.toBeInTheDocument();
+			if (type === "letter") {
+				fireEvent.click(screen.getByRole("button", { name: "New cover letter" }));
+				expect(newLetter).toHaveBeenCalledOnce();
+			} else expect(screen.getByRole("button", { name: "New CV" })).toBeVisible();
+		}
+		view.unmount();
+		queryClient.clear();
+	},
+);

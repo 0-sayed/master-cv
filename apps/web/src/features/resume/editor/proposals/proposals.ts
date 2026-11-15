@@ -75,6 +75,7 @@ export function acceptResumeProposals(proposals: readonly Proposal[]) {
 		{ newStep: true },
 	);
 	toast.add({
+		type: "celebration",
 		description: proposals.length === 1 ? t`Edit applied` : t`${proposals.length} edits applied`,
 		actionProps: { children: t`Undo`, onClick: () => useResumeStore.getState().undo() },
 	});

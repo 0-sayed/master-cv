@@ -564,7 +564,6 @@ function Checklist({
 				type: "error",
 				description: getOrpcErrorMessage(error, {
 					fallback: t`Couldn't mark it as applied.`,
-					allowServerMessage: true,
 				}),
 			});
 		} finally {

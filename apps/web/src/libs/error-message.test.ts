@@ -1,35 +1,39 @@
-import { describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { i18n } from "@lingui/core";
 import { ORPCError } from "@orpc/client";
-import { getReadableErrorMessage } from "./error-message";
+import { getOrpcErrorMessage, getReadableErrorMessage, getResumeErrorMessage } from "./error-message";
+import { getUiLocaleMessages } from "./locale";
 
-describe("getReadableErrorMessage", () => {
-	it("shows the upload size validation message instead of the generic oRPC error", () => {
-		const error = new ORPCError("BAD_REQUEST", {
-			message: "Input validation failed",
-			data: { issues: [{ message: "File size must be less than 10MB", path: [] }] },
-		});
-		expect(getReadableErrorMessage(error, "Failed to upload picture.")).toBe("File size must be less than 10MB");
-	});
+beforeEach(async () => i18n.loadAndActivate(await getUiLocaleMessages("ar-SA")));
 
-	it("limits validation messages, removes duplicates, and ignores malformed issues", () => {
-		const error = new ORPCError("BAD_REQUEST", {
-			message: "Input validation failed",
-			data: {
-				issues: [
-					null,
-					{},
-					{ message: 42 },
-					{ message: " " },
-					...["First", "First", "Second", "Third", "Fourth"].map((message) => ({ message })),
-				],
-			},
-		});
-		expect(getReadableErrorMessage(error, "fallback")).toBe("First Second Third");
-	});
-
-	it("returns the message of a plain error object (Better Auth client errors)", () => {
-		expect(getReadableErrorMessage({ code: "SESSION_NOT_FRESH", message: "Session is not fresh" }, "fallback")).toBe(
-			"Session is not fresh",
+describe("localized error messages", () => {
+	it.each(["database password leaked", new Error("private upstream failure"), { message: "private auth failure" }])(
+		"does not expose unknown server prose",
+		(error) => {
+			expect(getReadableErrorMessage(error, "تعذّر إكمال الطلب")).toBe("تعذّر إكمال الطلب");
+		},
+	);
+	it("maps a known authentication code without showing server prose", () => {
+		expect(getReadableErrorMessage({ code: "SESSION_NOT_FRESH", message: "private" }, "fallback")).toBe(
+			"سجّل الدخول مجددًا، ثم أعد محاولة هذا الإجراء.",
 		);
+	});
+	it("maps file validation metadata and ignores its raw message", () => {
+		const error = new ORPCError("BAD_REQUEST", {
+			data: { issues: [{ code: "too_big", origin: "file", maximum: 10485760, message: "private" }] },
+		});
+		expect(getReadableErrorMessage(error, "fallback")).toBe("يجب أن يكون حجم الملف أقل من 10 ميجابايت.");
+	});
+	it("uses the caller fallback for unknown validation issues", () => {
+		const error = new ORPCError("BAD_REQUEST", { data: { issues: [{ code: "custom", message: "private" }] } });
+		expect(getReadableErrorMessage(error, "fallback")).toBe("fallback");
+	});
+	it("prefers explicit localized code mappings and never returns an oRPC message", () => {
+		const error = new ORPCError("UNKNOWN", { message: "private" });
+		expect(getOrpcErrorMessage(error, { fallback: "fallback" })).toBe("fallback");
+		expect(getOrpcErrorMessage(error, { fallback: "fallback", byCode: { UNKNOWN: "رسالة آمنة" } })).toBe("رسالة آمنة");
+	});
+	it.each(["RESUME_SLUG_ALREADY_EXISTS", "RESUME_LOCKED", "UNKNOWN"])("localizes resume errors (%s)", (code) => {
+		expect(getResumeErrorMessage(new ORPCError(code))).toMatch(/[\u0600-\u06ff]/);
 	});
 });

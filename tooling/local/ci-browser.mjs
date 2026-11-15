@@ -124,14 +124,45 @@ async function main() {
 		)
 			throw new Error("Production build failed");
 	}
-	process.exitCode = await run([
-		"exec",
-		"playwright",
-		"test",
-		...args.filter((arg) => arg !== "--skip-build"),
-		"--output",
-		resolve(directory, "browser"),
-	]);
+	// Synthetic retention policy is runner-only; production startup stays disabled.
+	const retentionWorker = args.some((arg) => arg.includes("trash-retention.spec.ts"))
+		? spawn(
+				"pnpm",
+				[
+					"--config.verifyDepsBeforeRun=false",
+					"--filter",
+					"server",
+					"exec",
+					"tsx",
+					"../../tests/e2e/privacy-retention-worker.ts",
+				],
+				{
+					cwd: repository,
+					env: {
+						...env,
+						SMTP_HOST: "127.0.0.1",
+						SMTP_PORT: env.E2E_SMTP_PORT,
+						SMTP_SECURE: "false",
+						SMTP_USER: "synthetic",
+						SMTP_PASS: "synthetic",
+						SMTP_FROM: "Master CV <mail@example.test>",
+					},
+					stdio: "inherit",
+				},
+			)
+		: null;
+	try {
+		process.exitCode = await run([
+			"exec",
+			"playwright",
+			"test",
+			...args.filter((arg) => arg !== "--skip-build"),
+			"--output",
+			resolve(directory, "browser"),
+		]);
+	} finally {
+		retentionWorker?.kill("SIGTERM");
+	}
 	await copyFile(resolve(repository, "test-results/e2e-junit.xml"), resolve(directory, "junit.xml"));
 	// Retain only this new synthetic database/storage for failure investigation; never reuse it on the next run.
 }

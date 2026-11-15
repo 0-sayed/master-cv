@@ -6,13 +6,22 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { PageHeader } from "@/components/layout/page-header";
 
 type Page = {
-	to: "/dashboard/settings/account" | "/dashboard/settings/preferences" | "/dashboard/settings/ai";
+	to:
+		| "/dashboard/settings/account"
+		| "/dashboard/settings/preferences"
+		| "/dashboard/settings/ai"
+		| "/dashboard/settings/privacy";
 	icon: IconName;
 	label: () => string;
 };
 
 // Six pages became three, each with one job (README §5.9).
 const SETTINGS_PAGES: Page[] = [
+	{
+		to: "/dashboard/settings/privacy",
+		icon: "shield-check",
+		label: () => t({ message: "Privacy & data", context: "privacy.navigation.data" }),
+	},
 	{
 		to: "/dashboard/settings/account",
 		icon: "user-circle",
@@ -33,7 +42,7 @@ function RouteComponent() {
 	const current = SETTINGS_PAGES.find((page) => page.to === pathname.replace(/\/$/, ""));
 
 	return (
-		<div className="contents">
+		<div className="settings-content grid min-w-0 gap-6 max-sm:gap-4">
 			<PageHeader
 				backOnlyOnMobile
 				title={current?.label() ?? t({ message: "Settings", context: "account.navigation.settings" })}

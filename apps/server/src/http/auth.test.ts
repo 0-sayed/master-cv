@@ -224,3 +224,22 @@ describe("OAuth provider response validation", () => {
 		},
 	);
 });
+vi.mock("@reactive-resume/auth/account-changes", () => ({
+	verifyEmailChange: vi.fn().mockResolvedValue({ status: "verification_sent" }),
+}));
+it("email correction returns to a first-party recovery screen without retaining capability", async () => {
+	const { handleAuth } = await import("./auth");
+	const response = await handleAuth(new Request("http://localhost:3000/api/auth/confirm-email-change?token=synthetic"));
+	expect(response.status).toBe(303);
+	expect(response.headers.get("Location")).toBe("http://localhost:3000/email-change?status=verification_sent");
+	expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
+});
+
+it("distinguishes retryable email delivery from an invalid capability", async () => {
+	const { verifyEmailChange } = await import("@reactive-resume/auth/account-changes");
+	const { handleAuth } = await import("./auth");
+	vi.mocked(verifyEmailChange).mockRejectedValueOnce(new Error("EMAIL_CHANGE_DELIVERY_FAILED"));
+	const response = await handleAuth(new Request("http://localhost:3000/api/auth/confirm-email-change?token=synthetic"));
+	expect(response.headers.get("Location")).toBe("http://localhost:3000/email-change?status=delivery_failed");
+	expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+});

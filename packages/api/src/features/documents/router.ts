@@ -22,21 +22,6 @@ const route = (
 
 /** Resumes and saved cover letters as one library: list, rename, tag, lock, link, Trash and Copy for a job. */
 export const documentsRouter = {
-	purgeExpired: protectedProcedure
-		.route(
-			route(
-				"DELETE",
-				"/documents/trash/expired",
-				"purgeExpiredDocuments",
-				"Delete expired Trash",
-				"Permanently deletes documents in this account that have been in Trash more than 30 days.",
-			),
-		)
-		.input(z.object({}).optional())
-		.output(z.void())
-		.use(resumeMutationRateLimit)
-		.handler(({ context }) => documentsService.purgeExpired(context.user.id)),
-
 	list: protectedProcedure
 		.route(
 			route(

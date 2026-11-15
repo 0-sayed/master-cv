@@ -1,5 +1,5 @@
 import type { E2EAccount } from "./data";
-import type { APIRequestContext, Browser, BrowserContext, Page } from "@playwright/test";
+import type { APIRequestContext, Browser, BrowserContext, BrowserContextOptions, Page } from "@playwright/test";
 import { capturedAuthLink } from "./mail";
 
 async function assertAuthResponse(response: Awaited<ReturnType<APIRequestContext["post"]>>) {
@@ -71,6 +71,7 @@ export async function createAuthenticatedContext(
 	request: APIRequestContext,
 	account: E2EAccount,
 	baseURL: string,
+	options: BrowserContextOptions = {},
 ): Promise<BrowserContext> {
 	await registerViaApi(request, account, baseURL);
 	await request.get(await capturedAuthLink(account.email, "verification"));
@@ -86,6 +87,7 @@ export async function createAuthenticatedContext(
 	);
 
 	const context = await browser.newContext({
+		...options,
 		baseURL,
 		storageState: await request.storageState(),
 	});

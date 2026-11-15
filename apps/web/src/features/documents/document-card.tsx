@@ -16,6 +16,7 @@ import { DocumentMenuContent, useDocumentActions } from "./document-actions";
 import { daysLeftInTrash } from "./filter";
 import { useNewDocumentsStore } from "./new-documents";
 import { ResumeThumbnail } from "./resume-thumbnail";
+import { TrashDocumentRow } from "./trash-row";
 import { isImeComposing } from "@/libs/keyboard";
 import { formatRelativeTime } from "@/libs/locale";
 import { ENTER_CLASS, stagger } from "@/libs/motion";
@@ -27,11 +28,13 @@ export type DocumentItemProps = {
 	onLink: (document: DocumentSummary) => void;
 	/** Position in the library's first appearance, which staggers in; undefined afterwards and in Trash. */
 	introIndex?: number | undefined;
-	/** Whether the document is in the selection; Trash has no selection. */
+	/** Whether the document is in the current selection. */
 	selected?: boolean | undefined;
 	onSelectedChange?: ((selected: boolean) => void) | undefined;
 	/** Something is selected, so clicking a card toggles it instead of opening it. */
 	selecting?: boolean | undefined;
+	/** Temporarily blocks item actions while a collection operation is running. */
+	disabled?: boolean | undefined;
 };
 
 /** "Resume · Edited 2h ago", or the days left for a document in Trash. */
@@ -266,7 +269,11 @@ export function DocumentCard({
 }
 
 /** The list view's row: Name, Type, Application, Edited, ⋯. */
-export function DocumentRow({
+export function DocumentRow(props: DocumentItemProps) {
+	return props.document.trashedAt ? <TrashDocumentRow {...props} /> : <ActiveDocumentRow {...props} />;
+}
+
+function ActiveDocumentRow({
 	document,
 	onTags,
 	onLink,

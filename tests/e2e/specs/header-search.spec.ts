@@ -80,7 +80,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await writeFile(info.outputPath("geometry.json"), JSON.stringify(measurements, null, 2));
 	});
 
-	test(`${locale} one circular toggle sits on the sidebar border in both desktop states`, async ({
+	test(`${locale} one panel toggle sits beside the brand in both desktop states`, async ({
 		authPage: page,
 		baseURL,
 	}) => {
@@ -108,14 +108,17 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			const box = await toggle.boundingBox();
 			const aside = await page.getByRole("complementary").boundingBox();
 			if (!box || !aside) throw new Error("Sidebar absent");
-			expect(
-				Math.abs(box.x + box.width / 2 - (locale === "ar-SA" ? aside.x : aside.x + aside.width)),
-			).toBeLessThanOrEqual(1);
-			expect(box.width).toBe(40);
-			expect(box.height).toBe(40);
-			const circle = toggle.locator('[data-slot="sidebar-toggle-circle"]');
-			await expect(circle).toHaveCSS("border-radius", "50%");
-			expect((await circle.boundingBox())?.width).toBe(24);
+			const brand = page.locator(".shell-brand-row");
+			const row = await brand.boundingBox();
+			const logo = await brand.locator("a").boundingBox();
+			if (!row || !logo) throw new Error("Brand row missing");
+			expect(Math.abs(box.y + box.height / 2 - row.y - row.height / 2)).toBeLessThanOrEqual(1);
+			expect(box.x + box.width <= logo.x || box.x >= logo.x + logo.width).toBe(true);
+			expect(box.width).toBe(44);
+			expect(box.height).toBe(44);
+			await expect(toggle).toHaveAttribute("aria-expanded", String(!collapsed));
+			await expect(toggle.locator("svg")).toBeVisible();
+			await expect(toggle.locator('[data-slot="sidebar-toggle-circle"]')).toHaveCount(0);
 			await toggle.click();
 		}
 	});

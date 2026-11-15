@@ -1,4 +1,5 @@
 import type { Page } from "@playwright/test";
+import { navigateDashboard } from "../fixtures/dashboard-navigation";
 import { createSampleResumeFromDashboard, makeResumePublic } from "../fixtures/resume";
 import { expect, test } from "../fixtures/test";
 
@@ -92,39 +93,23 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await expect(page).toHaveTitle(`${locale === "ar-SA" ? "طلبات التقديم" : "Applications"} — Master CV`);
 	});
 
-	test(`${locale} settings is in the bottom group before account on desktop and rail`, async ({
+	test(`${locale} settings stays reachable through the active account menu in every layout`, async ({
 		authPage: page,
 		baseURL,
 	}) => {
 		await saveLocale(page, baseURL, locale);
-		for (const width of [1440, 768]) {
+		for (const width of [1440, 768, 390]) {
 			await page.setViewportSize({ width, height: 1024 });
 			await page.goto(`/dashboard/settings/account?locale=${locale}`);
-			const aside = page.getByRole("complementary");
-			await expect(aside.locator("nav a").first()).toBeVisible();
-			expect(
-				await aside.locator("nav a").evaluateAll((links) => links.map((link) => link.getAttribute("href"))),
-			).toEqual(["/dashboard", "/dashboard/career/information", "/dashboard/applications"]);
-			const settings = aside.locator('a[href="/dashboard/settings"]');
-			await expect(settings).toHaveAttribute("aria-current", "page");
-			const group = settings.locator("..");
-			const account = group.locator('button:has([data-slot="avatar"])');
-			await expect(account).toBeVisible();
-			expect(await settings.evaluate((el) => el.closest("nav"))).toBeNull();
-			await settings.focus();
-			await page.keyboard.press("Tab");
-			await expect(account).toBeFocused();
-			const settingsBox = await settings.boundingBox();
-			const accountBox = await account.boundingBox();
-			if (!settingsBox || !accountBox) throw new Error("Bottom account group missing");
-			expect(settingsBox.y).toBeGreaterThan(500);
-			expect(settingsBox.y + settingsBox.height).toBeLessThanOrEqual(accountBox.y);
+			const navigation = page.locator(width === 390 ? '[data-slot="app-bottom-nav"]' : "aside");
+			const account = navigation.locator('[data-slot="sidebar-account"]');
+			await expect(account).toHaveAttribute("aria-current", "page");
+			await account.click();
+			await page.getByRole("menuitem", { name: locale === "ar-SA" ? "الإعدادات" : "Settings", exact: true }).click();
+			const title =
+				width === 390 ? (locale === "ar-SA" ? "الإعدادات" : "Settings") : locale === "ar-SA" ? "الحساب" : "Account";
+			await expect(page).toHaveTitle(`${title} — Master CV`);
 		}
-		await page.setViewportSize({ width: 390, height: 844 });
-		await page.goto(`/dashboard?locale=${locale}`);
-		await expect(page.locator('[data-slot="app-bottom-nav"] a')).toHaveCount(4);
-		await page.locator('[data-slot="app-bottom-nav"] a[href="/dashboard/settings"]').click();
-		await expect(page).toHaveTitle(`${locale === "ar-SA" ? "الإعدادات" : "Settings"} — Master CV`);
 	});
 
 	test(`${locale} titles update on client navigation and interface language changes`, async ({
@@ -135,7 +120,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await page.setViewportSize({ width: 1440, height: 1024 });
 		await page.goto(`/dashboard?locale=${locale}`);
 		for (const entry of dashboardTitles.slice(1, 4)) {
-			await page.getByRole("complementary").locator(`a[href="${entry[0]}"]`).click();
+			await navigateDashboard(page, entry[0]);
 			await expect(page).toHaveTitle(`${entry[labelIndex]} — Master CV`);
 		}
 		await page

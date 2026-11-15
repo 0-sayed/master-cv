@@ -60,11 +60,15 @@ test("Arabic job link placeholder is LTR and mixed content selects its own direc
 	await page.getByRole("button", { name: "حفظ الوظيفة", exact: true }).click();
 	const field = page.getByPlaceholder("https://…");
 	await expect(field).toBeVisible();
-	await expect(field).toHaveAttribute("dir", "auto");
+	await expect(field).toHaveAttribute("dir", "ltr");
 	expect(await field.evaluate((el) => getComputedStyle(el).direction)).toBe("ltr");
 	expect(await field.evaluate((el) => getComputedStyle(el).textAlign)).toBe("start");
-	await field.fill("مهندس برمجيات في الرياض");
-	expect(await field.evaluate((el) => getComputedStyle(el).direction)).toBe("rtl");
+	await page.getByRole("tab", { name: "لصق النص", exact: true }).click();
+	const description = page.getByRole("dialog").locator("textarea");
+	await description.fill("مهندس برمجيات في الرياض");
+	await expect(description).toHaveAttribute("dir", "auto");
+	expect(await description.evaluate((el) => getComputedStyle(el).direction)).toBe("rtl");
+	await page.getByRole("tab", { name: "وصلة", exact: true }).click();
 	await field.fill("https://example.test/job");
 	expect(await field.evaluate((el) => getComputedStyle(el).direction)).toBe("ltr");
 });
@@ -82,7 +86,9 @@ test("Arabic account email and resume URL fields stay LTR", async ({ authPage: p
 	});
 	await page.context().addCookies([{ name: "locale", value: "ar-SA", url: baseURL ?? "http://localhost:3030" }]);
 	await page.goto("/dashboard/settings/account");
-	await expect(page.locator('input[type="email"]')).toHaveAttribute("dir", "ltr");
+	await page.getByRole("button", { name: "تغيير البريد الإلكتروني", exact: true }).click();
+	await expect(page.getByRole("dialog").locator('input[type="email"]')).toHaveAttribute("dir", "ltr");
+	await page.keyboard.press("Escape");
 	await createSampleResumeFromDashboard(page, info);
 	await page.getByRole("tab", { name: /^كتابة$|^Write$/ }).click();
 	for (const field of await page.locator('input[type="email"],input[type="tel"],input[inputmode="url"]').all()) {

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 type EmptyDialog<T extends string> = { [K in T]: { type: K; data?: undefined } }[T];
 
 export type DialogSchema =
-	| EmptyDialog<"auth.change-password" | "auth.two-factor.enable" | "auth.two-factor.disable">
+	| EmptyDialog<"auth.change-password" | "auth.change-email" | "auth.two-factor.enable" | "auth.two-factor.disable">
 	| {
 			type: "document.new";
 			data?: NewDocumentDialogData | undefined;

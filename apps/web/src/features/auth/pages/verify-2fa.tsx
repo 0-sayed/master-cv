@@ -8,6 +8,7 @@ import { useState } from "react";
 import z from "zod";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
+import { DialogFooter } from "@reactive-resume/ui/components/dialog";
 import { FormControl, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
@@ -132,7 +133,7 @@ function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerification
 										<Input
 											type="text"
 											maxLength={11}
-											className="max-w-xs"
+											dir="ltr"
 											name={field.name}
 											value={field.state.value}
 											onBlur={field.handleBlur}
@@ -141,7 +142,7 @@ function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerification
 									) : (
 										<OTPField
 											length={6}
-											autoSubmit
+											aria-label={t`6-digit code`}
 											name={field.name}
 											value={field.state.value}
 											onBlur={field.handleBlur}
@@ -157,7 +158,7 @@ function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerification
 
 				<form.Field name="trustDevice">
 					{(field) => (
-						<FormItem className="flex items-center gap-2.5 justify-self-center">
+						<FormItem orientation="horizontal" className="justify-self-center">
 							<FormControl
 								render={<Checkbox name={field.name} checked={field.state.value} onCheckedChange={field.handleChange} />}
 							/>
@@ -168,14 +169,13 @@ function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerification
 					)}
 				</form.Field>
 
-				<div className="flex gap-x-2">
+				<DialogFooter>
 					<Button
 						variant="secondary"
-						className="flex-1"
 						nativeButton={false}
 						render={
 							<Link to={backupCode ? "/auth/verify-2fa" : "/auth/login"} search={{ callbackURL, reauthenticate }}>
-								<Icon name="arrow-left" size={16} />
+								<Icon name="arrow-left" />
 								{backupCode ? (
 									<Trans comment="Secondary navigation button on backup-code verification screen">Go Back</Trans>
 								) : (
@@ -185,22 +185,23 @@ function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerification
 						}
 					/>
 
-					<Button type="submit" className="flex-1" disabled={isSubmitting}>
-						<Icon name="check" size={16} />
+					<Button type="submit" disabled={isSubmitting}>
+						<Icon name="check" />
 						{backupCode ? (
 							<Trans comment="Primary action button to submit backup code">Verify</Trans>
 						) : (
 							<Trans comment="Primary action button to submit 2FA code">Verify</Trans>
 						)}
 					</Button>
-				</div>
+				</DialogFooter>
 			</form>
 
 			{!backupCode && (
 				<Button
 					variant="link"
+					size="link-touch"
 					nativeButton={false}
-					className="justify-self-center type-body"
+					className="justify-self-center"
 					render={
 						<Link to="/auth/verify-2fa-backup" search={{ callbackURL, reauthenticate }}>
 							<Trans comment="Link to backup-code verification flow when authenticator app is unavailable">

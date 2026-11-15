@@ -2,13 +2,29 @@
 	"sourceRun": "42900521575",
 	"defaultTestSeconds": 5,
 	"specs": {
+		"account-consistency.spec.ts": {
+			"seconds": 100,
+			"tests": 20
+		},
 		"account-controls.spec.ts": {
 			"seconds": 33.7,
 			"tests": 9
 		},
+		"account-credential-recovery.spec.ts": {
+			"seconds": 65.7,
+			"tests": 8
+		},
+		"account-data-rights.spec.ts": {
+			"seconds": 56.4,
+			"tests": 7
+		},
 		"account-menu-avatar.spec.ts": {
 			"seconds": 89.2,
 			"tests": 10
+		},
+		"account-security.spec.ts": {
+			"seconds": 18.1,
+			"tests": 8
 		},
 		"ai-reports.spec.ts": {
 			"seconds": 3.0,
@@ -58,6 +74,10 @@
 			"seconds": 21.9,
 			"tests": 6
 		},
+		"consumed-proof-recovery.spec.ts": {
+			"seconds": 5.8,
+			"tests": 4
+		},
 		"control-sizing.spec.ts": {
 			"seconds": 5.1,
 			"tests": 2
@@ -81,6 +101,10 @@
 		"dashboard-density.spec.ts": {
 			"seconds": 57.8,
 			"tests": 8
+		},
+		"dashboard-empty-states.spec.ts": {
+			"seconds": 30,
+			"tests": 6
 		},
 		"dashboard-header-motion.spec.ts": {
 			"seconds": 82.0,
@@ -150,8 +174,16 @@
 			"seconds": 52.6,
 			"tests": 9
 		},
+		"privacy-help.spec.ts": {
+			"seconds": 0.6,
+			"tests": 1
+		},
 		"private-ownership.spec.ts": {
 			"seconds": 1.2,
+			"tests": 1
+		},
+		"private-picture-delivery.spec.ts": {
+			"seconds": 1.1,
 			"tests": 1
 		},
 		"private-workspace.spec.ts": {
@@ -233,6 +265,10 @@
 		"template-previews.spec.ts": {
 			"seconds": 17.9,
 			"tests": 4
+		},
+		"trash-retention.spec.ts": {
+			"seconds": 11.0,
+			"tests": 8
 		},
 		"ui-audit.spec.ts": {
 			"seconds": 107.0,

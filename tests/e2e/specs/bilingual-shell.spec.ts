@@ -17,7 +17,17 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				if (width < 640) {
 					const nav = authPage.locator('nav:has(a[href="/dashboard/career/information"])');
 					await expect(nav.locator("a")).toHaveCount(4);
-					await expect(nav.locator("button")).toHaveCount(0);
+					await expect(nav.locator("button")).toHaveCount(1);
+					await expect(nav.locator('[data-slot="sidebar-account"]')).toHaveAccessibleName(
+						locale === "ar-SA" ? "الحساب" : "Account",
+					);
+					expect(
+						await nav.locator('[data-slot="sidebar-account"] .mobile-nav-label').evaluate((label) => {
+							const range = document.createRange();
+							range.selectNodeContents(label);
+							return range.getClientRects().length;
+						}),
+					).toBe(1);
 					await expect(authPage.locator('button[aria-keyshortcuts="N"]')).toHaveCount(0);
 					// Creation stays available through the shortcut, without an unrelated settings action.
 					await authPage.keyboard.press("n");

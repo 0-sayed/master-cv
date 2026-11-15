@@ -49,7 +49,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
 		<div
 			data-slot="alert-title"
 			className={cn(
-				"font-semibold group-has-[>[data-slot=icon]]/alert:col-start-2 group-has-[>svg]/alert:col-start-2",
+				"min-w-0 font-semibold wrap-anywhere group-has-[>[data-slot=icon]]/alert:col-start-2 group-has-[>svg]/alert:col-start-2",
 				className,
 			)}
 			{...props}
@@ -62,7 +62,7 @@ function AlertDescription({ className, ...props }: React.ComponentProps<"div">) 
 		<div
 			data-slot="alert-description"
 			className={cn(
-				"text-pretty group-has-[>[data-slot=icon]]/alert:col-start-2 group-has-[>svg]/alert:col-start-2 [&_p:not(:last-child)]:mb-2",
+				"min-w-0 text-pretty wrap-anywhere group-has-[>[data-slot=icon]]/alert:col-start-2 group-has-[>svg]/alert:col-start-2 [&_p:not(:last-child)]:mb-2",
 				className,
 			)}
 			{...props}

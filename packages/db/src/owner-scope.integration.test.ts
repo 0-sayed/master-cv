@@ -45,7 +45,7 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("owner database sco
 		);
 		await fixture.query(`REVOKE UPDATE,DELETE ON career_fact_revision FROM "${role}"`);
 		await fixture.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_usage_ledger FROM "${role}"`);
-		await fixture.query(`REVOKE ALL ON ai_platform_budget FROM "${role}"`);
+		await fixture.query(`REVOKE ALL ON ai_platform_budget,deletion_replay_record,support_access_log FROM "${role}"`);
 		await fixture.query(`REVOKE UPDATE,DELETE,TRUNCATE ON ai_review_decision FROM "${role}"`);
 		await fixture.query(`REVOKE UPDATE,TRUNCATE ON ai_import_review_source FROM "${role}"`);
 		await fixture.query(

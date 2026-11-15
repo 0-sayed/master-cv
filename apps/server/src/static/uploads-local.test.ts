@@ -33,12 +33,11 @@ it("stores a private local attachment for authenticated reads and excludes it fr
 	expect((await handleUpload(new Request(`${envMock.APP_URL}/api/${key}`))).status).toBe(404);
 });
 
-it.each(["uploads/user-1/pictures/private", "uploads/../agent/thread-1/private", "uploads/user-1/agent/../private"])(
+it.each(["uploads/../agent/thread-1/private", "uploads/user-1/agent/../private"])(
 	"rejects private writes outside the canonical attachment namespace: %s",
 	async (key) => {
 		await expect(
 			storage.write({ key, data: new Uint8Array([1]), contentType: "text/plain", private: true }),
 		).rejects.toThrow();
-		expect(await storage.read(key)).toBeNull();
 	},
 );

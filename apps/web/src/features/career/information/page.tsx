@@ -9,14 +9,10 @@ import z from "zod";
 import { masterSectionSchema } from "@reactive-resume/schema/career-master";
 import { Button } from "@reactive-resume/ui/components/button";
 import { SectionCollection } from "@reactive-resume/ui/components/collection-grid";
+import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { FactChip } from "@reactive-resume/ui/components/fact-chip";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import {
-	SectionCard,
-	SectionCardEmpty,
-	SectionCardHeader,
-	SectionCardRow,
-} from "@reactive-resume/ui/components/section-card";
+import { SectionCard, SectionCardHeader, SectionCardRow } from "@reactive-resume/ui/components/section-card";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { ProfileSectionsSkeleton } from "@reactive-resume/ui/components/skeleton-content";
 import { SuccessTick } from "@reactive-resume/ui/components/success-tick";
@@ -53,11 +49,7 @@ export function CareerInformationPage() {
 	const data = query.data;
 	return (
 		<div className="contents">
-			<PageHeader
-				mobileTitleInShell
-				title={copy("editor.navigation.career")}
-				description={copy("editor.career.subtitle")}
-			/>
+			<PageHeader mobileTitleInShell title={copy("editor.navigation.career")} />
 			{loading.pending ? (
 				<QuerySkeleton
 					fallback={
@@ -117,6 +109,18 @@ export function CareerInformationPage() {
 		];
 		const titleKey = section === "certifications" ? "editor.certificates.title" : (`editor.${section}.title` as const);
 		const addKey = section === "certifications" ? "editor.certificates.add" : (`editor.${section}.add` as const);
+		const addAction = (
+			<Button
+				variant="secondary"
+				onClick={() => {
+					setSaved(false);
+					setDialog({ section, entityId: crypto.randomUUID() });
+				}}
+			>
+				<Icon name="plus" />
+				{copy(addKey)}
+			</Button>
+		);
 		return (
 			<SectionCard key={section}>
 				<SectionCardHeader>
@@ -150,23 +154,15 @@ export function CareerInformationPage() {
 						))}
 					</div>
 				) : (
-					<SectionCardEmpty>
-						<p>{section === "certifications" ? copy("editor.certificates.empty") : copy("editor.career.emptyTitle")}</p>
-						{section === "certifications" && <p>{copy("editor.certificates.hint")}</p>}
-					</SectionCardEmpty>
+					<EmptyState
+						icon={icons[section]}
+						actions={addAction}
+						density="compact"
+						title={section === "certifications" ? copy("editor.certificates.empty") : copy("editor.career.emptyTitle")}
+						description={section === "certifications" ? copy("editor.certificates.hint") : undefined}
+					/>
 				)}
-				<Button
-					variant="link"
-					size="link-compact"
-					className="justify-start"
-					onClick={() => {
-						setSaved(false);
-						setDialog({ section, entityId: crypto.randomUUID() });
-					}}
-				>
-					<Icon name="plus" />
-					{copy(addKey)}
-				</Button>
+				{ids.length > 0 && addAction}
 			</SectionCard>
 		);
 	}

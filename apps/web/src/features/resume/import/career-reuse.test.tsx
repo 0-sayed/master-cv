@@ -114,7 +114,7 @@ it("does not start a fresh reuse retry after the CV becomes unavailable", async 
 	);
 	const view = render(notice(true));
 	fireEvent.click(screen.getByRole("button", { name: "Use confirmed career information" }));
-	await screen.findByText("offline");
+	await screen.findByText("Could not load career information. Try again.");
 	view.rerender(notice(false));
 	fireEvent.click(screen.getByRole("button", { name: "Use confirmed career information" }));
 	expect(mocks.read).toHaveBeenCalledOnce();
@@ -154,7 +154,14 @@ it.each(["en-US", "ar-SA"] as const)(
 		expect(alert.querySelector('[data-slot="alert-title"]')).toHaveTextContent(
 			locale === "ar-SA" ? "حدث خطأ ما" : "Something went wrong",
 		);
-		expect(within(alert).getByText("offline")).toBeVisible();
+		expect(
+			within(alert).getByText(
+				locale === "ar-SA"
+					? "تعذر تحميل المعلومات المهنية. حاول مجددًا."
+					: "Could not load career information. Try again.",
+			),
+		).toBeVisible();
+		expect(within(alert).queryByText("offline")).not.toBeInTheDocument();
 		const recovery = within(alert).getByRole("button");
 		expect(recovery).toBeEnabled();
 		fireEvent.click(recovery);

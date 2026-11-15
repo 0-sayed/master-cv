@@ -17,21 +17,31 @@ function useStory() {
 	return [
 		{
 			part: "s",
-			letter: t`S`,
+			letter: t({ message: "S", context: "story.situation.initial" }),
 			label: t`Situation`,
 			text: t`Most new teams at Afaq Design (example) stalled during setup and never reached activation.`,
 		},
-		{ part: "t", letter: t`T`, label: t`Task`, text: t`Find out why, and shorten setup without adding support work.` },
+		{
+			part: "t",
+			letter: t({ message: "T", context: "story.task.initial" }),
+			label: t`Task`,
+			text: t`Find out why, and shorten setup without adding support work.`,
+		},
 		{
 			part: "a",
-			letter: t`A`,
+			letter: t({ message: "A", context: "story.action.initial" }),
 			label: t`Action`,
 			text: t`Interviewed 14 customers, mapped three drop-off points and prototyped a shorter setup with engineering.`,
 		},
-		{ part: "r", letter: t`R`, label: t`Result`, text: t`Activation rose from 31% to 44% in one quarter.` },
+		{
+			part: "r",
+			letter: t({ message: "R", context: "story.result.initial" }),
+			label: t`Result`,
+			text: t`Activation rose from 31% to 44% in one quarter.`,
+		},
 		{
 			part: "f",
-			letter: t`R`,
+			letter: t({ message: "R", context: "story.reflection.initial" }),
 			label: t`Reflection`,
 			text: t`Next time, I’d agree how to measure success before the first prototype.`,
 		},

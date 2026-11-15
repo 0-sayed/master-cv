@@ -2,7 +2,7 @@ import type { ResumeThumbnailSize } from "@/features/resume/preview/resume-thumb
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { QueryClient } from "@tanstack/react-query";
 import type { RefObject } from "react";
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
@@ -10,6 +10,7 @@ import { PreviewPlaceholder } from "@reactive-resume/ui/components/preview-place
 import { Skeleton, useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { cn } from "@reactive-resume/utils/style";
 import { QuerySkeleton } from "@/components/query-skeleton";
+import { getTemplateImageUrl } from "@/dialogs/resume/template/data";
 import { createResumePdfBlob } from "@/features/resume/export/pdf-document";
 import { createPdfFirstPageImageUrl, releaseThumbnailUrls } from "@/features/resume/preview/pdf-thumbnail";
 import {
@@ -174,6 +175,7 @@ function useResumeThumbnail(
 
 /** The resume's first page, rendered once it scrolls near view and cached until it changes. */
 export function ResumeThumbnail({ resume }: ResumeThumbnailProps) {
+	const { t } = useLingui();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [image, setImage] = useState<{ url: string; status: "ready" | "error" } | null>(null);
 	const isInView = useInView(containerRef, { amount: 0.1, margin: "240px" });
@@ -201,7 +203,14 @@ export function ResumeThumbnail({ resume }: ResumeThumbnailProps) {
 			className="@container/thumbnail relative size-full overflow-hidden bg-white"
 		>
 			{status === "empty" ? (
-				<PreviewPlaceholder variant="thumbnail" label={t`Empty CV`} />
+				<PreviewPlaceholder
+					variant="thumbnail"
+					appearance="empty"
+					label={t`Empty CV`}
+					thumbnailSrc={
+						resumeData && getTemplateImageUrl(resumeData.data.metadata.template, resumeData.data.metadata.page.locale)
+					}
+				/>
 			) : status === "error" ? (
 				<PreviewPlaceholder variant="thumbnail" label={t`Preview unavailable`} />
 			) : (

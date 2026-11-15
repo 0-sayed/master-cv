@@ -66,7 +66,8 @@ test("an account switch reconciles router and reactive identity without showing 
 		const other = await page.context().newPage();
 		await other.goto("/dashboard");
 		await settleScreen(other);
-		await other.getByRole("link", { name: "Settings", exact: true }).click();
+		await other.locator('aside [data-slot="sidebar-account"]').click();
+		await other.getByRole("menuitem", { name: "Settings", exact: true }).click();
 		// A real update-user broadcasts the session notification to the first tab.
 		await other.getByRole("textbox", { name: "Name", exact: true }).fill(next.name + " Updated");
 		await other.getByRole("textbox", { name: "Name", exact: true }).blur();

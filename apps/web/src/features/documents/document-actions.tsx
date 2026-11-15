@@ -37,6 +37,8 @@ import { orpc } from "@/libs/orpc/client";
 
 type Ref = { type: DocumentSummary["type"]; id: string };
 const ref = (document: DocumentSummary): Ref => ({ type: document.type, id: document.id });
+// The shared confirmation accepts plain strings. FSI/PDI give each user-supplied name its own direction.
+const isolateName = (name: string) => `\u2068${name}\u2069`;
 
 const failed = (error: unknown) =>
 	toast.add({
@@ -56,6 +58,7 @@ function useRefreshDocuments() {
 
 export function useDocumentActions() {
 	const confirm = useConfirm();
+	const navigate = useNavigate();
 	const openDialog = useDialogStore((state) => state.openDialog);
 	const markNew = useNewDocumentsStore((state) => state.markNew);
 	const refresh = useRefreshDocuments();
@@ -112,7 +115,17 @@ export function useDocumentActions() {
 		restore: async (document: DocumentSummary) => {
 			try {
 				await restore.mutateAsync(ref(document));
-				toast.add({ description: t`Restored “${document.name}”` });
+				toast.add({
+					description: t`Restored “${document.name}”`,
+					actionProps: {
+						children: t`Open`,
+						onClick: () => {
+							if (document.type === "resume")
+								void navigate({ to: "/builder/$resumeId", params: { resumeId: document.id } });
+							else void navigate({ to: "/builder/letter/$coverLetterId", params: { coverLetterId: document.id } });
+						},
+					},
+				});
 			} catch (error) {
 				failed(error);
 			}
@@ -120,9 +133,10 @@ export function useDocumentActions() {
 
 		/** The only permanent action here; it asks once. */
 		purge: async (document: DocumentSummary) => {
-			const confirmed = await confirm(t`Delete “${document.name}” now?`, {
+			const name = isolateName(document.name);
+			const confirmed = await confirm(t({ message: `Delete “${name}” forever?`, context: "trash.confirm.item" }), {
 				description: t`It will be deleted for good and can't be restored.`,
-				confirmText: t`Delete now`,
+				confirmText: t({ message: "Delete forever", context: "trash.actions.purge" }),
 				variant: "danger",
 				cancelText: t`Keep in Trash`,
 			});
@@ -142,6 +156,8 @@ export function useDocumentActions() {
  * says how many changed. Locked documents keep their visibility, tags and place; letters have no public link.
  */
 export function useBatchActions() {
+	const confirm = useConfirm();
+	const purge = useMutation(orpc.documents.purge.mutationOptions());
 	const refresh = useRefreshDocuments();
 	const setLocked = useMutation(orpc.documents.setLocked.mutationOptions());
 	const trash = useMutation(orpc.documents.trash.mutationOptions());
@@ -169,6 +185,54 @@ export function useBatchActions() {
 		});
 
 	return {
+		restore: async (documents: readonly DocumentSummary[]) => {
+			const done = await run(
+				documents,
+				() => true,
+				(document) => restore.mutateAsync(ref(document)),
+			);
+			const count = done.length;
+			const total = documents.length;
+			toast.add({
+				type: count < total ? "error" : undefined,
+				description: plural(total, {
+					one: `Restored ${count} of # document.`,
+					other: `Restored ${count} of # documents.`,
+				}),
+			});
+		},
+		purge: async (documents: readonly DocumentSummary[], empty = false) => {
+			const count = documents.length;
+			const names = documents.map((document) => isolateName(document.name)).join(", ");
+			const confirmed = await confirm(
+				empty
+					? t({ message: "Empty trash?", context: "trash.confirm.empty" })
+					: plural(count, {
+							one: "Delete # selected document forever?",
+							other: "Delete # selected documents forever?",
+						}),
+				{
+					description: t({ message: `These documents cannot be restored: ${names}`, context: "trash.confirm.scope" }),
+					confirmText: t({ message: "Delete forever", context: "trash.actions.purge" }),
+					variant: "danger",
+					cancelText: t`Keep in Trash`,
+				},
+			);
+			if (!confirmed) return;
+			const done = await run(
+				documents,
+				() => true,
+				(document) => purge.mutateAsync(ref(document)),
+			);
+			const deleted = done.length;
+			toast.add({
+				type: deleted < count ? "error" : undefined,
+				description: plural(count, {
+					one: `Deleted ${deleted} of # document. Failed items remain in Trash.`,
+					other: `Deleted ${deleted} of # documents. Failed items remain in Trash.`,
+				}),
+			});
+		},
 		setPublic: async (documents: readonly DocumentSummary[], isPublic: boolean) => {
 			const done = await run(
 				documents,
@@ -247,7 +311,12 @@ export function DocumentMenuContent({
 
 	const trashEntries: MenuEntry[] = [
 		{ icon: "arrow-counter-clockwise", label: t`Restore`, onSelect: () => void actions.restore(document) },
-		{ icon: "trash", label: t`Delete now…`, onSelect: () => void actions.purge(document), danger: true },
+		{
+			icon: "trash",
+			label: t({ message: "Delete forever", context: "trash.actions.purge" }),
+			onSelect: () => void actions.purge(document),
+			danger: true,
+		},
 	];
 	const liveEntries: MenuEntry[] = [
 		{ icon: "arrow-square-out", label: t`Open`, onSelect: onOpen },

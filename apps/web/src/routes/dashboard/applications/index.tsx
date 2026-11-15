@@ -232,14 +232,15 @@ function RouteComponent() {
 					{loading.pending ? (
 						<QuerySkeleton fallback={<ViewSkeleton view={shown} />} />
 					) : noMatches ? (
-						<EmptyState>
-							<p className="type-body font-medium">
-								<Trans>No applications match “{query.trim()}”.</Trans>
-							</p>
-							<Button size="sm" variant="secondary" onClick={() => setQuery("")}>
-								<Trans>Clear search</Trans>
-							</Button>
-						</EmptyState>
+						<EmptyState
+							icon="magnifying-glass"
+							title={<Trans>No applications match “{query.trim()}”.</Trans>}
+							actions={
+								<Button variant="secondary" onClick={() => setQuery("")}>
+									<Trans>Clear search</Trans>
+								</Button>
+							}
+						/>
 					) : (
 						<div
 							key={shown}
@@ -372,26 +373,25 @@ function FollowUpNudge({ applications, onOpen }: { applications: Application[]; 
 
 function FirstApplication({ onAdd, onImport }: { onAdd: () => void; onImport: () => void }) {
 	return (
-		<EmptyState className={PAGE_ENTER_CLASS}>
-			<span className="grid size-12 place-items-center rounded-xl bg-sunken text-ink-2">
-				<Icon name="briefcase" size={26} />
-			</span>
-			<h2 className="type-section font-semibold">
-				<Trans>Track your first job</Trans>
-			</h2>
-			<p className="max-w-sm type-body text-ink-2">
+		<EmptyState
+			className={PAGE_ENTER_CLASS}
+			icon="briefcase"
+			title={<Trans>Track your first job</Trans>}
+			description={
 				<Trans>Paste a job link. We'll save the posting so Check, the assistant and your letter can use it.</Trans>
-			</p>
-			<div className="flex gap-2">
-				<Button onClick={onAdd}>
-					<Icon name="plus" />
-					<Trans>Save job</Trans>
-				</Button>
-				<Button variant="secondary" onClick={onImport}>
-					<Trans>Import from CSV</Trans>
-				</Button>
-			</div>
-		</EmptyState>
+			}
+			actions={
+				<>
+					<Button onClick={onAdd}>
+						<Icon name="plus" />
+						<Trans>Save job</Trans>
+					</Button>
+					<Button variant="secondary" onClick={onImport}>
+						<Trans>Import from CSV</Trans>
+					</Button>
+				</>
+			}
+		/>
 	);
 }
 

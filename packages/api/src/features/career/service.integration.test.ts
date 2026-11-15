@@ -1,5 +1,7 @@
 vi.mock("@reactive-resume/db/owner-scope", () => ({
 	withDatabaseOwner: (_userId: string, work: () => unknown) => work(),
+	withOwnerDatabase: (_userId: string, work: Parameters<ReturnType<typeof drizzle>["transaction"]>[0]) =>
+		getDb().transaction(work),
 }));
 import type { CareerSource } from "@reactive-resume/schema/career";
 import { randomUUID } from "node:crypto";
@@ -16,10 +18,15 @@ import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 
 const fixture = vi.hoisted(() => ({
 	db: undefined as ReturnType<typeof drizzle> | undefined,
+	pool: undefined as Pool | undefined,
 	generate: vi.fn(),
 	storageDelete: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock("@reactive-resume/db/client", () => ({
+	getPool: () => {
+		if (!fixture.pool) throw new Error("Test database is not initialized.");
+		return fixture.pool;
+	},
 	get db() {
 		return fixture.db;
 	},
@@ -81,6 +88,7 @@ describe.skipIf(!databaseUrl)("career knowledge, context and data lifecycle", ()
 			connectionTimeoutMillis: 2000,
 			options: `-c search_path=${schemaName}`,
 		});
+		fixture.pool = pool;
 		fixture.db = drizzle({ client: pool });
 		const migrations = new URL("../../../../../migrations/", import.meta.url);
 		const directories = (await readdir(migrations, { withFileTypes: true }))
@@ -91,7 +99,12 @@ describe.skipIf(!databaseUrl)("career knowledge, context and data lifecycle", ()
 			const file = new URL(`${directory}/migration.sql`, migrations);
 			if (!existsSync(file)) continue;
 			const migration = await readFile(file, "utf8");
-			await pool.query(migration.replaceAll('"public".', ""));
+			await pool.query(
+				migration
+					.replaceAll('"public".', `${schemaName}.`)
+					.replaceAll("public.", `${schemaName}.`)
+					.replaceAll(/(search_path\s*=\s*)public/g, `$1${schemaName}`),
+			);
 		}
 		service = (await import("./service")).careerService;
 		applications = (await import("../applications/service")).applicationService;
@@ -1188,6 +1201,7 @@ describe.skipIf(!databaseUrl)("career knowledge, context and data lifecycle", ()
 		"orders %s before document locks when an application submission owns the application",
 		async (operation) => {
 			const { documentsService } = await import("../documents/service");
+			const { requestDocumentPurge } = await import("../documents/purge");
 			const { resumeService } = await import("../resume/service");
 			await getDb()
 				.insert(tables.coverLetter)
@@ -1223,7 +1237,7 @@ describe.skipIf(!databaseUrl)("career knowledge, context and data lifecycle", ()
 						: operation === "resume deletion"
 							? resumeService.delete({ userId: "alice", id: "shared-resume" })
 							: operation === "letter purge"
-								? documentsService.purge({ userId: "alice", type: "letter", id: "contended-letter" })
+								? requestDocumentPurge({ userId: "alice", type: "letter", id: "contended-letter" })
 								: documentsService.linkApplication({
 										userId: "alice",
 										type: "resume",

@@ -1,6 +1,7 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { IconName } from "@reactive-resume/ui/components/icon";
 import { getResumeSectionTitle } from "@reactive-resume/pdf/section-title";
+import { localizeResumeEntries } from "@reactive-resume/schema/resume/entry-options";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { contrastOnWhite } from "@reactive-resume/utils/color";
 import { isRTL } from "@reactive-resume/utils/locale";
@@ -123,7 +124,8 @@ type ResumeReflowProps = { data: ResumeData };
  * Phones: the resume as readable text at 15px, in the order the PDF prints it and in the template's colour and body
  * font. Contact details are tap targets. The PDF stays the exact page.
  */
-export function ResumeReflow({ data }: ResumeReflowProps) {
+export function ResumeReflow({ data: source }: ResumeReflowProps) {
+	const data = localizeResumeEntries(source);
 	const order = reflowOrder(data);
 	const { basics } = data;
 	// The template's colour, darkened where it would be too faint to read on white.

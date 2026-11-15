@@ -372,14 +372,6 @@
 		},
 		{
 			"file": "apps/web/src/features/applications/components/add-application-dialog.tsx",
-			"context": "function:AddApplicationDialog/jsx:DialogContent@className",
-			"literal": "sm:max-w-[560px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/add-application-dialog.tsx",
 			"context": "function:AddApplicationForm/jsx:a@className",
 			"literal": "text-xs",
 			"kind": "typography",
@@ -391,61 +383,13 @@
 			"context": "function:AddApplicationForm/jsx:p@className",
 			"literal": "text-xs",
 			"kind": "typography",
-			"count": 9,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/add-application-dialog.tsx",
-			"context": "function:AddApplicationForm/jsx:SegmentedControl@className",
-			"literal": "h-auto",
-			"kind": "control-override",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/add-application-dialog.tsx",
-			"context": "function:AddApplicationForm/jsx:SegmentedControlItem@className",
-			"literal": "min-h-7",
-			"kind": "control-override",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/add-application-dialog.tsx",
-			"context": "function:AddApplicationForm/jsx:select@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/add-application-dialog.tsx",
-			"context": "function:AddApplicationForm/jsx:span@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
+			"count": 7,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
 			"file": "apps/web/src/features/applications/components/add-application-dialog.tsx",
 			"context": "function:AddApplicationForm/jsx:strong@className",
 			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/add-application-dialog.tsx",
-			"context": "function:ReadStatus/const:base",
-			"literal": "leading-[17px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/add-application-dialog.tsx",
-			"context": "function:ReadStatus/const:base",
-			"literal": "text-xs",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
@@ -805,17 +749,9 @@
 		{
 			"file": "apps/web/src/features/applications/components/calendar-view.tsx",
 			"context": "function:ApplicationCalendar/jsx:p@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/calendar-view.tsx",
-			"context": "function:ApplicationCalendar/jsx:p@className",
 			"literal": "text-xs",
 			"kind": "typography",
-			"count": 2,
+			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
@@ -925,14 +861,6 @@
 		{
 			"file": "apps/web/src/features/applications/components/detail/contacts.tsx",
 			"context": "function:ContactList/jsx:div@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/contacts.tsx",
-			"context": "function:ContactList/jsx:p@className",
 			"literal": "text-sm",
 			"kind": "typography",
 			"count": 1,
@@ -1075,54 +1003,6 @@
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
-			"file": "apps/web/src/features/applications/components/import-applications-sheet.tsx",
-			"context": "function:ImportApplicationsSheet/jsx:div@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/import-applications-sheet.tsx",
-			"context": "function:ImportApplicationsSheet/jsx:h3@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/import-applications-sheet.tsx",
-			"context": "function:ImportApplicationsSheet/jsx:li@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/import-applications-sheet.tsx",
-			"context": "function:ImportApplicationsSheet/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 3,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/import-applications-sheet.tsx",
-			"context": "function:ImportApplicationsSheet/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/import-applications-sheet.tsx",
-			"context": "function:ImportApplicationsSheet/jsx:Textarea@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
 			"file": "apps/web/src/features/applications/components/insights-view.tsx",
 			"context": "const:FLOW_BG",
 			"literal": "#0a0a0f",
@@ -1255,7 +1135,7 @@
 			"context": "function:ApplicationInsights/jsx:p@className",
 			"literal": "text-sm",
 			"kind": "typography",
-			"count": 2,
+			"count": 1,
 			"reason": "Fixed inherited chart/PNG export palette or geometry from b617646fa."
 		},
 		{
@@ -2580,14 +2460,6 @@
 		},
 		{
 			"file": "apps/web/src/features/career/knowledge/facts.tsx",
-			"context": "function:FactsPage/jsx:div@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/knowledge/facts.tsx",
 			"context": "function:FactsPage/jsx:input@className",
 			"literal": "text-[13px]",
 			"kind": "typography",
@@ -2997,22 +2869,6 @@
 		{
 			"file": "apps/web/src/features/career/knowledge/stories.tsx",
 			"context": "function:StoriesPage/jsx:h2@className",
-			"literal": "leading-7",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/knowledge/stories.tsx",
-			"context": "function:StoriesPage/jsx:h2@className",
-			"literal": "text-[22px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/knowledge/stories.tsx",
-			"context": "function:StoriesPage/jsx:h2@className",
 			"literal": "text-lg",
 			"kind": "typography",
 			"count": 1,
@@ -3037,17 +2893,9 @@
 		{
 			"file": "apps/web/src/features/career/knowledge/stories.tsx",
 			"context": "function:StoriesPage/jsx:p@className",
-			"literal": "max-w-[300px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/knowledge/stories.tsx",
-			"context": "function:StoriesPage/jsx:p@className",
 			"literal": "text-sm",
 			"kind": "typography",
-			"count": 2,
+			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
@@ -3452,33 +3300,9 @@
 		},
 		{
 			"file": "apps/web/src/features/career/offers.tsx",
-			"context": "function:OffersPage/jsx:h2@className",
-			"literal": "leading-7",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/offers.tsx",
-			"context": "function:OffersPage/jsx:h2@className",
-			"literal": "text-[22px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/offers.tsx",
 			"context": "function:OffersPage/jsx:p@className",
 			"literal": "leading-[19px]",
 			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/offers.tsx",
-			"context": "function:OffersPage/jsx:p@className",
-			"literal": "max-w-[340px]",
-			"kind": "geometry",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
@@ -3495,7 +3319,7 @@
 			"context": "function:OffersPage/jsx:p@className",
 			"literal": "text-sm",
 			"kind": "typography",
-			"count": 2,
+			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
@@ -13348,14 +13172,6 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/editor/proposals/proposal-list.tsx",
-			"context": "function:ProposalItem/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/proposals/proposal-list.tsx",
 			"context": "function:ProposalItem/jsx:span@className",
 			"literal": "text-[11px]",
 			"kind": "typography",
@@ -16139,22 +15955,6 @@
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
-			"file": "packages/ui/src/components/accordion.tsx",
-			"context": "function:AccordionContent/jsx:AccordionPrimitive.Panel@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "packages/ui/src/components/accordion.tsx",
-			"context": "function:AccordionTrigger/jsx:AccordionPrimitive.Trigger@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
 			"file": "packages/ui/src/components/alert-dialog.tsx",
 			"context": "function:AlertDialogContent/jsx:AlertDialogPrimitive.Popup@className",
 			"literal": "data-[size=default]:sm:max-w-[440px]",
@@ -16303,14 +16103,6 @@
 			"context": "const:menuPopupClassName",
 			"literal": "min-w-[220px]",
 			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "packages/ui/src/components/otp-field.tsx",
-			"context": "function:OTPFieldInput/jsx:OTPFieldPrimitive.Input@className",
-			"literal": "text-sm",
-			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
@@ -17625,6 +17417,54 @@
 			"kind": "geometry",
 			"count": 1,
 			"reason": "Owner-approved wide collection canvas (2026-11-10), active only from 1600px; shared header and page type policy."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--textarea-message-min-height",
+			"literal": "calc(7lh + var(--space-16) + 2px)",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Preserve approved seven-line message minimum with shared vertical padding and two one-pixel input borders (T009 final validation)."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--textarea-message-max-height",
+			"literal": "calc(16lh + var(--space-16) + 2px)",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Preserve approved sixteen-line message maximum before scrolling, including shared padding and input borders (T009 final validation)."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--sadu-tile-width",
+			"literal": "96px",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Preserve approved shared Sadu motif tile width and aspect ratio (T009 final validation)."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--sadu-tile-height",
+			"literal": "64px",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Preserve approved shared Sadu motif tile height and aspect ratio (T009 final validation)."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--dashboard-settings-width",
+			"literal": "720px",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Preserve approved shared settings form width without per-screen geometry overrides (T009 final validation)."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--type-sidebar-count-size",
+			"literal": "11px",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Preserve approved compact navigation count typography in both sidebar and rail; consumers use the shared count role (T009 final validation)."
 		}
 	]
 }

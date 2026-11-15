@@ -2,18 +2,22 @@ import type { AuthSession } from "@reactive-resume/auth/types";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouteContext, useRouter } from "@tanstack/react-router";
+import { useRouter, useRouteContext } from "@tanstack/react-router";
 import { useRef } from "react";
 import z from "zod";
 import { Avatar, AvatarFallback, AvatarImage } from "@reactive-resume/ui/components/avatar";
+import { Badge } from "@reactive-resume/ui/components/badge";
 import { Button } from "@reactive-resume/ui/components/button";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { getInitials } from "@reactive-resume/utils/string";
+import { PrivacyNotice } from "../privacy/notice";
 import { SettingsRow, SettingsSection } from "../section";
+import { useAccountSecurity } from "./auth-hooks";
 import { SavedField } from "./saved-field";
+import { useDialogStore } from "@/dialogs/store";
+import { accountErrorMessage } from "@/features/auth/errors";
 import { authClient } from "@/libs/auth/client";
-import { getReadableErrorMessage } from "@/libs/error-message";
-import { orpc } from "@/libs/orpc/client";
+import { client, orpc } from "@/libs/orpc/client";
 import { sessionQueryKey } from "@/libs/root-context";
 
 const nameSchema = z.string().trim().min(1).max(64);
@@ -23,53 +27,53 @@ const usernameSchema = z
 	.min(3)
 	.max(64)
 	.regex(/^[a-z0-9._-]+$/);
-const emailSchema = z.email().trim();
 
 type ProfileSectionProps = { session: AuthSession };
 
 export function ProfileSection({ session }: ProfileSectionProps) {
 	const router = useRouter();
+	const { refetch: refreshSession } = authClient.useSession();
 	const queryClient = useQueryClient();
-	const context = useRouteContext({ strict: false });
-	const smtpEnabled = context.flags?.smtpEnabled ?? false;
 	const user = session.user;
-	const host = window.location.host;
+	const open = useDialogStore((s) => s.openDialog);
+	const security = useAccountSecurity();
+	const { flags } = useRouteContext({ from: "/dashboard" });
+	const host = flags.appUrl ? new URL(flags.appUrl).host : null;
+	const pendingEmail = useMutation({
+		mutationFn: async (action: "resend" | "cancel") => {
+			if (action === "resend") await client.privacy.resendEmailChange();
+			else await client.privacy.cancelEmailChange();
+			await security.refresh();
+		},
+	});
 
 	const updateUser = async (patch: Parameters<typeof authClient.updateUser>[0]) => {
 		const { error } = await authClient.updateUser(patch);
-		if (error) return getReadableErrorMessage(error, t`Couldn't save. Try again.`);
+		if (error) return accountErrorMessage(error);
 		await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
 		await router.invalidate();
 		return null;
 	};
 
-	const changeEmail = async (email: string) => {
-		const { error } = await authClient.changeEmail({ newEmail: email, callbackURL: "/dashboard/settings/account" });
-		if (error) return getReadableErrorMessage(error, t`Couldn't change the email. Try again.`);
-		toast.add({
-			type: "success",
-			description: t`We sent a confirmation link to ${email}. Open it to finish the change.`,
-		});
-		return null;
-	};
-
-	const resendVerification = async () => {
-		const { error } = await authClient.sendVerificationEmail({
-			email: user.email,
-			callbackURL: "/dashboard/settings/account",
-		});
-		toast.add(
-			error
-				? { type: "error", description: getReadableErrorMessage(error, t`Couldn't send the email. Try again.`) }
-				: { type: "success", description: t`We sent a new verification link to ${user.email}.` },
-		);
-	};
-
 	return (
-		<SettingsSection title={<Trans>Profile</Trans>}>
-			<ProfilePhoto name={user.name} image={user.image ?? null} onChange={(image) => updateUser({ image })} />
+		<SettingsSection width="full" presentation="card" title={<Trans>Profile</Trans>}>
+			<ProfilePhoto
+				name={user.name}
+				image={user.image ?? null}
+				onChange={async (image) => {
+					try {
+						await client.auth.updateProfile({ image });
+						await refreshSession();
+						await queryClient.invalidateQueries({ queryKey: sessionQueryKey });
+						await router.invalidate();
+						return null;
+					} catch {
+						return t`Could not save the photo. Try again.`;
+					}
+				}}
+			/>
 
-			<div className="grid gap-3 sm:grid-cols-2">
+			<div className="grid gap-3">
 				<SavedField
 					label={t`Name`}
 					value={user.name}
@@ -80,7 +84,7 @@ export function ProfileSection({ session }: ProfileSectionProps) {
 				<SavedField
 					label={t`Username`}
 					value={user.username ?? ""}
-					prefix={`${host}/`}
+					{...(host ? { prefix: `${host}/` } : {})}
 					autoComplete="username"
 					validate={(value) =>
 						usernameSchema.safeParse(value).success
@@ -89,35 +93,62 @@ export function ProfileSection({ session }: ProfileSectionProps) {
 					}
 					save={(username) => updateUser({ username, displayUsername: username })}
 				/>
-				<SavedField
-					className="sm:col-span-2"
-					type="email"
-					label={t`Email`}
-					value={user.email}
-					autoComplete="email"
-					validate={(value) => (emailSchema.safeParse(value).success ? null : t`Enter a valid email address.`)}
-					save={changeEmail}
-					savedMessage={t`Check your email`}
-					hint={
+			</div>
+			<SettingsRow
+				icon="envelope"
+				status={
+					<Badge variant={user.emailVerified ? "accent" : "warn"}>
+						{user.emailVerified ? <Trans>Verified</Trans> : <Trans>Not verified</Trans>}
+					</Badge>
+				}
+				title={<Trans>Email</Trans>}
+				description={<bdi dir="ltr">{user.email}</bdi>}
+			>
+				<Button variant="secondary" onClick={() => open("auth.change-email", undefined)}>
+					<Trans context="account.email.change">Change email address</Trans>
+				</Button>
+			</SettingsRow>
+			{pendingEmail.isError && (
+				<PrivacyNotice error title={<Trans>Email change could not be updated</Trans>}>
+					<Trans>Try again. Your current email is unchanged.</Trans>
+				</PrivacyNotice>
+			)}
+			{security.status === "ready" && security.data.pendingEmail && (
+				<PrivacyNotice
+					title={
+						security.data.pendingEmail.stage === "confirm_old" ? (
+							<Trans>Confirm at your current email</Trans>
+						) : (
+							<Trans context="account.email.status.pending">Awaiting new email verification</Trans>
+						)
+					}
+					action={
 						<>
-							<Trans>
-								Changing it sends a confirmation to the new address. Your username is part of every public link.
-							</Trans>{" "}
-							{user.emailVerified ? null : smtpEnabled ? (
-								<button
-									type="button"
-									className="underline underline-offset-2"
-									onClick={() => void resendVerification()}
-								>
-									<Trans>Not verified yet. Resend the link</Trans>
-								</button>
-							) : (
-								<Trans>Email delivery isn't set up on this server, so the address isn't verified.</Trans>
-							)}
+							<Button
+								variant="secondary"
+								loading={pendingEmail.isPending}
+								onClick={() => pendingEmail.mutate("resend")}
+							>
+								<Trans>Resend</Trans>
+							</Button>
+							<Button
+								variant="secondary"
+								loading={pendingEmail.isPending}
+								onClick={() => pendingEmail.mutate("cancel")}
+							>
+								<Trans context="workspace.privacy.19766ed6ccb2">Cancel</Trans>
+							</Button>
 						</>
 					}
-				/>
-			</div>
+				>
+					<bdi dir="ltr">{security.data.pendingEmail.confirmationAddress}</bdi>
+					<p>
+						<Trans context="workspace.privacy.d100504410ec">
+							Your current email stays active until the change is verified.
+						</Trans>
+					</p>
+				</PrivacyNotice>
+			)}
 		</SettingsSection>
 	);
 }
@@ -138,10 +169,12 @@ function ProfilePhoto({ name, image, onChange }: ProfilePhotoProps) {
 		upload.mutate(file, {
 			onSuccess: async ({ url }) => {
 				const failure = await onChange(url);
-				if (failure) toast.add({ type: "error", description: failure });
+				toast.add({
+					type: failure ? "error" : "success",
+					description: failure ?? t({ message: "Saved", context: "editor.save.status.saved" }),
+				});
 			},
-			onError: (error) =>
-				toast.add({ type: "error", description: getReadableErrorMessage(error, t`Couldn't upload the photo.`) }),
+			onError: (error) => toast.add({ type: "error", description: accountErrorMessage(error) }),
 			onSettled: () => {
 				if (input.current) input.current.value = "";
 			},
@@ -151,9 +184,9 @@ function ProfilePhoto({ name, image, onChange }: ProfilePhotoProps) {
 	return (
 		<SettingsRow
 			title={
-				<Avatar size="profile">
+				<Avatar size="preview">
 					<AvatarImage src={image ?? undefined} alt="" />
-					<AvatarFallback className="bg-accent-soft type-section text-accent-text">{getInitials(name)}</AvatarFallback>
+					<AvatarFallback>{getInitials(name)}</AvatarFallback>
 				</Avatar>
 			}
 		>
@@ -166,12 +199,21 @@ function ProfilePhoto({ name, image, onChange }: ProfilePhotoProps) {
 				aria-hidden
 				onChange={(event) => choose(event.target.files?.[0])}
 			/>
-			<Button size="sm" variant="secondary" loading={upload.isPending} onClick={() => input.current?.click()}>
+			<Button variant="secondary" loading={upload.isPending} onClick={() => input.current?.click()}>
 				<Trans>Change photo</Trans>
 			</Button>
 			{image && (
-				<Button size="sm" variant="ghost" onClick={() => void onChange(null)}>
-					<Trans>Remove</Trans>
+				<Button
+					variant="secondary"
+					onClick={async () => {
+						const failure = await onChange(null);
+						toast.add({
+							type: failure ? "error" : "success",
+							description: failure ?? t({ message: "Saved", context: "editor.save.status.saved" }),
+						});
+					}}
+				>
+					<Trans context="workspace.privacy.c3812fc4acb8">Remove</Trans>
 				</Button>
 			)}
 		</SettingsRow>

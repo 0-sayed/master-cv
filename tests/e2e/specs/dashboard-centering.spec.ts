@@ -1,4 +1,5 @@
 import { settleScreen } from "../fixtures/screen";
+import { expectSettingsColumn } from "../fixtures/settings-layout";
 import { expect, test } from "../fixtures/test";
 
 const routes = [
@@ -34,6 +35,7 @@ for (const locale of ["ar-SA", "en-US"]) {
 					gapDifference: left - m.left - (m.right - right),
 					width: right - left,
 					titleStart: rtl ? t.right : t.left,
+					settings: main.querySelector(".settings-content") !== null,
 					headerStart: rtl ? b.right : b.left,
 					headerEnd: rtl ? b.left : b.right,
 					contentEnd: rtl ? left : right,
@@ -42,7 +44,8 @@ for (const locale of ["ar-SA", "en-US"]) {
 			});
 			expect.soft(Math.abs(geometry.gapDifference), route).toBeLessThanOrEqual(2);
 			expect.soft(geometry.width, route).toBe(1360);
-			expect.soft(Math.abs(geometry.titleStart - geometry.headerStart), route).toBeLessThanOrEqual(1);
+			if (geometry.settings) await expectSettingsColumn(page);
+			else expect.soft(Math.abs(geometry.titleStart - geometry.headerStart), route).toBeLessThanOrEqual(1);
 			expect.soft(Math.abs(geometry.headerEnd - geometry.contentEnd), route).toBeLessThanOrEqual(1);
 			expect.soft(Math.abs(geometry.controlsEnd - geometry.contentEnd), route).toBeLessThanOrEqual(1);
 		}
@@ -70,7 +73,7 @@ test("Arabic reachable action labels use action wording", async ({ authPage: pag
 			.toEqual([]);
 		if (route.endsWith("account")) {
 			await expect.soft(page.getByRole("button", { name: "تغيير", exact: true })).toBeVisible();
-			await expect.soft(page.getByRole("button", { name: "حذف…", exact: true })).toBeVisible();
+			await expect.soft(page.getByRole("button", { name: "إعداد", exact: true })).toBeVisible();
 		}
 	}
 	await page.goto("/dashboard/applications?locale=ar-SA");

@@ -1,4 +1,4 @@
-import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
@@ -8,6 +8,7 @@ type LocaleSwitchProps = { compact?: boolean };
 
 /** Target language is explicit; switching never changes document content. */
 export function LocaleSwitch({ compact = false }: LocaleSwitchProps) {
+	const { t } = useLingui();
 	const { locale, pending, changeLocale } = useUiLocale();
 	const [failed, setFailed] = useState(false);
 	const arabic = locale === "ar-SA";
@@ -31,10 +32,10 @@ export function LocaleSwitch({ compact = false }: LocaleSwitchProps) {
 				}}
 			>
 				{!compact && <Icon name="globe" size={18} className="hidden lg:inline-block" />}
-				<span lang={arabic ? "en-US" : "ar-SA"}>
+				<span lang={locale}>
 					{arabic
 						? t({ message: "EN", context: "language.switch.english" })
-						: t({ message: "عربي", context: "language.switch.arabic" })}
+						: t({ message: "Arabic", context: "language.switch.arabic" })}
 				</span>
 			</Button>
 			{failed && (

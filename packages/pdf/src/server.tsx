@@ -9,7 +9,6 @@ import { readServerFont } from "./forme/fonts.node.ts";
 import { readServerImage } from "./forme/images.node.ts";
 import { assertPdfFonts, renderResume } from "./forme/render";
 
-export { configureOwnPictureReader } from "./forme/images.node.ts";
 export { readServerFont } from "./forme/fonts.node.ts";
 
 configureFontReader(readServerFont);
@@ -20,20 +19,22 @@ export type CreateResumePdfFileOptions = {
 	template?: Template | undefined;
 	renderOptions?: ResumeRenderOptions | undefined;
 	resolveSectionTitle?: SectionTitleResolver | undefined;
-	/** Operator-configured app origin; only its public picture upload paths may use private addresses. */
+	/** Operator-configured app origin. Own pictures require the scoped reader below. */
 	uploadOrigin?: string | undefined;
+	ownerPictureReader?: ((key: string) => Promise<Uint8Array>) | undefined;
 };
 
 /** Creates a server PDF using deployment font mirroring and the server image reader. */
 export const createResumePdfFile = async ({
 	filename,
 	uploadOrigin,
+	ownerPictureReader,
 	...input
 }: CreateResumePdfFileOptions): Promise<File> => {
 	const result = await renderResume(forme, {
 		...input,
 		data: parseResumeData(input.data),
-		readImage: (source) => readServerImage(source, uploadOrigin),
+		readImage: (source) => readServerImage(source, uploadOrigin, undefined, 0, ownerPictureReader),
 		webFontBaseUrl: process.env.WEB_FONT_BASE_URL,
 	});
 	// Characters no font can draw print as "?" rather than failing the file; the editor names them.
