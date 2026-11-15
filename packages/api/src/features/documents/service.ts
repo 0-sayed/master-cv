@@ -49,17 +49,26 @@ type ResumeChanges = Partial<typeof schema.resume.$inferInsert>;
 type LetterChanges = Partial<typeof schema.coverLetter.$inferInsert>;
 
 /** The same change to either table; `letter` differs only where the columns do (the linked application). */
-async function update(ref: DocumentRef, resume: ResumeChanges, letter: LetterChanges = resume as LetterChanges) {
+async function update(
+	ref: DocumentRef,
+	resume: ResumeChanges,
+	letter: LetterChanges = resume as LetterChanges,
+	trashedOnly = false,
+) {
 	await db.transaction(async (tx) => {
 		await lockDocumentOwner(tx, ref.userId);
 		const rows =
 			ref.type === "resume"
-				? await tx.update(schema.resume).set(resume).where(owned(ref)).returning({ id: schema.resume.id })
+				? await tx
+						.update(schema.resume)
+						.set(resume)
+						.where(and(owned(ref), trashedOnly ? isNotNull(schema.resume.trashedAt) : undefined))
+						.returning({ id: schema.resume.id })
 				: await tx
 						.update(schema.coverLetter)
 						// Letters carry a revision for their editor's optimistic saves; any change moves it on.
 						.set({ ...letter, revision: sql`${schema.coverLetter.revision} + 1` })
-						.where(owned(ref))
+						.where(and(owned(ref), trashedOnly ? isNotNull(schema.coverLetter.trashedAt) : undefined))
 						.returning({ id: schema.coverLetter.id });
 
 		if (rows.length === 0) throw new ORPCError("NOT_FOUND");
@@ -231,8 +240,11 @@ export const documentsService = {
 		await update(input, { trashedAt, isPublic: false }, { trashedAt });
 	},
 
-	restore: (input: DocumentRef) =>
-		update(input, { trashedAt: null, isPublic: false, showDownloadButtons: false }, { trashedAt: null }),
+	restore: async (input: DocumentRef) => {
+		const state = await readState(input);
+		if (!state.trashedAt) throw new ORPCError("BAD_REQUEST", { message: "Document is not in Trash." });
+		return update(input, { trashedAt: null, isPublic: false, showDownloadButtons: false }, { trashedAt: null }, true);
+	},
 
 	/** "Delete now…": only for documents already in Trash. */
 	purge: async (input: DocumentRef) => {

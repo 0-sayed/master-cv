@@ -1,5 +1,6 @@
 import type { TrashPolicy } from "../privacy/contracts";
 import { createHash } from "node:crypto";
+import { ORPCError } from "@orpc/client";
 import { and, eq, lte, sql } from "drizzle-orm";
 import { lockActiveAccount } from "@reactive-resume/db/account-state";
 import { db } from "@reactive-resume/db/client";
@@ -44,6 +45,11 @@ export async function requestDocumentPurge(input: { userId: string; type: "resum
 		return work.id;
 	});
 	await purgeTrashedDocument({ workId });
+	const complete = await withOwnerDatabase(input.userId, async (tx) => {
+		const [work] = await tx.select({ status: privacyWork.status }).from(privacyWork).where(eq(privacyWork.id, workId));
+		return work?.status === "complete";
+	});
+	if (!complete) throw new ORPCError("CONFLICT", { message: "PURGE_IN_PROGRESS" });
 }
 export async function scheduleTrashPurges(input: { policy: TrashPolicy; now: Date; limit: number }) {
 	if (!input.policy.enabled) return 0;
@@ -175,7 +181,9 @@ export async function purgeTrashedDocument(input: { workId: string; signal?: Abo
 			if (!(await completePrivacyWork(claim, tx))) throw new Error("PURGE_LEASE_LOST");
 		});
 	} catch (error) {
-		await retryPrivacyWork(claim, "PURGE_RETRY_REQUIRED");
+		const code = error instanceof Error ? error.message : "";
+		const terminal = code === "PURGE_PAYLOAD_INVALID" || code === "PURGE_OWNER_DENIED";
+		await retryPrivacyWork(claim, terminal ? code : "PURGE_RETRY_REQUIRED", { terminal });
 		throw error;
 	}
 }

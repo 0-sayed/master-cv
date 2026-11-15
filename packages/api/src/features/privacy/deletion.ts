@@ -5,6 +5,7 @@ import { consumeFreshProof, requireAccountSession } from "@reactive-resume/auth/
 import { withOwnerDatabase } from "@reactive-resume/db/owner-scope";
 import * as schema from "@reactive-resume/db/schema";
 import { requestRunCancellation } from "../agent/cancellation";
+import { revokeAppleAuthorization } from "../auth/apple-revocation";
 import { getStorageService } from "../storage/service";
 import { deletionReplayRecordSchema, type DeletionHooks, type ProcessorDeletionAdapter } from "./contracts";
 import { enqueuePrivacyNotice } from "./delivery";
@@ -39,6 +40,11 @@ export async function requestAccountDeletion(input: {
 			.from(schema.user)
 			.where(eq(schema.user.id, session.userId));
 		if (!subject) throw new Error("ACCOUNT_UNAVAILABLE");
+		const appleAccounts = await tx
+			.select({ refreshToken: schema.account.refreshToken, accessToken: schema.account.accessToken })
+			.from(schema.account)
+			.where(and(eq(schema.account.userId, session.userId), eq(schema.account.providerId, "apple")));
+		for (const account of appleAccounts) await revokeAppleAuthorization(account);
 		const [request] = await tx
 			.insert(schema.accountDeletion)
 			.values({ subjectUserId: session.userId, policyVersion: "synthetic-active-erasure-v1" })

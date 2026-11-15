@@ -15,6 +15,7 @@ import { init } from "@formepdf/core/worker";
 import { Pool } from "pg";
 import { configureAgentStreamLifetime } from "@reactive-resume/api/features/agent/streams";
 import { runCareerJobs } from "@reactive-resume/api/features/career/jobs";
+import { runPrivacyWork } from "@reactive-resume/api/features/privacy/work";
 import { configureStorageService } from "@reactive-resume/api/features/storage";
 import { initializeAuth } from "@reactive-resume/auth/config";
 import { withDatabasePool } from "@reactive-resume/db/client";
@@ -220,6 +221,14 @@ export default {
 	},
 	scheduled(_controller: ScheduledController, bindings: CloudflareBindings, ctx: ExecutionContext): void {
 		const { pool, store, run } = createInvocation(bindings, ctx);
-		ctx.waitUntil(run(runCareerJobs).finally(() => closePool(pool, store)));
+		ctx.waitUntil(
+			run(async () => {
+				try {
+					await runCareerJobs();
+				} finally {
+					await runPrivacyWork();
+				}
+			}).finally(() => closePool(pool, store)),
+		);
 	},
 };

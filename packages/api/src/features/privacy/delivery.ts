@@ -88,7 +88,11 @@ export async function runNoticeWork(input: { workId: string }) {
 		});
 		if (!(await completePrivacyWork(claim))) throw new Error("PRIVACY_LEASE_LOST");
 	} catch (error) {
-		await retryPrivacyWork(claim, "NOTICE_RETRY_REQUIRED");
+		const permanent =
+			error instanceof Error && ["PRIVACY_MAIL_REJECTED", "PRIVACY_MAIL_RECIPIENT_INVALID"].includes(error.message);
+		await retryPrivacyWork(claim, permanent ? "NOTICE_REJECTED" : "NOTICE_RETRY_REQUIRED", {
+			terminal: permanent || claim.attempts >= 8,
+		});
 		throw error;
 	}
 }

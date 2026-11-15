@@ -19,6 +19,17 @@ describe("assertCanView", () => {
 });
 
 describe("redactResumeForViewer", () => {
+	it("does not serialize private upload URLs to non-owners", () => {
+		const data = structuredClone(defaultResumeData);
+		data.picture.url = "https://resume.example/api/uploads/owner/pictures/avatar.png";
+		expect(redactResumeForViewer({ name: "Resume", data }, false).data.picture.url).toBe("");
+		expect(redactResumeForViewer({ name: "Resume", data }, true).data.picture.url).toBe(data.picture.url);
+	});
+	it("redacts malformed legacy picture URLs without failing public resume reads", () => {
+		const data = structuredClone(defaultResumeData);
+		data.picture.url = "https://[invalid";
+		expect(redactResumeForViewer({ name: "Resume", data }, false).data.picture.url).toBe("");
+	});
 	it("replaces name with placeholder for non-owner", () => {
 		const resume = {
 			name: "Senior Eng @ Foo — final draft",

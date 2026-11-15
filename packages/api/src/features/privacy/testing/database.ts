@@ -38,10 +38,13 @@ export function privacyTestDatabase(options: { restrictedMigrationOwner?: boolea
 			migrationUrl.password = "synthetic-migration-password";
 			migrator = new Pool({ connectionString: migrationUrl.toString() });
 		}
-		await migrate(drizzle({ client: migrator }), {
-			migrationsFolder: fileURLToPath(new URL("../../../../../../migrations", import.meta.url)),
-		});
-		if (migrator !== fixture) await migrator.end();
+		try {
+			await migrate(drizzle({ client: migrator }), {
+				migrationsFolder: fileURLToPath(new URL("../../../../../../migrations", import.meta.url)),
+			});
+		} finally {
+			if (migrator !== fixture) await migrator.end();
+		}
 		// Same production provisioning helper, including append-only privilege restrictions.
 		runtime = new Pool({ connectionString: await provisionRuntimeRole(url.toString(), role), max: 8 });
 		await fixture.query(
@@ -53,11 +56,14 @@ export function privacyTestDatabase(options: { restrictedMigrationOwner?: boolea
 		await runtime?.end();
 		await fixture?.end();
 		if (admin) {
-			await admin.query(`DROP DATABASE IF EXISTS "${name}"`);
-			await admin.query(`DROP ROLE IF EXISTS "${role}"`);
-			for (const actor of actors) await admin.query(`DROP ROLE "${actor.role}"`);
-			if (options.restrictedMigrationOwner) await admin.query(`DROP ROLE "${migrationRole}"`);
-			await admin.end();
+			try {
+				await admin.query(`DROP DATABASE IF EXISTS "${name}"`);
+				await admin.query(`DROP ROLE IF EXISTS "${role}"`);
+				for (const actor of actors) await admin.query(`DROP ROLE IF EXISTS "${actor.role}"`);
+				if (options.restrictedMigrationOwner) await admin.query(`DROP ROLE IF EXISTS "${migrationRole}"`);
+			} finally {
+				await admin.end();
+			}
 		}
 	});
 	return {

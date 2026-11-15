@@ -4,7 +4,46 @@ import { resume } from "@reactive-resume/db/schema";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { privacyTestDatabase } from "../privacy/testing/database";
 import { documentsService } from "./service";
-const database = privacyTestDatabase();
+const database = privacyTestDatabase({ restrictedMigrationOwner: true });
+it("blocks permanently malformed purge work instead of endlessly retrying it", async () => {
+	const { purgeTrashedDocument } = await import("./purge");
+	await database
+		.admin()
+		.query(
+			"INSERT INTO privacy_work(id,user_id,kind,request_id,key,payload) VALUES ('bad-purge','alice','purge_document','bad','bad-purge','{}')",
+		);
+	await expect(database.run(() => purgeTrashedDocument({ workId: "bad-purge" }))).rejects.toThrow(
+		"PURGE_PAYLOAD_INVALID",
+	);
+	expect(
+		(await database.admin().query("SELECT status,attempts FROM privacy_work WHERE id='bad-purge'")).rows[0],
+	).toEqual({ status: "blocked", attempts: 1 });
+	await database.run(() => purgeTrashedDocument({ workId: "bad-purge" }));
+	expect(
+		(await database.admin().query("SELECT attempts FROM privacy_work WHERE id='bad-purge'")).rows[0].attempts,
+	).toBe(1);
+});
+it("rejects restore of a live public resume without changing publication", async () => {
+	await database.run(() =>
+		withOwnerDatabase("alice", async (tx) => {
+			await tx.insert(resume).values({
+				id: "live-public",
+				userId: "alice",
+				name: "Live",
+				slug: "live-public",
+				data: defaultResumeData,
+				isPublic: true,
+				showDownloadButtons: true,
+			});
+			await expect(documentsService.restore({ userId: "alice", type: "resume", id: "live-public" })).rejects.toThrow(
+				"Document is not in Trash.",
+			);
+		}),
+	);
+	expect(
+		(await database.admin().query("SELECT is_public,show_download_buttons FROM resume WHERE id='live-public'")).rows[0],
+	).toEqual({ is_public: true, show_download_buttons: true });
+});
 it("restore_shared_language_copy_stays_private_after_reload", async () => {
 	await database.run(() =>
 		withOwnerDatabase("alice", async (tx) => {
@@ -23,6 +62,8 @@ it("restore_shared_language_copy_stays_private_after_reload", async () => {
 				trashedAt: new Date(),
 				data: defaultResumeData,
 			});
+			const { resumeService } = await import("../resume/service");
+			await expect(resumeService.setLocked({ userId: "alice", id: "language", isLocked: true })).rejects.toThrow();
 			await documentsService.restore({ userId: "alice", type: "resume", id: "language" });
 		}),
 	);
@@ -58,7 +99,9 @@ it("purge_schedules_without_visit_and_retries_after_restart", async () => {
 	const policy = { enabled: true, version: "synthetic-30d", retentionMs: 30 * 86400000 };
 	expect(await database.run(() => scheduleTrashPurges({ policy, now: new Date(), limit: 10 }))).toBe(1);
 	expect(await database.run(() => scheduleTrashPurges({ policy, now: new Date(), limit: 10 }))).toBe(0);
-	const id = (await database.queryAs("alice", "SELECT id FROM privacy_work WHERE kind='purge_document'")).rows[0].id;
+	const id = (
+		await database.queryAs("alice", "SELECT id FROM privacy_work WHERE kind='purge_document' AND request_id='language'")
+	).rows[0].id;
 	await expect(database.run(() => purgeTrashedDocument({ workId: id }))).rejects.toThrow();
 	expect((await database.admin().query("SELECT id FROM resume WHERE id='language'")).rowCount).toBe(1);
 	await database.admin().query("UPDATE privacy_work SET due_at=now() WHERE id=$1", [id]);

@@ -8,6 +8,8 @@ export async function lockDocumentOwner(tx: DbOrTx, userId: string) {
 		await lockActiveAccount(tx, userId);
 	} catch (error) {
 		if (error instanceof Error && error.message === "ACCOUNT_UNAVAILABLE") throw new ORPCError("NOT_FOUND");
+		if (error instanceof Error && error.message === "ACCOUNT_DELETION_PENDING")
+			throw new ORPCError("FORBIDDEN", { message: "ACCOUNT_DELETION_PENDING" });
 		throw error;
 	}
 }

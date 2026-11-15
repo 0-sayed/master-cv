@@ -97,6 +97,11 @@ export const storageRouter = {
 				throw new ORPCError("FORBIDDEN");
 			}
 
-			await deleteOwnedFile({ userId: context.user.id, key });
+			try {
+				await deleteOwnedFile({ userId: context.user.id, key });
+			} catch (error) {
+				if (error instanceof Error && error.message === "FILE_UNAVAILABLE") throw new ORPCError("NOT_FOUND");
+				throw error;
+			}
 		}),
 };

@@ -2,7 +2,8 @@ import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { ORPCError } from "@orpc/server";
 import { env } from "@reactive-resume/env/server";
 import { generateFilename } from "@reactive-resume/utils/file";
-import { assertCanView, isOwner } from "./access-policy";
+import { readOwnedPicture } from "../storage/ownership";
+import { assertCanView, isOwner, redactResumeForViewer } from "./access-policy";
 import { publicRenderRateLimiter } from "./public-render-rate-limit";
 import { parseStoredResumeData } from "./resume-data-validation";
 
@@ -28,7 +29,7 @@ export type PublicResumePdfDependencies = {
 	hasPasswordAccess(requestHeaders: Headers, resumeId: string, passwordHash: string | null): boolean | Promise<boolean>;
 	resolveCurrentUserId(requestHeaders: Headers): Promise<string | undefined>;
 	rateLimiter: { consume(input: { trustedClient: string; resumeId: string }): void | Promise<void> };
-	renderPdf(input: { data: ResumeData; filename: string }): Promise<File>;
+	renderPdf(input: { data: ResumeData; filename: string; userId: string }): Promise<File>;
 };
 
 const findResume = async ({ username, slug, currentUserId }: FindResumeInput) => {
@@ -63,7 +64,11 @@ const defaultDependencies: PublicResumePdfDependencies = {
 			.then((authentication) => (authentication?.permissions.includes("read") ? authentication.user.id : undefined)),
 	rateLimiter: publicRenderRateLimiter,
 	renderPdf: async (input) =>
-		(await import("@reactive-resume/pdf/server")).createResumePdfFile({ ...input, uploadOrigin: env.APP_URL }),
+		(await import("@reactive-resume/pdf/server")).createResumePdfFile({
+			...input,
+			uploadOrigin: env.APP_URL,
+			ownerPictureReader: (key) => readOwnedPicture({ userId: input.userId, key }),
+		}),
 };
 
 export async function createPublicResumePdf(
@@ -91,8 +96,11 @@ export async function createPublicResumePdf(
 		});
 	}
 
-	const data = parseStoredResumeData(resume.data);
+	const data = redactResumeForViewer(
+		{ name: "Resume", data: parseStoredResumeData(resume.data) },
+		isOwner(resume, viewer),
+	).data;
 	await dependencies.rateLimiter.consume({ trustedClient: input.trustedClient, resumeId: resume.id });
 	const filename = generateFilename(data.basics.name || "Resume", "pdf");
-	return { body: await dependencies.renderPdf({ data, filename }), filename };
+	return { body: await dependencies.renderPdf({ data, filename, userId: resume.userId }), filename };
 }

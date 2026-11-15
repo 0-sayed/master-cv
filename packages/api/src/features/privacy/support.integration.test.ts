@@ -26,14 +26,20 @@ it("unverified contact is not identity proof and duplicate intake persists one c
 it("mail failure retains received case and retries a persisted delivery", async () => {
 	const result = await database.run(() => submitSupportRequest({ ...input, requestNonce: "delivery-nonce" }));
 	const work = (await database.admin().query("SELECT id FROM privacy_work WHERE request_id=$1", [result.id])).rows[0];
-	await database.run(() =>
-		runSupportWork({
-			workId: work.id,
-			deliver: async () => {
-				throw new Error("offline");
-			},
-		}),
-	);
+	await database.run(() => runSupportWork({ workId: work.id }));
+	expect(
+		(await database.admin().query("SELECT status,attempts FROM privacy_work WHERE id=$1", [work.id])).rows[0],
+	).toEqual({ status: "queued", attempts: 0 });
+	await expect(
+		database.run(() =>
+			runSupportWork({
+				workId: work.id,
+				deliver: async () => {
+					throw new Error("offline");
+				},
+			}),
+		),
+	).rejects.toThrow("SUPPORT_DELIVERY_REQUIRED");
 	expect(
 		(await database.admin().query("SELECT status FROM support_request WHERE id=$1", [result.id])).rows[0].status,
 	).toBe("received");

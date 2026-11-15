@@ -86,6 +86,10 @@ describe("createPublicResumePdf", () => {
 			trustedClient: input.trustedClient,
 			resumeId: resume.id,
 		});
-		expect(pdfDependencies.renderPdf).toHaveBeenCalledWith({ data: resume.data, filename: "ada-lovelace.pdf" });
+		expect(pdfDependencies.renderPdf).toHaveBeenCalledWith({
+			data: resume.data,
+			filename: "ada-lovelace.pdf",
+			userId: resume.userId,
+		});
 	});
 });

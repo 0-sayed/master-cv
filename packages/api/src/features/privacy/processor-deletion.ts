@@ -14,11 +14,13 @@ export async function eraseRecordedProcessors(input: {
 			pending = true;
 			continue;
 		}
-		const result = await adapter.erase({
-			requestId: input.requestId,
-			processor: record.processor,
-			subjectReference: record.subjectReference,
-		});
+		const result = await adapter
+			.erase({
+				requestId: input.requestId,
+				processor: record.processor,
+				subjectReference: record.subjectReference,
+			})
+			.catch(() => ({ state: "pending" as const }));
 		if (result.state === "confirmed") record.confirmed = true;
 		else pending = true;
 	}

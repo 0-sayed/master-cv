@@ -59,12 +59,18 @@ export async function completePrivacyWork(claim: WorkClaim, tx?: OwnerTransactio
 	};
 	return tx ? await complete(tx) : await withOwnerDatabase(claim.userId, complete);
 }
-export async function retryPrivacyWork(claim: WorkClaim, failureCode: string) {
+export async function retryPrivacyWork(claim: WorkClaim, failureCode: string, options: { terminal?: boolean } = {}) {
 	if (!/^[A-Z_]{1,80}$/.test(failureCode)) throw new Error("UNSAFE_FAILURE_CODE");
 	return await withOwnerDatabase(claim.userId, async (tx) => {
 		const rows = await tx
 			.update(privacyWork)
-			.set({ status: "retry", leaseToken: null, leaseUntil: null, failureCode, dueAt: sql`now()+interval '1 minute'` })
+			.set({
+				status: options.terminal ? "blocked" : "retry",
+				leaseToken: null,
+				leaseUntil: null,
+				failureCode,
+				dueAt: sql`now()+interval '1 minute'`,
+			})
 			.where(liveWorkLease(claim))
 			.returning({ id: privacyWork.id });
 		return rows.length === 1;
@@ -95,6 +101,7 @@ export async function runPrivacyWork(
 				.where(
 					and(
 						eq(privacyWork.userId, owner.user_id),
+						sql`${privacyWork.kind} <> 'send_support'`,
 						sql`${privacyWork.dueAt}<=now()`,
 						sql`(${privacyWork.status} IN ('queued','retry') OR (${privacyWork.status}='running' AND ${privacyWork.leaseUntil}<now()))`,
 					),

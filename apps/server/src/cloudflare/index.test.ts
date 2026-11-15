@@ -7,6 +7,7 @@ import worker from "./index";
 
 const mocks = vi.hoisted(() => ({
 	run: vi.fn<() => Promise<{ processed: number }>>(),
+	privacy: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
 	auth: vi.fn<() => Promise<void>>(),
 	wasm: vi.fn<() => Promise<void>>(),
 	fetch: vi.fn<(request: Request) => Promise<Response>>(),
@@ -45,6 +46,7 @@ vi.mock("@formepdf/core/pkg-web/forme_bg.wasm", () => ({ default: new Uint8Array
 vi.mock("@formepdf/core/worker", () => ({ init: mocks.wasm }));
 vi.mock("@reactive-resume/auth/config", () => ({ initializeAuth: mocks.auth }));
 vi.mock("@reactive-resume/api/features/career/jobs", () => ({ runCareerJobs: mocks.run }));
+vi.mock("@reactive-resume/api/features/privacy/work", () => ({ runPrivacyWork: mocks.privacy }));
 vi.mock("@reactive-resume/api/features/agent/streams", () => ({
 	configureAgentStreamLifetime: (lifetime: (promise: Promise<unknown>) => void) => {
 		mocks.lifetime = lifetime;
@@ -159,6 +161,7 @@ describe("Cloudflare invocation lifetime", () => {
 		expect(pool.end).not.toHaveBeenCalled();
 		nested.resolve();
 		await Promise.all(fixture.pending);
+		expect(mocks.privacy).toHaveBeenCalledOnce();
 		expect(pool.end).toHaveBeenCalledOnce();
 	});
 

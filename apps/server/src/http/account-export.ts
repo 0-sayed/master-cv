@@ -14,7 +14,17 @@ export async function handleAccountExport(request: Request, id: string) {
 				"Content-Disposition": 'attachment; filename="account-data.zip"',
 			},
 		});
-	} catch {
-		return Response.json({ error: "EXPORT_UNAVAILABLE" }, { status: 404, headers });
+	} catch (error) {
+		const code = error instanceof Error ? error.message : "";
+		const status =
+			code === "BROWSER_SESSION_REQUIRED"
+				? 401
+				: code === "ORIGIN_DENIED"
+					? 403
+					: code === "EXPORT_UNAVAILABLE"
+						? 404
+						: 500;
+		if (status === 500) console.error({ event: "account_export_download_failed" });
+		return Response.json({ error: "EXPORT_UNAVAILABLE" }, { status, headers });
 	}
 }

@@ -3,6 +3,8 @@ import { configureStorageService } from "../storage/service";
 import { requestAccountDeletion, runDeletionWork } from "./deletion";
 import { syntheticAccountSession } from "./testing/account";
 import { privacyTestDatabase } from "./testing/database";
+const { revokeApple } = vi.hoisted(() => ({ revokeApple: vi.fn().mockResolvedValue(true) }));
+vi.mock("../auth/apple-revocation", () => ({ revokeAppleAuthorization: revokeApple }));
 const database = privacyTestDatabase();
 const keys = new Set(["uploads/alice/orphan.txt", "uploads/alice/pictures/private.png", "uploads/alice2/foreign.txt"]);
 const remove = vi.fn(async (key: string) => keys.delete(key));
@@ -18,11 +20,21 @@ it("failed object cleanup remains pending and retry erases active owner data wit
 	await database
 		.admin()
 		.query(
+			"INSERT INTO account(id,user_id,account_id,provider_id,refresh_token,access_token) VALUES ('apple-alice','alice','apple-sub','apple','synthetic-refresh','synthetic-access')",
+		);
+	await database
+		.admin()
+		.query(
 			"INSERT INTO career_profile(user_id,data) VALUES ('alice','{\"name\":\"PERSONAL_SENTINEL\"}'),('bob','{\"name\":\"FOREIGN_SENTINEL\"}')",
 		);
 	const request = await database.run(async () =>
 		requestAccountDeletion({ ...(await session.proof("delete_account")), headers: session.headers, confirmed: true }),
 	);
+	expect(revokeApple).toHaveBeenCalledExactlyOnceWith({
+		refreshToken: "synthetic-refresh",
+		accessToken: "synthetic-access",
+	});
+	expect((await database.admin().query("SELECT id FROM account WHERE user_id='alice'")).rows).toEqual([]);
 	const workId = (
 		await database.admin().query("SELECT id FROM privacy_work WHERE kind='delete_account' AND user_id='alice'")
 	).rows[0].id;

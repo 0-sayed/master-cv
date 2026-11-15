@@ -38,6 +38,7 @@ export async function submitSupportRequest(
 }
 /** No production routing until operator/sender/policy approval. Tests supply a scripted adapter. */
 export async function runSupportWork(input: { workId: string; deliver?: (item: SupportCase) => Promise<void> }) {
+	if (!input.deliver) return;
 	const claim = await claimPrivacyWork({ workId: input.workId, kind: "send_support" });
 	if (!claim) return;
 	try {
@@ -48,11 +49,11 @@ export async function runSupportWork(input: { workId: string; deliver?: (item: S
 			return result.rows[0]?.item;
 		});
 		if (!item) throw new Error("SUPPORT_CASE_UNAVAILABLE");
-		if (!input.deliver) throw new Error("SUPPORT_ROUTING_UNAVAILABLE");
 		await input.deliver(item);
 		await completePrivacyWork(claim);
 	} catch {
 		await retryPrivacyWork(claim, "SUPPORT_DELIVERY_REQUIRED");
+		throw new Error("SUPPORT_DELIVERY_REQUIRED");
 	}
 }
 /** Only a separately provisioned operator connection can call these audited projections. */

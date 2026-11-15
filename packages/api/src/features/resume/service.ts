@@ -892,7 +892,9 @@ export const resumeService = {
 		const [resume] = await db
 			.update(schema.resume)
 			.set({ isLocked: input.isLocked })
-			.where(and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId)))
+			.where(
+				and(eq(schema.resume.id, input.id), eq(schema.resume.userId, input.userId), isNull(schema.resume.trashedAt)),
+			)
 			.returning({ id: schema.resume.id, updatedAt: schema.resume.updatedAt });
 
 		if (!resume) throw new ORPCError("NOT_FOUND");
