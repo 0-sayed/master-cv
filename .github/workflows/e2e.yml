@@ -173,7 +173,7 @@ jobs:
       - name: Run E2E Tests
         if: matrix.part == 'browser'
         run: |
-          pnpm --filter server exec tsx ../../tests/e2e/privacy-retention-worker.ts &
+          COVER_LETTER_TEST_DATABASE_URL="$DATABASE_URL" pnpm --filter server exec node --import ../../tooling/local/test-isolation.mjs --import tsx ../../tests/e2e/privacy-retention-worker.ts &
           worker=$!
           trap 'kill "$worker" 2>/dev/null || true; wait "$worker" 2>/dev/null || true' EXIT
           node tooling/local/e2e-partition.mjs ${{ matrix.shard }} 6 --output test-results/browser

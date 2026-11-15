@@ -46,6 +46,7 @@ it("ignores inherited browser, server, provider and product overrides", () => {
 	const env = ciBrowserEnvironment(fixture);
 	expect(env).toMatchObject({
 		CI: "true",
+		TZ: "UTC",
 		LANG: "C.UTF-8",
 		LC_ALL: "C.UTF-8",
 		APP_URL: "http://localhost:3030",
