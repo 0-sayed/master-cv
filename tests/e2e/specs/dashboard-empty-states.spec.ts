@@ -215,16 +215,22 @@ test("email result resends the pending confirmation and completes the same chang
 	await expect(page.locator('[data-slot="status-card"]')).toContainText(destination);
 });
 
-test("device timezone applies immediately and remains selected after reload", async ({ authPage: page }) => {
-	await page.goto("/dashboard/settings/preferences");
-	const timezone = page.getByRole("combobox").last();
-	await expect(timezone).toContainText("UTC");
-	await timezone.click();
-	await page.getByRole("option", { name: /Asia\/Riyadh/ }).click();
-	const device = await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
-	await page.getByRole("button", { name: `Use this device's timezone (${device})`, exact: true }).click();
-	await expect(timezone).toContainText(device);
-	await expect(page.locator('[data-slot="toast"]')).toContainText("Saved");
-	await page.reload();
-	await expect(timezone).toContainText(device);
+test.describe("device timezone", () => {
+	test.use({ timezoneId: "Pacific/Honolulu" });
+
+	test("device timezone applies immediately and remains selected after reload", async ({ authPage: page }) => {
+		await page.goto("/dashboard/settings/preferences");
+		const timezone = page.getByRole("combobox").last();
+		await expect(timezone).toContainText("UTC");
+		await timezone.click();
+		await page.getByRole("option", { name: /Asia\/Riyadh/ }).click();
+		await expect(timezone).toContainText("Asia/Riyadh");
+		const device = await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone);
+		expect(device).toBe("Pacific/Honolulu");
+		await page.getByRole("button", { name: `Use this device's timezone (${device})`, exact: true }).click();
+		await expect(timezone).toContainText(device);
+		await expect(page.locator('[data-slot="toast"]:not([inert])')).toContainText("Saved");
+		await page.reload();
+		await expect(timezone).toContainText(device);
+	});
 });
