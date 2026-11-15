@@ -15,14 +15,20 @@ export default defineConfig({
 	testIgnore: ["**/reviewable-ai*.spec.ts"],
 	fullyParallel: true,
 	forbidOnly: isCI,
-	retries: 0,
+	retries: process.env.GITHUB_ACTIONS === "true" ? 1 : 0,
 	...(isCI ? { workers: 1 } : {}),
 	timeout: 30_000,
 	expect: {
 		timeout: 10_000,
 	},
 	reporter: isCI
-		? [["list"], ["github"], ["junit", { outputFile: "test-results/e2e-junit.xml" }]]
+		? [
+				["list"],
+				["github"],
+				["junit", { outputFile: "test-results/e2e-junit.xml" }],
+				// A partition can run several configs; preserve each run for the flaky-test summary.
+				["json", { outputFile: `test-results/e2e-results-${process.pid}.json` }],
+			]
 		: [["list"], ["html", { open: "never" }]],
 	use: {
 		baseURL,

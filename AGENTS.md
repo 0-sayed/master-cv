@@ -126,6 +126,8 @@ and HTML prototypes are not required. Follow `Planning/roadmap/tasks.md` for the
 
 Step 3 above applies to what changed, not the whole app on every task.
 
+- CI retries a failed browser test once; a test that passes only on retry is flaky, is listed in the CI job summary, must be recorded in the backlog and fixed, never ignored; local runs keep zero retries.
+
 - **Light (after each edit):** format/lint only the changed files
   (`pnpm exec vp fmt --check <files>`, `pnpm exec vp lint --deny-warnings <files>`) and run their
   unit tests (e.g. `pnpm --filter web test <test-file>`). No browser suite.

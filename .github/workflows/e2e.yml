@@ -182,6 +182,39 @@ jobs:
           trap 'kill "$worker" 2>/dev/null || true; wait "$worker" 2>/dev/null || true' EXIT
           node tooling/local/e2e-partition.mjs ${{ matrix.shard }} 10 --output test-results/browser
 
+      - name: Summarize flaky browser tests
+        if: always() && matrix.part == 'browser'
+        run: |
+          node --input-type=module <<'NODE'
+          import { appendFileSync, existsSync, readdirSync, readFileSync } from "node:fs";
+
+          const directory = "test-results";
+          const reports = existsSync(directory)
+            ? readdirSync(directory).filter((file) => /^e2e-results-.*\.json$/.test(file)).sort()
+            : [];
+          const flaky = [];
+          const escape = (text) => text.replace(/[&<>]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[character]);
+          function visit(suite, parents = []) {
+            const titles = suite.column ? [...parents, suite.title] : parents;
+            for (const spec of suite.specs ?? []) {
+              for (const test of spec.tests ?? []) {
+                if (test.status === "flaky") {
+                  flaky.push(`- <code>${escape(spec.file)}</code>: <code>${escape([...titles, spec.title].join(" › "))}</code> (${escape(test.projectName)})`);
+                }
+              }
+            }
+            for (const child of suite.suites ?? []) visit(child, titles);
+          }
+          for (const file of reports) {
+            const report = JSON.parse(readFileSync(`${directory}/${file}`, "utf8"));
+            for (const suite of report.suites ?? []) visit(suite);
+          }
+          const result = flaky.length
+            ? `${flaky.join("\n")}\n\nRecord these tests in the backlog and fix them; never ignore them.`
+            : reports.length ? "No tests were marked flaky." : "No Playwright JSON report was produced; flaky-test status is unavailable.";
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Flaky browser tests\n\n${result}\n`);
+          NODE
+
       - name: Upload Playwright Report
         if: always() && matrix.part == 'browser'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
