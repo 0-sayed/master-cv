@@ -57,15 +57,25 @@ export function partitionTests(tests, count, timing = weights) {
 	if (new Set(tests.map((test) => test.id)).size !== tests.length) throw new Error("Duplicate test discovery identity");
 	const groups = new Map();
 	for (const test of tests) {
-		// Keep file-level setup together, except the two expensive shell journeys.
-		const key = test.file === "cross-shell-motion.spec.ts" ? `${test.file}:${test.id}` : `${test.project}:${test.file}`;
+		// Preserve file setup; split slow shell journeys and account locale/viewport inventories.
+		const key =
+			test.file === "cross-shell-motion.spec.ts"
+				? `${test.file}:${test.id}`
+				: test.file === "account-consistency.spec.ts"
+					? `${test.project}:${test.file}:${test.titlePath[0]}`
+					: `${test.project}:${test.file}`;
 		const group = groups.get(key) ?? { key, tests: [], seconds: 0 };
 		const measured = timing.specs[test.file];
 		group.seconds += measured ? measured.seconds / measured.tests : timing.defaultTestSeconds;
 		group.tests.push(test);
 		groups.set(key, group);
 	}
-	const bins = Array.from({ length: count }, () => ({ tests: [], seconds: 0 }));
+	const bins = Array.from({ length: count }, (_, index) => ({
+		tests: [],
+		seconds: (timing.runtimeSuites ?? [])
+			.filter((suite) => suite.shard === index + 1)
+			.reduce((sum, suite) => sum + suite.seconds, 0),
+	}));
 	for (const group of [...groups.values()].sort((a, b) => b.seconds - a.seconds || a.key.localeCompare(b.key, "en"))) {
 		// Explicit separation survives future changes to other spec durations.
 		const candidates =
@@ -83,8 +93,31 @@ export function testList(bin) {
 	return bin.tests.map((test) => `[${test.project}] › ${test.file} › ${test.titlePath.join(" › ")}`).join("\n") + "\n";
 }
 
+/** CI and local partition reproduction run the same synthetic suites and preserve separate artifacts. */
+export function runtimeCommands(selected, args, timing = weights) {
+	const forwarded = [];
+	let output = "test-results/browser";
+	for (let index = 0; index < args.length; index++) {
+		if (args[index] === "--output") output = args[++index];
+		else if (args[index].startsWith("--output=")) output = args[index].slice("--output=".length);
+		else forwarded.push(args[index]);
+	}
+	return (timing.runtimeSuites ?? [])
+		.filter((suite) => suite.shard === selected)
+		.map((suite) => [
+			"exec",
+			"playwright",
+			"test",
+			"--config",
+			suite.config,
+			...forwarded,
+			"--output",
+			join(output, suite.output),
+		]);
+}
+
 function main() {
-	const [selection = "all", total = "6", ...args] = process.argv.slice(2);
+	const [selection = "all", total = "10", ...args] = process.argv.slice(2);
 	const count = Number(total);
 	const selected = Number(selection);
 	if (selection !== "all" && (!Number.isInteger(selected) || selected < 1 || selected > count))
@@ -107,6 +140,13 @@ function main() {
 		});
 		if (result.error) throw result.error;
 		process.exitCode = result.status ?? 1;
+		if (process.exitCode !== 0) return;
+		for (const command of runtimeCommands(selected, args)) {
+			const runtime = spawnSync("pnpm", command, { cwd: repository, stdio: "inherit" });
+			if (runtime.error) throw runtime.error;
+			process.exitCode = runtime.status ?? 1;
+			if (process.exitCode !== 0) return;
+		}
 	} finally {
 		rmSync(directory, { recursive: true, force: true });
 	}

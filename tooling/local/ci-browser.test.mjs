@@ -3,16 +3,16 @@ import { expect, it } from "vite-plus/test";
 import { ciBrowserEnvironment, ciBrowserWorkers, ciBrowserTestCommand } from "./ci-browser.mjs";
 
 it("uses one local worker when reproducing a weighted CI partition", () => {
-	expect(ciBrowserWorkers({ args: ["--partition=4/6"], cores: 16, freeMemory: 23 * 1024 ** 3 })).toBe(1);
+	expect(ciBrowserWorkers({ args: ["--partition=3/10"], cores: 16, freeMemory: 23 * 1024 ** 3 })).toBe(1);
 });
 
 it("runs weighted CI partitions through the same partitioner as GitHub", () => {
-	expect(ciBrowserTestCommand(["--workers=1", "--partition=4/6"])).toEqual([
+	expect(ciBrowserTestCommand(["--workers=1", "--partition=3/10"])).toEqual([
 		"exec",
 		"node",
 		"tooling/local/e2e-partition.mjs",
-		"4",
-		"6",
+		"3",
+		"10",
 		"--workers=1",
 	]);
 });
