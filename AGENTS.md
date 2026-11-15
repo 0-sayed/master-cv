@@ -144,6 +144,7 @@ Step 3 above applies to what changed, not the whole app on every task.
 - **Local browser workers:** automatic: `max(1, min(4, floor(cores / 2), floor(free GB / 1.5)))`.
   Capped at 4 because higher counts overheat laptops. Override with `--workers=N`.
   Confirm parallel-only failures with `--workers=1` and report them as parallel-unsafe. GitHub CI keeps one worker.
+- **CI browser reproduction:** `ci-browser.mjs --partition=N/6` uses CI's weighted test list, UTC and one worker; native `--shard` selects a different list.
 
 ## Existing repository guidance and reconciled scope
 

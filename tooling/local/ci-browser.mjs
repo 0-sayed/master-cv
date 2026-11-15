@@ -14,7 +14,24 @@ const { Pool } = createRequire(new URL("../../packages/db/package.json", import.
 
 export function ciBrowserWorkers({ args, githubActions, cores, freeMemory }) {
 	if (githubActions === "true" || args.some((arg) => /^(?:--workers(?:=|$)|-j(?:=?\d|$))/u.test(arg))) return null;
+	if (args.some((arg) => arg.startsWith("--partition="))) return 1;
 	return Math.max(1, Math.min(4, Math.floor(cores / 2), Math.floor(freeMemory / 1024 ** 3 / 1.5)));
+}
+
+export function ciBrowserTestCommand(args) {
+	const partition = args.find((arg) => arg.startsWith("--partition="));
+	if (!partition) return ["exec", "playwright", "test", ...args];
+	const match = /^--partition=(\d+)\/(\d+)$/u.exec(partition);
+	if (!match || Number(match[1]) < 1 || Number(match[1]) > Number(match[2]))
+		throw new Error("--partition must be N/M with 1 <= N <= M");
+	return [
+		"exec",
+		"node",
+		"tooling/local/e2e-partition.mjs",
+		match[1],
+		match[2],
+		...args.filter((arg) => arg !== partition),
+	];
 }
 
 /** Allowlist the browser CI environment; personal .env/browser settings must never alter the contract. */
@@ -152,24 +169,13 @@ async function main() {
 		],
 		{
 			cwd: repository,
-			env: {
-				...env,
-				SMTP_HOST: "127.0.0.1",
-				SMTP_PORT: env.E2E_SMTP_PORT,
-				SMTP_SECURE: "false",
-				SMTP_USER: "synthetic",
-				SMTP_PASS: "synthetic",
-				SMTP_FROM: "Master CV <mail@example.test>",
-			},
+			env,
 			stdio: "inherit",
 		},
 	);
 	try {
 		process.exitCode = await run([
-			"exec",
-			"playwright",
-			"test",
-			...args.filter((arg) => arg !== "--skip-build"),
+			...ciBrowserTestCommand(args.filter((arg) => arg !== "--skip-build")),
 			"--output",
 			resolve(directory, "browser"),
 		]);

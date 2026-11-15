@@ -1,6 +1,35 @@
 import { readFileSync } from "node:fs";
 import { expect, it } from "vite-plus/test";
-import { ciBrowserEnvironment, ciBrowserWorkers } from "./ci-browser.mjs";
+import { ciBrowserEnvironment, ciBrowserWorkers, ciBrowserTestCommand } from "./ci-browser.mjs";
+
+it("uses one local worker when reproducing a weighted CI partition", () => {
+	expect(ciBrowserWorkers({ args: ["--partition=4/6"], cores: 16, freeMemory: 23 * 1024 ** 3 })).toBe(1);
+});
+
+it("runs weighted CI partitions through the same partitioner as GitHub", () => {
+	expect(ciBrowserTestCommand(["--workers=1", "--partition=4/6"])).toEqual([
+		"exec",
+		"node",
+		"tooling/local/e2e-partition.mjs",
+		"4",
+		"6",
+		"--workers=1",
+	]);
+});
+
+it("preserves ordinary spec selection and native Playwright shards", () => {
+	expect(ciBrowserTestCommand(["account-data-rights.spec.ts", "--shard=1/2"])).toEqual([
+		"exec",
+		"playwright",
+		"test",
+		"account-data-rights.spec.ts",
+		"--shard=1/2",
+	]);
+});
+
+it.each(["--partition=0/6", "--partition=7/6", "--partition=4"])("rejects invalid %s", (arg) => {
+	expect(() => ciBrowserTestCommand([arg])).toThrow("--partition must be N/M");
+});
 
 it.each([
 	[16, 23, 4],
