@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { rm } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { expect, it } from "vite-plus/test";
 import {
 	ciBrowserEnvironment,
@@ -11,7 +12,7 @@ import {
 it("keeps Chromium singleton sockets within the Unix path limit inside the repository", async () => {
 	const directory = await createCiBrowserDirectory();
 	try {
-		expect(directory.startsWith(new URL("../../.cache/", import.meta.url).pathname)).toBe(true);
+		expect(directory.startsWith(fileURLToPath(new URL("../../.cache/", import.meta.url)))).toBe(true);
 		expect(Buffer.byteLength(`${directory}/org.chromium.Chromium.123456/SingletonSocket`) + 1).toBeLessThanOrEqual(108);
 	} finally {
 		await rm(directory, { recursive: true, force: true });
@@ -20,6 +21,31 @@ it("keeps Chromium singleton sockets within the Unix path limit inside the repos
 
 it("uses one local worker when reproducing a weighted CI partition", () => {
 	expect(ciBrowserWorkers({ args: ["--partition=3/10"], cores: 16, freeMemory: 23 * 1024 ** 3 })).toBe(1);
+});
+
+it("uses explicitly selected owned ports without changing the default development runtime", () => {
+	const env = ciBrowserEnvironment({
+		...fixture,
+		parent: { ...fixture.parent, E2E_PORT: "3130", E2E_SMTP_PORT: "3133" },
+	});
+	expect(env).toMatchObject({ APP_URL: "http://localhost:3130", PORT: "3130", E2E_SMTP_PORT: "3133" });
+});
+
+it("passes an explicitly configured local design auditor to the owned browser runtime", () => {
+	const env = ciBrowserEnvironment({ ...fixture, parent: { ...fixture.parent, IMPECCABLE_BIN: "/tools/impeccable" } });
+	expect(env.IMPECCABLE_BIN).toBe("/tools/impeccable");
+});
+
+it.each([
+	{ E2E_PORT: "0" },
+	{ E2E_PORT: "65536" },
+	{ E2E_PORT: "3130/path" },
+	{ E2E_SMTP_PORT: "invalid" },
+	{ E2E_PORT: "3133", E2E_SMTP_PORT: "3133" },
+])("rejects invalid or conflicting owned runtime ports: %j", (ports) => {
+	expect(() => ciBrowserEnvironment({ ...fixture, parent: { ...fixture.parent, ...ports } })).toThrow(
+		"Distinct valid runtime ports required",
+	);
 });
 
 it("runs weighted CI partitions through the same partitioner as GitHub", () => {

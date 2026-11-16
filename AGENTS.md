@@ -148,6 +148,7 @@ Step 3 above applies to what changed, not the whole app on every task.
   Confirm parallel-only failures with `--workers=1` and report them as parallel-unsafe. GitHub CI keeps one worker.
 - **Before pushing:** if a failure occurred only in CI, reproduce its exact browser shard with `node tooling/local/ci-browser.mjs --partition=N/10` (export a local synthetic `E2E_DATABASE_ADMIN_URL` first).
 - **Heavy checks on GitHub (D38, public repository only):** run the Deep tier on free GitHub runners through a
+  throwaway snapshot only after `pnpm validate:static` passes locally. Then create a
   throwaway `ci/try-<task>` snapshot branch and `gh workflow run e2e.yml --ref ci/try-<task>`; delete the branch
   afterwards. Never include `.env*` or secrets. Stop this, and reduce CI sharding, when the repository goes private.
 - **CI browser reproduction:** `node tooling/local/ci-browser.mjs --partition=N/10` uses CI's weighted test list, shard 6 synthetic runtime suites, UTC and one worker; native `--shard` selects a different list.
