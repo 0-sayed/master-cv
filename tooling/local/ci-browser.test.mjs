@@ -1,6 +1,22 @@
 import { readFileSync } from "node:fs";
+import { rm } from "node:fs/promises";
 import { expect, it } from "vite-plus/test";
-import { ciBrowserEnvironment, ciBrowserWorkers, ciBrowserTestCommand } from "./ci-browser.mjs";
+import {
+	ciBrowserEnvironment,
+	ciBrowserWorkers,
+	ciBrowserTestCommand,
+	createCiBrowserDirectory,
+} from "./ci-browser.mjs";
+
+it("keeps Chromium singleton sockets within the Unix path limit inside the repository", async () => {
+	const directory = await createCiBrowserDirectory();
+	try {
+		expect(directory.startsWith(new URL("../../.cache/", import.meta.url).pathname)).toBe(true);
+		expect(Buffer.byteLength(`${directory}/org.chromium.Chromium.123456/SingletonSocket`) + 1).toBeLessThanOrEqual(108);
+	} finally {
+		await rm(directory, { recursive: true, force: true });
+	}
+});
 
 it("uses one local worker when reproducing a weighted CI partition", () => {
 	expect(ciBrowserWorkers({ args: ["--partition=3/10"], cores: 16, freeMemory: 23 * 1024 ** 3 })).toBe(1);
@@ -32,8 +48,8 @@ it.each(["--partition=0/6", "--partition=7/6", "--partition=4"])("rejects invali
 });
 
 it.each([
-	[16, 23, 4],
-	[8, 23, 4],
+	[16, 23, 3],
+	[8, 23, 3],
 	[7, 23, 3],
 	[16, 5, 3],
 	[1, 23, 1],
@@ -48,7 +64,7 @@ it.each(["--workers=4", "--workers", "-j", "-j4", "-j=4"])("preserves explicit %
 
 it("leaves GitHub Actions worker selection unchanged", () => {
 	expect(ciBrowserWorkers({ args: [], githubActions: "true", cores: 16, freeMemory: 23 * 1024 ** 3 })).toBeNull();
-	expect(ciBrowserWorkers({ args: [], githubActions: "false", cores: 8, freeMemory: 23 * 1024 ** 3 })).toBe(4);
+	expect(ciBrowserWorkers({ args: [], githubActions: "false", cores: 8, freeMemory: 23 * 1024 ** 3 })).toBe(3);
 });
 
 const fixture = {
@@ -64,6 +80,11 @@ const fixture = {
 	migrationUrl: "postgresql://migration:synthetic@localhost/fresh_test",
 	directory: "/tmp/fresh-ci-browser",
 };
+it("keeps launched browser temporary files in the synthetic run directory", () => {
+	expect(ciBrowserEnvironment({ ...fixture, parent: { ...fixture.parent, TMPDIR: "/external" } }).TMPDIR).toBe(
+		fixture.directory,
+	);
+});
 it("preloads isolation for child builds and production runtimes without inherited Node options", () => {
 	const env = ciBrowserEnvironment({ ...fixture, parent: { ...fixture.parent, NODE_OPTIONS: "--require /private" } });
 	expect(env.NODE_OPTIONS).toMatch(/^--import=file:.*\/tooling\/local\/test-isolation\.mjs$/u);
@@ -106,3 +127,10 @@ it.each(["OPENROUTER_API_KEY", "OPENROUTER_BENCHMARK_KEY"])(
 		);
 	},
 );
+it("passes only an explicitly requested public evidence directory to browser children", () => {
+	expect(
+		ciBrowserEnvironment({ ...fixture, parent: { ...fixture.parent, E2E_PUBLIC_EVIDENCE_DIR: "/owner/evidence" } })
+			.E2E_PUBLIC_EVIDENCE_DIR,
+	).toBe("/owner/evidence");
+	expect(ciBrowserEnvironment(fixture)).not.toHaveProperty("E2E_PUBLIC_EVIDENCE_DIR");
+});

@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import { copyFile, mkdir, mkdtemp } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { createConnection } from "node:net";
-import { availableParallelism, freemem, tmpdir } from "node:os";
+import { availableParallelism, freemem } from "node:os";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { provisionRuntimeRole } from "./database-roles.mjs";
@@ -12,10 +12,16 @@ import { assertNoAiCredentials } from "./test-ai-guard.mjs";
 const repository = fileURLToPath(new URL("../../", import.meta.url));
 const { Pool } = createRequire(new URL("../../packages/db/package.json", import.meta.url))("pg");
 
+export async function createCiBrowserDirectory() {
+	// Full Chromium needs room for its singleton socket within Unix's 108-byte path limit.
+	await mkdir(resolve(repository, ".cache"), { recursive: true });
+	return mkdtemp(resolve(repository, ".cache/b-"));
+}
+
 export function ciBrowserWorkers({ args, githubActions, cores, freeMemory }) {
 	if (githubActions === "true" || args.some((arg) => /^(?:--workers(?:=|$)|-j(?:=?\d|$))/u.test(arg))) return null;
 	if (args.some((arg) => arg.startsWith("--partition="))) return 1;
-	return Math.max(1, Math.min(4, Math.floor(cores / 2), Math.floor(freeMemory / 1024 ** 3 / 1.5)));
+	return Math.max(1, Math.min(3, Math.floor(cores / 2), Math.floor(freeMemory / 1024 ** 3 / 1.5)));
 }
 
 export function ciBrowserTestCommand(args) {
@@ -40,6 +46,8 @@ export function ciBrowserEnvironment({ parent, databaseUrl, migrationUrl, direct
 	return {
 		PATH: resolve(repository, ".cache/document-toolchain/bin") + ":" + parent.PATH,
 		HOME: parent.HOME,
+		TMPDIR: directory,
+		...(parent.E2E_PUBLIC_EVIDENCE_DIR ? { E2E_PUBLIC_EVIDENCE_DIR: parent.E2E_PUBLIC_EVIDENCE_DIR } : {}),
 		NODE_OPTIONS: `--import=${new URL("./test-isolation.mjs", import.meta.url).href}`,
 		TEST_INFERENCE_ISOLATION: "true",
 		// Match GitHub Ubuntu: Chromium must encode Arabic download filenames as UTF-8.
@@ -86,7 +94,7 @@ async function main() {
 		throw new Error("Local database required");
 	await requireFreePort(3030);
 	await requireFreePort(3033);
-	const directory = await mkdtemp(resolve(tmpdir(), "master-cv-ci-browser-"));
+	const directory = await createCiBrowserDirectory();
 	const id = `${Date.now()}_${randomBytes(3).toString("hex")}`;
 	const database = `ci_browser_${id}`;
 	const role = `ci_browser_runtime_${id}`;

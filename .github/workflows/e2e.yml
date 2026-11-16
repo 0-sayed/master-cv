@@ -43,7 +43,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { part: unit, label: "Unit and integration" }
+          - { part: unit, group: tooling, shard: 1, label: "Tooling 1/4" }
+          - { part: unit, group: tooling, shard: 2, label: "Tooling 2/4" }
+          - { part: unit, group: tooling, shard: 3, label: "Tooling 3/4" }
+          - { part: unit, group: tooling, shard: 4, label: "Tooling 4/4" }
+          - { part: unit, group: web, label: "Web units" }
+          - { part: unit, group: api, label: "API integration" }
+          - { part: unit, group: remaining, label: "Remaining units and integration" }
           - { part: browser, shard: 1, label: "Browser 1/10" }
           - { part: browser, shard: 2, label: "Browser 2/10" }
           - { part: browser, shard: 3, label: "Browser 3/10" }
@@ -57,7 +63,8 @@ jobs:
 
     services:
       postgres:
-        image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+        # An empty image skips this service for web and tooling units.
+        image: ${{ (matrix.part == 'browser' || matrix.group == 'api' || matrix.group == 'remaining') && 'postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193' || '' }}
         env:
           POSTGRES_DB: postgres
           POSTGRES_USER: postgres
@@ -98,20 +105,23 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: .turbo/cache
-          key: ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.workflow }}-${{ hashFiles('pnpm-lock.yaml', '.nvmrc') }}-${{ github.sha }}
+          key: ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.workflow }}-${{ matrix.group || matrix.part }}-${{ matrix.shard || 'all' }}-${{ hashFiles('pnpm-lock.yaml', '.nvmrc') }}-${{ github.sha }}
           restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.workflow }}-${{ matrix.group || matrix.part }}-${{ matrix.shard || 'all' }}-${{ hashFiles('pnpm-lock.yaml', '.nvmrc') }}-
             ${{ runner.os }}-${{ runner.arch }}-turbo-${{ github.workflow }}-${{ hashFiles('pnpm-lock.yaml', '.nvmrc') }}-
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Cache pinned document toolchain
+        if: matrix.part == 'browser' || matrix.group == 'tooling' || matrix.group == 'remaining'
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
         with:
           path: .cache/document-toolchain
           key: ${{ runner.os }}-${{ runner.arch }}-document-toolchain-${{ hashFiles('tooling/document-qualification/install-poppler.mjs', 'tooling/document-qualification/versions.json') }}
 
       - name: Install PDF Text Extractor
+        if: matrix.part == 'browser' || matrix.group == 'tooling' || matrix.group == 'remaining'
         timeout-minutes: 6
         run: |
           # Reader runtime libraries are preinstalled on ubuntu-22.04; apt only repairs missing ones.
@@ -130,8 +140,12 @@ jobs:
           echo "$GITHUB_WORKSPACE/.cache/document-toolchain/bin" >> "$GITHUB_PATH"
 
       - name: Check Package Boundaries
-        if: matrix.part == 'unit'
+        if: matrix.group == 'remaining'
         run: pnpm exec turbo boundaries
+
+      - name: Prove complete unit partition coverage
+        if: matrix.group == 'remaining'
+        run: node tooling/local/ci-unit.mjs --check
 
       - name: Install Playwright Browser
         if: matrix.part == 'browser'
@@ -140,34 +154,45 @@ jobs:
         run: pnpm exec playwright install chromium
 
       - name: Generate Test Secrets
+        if: matrix.part == 'browser' || matrix.group == 'api' || matrix.group == 'remaining'
         run: |
           echo "AUTH_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
           echo "ENCRYPTION_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
 
       - name: Prepare Storage
+        if: matrix.part == 'browser' || matrix.group == 'api' || matrix.group == 'remaining'
         run: mkdir -p "$LOCAL_STORAGE_PATH"
 
       - name: Run Database Migrations
+        if: matrix.part == 'browser' || matrix.group == 'api' || matrix.group == 'remaining'
         run: pnpm db:migrate
 
       - name: Prepare OAuth Test Database
+        if: matrix.part == 'browser' || matrix.group == 'remaining'
         run: |
           psql "$DATABASE_URL" -c "CREATE DATABASE oauth_test"
           DATABASE_URL="$OAUTH_TEST_DATABASE_URL" DATABASE_MIGRATION_URL="$OAUTH_TEST_DATABASE_URL" pnpm db:migrate
 
       - name: Prepare restricted synthetic runtime role
+        if: matrix.part == 'browser' || matrix.group == 'api' || matrix.group == 'remaining'
         run: |
           node tooling/local/database-roles.mjs
           node --input-type=module -e 'import {readFileSync,appendFileSync} from "node:fs"; const line=readFileSync(".env.runtime.local","utf8").split("\n").find(value=>value.startsWith("DATABASE_URL=")); appendFileSync(process.env.GITHUB_ENV,`${line}\n`);'
 
-      # Runs every workspace that declares test:ci. Mobile has no such script;
-      # its inherited Hermes/native prerequisite is recorded in docs/development.md.
-      # Serial execution: the PDF
-      # rasterization and API rate-limit suites time out when several packages' Vitest
-      # thread pools oversubscribe the runner at once.
+      # Four native Vitest tooling shards, web, API and every remaining test:ci workspace.
+      # Keep packages serial inside each runner to avoid PDF/rate-limit pool contention.
+      # PDF retains its configured forks pool. Mobile has no test:ci script.
       - name: Run Unit Tests
         if: matrix.part == 'unit'
-        run: pnpm test:ci
+        env:
+          UNIT_GROUP: ${{ matrix.group }}
+          UNIT_SHARD: ${{ matrix.shard }}
+        run: |
+          if [[ "$UNIT_GROUP" == tooling ]]; then
+            node tooling/local/ci-unit.mjs "$UNIT_GROUP" "$UNIT_SHARD/4"
+          else
+            node tooling/local/ci-unit.mjs "$UNIT_GROUP"
+          fi
 
       - name: Build
         if: matrix.part == 'browser'

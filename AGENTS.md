@@ -136,17 +136,20 @@ Step 3 above applies to what changed, not the whole app on every task.
   (`node --env-file=.env.test.local tooling/local/ci-browser.mjs <spec-files>`). Broaden specs only for shared shell/auth
   changes. Capture AR/EN, desktop/mobile evidence for changed screens only.
 - **Deep (once, before a commit):** `pnpm validate:static`, `pnpm test:ci`,
-  and the full browser suite locally (`node --env-file=.env.test.local tooling/local/ci-browser.mjs`, no spec list).
+  and the full browser suite: on GitHub via a throwaway branch while the repository is public (D38), otherwise locally (`node --env-file=.env.test.local tooling/local/ci-browser.mjs`, no spec list).
   The full browser suite and `pnpm --filter @reactive-resume/tooling test:documents` run on the PR
   in CI, which is authoritative.
 - **After a push:** On CI failures, fix, then rerun only the failed specs locally or let CI
   rerun them.
 - Do not rerun a suite on unchanged source. After an infrastructure failure (disk full, server
   loss), fix the cause and rerun only the failed cases.
-- **Local browser workers:** automatic: `max(1, min(4, floor(cores / 2), floor(free GB / 1.5)))`.
-  Capped at 4 because higher counts overheat laptops. Override with `--workers=N`.
+- **Local browser workers:** automatic: `max(1, min(3, floor(cores / 2), floor(free GB / 1.5)))`.
+  Capped at 3 because higher counts overheat laptops. Override with `--workers=N`.
   Confirm parallel-only failures with `--workers=1` and report them as parallel-unsafe. GitHub CI keeps one worker.
 - **Before pushing:** if a failure occurred only in CI, reproduce its exact browser shard with `node tooling/local/ci-browser.mjs --partition=N/10` (export a local synthetic `E2E_DATABASE_ADMIN_URL` first).
+- **Heavy checks on GitHub (D38, public repository only):** run the Deep tier on free GitHub runners through a
+  throwaway `ci/try-<task>` snapshot branch and `gh workflow run e2e.yml --ref ci/try-<task>`; delete the branch
+  afterwards. Never include `.env*` or secrets. Stop this, and reduce CI sharding, when the repository goes private.
 - **CI browser reproduction:** `node tooling/local/ci-browser.mjs --partition=N/10` uses CI's weighted test list, shard 6 synthetic runtime suites, UTC and one worker; native `--shard` selects a different list.
 
 ## Existing repository guidance and reconciled scope

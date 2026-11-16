@@ -12,7 +12,7 @@ const smtpPort = process.env.E2E_SMTP_PORT ?? String(port + 3);
 
 export default defineConfig({
 	testDir: "./tests/e2e/specs",
-	testIgnore: ["**/reviewable-ai*.spec.ts"],
+	testIgnore: ["**/reviewable-ai*.spec.ts", "**/public-design.spec.ts"],
 	fullyParallel: true,
 	forbidOnly: isCI,
 	retries: process.env.GITHUB_ACTIONS === "true" ? 1 : 0,
