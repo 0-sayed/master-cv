@@ -1,6 +1,22 @@
 // @vitest-environment happy-dom
 import { expect, it } from "vite-plus/test";
 import { syncPublicSeo } from "./public-seo";
+it("preserves the checker image and application metadata after client navigation", () => {
+	const dispose = syncPublicSeo({
+		page: "ats-checker",
+		pageUrl: "https://resume.example/ats-checker",
+		locale: "en-US",
+		title: "ATS Checker",
+		description: "Check PDF readability",
+	});
+	expect(document.querySelector('meta[property="og:image"]')).toHaveAttribute(
+		"content",
+		"https://resume.example/opengraph/ats-checker.png",
+	);
+	const data = JSON.parse(document.querySelector('script[type="application/ld+json"]')?.textContent ?? "{}");
+	expect(data).toMatchObject({ "@type": "WebApplication", url: "https://resume.example/ats-checker?locale=en-US" });
+	dispose();
+});
 it("updates owned public metadata once and removes it on exit", () => {
 	document.head.innerHTML =
 		'<meta name="unrelated" content="keep"><link rel="canonical" href="https://resume.example/" data-public-seo>';

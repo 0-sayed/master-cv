@@ -1,5 +1,18 @@
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
+for (const locale of ["ar-SA", "en-US"]) {
+	test(`footer language navigation preserves the selected legal terms ${locale}`, async ({ page }) => {
+		await page.goto(`/privacy-and-terms?tab=terms&locale=${locale}`);
+		const target = locale === "ar-SA" ? "en-US" : "ar-SA";
+		await page
+			.getByRole("contentinfo")
+			.getByRole("link", { name: target === "ar-SA" ? "العربية" : "English", exact: true })
+			.click();
+		await expect(page.locator("html")).toHaveAttribute("lang", target);
+		expect(new URL(page.url()).searchParams.get("tab")).toBe("terms");
+		await expect(page.getByRole("tab", { selected: true })).toHaveText(target === "ar-SA" ? "الشروط" : "Terms");
+	});
+}
 test("draft legal tabs survive deep links locale switching and history", async ({ page }) => {
 	await page.goto("/privacy-and-terms?tab=terms&locale=en-US");
 	await settleScreen(page);

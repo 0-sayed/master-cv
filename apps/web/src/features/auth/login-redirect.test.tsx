@@ -316,7 +316,7 @@ describe("unavailable account methods remain unavailable", () => {
 			</I18nProvider>,
 		);
 		expect(login.container.querySelector('input[name="identifier"]')).toBeNull();
-		expect(screen.queryByRole("link", { name: "Sign up" })).toBeNull();
+		expect(screen.queryByRole("link", { name: "Create an account" })).toBeNull();
 		login.unmount();
 		const registration = render(
 			<I18nProvider i18n={i18n}>

@@ -19,11 +19,7 @@ const compositorProperties = new Set([
 const heroAnimations = () =>
 	document
 		.getAnimations()
-		.filter(
-			(animation) =>
-				animation.playState === "running" &&
-				(animation.effect as KeyframeEffect | null)?.target?.closest?.("[data-landing-hero]"),
-		)
+		.filter((animation) => (animation.effect as KeyframeEffect | null)?.target?.closest?.("[data-landing-hero]"))
 		.map((animation) => ({
 			name: (animation as CSSAnimation).animationName,
 			properties: [
@@ -37,6 +33,8 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await settleScreen(page);
 		const animations = await page.evaluate(heroAnimations);
 		expect(animations.some((animation) => animation.name === "landing-drift")).toBe(true);
+		// Filled entrance effects remain inspectable after settling; do not filter them out by play state.
+		expect(animations.some((animation) => animation.name === "signature-draw")).toBe(true);
 		for (const animation of animations)
 			for (const property of animation.properties)
 				expect(compositorProperties, `${animation.name}: ${property}`).toContain(property);
@@ -120,9 +118,39 @@ test("job evidence threads join each supported requirement to its CV line and fo
 	await section.scrollIntoViewIfNeeded();
 	// Senior Accountant: two requirements with evidence, one without; only supported ones get a thread.
 	await expect(section.locator("svg.landing-thread path")).toHaveCount(2);
+	const initialPaths = await section
+		.locator("svg.landing-thread path")
+		.evaluateAll((paths) => paths.map((path) => path.getAttribute("d")));
 	await section.getByRole("radio", { name: "Sales Supervisor", exact: true }).click();
 	await expect(section.getByRole("radio", { name: "Sales Supervisor", exact: true })).toBeChecked();
 	await expect(section.locator("svg.landing-thread path")).toHaveCount(2);
 	const ends = await section.locator("svg.landing-thread circle").evaluateAll((dots) => dots.length);
 	expect(ends).toBe(4);
+	await expect
+		.poll(() =>
+			section.locator("svg.landing-thread path").evaluateAll((paths) => paths.map((path) => path.getAttribute("d"))),
+		)
+		.not.toEqual(initialPaths);
+	// Sales teamwork must point to the skills fact, rather than the accountant's second experience bullet.
+	await expect
+		.poll(async () => {
+			const dot = await section.locator("svg.landing-thread circle").last().boundingBox();
+			const fact = await section.locator('[data-thread-to="skills"]').boundingBox();
+			if (!dot || !fact) throw new Error("Missing evidence endpoint");
+			return Math.abs(dot.y + dot.height / 2 - fact.y - fact.height / 2);
+		})
+		.toBeLessThan(2);
+});
+
+test("landing demo stays readable without the optional visibility observer", async ({ page }) => {
+	const errors: string[] = [];
+	page.on("pageerror", (error) => errors.push(error.message));
+	await page.addInitScript(() => {
+		Object.defineProperty(globalThis, "IntersectionObserver", { value: undefined, configurable: true });
+	});
+	await page.goto("/?locale=en-US");
+	await settleScreen(page);
+	await expect(page.locator("[data-live-cv]")).toHaveAttribute("data-step", "5");
+	await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+	expect(errors).toEqual([]);
 });

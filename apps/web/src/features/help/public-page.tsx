@@ -22,7 +22,11 @@ export function PublicHelp() {
 					>
 						<Trans context="privacy.navigation.home">Back to home</Trans>
 					</Link>
-					<Link to="/auth/login" search={{ locale, callbackURL: "/help" }} className={buttonVariants()}>
+					<Link
+						to="/auth/login"
+						search={{ locale, callbackURL: `/help?locale=${locale}` }}
+						className={buttonVariants()}
+					>
 						<Trans>Sign in</Trans>
 					</Link>
 				</>

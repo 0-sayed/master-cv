@@ -7,11 +7,13 @@ import { getAtsCheckerMeta, getPublicPageMeta, serializeJsonLd } from "./seo";
 import { useUiLocale } from "@/features/locale/provider";
 
 export function syncPublicSeo({
+	page = "home",
 	pageUrl,
 	locale,
 	title,
 	description,
 }: {
+	page?: PublicPageId | "ats-checker";
 	pageUrl: string;
 	locale: UiLocale;
 	title: string;
@@ -21,6 +23,7 @@ export function syncPublicSeo({
 	base.search = "";
 	base.hash = "";
 	const canonical = localizedUrl(base.href, locale, productLocalePolicy);
+	const image = new URL(page === "ats-checker" ? "/opengraph/ats-checker.png" : "/opengraph/banner.jpg", base).href;
 	const owned = new Set<Element>();
 	const put = (tag: "link" | "meta" | "script", selector: string, attributes: Record<string, string>) => {
 		const existing = [...document.head.querySelectorAll(`${selector}[data-public-seo]`)];
@@ -42,24 +45,25 @@ export function syncPublicSeo({
 		"og:title": title,
 		"og:description": description,
 		"og:url": canonical,
-		"og:image": new URL("/opengraph/banner.jpg", base).href,
+		"og:image": image,
 	}))
 		put("meta", `meta[property="${property}"]`, { property, content });
 	for (const [name, content] of Object.entries({
 		"twitter:card": "summary_large_image",
 		"twitter:title": title,
 		"twitter:description": description,
-		"twitter:image": new URL("/opengraph/banner.jpg", base).href,
+		"twitter:image": image,
 	}))
 		put("meta", `meta[name="${name}"]`, { name, content });
 	const script = put("script", 'script[type="application/ld+json"]', { type: "application/ld+json" });
 	script.textContent = serializeJsonLd({
 		"@context": "https://schema.org",
-		"@type": "WebPage",
+		"@type": page === "ats-checker" ? "WebApplication" : "WebPage",
 		name: title,
 		description,
 		url: canonical,
 		inLanguage: locale,
+		...(page === "ats-checker" ? { applicationCategory: "BusinessApplication", operatingSystem: "Web" } : {}),
 	});
 	return () => {
 		for (const element of owned) element.remove();
@@ -75,6 +79,6 @@ export function usePublicSeo(page: PublicPageId | "ats-checker") {
 			document.querySelector<HTMLLinkElement>('link[rel="canonical"][data-public-seo]')?.href ?? location.href,
 		).origin;
 		const path = page === "home" ? "/" : `/${page}`;
-		return syncPublicSeo({ pageUrl: new URL(path, servedOrigin).href, locale, title, description });
+		return syncPublicSeo({ page, pageUrl: new URL(path, servedOrigin).href, locale, title, description });
 	}, [page, locale, title, description]);
 }

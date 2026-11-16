@@ -3,6 +3,7 @@ import { useRouter } from "@tanstack/react-router";
 import { useUiLocale } from "@/features/locale/provider";
 import { authClient } from "@/libs/auth/client";
 import { authIdentity, sessionQueryKey } from "@/libs/auth/identity";
+import { getSession } from "@/libs/auth/session";
 import { clearPersonalStorage } from "@/libs/browser-storage";
 
 /** Leave private UI before revoking access, so its pending requests cannot report an expired session. */
@@ -17,7 +18,13 @@ export function useSignOut() {
 			const result = await authClient.signOut();
 			if (result.error) throw result.error;
 		} catch (error) {
-			await router.invalidate();
+			// Confirm identity independently: an unrelated loader failure must not leave private UI in checking.
+			const session = await getSession().catch(() => null);
+			identity.accept(session);
+			queryClient.setQueryData(sessionQueryKey, session);
+			if (!session)
+				await router.navigate({ to: "/auth/login", search: { locale }, replace: true }).catch(() => undefined);
+			await router.invalidate().catch(() => undefined);
 			throw error;
 		}
 		clearPersonalStorage();

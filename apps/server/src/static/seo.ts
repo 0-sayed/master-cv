@@ -74,7 +74,7 @@ export function handleLlms(options?: StaticSeoOptions) {
 			"# Master CV",
 			"",
 			"Write and review your CV in a private account.",
-			"Qualified PDF downloads are free within account limits. Word downloads and public sharing are unavailable.",
+			"Qualified PDF downloads are free within account limits. Word downloads are unavailable. Public sharing remains subject to release approval.",
 			"Arabic and English versions are independent. Interface language does not translate saved content.",
 			"Proposed changes require your review and approval. PDF checking requires an account.",
 			"",

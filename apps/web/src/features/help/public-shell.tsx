@@ -57,7 +57,7 @@ export function PublicShell({
 					<Link to="/" search={{ locale }} aria-label="Master CV" className={buttonVariants({ variant: "ghost" })}>
 						{/* On narrow screens only the mark fits beside the header actions (below 360px on the landing, which
 						    moves its actions into a menu; below sm on content pages); the link keeps the full name. */}
-						<span className={landing ? "narrow:hidden" : "max-sm:hidden"}>
+						<span className={landing ? "inline-flex narrow:hidden" : "inline-flex max-sm:hidden"}>
 							<BrandIcon variant="logo" animateOnce={statusPage || landing} />
 						</span>
 						<span className={landing ? "hidden narrow:inline-flex" : "hidden max-sm:inline-flex"}>

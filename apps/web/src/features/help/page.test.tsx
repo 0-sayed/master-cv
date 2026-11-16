@@ -34,6 +34,16 @@ function fill() {
 	fireEvent.change(screen.getByLabelText("Your email"), { target: { value: "reader@example.test" } });
 	fireEvent.change(screen.getByLabelText("Your message"), { target: { value: "Synthetic support question" } });
 }
+it.each(["ar-SA", "en-US"])("preserves %s in unverified-account recovery", (locale) => {
+	context.session = { user: { email: "reader@example.test", emailVerified: false } };
+	show(locale);
+	const link = screen.getByRole("link", {
+		name: locale === "ar-SA" ? "تأكيد بريدك الإلكتروني" : "Verify your email address",
+	});
+	const url = new URL(link.getAttribute("href") ?? "", "https://resume.example");
+	expect(url.searchParams.get("locale")).toBe(locale);
+	expect(url.searchParams.get("email")).toBe("reader@example.test");
+});
 it("signed-out intake only shows receipt after persistence", async () => {
 	let done!: (value: unknown) => void;
 	submit.mockImplementation(
@@ -97,7 +107,7 @@ it("offers verification recovery to an unverified signed-in owner", () => {
 	expect(screen.queryByRole("button", { name: "Send message" })).toBeNull();
 	expect(screen.getByRole("link", { name: "Verify your email address" })).toHaveAttribute(
 		"href",
-		"/auth/verify-email?email=pending%40example.test",
+		"/auth/verify-email?email=pending%40example.test&locale=en-US",
 	);
 });
 

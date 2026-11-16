@@ -48,10 +48,26 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		});
 	}
 }
-test("example language is independent from interface language", async ({ page }) => {
+test("example language is independent from interface language and saved CV facts", async ({ authPage: page }) => {
+	const created = await page.request.post("/api/openapi/resumes", {
+		data: { name: "Independent language example", tags: [], withSampleData: true },
+	});
+	expect(created.ok()).toBe(true);
+	const id = await created.json();
+	const saved = async () => {
+		const response = await page.request.get(`/api/openapi/resumes/${id}`);
+		expect(response.ok()).toBe(true);
+		const { data, updatedAt } = await response.json();
+		expect(data).toBeDefined();
+		return { data, updatedAt };
+	};
+	const before = await saved();
 	const mutations: string[] = [];
 	page.on("request", (request) => {
-		if (request.method() !== "GET") mutations.push(request.url());
+		// ORPC sends these read-only bootstrap queries via POST. Every other non-GET request remains a failure.
+		const readOnlyQueries = ["/api/rpc/flags/get", "/api/rpc/resume/getRoot"];
+		if (request.method() !== "GET" && !readOnlyQueries.includes(new URL(request.url()).pathname))
+			mutations.push(request.url());
 	});
 	await page.goto("/?locale=ar-SA");
 	await settleScreen(page);
@@ -65,6 +81,7 @@ test("example language is independent from interface language", async ({ page })
 	await expect(english.locator('[lang="en-US"][dir="ltr"]')).toHaveCount(1);
 	await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
 	expect(mutations).toEqual([]);
+	expect(await saved()).toEqual(before);
 });
 test("landing logo runs once and stays static with reduced motion", async ({ page }) => {
 	await page.goto("/?locale=en-US");

@@ -92,7 +92,7 @@ test("public metadata follows interface navigation and clears on account entry",
 	await settleScreen(page);
 	await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", "ar_SA");
 	expect(await page.locator('meta[property="og:title"]').getAttribute("content")).toBe(await page.title());
-	await page.getByRole("contentinfo").getByRole("link", { name: "الخصوصية والشروط" }).click();
+	await page.getByRole("contentinfo").getByRole("link", { name: "الخصوصية", exact: true }).click();
 	await settleScreen(page);
 	await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
 	await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);

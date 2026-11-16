@@ -75,7 +75,7 @@ export function HelpPage({ user }: { user: { email: string; emailVerified: boole
 							action={
 								<a
 									className={buttonVariants({ variant: "secondary" })}
-									href={`/auth/verify-email?email=${encodeURIComponent(user.email)}`}
+									href={`/auth/verify-email?email=${encodeURIComponent(user.email)}&locale=${i18n.locale}`}
 								>
 									<Trans context="auth.verifyEmail.title">Verify your email address</Trans>
 								</a>

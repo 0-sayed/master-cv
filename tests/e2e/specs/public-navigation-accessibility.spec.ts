@@ -13,7 +13,9 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				await page.keyboard.press("Tab");
 				await expect(page.locator('a[href="#main-content"]')).toBeFocused();
 				const positions: { x: number; y: number }[] = [];
-				for (let index = 0; index < 4; index++) {
+				const controlCount = path === "/" ? (width < 1024 ? 3 : 8) : 4;
+				await expect(page.getByRole("banner").locator("a:visible, button:visible")).toHaveCount(controlCount);
+				for (let index = 0; index < controlCount; index++) {
 					await page.keyboard.press("Tab");
 					const active = page.locator(":focus");
 					expect(await active.evaluate((element) => !!element.closest("header"))).toBe(true);
@@ -30,17 +32,23 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					if (Math.abs(current.y - previous.y) < 2)
 						expect(locale === "ar-SA" ? current.x < previous.x : current.x > previous.x).toBe(true);
 				}
-				await page.getByRole("tab", { selected: true }).focus();
-				await page.keyboard.press("Tab");
-				const panel = page.getByRole("tabpanel");
-				await expect(panel).toBeFocused();
-				const focus = await panel.evaluate((element) => {
-					const style = getComputedStyle(element);
-					return { width: style.outlineWidth, style: style.outlineStyle, color: style.outlineColor };
-				});
-				expect(focus.style).toBe("solid");
-				expect(Number.parseFloat(focus.width)).toBeGreaterThanOrEqual(2);
-				expect(focus.color).not.toBe("rgba(0, 0, 0, 0)");
+				if (path !== "/") {
+					await page.getByRole("tab", { selected: true }).focus();
+					await page.keyboard.press("Tab");
+					const panel = page.getByRole("tabpanel");
+					await expect(panel).toBeFocused();
+					const focus = await panel.evaluate((element) => {
+						const style = getComputedStyle(element);
+						return { width: style.outlineWidth, style: style.outlineStyle, color: style.outlineColor };
+					});
+					expect(focus.style).toBe("solid");
+					expect(Number.parseFloat(focus.width)).toBeGreaterThanOrEqual(2);
+					expect(focus.color).not.toBe("rgba(0, 0, 0, 0)");
+				} else {
+					await expect(page.getByRole("tablist")).toHaveCount(0);
+					await page.keyboard.press("Tab");
+					expect(await page.locator(":focus").evaluate((element) => !!element.closest("main"))).toBe(true);
+				}
 				await page.screenshot({ path: testInfo.outputPath("focused-panel.png"), fullPage: true });
 				// Owner decision 2026-11-15: no visible upstream credit; the MIT LICENSE file stays in the repository.
 				await expect(page.locator("[data-upstream-credit]")).toHaveCount(0);

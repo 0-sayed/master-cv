@@ -1513,7 +1513,7 @@ button .success-tick {
 			calc(150ms + var(--thread-index, 0) * 160ms) both;
 	}
 	.landing-reveal-armed [data-reveal]:not([data-revealed]) & :is(path, circle) {
-		animation-play-state: paused;
+		animation: none;
 	}
 	@media (prefers-reduced-motion: reduce) {
 		& :is(path, circle) {

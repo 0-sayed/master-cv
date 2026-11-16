@@ -2,6 +2,28 @@ import { readFile } from "node:fs/promises";
 import { expect, it, vi } from "vite-plus/test";
 import { landingExample } from "./example";
 import { renderPage } from "./prerender";
+it("keeps the selected legal tab in both footer language destinations", async () => {
+	const { html } = await renderPage("legal-terms", "en-US");
+	for (const locale of ["ar-SA", "en-US"]) {
+		const tag = html.match(new RegExp(`<a\\b[^>]*lang="${locale}"[^>]*>`))?.[0];
+		const href = tag?.match(/href="([^"]*)"/)?.[1];
+		expect(href).toBeDefined();
+		const url = new URL(href?.replaceAll("&amp;", "&") ?? "", "https://resume.example/privacy-and-terms");
+		expect(url.searchParams.get("tab")).toBe("terms");
+		expect(url.searchParams.get("locale")).toBe(locale);
+	}
+});
+it("keeps the Arabic help locale in the sign-in return destination", async () => {
+	const { html } = await renderPage("help", "ar-SA");
+	const href = html.match(/href="([^"]*auth\/login[^"]*)"/)?.[1];
+	expect(href).toBeDefined();
+	const url = new URL(href?.replaceAll("&amp;", "&") ?? "", "https://resume.example");
+	expect(url.searchParams.get("callbackURL")).toBe("/help?locale=ar-SA");
+});
+it("renders the synthetic Arabic date range in chronological LTR order", async () => {
+	const { html } = await renderPage("home", "ar-SA");
+	expect(html).toMatch(/<bdi dir="ltr"[^>]*>2021 — 2024<\/bdi>/);
+});
 it("prerenders the product story, demos and honest pricing without JavaScript", async () => {
 	vi.stubGlobal("__APP_VERSION__", "test");
 	const { html } = await renderPage("home", "en-US");

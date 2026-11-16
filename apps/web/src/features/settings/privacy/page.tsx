@@ -13,8 +13,10 @@ import { ExportStatus } from "./export-status";
 import { PrivacyNotice } from "./notice";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { ConfirmAccountAccess } from "@/dialogs/auth/confirm-account-access";
+import { useUiLocale } from "@/features/locale/provider";
 import { client, orpc } from "@/libs/orpc/client";
 export function PrivacyPage() {
+	const { locale } = useUiLocale();
 	const [nonce, setNonce] = useState<string | null>(null);
 	const query = useQueryClient();
 	const latest = useQuery({
@@ -92,7 +94,7 @@ export function PrivacyPage() {
 				<ActionGroup>
 					<Link
 						to="/privacy-and-terms"
-						search={{ tab: "privacy" }}
+						search={{ tab: "privacy", locale }}
 						className={buttonVariants({ variant: "link", size: "link-touch" })}
 					>
 						<Trans context="privacy.policy.help">Privacy policy and help</Trans>

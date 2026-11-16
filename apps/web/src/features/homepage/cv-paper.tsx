@@ -54,7 +54,7 @@ export function CvPaper({ language, highlight = [], compact = false, threadTarge
 			<PaperSection title={cv.headings.experience}>
 				<div className="flex flex-wrap items-baseline justify-between gap-x-3">
 					<p className="type-label">{cv.job.title}</p>
-					<bdi dir={cv.dir} className="type-metadata text-paper-ink/60 tabular-nums">
+					<bdi dir="ltr" className="type-metadata text-paper-ink/60 tabular-nums">
 						{cv.job.dates}
 					</bdi>
 				</div>

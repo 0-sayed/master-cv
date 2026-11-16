@@ -69,9 +69,10 @@ export function LandingFooter() {
 				<div className="flex items-center gap-1">
 					<Icon name="globe" size={16} className="me-1 text-ink-3" />
 					{languages.map((language) => (
-						<a
+						<Link
 							key={language.locale}
-							href={`?locale=${language.locale}`}
+							to="."
+							search={(previous: Record<string, unknown>) => ({ ...previous, locale: language.locale })}
 							lang={language.locale}
 							aria-current={language.locale === locale ? "true" : undefined}
 							className={cn(
@@ -81,7 +82,7 @@ export function LandingFooter() {
 							)}
 						>
 							{language.name}
-						</a>
+						</Link>
 					))}
 				</div>
 			</div>

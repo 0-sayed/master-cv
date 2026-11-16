@@ -5,6 +5,8 @@ it("describes available account capabilities without inherited offers or integra
 	const text = await handleLlms().text();
 	expect(text).toContain("Qualified PDF");
 	expect(text).toContain("account");
+	expect(text).toContain("Public sharing remains subject to release approval.");
+	expect(text).not.toContain("public sharing are unavailable");
 	for (const claim of [
 		"every feature",
 		"funded by donations",
@@ -20,6 +22,6 @@ it("describes available account capabilities without inherited offers or integra
 });
 it("keeps drafts help and private documents outside the sitemap", async () => {
 	const text = await handleSitemap().text();
-	expect(text).toContain("https://resume.example/");
+	expect(text).toContain("<loc>https://resume.example/</loc>");
 	for (const path of ["privacy-and-terms", "help", "auth", "dashboard", "builder"]) expect(text).not.toContain(path);
 });

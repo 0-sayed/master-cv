@@ -17,7 +17,12 @@ function useLiveStep(target: React.RefObject<HTMLElement | null>) {
 	const [step, setStep] = useState(FINAL);
 	useEffect(() => {
 		const element = target.current;
-		if (!element || globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+		if (
+			!element ||
+			globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches ||
+			typeof IntersectionObserver === "undefined"
+		)
+			return;
 		let visible = true;
 		const observer = new IntersectionObserver(([entry]) => {
 			visible = Boolean(entry?.isIntersecting);

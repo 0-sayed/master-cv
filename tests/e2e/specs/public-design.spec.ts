@@ -5,7 +5,7 @@ import { expect, test } from "../fixtures/test";
 
 async function runDetector(args: string[], outputPath: string): Promise<{ exitCode: number }> {
 	return new Promise((accept, reject) => {
-		const child = spawn("/home/weights/.codex/skills/impeccable/scripts/impeccable", ["detect", "--json", ...args], {
+		const child = spawn(process.env.IMPECCABLE_BIN ?? "impeccable", ["detect", "--json", ...args], {
 			stdio: ["ignore", "pipe", "pipe"],
 		});
 		let stdout = "";
