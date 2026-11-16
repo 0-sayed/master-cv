@@ -18,3 +18,16 @@ it("exposes vertical orientation and navigates with vertical arrow keys", async 
 	await userEvent.keyboard("{ArrowDown}");
 	expect(screen.getByRole("tab", { name: "Second" })).toHaveFocus();
 });
+it("owns a touch size without changing compact toolbar sizing", () => {
+	const { container } = render(
+		<Tabs defaultValue="one">
+			<TabsList size="touch">
+				<TabsTrigger value="one">First</TabsTrigger>
+			</TabsList>
+		</Tabs>,
+	);
+	expect(container.querySelector('[data-slot="tabs-list"]')).toHaveAttribute("data-size", "touch");
+	expect(container.querySelector('[data-slot="tabs-trigger"]')?.className).toContain(
+		"group-data-[size=touch]/tabs-list:min-h-11",
+	);
+});

@@ -53,9 +53,9 @@ Implement this inventory with existing shared components, the appropriate shared
   which to adapt.
 - Adapt selected elements to Master CV's brand, T002/D35 tokens, copy deck and AR/EN. Never reuse Reactive Resume's
   name, logo, screenshots or third-party images as our own; check each non-code asset's own license.
-- Keep the MIT copyright/license text in `LICENSE` and the footer credit
-  'Built on Reactive Resume by Amruth Pillai, licensed under MIT'; add a link to the
-  [original repository](https://github.com/reactive-resume/reactive-resume).
+- Keep the MIT copyright/license text in the repository `LICENSE` file. The visible footer credit ('Built on Reactive Resume
+  by Amruth Pillai, licensed under MIT' with the original repository link) was removed by owner decision 2026-11-15;
+  the MIT LICENSE file is kept in the repository.
 - Do not update Figma for this decision; record each divergence in this task's evidence under D36.
 
 ## Source references

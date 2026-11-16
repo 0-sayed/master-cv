@@ -47,20 +47,19 @@ for (const theme of ["light", "dark"] as const) {
 }
 
 for (const locale of ["ar-SA", "en-US"]) {
-	test(`${locale} homepage and browser metadata identify Master CV with an explicit upstream credit`, async ({
-		page,
-	}) => {
+	test(`${locale} homepage and browser metadata identify Master CV without upstream branding`, async ({ page }) => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.goto(`/?locale=${locale}`);
 		await expect(page).toHaveTitle(/Master CV/);
 		await expect(page.locator("html")).toHaveAttribute("lang", locale);
 		await settleScreen(page);
 		await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", "Master CV");
-		await expect(page.locator("[data-upstream-credit]")).toContainText("Reactive Resume");
+		// Owner decision 2026-11-15 removed the visible footer credit; the MIT LICENSE file stays in the repository.
+		await expect(page.locator("[data-upstream-credit]")).toHaveCount(0);
 		expect(
 			await page.locator("body").evaluate((body) => {
 				const copy = body.cloneNode(true) as HTMLElement;
-				copy.querySelectorAll("[data-upstream-credit], script").forEach((node) => node.remove());
+				copy.querySelectorAll("script").forEach((node) => node.remove());
 				return copy.textContent;
 			}),
 		).not.toMatch(/Reactive Resume|REACTIVE RESUME/);

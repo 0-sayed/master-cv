@@ -53,7 +53,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 		const { title, description } = getHomepageMeta();
 		const user = match.context.session?.user;
 		const pageTitle = getRouteTitle(matches.at(-1)?.routeId ?? "__root__", user ? { name: user.name } : {});
-		return { meta: [{ title: pageTitle ?? title }, { name: "description", content: description }] };
+		return { meta: [{ title: pageTitle ?? title }, { name: "description", content: pageTitle ? "" : description }] };
 	},
 	beforeLoad: ({ context }) => loadRootContext(context.queryClient),
 });
@@ -69,11 +69,15 @@ function RootComponent() {
 			authIdentity(queryClient).accept(null);
 			queryClient.clear();
 			queryClient.setQueryData(["auth", "session"], null);
-			void router.navigate({ to: "/auth/login", search: { reason: "sessionExpired", callbackURL }, replace: true });
+			void router.navigate({
+				to: "/auth/login",
+				search: { locale, reason: "sessionExpired", callbackURL },
+				replace: true,
+			});
 		};
 		window.addEventListener("master-cv:session-expired", recover);
 		return () => window.removeEventListener("master-cv:session-expired", recover);
-	}, [router, queryClient]);
+	}, [router, queryClient, locale]);
 
 	return (
 		<>

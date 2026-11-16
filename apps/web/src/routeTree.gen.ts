@@ -16,6 +16,7 @@ import { Route as DashboardRouteRouteImport } from "./routes/dashboard/route";
 import { Route as DeletionRequestedRouteImport } from "./routes/deletion-requested";
 import { Route as EmailChangeRouteImport } from "./routes/email-change";
 import { Route as HelpRouteImport } from "./routes/help";
+import { Route as PrivacyAndTermsRouteImport } from "./routes/privacy-and-terms";
 import { Route as UsernameSlugRouteImport } from "./routes/$username/$slug";
 import { Route as HomeIndexRouteImport } from "./routes/_home/index";
 import { Route as HomeAtsCheckerRouteImport } from "./routes/_home/ats-checker";
@@ -102,6 +103,11 @@ const EmailChangeRoute = EmailChangeRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: "/help",
   path: "/help",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const PrivacyAndTermsRoute = PrivacyAndTermsRouteImport.update({
+  id: "/privacy-and-terms",
+  path: "/privacy-and-terms",
   getParentRoute: () => rootRouteImport,
 } as any);
 const UsernameSlugRoute = UsernameSlugRouteImport.update({
@@ -398,6 +404,7 @@ export interface FileRoutesByFullPath {
   "/deletion-requested": typeof DeletionRequestedRoute;
   "/email-change": typeof EmailChangeRoute;
   "/help": typeof HelpRoute;
+  "/privacy-and-terms": typeof PrivacyAndTermsRoute;
   "/builder/$resumeId": typeof BuilderResumeIdRouteRouteWithChildren;
   "/dashboard/career": typeof DashboardCareerRouteRouteWithChildren;
   "/dashboard/settings": typeof DashboardSettingsRouteRouteWithChildren;
@@ -455,6 +462,7 @@ export interface FileRoutesByTo {
   "/deletion-requested": typeof DeletionRequestedRoute;
   "/email-change": typeof EmailChangeRoute;
   "/help": typeof HelpRoute;
+  "/privacy-and-terms": typeof PrivacyAndTermsRoute;
   "/$username/$slug": typeof UsernameSlugRoute;
   "/ats-checker": typeof HomeAtsCheckerRoute;
   "/agent/$threadId": typeof AgentThreadIdRoute;
@@ -515,6 +523,7 @@ export interface FileRoutesById {
   "/deletion-requested": typeof DeletionRequestedRoute;
   "/email-change": typeof EmailChangeRoute;
   "/help": typeof HelpRoute;
+  "/privacy-and-terms": typeof PrivacyAndTermsRoute;
   "/builder/$resumeId": typeof BuilderResumeIdRouteRouteWithChildren;
   "/dashboard/career": typeof DashboardCareerRouteRouteWithChildren;
   "/dashboard/settings": typeof DashboardSettingsRouteRouteWithChildren;
@@ -579,6 +588,7 @@ export interface FileRouteTypes {
     | "/deletion-requested"
     | "/email-change"
     | "/help"
+    | "/privacy-and-terms"
     | "/builder/$resumeId"
     | "/dashboard/career"
     | "/dashboard/settings"
@@ -636,6 +646,7 @@ export interface FileRouteTypes {
     | "/deletion-requested"
     | "/email-change"
     | "/help"
+    | "/privacy-and-terms"
     | "/$username/$slug"
     | "/ats-checker"
     | "/agent/$threadId"
@@ -695,6 +706,7 @@ export interface FileRouteTypes {
     | "/deletion-requested"
     | "/email-change"
     | "/help"
+    | "/privacy-and-terms"
     | "/builder/$resumeId"
     | "/dashboard/career"
     | "/dashboard/settings"
@@ -758,6 +770,7 @@ export interface RootRouteChildren {
   DeletionRequestedRoute: typeof DeletionRequestedRoute;
   EmailChangeRoute: typeof EmailChangeRoute;
   HelpRoute: typeof HelpRoute;
+  PrivacyAndTermsRoute: typeof PrivacyAndTermsRoute;
   BuilderResumeIdRouteRoute: typeof BuilderResumeIdRouteRouteWithChildren;
   UsernameSlugRoute: typeof UsernameSlugRoute;
   TemplatesSplatRoute: typeof TemplatesSplatRoute;
@@ -813,6 +826,13 @@ declare module "@tanstack/react-router" {
       path: "/help";
       fullPath: "/help";
       preLoaderRoute: typeof HelpRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/privacy-and-terms": {
+      id: "/privacy-and-terms";
+      path: "/privacy-and-terms";
+      fullPath: "/privacy-and-terms";
+      preLoaderRoute: typeof PrivacyAndTermsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/$username/$slug": {
@@ -1385,6 +1405,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeletionRequestedRoute: DeletionRequestedRoute,
   EmailChangeRoute: EmailChangeRoute,
   HelpRoute: HelpRoute,
+  PrivacyAndTermsRoute: PrivacyAndTermsRoute,
   BuilderResumeIdRouteRoute: BuilderResumeIdRouteRouteWithChildren,
   UsernameSlugRoute: UsernameSlugRoute,
   TemplatesSplatRoute: TemplatesSplatRoute,

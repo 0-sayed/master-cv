@@ -159,7 +159,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		);
 		await page.goto(`/?locale=${locale}`);
 		await expect(page).toHaveTitle(
-			`Master CV — ${locale === "ar-SA" ? "منشئ السيرة الذاتية مجاني ومفتوح المصدر" : "A free and open-source resume builder"}`,
+			`Master CV — ${locale === "ar-SA" ? "اكتب سيرتك وراجعها، ثم نزّلها بصيغة PDF." : "Write and review your CV, then download a PDF."}`,
 		);
 		await page.goto(`/ats-checker?locale=${locale}`);
 		await expect(page).toHaveTitle(

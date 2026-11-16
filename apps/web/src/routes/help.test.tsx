@@ -15,6 +15,8 @@ vi.mock("@/routes/dashboard/-components/app-shell", () => ({
 	AppShell: ({ children }: { children: ReactNode }) => <main data-testid="dashboard-shell">{children}</main>,
 }));
 vi.mock("@/features/help/page", () => ({ HelpPage: () => <form aria-label="Help contact form" /> }));
+vi.mock("@/features/locale/provider", () => ({ useUiLocale: () => ({ locale: "en-US" }) }));
+vi.mock("@/libs/public-seo", () => ({ usePublicSeo: vi.fn() }));
 vi.mock("@/features/locale/switch", () => ({ LocaleSwitch: () => <button type="button">Language</button> }));
 
 afterEach(() => {

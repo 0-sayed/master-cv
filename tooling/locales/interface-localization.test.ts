@@ -30,6 +30,7 @@ it("localizes audited labels while preserving product names and CSV separators",
 	expect(messages.find((message) => message.message === "Company,Role,Stage,…")?.translation).toBe(
 		"الشركة,الوظيفة,المرحلة,…",
 	);
-	for (const name of ["Claude Desktop", "Fieldnote", "Figma", "WCAG 2.1 AA"])
+	// The retired upstream landing's fixture names (Fieldnote, Figma, WCAG 2.1 AA) left the catalog with it.
+	for (const name of ["Claude Desktop"])
 		expect(messages.find((message) => message.message === name)?.translation, name).toBe(name);
 });

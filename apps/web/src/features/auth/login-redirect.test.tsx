@@ -307,3 +307,23 @@ describe("OAuth account creation", () => {
 		expect(mocks.signup).toHaveBeenCalledWith(expect.objectContaining({ name: "A" }));
 	});
 });
+
+describe("unavailable account methods remain unavailable", () => {
+	it("hides disabled email forms and sign-up entry", () => {
+		const login = render(
+			<I18nProvider i18n={i18n}>
+				<LoginPage disableEmailAuth={true} disableSignups={true} allowGuestLogin={false} />
+			</I18nProvider>,
+		);
+		expect(login.container.querySelector('input[name="identifier"]')).toBeNull();
+		expect(screen.queryByRole("link", { name: "Sign up" })).toBeNull();
+		login.unmount();
+		const registration = render(
+			<I18nProvider i18n={i18n}>
+				<RegisterPage disableEmailAuth={true} />
+			</I18nProvider>,
+		);
+		expect(registration.container.querySelector("form")).toBeNull();
+		expect(mocks.signup).not.toHaveBeenCalled();
+	});
+});

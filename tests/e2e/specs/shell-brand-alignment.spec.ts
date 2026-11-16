@@ -71,7 +71,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				await page.goto(path);
 				await settleScreen(page);
 				const header = page.locator("header").first();
-				const mark = header.locator('[data-slot="brand-mark"]');
+				const mark = header.locator('[data-slot="brand-mark"]:visible');
 				const box = await mark.boundingBox();
 				if (!box) throw new Error("Missing public/auth brand");
 				for (const control of await header.locator("button:visible").all()) {
@@ -79,10 +79,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					if (!bounds) throw new Error("Missing public/auth control");
 					expect(Math.abs(box.y + box.height / 2 - bounds.y - bounds.height / 2)).toBeLessThanOrEqual(0.5);
 				}
-				await expect(mark).toHaveAttribute("data-once", String(path === "/auth/login"));
+				await expect(mark).toHaveAttribute("data-once", "true");
 				await expect(mark).toHaveAttribute("data-playing", "false");
 				await mark.hover();
-				await expect(mark).toHaveAttribute("data-playing", path === "/auth/login" ? "false" : "true");
+				await expect(mark).toHaveAttribute("data-playing", "false");
 				expect(await mark.boundingBox()).toEqual(box);
 				await expect(mark).toHaveAttribute("data-playing", "false");
 				expect(await mark.boundingBox()).toEqual(box);

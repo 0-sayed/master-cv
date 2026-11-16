@@ -25,7 +25,7 @@ function show(locale = "en-US") {
 	render(
 		<I18nProvider i18n={i18n}>
 			<QueryClientProvider client={new QueryClient()}>
-				<HelpPage />
+				<HelpPage user={context.session?.user ?? null} />
 			</QueryClientProvider>
 		</I18nProvider>,
 	);

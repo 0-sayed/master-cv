@@ -4,7 +4,6 @@ import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { env } from "@reactive-resume/env/server";
-import { templateSchema } from "@reactive-resume/schema/templates";
 import {
 	defaultUiLocale,
 	getLocaleAlternates,
@@ -32,7 +31,7 @@ const indexHtmlPath = `${staticRoot}/index.html`;
 // beside dist/ so they're never served at an address of their own.
 const prerenderRoot = `${staticRoot}-prerender`;
 const noindexShellPrefixes = ["/auth", "/dashboard", "/builder", "/agent", "/templates"];
-const accountShellPaths = new Set(["/help", "/deletion-requested", "/email-change"]);
+const accountShellPaths = new Set(["/help", "/deletion-requested", "/email-change", "/privacy-and-terms"]);
 /**
  * Marketing pages the SPA owns that search engines should index.
  *
@@ -87,12 +86,12 @@ const BASE_SECURITY_HEADERS = {
 const githubUrl = "https://github.com/0-sayed/master-cv";
 // The English copy, for a build without prerendered pages; a prerendered page carries its own locale's title and
 // description, and the social cards reuse them.
-const ROOT_TITLE = "Master CV — A free and open-source resume builder";
+const ROOT_TITLE = "Master CV — Write and review your CV";
 const ROOT_DESCRIPTION =
-	"Free, open-source resume builder. Create, update, and share your resume, with PDF and Word downloads, no ads and no paywall.";
+	"Write and review your CV in a private account. Qualified PDF downloads follow account limits.";
 const ATS_CHECKER_TITLE = "Free ATS resume checker — Master CV";
 const ATS_CHECKER_DESCRIPTION =
-	"Check whether software can read your resume PDF. Runs entirely in your browser, so your file is never uploaded.";
+	"Checking requires an account. Review PDF readability and writing notes separately in your private workspace.";
 
 type StructuredData = Record<string, unknown>;
 
@@ -109,43 +108,13 @@ function organization(origin: string): StructuredData {
 }
 
 function homepageStructuredData(origin: string): StructuredData {
-	const rootUrl = `${origin}/`;
 	return {
 		"@context": "https://schema.org",
-		"@graph": [
-			organization(origin),
-			{
-				"@type": "WebSite",
-				"@id": `${origin}/#website`,
-				name: "Master CV",
-				url: rootUrl,
-				publisher: { "@id": `${origin}/#organization` },
-			},
-			{
-				"@type": ["SoftwareApplication", "WebApplication"],
-				name: "Master CV",
-				url: rootUrl,
-				description: ROOT_DESCRIPTION,
-				applicationCategory: "BusinessApplication",
-				operatingSystem: "Web",
-				isAccessibleForFree: true,
-				offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-				license: `${githubUrl}/blob/main/LICENSE`,
-				codeRepository: githubUrl,
-				publisher: { "@id": `${origin}/#organization` },
-				featureList: [
-					"Resume editor with a live page preview",
-					`${templateSchema.options.length} templates`,
-					"PDF, Word (DOCX), Markdown and JSON export",
-					"Import from PDF, LinkedIn, JSON Resume and Word",
-					"ATS readability checker",
-					"Public or password-protected sharing links",
-					"Cover letters and a job application tracker",
-					"Optional AI assistant with your own API key",
-					"Self-hosting with Docker",
-				],
-			},
-		],
+		"@type": "WebSite",
+		name: "Master CV",
+		url: `${origin}/`,
+		codeRepository: githubUrl,
+		license: `${githubUrl}/blob/main/LICENSE`,
 	};
 }
 
@@ -161,8 +130,6 @@ function atsCheckerStructuredData(origin: string): StructuredData {
 				description: ATS_CHECKER_DESCRIPTION,
 				applicationCategory: "BusinessApplication",
 				operatingSystem: "Web",
-				isAccessibleForFree: true,
-				offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
 				isPartOf: { "@type": "WebSite", "@id": `${origin}/#website`, name: "Master CV", url: `${origin}/` },
 				provider: { "@id": `${origin}/#organization` },
 			},
@@ -174,8 +141,6 @@ type PageSeoOptions = {
 	/** The page's plain address: the canonical for the default locale, and the base of its hreflang alternates. */
 	canonicalUrl: string;
 	locale: Locale;
-	/** A `?locale=` request is canonical for its own language. */
-	requested: boolean;
 	/** Already HTML-escaped, as the page's own <title> and description are. */
 	title: string;
 	description: string;
@@ -184,9 +149,7 @@ type PageSeoOptions = {
 };
 
 function createPageSeoMarkup(options: PageSeoOptions) {
-	const pageUrl = options.requested
-		? localizedUrl(options.canonicalUrl, options.locale, productLocalePolicy)
-		: options.canonicalUrl;
+	const pageUrl = localizedUrl(options.canonicalUrl, options.locale, productLocalePolicy);
 	const alternates = getLocaleAlternates(options.canonicalUrl, productLocalePolicy)
 		.map(({ hreflang, href }) => `<link rel="alternate" hreflang="${hreflang}" href="${escapeAttribute(href)}">`)
 		.join("");
@@ -206,7 +169,7 @@ function createPageSeoMarkup(options: PageSeoOptions) {
 		<meta name="twitter:description" content="${options.description}">
 		<meta name="twitter:image" content="${options.imageUrl}">
 		<script type="application/ld+json">${JSON.stringify(options.structuredData)}</script>
-	`;
+	`.replace(/<(link|meta|script)\b/g, "<$1 data-public-seo");
 }
 
 /** The title and description a page was built with, still HTML-escaped. */
@@ -329,11 +292,6 @@ function notFoundResponse(options: { head?: boolean; noindex?: boolean } = {}) {
 	});
 }
 
-const withMeta = (html: string, meta: { title: string; description: string }) =>
-	html
-		.replace(/<title>[^<]*<\/title>/, `<title>${meta.title}</title>`)
-		.replace(/<meta\s+name="description"[^>]*>/, `<meta name="description" content="${meta.description}">`);
-
 /** The indexable pages the web build prerenders, by path. */
 const prerenderedPages: Record<
 	string,
@@ -342,8 +300,6 @@ const prerenderedPages: Record<
 		meta: { title: string; description: string };
 		image: string;
 		structuredData: (origin: string) => StructuredData;
-		/** The page when the build has no prerendered copy: the app shell, titled for the page. */
-		fallback: (shell: string) => string;
 	}
 > = {
 	"/": {
@@ -351,14 +307,24 @@ const prerenderedPages: Record<
 		meta: { title: ROOT_TITLE, description: ROOT_DESCRIPTION },
 		image: "/opengraph/banner.jpg",
 		structuredData: homepageStructuredData,
-		fallback: (shell) => shell,
+	},
+	"/privacy-and-terms": {
+		name: "legal-privacy",
+		meta: { title: "Master CV", description: "Review draft" },
+		image: "/opengraph/banner.jpg",
+		structuredData: homepageStructuredData,
+	},
+	"/help": {
+		name: "help",
+		meta: { title: "Master CV", description: "Help and contact" },
+		image: "/opengraph/banner.jpg",
+		structuredData: homepageStructuredData,
 	},
 	"/ats-checker": {
 		name: "ats-checker",
 		meta: { title: ATS_CHECKER_TITLE, description: ATS_CHECKER_DESCRIPTION },
 		image: "/opengraph/ats-checker.png",
 		structuredData: atsCheckerStructuredData,
-		fallback: (shell) => withMeta(shell, { title: ATS_CHECKER_TITLE, description: ATS_CHECKER_DESCRIPTION }),
 	},
 };
 
@@ -368,6 +334,7 @@ export type ReadWebFile = (path: string) => Promise<string>;
 export async function handleWebApp(request: Request, readFile: ReadWebFile = (path) => fs.readFile(path, "utf-8")) {
 	const isHead = request.method === "HEAD";
 	const pathname = new URL(request.url).pathname;
+	const respond = (body: BodyInit | null, init?: ResponseInit) => new Response(isHead ? null : body, init);
 
 	if (!isNoindexShellPath(pathname) && isAssetPath(pathname)) {
 		return new Response(isHead ? null : "Not Found", { status: 404 });
@@ -376,7 +343,8 @@ export async function handleWebApp(request: Request, readFile: ReadWebFile = (pa
 	const headers = getFallbackResponseHeaders(pathname);
 	if (!headers) return notFoundResponse({ head: isHead, noindex: true });
 
-	if (isHead) return new Response(null, { status: 200, headers });
+	if (isHead && (!prerenderedPages[pathname] || (pathname === "/" && env.ROOT_RESUME_ID)))
+		return respond(null, { status: 200, headers });
 
 	const html = await readFile(indexHtmlPath);
 
@@ -388,34 +356,55 @@ export async function handleWebApp(request: Request, readFile: ReadWebFile = (pa
 			.replace(/<title>[^<]*<\/title>/, "<title>Master CV</title>")
 			.replace(/<meta\s+name="description"[^>]*>/, '<meta name="description" content="">');
 		const markup = `<link rel="canonical" href="${escapeAttribute(canonicalUrl)}" data-root-resume-shell><meta name="robots" content="noindex, follow" data-root-resume-shell>`;
-		return new Response(
+		return respond(
 			shell.replace("</head>", () => `${markup}</head>`),
 			{ headers },
 		);
 	}
 
+	if (pathname === "/help" && request.headers.get("cookie")) {
+		const { auth } = await import("@reactive-resume/auth/config");
+		const session = await auth.api.getSession({
+			headers: new Headers({ cookie: request.headers.get("cookie") ?? "" }),
+			query: { disableCookieCache: true },
+		});
+		if (session)
+			return respond(html.replace(/<meta\s+(?:property|name)="(?:og:|twitter:)[^"]*"[^>]*>/g, ""), {
+				headers: { ...headers, "Cache-Control": "private, no-store", Vary: "Cookie" },
+			});
+	}
 	const prerendered = prerenderedPages[pathname];
 	if (prerendered) {
-		const { locale, requested, personalized } = await getPageLocale(request);
+		const { locale, personalized } = await getPageLocale(request);
 		const origin = new URL(env.APP_URL).origin;
-		// Without a prerendered page (a build that skipped it), the app renders the page in the browser.
-		const page = await readFile(`${prerenderRoot}/${prerendered.name}/${locale}.html`).catch(() =>
-			prerendered.fallback(html),
-		);
+		// Legal tabs select an existing localized build artifact before client rendering.
+		const name =
+			pathname === "/privacy-and-terms" && new URL(request.url).searchParams.get("tab") === "terms"
+				? "legal-terms"
+				: prerendered.name;
+		const page = await readFile(`${prerenderRoot}/${name}/${locale}.html`).catch(() => null);
+		if (page === null)
+			return respond("Public page is temporarily unavailable.", {
+				status: 503,
+				headers: { ...headers, "Cache-Control": "no-store", "X-Robots-Tag": "noindex, follow" },
+			});
 		const markup = createPageSeoMarkup({
 			canonicalUrl: new URL(pathname, env.APP_URL).toString(),
 			locale,
-			requested,
 			...readPageMeta(page, prerendered.meta),
 			imageUrl: `${origin}${prerendered.image}`,
 			structuredData: prerendered.structuredData(origin),
 		});
 
 		// The saved locale changes what this address shows, so caches have to key on the cookie.
-		return new Response(
+		return respond(
 			page
-				.replace(/<meta\s+(?:property|name)="(?:og:|twitter:)[^"]*"[^>]*>/g, "")
-				.replace("</head>", () => `${markup}</head>`),
+				.replace(/<meta\b[^>]*(?:property|name)="(?:og:|twitter:)[^"]*"[^>]*>/g, "")
+				.replace(
+					"</head>",
+					() =>
+						`${isNoindexShellPath(pathname) ? '<meta name="robots" content="noindex, follow">' : ""}${markup}</head>`,
+				),
 			{ headers: { ...headers, Vary: "Cookie", ...(personalized ? { "Cache-Control": "private, no-store" } : {}) } },
 		);
 	}
@@ -440,5 +429,8 @@ export async function handleWebApp(request: Request, readFile: ReadWebFile = (pa
 		}
 	}
 
-	return new Response(html, { headers });
+	return new Response(
+		isNoindexShellPath(pathname) ? html.replace(/<meta\s+(?:property|name)="(?:og:|twitter:)[^"]*"[^>]*>/g, "") : html,
+		{ headers },
+	);
 }

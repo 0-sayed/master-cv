@@ -40,13 +40,13 @@ function show(value: unknown = null, unavailable = false) {
 		</I18nProvider>,
 	);
 }
-it("summarizes stored categories with expandable details and a help link", async () => {
+it("summarizes stored categories with expandable details and a draft policy link", async () => {
 	show();
 	const toggle = screen.getByRole("button", { name: /Your account/ });
 	expect(toggle).toHaveAttribute("aria-expanded", "false");
 	fireEvent.click(toggle);
 	expect(await screen.findByText(/Name, email and password/)).toBeVisible();
-	expect(screen.getByRole("link", { name: "Privacy policy and help" })).toHaveAttribute("href", "/help");
+	expect(screen.getByRole("link", { name: "Privacy policy and help" })).toHaveAttribute("href", "/privacy-and-terms");
 	expect(screen.queryByText(/owner approval/i)).not.toBeInTheDocument();
 });
 it("a new export requires fresh proof and has one request action", async () => {

@@ -90,7 +90,11 @@ export function PrivacyPage() {
 					</AccordionItem>
 				</Accordion>
 				<ActionGroup>
-					<Link to="/help" className={buttonVariants({ variant: "link", size: "link-touch" })}>
+					<Link
+						to="/privacy-and-terms"
+						search={{ tab: "privacy" }}
+						className={buttonVariants({ variant: "link", size: "link-touch" })}
+					>
 						<Trans context="privacy.policy.help">Privacy policy and help</Trans>
 						<Icon name="arrow-square-out" />
 					</Link>

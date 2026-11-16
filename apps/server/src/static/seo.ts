@@ -1,5 +1,4 @@
 import { env } from "@reactive-resume/env/server";
-import { templateSchema } from "@reactive-resume/schema/templates";
 import { getLocaleAlternates, productLocalePolicy } from "@reactive-resume/utils/locale";
 
 const DOCS_URL = "https://docs.rxresu.me";
@@ -70,48 +69,21 @@ export function handleSitemap(options?: StaticSeoOptions) {
 
 export function handleLlms(options?: StaticSeoOptions) {
 	const baseUrl = appUrl();
-	const body = [
-		"# Master CV",
-		"",
-		`> Master CV is a free and open-source resume builder. Write a resume in an editor beside a live page, pick one of ${templateSchema.options.length} templates, check that applicant tracking systems can read it, tailor it to a job posting, and share it at a public link or download it. No ads, no tracking, no paid tier; it is funded by donations and released under the MIT License.`,
-		"",
-		"## Product",
-		"",
-		`- [Homepage](${baseUrl}/): what Master CV does, with answers to common questions.`,
-		`- [ATS checker](${baseUrl}/ats-checker): a free tool that shows the text applicant tracking systems extract from a resume PDF and what to fix. It runs in the browser; the file is never uploaded.`,
-		`- [Get started](${baseUrl}/dashboard): create an account and a first resume.`,
-		"",
-		"## Facts",
-		"",
-		"- Price: free, every feature. Optional donations through GitHub Sponsors and Open Collective.",
-		"- Export: PDF, Word (DOCX), Markdown and JSON.",
-		"- Import: PDF, LinkedIn data export, JSON Resume, Master CV JSON; Word files with an AI provider.",
-		"- Sharing: private by default; a public link or a password-protected link, changeable at any time.",
-		"- AI: optional, with the user's own API key (OpenAI, Anthropic, Google Gemini, OpenRouter, Ollama and others). Nothing is sent to an AI service without one.",
-		"- Also includes: cover letters, a job application tracker, version history, passkeys and two-factor authentication.",
-		"- Languages: the interface is translated into more than 50 languages by volunteers on Crowdin.",
-		"- Self-hosting: a Docker image, with PostgreSQL and local or S3-compatible storage.",
-		"",
-		"## Documentation",
-		"",
-		`- [Upstream documentation](${DOCS_URL}): reference guides for the software Master CV builds on.`,
-		`- [Documentation llms.txt](${DOCS_URL}/llms.txt)`,
-		`- [Self-hosting with Docker](${DOCS_URL}/self-hosting/docker)`,
-		`- [API reference](${DOCS_URL}/api-reference)`,
-		`- [OpenAPI specification](${baseUrl}/openapi.json)`,
-		`- [Resume JSON schema](${baseUrl}/schema.json)`,
-		`- [MCP server guide](${DOCS_URL}/guides/using-the-mcp-server): connect any MCP client to ${baseUrl}/mcp with OAuth or an API key.`,
-		`- [Agent skills](${DOCS_URL}/guides/using-agent-skills): eight job-search skills, also listed at ${baseUrl}/.well-known/agent-skills/index.json.`,
-		`- [Integrations](${baseUrl}/.well-known/integrations.json): every API and MCP surface with its authentication.`,
-		"",
-		"## Community",
-		"",
-		"- [Source code on GitHub](https://github.com/0-sayed/master-cv)",
-		"- [Upstream Discord](https://discord.gg/aSyA5ZSxpb)",
-		"- [Upstream subreddit](https://www.reddit.com/r/reactiveresume)",
-		"- [Upstream translations on Crowdin](https://crowdin.com/project/reactive-resume)",
-		"",
-	].join("\n");
-
-	return textResponse(body, options);
+	return textResponse(
+		[
+			"# Master CV",
+			"",
+			"Write and review your CV in a private account.",
+			"Qualified PDF downloads are free within account limits. Word downloads and public sharing are unavailable.",
+			"Arabic and English versions are independent. Interface language does not translate saved content.",
+			"Proposed changes require your review and approval. PDF checking requires an account.",
+			"",
+			`- [Homepage](${baseUrl}/)`,
+			`- [Account entry](${baseUrl}/auth/register)`,
+			`- [PDF readability information](${baseUrl}/ats-checker)`,
+			"- [Source code](https://github.com/0-sayed/master-cv)",
+			"",
+		].join("\n"),
+		options,
+	);
 }

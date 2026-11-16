@@ -44,7 +44,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			const cta = page
 				.locator("main")
 				.getByRole("link", {
-					name: locale === "ar-SA" ? "قم ببناء سيرتك الذاتية" : "Build your resume",
+					name: locale === "ar-SA" ? "يلا، ابدأ مجانًا" : "Start free",
 					exact: true,
 				})
 				.first();
