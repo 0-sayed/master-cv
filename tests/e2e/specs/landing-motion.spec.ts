@@ -85,7 +85,19 @@ test("landing header narrows into a floating bar on scroll without moving the pa
 	await expect(header).not.toHaveAttribute("data-scrolled");
 	await page.mouse.wheel(0, 600);
 	await expect(header).toHaveAttribute("data-scrolled", "true");
-	expect(await header.evaluate((element) => element.getBoundingClientRect().height)).toBe(before);
+	const heights = await header.evaluate(async (element) => {
+		const bar = element.firstElementChild;
+		if (!bar) throw new Error("Missing landing header bar");
+		const duration = Math.max(...getComputedStyle(bar).transitionDuration.split(",").map(Number.parseFloat)) * 1000;
+		const end = performance.now() + duration;
+		const heights = new Set<number>();
+		do {
+			await new Promise(requestAnimationFrame);
+			heights.add(element.getBoundingClientRect().height);
+		} while (performance.now() < end);
+		return [...heights];
+	});
+	expect(heights).toEqual([before]);
 	await expect(header).toBeInViewport();
 });
 

@@ -1454,8 +1454,6 @@ button .success-tick {
 	& > div {
 		transition:
 			max-width var(--d3) var(--ease),
-			padding var(--d3) var(--ease),
-			margin var(--d3) var(--ease),
 			background-color var(--d3) var(--ease),
 			box-shadow var(--d3) var(--ease),
 			border-radius var(--d3) var(--ease);
