@@ -1,4 +1,5 @@
 import { t } from "@lingui/core/macro";
+import { getPublicCopy } from "@/features/public-copy";
 
 /**
  * The server writes every page's canonical link, hreflang alternates, social cards and site-wide structured data into
@@ -30,10 +31,18 @@ export const serializeJsonLd = (data: Record<string, unknown>) =>
 	});
 
 /** The homepage's title and description in the active locale. The prerendered page and the route share them. */
-export const getHomepageMeta = () => ({
-	title: `${appName} — ${t`A free and open-source resume builder`}`,
-	description: t`Create and review your CV in a private account with Master CV. Download PDF for free. Word downloads and public sharing are not available.`,
+export type PublicPageId = "home" | "privacy-and-terms" | "help";
+export const getPublicPageMeta = (page: PublicPageId) => ({
+	title: `${appName} — ${getPublicCopy(page === "home" ? "landing.hero.title" : page === "help" ? "public.meta.help.title" : "legal.page.title")}`,
+	description: getPublicCopy(
+		page === "home"
+			? "public.meta.home.description"
+			: page === "help"
+				? "public.meta.help.description"
+				: "public.meta.legal.description",
+	),
 });
+export const getHomepageMeta = () => getPublicPageMeta("home");
 
 /** The ATS checker's title and description in the active locale. The prerendered page and the route share them. */
 export const getAtsCheckerMeta = () => ({

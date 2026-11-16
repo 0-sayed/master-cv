@@ -71,13 +71,62 @@ describe("web app fallback classification", () => {
 		expect(sessionHeaders.get("authorization")).toBeNull();
 	});
 
+	it.each(["/privacy-and-terms?tab=terms", "/help"])(
+		"serves localized public HTML and noindex for %s",
+		async (path) => {
+			const read = vi.fn(
+				async (filename: string) =>
+					`<html lang="ar-SA" dir="rtl"><head><title>عنوان</title><meta name="description" content="وصف"></head><body>${filename.includes("legal-terms") ? "terms draft" : "help form"}</body></html>`,
+			);
+			const response = await handleWebApp(new Request(`https://example.com${path}`), read);
+			expect(response.status).toBe(200);
+			expect(response.headers.get("x-robots-tag")).toBe("noindex, follow");
+			const html = await response.text();
+			expect(html).toContain('lang="ar-SA"');
+			expect(html).toContain('property="og:title" content="عنوان"');
+			expect(
+				read.mock.calls.some(([filename]) =>
+					filename.includes(path.startsWith("/help") ? "/help/ar-SA.html" : "/legal-terms/ar-SA.html"),
+				),
+			).toBe(true);
+		},
+	);
+	it("fails closed when required localized public HTML is missing", async () => {
+		const response = await handleWebApp(new Request("https://example.com/"), async (path) => {
+			if (path.includes("dist-prerender")) throw new Error("missing");
+			return "<html>shell</html>";
+		});
+		expect(response.status).toBe(503);
+		expect(await response.text()).not.toContain("free and open-source");
+	});
+	it.each(["/", "/help", "/privacy-and-terms?tab=terms"])(
+		"HEAD matches localized GET cache headers and missing-artifact status for %s",
+		async (path) => {
+			mocks.getSession.mockResolvedValue({ user: { uiLocale: "en-US" } });
+			const url = `https://example.com${path}`;
+			const headers = { cookie: "session_token=synthetic; locale=ar-SA" };
+			const get = await handleWebApp(new Request(url, { headers }));
+			const head = await handleWebApp(new Request(url, { method: "HEAD", headers }));
+			expect(head.status).toBe(get.status);
+			expect([...head.headers]).toEqual([...get.headers]);
+			expect(await head.text()).toBe("");
+			mocks.getSession.mockResolvedValue(null);
+			const missing = await handleWebApp(new Request(url, { method: "HEAD" }), async (filename) => {
+				if (filename.includes("dist-prerender")) throw new Error("missing");
+				return "<html>shell</html>";
+			});
+			expect(missing.status).toBe(503);
+			expect(missing.headers.get("cache-control")).toBe("no-store");
+			expect(await missing.text()).toBe("");
+		},
+	);
 	it("injects canonical metadata and structured data into tracking-parameter root requests only", async () => {
 		vi.mocked(fs.readFile).mockResolvedValue(`
 			<!doctype html>
 			<html>
 				<head>
 					<title>Master CV — A free and open-source resume builder</title>
-					<meta property="og:site_name" content="Master CV">
+					<meta data-public-seo property="og:site_name" content="Master CV">
 					<meta name="twitter:title" content="Master CV">
 					<meta
 						name="description"
@@ -91,11 +140,11 @@ describe("web app fallback classification", () => {
 		const response = await handleWebApp(new Request("http://server.internal/?utm_source=search"));
 		const html = await response.text();
 
-		expect(html).toContain('<link rel="canonical" href="https://rxresu.me/">');
-		expect(html).toContain('<meta property="og:url" content="https://rxresu.me/">');
-		expect(html).toContain('<script type="application/ld+json">');
+		expect(html).toContain('<link data-public-seo rel="canonical" href="https://rxresu.me/">');
+		expect(html).toContain('<meta data-public-seo property="og:url" content="https://rxresu.me/">');
+		expect(html).toContain('<script data-public-seo type="application/ld+json">');
 		expect(html).toContain(
-			'<meta property="og:description" content="Master CV is a free and open-source resume builder that makes it easy to create, update, and share your resume.">',
+			'<meta data-public-seo property="og:description" content="Master CV is a free and open-source resume builder that makes it easy to create, update, and share your resume.">',
 		);
 		expect(html).not.toContain("amruth@rxresu.me");
 		expect(html.match(/property="og:site_name"/g)).toHaveLength(1);
@@ -116,14 +165,14 @@ describe("web app fallback classification", () => {
 		const english = await handleWebApp(new Request("https://example.com/?locale=en-US"));
 		const html = await english.text();
 		expect(html).toContain('<div id="app">en-US</div>');
-		expect(html).toContain('<link rel="canonical" href="https://rxresu.me/?locale=en-US">');
-		expect(html).toContain('<link rel="alternate" hreflang="x-default" href="https://rxresu.me/">');
+		expect(html).toContain('<link data-public-seo rel="canonical" href="https://rxresu.me/?locale=en-US">');
+		expect(html).toContain('<link data-public-seo rel="alternate" hreflang="x-default" href="https://rxresu.me/">');
 		expect(english.headers.get("Vary")).toBe("Cookie");
 
 		const saved = new Request("https://example.com/", { headers: { cookie: "theme=dark; locale=ar-SA" } });
 		const savedHtml = await (await handleWebApp(saved)).text();
 		expect(savedHtml).toContain('<div id="app">ar-SA</div>');
-		expect(savedHtml).toContain('<link rel="canonical" href="https://rxresu.me/">');
+		expect(savedHtml).toContain('<link data-public-seo rel="canonical" href="https://rxresu.me/">');
 
 		// Only known locales name a file, so the parameter can't point anywhere else.
 		const unknown = await handleWebApp(new Request("https://example.com/?locale=../../index"));
@@ -155,9 +204,11 @@ describe("web app fallback classification", () => {
 			const html = await (await handleWebApp(new Request("https://example.com/ats-checker?locale=en-US"))).text();
 
 			expect(html).toContain('<div id="app">en-US</div>');
-			expect(html).toContain('<link rel="canonical" href="https://rxresu.me/ats-checker?locale=en-US">');
-			expect(html).toContain('<meta property="og:title" content="ATS-Prüfung &amp; mehr">');
-			expect(html).toContain('<meta property="og:locale" content="en_US">');
+			expect(html).toContain(
+				'<link data-public-seo rel="canonical" href="https://rxresu.me/ats-checker?locale=en-US">',
+			);
+			expect(html).toContain('<meta data-public-seo property="og:title" content="ATS-Prüfung &amp; mehr">');
+			expect(html).toContain('<meta data-public-seo property="og:locale" content="en_US">');
 		});
 	});
 

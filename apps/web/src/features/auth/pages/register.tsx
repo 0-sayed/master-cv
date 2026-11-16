@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button } from "@reactive-resume/ui/components/button";
+import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { Input } from "@reactive-resume/ui/components/input";
 import { AuthErrorSummary } from "../components/auth-error-summary";
@@ -140,7 +140,7 @@ export function RegisterPage({ disableEmailAuth }: { disableEmailAuth: boolean }
 			<p className="type-body text-ink-2">
 				<Trans>Already have an account?</Trans>{" "}
 				<Link
-					className="font-semibold text-accent-text underline"
+					className={buttonVariants({ variant: "link", size: "link-touch" })}
 					to="/auth/login"
 					search={{ callbackURL, reauthenticate }}
 				>

@@ -10,6 +10,8 @@
 @source "../../../../apps/**/*.{ts,tsx}";
 
 @custom-variant dark (&:is(.dark *));
+/* Phones narrower than 360px, where a full wordmark and two header actions cannot share one row. */
+@custom-variant narrow (@media (width < 22.5rem));
 
 /*
  * Master CV Desk & Paper tokens; exact sRGB values from design-system.md §4 / Figma Foundations 19:2.
@@ -193,6 +195,8 @@
 	--color-on-brand: var(--on-brand);
 	--color-brand-panel: var(--brand-panel);
 	--color-paper-ink: var(--paper-ink);
+	--color-paper-accent: var(--paper-accent);
+	--color-paper-highlight: var(--paper-highlight);
 	--color-on-danger: var(--on-danger);
 	--color-line-1: var(--line-1);
 	--color-bg: var(--bg);
@@ -1184,4 +1188,363 @@ button .success-tick {
 }
 .appearance-preview-sidebar {
 	background: var(--sunken);
+}
+
+/*
+ * Public landing (S01). One container, one section rhythm, one display size and the landing's decorative motion.
+ * Motion is transform/opacity only, never changes layout, and stops entirely under reduced motion.
+ */
+:root {
+	--type-hero-size: clamp(2.5rem, 1.75rem + 2.8vw, 4rem);
+	--type-hero-line: 1.2;
+	--landing-width: calc(var(--space-64) * 18);
+	--landing-section-space: var(--space-64);
+	--landing-drift-duration: 18s;
+	/* Document paper never inverts, so its accent and highlight keep the light treatment in both themes. */
+	--paper-accent: var(--brand-mark-light-tick);
+	--paper-highlight: color-mix(in oklab, var(--brand-mark-light-tick) 14%, var(--paper));
+}
+:root:lang(ar) {
+	--type-hero-line: 1.5;
+}
+@media (width >= 64rem) {
+	:root {
+		--landing-section-space: calc(var(--space-64) + var(--space-16));
+	}
+}
+
+@utility type-hero {
+	text-wrap-style: balance;
+	font-family: var(--font-display);
+	font-size: var(--type-hero-size);
+	line-height: var(--type-hero-line);
+	font-weight: 600;
+}
+
+@utility landing-container {
+	width: 100%;
+	max-width: var(--landing-width);
+	margin-inline: auto;
+	padding-inline: var(--space-20);
+	@media (width >= 40rem) {
+		padding-inline: var(--space-32);
+	}
+}
+
+@utility landing-section {
+	padding-block: var(--landing-section-space);
+}
+
+/* A soft accent light behind the hero's document, on the inline-end side in both directions. */
+@utility landing-glow {
+	background-image:
+		radial-gradient(55% 60% at 78% 42%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 70%),
+		radial-gradient(40% 45% at 12% 90%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 70%);
+	@variant rtl {
+		background-image:
+			radial-gradient(55% 60% at 22% 42%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 70%),
+			radial-gradient(40% 45% at 88% 90%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 70%);
+	}
+}
+
+/* Career fragments float slowly around the hero; each sets its tilt, distance (in --space-4 steps), duration and delay. */
+@keyframes landing-drift {
+	from {
+		translate: 0 0;
+	}
+	to {
+		translate: 0 calc(var(--space-4) * var(--drift, -3));
+	}
+}
+@utility landing-fragment {
+	position: absolute;
+	rotate: var(--fragment-tilt, 0deg);
+	white-space: nowrap;
+	pointer-events: none;
+	user-select: none;
+	animation: landing-drift var(--drift-duration, var(--landing-drift-duration)) ease-in-out var(--drift-delay, 0s)
+		infinite alternate;
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+/* Thin pencil guides draw once from their centre. */
+@keyframes landing-draw {
+	from {
+		scale: var(--draw-from, 1 0);
+	}
+	to {
+		scale: 1 1;
+	}
+}
+@utility landing-guide {
+	position: absolute;
+	pointer-events: none;
+	background: var(--line);
+	animation: landing-draw calc(var(--motion-delight) * 2) var(--ease-delight) var(--draw-delay, 0ms) both;
+	&[data-axis="x"] {
+		--draw-from: 0 1;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+/* Mock documents and cards settle in once on arrival. */
+@keyframes landing-rise {
+	from {
+		opacity: 0;
+		translate: 0 var(--space-24);
+	}
+}
+@utility landing-rise {
+	animation: landing-rise var(--motion-delight) var(--ease-delight) var(--rise-delay, 0ms) both;
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+/* The headline's accent word gets a hand-drawn stroke; reduced motion shows it complete. */
+@utility landing-stroke {
+	pointer-events: none;
+	& path {
+		fill: none;
+		stroke: currentColor;
+		stroke-linecap: round;
+		animation: signature-draw calc(var(--motion-delight) * 1.25) var(--ease-delight) var(--motion-acknowledge) both;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		& path {
+			animation: none;
+		}
+	}
+}
+
+/* Landing, round 2: first-screen hero, scroll reveal, looping demos and ambient light. */
+:root {
+	/* A lower bound of the landing header (two rows on phones, one from sm), so the hero never leaves a peek. */
+	--landing-header-estimate: calc(var(--space-44) * 2 + var(--space-16) + var(--space-32));
+}
+@media (width >= 40rem) {
+	:root {
+		--landing-header-estimate: calc(var(--space-44) + var(--space-32));
+	}
+}
+@utility landing-first-screen {
+	min-height: calc(100svh - var(--landing-header-estimate));
+}
+
+/* Reveal is armed only by script and never under reduced motion, so prerendered content is always visible. */
+.landing-reveal-armed [data-reveal]:not([data-revealed]) {
+	opacity: 0;
+	translate: 0 var(--space-24);
+}
+.landing-reveal-armed [data-reveal] {
+	transition:
+		opacity var(--motion-delight) var(--ease-delight),
+		translate var(--motion-delight) var(--ease-delight);
+	transition-delay: calc(var(--reveal-index, 0) * 90ms);
+}
+@media (prefers-reduced-motion: reduce) {
+	.landing-reveal-armed [data-reveal]:not([data-revealed]) {
+		opacity: 1;
+		translate: none;
+	}
+}
+
+/* A line that draws along the inline axis once its section is revealed. */
+@utility landing-progress {
+	transform-origin: left;
+	transition: scale calc(var(--motion-delight) * 2) var(--ease-delight) 200ms;
+	&:dir(rtl) {
+		transform-origin: right;
+	}
+	.landing-reveal-armed [data-reveal]:not([data-revealed]) & {
+		scale: 0 1;
+	}
+}
+
+/* Status marks pop in one by one after their list is revealed. */
+@keyframes landing-pop {
+	0% {
+		opacity: 0;
+		scale: 0.4;
+	}
+	70% {
+		scale: 1.15;
+	}
+	100% {
+		opacity: 1;
+		scale: 1;
+	}
+}
+@utility landing-pop {
+	.landing-reveal-armed [data-reveal]:not([data-revealed]) & {
+		opacity: 0;
+	}
+	.landing-reveal-armed [data-revealed] & {
+		animation: landing-pop var(--motion-delight) var(--ease-delight) calc(300ms + var(--pop-index, 0) * 220ms) both;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		animation: none !important;
+		opacity: 1 !important;
+	}
+}
+
+/* A gentle bob for the hero's scroll cue and the step download arrow. */
+@keyframes landing-bob {
+	0%,
+	100% {
+		translate: 0 0;
+	}
+	50% {
+		translate: 0 var(--space-6);
+	}
+}
+@utility landing-bob {
+	animation: landing-bob 2.4s ease-in-out infinite;
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+/* A slow accent light orbiting behind the closing band, on its own composited layer. */
+@keyframes landing-orbit {
+	to {
+		rotate: 1turn;
+	}
+}
+@utility landing-aurora {
+	position: relative;
+	isolation: isolate;
+	overflow: hidden;
+	&::before {
+		position: absolute;
+		z-index: -1;
+		inset: -50%;
+		background:
+			radial-gradient(30% 30% at 35% 40%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%),
+			radial-gradient(25% 25% at 65% 62%, color-mix(in oklab, var(--accent) 12%, transparent), transparent 70%);
+		animation: landing-orbit 40s linear infinite;
+		pointer-events: none;
+		content: "";
+	}
+	@media (prefers-reduced-motion: reduce) {
+		&::before {
+			animation: none;
+		}
+	}
+}
+
+/*
+ * Landing header: full width at the top; from lg it narrows into a floating, blurred bar once the page scrolls.
+ * Only the inner bar changes width and shape, so the header's height and the page below never move.
+ */
+@utility landing-header {
+	@apply border-b border-line;
+	background: var(--bg);
+	/* Controls inside the bar share its pill shape, so hover fills and buttons never look square in a round bar. */
+	& :is(a, button) {
+		border-radius: calc(var(--radius-4xl) * 2);
+	}
+	transition:
+		background-color var(--d3) var(--ease),
+		border-color var(--d3) var(--ease);
+	& > div {
+		transition:
+			max-width var(--d3) var(--ease),
+			background-color var(--d3) var(--ease),
+			box-shadow var(--d3) var(--ease),
+			border-radius var(--d3) var(--ease);
+	}
+	@media (width >= 64rem) {
+		&[data-scrolled] {
+			border-color: transparent;
+			background: transparent;
+		}
+		&[data-scrolled] > div {
+			max-width: calc(var(--landing-width) - var(--space-64) * 3);
+			margin-block: var(--space-8);
+			padding-block: var(--space-8);
+			padding-inline: var(--space-16);
+			border-radius: calc(var(--radius-4xl) * 2);
+			background: color-mix(in oklab, var(--surface) 82%, transparent);
+			box-shadow:
+				0 0 0 1px var(--line),
+				var(--shadow-2);
+			backdrop-filter: blur(var(--space-12));
+		}
+	}
+}
+
+/* Landing threads (job section only): a line drawn from a job requirement to the CV line that supports it. */
+@keyframes landing-thread-draw {
+	from {
+		stroke-dashoffset: 1;
+	}
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+@keyframes landing-thread-dot {
+	from {
+		opacity: 0;
+		scale: 0;
+	}
+}
+@utility landing-thread {
+	pointer-events: none;
+	overflow: visible;
+	& path {
+		fill: none;
+		stroke-linecap: round;
+		stroke-dasharray: 1;
+		stroke-dashoffset: 0;
+		animation: landing-thread-draw calc(var(--motion-delight) * 1.25) var(--ease-delight)
+			calc(150ms + var(--thread-index, 0) * 160ms) both;
+	}
+	& circle {
+		transform-box: fill-box;
+		transform-origin: center;
+		animation: landing-thread-dot var(--motion-acknowledge) var(--ease-delight)
+			calc(150ms + var(--thread-index, 0) * 160ms) both;
+	}
+	.landing-reveal-armed [data-reveal]:not([data-revealed]) & :is(path, circle) {
+		animation: none;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		& :is(path, circle) {
+			animation: none;
+		}
+	}
+}
+
+/* Landing anchors glide to their section below the sticky header; reduced motion jumps (global rule). */
+:root:has([data-landing-hero]) {
+	scroll-behavior: smooth;
+	/* The header is sticky only from lg; on phones it scrolls away, so sections land at the top. */
+	@media (width >= 64rem) {
+		scroll-padding-top: calc(var(--app-toolbar-height) + var(--space-16));
+	}
+}
+
+/*
+ * A horizontal strip that may overflow on phones: segments snap into place and the trailing edge fades, so a cut-off
+ * option reads as "scroll for more" rather than as a clipping bug.
+ */
+@utility scroll-strip {
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+	mask-image: linear-gradient(to right, var(--ink) calc(100% - var(--space-32)), transparent);
+	@variant rtl {
+		mask-image: linear-gradient(to left, var(--ink) calc(100% - var(--space-32)), transparent);
+	}
+	& > * > * {
+		scroll-snap-align: start;
+	}
+	@media (width >= 40rem) {
+		mask-image: none;
+	}
 }

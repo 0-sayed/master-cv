@@ -23,7 +23,6 @@ function compiledTranslation(catalog: Awaited<ReturnType<typeof loadCatalog>>[1]
 it.each([
 	["Left", "يسار"],
 	["Saving...", "جارٍ الحفظ…"],
-	["Fieldnote · Remote, EU", "Fieldnote · عمل عن بُعد، الاتحاد الأوروبي"],
 	["heard back", "تلقّت ردًا"],
 	["Leads with why you fit", "يبدأ بأسباب ملاءمتك للوظيفة"],
 	["Hide Link Underline", "إخفاء تسطير الروابط"],

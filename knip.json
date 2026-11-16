@@ -5,6 +5,7 @@
 	"workspaces": {
 		".": {
 			"entry": [
+				"playwright.design.config.ts",
 				"tests/e2e/privacy-retention-worker.ts",
 				"tests/e2e/t005-runtime.config.ts",
 				"tests/e2e/reviewable-ai-runtime.config.ts"

@@ -1,12 +1,18 @@
 import { Trans } from "@lingui/react/macro";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { buttonVariants } from "@reactive-resume/ui/components/button";
+import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/layout/page-header";
 import { HelpPage } from "@/features/help/page";
-import { PublicShell } from "@/features/help/public-shell";
+import { PublicHelp } from "@/features/help/public-page";
+import { getPublicPageMeta, createNoindexFollowMeta } from "@/libs/seo";
 import { AppShell } from "@/routes/dashboard/-components/app-shell";
 
-export const Route = createFileRoute("/help")({ component: HelpRoute });
+export const Route = createFileRoute("/help")({
+	head: () => {
+		const { title, description } = getPublicPageMeta("help");
+		return { meta: [{ title }, { name: "description", content: description }, createNoindexFollowMeta()] };
+	},
+	component: HelpRoute,
+});
 
 export function HelpRoute() {
 	// Root beforeLoad resolves the session before mounting this route, including deep links.
@@ -16,24 +22,8 @@ export function HelpRoute() {
 		return (
 			<AppShell>
 				<PageHeader title={title} />
-				<HelpPage />
+				<HelpPage user={session?.user ?? null} />
 			</AppShell>
 		);
-	return (
-		<PublicShell
-			title={title}
-			headerActions={
-				<>
-					<Link to="/" className={buttonVariants({ variant: "link", size: "link-touch" })}>
-						<Trans context="privacy.navigation.home">Back to home</Trans>
-					</Link>
-					<Link to="/auth/login" search={{ callbackURL: "/help" }} className={buttonVariants()}>
-						<Trans>Sign in</Trans>
-					</Link>
-				</>
-			}
-		>
-			<HelpPage />
-		</PublicShell>
-	);
+	return <PublicHelp />;
 }

@@ -1,7 +1,9 @@
 import { Trans } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
 import { buttonVariants } from "@reactive-resume/ui/components/button";
+import { usePublicSeo } from "@/libs/public-seo";
 export function AtsCheckerPage({ signedIn }: { signedIn: boolean; importPending: boolean }) {
+	usePublicSeo("ats-checker");
 	return (
 		<main id="main-content" className="grid min-h-svh content-center justify-items-center gap-4 bg-bg p-4">
 			<h1 className="type-title">

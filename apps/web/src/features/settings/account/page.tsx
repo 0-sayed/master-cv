@@ -1,14 +1,15 @@
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useRouteContext, useRouter, useSearch } from "@tanstack/react-router";
+import { useRouteContext, useSearch } from "@tanstack/react-router";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { toast } from "@reactive-resume/ui/components/toast";
 import { SettingsRow, SettingsSection } from "../section";
 import { DataSection } from "./data";
 import { ProfileSection } from "./profile";
 import { SecuritySection } from "./security";
-import { authClient } from "@/libs/auth/client";
-import { clearPersonalStorage } from "@/libs/browser-storage";
+import { useSignOut } from "@/features/auth/use-sign-out";
+import { getReadableErrorMessage } from "@/libs/error-message";
 
 export function AccountSettings() {
 	const { session } = useRouteContext({ from: "/dashboard" });
@@ -29,19 +30,20 @@ export function AccountSettings() {
 }
 
 export function SignOutButton() {
-	const router = useRouter();
-	const navigate = useNavigate();
-	const queryClient = useQueryClient();
+	const signOut = useSignOut();
 
 	return (
 		<Button
 			variant="secondary"
 			onClick={async () => {
-				await authClient.signOut();
-				clearPersonalStorage();
-				queryClient.clear();
-				await navigate({ to: "/" });
-				void router.invalidate();
+				try {
+					await signOut();
+				} catch (error) {
+					toast.add({
+						type: "error",
+						description: getReadableErrorMessage(error, t`Failed to sign out. Please try again.`),
+					});
+				}
 			}}
 		>
 			<Icon name="sign-out" size={18} />

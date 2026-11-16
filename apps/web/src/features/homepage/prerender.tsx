@@ -16,10 +16,12 @@ import { renderToString } from "react-dom/server";
 import { isRTL, productUiLocales } from "@reactive-resume/utils/locale";
 import { Homepage } from "./page";
 import { AtsCheckerPage } from "@/features/ats-checker/page";
+import { PublicHelp } from "@/features/help/public-page";
+import { LegalPage } from "@/features/legal/page";
 import { LocaleProvider } from "@/features/locale/provider";
 import { ThemeProvider } from "@/features/theme/provider";
 import { getUiLocaleMessages } from "@/libs/locale";
-import { getAtsCheckerMeta, getHomepageMeta } from "@/libs/seo";
+import { getAtsCheckerMeta, getHomepageMeta, getPublicPageMeta } from "@/libs/seo";
 import { Header } from "@/routes/_home/-sections/header";
 
 export const locales = productUiLocales;
@@ -28,6 +30,21 @@ export const locales = productUiLocales;
 const iconContextValue: IconProps = { size: 16, weight: "regular" };
 
 const pages = {
+	"legal-privacy": {
+		path: "/privacy-and-terms?tab=privacy",
+		meta: () => getPublicPageMeta("privacy-and-terms"),
+		render: () => <LegalPage tab="privacy" />,
+	},
+	"legal-terms": {
+		path: "/privacy-and-terms?tab=terms",
+		meta: () => getPublicPageMeta("privacy-and-terms"),
+		render: () => <LegalPage tab="terms" />,
+	},
+	help: {
+		path: "/help",
+		meta: () => getPublicPageMeta("help"),
+		render: () => <PublicHelp />,
+	},
 	home: { path: "/", meta: getHomepageMeta, render: () => <Homepage /> },
 	// What the /_home layout renders around the checker for a signed-out visitor (routes/_home/route.tsx).
 	"ats-checker": {

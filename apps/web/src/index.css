@@ -1,5 +1,4 @@
 @import "@reactive-resume/ui/globals.css";
-@import "./features/homepage/landing.css";
 
 /* UI faces are supplied at their real weights. Document typography stays independent. */
 :where(.type-title, .type-title-s, .type-section, .type-label) {

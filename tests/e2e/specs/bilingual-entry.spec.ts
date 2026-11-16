@@ -22,6 +22,12 @@ for (const path of ["/", "/auth/login"]) {
 						),
 					).toBeGreaterThan(0);
 					expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+					if (path === "/" && width < 1024) {
+						await page
+							.getByRole("banner")
+							.getByRole("button", { name: locale === "ar-SA" ? "القائمة" : "Menu", exact: true })
+							.click();
+					}
 					const trigger = page
 						.getByRole("button", {
 							name: locale === "ar-SA" ? "تغيير الواجهة إلى الإنجليزية" : "Switch interface to Arabic",

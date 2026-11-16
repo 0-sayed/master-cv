@@ -2,7 +2,6 @@ import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useMutation } from "@tanstack/react-query";
-import { useRouteContext } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
@@ -14,10 +13,9 @@ import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { PrivacyNotice } from "../settings/privacy/notice";
 import { SettingsSection } from "../settings/section";
 import { client } from "@/libs/orpc/client";
-export function HelpPage() {
+export function HelpPage({ user }: { user: { email: string; emailVerified: boolean } | null }) {
 	const { i18n } = useLingui();
-	const { session } = useRouteContext({ from: "__root__" });
-	const accountEmail = session?.user.emailVerified ? session.user.email : undefined;
+	const accountEmail = user?.emailVerified ? user.email : undefined;
 	const emailRef = useRef<HTMLInputElement>(null);
 	const messageRef = useRef<HTMLTextAreaElement>(null);
 	const receiptRef = useRef<HTMLDivElement>(null);
@@ -71,13 +69,13 @@ export function HelpPage() {
 						</a>
 					}
 				>
-					{session && !session.user.emailVerified ? (
+					{user && !user.emailVerified ? (
 						<PrivacyNotice
 							title={<Trans context="auth.verifyEmail.title">Verify your email address</Trans>}
 							action={
 								<a
 									className={buttonVariants({ variant: "secondary" })}
-									href={`/auth/verify-email?email=${encodeURIComponent(session.user.email)}`}
+									href={`/auth/verify-email?email=${encodeURIComponent(user.email)}&locale=${i18n.locale}`}
 								>
 									<Trans context="auth.verifyEmail.title">Verify your email address</Trans>
 								</a>

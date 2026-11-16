@@ -1,8 +1,7 @@
 import type { AuthSession } from "@reactive-resume/auth/types";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useQueryClient } from "@tanstack/react-query";
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -19,11 +18,10 @@ import {
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { useSignOut } from "@/features/auth/use-sign-out";
 import { useUiLocale } from "@/features/locale/provider";
 import { useTheme } from "@/features/theme/provider";
 import { useCurrentSession } from "@/hooks/use-current-session";
-import { authClient } from "@/libs/auth/client";
-import { clearPersonalStorage } from "@/libs/browser-storage";
 import { getReadableErrorMessage } from "@/libs/error-message";
 
 type Props = {
@@ -31,8 +29,7 @@ type Props = {
 };
 
 export function UserDropdownMenu({ children }: Props) {
-	const router = useRouter();
-	const queryClient = useQueryClient();
+	const signOut = useSignOut();
 	const session = useCurrentSession();
 	const { locale, pending, changeLocale } = useUiLocale();
 	const { theme, setTheme } = useTheme();
@@ -46,29 +43,22 @@ export function UserDropdownMenu({ children }: Props) {
 	const handleLogout = async () => {
 		const toastId = toast.add({ type: "loading", description: t`Signing out...` });
 
-		await authClient.signOut({
-			fetchOptions: {
-				onSuccess: () => {
-					toast.close(toastId);
-					clearPersonalStorage();
-					queryClient.clear();
-					void router.invalidate();
-				},
-				onError: ({ error }) => {
-					toast.add({
-						type: "error",
-						description: getReadableErrorMessage(
-							error,
-							t({
-								comment: "Fallback toast when signing out fails",
-								message: "Failed to sign out. Please try again.",
-							}),
-						),
-						id: toastId,
-					});
-				},
-			},
-		});
+		try {
+			await signOut();
+			toast.close(toastId);
+		} catch (error) {
+			toast.add({
+				type: "error",
+				description: getReadableErrorMessage(
+					error,
+					t({
+						comment: "Fallback toast when signing out fails",
+						message: "Failed to sign out. Please try again.",
+					}),
+				),
+				id: toastId,
+			});
+		}
 	};
 
 	if (!session?.user) return null;

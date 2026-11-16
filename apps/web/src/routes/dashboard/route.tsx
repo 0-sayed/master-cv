@@ -5,11 +5,16 @@ import { createNoindexFollowMeta } from "@/libs/seo";
 export const Route = createFileRoute("/dashboard")({
 	component: RouteComponent,
 	beforeLoad: ({ context, location }) => {
-		if (!context.session) throw redirect({ to: "/auth/login", search: { callbackURL: location.href }, replace: true });
+		if (!context.session)
+			throw redirect({
+				to: "/auth/login",
+				search: { locale: context.locale, callbackURL: location.href },
+				replace: true,
+			});
 		if (!context.session.user.emailVerified)
 			throw redirect({
 				to: "/auth/verify-email",
-				search: { email: context.session.user.email, callbackURL: location.href },
+				search: { locale: context.locale, email: context.session.user.email, callbackURL: location.href },
 				replace: true,
 			});
 		return { session: context.session };

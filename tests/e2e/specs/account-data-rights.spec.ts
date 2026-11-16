@@ -70,7 +70,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await category.click();
 			await expect(
 				storage.getByRole("link", { name: en ? "Privacy policy and help" : "سياسة الخصوصية والمساعدة" }),
-			).toHaveAttribute("href", "/help");
+			).toHaveAttribute("href", `/privacy-and-terms?tab=privacy&locale=${locale}`);
 			const danger = page.locator("main").getByRole("region").last();
 			await expect(danger.getByRole("heading")).toHaveText(en ? "Delete account" : "حذف الحساب");
 			await danger.getByRole("link", { name: en ? "Download your data first" : "تنزيل بياناتك أولًا" }).click();

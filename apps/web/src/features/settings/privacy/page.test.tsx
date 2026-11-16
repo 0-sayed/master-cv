@@ -8,13 +8,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PrivacyPage } from "./page";
 const fixture = vi.hoisted(() => ({ latest: vi.fn(), request: vi.fn(), notify: vi.fn() }));
 vi.mock("@reactive-resume/ui/components/toast", () => ({ toast: { add: fixture.notify } }));
+vi.mock("@/features/locale/provider", () => ({ useUiLocale: () => ({ locale: "en-US" }) }));
 vi.mock("@/libs/orpc/client", () => ({
 	client: { privacy: { requestExport: fixture.request } },
 	orpc: { privacy: { latestExport: { queryOptions: () => ({ queryKey: ["export"], queryFn: fixture.latest }) } } },
 }));
 vi.mock("@tanstack/react-router", () => ({
-	Link: ({ children, to, ...props }: { children: ReactNode; to: string }) => (
-		<a href={to} {...props}>
+	Link: ({ children, to, search, ...props }: { children: ReactNode; to: string; search?: Record<string, string> }) => (
+		<a href={search ? `${to}?${new URLSearchParams(search)}` : to} {...props}>
 			{children}
 		</a>
 	),
@@ -40,13 +41,16 @@ function show(value: unknown = null, unavailable = false) {
 		</I18nProvider>,
 	);
 }
-it("summarizes stored categories with expandable details and a help link", async () => {
+it("summarizes stored categories with expandable details and a draft policy link", async () => {
 	show();
 	const toggle = screen.getByRole("button", { name: /Your account/ });
 	expect(toggle).toHaveAttribute("aria-expanded", "false");
 	fireEvent.click(toggle);
 	expect(await screen.findByText(/Name, email and password/)).toBeVisible();
-	expect(screen.getByRole("link", { name: "Privacy policy and help" })).toHaveAttribute("href", "/help");
+	expect(screen.getByRole("link", { name: "Privacy policy and help" })).toHaveAttribute(
+		"href",
+		"/privacy-and-terms?tab=privacy&locale=en-US",
+	);
 	expect(screen.queryByText(/owner approval/i)).not.toBeInTheDocument();
 });
 it("a new export requires fresh proof and has one request action", async () => {

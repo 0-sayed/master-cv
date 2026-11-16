@@ -9,16 +9,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cloneElement } from "react";
 import { LocaleProvider } from "@/features/locale/provider";
 
-type SignOutOptions = { fetchOptions: { onSuccess: () => void } };
-
 const router = vi.hoisted(() => ({ invalidate: vi.fn(), navigate: vi.fn() }));
 const session = vi.hoisted(() => ({ user: { id: "user-1", name: "سارة العتيبي", email: "sara@example.test" } }));
 const pending = vi.hoisted(() => ({ value: false }));
-const signOut = vi.hoisted(() =>
-	vi.fn(({ fetchOptions }: SignOutOptions) => {
-		fetchOptions.onSuccess();
-	}),
-);
+const signOut = vi.hoisted(() => vi.fn(async () => ({ error: null })));
 
 vi.mock("@tanstack/react-router", () => ({
 	useRouter: () => router,
@@ -120,7 +114,9 @@ describe("UserDropdownMenu", () => {
 		fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
 
 		await waitFor(() => expect(router.invalidate).toHaveBeenCalled());
-		expect(queryClient.getQueryCache().getAll()).toHaveLength(0);
+		expect(router.navigate).toHaveBeenCalledWith({ to: "/auth/login", search: { locale: "en-US" }, replace: true });
+		expect(queryClient.getQueryData(["resumes"])).toBeUndefined();
+		expect(queryClient.getQueryData(["auth", "session"])).toBeNull();
 		expect(localStorage.getItem("reactive-resume:unsaved:cv")).toBeNull();
 		expect(localStorage.getItem("letter-sender:letter")).toBeNull();
 		expect(localStorage.getItem("career-context:thread")).toBeNull();
