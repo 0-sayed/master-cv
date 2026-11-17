@@ -1,0 +1,1003 @@
+[
+	{
+		"category": "interview-prep",
+		"text": "You helped new colleagues understand folder organization and request registration, including documenting updates without changing original information.",
+		"cv": [
+			{
+				"id": "career-context-12",
+				"section": "experience",
+				"text": "I helped new colleagues understand folder organization and request registration, explaining how to document updates without changing the original information in existing files."
+			}
+		],
+		"evidenceIds": ["career-context-12"]
+	},
+	{
+		"category": "interview-prep",
+		"text": "جمعتِ بيانات الطلبات من السجلات المعتمدة وأعددتِ التقارير الأسبوعية باستخدام إكسل.",
+		"cv": [
+			{
+				"id": "career-context-2",
+				"section": "experience",
+				"text": "أعددت التقارير الأسبوعية باستخدام إكسل، وجمعت بيانات الطلبات من السجلات المعتمدة قبل إرسال النسخة النهائية إلى مسؤول العمليات للمراجعة."
+			}
+		],
+		"evidenceIds": ["career-context-2"]
+	},
+	{
+		"category": "job-evidence",
+		"text": "The CV lists a Bachelor of Supply Chain Management.",
+		"cv": [
+			{
+				"id": "je-en-h4-cv-1",
+				"section": "experience",
+				"text": "Bachelor of Supply Chain Management."
+			}
+		],
+		"evidenceIds": ["je-en-h4-cv-1"]
+	},
+	{
+		"category": "job-evidence",
+		"text": "تذكر السيرة مراجعة الأسماء والتواريخ في المستندات بالرجوع إلى السجلات الأصلية، لكنها لا توثق دقة سجلات بنسبة محددة.",
+		"cv": [
+			{
+				"id": "career-context-11",
+				"section": "experience",
+				"text": "استخدمت وورد وإكسل في إعداد الجداول والمراسلات الداخلية، وراجعت الأسماء والتواريخ الواردة في المستندات بالرجوع إلى السجلات الأصلية قبل اعتمادها."
+			}
+		],
+		"evidenceIds": ["career-context-11"]
+	},
+	{
+		"category": "summary",
+		"text": "Records coordinator from 2020 to 2023, maintaining course files and attendance lists. ",
+		"cv": [
+			{
+				"id": "career-context-9",
+				"section": "experience",
+				"text": "In 2020, I started as a records coordinator at a fictional training center, maintaining course files and attendance lists until the end of 2023."
+			}
+		],
+		"evidenceIds": ["career-context-9"]
+	},
+	{
+		"category": "summary",
+		"text": "Previously served as an administrative coordinator (2017–2020) and operations assistant (2014–2017) in Abha. ",
+		"cv": [
+			{
+				"id": "career-context-5",
+				"section": "experience",
+				"text": "In 2017, I became an administrative coordinator at a fictional services office in Abha, and remained in that position until 2020."
+			},
+			{
+				"id": "career-context-1",
+				"section": "experience",
+				"text": "From 2014 to 2017, I worked as an operations assistant at Synthetic Record H-summary-en 5 in Abha, maintaining supplier files and reviewing daily order records."
+			}
+		],
+		"evidenceIds": ["career-context-5", "career-context-1"]
+	},
+	{
+		"category": "cover-letter",
+		"text": "I am interested in the logistics coordinator role at Riwaq Coordination, bringing experience as an operations assistant at Synthetic Record T 2 in Jeddah from 2011 to 2014, where I maintained supplier files and reviewed daily order records.",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "From 2011 to 2014, I worked as an operations assistant at Synthetic Record T 2 in Jeddah, maintaining supplier files and reviewing daily order records."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "I prepared weekly reports with Excel, collected order data from approved records, and sent the completed report to the operations supervisor for review."
+			},
+			{
+				"id": "cv-3",
+				"section": "experience",
+				"text": "I followed up customer enquiries received through internal email and recorded each subject and its responsible department for later reference."
+			},
+			{
+				"id": "cv-4",
+				"section": "experience",
+				"text": "I coordinated delivery appointments with warehouse colleagues and updated the order list after receiving written confirmation from the staff responsible for incoming materials."
+			},
+			{
+				"id": "cv-5",
+				"section": "experience",
+				"text": "In 2014, I became an administrative coordinator at a fictional services office in Jeddah, and remained in that position until 2017."
+			},
+			{
+				"id": "cv-6",
+				"section": "experience",
+				"text": "I checked transaction documents before forwarding them to the relevant department and returned incomplete files with a clear list of the missing documents."
+			},
+			{
+				"id": "cv-7",
+				"section": "experience",
+				"text": "I organized internal meeting minutes and recorded decisions, follow-up dates, and assigned colleagues from the meeting notes approved by the office supervisor."
+			},
+			{
+				"id": "cv-8",
+				"section": "experience",
+				"text": "I updated the filing procedure with the office supervisor and used consistent file names so colleagues could find the approved version of each document."
+			},
+			{
+				"id": "cv-9",
+				"section": "experience",
+				"text": "In 2017, I started as a records coordinator at a fictional training center, maintaining course files and attendance lists until the end of 2020."
+			},
+			{
+				"id": "cv-10",
+				"section": "experience",
+				"text": "I prepared monthly summaries of open files and separated confirmed information from notes that still required a response from the responsible department."
+			},
+			{
+				"id": "cv-11",
+				"section": "experience",
+				"text": "I used Word and Excel for tables and internal correspondence, and checked document names and dates against the original records before approval."
+			},
+			{
+				"id": "cv-12",
+				"section": "experience",
+				"text": "I helped new colleagues understand folder organization and request registration, explaining how to document updates without changing the original information in existing files."
+			}
+		],
+		"jobAd": {
+			"segments": [
+				{
+					"id": "job-role",
+					"text": "logistics coordinator"
+				},
+				{
+					"id": "job-employer",
+					"text": "Riwaq Coordination"
+				},
+				{
+					"id": "job-duty",
+					"text": "Record organisation and request follow-up."
+				}
+			]
+		},
+		"evidenceIds": ["cv-1"]
+	},
+	{
+		"category": "cover-letter",
+		"text": "Across these roles, I have worked with records and follow-up processes, and would welcome the opportunity to discuss how this experience relates to the logistics coordinator position at Riwaq Coordination.",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "From 2011 to 2014, I worked as an operations assistant at Synthetic Record T 2 in Jeddah, maintaining supplier files and reviewing daily order records."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "I prepared weekly reports with Excel, collected order data from approved records, and sent the completed report to the operations supervisor for review."
+			},
+			{
+				"id": "cv-3",
+				"section": "experience",
+				"text": "I followed up customer enquiries received through internal email and recorded each subject and its responsible department for later reference."
+			},
+			{
+				"id": "cv-4",
+				"section": "experience",
+				"text": "I coordinated delivery appointments with warehouse colleagues and updated the order list after receiving written confirmation from the staff responsible for incoming materials."
+			},
+			{
+				"id": "cv-5",
+				"section": "experience",
+				"text": "In 2014, I became an administrative coordinator at a fictional services office in Jeddah, and remained in that position until 2017."
+			},
+			{
+				"id": "cv-6",
+				"section": "experience",
+				"text": "I checked transaction documents before forwarding them to the relevant department and returned incomplete files with a clear list of the missing documents."
+			},
+			{
+				"id": "cv-7",
+				"section": "experience",
+				"text": "I organized internal meeting minutes and recorded decisions, follow-up dates, and assigned colleagues from the meeting notes approved by the office supervisor."
+			},
+			{
+				"id": "cv-8",
+				"section": "experience",
+				"text": "I updated the filing procedure with the office supervisor and used consistent file names so colleagues could find the approved version of each document."
+			},
+			{
+				"id": "cv-9",
+				"section": "experience",
+				"text": "In 2017, I started as a records coordinator at a fictional training center, maintaining course files and attendance lists until the end of 2020."
+			},
+			{
+				"id": "cv-10",
+				"section": "experience",
+				"text": "I prepared monthly summaries of open files and separated confirmed information from notes that still required a response from the responsible department."
+			},
+			{
+				"id": "cv-11",
+				"section": "experience",
+				"text": "I used Word and Excel for tables and internal correspondence, and checked document names and dates against the original records before approval."
+			},
+			{
+				"id": "cv-12",
+				"section": "experience",
+				"text": "I helped new colleagues understand folder organization and request registration, explaining how to document updates without changing the original information in existing files."
+			}
+		],
+		"jobAd": {
+			"segments": [
+				{
+					"id": "job-role",
+					"text": "logistics coordinator"
+				},
+				{
+					"id": "job-employer",
+					"text": "Riwaq Coordination"
+				},
+				{
+					"id": "job-duty",
+					"text": "Record organisation and request follow-up."
+				}
+			]
+		},
+		"evidenceIds": ["cv-1", "cv-3", "cv-9"]
+	},
+	{
+		"category": "cover-letter",
+		"text": "وفي عملي منسق سجلات في مركز تدريب افتراضي بين 2018 ونهاية 2021، جهزت ملخصات شهرية عن حالة الملفات المفتوحة، وفصلت البيانات المؤكدة عن الملاحظات التي تنتظر رد القسم المعني.",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "عملت من 2012 إلى 2015 مساعد عمليات في مؤسسة سجل T 3 الافتراضية بمدينة الدمام، وتوليت ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "أعددت التقارير الأسبوعية باستخدام إكسل، وجمعت بيانات الطلبات من السجلات المعتمدة قبل إرسال النسخة النهائية إلى مسؤول العمليات للمراجعة."
+			},
+			{
+				"id": "cv-3",
+				"section": "experience",
+				"text": "تابعت استفسارات العملاء الواردة عبر البريد الداخلي، وسجلت موضوع كل استفسار والجهة المسؤولة عنه حتى يمكن الرجوع إلى تفاصيله لاحقا."
+			},
+			{
+				"id": "cv-4",
+				"section": "experience",
+				"text": "نسقت مواعيد التسليم مع فريق المستودع، وحدثت قائمة الطلبات عند ورود تأكيد مكتوب من الزملاء المسؤولين عن استلام المواد المطلوبة."
+			},
+			{
+				"id": "cv-5",
+				"section": "experience",
+				"text": "انتقلت في 2015 إلى دور منسق إداري في مكتب خدمات افتراضي بمدينة الدمام، واستمر عملي في هذا الدور حتى 2018."
+			},
+			{
+				"id": "cv-6",
+				"section": "experience",
+				"text": "راجعت اكتمال مستندات المعاملات قبل إحالتها إلى القسم المختص، وأعدت الملفات الناقصة إلى أصحابها مع بيان المستندات التي تحتاج إلى استكمال."
+			},
+			{
+				"id": "cv-7",
+				"section": "experience",
+				"text": "نظمت محاضر الاجتماعات الداخلية، وسجلت القرارات ومواعيد المتابعة والأشخاص المكلفين بكل إجراء كما وردت في ملاحظات الاجتماع التي اعتمدها المسؤول."
+			},
+			{
+				"id": "cv-8",
+				"section": "experience",
+				"text": "حدثت دليل إجراءات الأرشفة بالتعاون مع مسؤول المكتب، وطبقت تسمية موحدة للملفات حتى يتمكن الزملاء من العثور على النسخة المعتمدة."
+			},
+			{
+				"id": "cv-9",
+				"section": "experience",
+				"text": "بدأت في 2018 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى نهاية عام 2021."
+			},
+			{
+				"id": "cv-10",
+				"section": "experience",
+				"text": "جهزت ملخصات شهرية عن حالة الملفات المفتوحة، وفصلت بين البيانات المؤكدة والملاحظات التي لا تزال تحتاج إلى رد من القسم المعني."
+			},
+			{
+				"id": "cv-11",
+				"section": "experience",
+				"text": "استخدمت وورد وإكسل في إعداد الجداول والمراسلات الداخلية، وراجعت الأسماء والتواريخ الواردة في المستندات بالرجوع إلى السجلات الأصلية قبل اعتمادها."
+			},
+			{
+				"id": "cv-12",
+				"section": "experience",
+				"text": "لم أتول إدارة فريق في هذه الأدوار، وكانت مسؤوليتي متابعة السجلات وتوثيق الطلبات ضمن المهام التي حددها مسؤول المكتب."
+			}
+		],
+		"jobAd": {
+			"segments": [
+				{
+					"id": "job-role",
+					"text": "منسق خدمة عملاء"
+				},
+				{
+					"id": "job-employer",
+					"text": "شركة مدار الوثائق"
+				},
+				{
+					"id": "job-duty",
+					"text": "تنظيم السجلات ومتابعة الطلبات."
+				},
+				{
+					"id": "job-bilingual",
+					"text": "Excel reporting is preferred; candidate claims still need CV evidence."
+				}
+			]
+		},
+		"evidenceIds": ["cv-9", "cv-10"]
+	},
+	{
+		"category": "cover-letter",
+		"text": "تستفيد وظيفة منسق خدمة عملاء في شركة مدار الوثائق من خبرتي في تنظيم السجلات ومتابعة الطلبات.",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "عملت من 2012 إلى 2015 مساعد عمليات في مؤسسة سجل T 3 الافتراضية بمدينة الدمام، وتوليت ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "أعددت التقارير الأسبوعية باستخدام إكسل، وجمعت بيانات الطلبات من السجلات المعتمدة قبل إرسال النسخة النهائية إلى مسؤول العمليات للمراجعة."
+			},
+			{
+				"id": "cv-3",
+				"section": "experience",
+				"text": "تابعت استفسارات العملاء الواردة عبر البريد الداخلي، وسجلت موضوع كل استفسار والجهة المسؤولة عنه حتى يمكن الرجوع إلى تفاصيله لاحقا."
+			},
+			{
+				"id": "cv-4",
+				"section": "experience",
+				"text": "نسقت مواعيد التسليم مع فريق المستودع، وحدثت قائمة الطلبات عند ورود تأكيد مكتوب من الزملاء المسؤولين عن استلام المواد المطلوبة."
+			},
+			{
+				"id": "cv-5",
+				"section": "experience",
+				"text": "انتقلت في 2015 إلى دور منسق إداري في مكتب خدمات افتراضي بمدينة الدمام، واستمر عملي في هذا الدور حتى 2018."
+			},
+			{
+				"id": "cv-6",
+				"section": "experience",
+				"text": "راجعت اكتمال مستندات المعاملات قبل إحالتها إلى القسم المختص، وأعدت الملفات الناقصة إلى أصحابها مع بيان المستندات التي تحتاج إلى استكمال."
+			},
+			{
+				"id": "cv-7",
+				"section": "experience",
+				"text": "نظمت محاضر الاجتماعات الداخلية، وسجلت القرارات ومواعيد المتابعة والأشخاص المكلفين بكل إجراء كما وردت في ملاحظات الاجتماع التي اعتمدها المسؤول."
+			},
+			{
+				"id": "cv-8",
+				"section": "experience",
+				"text": "حدثت دليل إجراءات الأرشفة بالتعاون مع مسؤول المكتب، وطبقت تسمية موحدة للملفات حتى يتمكن الزملاء من العثور على النسخة المعتمدة."
+			},
+			{
+				"id": "cv-9",
+				"section": "experience",
+				"text": "بدأت في 2018 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى نهاية عام 2021."
+			},
+			{
+				"id": "cv-10",
+				"section": "experience",
+				"text": "جهزت ملخصات شهرية عن حالة الملفات المفتوحة، وفصلت بين البيانات المؤكدة والملاحظات التي لا تزال تحتاج إلى رد من القسم المعني."
+			},
+			{
+				"id": "cv-11",
+				"section": "experience",
+				"text": "استخدمت وورد وإكسل في إعداد الجداول والمراسلات الداخلية، وراجعت الأسماء والتواريخ الواردة في المستندات بالرجوع إلى السجلات الأصلية قبل اعتمادها."
+			},
+			{
+				"id": "cv-12",
+				"section": "experience",
+				"text": "لم أتول إدارة فريق في هذه الأدوار، وكانت مسؤوليتي متابعة السجلات وتوثيق الطلبات ضمن المهام التي حددها مسؤول المكتب."
+			}
+		],
+		"jobAd": {
+			"segments": [
+				{
+					"id": "job-role",
+					"text": "منسق خدمة عملاء"
+				},
+				{
+					"id": "job-employer",
+					"text": "شركة مدار الوثائق"
+				},
+				{
+					"id": "job-duty",
+					"text": "تنظيم السجلات ومتابعة الطلبات."
+				},
+				{
+					"id": "job-bilingual",
+					"text": "Excel reporting is preferred; candidate claims still need CV evidence."
+				}
+			]
+		},
+		"evidenceIds": ["cv-1", "cv-3", "cv-9"]
+	},
+	{
+		"category": "cover-letter",
+		"text": "وأعدت الملفات الناقصة إلى أصحابها مع بيان المستندات التي تحتاج إلى استكمال، ونظمت محاضر الاجتماعات الداخلية وسجلت القرارات ومواعيد المتابعة والأشخاص المكلفين بكل إجراء وفق الملاحظات المعتمدة.",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "عملت من 2010 إلى 2013 مساعد عمليات في مؤسسة سجل T 1 الافتراضية بمدينة الرياض، وتوليت ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "أعددت التقارير الأسبوعية باستخدام إكسل، وجمعت بيانات الطلبات من السجلات المعتمدة قبل إرسال النسخة النهائية إلى مسؤول العمليات للمراجعة."
+			},
+			{
+				"id": "cv-3",
+				"section": "experience",
+				"text": "تابعت استفسارات العملاء الواردة عبر البريد الداخلي، وسجلت موضوع كل استفسار والجهة المسؤولة عنه حتى يمكن الرجوع إلى تفاصيله لاحقا."
+			},
+			{
+				"id": "cv-4",
+				"section": "experience",
+				"text": "نسقت مواعيد التسليم مع فريق المستودع، وحدثت قائمة الطلبات عند ورود تأكيد مكتوب من الزملاء المسؤولين عن استلام المواد المطلوبة."
+			},
+			{
+				"id": "cv-5",
+				"section": "experience",
+				"text": "انتقلت في 2013 إلى دور منسق إداري في مكتب خدمات افتراضي بمدينة الرياض، واستمر عملي في هذا الدور حتى 2016."
+			},
+			{
+				"id": "cv-6",
+				"section": "experience",
+				"text": "راجعت اكتمال مستندات المعاملات قبل إحالتها إلى القسم المختص، وأعدت الملفات الناقصة إلى أصحابها مع بيان المستندات التي تحتاج إلى استكمال."
+			},
+			{
+				"id": "cv-7",
+				"section": "experience",
+				"text": "نظمت محاضر الاجتماعات الداخلية، وسجلت القرارات ومواعيد المتابعة والأشخاص المكلفين بكل إجراء كما وردت في ملاحظات الاجتماع التي اعتمدها المسؤول."
+			},
+			{
+				"id": "cv-8",
+				"section": "experience",
+				"text": "حدثت دليل إجراءات الأرشفة بالتعاون مع مسؤول المكتب، وطبقت تسمية موحدة للملفات حتى يتمكن الزملاء من العثور على النسخة المعتمدة."
+			},
+			{
+				"id": "cv-9",
+				"section": "experience",
+				"text": "بدأت في 2016 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى نهاية عام 2019."
+			},
+			{
+				"id": "cv-10",
+				"section": "experience",
+				"text": "جهزت ملخصات شهرية عن حالة الملفات المفتوحة، وفصلت بين البيانات المؤكدة والملاحظات التي لا تزال تحتاج إلى رد من القسم المعني."
+			},
+			{
+				"id": "cv-11",
+				"section": "experience",
+				"text": "استخدمت وورد وإكسل في إعداد الجداول والمراسلات الداخلية، وراجعت الأسماء والتواريخ الواردة في المستندات بالرجوع إلى السجلات الأصلية قبل اعتمادها."
+			},
+			{
+				"id": "cv-12",
+				"section": "experience",
+				"text": "ساعدت الزملاء الجدد على فهم ترتيب المجلدات وخطوات تسجيل الطلبات، وشرحت لهم طريقة توثيق التحديثات دون تعديل المعلومات الأصلية في الملفات."
+			}
+		],
+		"jobAd": {
+			"segments": [
+				{
+					"id": "job-role",
+					"text": "منسق إداري"
+				},
+				{
+					"id": "job-employer",
+					"text": "شركة مدار الوثائق"
+				},
+				{
+					"id": "job-duty",
+					"text": "تنظيم السجلات ومتابعة الطلبات."
+				}
+			]
+		},
+		"evidenceIds": ["cv-6", "cv-7"]
+	},
+	{
+		"category": "cover-letter",
+		"text": "أتقدم إلى وظيفة منسق إداري لدى شركة مدار الوثائق، وأرى أن خبرتي في مراجعة مستندات المعاملات وتنظيم الملفات مناسبة لسياق الدور.",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "عملت من 2010 إلى 2013 مساعد عمليات في مؤسسة سجل T 1 الافتراضية بمدينة الرياض، وتوليت ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "أعددت التقارير الأسبوعية باستخدام إكسل، وجمعت بيانات الطلبات من السجلات المعتمدة قبل إرسال النسخة النهائية إلى مسؤول العمليات للمراجعة."
+			},
+			{
+				"id": "cv-3",
+				"section": "experience",
+				"text": "تابعت استفسارات العملاء الواردة عبر البريد الداخلي، وسجلت موضوع كل استفسار والجهة المسؤولة عنه حتى يمكن الرجوع إلى تفاصيله لاحقا."
+			},
+			{
+				"id": "cv-4",
+				"section": "experience",
+				"text": "نسقت مواعيد التسليم مع فريق المستودع، وحدثت قائمة الطلبات عند ورود تأكيد مكتوب من الزملاء المسؤولين عن استلام المواد المطلوبة."
+			},
+			{
+				"id": "cv-5",
+				"section": "experience",
+				"text": "انتقلت في 2013 إلى دور منسق إداري في مكتب خدمات افتراضي بمدينة الرياض، واستمر عملي في هذا الدور حتى 2016."
+			},
+			{
+				"id": "cv-6",
+				"section": "experience",
+				"text": "راجعت اكتمال مستندات المعاملات قبل إحالتها إلى القسم المختص، وأعدت الملفات الناقصة إلى أصحابها مع بيان المستندات التي تحتاج إلى استكمال."
+			},
+			{
+				"id": "cv-7",
+				"section": "experience",
+				"text": "نظمت محاضر الاجتماعات الداخلية، وسجلت القرارات ومواعيد المتابعة والأشخاص المكلفين بكل إجراء كما وردت في ملاحظات الاجتماع التي اعتمدها المسؤول."
+			},
+			{
+				"id": "cv-8",
+				"section": "experience",
+				"text": "حدثت دليل إجراءات الأرشفة بالتعاون مع مسؤول المكتب، وطبقت تسمية موحدة للملفات حتى يتمكن الزملاء من العثور على النسخة المعتمدة."
+			},
+			{
+				"id": "cv-9",
+				"section": "experience",
+				"text": "بدأت في 2016 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى نهاية عام 2019."
+			},
+			{
+				"id": "cv-10",
+				"section": "experience",
+				"text": "جهزت ملخصات شهرية عن حالة الملفات المفتوحة، وفصلت بين البيانات المؤكدة والملاحظات التي لا تزال تحتاج إلى رد من القسم المعني."
+			},
+			{
+				"id": "cv-11",
+				"section": "experience",
+				"text": "استخدمت وورد وإكسل في إعداد الجداول والمراسلات الداخلية، وراجعت الأسماء والتواريخ الواردة في المستندات بالرجوع إلى السجلات الأصلية قبل اعتمادها."
+			},
+			{
+				"id": "cv-12",
+				"section": "experience",
+				"text": "ساعدت الزملاء الجدد على فهم ترتيب المجلدات وخطوات تسجيل الطلبات، وشرحت لهم طريقة توثيق التحديثات دون تعديل المعلومات الأصلية في الملفات."
+			}
+		],
+		"jobAd": {
+			"segments": [
+				{
+					"id": "job-role",
+					"text": "منسق إداري"
+				},
+				{
+					"id": "job-employer",
+					"text": "شركة مدار الوثائق"
+				},
+				{
+					"id": "job-duty",
+					"text": "تنظيم السجلات ومتابعة الطلبات."
+				}
+			]
+		},
+		"evidenceIds": ["cv-6", "cv-8"]
+	},
+	{
+		"category": "cover-letter",
+		"text": "عملت من 2010 إلى 2013 مساعد عمليات في مؤسسة افتراضية بمدينة الرياض، وتوليت ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.",
+		"cv": [
+			{
+				"id": "cv-1",
+				"section": "experience",
+				"text": "عملت من 2010 إلى 2013 مساعد عمليات في مؤسسة سجل T 1 الافتراضية بمدينة الرياض، وتوليت ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية."
+			},
+			{
+				"id": "cv-2",
+				"section": "experience",
+				"text": "أعددت التقارير الأسبوعية باستخدام إكسل، وجمعت بيانات الطلبات من السجلات المعتمدة قبل إرسال النسخة النهائية إلى مسؤول العمليات للمراجعة."
+			},
+			{
+				"id": "cv-3",
+				"section": "experience",
+				"text": "تابعت استفسارات العملاء الواردة عبر البريد الداخلي، وسجلت موضوع كل استفسار والجهة المسؤولة عنه حتى يمكن الرجوع إلى تفاصيله لاحقا."
+			},
+			{
+				"id": "cv-4",
+				"section": "experience",
+				"text": "نسقت مواعيد التسليم مع فريق المستودع، وحدثت قائمة الطلبات عند ورود تأكيد مكتوب من الزملاء المسؤولين عن استلام المواد المطلوبة."
+			},
+			{
+				"id": "cv-5",
+				"section": "experience",
+				"text": "انتقلت في 2013 إلى دور منسق إداري في مكتب خدمات افتراضي بمدينة الرياض، واستمر عملي في هذا الدور حتى 2016."
+			},
+			{
+				"id": "cv-6",
+				"section": "experience",
+				"text": "راجعت اكتمال مستندات المعاملات قبل إحالتها إلى القسم المختص، وأعدت الملفات الناقصة إلى أصحابها مع بيان المستندات التي تحتاج إلى استكمال."
+			},
+			{
+				"id": "cv-7",
+				"section": "experience",
+				"text": "نظمت محاضر الاجتماعات الداخلية، وسجلت القرارات ومواعيد المتابعة والأشخاص المكلفين بكل إجراء كما وردت في ملاحظات الاجتماع التي اعتمدها المسؤول."
+			},
+			{
+				"id": "cv-8",
+				"section": "experience",
+				"text": "حدثت دليل إجراءات الأرشفة بالتعاون مع مسؤول المكتب، وطبقت تسمية موحدة للملفات حتى يتمكن الزملاء من العثور على النسخة المعتمدة."
+			},
+			{
+				"id": "cv-9",
+				"section": "experience",
+				"text": "بدأت في 2016 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى نهاية عام 2019."
+			},
+			{
+				"id": "cv-10",
+				"section": "experience",
+				"text": "جهزت ملخصات شهرية عن حالة الملفات المفتوحة، وفصلت بين البيانات المؤكدة والملاحظات التي لا تزال تحتاج إلى رد من القسم المعني."
+			},
+			{
+				"id": "cv-11",
+				"section": "experience",
+				"text": "استخدمت وورد وإكسل في إعداد الجداول والمراسلات الداخلية، وراجعت الأسماء والتواريخ الواردة في المستندات بالرجوع إلى السجلات الأصلية قبل اعتمادها."
+			},
+			{
+				"id": "cv-12",
+				"section": "experience",
+				"text": "ساعدت الزملاء الجدد على فهم ترتيب المجلدات وخطوات تسجيل الطلبات، وشرحت لهم طريقة توثيق التحديثات دون تعديل المعلومات الأصلية في الملفات."
+			}
+		],
+		"jobAd": {
+			"segments": [
+				{
+					"id": "job-role",
+					"text": "منسق إداري"
+				},
+				{
+					"id": "job-employer",
+					"text": "شركة مدار الوثائق"
+				},
+				{
+					"id": "job-duty",
+					"text": "تنظيم السجلات ومتابعة الطلبات."
+				}
+			]
+		},
+		"evidenceIds": ["cv-1"]
+	},
+	{
+		"category": "summary",
+		"text": "منسق سجلات وإداري بخبرة من 2014 إلى 2023 في تنسيق العمليات والأعمال الإدارية ومتابعة ملفات الدورات وقوائم الحضور.",
+		"cv": [
+			{
+				"id": "career-context-1",
+				"section": "experience",
+				"text": "عملت من 2014 إلى 2017 مساعد عمليات في مؤسسة سجل H-summary-ar 5 الافتراضية بمدينة أبها، وتوليت ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية."
+			},
+			{
+				"id": "career-context-5",
+				"section": "experience",
+				"text": "انتقلت في 2017 إلى دور منسق إداري في مكتب خدمات افتراضي بمدينة أبها، واستمر عملي في هذا الدور حتى 2020."
+			},
+			{
+				"id": "career-context-9",
+				"section": "experience",
+				"text": "بدأت في 2020 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى نهاية عام 2023."
+			}
+		],
+		"evidenceIds": ["career-context-1", "career-context-5", "career-context-9"]
+	},
+	{
+		"category": "summary",
+		"text": "Operations assistant (2013–2016), administrative coordinator (2016–2019), and records coordinator (2019–2022).",
+		"cv": [
+			{
+				"id": "career-context-1",
+				"section": "experience",
+				"text": "From 2013 to 2016, I worked as an operations assistant at Synthetic Record H-summary-en 11 in Taif, maintaining supplier files and reviewing daily order records."
+			},
+			{
+				"id": "career-context-5",
+				"section": "experience",
+				"text": "In 2016, I became an administrative coordinator at a fictional services office in Taif, and remained in that position until 2019."
+			},
+			{
+				"id": "career-context-9",
+				"section": "experience",
+				"text": "In 2019, I started as a records coordinator at a fictional training center, maintaining course files and attendance lists until the end of 2022."
+			}
+		],
+		"evidenceIds": ["career-context-1", "career-context-5", "career-context-9"]
+	},
+	{
+		"category": "job-evidence",
+		"text": "The CV documents maintaining supplier files and checking document names and dates against original records, but does not establish 95% record accuracy.",
+		"cv": [
+			{
+				"id": "career-context-1",
+				"section": "experience",
+				"text": "From 2012 to 2015, I worked as an operations assistant at Synthetic Record H-job-evidence-en 3 in Dammam, maintaining supplier files and reviewing daily order records."
+			},
+			{
+				"id": "career-context-11",
+				"section": "experience",
+				"text": "I used Word and Excel for tables and internal correspondence, and checked document names and dates against the original records before approval."
+			}
+		],
+		"evidenceIds": ["career-context-1", "career-context-11"]
+	},
+	{
+		"category": "job-evidence",
+		"text": "The CV documents using Excel to enter training attendance, prepare weekly reports, and create tables.",
+		"cv": [
+			{
+				"id": "je-en-h2-cv-1",
+				"section": "experience",
+				"text": "Entered training attendance in Excel."
+			},
+			{
+				"id": "career-context-2",
+				"section": "experience",
+				"text": "I prepared weekly reports with Excel, collected order data from approved records, and sent the completed report to the operations supervisor for review."
+			},
+			{
+				"id": "career-context-11",
+				"section": "experience",
+				"text": "I used Word and Excel for tables and internal correspondence, and checked document names and dates against the original records before approval."
+			}
+		],
+		"evidenceIds": ["je-en-h2-cv-1", "career-context-2", "career-context-11"]
+	},
+	{
+		"category": "job-evidence",
+		"text": "تذكر السيرة الذاتية درجة البكالوريوس في إدارة سلاسل الإمداد.",
+		"cv": [
+			{
+				"id": "je-mixed-h4-cv-1",
+				"section": "experience",
+				"text": "بكالوريوس في إدارة سلاسل الإمداد."
+			}
+		],
+		"evidenceIds": ["je-mixed-h4-cv-1"]
+	},
+	{
+		"category": "interview-prep",
+		"text": "استخدمتَ Word وExcel لإعداد الجداول والمراسلات، وراجعتَ الأسماء والتواريخ بالرجوع إلى السجلات الأصلية.",
+		"cv": [
+			{
+				"id": "career-context-11",
+				"section": "experience",
+				"text": "استخدمت وورد وإكسل في إعداد الجداول والمراسلات الداخلية، وراجعت الأسماء والتواريخ الواردة في المستندات بالرجوع إلى السجلات الأصلية قبل اعتمادها."
+			}
+		],
+		"evidenceIds": ["career-context-11"]
+	},
+	{
+		"category": "summary",
+		"text": "Prepared reports using Excel and coordinated delivery appointments with warehouse colleagues. ",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "I prepared weekly reports with Excel, collected order data from approved records, and sent the completed report to the operations supervisor for review.\nI coordinated delivery appointments with warehouse colleagues and updated the order list after receiving written confirmation from the staff responsible for incoming materials."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "Operations assistant, administrative coordinator and records coordinator with experience maintaining supplier files, reviewing daily order records and coordinating delivery appointments with warehouse colleagues; did not manage suppliers. ",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "Did not manage suppliers.\nFrom 2012 to 2015, I worked as an operations assistant at Synthetic Record H-summary-en 3 in Dammam, maintaining supplier files and reviewing daily order records.\nI coordinated delivery appointments with warehouse colleagues and updated the order list after receiving written confirmation from the staff responsible for incoming materials.\nfrom 2015, I became an administrative coordinator at a fictional services office in Dammam, and remained in that position until 2018.\nfrom 2018, I started as a records coordinator at a fictional training center, maintaining course files and attendance lists until 2021."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "متابعة ملفات الدورات وقوائم الحضور وإعداد التقارير الأسبوعية باستخدام إكسل.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "اعددت التقارير الاسبوعية باستخدام Excel، وجمعت بيانات الطلبات من السجلات الموافق عليها قبل ارسال النسخة النهائية الى مسؤول العمليات للمراجعة.\nبدات من 2017 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى 2020."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "interview-prep",
+		"text": "أعددتِ تقارير أسبوعية باستخدام إكسل، وجمعتِ بيانات الطلبات من سجلات معتمدة قبل إرسال النسخة النهائية إلى مسؤول العمليات للمراجعة.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "اعددت التقارير الاسبوعية باستخدام Excel، وجمعت بيانات الطلبات من السجلات الموافق عليها قبل ارسال النسخة النهائية الى مسؤول العمليات للمراجعة."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "منسق سجلات ومنسق إداري ومساعد عمليات، عملت في هذه الأدوار بين عامي 2014 و2023. تشمل خبرتي متابعة ملفات الدورات والسجلات والطلبات، ومراجعة المستندات والبيانات، وإعداد التقارير والجداول والمراسلات باستخدام وورد وإكسل، وتنظيم الملفات ومحاضر الاجتماعات.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "عملت من 2014 الى 2017 مساعد عمليات في مؤسسة سجل H-summary-ar 12 الافتراضية بمدينة الجبيل، ويتول ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.\nاعددت التقارير الاسبوعية باستخدام Excel، وجمعت بيانات الطلبات من السجلات الموافق عليها قبل ارسال النسخة النهائية الى مسؤول العمليات للمراجعة.\nانتقلت من 2017 الى دور منسق اداري في مكتب خدمات افتراضي بمدينة الجبيل، واستمر عملي في هذا الدور حتى 2020.\nراجعت اكتمال مستندات المعاملات قبل احالتها الى القسم المختص، واعدت الملفات الناقصة الى اصحابها مع بيان المستندات التي تحتاج الى استكمال.\nنظمت محاضر الاجتماعات الداخلية، وسجلت القرارات ومواعيد المتابعة والاشخاص المكلفين بكل اجراء كما وردت في ملاحظات الاجتماع التي اعتمدها المسؤول.\nحدثت دليل اجراءات الارشفة بالتعاون مع مسؤول المكتب، وطبقت تسمية موحدة للملفات حتى يتمكن الزملاء من العثور على النسخة المعتمدة.\nبدات من 2020 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى 2023.\nجهزت ملخصات شهرية عن حالة الملفات المفتوحة، وفصلت بين البيانات المؤكدة والملاحظات التي لا تزال تحتاج الى رد من القسم المعني.\nاستخدمت Word Excel في اعداد الجداول والمراسلات الداخلية، وراجعت الاسماء والتواريخ الواردة في المستندات بالرجوع الى السجلات الاصلية قبل اعتمادها."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "رتب ملفات الموردين دون تولي إدارتهم، وراجع مستندات المعاملات وتابع ملفات الدورات وقوائم الحضور. ",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "عملت من 2013 الى 2016 مساعد عمليات في مؤسسة سجل H-summary-ar 11 الافتراضية بمدينة الطائف، ويتول ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.\nلم يتول ادارة الموردين.\nراجعت اكتمال مستندات المعاملات قبل احالتها الى القسم المختص، واعدت الملفات الناقصة الى اصحابها مع بيان المستندات التي تحتاج الى استكمال.\nبدات من 2019 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى 2022."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "عملت مساعد عمليات ومنسقاً إدارياً ومنسق سجلات بين 2012 و2021. ",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "عملت من 2012 الى 2015 مساعد عمليات في مؤسسة سجل H-summary-mixed 10 الافتراضية بمدينة ينبع، ويتول ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.\nانتقلت من 2015 الى دور منسق اداري في مكتب خدمات افتراضي بمدينة ينبع، واستمر عملي في هذا الدور حتى 2018.\nبدات من 2018 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى 2021."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "job-evidence",
+		"text": "السيرة الذاتية تذكر درجة البكالوريوس في إدارة سلسلة الإمداد.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "Bachelor of Supply Chain Management."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "job-evidence",
+		"text": "راجعت الأسماء والتواريخ في المستندات بالرجوع إلى السجلات الأصلية، لكن السيرة لا توثق تحقيق دقة سجلات بنسبة 95%.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "استخدمت Word Excel في اعداد الجداول والمراسلات الداخلية، وراجعت الاسماء والتواريخ الواردة في المستندات بالرجوع الى السجلات الاصلية قبل اعتمادها."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "job-evidence",
+		"text": "راجعت الأسماء والتواريخ في المستندات بالرجوع إلى السجلات الأصلية، لكن لا يوجد في السيرة دليل على تحقيق نسبة دقة 95%.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "استخدمت Word Excel في اعداد الجداول والمراسلات الداخلية، وراجعت الاسماء والتواريخ الواردة في المستندات بالرجوع الى السجلات الاصلية قبل اعتمادها."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "job-evidence",
+		"text": "تذكر السيرة مساعدة الزملاء الجدد على فهم خطوات العمل، ولا توثق خبرة إدارة الفرق.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "ساعدت الزملاء الجدد على فهم ترتيب المجلدات وخطوات تسجيل الطلبات، وشرحت لهم طريقة توثيق التحديثات دون تعديل المعلومات الاصلية في الملفات."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "منسق سجلات وإدارة بخبرة في تنسيق سجلات الحضور ومتابعة ملفات الدورات وقوائم الحضور.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "نسق سجلات الحضور في مركز تدريب بجدة.\nبدات من 2020 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى 2023."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "لدي خبرة في تنسيق العمليات والأعمال الإدارية وإدارة السجلات، من خلال ترتيب ملفات الموردين ومراجعة بيانات الطلبات، ومتابعة استفسارات العملاء وتنسيق مواعيد التسليم.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "عملت من 2010 الى 2013 مساعد عمليات في مؤسسة سجل H-summary-mixed 8 الافتراضية بمدينة حائل، ويتول ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.\nتابعت استفسارات العملاء الواردة عبر البريد الداخلي، وسجلت موضوع كل استفسار والجهة المسؤولة عنه حتى يمكن الرجوع الى تفاصيله لاحقا.\nنسقت مواعيد التسليم مع فريق المستودع، وحدثت قائمة الطلبات عند ورود تاكيد مكتوب من الزملاء المسؤولين عن استلام المواد المطلوبة."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "خبرة في العمليات والإدارة والسجلات، شملت ترتيب ملفات الموردين ومراجعة مستندات المعاملات ومتابعة ملفات الدورات وقوائم الحضور. ",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "عملت من 2010 الى 2013 مساعد عمليات في مؤسسة سجل H-summary-ar 8 الافتراضية بمدينة حائل، ويتول ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.\nراجعت اكتمال مستندات المعاملات قبل احالتها الى القسم المختص، واعدت الملفات الناقصة الى اصحابها مع بيان المستندات التي تحتاج الى استكمال.\nبدات من 2016 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى 2019."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "خبرة في تنسيق العمليات والإدارة والسجلات بين 2012 و2021. ",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "عملت من 2012 الى 2015 مساعد عمليات في مؤسسة سجل H-summary-mixed 10 الافتراضية بمدينة ينبع، ويتول ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.\nانتقلت من 2015 الى دور منسق اداري في مكتب خدمات افتراضي بمدينة ينبع، واستمر عملي في هذا الدور حتى 2018.\nبدات من 2018 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى 2021."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "منسقة سجلات وإدارة بخبرة من 2015 إلى نهاية 2024 في العمليات والتنسيق الإداري ومتابعة ملفات الدورات.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "عملت من 2015 الى 2018 مساعد عمليات في مؤسسة سجل H-summary-ar 6 الافتراضية بمدينة الخبر، ويتول ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.\nانتقلت من 2018 الى دور منسق اداري في مكتب خدمات افتراضي بمدينة الخبر، واستمر عملي في هذا الدور حتى 2021.\nبدات من 2021 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى 2024."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "لدي خبرة عملية بين عامي 2014 و2023 في تنسيق العمليات والإدارة والسجلات.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "عملت من 2014 الى 2017 مساعد عمليات في مؤسسة سجل H-summary-ar 5 الافتراضية بمدينة ابها، ويتول ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.\nانتقلت من 2017 الى دور منسق اداري في مكتب خدمات افتراضي بمدينة ابها، واستمر عملي في هذا الدور حتى 2020.\nبدات من 2020 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى 2023."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "خبرة في تنسيق العمليات والإدارة والسجلات، شملت متابعة طلبات الصيانة، وترتيب ملفات الموردين ومراجعة بيانات الطلبات، وإعداد التقارير الأسبوعية باستخدام إكسل.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "تابع طلبات الصيانة في مبنى بالرياض.\nعملت من 2012 الى 2015 مساعد عمليات في مؤسسة سجل H-summary-mixed 10 الافتراضية بمدينة ينبع، ويتول ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.\nاعددت التقارير الاسبوعية باستخدام Excel، وجمعت بيانات الطلبات من السجلات الموافق عليها قبل ارسال النسخة النهائية الى مسؤول العمليات للمراجعة."
+			}
+		],
+		"evidenceIds": ["fact"]
+	},
+	{
+		"category": "summary",
+		"text": "لدي خبرة في تنسيق العمليات والإدارة والسجلات من 2013 إلى نهاية 2022، شملت ترتيب ملفات الموردين ومراجعة بيانات الطلبات، وتنسيق المعاملات والاجتماعات والأرشفة، ومتابعة ملفات الدورات وقوائم الحضور.",
+		"cv": [
+			{
+				"id": "fact",
+				"section": "experience",
+				"text": "عملت من 2013 الى 2016 مساعد عمليات في مؤسسة سجل H-summary-ar 4 الافتراضية بمدينة تبوك، ويتول ترتيب ملفات الموردين ومراجعة بيانات الطلبات اليومية.\nانتقلت من 2016 الى دور منسق اداري في مكتب خدمات افتراضي بمدينة تبوك، واستمر عملي في هذا الدور حتى 2019.\nراجعت اكتمال مستندات المعاملات قبل احالتها الى القسم المختص، واعدت الملفات الناقصة الى اصحابها مع بيان المستندات التي تحتاج الى استكمال.\nنظمت محاضر الاجتماعات الداخلية، وسجلت القرارات ومواعيد المتابعة والاشخاص المكلفين بكل اجراء كما وردت في ملاحظات الاجتماع التي اعتمدها المسؤول.\nحدثت دليل اجراءات الارشفة بالتعاون مع مسؤول المكتب، وطبقت تسمية موحدة للملفات حتى يتمكن الزملاء من العثور على النسخة المعتمدة.\nبدات من 2019 العمل منسق سجلات في مركز تدريب افتراضي، حيث تابعت ملفات الدورات وقوائم الحضور حتى 2022."
+			}
+		],
+		"evidenceIds": ["fact"]
+	}
+]

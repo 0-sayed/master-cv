@@ -1,13 +1,41 @@
 import type { Claim, CvFact, GuardPolicy, GuardResult, GuardContext } from "./variant-types";
 import {
 	assertHardFacts,
+	evidenceExplanation,
 	factualEvidence,
 	HARD_FACTS_VERSION,
 	normalizeFact,
 	unsupportedEvidenceClaims,
 } from "./hard-facts";
 
-export const tasksGuardVersion = `tasks-guard-v4-translation-conjunction:${HARD_FACTS_VERSION}`;
+export const tasksGuardVersion = `tasks-guard-v5-shared-factual-paraphrases:${HARD_FACTS_VERSION}`;
+
+/** Absence describes the supplied document, never the person's ability. */
+export function boundedEvidenceAbsence(text: string): boolean {
+	const normalized = normalizeFact(text);
+	const scope = /\b(?:(?:this|the|supplied|the supplied)\s+)?(?:cv|resume)\b|(?:هذه\s+)?السيرة(?:\s+الذاتية)?/u;
+	const absence =
+		/\b(?:is|was)\s+not\s+(?:documented|recorded|shown|used)\b|\bno\s+(?:(?:supporting|matching|relevant)\s+)?evidence\b|\b(?:does\s+not|doesn't)\s+(?:show|provide|contain|document)\b|\bno\b.*\b(?:documented|recorded|shown)\b|لا\s+(?:يوجد|توجد|يظهر|تظهر|تتضمن|تقدم|توثق|تذكر)|لم\s+(?:تذكر|يستخدم|استخدم)/u;
+	const inability =
+		/\b(?:cannot|can't|unable|unskilled|lacks?)\b|(?:المرشح|المتقدم|انت)\s+(?:لا\s+(?:يجيد|يعرف|يمتلك)|يفتقر)/u;
+	return (
+		!inability.test(normalized) &&
+		normalized.split(/[!?؟\n]/u).some((passage) => scope.test(passage) && absence.test(passage))
+	);
+}
+
+/** Remove explicit disclaimers only, leaving predictions in every other clause visible. */
+export function assessmentText(text: string): string {
+	return text
+		.split(/(?<=[.;؛!?؟])\s*/u)
+		.filter((clause) => {
+			const normalized = normalizeFact(clause);
+			return !/^(?:لا تتضمن تقديرا لاحتمال التوظيف او نتيجة توظيفية[.!؟]?|(?:this (?:assessment|practice)|these questions) (?:does|do) not (?:estimate|predict) (?:hiring|employment) (?:probability|chances?)[.!]?)$/u.test(
+				normalized,
+			);
+		})
+		.join(" ");
+}
 
 /** Retention checks candidate assertions after independently validating any cited duty bridge. */
 export function assertPatchRetention(
@@ -28,6 +56,8 @@ export type TranslationEntityAlias = { source: string; target: string };
 const toolAliases: TranslationEntityAlias[] = [
 	{ source: "excel", target: "Excel" },
 	{ source: "sap", target: "SAP" },
+	{ source: "word", target: "Word" },
+	{ source: "وورد", target: "Word" },
 	{ source: "إكسل", target: "Excel" },
 	{ source: "اكسيل", target: "Excel" },
 	{ source: "إكسيل", target: "Excel" },
@@ -50,6 +80,8 @@ function canonical(text: string, aliases: readonly TranslationEntityAlias[] = to
 		.normalize("NFKC")
 		.replace(/[\u064B-\u065F\u0670\u0640]/gu, "")
 		.replace(/[أإآٱ]/gu, "ا")
+		.replace(/(?<!\p{L})(منسق|مساعد|مشرف|مهندس|محاسب|فني|مدير|معلم|ممرض|استشاري|مطور|اخصائي)ا(?!\p{L})/gu, "$1")
+		.replace(/(?<!\p{L})و(?=(?:اكسل|اكسيل|ساب|وورد|Word)(?!\p{L}))/gu, "")
 		// An application's basis is not a singular completed work request (طلب).
 		.replace(/(?<!\p{L})(اساس)\s+هذا\s+الطلب(?!\p{L})/gu, "$1 طلبي")
 		// Relative ما before a nominal predicate and embedded "what my role was"
@@ -57,6 +89,19 @@ function canonical(text: string, aliases: readonly TranslationEntityAlias[] = to
 		// quantities, responsibility and CV-only citation checks still apply.
 		.replace(/(?<!\p{L})ما(?=\s+[^.!?؟،,;؛\n]+?\s+(?:هو|هي)\s)/gu, "الذي")
 		.replace(/(?<!\p{L})([وف]?)ما(?=\s+كان\s+[\p{Script=Arabic}]+ي\s+في(?:ه|ها)(?!\p{L}))/gu, "$1الذي")
+		.replace(/(?<!\p{L})ما(?=\s+يحتاج(?!\p{L}))/gu, "الذي")
+		.replace(
+			/((?:ال)?(?:ملاحظات(?:\s+الاجتماع)?|مستندات|وثائق|سجلات))\s+(?:ال)?معتمدة(?!\s+(?:دولي|عالمي|رسمي|مهني))/gu,
+			"$1 الموافق عليها",
+		)
+		// Normalize interval endpoints only when the source explicitly says the role began.
+		.replace(/((?:انتقلت|بدات|اصبحت)(?:\s+[^.!?؟\n]+?)?)\s+في\s+(?:عام\s+)?(?=\d{4})/gu, "$1 من ")
+		.replace(/\bin\s+(\d{4})(?=,?\s+I\s+(?:became|started|began)\b)/giu, "from $1")
+		.replace(/\b(?:through\s+the\s+end\s+of|until\s+the\s+end\s+of|to\s+the\s+end\s+of)\s+(?=\d{4})/giu, "until ")
+		.replace(/(?<!\p{L})(من|حتى|الى)\s+(?:نهاية\s+)?(?:عام\s+)?(?=\d{4})/gu, "$1 ")
+		.replace(/(?<!\p{L})ومن(?=\s+\d{4})/gu, "من")
+		.replace(/(?<!\p{L})بين\s+(?:عامي\s+)?(\d{4})\s+و\s*(?:نهاية\s+)?(\d{4})(?!\d)/gu, "من $1 حتى $2")
+		.replace(/\bbetween\s+(\d{4})\s+and\s+(\d{4})\b/giu, "from $1 until $2")
 		// Finite forms of تولّى share the jussive يتولّ (لم يتولّ). This is
 		// grammatical normalization, not permission to strengthen responsibility.
 		.replace(/(?<!\p{L})([وف]?)(?:تولى|توليت|تولت|تتول)(?!\p{L})/gu, "$1يتول");
@@ -108,11 +153,44 @@ function assertTranslationEntities(
  * Arbitrary prose, including possessive skill claims, still goes through the CV-only guard.
  * The English pairs are authored grammatical equivalents, not aliases learned from job text.
  */
+function applicationContext(c: GuardContext, text: string): string {
+	if (c.category !== "cover-letter") return text;
+	const job = c.jobAd?.segments.map((span) => factualEvidence(span.text)).join("\n") ?? "";
+	const target = (role: string, employer: string) => {
+		if (!contains(canonical(job), canonical(role)) || !contains(canonical(job), canonical(employer)))
+			throw new Error("AI_UNSUPPORTED_CLAIM");
+	};
+	return text
+		.replace(/^I am interested in the (.+?) role at (.+?),\s*/u, (_all, role: string, employer: string) => {
+			target(role, employer);
+			return "";
+		})
+		.replace(
+			/(?:,?\s+and\s+)?would welcome the opportunity to discuss how this experience relates to the (.+?) position at (.+?)\.$/u,
+			(_all, role: string, employer: string) => {
+				target(role, employer);
+				return ".";
+			},
+		)
+		.replace(
+			/^(?:أتقدم|اتقدم) إلى وظيفة (.+?) لدى (.+?)[،,]\s*(?:وأرى|وارى) أن\s*/u,
+			(_all, role: string, employer: string) => {
+				target(role, employer);
+				return "";
+			},
+		)
+		.replace(/^تستفيد وظيفة (.+?) في (.+?) من خبرتي\s+/u, (_all, role: string, employer: string) => {
+			target(role, employer);
+			return "خبرتي ";
+		});
+}
+
 function candidateText(c: GuardContext, claim: Claim): string {
 	const match = claim.text.match(
-		/^(?:This experience relates to the ([^.!?؟\n]+) duties described in your posting\.|وترتبط هذه الخبرة بمهام ([^.!?؟\n]+) الواردة في إعلانكم\.)$/u,
+		/^(?:This experience relates to the ([^.!?؟\n]+) duties described in your posting\.|وترتبط هذه الخبرة بمهام ([^.!?؟\n]+) الواردة في إعلانكم\.|هذا يرتبط بمهام ([^.!?؟\n]+) المذكورة في إعلانكم\.)$/u,
 	);
-	if (!match && claim.jobSpanIds === undefined) return claim.text;
+	if (!match && claim.jobSpanIds === undefined)
+		return c.category === "job-evidence" ? evidenceExplanation(claim.text) : applicationContext(c, claim.text);
 	if (!match || (c.category !== "cover-letter" && c.category !== "tailoring") || claim.kind !== "fact")
 		throw new Error("AI_UNSUPPORTED_CLAIM");
 	const ids = claim.jobSpanIds;
@@ -123,7 +201,7 @@ function candidateText(c: GuardContext, claim: Claim): string {
 		if (matches.length !== 1 || !span || c.cv.some((fact) => fact.id === id)) throw new Error("AI_INVALID_EVIDENCE");
 		return factualEvidence(span.text);
 	});
-	const duty = match[1] ?? match[2] ?? "";
+	const duty = match[1] ?? match[2] ?? match[3] ?? "";
 	// The duty slot is a reference, not a place to embed a relative candidate assertion.
 	if (
 		/\b(?:i|me|my|mine|we|our|ours|candidate|applicant|who|which|that)\b|(?:خبرتي|مهاراتي|مسؤولياتي|انا|أنا|نحن|لدي|عندي|التي|الذي|الذين)/iu.test(
@@ -176,7 +254,7 @@ export function guardTaskClaims(
 			if (policy.entityChecker === "translation") {
 				assertTranslationEntities(facts, text, false, translationAliases);
 			} else {
-				const source = canonical(facts.map((fact) => fact.text).join("\n"));
+				const source = facts.map((fact) => canonical(fact.text)).join("\n");
 				const after = canonical(text);
 				// Empty before disables only the production guard's retention checks. Check polarity separately.
 				if (unsupportedEvidenceClaims(source, after, source).length) throw new Error("AI_UNSUPPORTED_CLAIM");
@@ -192,7 +270,7 @@ export function guardTaskClaims(
 			const after = candidateTexts.join("\n");
 			if (policy.entityChecker === "translation") assertTranslationEntities(facts, after, true, translationAliases);
 			else {
-				const source = canonical(facts.map((fact) => fact.text).join("\n"));
+				const source = facts.map((fact) => canonical(fact.text)).join("\n");
 				assertHardFacts(source, canonical(after), source);
 			}
 		} catch (error) {

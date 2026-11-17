@@ -266,3 +266,11 @@ it("rejects not_applicable retention for actual edits despite supported claims",
 		}),
 	).toThrow("AI_FACT_RETENTION_FAILED");
 });
+
+it("bounds the explicit benchmark allowance for realistic annotated letters", async () => {
+	const { completionTokenLimit } = await import("./route-policy");
+	expect(completionTokenLimit({ maxOutputTokens: 16384, reasoningEffort: "none" })).toBe(16384);
+	expect(() => completionTokenLimit({ maxOutputTokens: 16385, reasoningEffort: "none" })).toThrow(
+		"AI_INVALID_OUTPUT_LIMIT",
+	);
+});
