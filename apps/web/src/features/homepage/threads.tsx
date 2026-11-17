@@ -2,12 +2,12 @@ import type { CSSProperties, RefObject } from "react";
 import { useEffect, useState } from "react";
 import { cn } from "@reactive-resume/utils/style";
 
-type ThreadTone = "accent" | "warn";
+export type ThreadTone = "accent" | "warn";
 export type ThreadSpec = { from: string; to: string; tone?: ThreadTone };
 
 type Path = { d: string; start: [number, number]; end: [number, number]; tone: ThreadTone };
 
-const strokes: Record<ThreadTone, string> = { accent: "stroke-accent fill-accent", warn: "stroke-warn fill-warn" };
+export const threadColors = { accent: "var(--accent)", warn: "var(--warn)" } as const;
 
 /**
  * Draws curved threads between elements marked `data-thread-from` / `data-thread-to` inside `container`. Ends inside
@@ -71,8 +71,8 @@ export function Threads({
 			{paths.map((path, index) => (
 				<g
 					key={`${version}-${index}`}
-					className={strokes[path.tone]}
-					style={{ "--thread-index": index } as CSSProperties}
+					className="fill-(--thread-color) stroke-(--thread-color)"
+					style={{ "--thread-index": index, "--thread-color": threadColors[path.tone] } as CSSProperties}
 				>
 					<path d={path.d} pathLength={1} strokeWidth={2} />
 					<circle cx={path.start[0]} cy={path.start[1]} r={4} />

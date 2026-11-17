@@ -1,7 +1,9 @@
 import type { ExampleLanguage, FactId } from "./example";
-import type { ReactNode } from "react";
+import type { ThreadTone } from "./threads";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@reactive-resume/utils/style";
 import { landingExample } from "./example";
+import { threadColors } from "./threads";
 
 type CvPaperProps = {
 	language: ExampleLanguage;
@@ -11,20 +13,38 @@ type CvPaperProps = {
 	compact?: boolean;
 	/** Marks each fact line as the end of a thread (job section only). */
 	threadTarget?: boolean;
+	/** Status tones shared with the job requirement threads. */
+	highlightTones?: Partial<Record<FactId, ThreadTone>>;
 	className?: string;
 };
 
 /** Even padding around a highlighted run of text, kept on every wrapped line. */
-const highlighted = "rounded-md bg-paper-highlight px-1.5 py-0.5 -mx-1.5 box-decoration-clone";
+const highlighted = "rounded-md px-1.5 py-0.5 -mx-1.5 box-decoration-clone";
 
 /** A white document page with synthetic CV content; paper never inverts with the theme. */
-export function CvPaper({ language, highlight = [], compact = false, threadTarget = false, className }: CvPaperProps) {
+export function CvPaper({
+	language,
+	highlight = [],
+	compact = false,
+	threadTarget = false,
+	highlightTones = {},
+	className,
+}: CvPaperProps) {
 	const cv = landingExample[language];
-	const fact = (id: FactId) => ({ "data-fact": id, ...(threadTarget && { "data-thread-to": id }) });
+	const fact = (id: FactId) => ({
+		"data-fact": id,
+		...(threadTarget && { "data-thread-to": id }),
+		...(highlightTones[id] && { style: { "--thread-color": threadColors[highlightTones[id]] } as CSSProperties }),
+	});
+	const highlightClass = (id: FactId) => (highlightTones[id] ? "landing-evidence-highlight" : "bg-paper-highlight");
 	const mark = (id: FactId, children: ReactNode) => (
 		<span
 			{...fact(id)}
-			className={cn("transition-[background-color] duration-standard", highlight.includes(id) && highlighted)}
+			className={cn(
+				"transition-[background-color] duration-standard",
+				highlight.includes(id) && highlighted,
+				highlight.includes(id) && highlightClass(id),
+			)}
 		>
 			{children}
 		</span>
@@ -77,7 +97,7 @@ export function CvPaper({ language, highlight = [], compact = false, threadTarge
 					{...fact("skills")}
 					className={cn(
 						"-m-1 flex flex-wrap gap-1.5 justify-self-start rounded-lg p-1 transition-[background-color] duration-standard",
-						highlight.includes("skills") && "bg-paper-highlight",
+						highlight.includes("skills") && highlightClass("skills"),
 					)}
 				>
 					{cv.skills.map((skill) => (

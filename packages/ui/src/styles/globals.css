@@ -1472,16 +1472,35 @@ button .success-tick {
 			padding-block: var(--space-8);
 			padding-inline: var(--space-16);
 			border-radius: calc(var(--radius-4xl) * 2);
-			background: color-mix(in oklab, var(--surface) 82%, transparent);
+			/* Liquid glass: a see-through vertical gradient reads as a curved pane, the saturation boost keeps
+			   colour passing through instead of greying, and inset hairlines give it a lit rim. */
+			background: linear-gradient(
+				to bottom,
+				color-mix(in oklab, var(--surface) 46%, transparent),
+				color-mix(in oklab, var(--surface) 30%, transparent)
+			);
 			box-shadow:
-				0 0 0 1px var(--line),
+				inset 0 1px 0 color-mix(in oklab, var(--surface) 70%, transparent),
+				inset 0 -1px 0 color-mix(in oklab, var(--line) 70%, transparent),
+				0 0 0 1px color-mix(in oklab, var(--line) 60%, transparent),
 				var(--shadow-2);
-			backdrop-filter: blur(var(--space-12));
+			-webkit-backdrop-filter: blur(var(--space-12)) saturate(260%);
+			backdrop-filter: blur(var(--space-12)) saturate(260%);
+		}
+		/* Without backdrop-filter the see-through pane would be unreadable over content: fall back to solid. */
+		@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+			&[data-scrolled] > div {
+				background: var(--surface);
+			}
 		}
 	}
 }
 
 /* Landing threads (job section only): a line drawn from a job requirement to the CV line that supports it. */
+@utility landing-evidence-highlight {
+	background-color: color-mix(in oklab, var(--thread-color) 14%, var(--paper));
+}
+
 @keyframes landing-thread-draw {
 	from {
 		stroke-dashoffset: 1;

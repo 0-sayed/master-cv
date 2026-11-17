@@ -1,4 +1,5 @@
 import type { EvidenceStatus, FactId, SampleJobId } from "./example";
+import type { ThreadTone } from "./threads";
 import type { IconName } from "@reactive-resume/ui/components/icon";
 import type { CSSProperties } from "react";
 import { Trans } from "@lingui/react/macro";
@@ -41,6 +42,12 @@ export function TailorShowcase() {
 	const stage = useRef<HTMLDivElement>(null);
 	const job = cv.jobs[jobId];
 	const linked = job.requirements.flatMap((requirement) => (requirement.fact ? [requirement.fact] : []));
+	const highlightTones: Partial<Record<FactId, ThreadTone>> = {};
+	for (const requirement of job.requirements) {
+		if (requirement.fact && requirement.status !== "missing") {
+			highlightTones[requirement.fact] = statusStyle[requirement.status].badge;
+		}
+	}
 	const choose = (id: SampleJobId) => {
 		document.querySelector(`[data-job-option="${id}"]`)?.scrollIntoView({
 			block: "nearest",
@@ -71,7 +78,7 @@ export function TailorShowcase() {
 											{
 												from: `requirement-${index}`,
 												to: requirement.fact,
-												tone: requirement.status === "found" ? ("accent" as const) : ("warn" as const),
+												tone: highlightTones[requirement.fact] ?? "accent",
 											},
 										]
 									: [],
@@ -153,6 +160,7 @@ export function TailorShowcase() {
 							compact
 							threadTarget
 							highlight={shown ? [shown] : linked}
+							highlightTones={highlightTones}
 							className="gap-4 sm:p-6"
 						/>
 					</div>
