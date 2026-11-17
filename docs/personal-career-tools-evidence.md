@@ -531,6 +531,8 @@ Affected units pass: API 1357, web 1179, tooling 2997 and database 37. Existing 
 The API database configuration and three stale benchmark expectations required corrections. Only the failed suites ran again.
 Ten mobile tests pass, including the notes revision regression. Native compiler validation remains blocked because the local Hermes compiler is absent.
 The full browser suite remains a CI responsibility.
+CI exposed an import-test race: its wait matched a section-picker button before the section navigation updated.
+The test now waits inside that navigation. Its 24 tests pass locally with Node 24.
 Browser evidence covers Arabic and English at 1440 and 390, including application details, edit dialogs and letter recovery.
 Screenshots are in `review-browser-evidence` under the owner-specified scratchpad. The inspected dialogs retain shared controls, visible footers and correct direction.
 The migration regression proves that a later notes edit does not replace the recorded sent-version date.
