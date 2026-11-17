@@ -1,11 +1,13 @@
 # T013 — Qualify the free beta
 
 **Task:** T013 · **PR size:** L · **Branch:** `test/t013-integrated-release-qualification`
-**Depends on:** T007, T009, T011, T012 · **Priority:** 130
+**Depends on:** T007, T009, T010, T011 · **Priority:** 130
 **Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
 **Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
 
 ## Goal
+
+D43: qualify the Hostinger pilot after T014 phone OTP and T010 test-mode billing. Record the client pilot approval before T012 Saudi production deployment. T017 supplies pilot backup/restore evidence; T012 retains Saudi production recovery ownership.
 
 Qualify the free email-based CV beta with a bounded go/no-go and availability record.
 No automatic deployment, real-data activation or gate approval follows from task completion.
@@ -17,16 +19,16 @@ No automatic deployment, real-data activation or gate approval follows from task
 - Own A13 enabled/withheld/deferred capability decisions; retain B-C14-B-C16, B-E01-B-E08 and A10
   as deferred-disposition ownership only, without implementing employer or other future features.
 - Own B-O03 candidate-outcome evidence using synthetic fixtures until real-user authorization.
-- Reconcile A01-A04, A06-A08 and A11-A13 evidence for this scope; T012 owns backup restore/deletion replay.
+- Reconcile A01-A04, A06-A08 and A11-A13 evidence for this scope; T017 supplies pilot backup restore/deletion replay; T012 owns Saudi production evidence.
 - S32-S34 retained tools and S24-S27 paid billing are post-beta. T008 may withhold either tool.
-- Mobile signup, SMS verification/reset, recovery codes and S37-S39 remain off and outside beta acceptance.
+- Qualify T014 phone OTP and adjacent recovery states only within approved A14-A16 scope; keep unapproved mobile capabilities off.
 - Real users require company registration and applicable real-data gates; before then qualification stays synthetic.
 
 ## Explicit exclusions
 
 - No paid release/charging, production activation, mobile implementation or mandatory S24-S27/S32-S34 delivery.
 - No DOCX availability, employer B2B, human review, public profiles or unreviewed integrations.
-- T015 owns paid-release qualification; T014 independently owns later mobile activation.
+- T015 owns paid-release qualification; T014 owns gated pilot mobile activation before this qualification.
 
 ## Requirement IDs
 
@@ -40,7 +42,7 @@ deferred.
 - Consume launch S01-S23 plus S28-S31/S35/S36 and mobile pane S08b for the core email CV journey.
 - Verify unsupported import, review/undo, stale proposals, conflicts, translation review, download,
   email verification/reset, deletion and recovery states across the responsible task owners.
-- S24-S27/S32-S34 are post-beta; S37-S39 mobile is a separately gated later increment.
+- S24-S27/S32-S34 public availability remains post-beta; qualify T010 test-mode billing and approved T014 S37-S39 pilot states under D43.
 - Resolve current masters/states in [figma-map.json](../../context/design/figma-map.json) during implementation.
   Use authorized access, record unavailable renders honestly, never hard-code node IDs or implement Popup Simulator/Note frames.
 
