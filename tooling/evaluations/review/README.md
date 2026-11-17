@@ -30,7 +30,7 @@ The allowed archive root is `/mnt/storage/master-cv-design-archive/ui-audit/pers
 Output validation rejects symlinks that escape the allowed root.
 Each completed invocation writes a small `session.json` pointer to its existing session results.
 Use a separate output directory for each invocation. Historical sessions remain intact.
-Core and full tasks runs retain three repetitions. Smoke uses one AR, one EN, and one mixed case per category and writer.
+Core and full tasks runs default to three repetitions. Smoke uses one AR, one EN, and one mixed case per category and writer.
 The combined grid has three writers and 54 smoke sessions. See docs/personal-career-benchmark.md for owner commands and current caps.
 
 Canary calibration runs **72 initial verifier calls**: every category × language cell has its
@@ -70,8 +70,8 @@ qualify a new study. Fake results are scripted controls.
 The combined default grid contains Luna none, Luna low, and Terra medium. DeepSeek remains the pinned verifier.
 Use `--study tasks-v1 --variants <model@effort,...>` to select a supported subset.
 Unknown, duplicate, empty, or expanded selections fail. Canonical ordering remains stable.
-The manifest records actual membership. Smoke and full bind the same frozen campaign and its three-repeat full policy.
-Smoke executes one repeat. Full executes three repeats and requires that exact smoke identity.
+The manifest records actual membership. Smoke and full bind the same frozen campaign and the requested full repetition count (default three).
+Smoke executes one repeat. Full executes the requested repetition count and requires that exact smoke identity.
 A subset requires a fresh smoke with the same membership. Keep every category, partition, and language.
 Custom tuning-only configurations retain their existing validation. Full still requires Terra.
 No paid run or production model promotion occurs during offline preparation.
@@ -95,7 +95,7 @@ The verifier now receives full minimized proposals and every candidate, includin
 
 Extraction benchmark verifiers receive 12,288 total completion tokens; other categories retain 5,120 and writer caps are unchanged. Reasons are prompted to be compact, without dropping claims. Reservations use the scaled cap. Saved-input and conditional compact-output capacity checks are offline diagnostics, not proof of live non-truncation. Two genuine writer failures have no valid verifier input. A fresh 132-session owner-run smoke is required; v8 cannot qualify or resume into v9.
 
-Smoke checks infrastructure, accounting, provider identity, coverage and systemic verifier health. Writer schema/truncation/refusal/provenance failures remain data with per-variant counts; unknown writer sources are rejected before judge dispatch. Isolated verifier faults are health exclusions, not writer errors. A variant without a complete attributable pair has no measured calibration and retains catalog reservation bounds; this alone does not block smoke. Existing systemic health thresholds and billing/coverage gates remain.
+Smoke checks infrastructure, accounting, provider identity, coverage and systemic verifier health. Writer schema/truncation/refusal/provenance failures remain data with per-variant counts; unknown writer sources are rejected before judge dispatch. Isolated verifier faults remain failed safety samples and block qualification. They are not writer schema errors. A variant without a complete attributable pair has no measured calibration and retains catalog reservation bounds; this alone does not block smoke. Existing systemic health thresholds and billing/coverage gates remain.
 
 Offline report (must supply `-o`; no network or environment-file reads): `pnpm --filter @reactive-resume/tooling eval:review:rescore --source evaluations/results/2026-11-13T13-29-43.354Z-27e0cb13 --approval-file <owner-approval.json> -o /tmp/t006-offline-rescore`. The 44 variant/category rows contain historical joint proxies, provisional saved-verdict re-scores, trusted rates and re-verification counts. Historical journal/results stay immutable. Cost is a token-price proxy, not new calibration. No inference, release approval or real-CV processing authorized.
 
@@ -150,7 +150,7 @@ and cooldown behavior.
 
 `MAX_VERIFIER_FAULT_RETRIES = 1` is persisted as `verifierFaultRetries` on each
 scored session. The first faulty judgment is journalled before retry dispatch;
-a second fault is final `verifier-fault`, excluded from writer metrics and listed
+a second fault is final `verifier-fault`, retained as a failed safety sample and listed
 for human adjudication after reveal. A finalized faulty session counts as completed
 coverage. Smoke validation still rejects verifier faults. Prompts, models, token caps,
 schemas, fixtures and scoring are unchanged; lane18 uses the new identity above.

@@ -55,6 +55,7 @@ export const coverLettersRouter = {
 		)
 		.handler(({ context, input }) => prepareLetterReview(context.user.id, input)),
 	decideReview: protectedProcedure
+		.use(resumeMutationRateLimit)
 		.route({
 			method: "POST",
 			path: "/cover-letters/review/decide",

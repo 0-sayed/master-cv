@@ -2,31 +2,31 @@
 	"owner": "Sayed",
 	"date": "2026-11-17",
 	"scope": "billing-only",
-	"studyId": "tasks-v1-personal-career-711a0e4517fa",
+	"studyId": "tasks-v1-personal-career-0c679b93a99e",
 	"decision": "D39 billing settlement and exposure amendment",
 	"revisions": {
 		"tooling/evaluations/review/attempt.ts": {
-			"before": "1f121c3b70b59aa83cc45b6621c6feb6b6276b5e8e6af8e0bb7ab47b341754c1",
-			"after": "ae3f13c737925f9b8d4fe02f5e229357236af9c9a06fe882cd5991bf87f03554"
+			"before": "0c3a16f09de38d50d79e1c3a074166c0b5230aeb9fbb289223f2555d22b4f2e4",
+			"after": "44e14d0262aeacfb5b74de8a66e5034e0f04b44d1f96f6f5818079a4e7df2842"
 		},
 		"tooling/evaluations/review/production.ts": {
-			"before": "d10d21c00d1f61f9c7a6f8cb475d1039d492e08340dfcdfa2fc613a9d6369e84",
-			"after": "191e82079e38f0210b221293c1b0f932fe164125ec8a3768f82be26c4472f91c"
+			"before": "0050c0a7ff7d2078d08efea790c2bf9670876b70ce94ea2530e95e5493fe9350",
+			"after": "0050c0a7ff7d2078d08efea790c2bf9670876b70ce94ea2530e95e5493fe9350"
 		},
 		"tooling/evaluations/review/runner.ts": {
-			"before": "18b852cee68dfc4ee111659691e3e833be52b53da33cf637c7deb7ae6be9796d",
-			"after": "171ce12872b1e979cd0e401ca83a925ac2c61dcca8917b9b472015ad97371ba4"
+			"before": "9df0115fa11b57faf9caa3469698e1b0704ec1910b3629878ce980bf16924597",
+			"after": "6f4e3be1ded14604fc8685642653b8164f282d89a4910265613031d7b76900b8"
 		},
 		"tooling/evaluations/review/verifier.ts": {
-			"before": "b6b4729bd2ef499665afae5ade70618454a827e2e21e7f40a3097f3b021ca6f0",
+			"before": "936cfeff26478fda218d15f870ecfca2c752b123b880baccc715d64dda644216",
 			"after": "936cfeff26478fda218d15f870ecfca2c752b123b880baccc715d64dda644216"
 		},
 		"tooling/evaluations/review/freeze.ts": {
-			"before": "a08c1a3cf1ac91714b733df7a4e0438e4980620abcc1ae60d6094ea8c1653796",
-			"after": "07644350c6c189d770ce64820b8411e5675a528ba35e21b1da52bf8e57666546"
+			"before": "9e5b7eff76e7f08d72788a6940995511f259a9a0f21de53c0e8b4e8cf46e32ee",
+			"after": "749f5cdbb6e80bbc6db5ecfe8ccbb0c242b3cc42e5c9045d094585ccf7a389ca"
 		},
 		"tooling/evaluations/review/cli.ts": {
-			"before": "5448227b026dee704f3e8cb6cfbf5b7ecf78380b3bba93a395a41b853e8c57b9",
+			"before": "a5f057c6730e7c1f18b5e4cba5e1fee96d13a255c2f2bd50c464ac5b0c924e19",
 			"after": "a5f057c6730e7c1f18b5e4cba5e1fee96d13a255c2f2bd50c464ac5b0c924e19"
 		}
 	},

@@ -16,8 +16,10 @@ import { coverLetterService } from "./service";
 const database = aiTestDatabase();
 const calls: string[] = [];
 let verifierRejects = false;
+let rejectionsRemaining = 0;
 const runtime = {
 	...syntheticReviewRuntime,
+	localOwnerAllowance: { ownerId: "alice", limit: 10 },
 	handlers: { ...syntheticReviewRuntime.handlers, "review.cover-letter": letterReviewHandler },
 	fetch: async (_url: unknown, init?: RequestInit) => {
 		const body = JSON.parse(String(init?.body));
@@ -33,7 +35,7 @@ const runtime = {
 					coverage: "complete",
 					items: JSON.parse(task.text).items.map((item: { id: string }) => ({
 						id: item.id,
-						verdict: verifierRejects ? "unsupported" : "supported",
+						verdict: verifierRejects || rejectionsRemaining > 0 ? "unsupported" : "supported",
 						evidenceIds: [fact.id],
 						reason: "Synthetic supported text",
 					})),
@@ -47,6 +49,7 @@ const runtime = {
 					],
 					notes: [],
 				};
+		if (task && rejectionsRemaining > 0) rejectionsRemaining--;
 		return Response.json({
 			id: "synthetic-letter",
 			provider: "Test",
@@ -398,6 +401,17 @@ it("creates an Arabic letter independently from an English source CV", async () 
 	const reopened = await letterWork(() => coverLetterService.getById({ userId: "alice", id: created.id }));
 	expect(reopened.style.metadata.page.locale).toBe("ar-SA");
 	expect(reopened.content).toBe("<p>نص عربي مستقل.</p>");
+});
+
+it("regenerates a semantically rejected letter once through the real reviewed handler", async () => {
+	const before = calls.length;
+	rejectionsRemaining = 1;
+	const { current, operation } = await freshProposal("fresh-letter-after-rejection");
+	expect(await run(() => operationService.get("alice", operation.id))).toMatchObject({ state: "waiting_review" });
+	expect(calls.length - before).toBe(4);
+	expect((await letterWork(() => coverLetterService.getById({ userId: "alice", id: current.id }))).content).toBe(
+		"<p>Keep manual text.</p>",
+	);
 });
 
 it("rejects a proposal after the selected job revision changes", async () => {

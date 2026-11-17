@@ -161,7 +161,9 @@ it("settles malformed response envelopes through generation metadata without rep
 it("records a connection timeout before any response as unbilled with a note", async () => {
 	vi.useFakeTimers();
 	const base: typeof fetch = async () => {
-		throw new TypeError("fetch failed: connect ETIMEDOUT");
+		throw new TypeError("fetch failed", {
+			cause: Object.assign(new Error("connect timeout"), { code: "UND_ERR_CONNECT_TIMEOUT" }),
+		});
 	};
 	const pending = step((url, init) => captureResponse(base, url, init));
 	await vi.runAllTimersAsync();
@@ -390,4 +392,17 @@ it("records the reported OpenRouter cost across cached-writer verifier retries w
 	expect(result.reservedUsd).toBe(0.000002);
 	const again = await runBenchmark({ ...options, previousCalls: result.calls });
 	expect(again.reservedUsd).toBe(result.reservedUsd);
+});
+
+it("holds unknown charges when a timeout lacks dispatch evidence", async () => {
+	await expect(
+		captureResponse(async () => {
+			throw new Error("timeout");
+		}, "https://offline.invalid"),
+	).rejects.toMatchObject({ evidence: { requestSent: true, costMicros: null, upstreamCostMicros: null } });
+	await expect(
+		captureResponse(async () => {
+			throw Object.assign(new Error("refused"), { code: "ECONNREFUSED" });
+		}, "https://offline.invalid"),
+	).rejects.toMatchObject({ evidence: { costMicros: 0, upstreamCostMicros: 0 } });
 });

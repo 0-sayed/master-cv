@@ -126,7 +126,7 @@ function score(c: TaskCase, output: InterviewPrepOutput, rawVerdict: unknown | n
 	const rejectedQuestionIds =
 		assessment?.questions.filter((q) => !q.safe || !q.languageAccepted).map((q) => q.id) ?? [];
 	const globalReasons = reasons.filter(
-		(r) => !rejectedQuestionIds.some((id) => r.includes(`:${id}`)) && r !== "INTERVIEW_VERIFIER_REJECTED",
+		(r) => !rejectedQuestionIds.some((id) => r.split(":").includes(id)) && r !== "INTERVIEW_VERIFIER_REJECTED",
 	);
 	const accepted = !globalReasons.length && (assessment?.accepted ?? true);
 	return {

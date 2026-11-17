@@ -339,3 +339,28 @@ it("uses writer cost rather than verifier noise to break provisional quality tie
 	}
 	expect(table(artifact([]), tasks)[0]?.winner).toMatchObject({ model: "model-0" });
 });
+
+it("keeps a missing task writer charge unknown in decision evidence", () => {
+	const tasks = artifact(["summary"], 1, 1, "tasks-v1");
+	for (const c of tasks.calls) delete c.generationUsage;
+	expect(
+		buildDecisionEvidence(tasks, "tasks-v1").every((row) =>
+			row.candidates.every((candidate) => candidate.costPer1000Usd === null),
+		),
+	).toBe(true);
+});
+it("retains billed account failures in costs without scoring their output", async () => {
+	const { scoreBenchmark } = await import("./metrics");
+	const call = {
+		...required(base.calls[0]),
+		outcome: "ACCOUNT_ERROR",
+		costMicros: 123,
+		generationUsage: { inputTokens: 1, outputTokens: 1, costMicros: 123 },
+	};
+	expect(scoreBenchmark([call]).find((g) => g.dimension === "model")).toMatchObject({
+		runs: 0,
+		writerRuns: 0,
+		generationCostUsd: 0.000123,
+		costUsd: 0.000123,
+	});
+});

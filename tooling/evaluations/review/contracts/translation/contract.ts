@@ -92,7 +92,7 @@ const mqmSchema = z.strictObject({
 				category: z.enum(["accuracy", "fluency", "terminology", "locale", "style"]),
 			}),
 		)
-		.max(10),
+		.max(50),
 });
 /** MQM target offsets use JS UTF-16 indices. Missing/invalid ratings stay unknown, never perfect. */
 export function translationMqm(output: TranslationOutput, rawVerdict: unknown) {

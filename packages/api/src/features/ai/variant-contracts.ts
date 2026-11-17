@@ -15,7 +15,7 @@ export const variantOperationContracts = {
 		parameters: variantOperationParameters["review.job-evidence"],
 		output: jobEvidenceSchema,
 		systemPrompt: prompts["job-evidence"],
-		promptVersion: "job-evidence-v3-source-boundary",
+		promptVersion: "job-evidence-v4-full-response-verification",
 		schemaVersion: "job-evidence-v2",
 	},
 	"review.tailoring": {
@@ -23,7 +23,7 @@ export const variantOperationContracts = {
 		parameters: variantOperationParameters["review.tailoring"],
 		output: tailoringOutputSchema,
 		systemPrompt: prompts.tailoring,
-		promptVersion: "tailoring-v3-source-boundary",
+		promptVersion: "tailoring-v4-full-response-verification",
 		schemaVersion: "tailoring-v2",
 	},
 	"review.translation": {
@@ -31,7 +31,7 @@ export const variantOperationContracts = {
 		parameters: variantOperationParameters["review.translation"],
 		output: translationOutputSchema,
 		systemPrompt: prompts.translation,
-		promptVersion: "translation-v3-source-boundary",
+		promptVersion: "translation-v4-full-response-verification",
 		schemaVersion: "translation-v2",
 	},
 	"review.summary": {
@@ -39,7 +39,7 @@ export const variantOperationContracts = {
 		parameters: variantOperationParameters["review.summary"],
 		output: summaryOutputSchema,
 		systemPrompt: prompts.summary,
-		promptVersion: "summary-v3-source-boundary",
+		promptVersion: "summary-v4-full-response-verification",
 		schemaVersion: "summary-v2",
 	},
 } as const;

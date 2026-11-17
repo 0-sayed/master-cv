@@ -45,3 +45,10 @@ it("uses three repetitions for the full study", () => {
 	expect(plan.stage).toBe("full");
 	expect(plan.identity).not.toBe("");
 });
+
+it("binds the requested full repetition count across smoke and full plans", () => {
+	const plan = (stage: string, runs: string) =>
+		resolveStudyPlan(parseOptions(["--study", "tasks-v1", "--dry-run", "--stage", stage, "--runs", runs]));
+	expect(plan("smoke", "2").identity).toBe(plan("full", "2").identity);
+	expect(plan("full", "2").identity).not.toBe(plan("full", "3").identity);
+});

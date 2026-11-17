@@ -27,16 +27,23 @@ export function assertFrozenStudy(
 	if (study === "tasks-v1" && digest(runtimePath) !== billingAmendment.runtimeSha256)
 		throw new Error("STUDY_FREEZE_CHANGED");
 	const current = Object.fromEntries(Object.keys(files).map((path) => [path, digest(path)]));
-	if (Object.entries(files).every(([path, expected]) => current[path] === expected)) return freeze;
+	if (study !== "tasks-v1") {
+		if (!Object.entries(files).every(([path, expected]) => current[path] === expected))
+			throw new Error("STUDY_FREEZE_CHANGED");
+		return freeze;
+	}
 	// Sayed D39: exact billing-only revision. Scientific identity and review hashes stay unchanged.
-	if (study !== "tasks-v1" || billingAmendment.studyId !== freeze.studyId || billingAmendment.owner !== "Sayed")
+	if (billingAmendment.studyId !== freeze.studyId || billingAmendment.owner !== "Sayed")
 		throw new Error("STUDY_FREEZE_CHANGED");
 	const revisions: Record<string, { before: string; after: string }> = billingAmendment.revisions;
 	if (Object.keys(revisions).length !== billingPaths.length || billingPaths.some((path) => !revisions[path]))
 		throw new Error("STUDY_FREEZE_CHANGED");
 	for (const [path, expected] of Object.entries(files)) {
 		const revision = revisions[path];
-		if ((revision && revision.before !== expected) || current[path] !== (revision?.after ?? expected))
+		if (
+			(revision && revision.after !== current[path]) ||
+			(current[path] !== expected && (!revision || revision.before !== expected))
+		)
 			throw new Error("STUDY_FREEZE_CHANGED");
 	}
 	return freeze;

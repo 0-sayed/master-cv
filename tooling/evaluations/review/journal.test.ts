@@ -128,3 +128,44 @@ it("retains the latest cumulative reservation before an interrupted transport re
 		await rm(folder, { recursive: true, force: true });
 	}
 });
+
+it("holds a raw-only retry reservation once after restart", async () => {
+	const { runBenchmark } = await import("./runner");
+	const { loadModels } = await import("./config");
+	const { cases } = await import("./corpus");
+	const folder = await mkdtemp(join(tmpdir(), "raw-retry-"));
+	const path = join(folder, "calls.jsonl");
+	try {
+		const options = { models: loadModels().slice(0, 1), cases: cases.slice(0, 1), runs: 1, fake: true, budgetUsd: 10 };
+		const first = await runBenchmark(options);
+		const key = required(first.calls[0]).key;
+		const reservation = { key, reservedMicros: 10, reservedOpenRouterMicros: 4, reservedOpenaiMicros: 6 };
+		await appendEvent(path, { type: "reserved", data: reservation });
+		await appendEvent(path, {
+			type: "raw",
+			data: {
+				key,
+				model: "synthetic",
+				provider: "test",
+				reasoning: "none",
+				caseId: "synthetic",
+				runIndex: 0,
+				fixtureHash: "x",
+				promptHash: "x",
+				reservedMicros: 10,
+				reservedOpenRouterMicros: 4,
+				reservedOpenaiMicros: 6,
+				latencyMs: 1,
+				status: 429,
+				body: '{"error":{"code":429}}',
+			},
+		});
+		await appendEvent(path, { type: "reserved", data: reservation });
+		const resumed = await runBenchmark({ ...options, ...(await readJournal(path)) });
+		expect(resumed.stopReason).toBe("PENDING_BILLING");
+		expect(resumed.reservedUsd).toBe(0.000004);
+		expect(resumed.reservedOpenaiUsd).toBe(0.000006);
+	} finally {
+		await rm(folder, { recursive: true, force: true });
+	}
+});

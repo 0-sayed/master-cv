@@ -10,7 +10,8 @@ import { interviewQuestionAssessment } from "./question-assessment";
 const interviewCases = studyReviewItems("tasks-v1", loadStudyCases("tasks-v1")).filter(
 	(c) => c.kind === "task" && c.category === "interview-prep",
 ) as TaskCase[];
-function probe(notes: string[] = [], c = required(interviewCases.find((c) => c.language === "ar"))) {
+function probe(notes: string[] = [], source = required(interviewCases.find((c) => c.language === "ar"))) {
+	const c = structuredClone(source);
 	const output = structuredClone(c.gold) as InterviewPrepOutput;
 	output.questions = output.questions.slice(0, 5);
 	output.questions.push({
@@ -88,4 +89,47 @@ it("retains five questions with safe task guidance but rejects an unlocalized ag
 		premises: verdict.premises.map((p) => ({ ...p, verdict: "no_candidate_premise" })),
 	};
 	expect(interviewQuestionAssessment(c, output, inconsistent).accepted).toBe(false);
+});
+
+it("accepts Arabic prose with protected technical identifiers", () => {
+	const { c, output, verdict } = probe();
+	c.cv = [
+		...c.cv,
+		{
+			id: "technical",
+			section: "skills",
+			text: "PostgreSQL TypeScript JavaScript Kubernetes",
+			protected: [
+				{ kind: "skill", text: "PostgreSQL" },
+				{ kind: "skill", text: "TypeScript" },
+				{ kind: "skill", text: "JavaScript" },
+				{ kind: "skill", text: "Kubernetes" },
+			],
+		},
+	];
+	required(output.questions[0]).text = "كيف تستخدم PostgreSQL TypeScript JavaScript Kubernetes؟";
+	expect(interviewQuestionAssessment(c, output, verdict).safeQuestionIds).toContain(required(output.questions[0]).id);
+});
+it("rejects English notes in an Arabic deliverable even without candidate claims", () => {
+	const { c, output, verdict } = probe(["Use these questions to prepare for your next interview."]);
+	expect(interviewQuestionAssessment(c, output, verdict).accepted).toBe(false);
+});
+it("keeps q10 basis failures when a different q1 question is rejected", async () => {
+	const { interviewPrepContract } = await import("./contract");
+	const { c, output, verdict } = probe();
+	required(output.questions[0]).id = "q10";
+	const cvId = required(required(output.questions[0]).basis.cvEvidenceIds[0]);
+	required(output.questions[0]).basis.cvEvidenceIds = [cvId, cvId];
+	const rejected = required(output.questions[5]);
+	const old = rejected.id;
+	rejected.id = "q1";
+	verdict.premises = verdict.premises.map((p) => (p.id === `question:${old}` ? { ...p, id: "question:q1" } : p));
+	// Keep five safe questions but fail the separate q10 basis validation.
+	const extra = structuredClone(required(output.questions[1]));
+	extra.id = "safe-extra";
+	output.questions.push(extra);
+	const raw = tasksVerifierSchema.parse(tasksVerifier.fakeVerdict(c, output));
+	raw.premises = raw.premises.map((p) => (p.id === "question:q1" ? { ...p, verdict: "unsupported" } : p));
+	raw.coverage = { status: "uncovered", reason: "Rejected q1" };
+	expect(interviewPrepContract.score(c, output, raw).safetyDeterministic.pass).toBe(false);
 });

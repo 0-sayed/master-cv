@@ -78,10 +78,17 @@ export async function captureResponse(
 	} catch (error) {
 		let id: string | null = null;
 		let dispatched = false;
+		let connectionFailed = false;
 		let current = error;
 		const seen = new Set<unknown>();
 		while (current instanceof Error && !seen.has(current)) {
 			seen.add(current);
+			if (
+				"code" in current &&
+				typeof current.code === "string" &&
+				["ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN", "UND_ERR_CONNECT_TIMEOUT"].includes(current.code)
+			)
+				connectionFailed = true;
 			if (
 				"generationId" in current &&
 				typeof current.generationId === "string" &&
@@ -93,7 +100,7 @@ export async function captureResponse(
 			current = current.cause;
 		}
 		const bill = id && reconcile ? await lookupGenerationBill(base, id, init) : null;
-		const unbilled = !id && !dispatched;
+		const unbilled = !id && !dispatched && connectionFailed;
 		throw new AiTransportError(error, {
 			httpStatus: null,
 			bytesReceived: false,

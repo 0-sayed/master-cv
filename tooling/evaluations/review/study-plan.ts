@@ -39,13 +39,7 @@ export function resolveStudyPlan(options: ReturnType<typeof parseOptions>): Stud
 		runs: options.stage === "smoke" ? 1 : options.runs,
 		stage: options.stage,
 		// The campaign binds the canonical full qualification, while smoke executes one pass.
-		identity: studyHash(
-			writers,
-			cases,
-			options.study === "tasks-v1" ? 3 : options.runs,
-			options.smokeCategory,
-			options.study,
-		),
+		identity: studyHash(writers, cases, options.runs, options.smokeCategory, options.study),
 		categories: options.study === "tasks-v1" ? (options.categories ?? [...taskCategories]) : [],
 	};
 }

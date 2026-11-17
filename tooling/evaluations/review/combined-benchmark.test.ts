@@ -14,7 +14,7 @@ it("restricts paid full campaigns to holdouts without filtering direct diagnosti
 });
 
 it("binds one-pass smoke and three-repeat full execution to the same frozen campaign", () => {
-	const smoke = resolveStudyPlan(parseOptions(["--study", "tasks-v1", "--stage", "smoke", "--runs", "1", "--fake"]));
+	const smoke = resolveStudyPlan(parseOptions(["--study", "tasks-v1", "--stage", "smoke", "--runs", "3", "--fake"]));
 	const full = resolveStudyPlan(parseOptions(["--study", "tasks-v1", "--stage", "full", "--runs", "3", "--fake"]));
 	expect(smoke.identity).toBe(full.identity);
 	expect(smoke.runs).toBe(1);

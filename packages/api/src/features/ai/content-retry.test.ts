@@ -1,9 +1,14 @@
 import { expect, it } from "vite-plus/test";
 import { currentContentAttempts, isContentRejection } from "./content-retry";
 
-it.each(["AI_GUARD_FAILED", "AI_LOST_FACT", "AI_VERIFICATION_FAILED", "AI_FACT_RETENTION_FAILED"])(
-	"allows a fresh generation for content rejection %s",
-	(code) => expect(isContentRejection(new Error(code))).toBe(true),
+it.each([
+	"AI_GUARD_FAILED",
+	"AI_LOST_FACT",
+	"AI_VERIFICATION_FAILED",
+	"AI_FACT_RETENTION_FAILED",
+	"LETTER_VERIFICATION_REJECTED",
+])("allows a fresh generation for content rejection %s", (code) =>
+	expect(isContentRejection(new Error(code))).toBe(true),
 );
 
 it.each([

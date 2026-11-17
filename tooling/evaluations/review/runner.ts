@@ -682,8 +682,11 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 				: (c.openRouterCostMicros ?? c.reservedOpenRouterMicros ?? c.reservedMicros);
 		openaiBudget.consumed += c.openaiCostMicros ?? c.reservedOpenaiMicros ?? 0;
 	}
+	const unsettledRetries = (options.unsettledRetryReservations ?? []).filter((r) => !settlements.has(r.key));
+	const unsettledKeys = new Set(unsettledRetries.map((r) => r.key));
 	for (const r of raws.values())
 		if (
+			!unsettledKeys.has(r.key) &&
 			!completed.has(r.key.replace(/:verify(?::judge:[23])?(?::(?:expanded|fresh|retry:[12]))?$/u, "")) &&
 			!settlements.has(r.key.replace(/:verify(?::judge:[23])?(?::(?:expanded|fresh|retry:[12]))?$/u, ""))
 		) {
@@ -695,12 +698,13 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 		(r) =>
 			r.reservedMicros > 0 &&
 			!settlements.has(r.key) &&
+			!unsettledKeys.has(r.key) &&
 			!completed.has(r.key.replace(/:verify(?::judge:[23])?(?::(?:expanded|fresh|retry:[12]))?$/u, "")) &&
 			!raws.has(r.key),
 	);
 	budget.consumed += pending.reduce((n, r) => n + (r.reservedOpenRouterMicros ?? r.reservedMicros), 0);
 	openaiBudget.consumed += pending.reduce((n, r) => n + (r.reservedOpenaiMicros ?? 0), 0);
-	const unsettledRetries = (options.unsettledRetryReservations ?? []).filter((r) => !settlements.has(r.key));
+
 	for (const r of unsettledRetries) {
 		budget.consumed += r.reservedOpenRouterMicros ?? r.reservedMicros;
 		openaiBudget.consumed += r.reservedOpenaiMicros ?? 0;

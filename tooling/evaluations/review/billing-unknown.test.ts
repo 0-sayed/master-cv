@@ -22,8 +22,9 @@ it.each(["fake-response", "fake-verifier"])(
 		let injected = 0;
 		const spy = vi.spyOn(Response, "json").mockImplementation((body, init) => {
 			if (body?.id === target && injected < 3) {
-				if (++injected === 1) throw new TypeError("fetch rejected");
-				if (injected === 2) throw new Error("local throw");
+				const cause = Object.assign(new Error("offline connection setup"), { code: "ECONNREFUSED", bytesWritten: 0 });
+				if (++injected === 1) throw new TypeError("fetch rejected", { cause });
+				if (injected === 2) throw new Error("local throw", { cause });
 				return new Response(
 					new ReadableStream({
 						start(c) {

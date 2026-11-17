@@ -170,7 +170,14 @@ export function buildDecisionEvidence(a: BenchmarkArtifact, study: "core" | "tas
 								languages.every((l) => perLanguage[l].n >= 12)
 							: observedSafe && languages.every((l) => perLanguage[l].ci95[0] >= SAFETY_CI_THRESHOLD),
 					issues,
-					costPer1000Usd: calls.every((c) => c.costMicros !== null)
+					costPer1000Usd: calls.every(
+						(c) =>
+							c.costMicros !== null &&
+							(study !== "tasks-v1" ||
+								(c.generationUsage !== undefined &&
+									Number.isFinite(c.generationUsage.costMicros) &&
+									c.generationUsage.costMicros >= 0)),
+					)
 						? (mean(
 								calls.map((c) => (study === "tasks-v1" ? (c.generationUsage?.costMicros ?? 0) : (c.costMicros ?? 0))),
 							) ?? 0) / 1000

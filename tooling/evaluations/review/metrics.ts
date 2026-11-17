@@ -82,7 +82,7 @@ export function caseClusteredSafety(calls: readonly BenchmarkCall[]) {
 }
 export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 	const groups = new Map<string, { dimension: string; value: string; calls: BenchmarkCall[] }>();
-	for (const call of calls.filter((c) => c.outcome !== "ACCOUNT_ERROR"))
+	for (const call of calls)
 		for (const [dimension, value] of [
 			["model", "all"],
 			["category", call.category],
@@ -94,8 +94,10 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 			group.calls.push(call);
 			groups.set(key, group);
 		}
-	return [...groups.values()].map(({ dimension, value, calls: rows }) => {
-		const first = required(rows[0]);
+	return [...groups.values()].map(({ dimension, value, calls: allRows }) => {
+		const rows = allRows.filter((c) => c.outcome !== "ACCOUNT_ERROR");
+		const costs = (fn: (c: BenchmarkCall) => number) => allRows.reduce((n, c) => n + fn(c), 0);
+		const first = required(allRows[0]);
 		const sum = (fn: (c: BenchmarkCall) => number) => rows.reduce((n, c) => n + fn(c), 0);
 		const writerRows = rows.filter((c) => c.outcome !== "transient");
 		const writerSum = (fn: (c: BenchmarkCall) => number) => writerRows.reduce((n, c) => n + fn(c), 0);
@@ -142,9 +144,9 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 			verifierTruncations: sum((c) => Number(c.verifierTruncated ?? (c.truncated && c.outcome === "valid"))),
 			usefulnessSamples: usefulRows.length,
 			usefulnessCases: caseRows.size,
-			generationCostUsd: sum((c) => c.generationUsage?.costMicros ?? 0) / 1e6,
-			verifierCostUsd: sum((c) => c.verifierUsage?.costMicros ?? 0) / 1e6,
-			writerCostPer1000Usd: sum((c) => c.generationUsage?.costMicros ?? 0) / rows.length / 1000,
+			generationCostUsd: costs((c) => c.generationUsage?.costMicros ?? 0) / 1e6,
+			verifierCostUsd: costs((c) => c.verifierUsage?.costMicros ?? 0) / 1e6,
+			writerCostPer1000Usd: costs((c) => c.generationUsage?.costMicros ?? 0) / allRows.length / 1000,
 			outputsOverProductionCap: sum((c) =>
 				Number(
 					c.generationUsage !== undefined &&
@@ -175,11 +177,12 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 			exploratory: first.exploratory,
 			disagreementCases: [...outputs.values()].filter((s) => s.size > 1).length,
 			openRouterCostUsd:
-				sum((c) => (c.openRouterCostMicros === undefined ? (c.costMicros ?? 0) : (c.openRouterCostMicros ?? 0))) / 1e6,
-			openaiCostUsd: sum((c) => c.openaiCostMicros ?? 0) / 1e6,
-			costUsd: sum((c) => c.costMicros ?? 0) / 1e6,
-			unknownCosts: sum((c) => Number(c.costMicros === null)),
-			costPerSessionUsd: sum((c) => c.costMicros ?? 0) / rows.length / 1e6,
+				costs((c) => (c.openRouterCostMicros === undefined ? (c.costMicros ?? 0) : (c.openRouterCostMicros ?? 0))) /
+				1e6,
+			openaiCostUsd: costs((c) => c.openaiCostMicros ?? 0) / 1e6,
+			costUsd: costs((c) => c.costMicros ?? 0) / 1e6,
+			unknownCosts: costs((c) => Number(c.costMicros === null)),
+			costPerSessionUsd: costs((c) => c.costMicros ?? 0) / allRows.length / 1e6,
 			p50Ms: percentile(0.5),
 			p95Ms: percentile(0.95),
 		};

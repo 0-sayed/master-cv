@@ -314,7 +314,7 @@ it("scores validated MQM major/minor target spans as advisory, with unknown qual
 it("keeps the historical glossary in owner-review envelopes without authorizing global production aliases", () => {
 	const bytes = readFileSync(new URL("./glossary.json", import.meta.url));
 	expect(translationGlossaryHash).toBe(createHash("sha256").update(bytes).digest("hex"));
-	expect(translationContract.promptVersion).toBe("translation-v3-source-boundary");
+	expect(translationContract.promptVersion).toBe("translation-v4-full-response-verification");
 	expect(JSON.stringify(prepareCase(task).payload)).not.toContain(translationGlossaryHash);
 	expect(JSON.parse(required(prepareCase(task).payload.selections[0]).text).translationAliases).toBeUndefined();
 	const items = taskReviewItems(
@@ -420,4 +420,17 @@ it("scores translation quality from the production verifier response", () => {
 	expect(translationMqm(value, verdict)).toMatchObject({ weightedErrors: 0, major: 0, minor: 0 });
 	verdict.quality.reason = '{"mqm":[{"sourceId":"cv-1","start":0,"end":8,"severity":"major","category":"fluency"}]}';
 	expect(translationMqm(value, verdict)).toMatchObject({ weightedErrors: 5, major: 1, minor: 0 });
+});
+
+it("scores all eleven valid MQM spans accepted by the verifier schema", () => {
+	const value = output();
+	const verdict = tasksVerifierSchema.parse(tasksVerifier.fakeVerdict(task, value));
+	verdict.quality.mqm = Array.from({ length: 11 }, (_, start) => ({
+		sourceId: "cv-1",
+		start,
+		end: start + 1,
+		severity: "minor" as const,
+		category: "fluency" as const,
+	}));
+	expect(translationMqm(value, verdict)?.weightedErrors).toBe(11);
 });

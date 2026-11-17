@@ -61,6 +61,9 @@ export function resolveWriterRoute(
 	// Task allowances can only narrow the approved writer output ceiling.
 	return {
 		...route,
+		...(route.verifier
+			? { verifier: { ...route.verifier, maxOutputTokens: route.verifier.maxOutputTokens ?? route.maxOutputTokens } }
+			: {}),
 		maxOutputTokens: Math.min(route.maxOutputTokens, selection.maxOutputTokens ?? route.maxOutputTokens),
 		model: approved.model,
 		reasoningEffort: selection.reasoningEffort,

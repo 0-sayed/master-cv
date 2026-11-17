@@ -1,9 +1,9 @@
 {
 	"study": "tasks-v1",
-	"freezeHash": "aecf455d4023930350d784e5740d14cc9987f2a468e7a737b9a39da0cc84987f",
-	"reason": "Owner Sayed D39: two valid agreeing votes and two fresh retries for each protocol-faulted judgment, perfect recall over valid planted verdicts with explicit exhausted protocol faults, at most three of eighteen honest probes rejected, and scoped relevance-bridge controls. Offline controls only. Production entity-list retention and bounded absence regression repair. Arabic review inputs unchanged. Production entity-list retention and bounded absence regression repair. Arabic review inputs unchanged. Production entity-list retention and bounded absence regression repair. Arabic review inputs unchanged. Production entity-list retention and bounded absence regression repair. Arabic review inputs unchanged. Production entity-list retention and bounded absence regression repair. Arabic review inputs unchanged. Production entity-list retention and bounded absence regression repair. Arabic review inputs unchanged. Product content retry worker pin refreshed. Raw benchmark scoring and Arabic review inputs unchanged.",
-	"controlsBasis": "Fresh all-category and scoped deterministic/scripted scans plus scoped deterministic canary scan. No paid calls or measured semantic qualification.",
-	"scannedAt": "2026-11-17T15:06:29.266Z",
+	"freezeHash": "27a6ccb0a8ddbc1679a386eb7c236bac2e697bf00ab580fd6673e223ba670262",
+	"reason": "Review corrections bind billing exposure, retry accounting, language validation, MQM scoring and verifier versions. Fresh offline controls only.",
+	"controlsBasis": "Fresh all-category, scoped and canary deterministic scans. No semantic qualification or paid calls.",
+	"scannedAt": "2026-11-17T19:44:03.829Z",
 	"all": {
 		"checked": 1540,
 		"pass": true,

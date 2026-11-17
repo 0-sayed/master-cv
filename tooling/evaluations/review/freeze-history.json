@@ -2359,5 +2359,94 @@
 				"sha256": "886297d1dfd2850ba6189c653845222f16c78837aedf95e621c69f6f9844be0d"
 			}
 		]
+	},
+	{
+		"name": "tasks-durable-content-retry",
+		"date": "2026-11-17",
+		"reason": "Record the existing durable content retry seal and its original control receipt. This row repairs missing provenance and does not change the historical evidence.",
+		"studyId": "tasks-v1-personal-career-eed2a1514071",
+		"studyHash": "aecf455d4023930350d784e5740d14cc9987f2a468e7a737b9a39da0cc84987f",
+		"sha256": "7a08d586fb3deb19eb33fd2395cf6a89578f5d8365bba513ff42d5f066b75c8a",
+		"freezeGitBlob": "20f2c806079f897f97d367276a3db5bd29c47d04",
+		"controlsGitBlob": "e7bb90b35550eca1159ffe6e1805c250add631b5",
+		"controlsByteHash": "faf36465e449008ec44ccf911360f21d22324770e56be3ca5a74c74966548c20",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809",
+		"approval": "UNAPPROVED"
+	},
+	{
+		"name": "tasks-review-corrections",
+		"date": "2026-11-17",
+		"reason": "Repair proven billing exposure, retry accounting, language validation, MQM scoring and verifier version defects. New identity requires fresh qualification. No paid results are reused.",
+		"priorStudyId": "tasks-v1-personal-career-eed2a1514071",
+		"priorStudyHash": "aecf455d4023930350d784e5740d14cc9987f2a468e7a737b9a39da0cc84987f",
+		"priorByteHash": "7a08d586fb3deb19eb33fd2395cf6a89578f5d8365bba513ff42d5f066b75c8a",
+		"studyId": "tasks-v1-personal-career-0c679b93a99e",
+		"studyHash": "27a6ccb0a8ddbc1679a386eb7c236bac2e697bf00ab580fd6673e223ba670262",
+		"approval": "UNAPPROVED",
+		"qualityEvidenceReused": false,
+		"paidRunAuthorized": false,
+		"changedDependencies": [
+			{
+				"path": "packages/api/src/features/ai/variant-contracts.ts",
+				"beforeSha256": "d21f44b20a6def028f17811db4d6cd542123615c8db7b153e7e6578e50ea90a8",
+				"afterSha256": "5a8d6ab10c0665d3ac1d2a94c4ccec4c67e7a08c8a0039db99f694ca154603c9"
+			},
+			{
+				"path": "packages/api/src/features/ai/variant-verifier.ts",
+				"beforeSha256": "73a7a153c4e37009df4b92787f3805afdc6c4e18cf9ff1252b75899dc5bbbac9",
+				"afterSha256": "5d865ee871b2e2a20f3133404ed4a29750734762710be8cbe0c45c00a4ab6b99"
+			},
+			{
+				"path": "tooling/evaluations/review/README.md",
+				"beforeSha256": "a5b16791df38e91d88f69370915514b9457ea169630c1a7d0eff261567a2d104",
+				"afterSha256": "efde6e0d7d277591a72989ba1d4a65f09b55b5aceee6d3fd4e69695ca6eec6a6"
+			},
+			{
+				"path": "tooling/evaluations/review/attempt.ts",
+				"beforeSha256": "0c3a16f09de38d50d79e1c3a074166c0b5230aeb9fbb289223f2555d22b4f2e4",
+				"afterSha256": "44e14d0262aeacfb5b74de8a66e5034e0f04b44d1f96f6f5818079a4e7df2842"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/interview-prep/contract.ts",
+				"beforeSha256": "b5fd123aaf1cb9b35eaae2359a043c439a78c70e3fbe0f35038b8a4a11538323",
+				"afterSha256": "2eed4fa6582f5923063fe15f1b33db17927a8aa6abc2f8fde8774460edb2b7ce"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/interview-prep/question-assessment.ts",
+				"beforeSha256": "924eb75730dfb0538576419e34f0ece11f2bd79534ccd62c4f6a896dff67c1d8",
+				"afterSha256": "734a4ae6377226298d6e36734a06fc78f2e31d5f372240acb665041075ef874e"
+			},
+			{
+				"path": "tooling/evaluations/review/contracts/translation/contract.ts",
+				"beforeSha256": "e127b034ba460e3cab91fefc810a1ce9c889403e2ed68c3c7d2dbb0d277424ed",
+				"afterSha256": "2cccb217f7274a9a526458ce9d04fb888a33ceda3344b52d671b227f7c6998d9"
+			},
+			{
+				"path": "tooling/evaluations/review/decision-table.ts",
+				"beforeSha256": "5b527103afbdb3ed1a86fa38ac5533f4da1d7d7063d1a1e014aab65f105056a5",
+				"afterSha256": "615a6067d5f67d461f46b24d3b8ac66c8a490cfc5c28f45b6f405c6bd8a10f68"
+			},
+			{
+				"path": "tooling/evaluations/review/freeze.ts",
+				"beforeSha256": "9e5b7eff76e7f08d72788a6940995511f259a9a0f21de53c0e8b4e8cf46e32ee",
+				"afterSha256": "749f5cdbb6e80bbc6db5ecfe8ccbb0c242b3cc42e5c9045d094585ccf7a389ca"
+			},
+			{
+				"path": "tooling/evaluations/review/metrics.ts",
+				"beforeSha256": "974c073590540dbdbb0d721c4cba0ef2d8c674d7633c4c6463cae5f5947a2a6d",
+				"afterSha256": "973c79e931c06948f9a30167674c30bf5763c5d0d3752605ba7a83f4a24a1784"
+			},
+			{
+				"path": "tooling/evaluations/review/runner.ts",
+				"beforeSha256": "9df0115fa11b57faf9caa3469698e1b0704ec1910b3629878ce980bf16924597",
+				"afterSha256": "6f4e3be1ded14604fc8685642653b8164f282d89a4910265613031d7b76900b8"
+			},
+			{
+				"path": "tooling/evaluations/review/study-plan.ts",
+				"beforeSha256": "d8822779fa0c3f7814fae89c414174ceb546b4f507fc42f10a2a7e9df4d52638",
+				"afterSha256": "154986336bf629c4beef939533e287220b4cf9a4b60215828fdbdcb9aaa3b153"
+			}
+		]
 	}
 ]

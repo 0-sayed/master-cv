@@ -58,6 +58,7 @@ const report = {
 		"Retrospective guard correction with unchanged writer, verifier prompt, schema, evidence and paid judgments. No new model qualification.",
 	...replay,
 };
-await mkdir(evaluationOutputFolder({ out }), { recursive: true });
-await writeFile(join(out, "guard-replay.json"), JSON.stringify(report, null, 2) + "\n", { flag: "wx" });
-console.log(JSON.stringify({ sessions: replay.sessions.length, pending: replay.pending.length, spendUsd: 0 }));
+const folder = evaluationOutputFolder({ out });
+await mkdir(folder, { recursive: true });
+await writeFile(join(folder, "guard-replay.json"), JSON.stringify(report, null, 2) + "\n", { flag: "wx" });
+console.log(JSON.stringify({ folder, sessions: replay.sessions.length, pending: replay.pending.length, spendUsd: 0 }));

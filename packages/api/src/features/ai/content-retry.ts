@@ -17,6 +17,7 @@ const contentRejections = new Set([
 	"AI_MISSING_EVIDENCE",
 	"AI_VERIFICATION_FAILED",
 	"AI_FACT_RETENTION_FAILED",
+	"LETTER_VERIFICATION_REJECTED",
 ]);
 
 export function isContentRejection(error: unknown): boolean {

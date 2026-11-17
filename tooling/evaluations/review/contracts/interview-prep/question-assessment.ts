@@ -8,8 +8,21 @@ export const OUTSIDE_INTERVIEW_QUESTIONS_ID = "outside-questions";
 export function interviewQuestionAssessment(c: TaskCase, output: InterviewPrepOutput, raw: unknown) {
 	const parsed = tasksVerifierSchema.safeParse(raw);
 	const questionLanguage = (text: string) => {
-		const ar = (text.match(/\p{Script=Arabic}/gu) ?? []).length;
-		const latin = (text.match(/[A-Za-z]/gu) ?? []).length;
+		let prose = text;
+		// Preserved identifiers do not determine the language of the surrounding prose.
+		const identifiers = c.cv
+			.flatMap(
+				(f) => f.protected?.filter((p) => ["skill", "name", "employer"].includes(p.kind)).map((p) => p.text) ?? [],
+			)
+			.filter((value) => /^[A-Za-z0-9 .+#/-]+$/u.test(value))
+			.sort((a, b) => b.length - a.length);
+		for (const identifier of identifiers)
+			prose = prose.replace(
+				new RegExp(`(?<![A-Za-z0-9])${identifier.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}(?![A-Za-z0-9])`, "gu"),
+				"",
+			);
+		const ar = (prose.match(/\p{Script=Arabic}/gu) ?? []).length;
+		const latin = (prose.match(/[A-Za-z]/gu) ?? []).length;
 		return c.language === "en" ? latin > ar : ar > latin;
 	};
 	const languageAccepted = output.questions.every((q) => questionLanguage(q.text));
@@ -34,7 +47,8 @@ export function interviewQuestionAssessment(c: TaskCase, output: InterviewPrepOu
 		? parsed.data.premises.find((p) => p.id === OUTSIDE_INTERVIEW_QUESTIONS_ID)
 		: undefined;
 	// Empty notes contain no assertions. Nonempty notes need an independent structured verdict.
-	const outsideAccepted = output.notes.length === 0 || outside?.verdict === "no_candidate_premise";
+	const outsideAccepted =
+		output.notes.length === 0 || (outside?.verdict === "no_candidate_premise" && output.notes.every(questionLanguage));
 	const coverageAccepted =
 		parsed.success &&
 		outsideAccepted &&
