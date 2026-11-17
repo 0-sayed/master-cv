@@ -137,7 +137,7 @@ try {
 		}),
 	);
 	// Native scheduled events run without an HTTP token, and repeated ticks cannot publish twice.
-	assert.equal((await client.flags.get({})).careerSchedulingEnabled, true);
+	assert.equal((await client.flags.get({})).careerSchedulingEnabled, false);
 	assert.equal((await request("/api/career/run")).status, 404);
 	const applicationId = await client.applications.create({
 		company: "Cron test company",

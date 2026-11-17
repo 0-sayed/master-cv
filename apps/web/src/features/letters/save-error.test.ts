@@ -77,3 +77,27 @@ it("opens the editable copy directly from the submitted-letter recovery action",
 		assign.mockRestore();
 	}
 });
+
+it.each(["copy", "reload"])("retries a failed %s recovery with its own message", async (action) => {
+	mocks.duplicate.mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ id: "copy" });
+	mocks.get.mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({ id: "letter" });
+	const assign = vi.spyOn(window.location, "assign").mockImplementation(() => {});
+	try {
+		showLetterChangeFailure(
+			action === "copy"
+				? new ORPCError("BAD_REQUEST", { data: { reason: "SUBMITTED_DOCUMENT_IMMUTABLE" } })
+				: new ORPCError("CONFLICT"),
+		);
+		mocks.add.mock.calls.at(-1)?.[0].actionProps.onClick();
+		await vi.waitFor(() => expect(mocks.add).toHaveBeenCalledTimes(2));
+		const failure = mocks.add.mock.calls.at(-1)?.[0];
+		expect(failure.title).toBe(
+			action === "copy" ? "Could not create a cover-letter copy" : "Could not reload the cover letter",
+		);
+		expect(failure.actionProps.children).toBe("Try again");
+		failure.actionProps.onClick();
+		await vi.waitFor(() => expect(action === "copy" ? assign : mocks.load).toHaveBeenCalled());
+	} finally {
+		assign.mockRestore();
+	}
+});

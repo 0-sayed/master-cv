@@ -193,3 +193,30 @@ it.each([null, { ...application, company: "", role: "" }])(
 		expect(mocks.update).not.toHaveBeenCalled();
 	},
 );
+
+it("starts each reopened edit with fresh saved fields and revision but preserves an open draft", async () => {
+	const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const onOpenChange = vi.fn();
+	const view = (open: boolean, row: Application) => (
+		<QueryClientProvider client={client}>
+			<I18nProvider i18n={i18n}>
+				<ApplicationFormSheet open={open} onOpenChange={onOpenChange} application={row} />
+			</I18nProvider>
+		</QueryClientProvider>
+	);
+	const { rerender } = render(view(true, application));
+	fireEvent.change(screen.getByLabelText(/Company/), { target: { value: "Draft" } });
+	const newer = { ...application, company: "Saved elsewhere", updatedAt: new Date("2026-11-18T00:00:00Z") };
+	rerender(view(true, newer));
+	expect(screen.getByLabelText(/Company/)).toHaveValue("Draft");
+	rerender(view(false, newer));
+	rerender(view(true, newer));
+	expect(screen.getByLabelText(/Company/)).toHaveValue("Saved elsewhere");
+	await act(async () => fireEvent.click(screen.getByRole("button", { name: "Save changes" })));
+	await waitFor(() =>
+		expect(mocks.update).toHaveBeenCalledWith(
+			expect.objectContaining({ expectedUpdatedAt: "2026-11-18T00:00:00.000Z" }),
+			expect.anything(),
+		),
+	);
+});

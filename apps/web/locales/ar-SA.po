@@ -7833,7 +7833,7 @@ msgstr "مرتبط. يتم تحديث الاسم والبريد الإلكترو
 
 #: src/features/applications/components/application-form-sheet.tsx
 msgid "LinkedIn"
-msgstr "LinkedIn"
+msgstr "لينكد إن"
 
 #: src/features/applications/components/application-form-sheet.tsx
 msgid "LinkedIn, Referral…"
@@ -9011,7 +9011,7 @@ msgstr "لا يوجد"
 #: src/features/resume/editor/design/fit.ts
 #: src/features/resume/editor/design/style-groups.tsx
 msgid "Normal"
-msgstr "طبيعي"
+msgstr "متوسط"
 
 #: src/features/resume/editor/design/fit.ts
 msgid "normal margins"
@@ -16248,3 +16248,15 @@ msgstr "تجريبي"
 #: src/features/command-palette/pages/resumes.tsx
 msgid "Loading…"
 msgstr "جارٍ التحميل…"
+
+#: src/features/applications/components/resume-version-select.tsx
+msgid "Selected CV version"
+msgstr "نسخة السيرة المحددة"
+
+#: src/features/letters/save-error.ts
+msgid "Could not create a cover-letter copy"
+msgstr "تعذر إنشاء نسخة من خطاب التقديم"
+
+#: src/features/letters/save-error.ts
+msgid "Could not reload the cover letter"
+msgstr "تعذر إعادة تحميل خطاب التقديم"

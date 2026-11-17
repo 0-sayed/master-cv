@@ -109,6 +109,7 @@ afterEach(() => {
 	state.path = "/dashboard";
 	state.trash = 0;
 	state.count = 1;
+	state.applicationsEnabled = true;
 });
 function show() {
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
@@ -262,4 +263,20 @@ it("hides unavailable applications and disables their query", () => {
 	} finally {
 		state.applicationsEnabled = true;
 	}
+});
+
+it.each([true, false])("matches mobile columns to available destinations (%s)", (enabled) => {
+	state.breakpoint = "mobile";
+	state.applicationsEnabled = enabled;
+	show();
+	expect(screen.getByRole("navigation").closest("[style]")?.getAttribute("style")).toContain(
+		`--app-mobile-nav-columns: ${enabled ? 5 : 4}`,
+	);
+	expect(screen.queryByRole("link", { name: "Applications" }) !== null).toBe(enabled);
+});
+it("retains the header on the application detail page", () => {
+	state.path = "/dashboard/applications/application-id";
+	show();
+	expect(screen.getByRole("complementary")).toBeDefined();
+	expect(screen.getByRole("button", { name: "New CV" })).toBeDefined();
 });

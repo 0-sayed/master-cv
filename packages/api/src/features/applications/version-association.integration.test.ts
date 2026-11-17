@@ -47,7 +47,8 @@ it("keeps an explicitly selected CV version through reopening and recorded stage
 			status: "applied",
 		}),
 	);
-	expect(applied.sentResumeVersionId).toBe(resume.version.id);
+	expect(applied.sentResumeVersionId).not.toBe(resume.version.id);
+	expect(applied.sentResumeVersionId).not.toBeNull();
 	const interview = await run("alice", () =>
 		applicationService.update({
 			userId: "alice",
@@ -57,7 +58,7 @@ it("keeps an explicitly selected CV version through reopening and recorded stage
 		}),
 	);
 	expect(interview.selectedResumeVersionId).toBe(resume.version.id);
-	expect(interview.sentResumeVersionId).toBe(resume.version.id);
+	expect(interview.sentResumeVersionId).toBe(applied.sentResumeVersionId);
 	await expect(
 		run("alice", () =>
 			applicationService.update({
@@ -79,7 +80,7 @@ it("keeps an explicitly selected CV version through reopening and recorded stage
 			status: "offer",
 		}),
 	);
-	expect(offer.sentResumeVersionId).toBeNull();
+	expect(offer.sentResumeVersionId).toBe(applied.sentResumeVersionId);
 });
 
 it("denies foreign, missing and mismatched CV versions without creating a record", async () => {
@@ -129,4 +130,55 @@ it("denies cross-owner reads, updates and deletion", async () => {
 	await expect(run("bob", () => applicationService.delete({ userId: "bob", id }))).rejects.toMatchObject({
 		code: "NOT_FOUND",
 	});
+});
+
+it("records an immutable copy of an autosave and allows unrelated updates after trashing the CV", async () => {
+	const resume = await cv("alice");
+	const saved = await run("alice", () =>
+		writeVersion(db, {
+			resumeId: resume.id,
+			userId: "alice",
+			data: defaultResumeData,
+			kind: "auto",
+			sessionId: "test-session",
+		}),
+	);
+	if (!saved) throw new Error("Autosave missing");
+	const id = await run("alice", () =>
+		applicationService.create({
+			userId: "alice",
+			company: "Snapshot",
+			role: "Engineer",
+			status: "applied",
+			resumeId: resume.id,
+			selectedResumeVersionId: saved.id,
+		}),
+	);
+	const applied = await run("alice", () => applicationService.getById({ userId: "alice", id }));
+	const changed = structuredClone(defaultResumeData);
+	changed.basics.name = "Later edit";
+	await run("alice", () =>
+		db.update(schema.resumeVersion).set({ data: changed }).where(eq(schema.resumeVersion.id, saved.id)),
+	);
+	const recorded = await run("alice", () =>
+		db
+			.select()
+			.from(schema.resumeVersion)
+			.where(eq(schema.resumeVersion.id, String(applied.sentResumeVersionId))),
+	);
+	expect(recorded[0]).toMatchObject({ kind: "sent", data: { basics: { name: defaultResumeData.basics.name } } });
+	await run("alice", () =>
+		db.update(schema.resume).set({ trashedAt: new Date() }).where(eq(schema.resume.id, resume.id)),
+	);
+	const edited = await run("alice", () =>
+		applicationService.update({
+			userId: "alice",
+			id,
+			expectedUpdatedAt: applied.updatedAt.toISOString(),
+			notes: "Still editable",
+			status: "interview",
+		}),
+	);
+	expect(edited.notes).toBe("Still editable");
+	expect(edited.sentResumeVersionId).toBe(applied.sentResumeVersionId);
 });

@@ -4,7 +4,7 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useMatchRoute, useRouteContext, useRouterState } from "@tanstack/react-router";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@reactive-resume/ui/components/avatar";
 import { SidebarCountBadge } from "@reactive-resume/ui/components/badge";
 import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
@@ -95,8 +95,8 @@ function useIsCurrent() {
 
 /**
  * The app shell for Documents, Trash, Applications and Settings: a collapsible 236px sidebar at ≥1024, an icon rail at
- * 640–1023 and a bottom tab bar below 640. An application's workspace is full screen on phones, with its own back
- * link and action bar, so it has no tab bar. N opens New anywhere outside a field.
+ * 640–1023 and a bottom tab bar below 640. An application's tabbed workspace is full screen on phones, with its own back
+ * link and action bar. The default detail page retains the shared header and tab bar. N opens New anywhere outside a field.
  */
 type AppShellProps = { children: ReactNode };
 
@@ -105,6 +105,7 @@ export function AppShell({ children }: AppShellProps) {
 	const copy = useDocumentsCopy();
 	const careerCopy = useCareerCopy();
 	const breakpoint = useBreakpoint();
+	const applicationsEnabled = usePersonalToolAvailable("applications");
 	const { session } = useRouteContext({ from: "__root__" });
 	if (!session) throw new Error("AppShell requires an authenticated session");
 	const { collapsed, toggle } = useSidebarPreference(session.user.id);
@@ -152,6 +153,7 @@ export function AppShell({ children }: AppShellProps) {
 
 	return (
 		<div
+			style={{ "--app-mobile-nav-columns": applicationsEnabled ? 5 : 4 } as CSSProperties}
 			className={cn(
 				"dashboard-shell grid h-svh min-h-0 overflow-hidden bg-bg",
 				breakpoint === "mobile"

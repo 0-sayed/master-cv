@@ -53,3 +53,21 @@ it.each(["ar-SA", "en-US"])(
 		expect(onValueChange).toHaveBeenCalledWith("recent");
 	},
 );
+
+it("honors an uncontrolled default and retains a linked closed application", async () => {
+	i18n.loadAndActivate({ locale: "en-US", messages: {} });
+	render(
+		<I18nProvider i18n={i18n}>
+			<ApplicationPicker
+				aria-label="Application"
+				applications={[job("open", "Open Co", 0), job("closed", "Closed Co", 1, "closed")]}
+				defaultValue="closed"
+			/>
+		</I18nProvider>,
+	);
+	const picker = screen.getByRole("combobox", { name: "Application" });
+	expect(picker).toHaveTextContent("Engineer closed");
+	await userEvent.click(picker);
+	await userEvent.click(screen.getByRole("option", { name: /Engineer open/ }));
+	expect(picker).toHaveTextContent("Engineer open");
+});

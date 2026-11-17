@@ -9,7 +9,7 @@ type CountUpProps = {
 	"aria-hidden"?: boolean | "true" | "false";
 };
 
-// Integer count-up with en-US grouping. Starts once when scrolled into view; reduced motion shows the final value.
+// Integer count-up with interface-locale grouping. Starts once when scrolled into view; reduced motion shows the final value.
 export function CountUp({ to, className, "aria-hidden": ariaHidden }: CountUpProps) {
 	const { i18n } = useLingui();
 	const ref = useRef<HTMLSpanElement>(null);

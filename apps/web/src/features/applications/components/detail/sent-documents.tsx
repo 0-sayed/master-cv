@@ -101,7 +101,9 @@ export function SentDocuments({ application, disabled }: SentDocumentsProps) {
 			<ResumeVersionSelect
 				resumeId={application.resumeId}
 				value={application.selectedResumeVersionId}
-				disabled={Boolean(application.sentResumeVersionId || application.sentResumeRecordedAt) || update.isPending}
+				disabled={
+					disabled || Boolean(application.sentResumeVersionId || application.sentResumeRecordedAt) || update.isPending
+				}
 				onChange={(value) =>
 					update.mutate({
 						id: application.id,

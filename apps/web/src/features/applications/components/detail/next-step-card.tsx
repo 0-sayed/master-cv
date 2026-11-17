@@ -206,6 +206,7 @@ function FollowUpDialog({ application, open, onOpenChange }: FollowUpDialogProps
 					{application.followUpAt && (
 						<Button
 							variant="ghost"
+							disabled={update.isPending}
 							className="me-auto"
 							onClick={() =>
 								update.mutate({

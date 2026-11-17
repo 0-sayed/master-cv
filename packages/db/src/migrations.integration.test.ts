@@ -72,6 +72,17 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("database migration
 							);
 						}
 					}
+					if (upgrade) {
+						for (const name of await readdir(migrationsFolder)) {
+							if (name >= v6Migration && name < "20261116081006_application_recorded_history")
+								await symlink(path.join(migrationsFolder, name), path.join(baselineFolder, name));
+						}
+						await migrate(db, { migrationsFolder: baselineFolder });
+						await pool.query("UPDATE resume_version SET created_at='2026-11-01T00:00:00Z' WHERE id='Manual save'");
+						await pool.query(
+							"UPDATE application SET sent_resume_version_id='Manual save', updated_at='2026-11-16T00:00:00Z' WHERE id='rejected'",
+						);
+					}
 					await migrate(db, { migrationsFolder });
 					const actual = await pool.query(
 						`SELECT table_name, column_name FROM information_schema.columns WHERE table_schema='public' ORDER BY table_name,column_name`,
@@ -85,6 +96,8 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("database migration
 						.sort((a, b) => a.table_name.localeCompare(b.table_name) || a.column_name.localeCompare(b.column_name));
 					expect(actual.rows).toEqual(expected);
 					if (upgrade) {
+						const recorded = await pool.query("SELECT sent_resume_recorded_at FROM application WHERE id='rejected'");
+						expect(recorded.rows[0].sent_resume_recorded_at.toISOString()).toBe("2026-11-01T00:00:00.000Z");
 						expect((await pool.query("SELECT id,status,closed_reason FROM application ORDER BY id")).rows).toEqual([
 							{ id: "active", status: "saved", closed_reason: null },
 							{ id: "archived", status: "closed", closed_reason: null },

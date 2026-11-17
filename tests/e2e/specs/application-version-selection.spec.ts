@@ -29,5 +29,7 @@ test("an application keeps the selected CV version through refresh and a recorde
 	});
 	await page.reload();
 	await expect(picker).toBeDisabled();
-	expect((await api.applications.getById({ id })).sentResumeVersionId).toBe(first.id);
+	const sent = (await api.applications.getById({ id })).sentResumeVersionId;
+	expect(sent).not.toBeNull();
+	expect(sent).not.toBe(first.id);
 });

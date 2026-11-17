@@ -53,3 +53,12 @@ it("keeps originals free of a copy banner", () => {
 	const { container } = show();
 	expect(container.textContent).toBe("");
 });
+
+it("preserves an unsupported document locale instead of labeling it English", () => {
+	state.kind = "job";
+	state.locale = "de-DE";
+	show();
+	expect(screen.getByText("de-DE")).toBeDefined();
+	expect(screen.queryByText("English")).toBeNull();
+	state.locale = "ar-SA";
+});

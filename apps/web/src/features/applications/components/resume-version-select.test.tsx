@@ -47,3 +47,11 @@ it("preserves the selection after a failed load and offers a real retry", async 
 	await waitFor(() => expect(screen.getByLabelText("CV version")).toBeEnabled());
 	expect(screen.getByLabelText("CV version")).toHaveValue("version-a");
 });
+
+it("retains a saved version outside the bounded history list", async () => {
+	api.versions.mockResolvedValue([{ id: "recent", name: "Recent", createdAt: new Date() }]);
+	setup();
+	await screen.findByRole("option", { name: "Recent" });
+	expect(screen.getByLabelText("CV version")).toHaveValue("version-a");
+	expect(screen.getByRole("option", { name: "Selected CV version" })).toHaveValue("version-a");
+});

@@ -31,7 +31,9 @@ export function LocalDateInput({ value, locale, onValueChange, ...props }: Local
 			placeholder={display("2006-11-22")}
 			value={draft.text}
 			onChange={(event) => {
-				const text = event.target.value;
+				const text = event.target.value.replace(/[\u0660-\u0669\u06f0-\u06f9]/gu, (digit) =>
+					String(digit.charCodeAt(0) % 16),
+				);
 				const parts = text.split(/\D+/).filter(Boolean);
 				const fields = Object.fromEntries(order.map((key, index) => [key, parts[index] ?? ""]));
 				const iso = `${fields.year}-${fields.month?.padStart(2, "0")}-${fields.day?.padStart(2, "0")}`;

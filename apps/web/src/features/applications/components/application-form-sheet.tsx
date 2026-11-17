@@ -219,7 +219,9 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 
 	// Re-sync the form when the sheet's target changes (a different app, or create ↔ edit).
 	const [syncedId, setSyncedId] = useState(application?.id ?? null);
-	if ((application?.id ?? null) !== syncedId) {
+	const [wasOpen, setWasOpen] = useState(open);
+	if (open !== wasOpen) setWasOpen(open);
+	if ((application?.id ?? null) !== syncedId || (open && !wasOpen)) {
 		setSyncedId(application?.id ?? null);
 		setForm(application ? toForm(application) : emptyForm());
 		setBaseRevision(application ? new Date(application.updatedAt).toISOString() : null);

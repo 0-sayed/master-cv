@@ -544,8 +544,7 @@ export function Notes({ application }: SectionProps) {
 	const id = application.id;
 	const notesRevision = useRef({ id, value: new Date(application.updatedAt).toISOString() });
 	useEffect(() => {
-		if (notesRevision.current.id !== id)
-			notesRevision.current = { id, value: new Date(application.updatedAt).toISOString() };
+		notesRevision.current = { id, value: new Date(application.updatedAt).toISOString() };
 	}, [id, application.updatedAt]);
 	const [key, setKey] = useState<string | null>(null);
 	const [notes, setNotes] = useState(application.notes ?? "");

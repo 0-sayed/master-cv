@@ -6,8 +6,8 @@ import { useEditorStore } from "@/features/resume/editor/store";
  * send) open the assistant.
  */
 export function openAssistantFrom(search: { assistant?: string | undefined; ask?: string | undefined }) {
-	if (!isFeatureAvailable("assistant")) return false;
 	if (!search.assistant && !search.ask) return false;
+	if (!isFeatureAvailable("assistant")) return true;
 	const editor = useEditorStore.getState();
 	const prepare = search.assistant === "prepare";
 	editor.setAssistantOpen(true);

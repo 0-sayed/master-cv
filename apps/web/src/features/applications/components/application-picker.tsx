@@ -20,14 +20,16 @@ export function ApplicationPicker({ applications, noneLabel, ...props }: Applica
 	const { i18n } = useLingui();
 	const hasActive = applications.some((item) => item.status !== "closed");
 	const choices = applications
-		.filter((item) => item.status !== "closed" || item.id === props.value || !hasActive)
+		.filter(
+			(item) => item.status !== "closed" || item.id === props.value || item.id === props.defaultValue || !hasActive,
+		)
 		.toSorted((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 	return (
 		<Combobox
 			placeholder={t`Choose an application…`}
 			emptyMessage={t`No results found.`}
 			{...props}
-			value={props.value ?? (noneLabel ? "" : null)}
+			defaultValue={props.defaultValue ?? (noneLabel ? "" : null)}
 			onValueChange={(value) => props.onValueChange?.(value || null)}
 			options={[
 				...choices.map((item) => {

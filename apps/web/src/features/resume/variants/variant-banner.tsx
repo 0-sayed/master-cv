@@ -37,7 +37,13 @@ export function VariantBanner({ resumeId }: { resumeId: string }) {
 			<div className="flex min-w-0 items-center gap-2">
 				<Badge>{current.variantKind === "language" ? <Trans>Language copy</Trans> : <Trans>Job copy</Trans>}</Badge>
 				<span className="type-metadata text-ink-2">
-					{current.documentLocale.startsWith("ar") ? <Trans>Arabic</Trans> : <Trans>English</Trans>}
+					{current.documentLocale.startsWith("ar") ? (
+						<Trans>Arabic</Trans>
+					) : current.documentLocale.startsWith("en") ? (
+						<Trans>English</Trans>
+					) : (
+						current.documentLocale
+					)}
 				</span>
 				<Button
 					className="ms-auto"

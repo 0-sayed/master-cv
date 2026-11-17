@@ -35,3 +35,25 @@ it("preserves partial input and rejects impossible dates", () => {
 	fireEvent.change(input, { target: { value: "28/02/2027" } });
 	expect(changed).toHaveBeenLastCalledWith("2027-02-28");
 });
+
+it.each(["٢٨/٠٢/٢٠٢٧", "۲۸/۰۲/۲۰۲۷"])("accepts pasted local digits %s", (text) => {
+	const changed = vi.fn();
+	function Field() {
+		const [value, setValue] = useState("");
+		return (
+			<LocalDateInput
+				aria-label="Date"
+				locale="ar-SA"
+				value={value}
+				onValueChange={(next) => {
+					setValue(next);
+					changed(next);
+				}}
+			/>
+		);
+	}
+	render(<Field />);
+	fireEvent.change(screen.getByRole("textbox"), { target: { value: text } });
+	expect(changed).toHaveBeenLastCalledWith("2027-02-28");
+	expect(screen.getByRole("textbox")).toHaveValue("28/02/2027");
+});

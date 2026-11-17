@@ -20,6 +20,17 @@ const react = {
 		const [value] = react.useState(() => ({ current: initial }));
 		return value;
 	},
+	useCallback(callback) {
+		return callback;
+	},
+	useEffect(effect, dependencies) {
+		const index = cursor++;
+		const previous = hooks[index];
+		if (!previous || dependencies.some((value, position) => !Object.is(value, previous[position]))) {
+			hooks[index] = dependencies;
+			effect();
+		}
+	},
 };
 const calls = [];
 const routes = {
@@ -248,14 +259,20 @@ assert.equal(
 const stages = load("features/applications/stages.ts");
 const nextSteps = load("features/applications/next-step.ts", { "./stages": stages });
 const time = { locale: "en-US", timeZone: "UTC", when: String, time: String, day: String };
-const { StageStepper, NextStepCard } = load("features/application-detail/sections.tsx", {
-	"@tanstack/react-query": {},
+const { StageStepper, NextStepCard, Notes } = load("features/application-detail/sections.tsx", {
+	"@tanstack/react-query": { useQueryClient: () => ({ invalidateQueries() {} }) },
 	"expo-document-picker": {},
 	"expo-file-system": {},
 	"expo-sqlite/kv-store": {},
 	"expo-web-browser": {},
 	"./attachment": {},
-	"./notes-queue": { createNotesQueue: () => ({}) },
+	"./notes-queue": {
+		createNotesQueue: () => ({
+			kept: () => null,
+			keep() {},
+			save: async (_key, value, write) => write(value),
+		}),
+	},
 	"./hooks": {
 		useNow: () => new Date(),
 		useUserTime: () => time,
@@ -263,9 +280,20 @@ const { StageStepper, NextStepCard } = load("features/application-detail/section
 		interviewReminder: () => null,
 	},
 	"./sheets": { FollowUpSheet: "FollowUpSheet", ReminderSheet: "ReminderSheet" },
-	"@/api/client": {},
+	"@/api/client": {
+		client: {
+			applications: {
+				update: async (input) => {
+					calls.push(input);
+					return { updatedAt: input.expectedUpdatedAt };
+				},
+			},
+		},
+		orpc: { applications: { key: () => ["applications"] } },
+		getServer: () => "synthetic",
+	},
 	"@/auth/session": {},
-	"@/draft": {},
+	"@/draft": { getDraftScope: async () => "synthetic-owner" },
 	"@/features/applications/error": {},
 	"@/features/applications/next-step": nextSteps,
 	"@/features/applications/stages": stages,
@@ -276,6 +304,7 @@ const { StageStepper, NextStepCard } = load("features/application-detail/section
 });
 const application = {
 	id: "job-a",
+	updatedAt: "2026-11-17T12:00:00.000Z",
 	status: "saved",
 	activity: [],
 	appliedAt: new Date().toISOString(),
@@ -297,7 +326,25 @@ assert.deepEqual(calls, []);
 control(tree, "Change stage").onChange("applied");
 assert.deepEqual(calls, ["mark-applied"], "Explicit Saved → Applied still captures submission details");
 control(tree, "Change stage").onChange("interview");
-assert.deepEqual(calls.at(-1), { id: "job-a", status: "interview" });
+assert.deepEqual(calls.at(-1), { id: "job-a", status: "interview", expectedUpdatedAt: application.updatedAt });
+
+reset();
+render(Notes, { application });
+await settle();
+const refreshed = { ...application, updatedAt: "2026-11-17T12:01:00.000Z" };
+tree = render(Notes, { application: refreshed });
+control(tree, "Anything to remember about this job").onChangeText("Remember the interview");
+control(tree, "Anything to remember about this job").onBlur();
+await settle();
+assert.deepEqual(
+	calls.at(-1),
+	{
+		id: "job-a",
+		expectedUpdatedAt: refreshed.updatedAt,
+		notes: "Remember the interview",
+	},
+	"A stage refresh updates the revision used by the next notes save",
+);
 
 for (const [overrides, label, destination] of [
 	[{}, "Prepare application", "fit"],

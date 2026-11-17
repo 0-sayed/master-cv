@@ -211,7 +211,7 @@ function LetterMenu() {
 		try {
 			if (!(await useLetterEditorStore.getState().flush()))
 				throw new Error(t`Couldn't save your changes. Try again before continuing.`);
-			const copy = await client.coverLetters.duplicate({ id, name: t`${name} (copy)` });
+			const copy = await client.coverLetters.duplicate({ id, name: t`${name} (copy)`.slice(0, 100) });
 			void queryClient.invalidateQueries({ queryKey: orpc.documents.key() });
 			toast.add({ description: t`Duplicated` });
 			void navigate({ to: "/builder/letter/$coverLetterId", params: { coverLetterId: copy.id } });

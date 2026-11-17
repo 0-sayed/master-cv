@@ -163,7 +163,7 @@ async function assertOwnedResumeVersion(
 	if (!versionId) return;
 	if (!resumeId) throw new ORPCError("BAD_REQUEST", { message: "Select the CV before its version." });
 	const [owned] = await client
-		.select({ id: schema.resumeVersion.id })
+		.select({ id: schema.resumeVersion.id, data: schema.resumeVersion.data })
 		.from(schema.resumeVersion)
 		.innerJoin(schema.resume, eq(schema.resume.id, schema.resumeVersion.resumeId))
 		.where(
@@ -176,6 +176,7 @@ async function assertOwnedResumeVersion(
 			),
 		);
 	if (!owned) throw new ORPCError("NOT_FOUND");
+	return owned;
 }
 
 async function assertOwnedCoverLetter(userId: string, coverLetterId: string | null | undefined) {
@@ -200,8 +201,17 @@ export async function recordSentResume(row: ApplicationRow, client: DbOrTx): Pro
 	if (row.resumeId && !row.sentResumeVersionId && !row.sentResumeRecordedAt) {
 		changes.sentResumeRecordedAt = new Date();
 		if (row.selectedResumeVersionId) {
-			await assertOwnedResumeVersion(client, row.userId, row.resumeId, row.selectedResumeVersionId);
-			changes.sentResumeVersionId = row.selectedResumeVersionId;
+			const selected = await assertOwnedResumeVersion(client, row.userId, row.resumeId, row.selectedResumeVersionId);
+			if (!selected) throw new ORPCError("NOT_FOUND");
+			const sent = await writeVersion(client, {
+				resumeId: row.resumeId,
+				userId: row.userId,
+				data: selected.data,
+				kind: "sent",
+				name: row.company,
+			});
+			changes.sentResumeVersionId = sent.id;
+			changes.sentCheckScore = lintResumeForAts(selected.data).score;
 		} else {
 			const [resume] = await client
 				.select()
@@ -615,7 +625,7 @@ export const applicationService = {
 					"Recorded submitted documents cannot be replaced. Prepare a copy to keep the submitted versions intact.",
 			});
 		}
-		await assertOwnedResume(userId, fields.resumeId);
+		if (fields.resumeId !== existing.resumeId) await assertOwnedResume(userId, fields.resumeId);
 		await assertOwnedCoverLetter(userId, fields.coverLetterId);
 
 		const statusEntry = status !== undefined ? stageEntry(status, stageEnteredAt) : undefined;
@@ -651,7 +661,8 @@ export const applicationService = {
 							? current.selectedResumeVersionId
 							: null
 						: fields.selectedResumeVersionId;
-				await assertOwnedResumeVersion(tx, userId, nextResumeId, nextVersionId);
+				if (nextResumeId !== current.resumeId || nextVersionId !== current.selectedResumeVersionId)
+					await assertOwnedResumeVersion(tx, userId, nextResumeId, nextVersionId);
 				if (
 					(current.sentResumeVersionId || current.sentResumeRecordedAt) &&
 					nextVersionId !== current.selectedResumeVersionId

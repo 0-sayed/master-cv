@@ -16248,3 +16248,15 @@ msgstr "Beta"
 #: src/features/command-palette/pages/resumes.tsx
 msgid "Loading…"
 msgstr "Loading…"
+
+#: src/features/applications/components/resume-version-select.tsx
+msgid "Selected CV version"
+msgstr "Selected CV version"
+
+#: src/features/letters/save-error.ts
+msgid "Could not create a cover-letter copy"
+msgstr "Could not create a cover-letter copy"
+
+#: src/features/letters/save-error.ts
+msgid "Could not reload the cover letter"
+msgstr "Could not reload the cover letter"

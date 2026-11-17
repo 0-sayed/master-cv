@@ -44,6 +44,9 @@ export function ResumeVersionSelect({
 				onChange={(event) => onChange(event.target.value || null)}
 			>
 				<option value="">{t`Current CV when recorded`}</option>
+				{value && !versions.data?.some((version) => version.id === value) && (
+					<option value={value}>{t`Selected CV version`}</option>
+				)}
 				{versions.data?.map((version) => (
 					<option key={version.id} value={version.id} dir="auto">
 						{version.name ??
