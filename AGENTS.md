@@ -7,7 +7,7 @@ This file routes implementation work. Read `Planning/context/README.md` before c
 The implementation planning package is this file plus `Planning/bootstrap.md`,
 `Planning/context/` and `Planning/roadmap/`. Archives, root redirects, older ZIPs
 and HTML prototypes are not required. Follow `Planning/roadmap/tasks.md` for the
-16 large PRs (T000–T015); every scheduled PR is `L` and dependency-driven.
+18 large PRs (T000–T017); every scheduled PR is `L` and dependency-driven.
 
 ## Required context
 

@@ -19,7 +19,7 @@ No automatic deployment, real-data activation or gate approval follows from task
 - Own A13 enabled/withheld/deferred capability decisions; retain B-C14-B-C16, B-E01-B-E08 and A10
   as deferred-disposition ownership only, without implementing employer or other future features.
 - Own B-O03 candidate-outcome evidence using synthetic fixtures until real-user authorization.
-- Reconcile A01-A04, A06-A08 and A11-A13 evidence for this scope; T017 supplies pilot backup restore/deletion replay; T012 owns Saudi production evidence.
+- Reconcile A01-A04, A06-A08 and A11-A13 evidence for this scope; T017 supplies pilot backup restore/deletion replay; T012 owns later Saudi production evidence, outside this pilot qualification.
 - S32-S34 retained tools and S24-S27 paid billing are post-beta. T008 may withhold either tool.
 - Qualify T014 phone OTP and adjacent recovery states only within approved A14-A16 scope; keep unapproved mobile capabilities off.
 - Real users require company registration and applicable real-data gates; before then qualification stays synthetic.
@@ -91,9 +91,9 @@ Implement this inventory with existing shared components, the appropriate shared
 
 - Run the complete synthetic email-account -> PDF beta journey with one reviewed job-tailored copy
   and independent Arabic/English output, including saving/reopen, privacy/deletion and email recovery.
-- Verify T012 restore/deletion-replay evidence and cross-user/unauthorized-file denial.
+- Verify T017 pilot restore/deletion-replay evidence and cross-user/unauthorized-file denial.
 - Reconcile applicable beta gates and requirement/screen ownership; no untested item is a pass.
-- Confirm paid/mobile/withheld features remain disabled and do not gate this beta's completion.
+- Confirm paid and withheld features remain disabled. Qualify the approved T014 phone pilot against A14-A16 under D43.
 - Real-user beta remains blocked until company registration and applicable real-data evidence pass.
 - ALWAYS check Arabic RTL and English LTR at desktop 1440 and mobile 390, with the correct loaded fonts and direction.
   Record unavailable browser/visual evidence as blocked rather than claiming it ran.
@@ -104,8 +104,8 @@ Implement this inventory with existing shared components, the appropriate shared
 
 - Final owner go/no-go, company registration and real-data/hosting/AI approvals remain independent of merge.
 - D03 input evidence, D11 brand and D15 resources remain scoped blockers where applicable.
-- A05 DOCX, A09 paid, A10 employer and A14-A16 mobile gates are not free-beta prerequisites
-  while their features remain disabled; applicable privacy/operations gates still apply.
+- A05 DOCX, A09 paid and A10 employer remain outside free-pilot scope. D43 requires A14-A16 for the approved T014 phone pilot.
+  Applicable privacy and operations gates still apply.
 - Owner deferred to this release pass (2026-11-10): the owner's mobile 390 review of the T003 workspace
   and the D25 Google sign-in wording decision.
 

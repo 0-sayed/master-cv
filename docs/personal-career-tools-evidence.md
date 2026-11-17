@@ -505,3 +505,38 @@ The shared combobox now uses the existing flexible row button variant and caps i
 Screenshots are outside the repository in `/tmp/master-cv-picker-browser/`. The other three picker contexts have focused unit coverage but no live screenshots.
 
 D36 / 2026-11-17 (Sayed), B-C10/S32 and B-C06/S20: shared Beta badges identify provisional AI tools; one durable content retry keeps the existing review flow and single-delivery charge while retaining both provider costs. Verification: API 1355, web 1159 and database 37 unit tests pass, with the added source-fault regression also passing. Shared neutral Badge variants retain T002 styling. The production-worker pin refresh keeps raw benchmark scoring unchanged; Arabic v6 approval and offline preflight remain valid.
+
+## PR 26 review corrections
+
+The review scan records 44 actionable threads and five rejected suggestions in the local, uncommitted `pr.md`.
+Application changes preserve sent CV snapshots, saved version selections and server revisions across edits and stage changes.
+Cover-letter changes recover from copy/reload failures and retry rejected verification. The retained mobile draft action follows the BYOK gate.
+Benchmark changes correct unknown charges, interrupted reservations, account-error costs, repetition identity, interview language checks and MQM span scoring.
+The new benchmark identity requires fresh qualification. Historical paid results and the historical core seal remain unchanged.
+Freeze history now records the previously omitted seal and its original control receipt through immutable Git objects.
+Billing metadata is checked even when current files match the seal.
+
+These changes cover B-C10, B-C13, B-C17, B-C18, A02, A06, A08 and A13 within their existing approval gates.
+The planning corrections apply D43 to pilot prerequisites and retain eighteen scheduled task briefs.
+The owner suggestion “T2” remains unverified. No supplier substitution or activation approval occurs.
+
+Live Figma access confirms S32 desktop `38:3184`, S33 mobile `49:2018` and S34 desktop `38:3466`.
+The inspected reference renders are [S32 desktop](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=38-3184)
+and [S34 mobile](https://www.figma.com/design/K3UTevGCFBhsoSLXH7BDni?node-id=49-2096).
+The existing S32 recovery, S33 creation/edit and S34 stage states remain the inventory for these fixes.
+D36: retain the detail-page shell and derive four or five mobile columns from available destinations. This keeps the shared header and navigation aligned.
+
+Static validation passes. All 37 affected browser tests pass with one worker and zero retries.
+Affected units pass: API 1357, web 1179, tooling 2997 and database 37. Existing skips remain: API four and tooling 32.
+The API database configuration and three stale benchmark expectations required corrections. Only the failed suites ran again.
+Ten mobile tests pass, including the notes revision regression. Native compiler validation remains blocked because the local Hermes compiler is absent.
+The full browser suite remains a CI responsibility.
+Browser evidence covers Arabic and English at 1440 and 390, including application details, edit dialogs and letter recovery.
+Screenshots are in `review-browser-evidence` under the owner-specified scratchpad. The inspected dialogs retain shared controls, visible footers and correct direction.
+The migration regression proves that a later notes edit does not replace the recorded sent-version date.
+Fresh offline controls pass for all categories, the selected scope and canaries. Offline request preflight passes with zero network requests.
+
+The current main lockfile reproduces the Picomatch advisory. No patched release is available in the inspected registry.
+The audit uses the existing advisory-exception mechanism for [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf), with a review date of 2026-11-24.
+Repository and build patterns reach this dependency. Product inputs do not supply glob patterns.
+Dependency audit and license validation pass. This exception does not patch the dependency.
