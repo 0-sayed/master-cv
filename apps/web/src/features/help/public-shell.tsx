@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Trans } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { buttonVariants } from "@reactive-resume/ui/components/button";
 import { cn } from "@reactive-resume/utils/style";
@@ -92,9 +93,9 @@ export function PublicShell({
 				<div className={cn(container, "flex flex-wrap items-center justify-between gap-4", landing ? "py-10" : "py-6")}>
 					{footer ?? (
 						<>
-							<Link to="/" search={{ locale }} className={buttonVariants({ variant: "link", size: "link-touch" })}>
+							<BackNavigation render={<Link to="/" search={{ locale }} />}>
 								<Trans context="privacy.navigation.home">Back to home</Trans>
-							</Link>
+							</BackNavigation>
 							<Link
 								to="/privacy-and-terms"
 								search={{ locale, tab: "privacy" }}

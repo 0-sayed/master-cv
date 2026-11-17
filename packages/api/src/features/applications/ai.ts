@@ -5,12 +5,12 @@ import { safetySystemPrompt } from "@reactive-resume/ai/prompts";
 import { coverLetterTextToHtml } from "@reactive-resume/resume/cover-letter";
 import { postingSourceSchema } from "@reactive-resume/schema/applications/data";
 import { generateId, slugify } from "@reactive-resume/utils/string";
-import { protectedProcedure } from "../../context";
 import { aiRequestRateLimit } from "../../middleware/rate-limit";
 import { aiProvidersService } from "../ai-providers/service";
 import { generateJson as sharedGenerateJson } from "../ai/generate-json";
 import { getModel } from "../ai/service";
 import { coverLetterService } from "../cover-letters/service";
+import { personalToolProcedure } from "../personal-tools/procedure";
 import { resumeService } from "../resume/service";
 import { webAccessService } from "../web-access/credentials";
 import {
@@ -159,6 +159,8 @@ const aiErrors = {
 	BAD_GATEWAY: { message: "The AI provider returned an error or is unreachable.", status: 502 },
 	BAD_REQUEST: { message: "Invalid application or AI request.", status: 400 },
 };
+
+const protectedProcedure = personalToolProcedure("applications");
 
 export const aiRouter = {
 	searchPostings: protectedProcedure

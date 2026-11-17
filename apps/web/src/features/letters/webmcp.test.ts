@@ -10,8 +10,10 @@ import { copyCoverLetterStyle } from "@reactive-resume/resume/cover-letter";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { useLetterEditorStore } from "./store";
 import { useLetterWebMcpTools } from "./webmcp";
+vi.mock("@reactive-resume/schema/personal-tools", () => ({ isFeatureAvailable: () => true }));
 
-const mocks = vi.hoisted(() => ({ update: vi.fn(), toast: { add: vi.fn(), close: vi.fn() } }));
+const mocks = vi.hoisted(() => ({ enabled: true, update: vi.fn(), toast: { add: vi.fn(), close: vi.fn() } }));
+vi.mock("@/features/personal-tools/availability", () => ({ usePersonalToolAvailable: () => mocks.enabled }));
 vi.mock("@/libs/orpc/client", () => ({
 	client: { coverLetters: { update: mocks.update } },
 	streamClient: { coverLetters: { draft: vi.fn() } },
@@ -57,6 +59,7 @@ function mountTools(open: CoverLetter) {
 }
 
 beforeEach(() => {
+	mocks.enabled = true;
 	vi.resetAllMocks();
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	mocks.update.mockImplementation(async (input) => ({ ...letter, ...input, revision: letter.revision + 1 }));
@@ -124,4 +127,10 @@ describe("cover letter editor WebMCP tools", () => {
 		await expect(locked("update_cover_letter").execute({ content: "<p>x</p>" })).rejects.toThrow(/locked/);
 		expect(mocks.update).not.toHaveBeenCalled();
 	});
+});
+
+it("does not register letter automation when the tool is unavailable", () => {
+	mocks.enabled = false;
+	const tool = mountTools(letter);
+	expect(() => tool("read_cover_letter")).toThrow("wasn't registered");
 });

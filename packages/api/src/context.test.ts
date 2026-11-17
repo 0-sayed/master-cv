@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import { createProcedureClient } from "@orpc/server";
+const policy = vi.hoisted(() => ({ enabled: true }));
+vi.mock("@reactive-resume/schema/personal-tools", async (original) => ({
+	...(await original<typeof import("@reactive-resume/schema/personal-tools")>()),
+	isFeatureAvailable: () => policy.enabled,
+}));
 import { env } from "@reactive-resume/env/server";
 
 const authMock = vi.hoisted(() => ({
@@ -43,6 +48,7 @@ const setupDbResolves = (userResult: unknown) => {
 };
 
 const reset = () => {
+	policy.enabled = true;
 	authMock.api.getSession.mockReset();
 	authMock.api.verifyApiKey.mockReset();
 	verifyOAuthTokenMock.mockReset();
@@ -50,6 +56,16 @@ const reset = () => {
 };
 
 describe("resolveUserFromRequestHeaders", () => {
+	it("ignores retained API and bearer credentials while user API access is unavailable", async () => {
+		reset();
+		policy.enabled = false;
+		authMock.api.getSession.mockResolvedValue(null);
+		await expect(
+			resolveUserFromRequestHeaders(new Headers({ "x-api-key": "key", authorization: "Bearer token" })),
+		).resolves.toBeNull();
+		expect(authMock.api.verifyApiKey).not.toHaveBeenCalled();
+		expect(verifyOAuthTokenMock).not.toHaveBeenCalled();
+	});
 	it("falls back to a valid bearer token when an API key is invalid", async () => {
 		reset();
 		authMock.api.verifyApiKey.mockResolvedValueOnce({ valid: false });

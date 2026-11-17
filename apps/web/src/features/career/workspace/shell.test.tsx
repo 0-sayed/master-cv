@@ -2,7 +2,7 @@
 import type { SavedItem } from "../hooks";
 import type { Application } from "@/features/applications/types";
 import type { CareerWorkspace } from "@reactive-resume/schema/career";
-import type { ReactNode } from "react";
+import type { ComponentProps } from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
@@ -44,7 +44,31 @@ vi.mock("@tanstack/react-router", () => ({
 	useNavigate: () => api.navigate,
 	useRouteContext: () => ({ session: { user: { id: "shell-user", timezone: "UTC" } } }),
 	useRouter: () => ({ state: { location: { state: { __TSR_index: 0 } } } }),
-	Link: ({ children }: { children: ReactNode }) => <a href="#test-link">{children}</a>,
+	Link: ({
+		children,
+		to,
+		params,
+		search,
+		replace: _replace,
+		...props
+	}: ComponentProps<"a"> & {
+		to: string;
+		params?: { applicationId: string; tab?: string };
+		search?: { version?: string };
+		replace?: boolean;
+	}) => (
+		<a
+			{...props}
+			href={
+				to
+					.replace("$applicationId", params?.applicationId ?? "")
+					.replace("/{-$tab}", params?.tab ? `/${params.tab}` : "") +
+				(search?.version ? `?version=${search.version}` : "")
+			}
+		>
+			{children}
+		</a>
+	),
 }));
 vi.mock("@reactive-resume/ui/hooks/use-breakpoint", () => ({ useBreakpoint: () => "desktop" }));
 vi.mock("@/features/settings/integrations/hooks/use-has-usable-ai-provider", () => ({
@@ -69,6 +93,8 @@ const application: Application = {
 	status: "saved",
 	closedReason: null,
 	coverLetterId: null,
+	selectedResumeVersionId: null,
+	sentResumeRecordedAt: null,
 	sentResumeVersionId: null,
 	sentCoverLetterVersionId: null,
 	sentCheckScore: null,
@@ -195,8 +221,10 @@ it.each([
 	expect(await screen.findByRole("alert")).toHaveTextContent(message);
 	expect(screen.queryByRole("textbox", { name: "Why this role?" })).toBeNull();
 	expect(screen.queryByRole("button", { name: "Mark as applied" })).toBeNull();
-	fireEvent.click(screen.getByRole("button", { name: "Back to current" }));
-	expect(api.navigate).toHaveBeenCalledWith(expect.objectContaining({ search: { version: undefined }, replace: true }));
+	expect(screen.getByRole("link", { name: "Back to current" })).toHaveAttribute(
+		"href",
+		"/dashboard/applications/shell-application/apply",
+	);
 });
 
 it("requires initial workspace data before exposing edits, with recovery after a failed load", async () => {

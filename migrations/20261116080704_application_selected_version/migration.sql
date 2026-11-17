@@ -1,0 +1,2 @@
+ALTER TABLE "application" ADD COLUMN "selected_resume_version_id" text;--> statement-breakpoint
+ALTER TABLE "application" ADD CONSTRAINT "application_selected_resume_version_id_resume_version_id_fkey" FOREIGN KEY ("selected_resume_version_id") REFERENCES "resume_version"("id") ON DELETE SET NULL;

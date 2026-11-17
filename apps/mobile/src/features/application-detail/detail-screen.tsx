@@ -100,7 +100,11 @@ export function ApplicationDetail({ id }: ApplicationDetailProps) {
 							loading={update.isPending}
 							onPress={() =>
 								update.mutate(
-									{ id: application.id, status: "applied" },
+									{
+										expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+										id: application.id,
+										status: "applied",
+									},
 									{ onError: (error) => showToast({ message: applicationError(error) }) },
 								)
 							}

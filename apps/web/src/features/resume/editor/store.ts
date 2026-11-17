@@ -6,6 +6,7 @@ import type { Proposal } from "@reactive-resume/resume/proposals";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { Template } from "@reactive-resume/schema/templates";
 import { create } from "zustand/react";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 
 export type EditorIdentity = { ownerId: string; resumeId: string; baseRevision: string; editGeneration: number };
 export const sameEditorIdentity = (a: EditorIdentity | null | undefined, b: EditorIdentity | null | undefined) =>
@@ -239,7 +240,8 @@ export const useEditorStore = create<EditorStore>()((set) => ({
 	setDrawerPinned: (drawerPinned) => set({ drawerPinned }),
 	setShareTab: (shareTab) => set(shareTab ? { shareTab } : { shareTab, historyVersionId: null }),
 	setHistoryVersion: (historyVersionId) => set({ historyVersionId }),
-	setAssistantOpen: (assistantOpen, instant = false) => set({ assistantOpen, assistantInstant: instant }),
+	setAssistantOpen: (assistantOpen, instant = false) =>
+		set({ assistantOpen: assistantOpen && isFeatureAvailable("assistant"), assistantInstant: instant }),
 	setAssistantThread: (assistantThread) => set({ assistantThread }),
 	setAssistantPrompt: (assistantPrompt) => set({ assistantPrompt }),
 	setAssistantProposals: (assistantProposals) => set({ assistantProposals }),

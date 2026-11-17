@@ -8,12 +8,15 @@ import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useId, useRef, useState } from "react";
 import { ActionChoice } from "@reactive-resume/ui/components/action-choice";
 import { Alert, AlertDescription } from "@reactive-resume/ui/components/alert";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@reactive-resume/ui/components/dialog";
+import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
 import { generateRandomName } from "@reactive-resume/utils/string";
 import { cn } from "@reactive-resume/utils/style";
 import { StartCvDialog } from "../resume/import/start";
@@ -21,7 +24,9 @@ import { isBaseCvLimit } from "./creation-error";
 import { prepareFirstCvCelebration } from "./first-cv-celebration";
 import { useNewDocumentsStore } from "./new-documents";
 import { useDialogStore } from "@/dialogs/store";
+import { ApplicationPicker, applicationCompany } from "@/features/applications/components/application-picker";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
+import { usePersonalToolAvailable } from "@/features/personal-tools/availability";
 import { detectImportKind, ImportError, readResumeFile, summarizeImport } from "@/features/resume/import/read-file";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
@@ -163,6 +168,7 @@ function useResumeImport(
  * Importing shows three labelled steps rather than a spinner, so a slow parse still looks like progress.
  */
 function LegacyNewDocumentDialog({ data, onStart }: { data?: NewDocumentDialogData | undefined; onStart: () => void }) {
+	const lettersEnabled = usePersonalToolAvailable("coverLetters");
 	const navigate = useNavigate();
 	const markNew = useNewDocumentsStore((state) => state.markNew);
 	const providerState = useHasUsableAiProvider();
@@ -209,7 +215,7 @@ function LegacyNewDocumentDialog({ data, onStart }: { data?: NewDocumentDialogDa
 						</Trans>
 					</p>
 					<Button variant="secondary" onClick={closeDialog}>
-						<Trans>Back to documents</Trans>
+						<Trans>Close</Trans>
 					</Button>
 				</div>
 			)}
@@ -304,14 +310,16 @@ function LegacyNewDocumentDialog({ data, onStart }: { data?: NewDocumentDialogDa
 					</div>
 
 					<div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 type-body">
-						<button
-							type="button"
-							className="touch-target flex min-h-11 items-center gap-1.5 text-ink-2 hover:text-ink"
-							onClick={() => void newLetter()}
-						>
-							<Icon name="envelope" size={18} />
-							<Trans>Or create a cover letter</Trans>
-						</button>
+						{lettersEnabled && (
+							<button
+								type="button"
+								className="touch-target flex min-h-11 items-center gap-1.5 text-ink-2 hover:text-ink"
+								onClick={() => void newLetter()}
+							>
+								<Icon name="envelope" size={18} />
+								<Trans>Or create a cover letter</Trans>
+							</button>
+						)}
 						<button
 							type="button"
 							className="touch-target min-h-11 text-ink-2 underline underline-offset-2 hover:text-ink"
@@ -408,7 +416,7 @@ function ImportStep({ step, creating, onCancel, onStartBlank, onChooseFile, onCl
 						<span>
 							<Trans>
 								{step.sections} sections and {step.entries} entries found.
-							</Trans>{" "}
+							</Trans>
 							{step.flagged > 0 && <Trans>{step.flagged} fields are flagged for a quick look in the editor.</Trans>}
 						</span>
 					</p>
@@ -428,6 +436,7 @@ function ImportStep({ step, creating, onCancel, onStartBlank, onChooseFile, onCl
 
 /** Start blank, try a sample, or a new letter: each creates the document at once and opens it. */
 export function useStartDocument(applicationId?: string) {
+	const lettersEnabled = usePersonalToolAvailable("coverLetters");
 	const [baseCvLimit, setBaseCvLimit] = useState(false);
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -492,6 +501,7 @@ export function useStartDocument(applicationId?: string) {
 			}
 		},
 		newLetter: async () => {
+			if (!lettersEnabled) return;
 			// A new letter takes its sender details and design from the resume edited most recently.
 			const documents = queryClient.getQueryData(orpc.documents.list.queryKey({ input: { trashed: false } }));
 			const resume = documents
@@ -499,6 +509,7 @@ export function useStartDocument(applicationId?: string) {
 				.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())[0];
 			const input = {
 				name: t`Untitled letter`,
+				documentLocale: "ar-SA" as const,
 				recipient: "",
 				content: "",
 				...(resume ? { resumeId: resume.id } : {}),
@@ -564,15 +575,25 @@ function CopySourcePicker({
 	resumes,
 	sourceId,
 	onSelect,
+	fieldId,
+	error,
 }: {
 	loaded: boolean;
 	resumes: Array<{ id: string; name: string; updatedAt: Date }>;
 	sourceId: string | undefined;
 	onSelect: (id: string) => void;
+	fieldId?: string | undefined;
+	error?: string | undefined;
 }) {
 	const { i18n } = useLingui();
 	return (
-		<fieldset className="grid gap-1.5">
+		<fieldset
+			id={fieldId}
+			tabIndex={-1}
+			aria-invalid={Boolean(error)}
+			aria-describedby={error ? `${fieldId}-error` : undefined}
+			className="grid gap-1.5"
+		>
 			<legend className="mb-1.5 type-metadata font-medium text-ink-2">
 				<Trans>Start from</Trans>
 			</legend>
@@ -609,6 +630,7 @@ function CopySourcePicker({
 					</label>
 				))}
 			</div>
+			{error && <FieldError id={`${fieldId}-error`}>{error}</FieldError>}
 		</fieldset>
 	);
 }
@@ -619,10 +641,12 @@ type CopyForJobProps = {
 };
 /** Select a source; exact advert comparison and intentional creation belong to the job workflow. */
 function CopyForJob({ initialSourceId, onBack, onContinue }: CopyForJobProps) {
+	const sourceFieldId = useId();
 	const { data: documents } = useQuery(orpc.documents.list.queryOptions({ input: { trashed: false } }));
 	const resumes = (documents ?? []).filter((document) => document.type === "resume");
 	const [sourceId, setSourceId] = useState(initialSourceId);
 	const source = resumes.find((resume) => resume.id === sourceId) ?? resumes[0];
+	const validation = useSubmitValidation({ [sourceFieldId]: source ? undefined : t`Choose a resume to copy.` });
 	return (
 		<>
 			<DialogHeader>
@@ -631,16 +655,22 @@ function CopyForJob({ initialSourceId, onBack, onContinue }: CopyForJobProps) {
 				</DialogTitle>
 			</DialogHeader>
 
-			<CopySourcePicker loaded={Boolean(documents)} resumes={resumes} sourceId={source?.id} onSelect={setSourceId} />
+			<CopySourcePicker
+				fieldId={sourceFieldId}
+				error={validation.errors[sourceFieldId]}
+				loaded={Boolean(documents)}
+				resumes={resumes}
+				sourceId={source?.id}
+				onSelect={setSourceId}
+			/>
 
 			<div className="flex flex-wrap justify-end gap-2">
-				<Button variant="secondary" onClick={onBack}>
+				<BackNavigation onClick={onBack}>
 					{documents && resumes.length === 0 ? <Trans>Import or create a resume</Trans> : <Trans>Back</Trans>}
-				</Button>
+				</BackNavigation>
 				<Button
-					disabled={!source}
 					onClick={() => {
-						if (source) onContinue(source.id);
+						if (validation.validate() && source) onContinue(source.id);
 					}}
 				>
 					<Trans>Continue</Trans>
@@ -660,12 +690,13 @@ type CopyForApplicationProps = {
 
 /** Pick a resume and a job; the copy is named from both and linked to the application. */
 function CopyForApplication({ initialSourceId, initialJobId, onBack, onCreated }: CopyForApplicationProps) {
+	const sourceFieldId = useId();
 	const [copyError, setCopyError] = useState<string | null>(null);
 	const nameId = useId();
 	const { data: documents } = useQuery(orpc.documents.list.queryOptions({ input: { trashed: false } }));
 	const { data: applications } = useQuery(applicationsListQueryOptions());
 	const resumes = (documents ?? []).filter((document) => document.type === "resume");
-	const jobs = (applications ?? []).filter((application) => application.status !== "closed");
+	const jobs = applications ?? [];
 	const [sourceId, setSourceId] = useState(initialSourceId);
 	const [jobId, setJobId] = useState<string | null>(initialJobId ?? null);
 	const [name, setName] = useState<string | null>(null);
@@ -674,11 +705,15 @@ function CopyForApplication({ initialSourceId, initialJobId, onBack, onCreated }
 	const source = resumes.find((resume) => resume.id === sourceId) ?? resumes[0];
 	const job = jobs.find((application) => application.id === jobId);
 	const base = (source?.name ?? "").split(" — ")[0] ?? "";
-	const suggested = job ? `${base} — ${job.company}` : t`${base} (copy)`;
+	const suggested = job ? `${base} — ${applicationCompany(job.company) || job.role}` : t`${base} (copy)`;
 	const finalName = (name ?? suggested).trim();
+	const validation = useSubmitValidation({
+		[sourceFieldId]: source ? undefined : t`Choose a resume to copy.`,
+		[nameId]: finalName ? undefined : t`Enter a name.`,
+	});
 
 	const create = async () => {
-		if (!source) return;
+		if (!validation.validate() || !source) return;
 		const input = {
 			resumeId: source.id,
 			...(job ? { applicationId: job.id } : {}),
@@ -704,6 +739,8 @@ function CopyForApplication({ initialSourceId, initialJobId, onBack, onCreated }
 			</DialogHeader>
 
 			<CopySourcePicker
+				fieldId={sourceFieldId}
+				error={validation.errors[sourceFieldId]}
 				loaded={Boolean(documents)}
 				resumes={resumes}
 				sourceId={source?.id}
@@ -717,31 +754,16 @@ function CopyForApplication({ initialSourceId, initialJobId, onBack, onCreated }
 				<legend className="mb-1.5 type-metadata font-medium text-ink-2">
 					<Trans>For which job?</Trans>
 				</legend>
-				<div className="flex flex-wrap gap-1.5">
-					{[
-						...jobs.map((application) => ({ id: application.id, label: application.company })),
-						{ id: null, label: t`No job yet` },
-					].map((option) => (
-						<button
-							key={option.id ?? "none"}
-							type="button"
-							aria-pressed={jobId === option.id}
-							onClick={() => {
-								setJobId(option.id);
-								setName(null);
-							}}
-							className={cn(
-								"flex h-8 items-center gap-1.5 rounded-full border px-3 type-body transition-[background-color,border-color,color,scale] duration-quick ease-enter active:scale-[0.97]",
-								jobId === option.id
-									? "border-accent bg-accent-soft text-accent-text"
-									: "border-line-2 text-ink-2 hover:bg-hover",
-							)}
-						>
-							{option.id && <Icon name="briefcase" size={16} />}
-							{option.label}
-						</button>
-					))}
-				</div>
+				<ApplicationPicker
+					aria-label={t`For which job?`}
+					applications={jobs}
+					value={jobId}
+					noneLabel={t`No job yet`}
+					onValueChange={(id) => {
+						setJobId(id);
+						setName(null);
+					}}
+				/>
 				{job && (
 					<span className="type-metadata text-ink-3">
 						<Trans>The copy is linked to the application, so Check and the assistant use its posting.</Trans>
@@ -755,10 +777,14 @@ function CopyForApplication({ initialSourceId, initialJobId, onBack, onCreated }
 				</label>
 				<Input
 					id={nameId}
+					aria-required="true"
+					aria-invalid={Boolean(validation.errors[nameId])}
+					aria-describedby={validation.errors[nameId] ? `${nameId}-error` : undefined}
 					value={name ?? suggested}
 					maxLength={100}
 					onChange={(event) => setName(event.target.value)}
 				/>
+				{validation.errors[nameId] && <FieldError id={`${nameId}-error`}>{validation.errors[nameId]}</FieldError>}
 				<span className="type-metadata text-ink-3">
 					<Trans>Suggested from the source and the job. Change it anytime.</Trans>
 				</span>
@@ -771,10 +797,10 @@ function CopyForApplication({ initialSourceId, initialJobId, onBack, onCreated }
 				</Alert>
 			)}
 			<div className="flex flex-wrap justify-end gap-2">
-				<Button variant="ghost" onClick={onBack}>
+				<BackNavigation onClick={onBack}>
 					{documents && resumes.length === 0 ? <Trans>Import or create a resume</Trans> : <Trans>Back</Trans>}
-				</Button>
-				<Button disabled={!source || !finalName || isPending} onClick={() => void create()}>
+				</BackNavigation>
+				<Button loading={isPending} onClick={() => void create()}>
 					<Trans>Create and open</Trans>
 				</Button>
 			</div>

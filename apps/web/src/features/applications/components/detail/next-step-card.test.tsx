@@ -23,6 +23,7 @@ it("opens the follow-up with its saved date and note, then saves the edited note
 		company: "Orbital",
 		status: "applied",
 		activity: [],
+		updatedAt: new Date("2026-11-16T08:00:00.000Z"),
 		followUpAt: new Date(2026, 9, 15, 9),
 		followUpNote: "Ask the recruiter",
 	} as unknown as Application;
@@ -35,7 +36,7 @@ it("opens the follow-up with its saved date and note, then saves the edited note
 	);
 	fireEvent.click(screen.getByRole("button", { name: "Edit" }));
 	fireEvent.click(await screen.findByRole("menuitem", { name: "Change the follow-up…" }));
-	expect((screen.getByLabelText("Date") as HTMLInputElement).value).toBe("2026-10-15");
+	expect((screen.getByLabelText(/Date/) as HTMLInputElement).value).toBe("2026-10-15");
 	expect((screen.getByLabelText("What to do") as HTMLInputElement).value).toBe("Ask the recruiter");
 	fireEvent.change(screen.getByLabelText("What to do"), { target: { value: "Email the recruiter" } });
 	fireEvent.click(screen.getByRole("button", { name: "Save" }));
@@ -43,6 +44,7 @@ it("opens the follow-up with its saved date and note, then saves the edited note
 		expect(update).toHaveBeenCalledWith(
 			{
 				id: application.id,
+				expectedUpdatedAt: application.updatedAt.toISOString(),
 				followUpAt: application.followUpAt,
 				followUpNote: "Email the recruiter",
 			},

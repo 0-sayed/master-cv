@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import z from "zod";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useLetterEditorStore } from "./store";
+import { usePersonalToolAvailable } from "@/features/personal-tools/availability";
 import { defineWebMcpTool, useWebMcpTools } from "@/libs/webmcp";
 
 const letterFieldsSchema = z.strictObject({
@@ -123,6 +124,7 @@ function createLetterTools(coverLetterId: string): readonly WebMcpTool[] {
 
 /** Offers the open cover letter to the browser's AI agent while the letter editor is mounted. */
 export function useLetterWebMcpTools(coverLetterId: string) {
-	const tools = useMemo(() => createLetterTools(coverLetterId), [coverLetterId]);
+	const enabled = usePersonalToolAvailable("coverLetters");
+	const tools = useMemo(() => (enabled ? createLetterTools(coverLetterId) : []), [coverLetterId, enabled]);
 	useWebMcpTools(tools);
 }

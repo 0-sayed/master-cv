@@ -1,5 +1,6 @@
 import type { Application } from "./types";
 import type { InterviewKind, InterviewTimelineEntry } from "@reactive-resume/schema/applications/data";
+import { t } from "@lingui/core/macro";
 import { INTERVIEW_KINDS } from "@reactive-resume/schema/applications/data";
 
 export type ScheduledInterview = {
@@ -8,6 +9,15 @@ export type ScheduledInterview = {
 	start: Date;
 	end: Date;
 };
+
+export const interviewTypeLabel = (kind: InterviewKind) =>
+	({
+		screening: t`Screening`,
+		technical: t`Technical`,
+		behavioral: t`Behavioral`,
+		onsite: t`Onsite`,
+		other: t`Other`,
+	})[kind];
 
 export const interviewKindOf = (kind: InterviewKind) => INTERVIEW_KINDS.find((item) => item.value === kind);
 
@@ -41,7 +51,11 @@ export function formatDuration(minutes: number, locale?: string) {
 	const hours = Math.floor(minutes / 60);
 	const rest = minutes % 60;
 	const unit = (value: number, name: "hour" | "minute") =>
-		new Intl.NumberFormat(locale, { style: "unit", unit: name, unitDisplay: "short" }).format(value);
+		new Intl.NumberFormat(new Intl.Locale(locale ?? "en-US", { numberingSystem: "latn" }), {
+			style: "unit",
+			unit: name,
+			unitDisplay: "short",
+		}).format(value);
 	return [hours > 0 ? unit(hours, "hour") : null, rest > 0 || hours === 0 ? unit(rest, "minute") : null]
 		.filter(Boolean)
 		.join(" ");

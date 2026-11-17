@@ -136,7 +136,7 @@ for (const locale of ["en-US", "ar-SA"] as const) {
 			expect(alert.textContent).toContain(
 				locale === "ar-SA"
 					? rejected
-						? "تعذر إكمال هذا الطلب"
+						? "تعذّر إكمال هذا الطلب"
 						: "تحقق من كلمة المرور الحالية"
 					: rejected
 						? "We could not complete"

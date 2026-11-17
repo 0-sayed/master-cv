@@ -14,6 +14,7 @@ import { LocaleCombobox } from "@/features/locale/combobox";
 import { useTheme } from "@/features/theme/provider";
 import { authClient } from "@/libs/auth/client";
 import { getReadableErrorMessage } from "@/libs/error-message";
+import { getInterfaceDateLocale } from "@/libs/locale";
 import { sessionQueryKey } from "@/libs/root-context";
 import { themeMap } from "@/libs/theme";
 
@@ -102,7 +103,7 @@ function TimezoneSetting({ id }: { id: string }) {
 						<Trans>Current local time</Trans>
 						{": "}
 						<time dateTime={now.toISOString()}>
-							{new Intl.DateTimeFormat(i18n.locale, {
+							{new Intl.DateTimeFormat(getInterfaceDateLocale(i18n.locale), {
 								timeZone: value,
 								calendar: "gregory",
 								numberingSystem: "latn",

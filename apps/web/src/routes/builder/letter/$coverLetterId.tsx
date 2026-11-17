@@ -9,6 +9,7 @@ import { LetterShell } from "./-components/letter-shell";
 import { QuerySkeleton, RouteSkeleton } from "@/components/query-skeleton";
 import { letterWordsQueryOptions } from "@/features/letters/compose";
 import { useLetterEditorStore } from "@/features/letters/store";
+import { isPersonalToolAvailable } from "@/features/personal-tools/availability";
 import { orpc } from "@/libs/orpc/client";
 import { formatPageTitle } from "@/libs/route-titles";
 import { createNoindexFollowMeta } from "@/libs/seo";
@@ -30,6 +31,8 @@ export const Route = createFileRoute("/builder/letter/$coverLetterId")({
 	validateSearch: searchSchema,
 	beforeLoad: ({ context, location }) => {
 		if (!context.session) throw redirect({ to: "/auth/login", search: { callbackURL: location.href }, replace: true });
+		if (!isPersonalToolAvailable(context.flags.personalToolsAvailability, "coverLetters"))
+			throw redirect({ to: "/dashboard", replace: true });
 		return { session: context.session };
 	},
 	loader: async ({ params, context }) => {

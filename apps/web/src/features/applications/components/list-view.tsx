@@ -4,28 +4,30 @@ import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Plural, Trans } from "@lingui/react/macro";
 import { useMutation } from "@tanstack/react-query";
-import { AnimatePresence, m } from "motion/react";
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
+import { DataTable } from "@reactive-resume/ui/components/data-table";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
+import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@reactive-resume/ui/components/popover";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
+import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
 import { cn } from "@reactive-resume/utils/style";
 import { describeNextStep, getNextStep } from "../next-step";
 import { CLOSED_REASONS, getClosedReasonLabel, getStageColor, getStageLabel, LIST_ORDER, PIPELINE } from "../stages";
 import { useInvalidateApplications } from "../use-application-actions";
+import { SelectionBar } from "@/components/layout/selection-bar";
 import { useConfirm } from "@/hooks/use-confirm";
 import { formatRelativeTime } from "@/libs/locale";
-import { D2, EASE, EXIT } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
 
 type SortKey = "role" | "next" | "updated";
@@ -45,7 +47,6 @@ const compare: Record<SortKey, (a: Application, b: Application) => number> = {
 type ListViewProps = {
 	applications: Application[];
 	showClosed: boolean;
-	selectedId: string | null;
 	onOpen: (application: Application) => void;
 };
 
@@ -54,7 +55,7 @@ type ListViewProps = {
  * Applied, Saved, then Closed when shown). Groups collapse, headers sort within groups, and row checkboxes select
  * for bulk moves, tags, closing and deleting. Phones get two-line rows.
  */
-export function ApplicationList({ applications, showClosed, selectedId, onOpen }: ListViewProps) {
+export function ApplicationList({ applications, showClosed, onOpen }: ListViewProps) {
 	const phone = useBreakpoint() === "mobile";
 	const [collapsed, setCollapsed] = useState<ReadonlySet<ApplicationStatus>>(new Set());
 	const [sort, setSort] = useState<Sort>({ key: "updated", direction: "desc" });
@@ -125,10 +126,10 @@ export function ApplicationList({ applications, showClosed, selectedId, onOpen }
 
 	return (
 		<div className="grid min-w-0 content-start gap-3">
-			<table className="w-full border-collapse text-sm">
+			<DataTable className="w-full border-collapse type-body">
 				{!phone && (
 					<thead>
-						<tr className="border-b border-line text-xs text-ink-3">
+						<tr className="border-b border-line type-body text-ink-2">
 							<th scope="col" className="w-10 ps-3">
 								<span className="sr-only">
 									<Trans>Select</Trans>
@@ -159,7 +160,7 @@ export function ApplicationList({ applications, showClosed, selectedId, onOpen }
 										id={groupId}
 										aria-expanded={open}
 										onClick={() => toggleGroup(status)}
-										className="flex h-9 items-center gap-2 rounded-md px-1.5 text-sm font-semibold transition-colors hover:bg-hover"
+										className="flex h-9 items-center gap-2 rounded-md px-1.5 type-body font-semibold transition-colors hover:bg-hover"
 									>
 										<Icon
 											name="caret-right"
@@ -172,7 +173,7 @@ export function ApplicationList({ applications, showClosed, selectedId, onOpen }
 											style={{ background: getStageColor(status) }}
 										/>
 										{getStageLabel(status)}
-										<span className="font-mono text-xs font-normal text-ink-3">{rows.length}</span>
+										<span className="type-metadata font-mono font-normal text-ink-3">{rows.length}</span>
 									</button>
 								</th>
 							</tr>
@@ -182,7 +183,7 @@ export function ApplicationList({ applications, showClosed, selectedId, onOpen }
 										key={application.id}
 										application={application}
 										phone={phone}
-										selected={application.id === selectedId}
+										selected={checked.has(application.id)}
 										checked={checked.has(application.id)}
 										onCheck={() => toggleRow(application.id)}
 										onOpen={() => onOpen(application)}
@@ -191,23 +192,9 @@ export function ApplicationList({ applications, showClosed, selectedId, onOpen }
 						</tbody>
 					);
 				})}
-			</table>
+			</DataTable>
 
-			{/* The bulk bar rises from the bottom edge and floats over the list, so the rows never move. */}
-			<AnimatePresence>
-				{checkedIds.length > 0 && (
-					<m.div
-						key="bulk-bar"
-						initial={{ opacity: 0, transform: "translateY(100%)" }}
-						animate={{ opacity: 1, transform: "translateY(0%)" }}
-						exit={{ opacity: 0, transform: "translateY(100%)", transition: { duration: D2 * EXIT, ease: EASE } }}
-						transition={{ duration: D2, ease: EASE }}
-						className="sticky bottom-4 z-20 justify-self-center max-sm:bottom-[calc(69px+env(safe-area-inset-bottom))]"
-					>
-						<BulkBar ids={checkedIds} onDone={() => setChecked(new Set())} />
-					</m.div>
-				)}
-			</AnimatePresence>
+			{checkedIds.length > 0 && <BulkBar ids={checkedIds} onDone={() => setChecked(new Set())} />}
 		</div>
 	);
 }
@@ -230,7 +217,7 @@ function ApplicationRow({ application, phone, selected, checked, onCheck, onOpen
 	const initial = (
 		<span
 			aria-hidden="true"
-			className="grid size-8 shrink-0 place-items-center rounded-[7px] bg-sunken text-[13px] font-semibold text-ink-2"
+			className="grid size-8 shrink-0 place-items-center rounded-lg bg-sunken type-body font-semibold text-ink-2"
 		>
 			{application.company.slice(0, 1).toUpperCase()}
 		</span>
@@ -239,7 +226,7 @@ function ApplicationRow({ application, phone, selected, checked, onCheck, onOpen
 	const openButton = (
 		<button type="button" onClick={onOpen} className="grid min-w-0 text-start after:absolute after:inset-0">
 			<span className="truncate font-medium">{application.role}</span>
-			<span className="truncate text-xs text-ink-3">
+			<span className="truncate type-metadata text-ink-3">
 				{phone
 					? `${application.company} · ${next.title}`
 					: [application.company, application.location].filter(Boolean).join(" · ")}
@@ -249,9 +236,15 @@ function ApplicationRow({ application, phone, selected, checked, onCheck, onOpen
 
 	if (phone) {
 		return (
-			<tr className={cn("relative border-b border-line", selected && "bg-accent-soft/50")}>
+			<tr aria-selected={selected} className={cn("relative border-b border-line", selected && "bg-accent-soft/50")}>
 				<td className="py-2.5 ps-1">
 					<div className="flex items-center gap-3">
+						<Checkbox
+							className="relative z-10"
+							checked={checked}
+							onCheckedChange={onCheck}
+							aria-label={t`Select ${application.role} at ${application.company}`}
+						/>
 						{initial}
 						{openButton}
 						<Icon name="caret-right" size={20} className="ms-auto shrink-0 text-ink-3" />
@@ -263,6 +256,7 @@ function ApplicationRow({ application, phone, selected, checked, onCheck, onOpen
 
 	return (
 		<tr
+			aria-selected={selected}
 			className={cn(
 				"relative border-b border-line transition-colors duration-quick hover:bg-hover",
 				selected && "bg-accent-soft/50",
@@ -275,7 +269,7 @@ function ApplicationRow({ application, phone, selected, checked, onCheck, onOpen
 					aria-label={t`Select ${application.role} at ${application.company}`}
 				/>
 			</td>
-			<td className="py-2 pe-2">
+			<td className="py-3 pe-2">
 				<div className="flex items-center gap-3">
 					{initial}
 					{openButton}
@@ -304,12 +298,12 @@ function ApplicationRow({ application, phone, selected, checked, onCheck, onOpen
 						{application.coverLetterId && <Icon name="envelope-simple" size={18} aria-label={t`Cover letter`} />}
 					</span>
 				) : (
-					<span className={cn("text-xs", sent ? "text-warn-text" : "text-ink-3")}>
+					<span className={cn("type-metadata", sent ? "text-warn-text" : "text-ink-3")}>
 						<Trans>None</Trans>
 					</span>
 				)}
 			</td>
-			<td className="px-2 text-xs whitespace-nowrap text-ink-3 max-md:hidden">
+			<td className="px-2 type-metadata whitespace-nowrap text-ink-3 max-md:hidden">
 				{formatRelativeTime(application.updatedAt, i18n.locale)}
 			</td>
 		</tr>
@@ -323,6 +317,8 @@ function BulkBar({ ids, onDone }: BulkBarProps) {
 	const invalidate = useInvalidateApplications();
 	const confirm = useConfirm();
 	const [tag, setTag] = useState("");
+	const tagId = useId();
+	const validation = useSubmitValidation({ [tagId]: !tag.trim() ? t`Enter a tag.` : undefined });
 
 	const bulkUpdate = useMutation({
 		...orpc.applications.bulkUpdate.mutationOptions(),
@@ -344,13 +340,17 @@ function BulkBar({ ids, onDone }: BulkBarProps) {
 	});
 
 	return (
-		<div className="flex flex-wrap items-center gap-1.5 rounded-xl bg-ink px-3 py-2 text-bg shadow-e3">
-			<span className="me-1 text-sm font-semibold">
+		<SelectionBar count={ids.length} label={t`Selected applications`}>
+			<span className="px-2 type-label" aria-live="polite">
 				<Plural value={ids.length} one="# selected" other="# selected" />
 			</span>
 
 			<DropdownMenu>
-				<DropdownMenuTrigger render={<Button size="sm" variant="secondary" />}>
+				<DropdownMenuTrigger
+					render={
+						<Button size="sm" variant="secondary" loading={bulkUpdate.isPending} disabled={bulkUpdate.isPending} />
+					}
+				>
 					<Icon name="arrow-right" size={16} />
 					<Trans>Move to…</Trans>
 				</DropdownMenuTrigger>
@@ -365,28 +365,38 @@ function BulkBar({ ids, onDone }: BulkBarProps) {
 			</DropdownMenu>
 
 			<Popover>
-				<PopoverTrigger render={<Button size="sm" variant="secondary" />}>
+				<PopoverTrigger
+					render={
+						<Button size="sm" variant="secondary" loading={bulkUpdate.isPending} disabled={bulkUpdate.isPending} />
+					}
+				>
 					<Icon name="tag" size={16} />
 					<Trans>Add tag</Trans>
 				</PopoverTrigger>
 				<PopoverContent align="start" className="w-60 p-2">
 					<form
-						className="flex gap-1.5"
+						className="grid gap-1.5"
+						noValidate
 						onSubmit={(event) => {
 							event.preventDefault();
-							if (!tag.trim()) return;
+							if (!validation.validate() || bulkUpdate.isPending) return;
 							bulkUpdate.mutate({ ids, addTags: [tag.trim()] });
 							setTag("");
 						}}
 					>
 						<Input
 							size="sm"
+							id={tagId}
 							aria-label={t`Tag`}
+							aria-required
+							aria-invalid={Boolean(validation.errors[tagId])}
+							aria-describedby={`${tagId}-error`}
 							value={tag}
 							onChange={(event) => setTag(event.target.value)}
 							autoFocus
 						/>
-						<Button size="sm" type="submit" disabled={!tag.trim()}>
+						<FieldError id={`${tagId}-error`}>{validation.errors[tagId]}</FieldError>
+						<Button size="sm" type="submit" loading={bulkUpdate.isPending} disabled={bulkUpdate.isPending}>
 							<Trans>Add</Trans>
 						</Button>
 					</form>
@@ -394,7 +404,11 @@ function BulkBar({ ids, onDone }: BulkBarProps) {
 			</Popover>
 
 			<DropdownMenu>
-				<DropdownMenuTrigger render={<Button size="sm" variant="secondary" />}>
+				<DropdownMenuTrigger
+					render={
+						<Button size="sm" variant="secondary" loading={bulkUpdate.isPending} disabled={bulkUpdate.isPending} />
+					}
+				>
 					<Trans>Close…</Trans>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="start">
@@ -413,6 +427,8 @@ function BulkBar({ ids, onDone }: BulkBarProps) {
 				size="sm"
 				variant="secondary"
 				className="text-danger-text"
+				loading={bulkDelete.isPending}
+				disabled={bulkDelete.isPending}
 				onClick={async () => {
 					const confirmed = await confirm(t`Delete ${ids.length} applications?`, {
 						description: t`They and their timelines are deleted permanently. This can't be undone.`,
@@ -424,9 +440,9 @@ function BulkBar({ ids, onDone }: BulkBarProps) {
 				<Trans>Delete…</Trans>
 			</Button>
 
-			<Button size="sm" variant="ghost" className="ms-auto text-bg hover:bg-bg/15" onClick={onDone}>
-				<Trans>Clear</Trans>
+			<Button size="sm" variant="ghost" className="ms-auto" onClick={onDone}>
+				<Trans>Clear selection</Trans>
 			</Button>
-		</div>
+		</SelectionBar>
 	);
 }

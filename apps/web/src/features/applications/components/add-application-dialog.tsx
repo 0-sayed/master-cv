@@ -3,6 +3,7 @@ import { t } from "@lingui/core/macro";
 import { Plural, Trans } from "@lingui/react/macro";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useId, useRef, useState } from "react";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
@@ -13,13 +14,16 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@reactive-resume/ui/components/dialog";
+import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
 import { cn } from "@reactive-resume/utils/style";
+import { isHttpLink as isLink } from "../links";
 import { useInvalidateApplications } from "../use-application-actions";
 import { Combobox } from "@/components/ui/combobox";
 import { useDialogStore } from "@/dialogs/store";
@@ -31,8 +35,6 @@ type Stage = "saved" | "applied" | "interview";
 
 const STAGES: readonly Stage[] = ["saved", "applied", "interview"];
 const MAX_POSTING_CHARS = 20_000;
-
-const isLink = (value: string) => /^https?:\/\/\S+$/i.test(value.trim());
 
 type AddApplicationDialogProps = {
 	open: boolean;
@@ -67,7 +69,10 @@ type AddApplicationFormProps = { onClose: () => void; onAdded: (id: string) => v
 
 function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 	const id = useId();
-	const { data: webAccess } = useQuery(orpc.webAccess.status.queryOptions());
+	const { data: webAccess } = useQuery({
+		...orpc.webAccess.status.queryOptions(),
+		enabled: isFeatureAvailable("jobSearch"),
+	});
 	const { data: documents } = useQuery(orpc.documents.list.queryOptions({ input: { trashed: false } }));
 	const [query, setQuery] = useState("");
 	const search = useMutation(orpc.applications.ai.searchPostings.mutationOptions());
@@ -107,7 +112,7 @@ function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 	const text = (pasteOpen ? pastedText : input).trim();
 	const sourceLink = isLink(input.trim()) ? input.trim() : null;
 	const link = !pasteOpen && Boolean(sourceLink);
-	const readable = !pasteOpen && Boolean(sourceLink);
+	const readable = isFeatureAvailable("jobSearch") && !pasteOpen && Boolean(sourceLink);
 	const parsed = reading?.text === text ? reading.result : null;
 	const clipped = Boolean(parsed?.postingSource.truncated || (!link && text.length > MAX_POSTING_CHARS));
 	const readPosting = () => {
@@ -141,15 +146,14 @@ function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 		if (pasteOpen && read.error) pasteRef.current?.focus();
 	}, [pasteOpen, read.error]);
 
-	const ready =
-		role.trim().length > 0 &&
-		company.trim().length > 0 &&
-		(stage === "saved" || Boolean(stageDate)) &&
-		!read.isPending &&
-		!create.isPending;
+	const validation = useSubmitValidation({
+		[`${id}-role`]: !role.trim() ? t`Enter a job title.` : undefined,
+		[`${id}-company`]: !company.trim() ? t`Enter a company name.` : undefined,
+		[`${id}-date`]: stage !== "saved" && !stageDate ? t`Choose a valid date.` : undefined,
+	});
 
 	const add = async (tailor: boolean) => {
-		if (!ready) return;
+		if (!validation.validate() || create.isPending || read.isPending) return;
 		const posting = {
 			company: company.trim(),
 			role: role.trim(),
@@ -191,6 +195,7 @@ function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 
 	return (
 		<form
+			noValidate
 			className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden"
 			onSubmit={(event) => {
 				event.preventDefault();
@@ -210,7 +215,7 @@ function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 				data-slot="job-dialog-body"
 				className="grid min-h-0 min-w-0 gap-4 overflow-x-hidden overflow-y-auto overscroll-contain"
 			>
-				{webAccess?.search && (
+				{isFeatureAvailable("jobSearch") && webAccess?.search && (
 					<section className="grid gap-2" aria-labelledby={`${id}-search-label`}>
 						<Label id={`${id}-search-label`} htmlFor={`${id}-search`}>
 							<Trans>Search job postings</Trans>
@@ -336,15 +341,17 @@ function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 									}}
 									autoFocus
 								/>
-								<Button
-									type="button"
-									variant="secondary"
-									disabled={!readable || read.isPending}
-									loading={read.isPending}
-									onClick={readPosting}
-								>
-									{read.isPending ? <Trans>Reading…</Trans> : <Trans>Read job</Trans>}
-								</Button>
+								{isFeatureAvailable("jobSearch") && (
+									<Button
+										type="button"
+										variant="secondary"
+										disabled={!readable || read.isPending}
+										loading={read.isPending}
+										onClick={readPosting}
+									>
+										{read.isPending ? <Trans>Reading…</Trans> : <Trans>Read job</Trans>}
+									</Button>
+								)}
 							</div>
 						</div>
 					</TabsContent>
@@ -426,19 +433,34 @@ function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 					<div className="grid gap-1.5">
 						<Label htmlFor={`${id}-role`}>
 							<Trans>Role</Trans>
+							<span aria-hidden="true"> *</span>
 						</Label>
-						<Input dir="auto" id={`${id}-role`} value={role} onChange={(event) => setRole(event.target.value)} />
+						<Input
+							dir="auto"
+							id={`${id}-role`}
+							aria-required
+							aria-invalid={Boolean(validation.errors[`${id}-role`])}
+							aria-describedby={`${id}-role-error`}
+							value={role}
+							onChange={(event) => setRole(event.target.value)}
+						/>
+						<FieldError id={`${id}-role-error`}>{validation.errors[`${id}-role`]}</FieldError>
 					</div>
 					<div className="grid gap-1.5">
 						<Label htmlFor={`${id}-company`}>
 							<Trans>Company</Trans>
+							<span aria-hidden="true"> *</span>
 						</Label>
 						<Input
 							dir="auto"
 							id={`${id}-company`}
+							aria-required
+							aria-invalid={Boolean(validation.errors[`${id}-company`])}
+							aria-describedby={`${id}-company-error`}
 							value={company}
 							onChange={(event) => setCompany(event.target.value)}
 						/>
+						<FieldError id={`${id}-company-error`}>{validation.errors[`${id}-company`]}</FieldError>
 					</div>
 				</div>
 
@@ -483,14 +505,18 @@ function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 					<div className="grid gap-1.5">
 						<Label htmlFor={`${id}-date`}>
 							<Trans>Application date</Trans>
+							<span aria-hidden="true"> *</span>
 						</Label>
 						<Input
 							id={`${id}-date`}
+							aria-invalid={Boolean(validation.errors[`${id}-date`])}
+							aria-describedby={`${id}-date-error`}
 							type="date"
 							value={stageDate}
 							required
 							onChange={(event) => setStageDate(event.target.value)}
 						/>
+						<FieldError id={`${id}-date-error`}>{validation.errors[`${id}-date`]}</FieldError>
 					</div>
 				)}
 				<div className="grid gap-1.5">
@@ -531,30 +557,28 @@ function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 				)}
 			</div>
 			<div className="grid shrink-0 gap-2 border-t border-line pt-4">
-				{!ready && (
-					<p id={`${id}-save-help`} className="type-caption text-ink-2">
-						{read.isPending ? (
-							<Trans>Wait for the job to finish reading.</Trans>
-						) : create.isPending ? (
-							<Trans>Saving job…</Trans>
-						) : !role.trim() || !company.trim() ? (
-							<Trans>Enter a role and company to save this job.</Trans>
-						) : (
-							<Trans>Choose the date you applied.</Trans>
-						)}
+				{create.isPending && (
+					<p id={`${id}-save-help`} role="status" className="type-caption text-ink-2">
+						<Trans>Saving job…</Trans>
 					</p>
 				)}
 				<DialogFooter>
 					<Button type="button" variant="ghost" disabled={create.isPending} onClick={onClose}>
 						<Trans>Cancel</Trans>
 					</Button>
-					<Button type="button" variant="secondary" disabled={!ready} onClick={() => void add(false)}>
+					<Button
+						type="button"
+						variant="secondary"
+						loading={create.isPending}
+						disabled={create.isPending}
+						onClick={() => void add(false)}
+					>
 						{stage === "saved" ? <Trans>Save job</Trans> : <Trans>Record application</Trans>}
 					</Button>
 					<Button
 						type="button"
-						disabled={!ready}
-						aria-describedby={!ready ? `${id}-save-help` : undefined}
+						disabled={create.isPending}
+						aria-describedby={create.isPending ? `${id}-save-help` : undefined}
 						loading={create.isPending}
 						onClick={() => void add(true)}
 					>

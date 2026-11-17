@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouteContext, useRouterState } from "@tanstack/react-router";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { CommandItem } from "@reactive-resume/ui/components/command";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { toast } from "@reactive-resume/ui/components/toast";
@@ -22,7 +23,7 @@ export function AskCommandGroup() {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const question = search.trim();
-	if (!session || !question) return null;
+	if (!isFeatureAvailable("assistant") || !session || !question) return null;
 
 	const ask = async () => {
 		reset();

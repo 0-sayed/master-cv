@@ -11,10 +11,17 @@ type ApplicationCardProps = {
 	/** The ⋯ menu (Move to…, Close…, Delete); cards dragged in the overlay go without. */
 	withMenu?: boolean;
 	dragging?: boolean;
+	dragHandle?: React.ReactNode;
 };
 
 /** A board card: the company's initial, role and company, and the next step (warn when it's overdue). */
-export function ApplicationCard({ application, onClick, withMenu = false, dragging = false }: ApplicationCardProps) {
+export function ApplicationCard({
+	application,
+	onClick,
+	withMenu = false,
+	dragging = false,
+	dragHandle,
+}: ApplicationCardProps) {
 	const { i18n } = useLingui();
 	const next = describeNextStep(getNextStep(application), application, i18n.locale);
 
@@ -28,19 +35,25 @@ export function ApplicationCard({ application, onClick, withMenu = false, draggi
 			)}
 		>
 			<div className="flex items-start gap-2.5">
-				<span
-					aria-hidden="true"
-					className="grid size-7 shrink-0 place-items-center rounded-[7px] bg-sunken text-xs font-semibold text-ink-2"
-				>
-					{application.company.slice(0, 1).toUpperCase()}
-				</span>
+				{dragHandle ?? (
+					<span
+						aria-hidden="true"
+						className="grid size-7 shrink-0 place-items-center rounded-[7px] bg-sunken text-xs font-semibold text-ink-2"
+					>
+						{application.company.slice(0, 1).toUpperCase()}
+					</span>
+				)}
 				<button
 					type="button"
 					onClick={onClick}
 					className="grid min-w-0 flex-1 text-start after:absolute after:inset-0 after:rounded-[10px]"
 				>
-					<span className="truncate text-sm font-semibold">{application.role}</span>
-					<span className="truncate text-xs text-ink-3">{application.company}</span>
+					<span dir="auto" className="line-clamp-2 type-body font-semibold">
+						{application.role}
+					</span>
+					<span dir="auto" className="line-clamp-2 type-metadata text-ink-3">
+						{application.company}
+					</span>
 				</button>
 				{withMenu && <ApplicationActionsMenu application={application} className="relative z-10 -me-1.5 -mt-1.5" />}
 			</div>

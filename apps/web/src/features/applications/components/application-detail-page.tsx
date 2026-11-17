@@ -4,14 +4,19 @@ import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Plural, Trans } from "@lingui/react/macro";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useId, useState } from "react";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
+import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
+	DialogFooter,
 	DialogTitle,
 } from "@reactive-resume/ui/components/dialog";
 import {
@@ -21,15 +26,17 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
+import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@reactive-resume/ui/components/sheet";
+import { NativeSelect } from "@reactive-resume/ui/components/native-select";
 import { toast } from "@reactive-resume/ui/components/toast";
-import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
+import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
 import { cn } from "@reactive-resume/utils/style";
 import { daysInStage } from "../next-step";
 import { getClosedReasonLabel, getNextStage, getStageColor, getStageLabel, PIPELINE } from "../stages";
 import { useApplicationActions, useInvalidateApplications } from "../use-application-actions";
+import { ApplicationFormSheet } from "./application-form-sheet";
 import { ApplicationNotes } from "./application-notes";
 import { Activity } from "./detail/activity";
 import { CloseDialog } from "./detail/close-dialog";
@@ -37,51 +44,49 @@ import { Contacts } from "./detail/contacts";
 import { NextStepCard } from "./detail/next-step-card";
 import { SentDocuments } from "./detail/sent-documents";
 import { InterviewDialog } from "./interview-dialog";
-import { useClosingValue } from "@/hooks/use-closing-value";
+import { PageHeader } from "@/components/layout/page-header";
+import { QuerySkeleton } from "@/components/query-skeleton";
+import { defaultWorkspaceTab } from "@/features/career/workspace/shell";
 import { useConfirm } from "@/hooks/use-confirm";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { isImeComposing } from "@/libs/keyboard";
+import { formatInterfaceDate } from "@/libs/locale";
 import { orpc } from "@/libs/orpc/client";
 
-type DetailSheetProps = {
-	application: Application | null;
-	onOpenChange: (open: boolean) => void;
-	onEditDetails: (application: Application) => void;
-};
-
-/**
- * One application, 480px from the right (full screen on phones): the stage stepper with Move to next, the next
- * step, what was sent, the key facts, notes and activity. Close application… takes a reason; Delete is in ⋯.
- */
-export function ApplicationDetailSheet({ application, onOpenChange, onEditDetails }: DetailSheetProps) {
-	const phone = useBreakpoint() === "mobile";
-	// Closing keeps the last application on screen until the sheet has slid away.
-	const [shown, onOpenChangeComplete] = useClosingValue(application);
-	const { data } = useQuery({
-		...orpc.applications.getById.queryOptions({ input: { id: shown?.id ?? "" } }),
-		// Fetch only while open; while closing, the cached copy keeps showing.
-		enabled: Boolean(application),
-		...(shown ? { placeholderData: shown } : {}),
-	});
-	const current = data ?? shown;
-
+export function ApplicationDetailPage({ applicationId }: { applicationId: string }) {
+	const navigate = useNavigate();
+	const [editing, setEditing] = useState(false);
+	const query = useQuery(orpc.applications.getById.queryOptions({ input: { id: applicationId } }));
+	const back = () => void navigate({ to: "/dashboard/applications" });
+	if (query.isPending) return <QuerySkeleton shape="form" />;
+	if (!query.data)
+		return (
+			<>
+				<PageHeader title={<Trans>Applications</Trans>} />
+				<Alert variant="error">
+					<Icon name="warning" />
+					<AlertTitle>
+						<Trans>This application couldn't be opened.</Trans>
+					</AlertTitle>
+					<AlertDescription>
+						<Trans>Return to applications or try again.</Trans>
+					</AlertDescription>
+					<AlertActions>
+						<BackNavigation render={<Link to="/dashboard/applications" />}>
+							<Trans>Back to applications</Trans>
+						</BackNavigation>
+						<Button variant="secondary" onClick={() => void query.refetch()}>
+							<Trans>Retry</Trans>
+						</Button>
+					</AlertActions>
+				</Alert>
+			</>
+		);
 	return (
-		<Sheet open={Boolean(application)} onOpenChange={onOpenChange} onOpenChangeComplete={onOpenChangeComplete}>
-			<SheetContent
-				side={phone ? "bottom" : "right"}
-				closeLabel={t`Close`}
-				className={cn("gap-0", phone ? "h-svh" : "data-[side=right]:sm:max-w-[480px]")}
-			>
-				{current && (
-					<Detail
-						key={current.id}
-						application={current}
-						onEditDetails={onEditDetails}
-						onDeleted={() => onOpenChange(false)}
-					/>
-				)}
-			</SheetContent>
-		</Sheet>
+		<>
+			<Detail key={query.data.id} application={query.data} onEditDetails={() => setEditing(true)} onDeleted={back} />
+			<ApplicationFormSheet application={query.data} open={editing} onOpenChange={setEditing} />
+		</>
 	);
 }
 
@@ -119,66 +124,39 @@ function Detail({ application, onEditDetails, onDeleted }: DetailProps) {
 
 	return (
 		<>
-			<div className="min-h-0 flex-1 overflow-y-auto">
-				<header className="grid gap-4 border-b border-line px-5 pt-5 pb-4">
-					<div className="flex items-start gap-3 pe-8">
-						<span
-							aria-hidden="true"
-							className="grid size-10 shrink-0 place-items-center rounded-[9px] bg-sunken font-semibold text-ink-2"
+			<PageHeader
+				title={<span dir="auto">{application.role}</span>}
+				description={<span dir="auto">{[application.company, application.location].filter(Boolean).join(" · ")}</span>}
+				back={
+					<BackNavigation render={<Link to="/dashboard/applications" />}>
+						<Trans>Back to applications</Trans>
+					</BackNavigation>
+				}
+				actions={
+					<DropdownMenu>
+						<DropdownMenuTrigger
+							render={
+								<Button size="icon-sm" variant="ghost" aria-label={t`Application options`} className="text-ink-3" />
+							}
 						>
-							{application.company.slice(0, 1).toUpperCase()}
-						</span>
-						<div className="grid min-w-0 flex-1 gap-0.5">
-							<SheetTitle className="font-display text-[22px] leading-7 font-medium">{application.role}</SheetTitle>
-							<SheetDescription className="flex flex-wrap items-center gap-x-1.5 text-sm text-ink-2">
-								<span>{[application.company, application.location].filter(Boolean).join(" · ")}</span>
-								{(application.sourceUrl || application.jobDescription) && (
-									<>
-										<span aria-hidden="true">·</span>
-										{application.sourceUrl && !application.jobDescription ? (
-											<a
-												href={application.sourceUrl}
-												target="_blank"
-												rel="noreferrer"
-												className="font-medium text-accent-text hover:underline"
-											>
-												<Trans>View posting</Trans>
-											</a>
-										) : (
-											<button
-												type="button"
-												onClick={() => setPostingOpen(true)}
-												className="font-medium text-accent-text hover:underline"
-											>
-												<Trans>View posting</Trans>
-											</button>
-										)}
-									</>
-								)}
-							</SheetDescription>
-						</div>
-						<DropdownMenu>
-							<DropdownMenuTrigger
-								render={
-									<Button size="icon-sm" variant="ghost" aria-label={t`Application options`} className="text-ink-3" />
-								}
-							>
-								<Icon name="dots-three" />
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								<DropdownMenuItem onClick={() => onEditDetails(application)}>
-									<Icon name="pencil-simple" size={18} />
-									<Trans>Edit details…</Trans>
-								</DropdownMenuItem>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem variant="destructive" onClick={onDelete}>
-									<Icon name="trash" size={18} />
-									<Trans>Delete…</Trans>
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</div>
-
+							<Icon name="dots-three" />
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuItem onClick={() => onEditDetails(application)}>
+								<Icon name="pencil-simple" size={18} />
+								<Trans>Edit details…</Trans>
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem variant="destructive" onClick={onDelete}>
+								<Icon name="trash" size={18} />
+								<Trans>Delete…</Trans>
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				}
+			/>
+			<div className="grid min-w-0 items-start gap-6 lg:grid-cols-2" data-slot="application-detail-columns">
+				<div className="grid min-w-0 gap-6">
 					<div className="grid gap-2.5">
 						<ol aria-label={t`Stages`} className="grid grid-cols-5 gap-1.5">
 							{PIPELINE.map((stage, index) => (
@@ -200,10 +178,7 @@ function Detail({ application, onEditDetails, onDeleted }: DetailProps) {
 											}}
 										/>
 										<span
-											className={cn(
-												"truncate text-[11px]",
-												stage === application.status ? "font-semibold text-ink" : "text-ink-3",
-											)}
+											className={cn("truncate type-label", stage === application.status ? "text-ink" : "text-ink-3")}
 										>
 											{getStageLabel(stage)}
 										</span>
@@ -212,13 +187,13 @@ function Detail({ application, onEditDetails, onDeleted }: DetailProps) {
 							))}
 						</ol>
 						<div className="flex flex-wrap items-center justify-between gap-2">
-							<span className="flex items-center gap-1.5 text-sm">
+							<span className="flex items-center gap-1.5 type-body">
 								<span
 									aria-hidden="true"
 									className="size-2 rounded-full"
 									style={{ background: getStageColor(application.status) }}
 								/>
-								<strong className="font-semibold">{getStageLabel(application.status)}</strong>
+								<strong className="type-label">{getStageLabel(application.status)}</strong>
 								<span className="text-ink-3">
 									{closed && application.closedReason ? (
 										<>· {getClosedReasonLabel(application.closedReason)}</>
@@ -245,15 +220,15 @@ function Detail({ application, onEditDetails, onDeleted }: DetailProps) {
 							)}
 						</div>
 					</div>
-				</header>
 
-				<div className="grid gap-6 p-5">
 					<NextStepCard
 						application={application}
 						onScheduleInterview={(entry) => setInterview({ open: true, entry })}
 					/>
 					<SentDocuments application={application} disabled={remove.isPending} />
 					<Facts application={application} locale={i18n.locale} />
+				</div>
+				<div className="grid min-w-0 gap-6">
 					<Tags application={application} />
 					<ApplicationNotes application={application} />
 					<Activity application={application} onOpenInterview={(entry) => setInterview({ open: true, entry })} />
@@ -266,18 +241,13 @@ function Detail({ application, onEditDetails, onDeleted }: DetailProps) {
 						<Button variant="secondary" onClick={() => setClosing(true)}>
 							<Trans>Close application…</Trans>
 						</Button>
-						{application.sourceUrl && (
-							<Button
-								variant="ghost"
-								nativeButton={false}
-								className="text-ink-2"
-								render={<a href={application.sourceUrl} target="_blank" rel="noreferrer" />}
-							>
+						{(application.sourceUrl || application.jobDescription) && (
+							<Button variant="ghost" onClick={() => setPostingOpen(true)}>
 								<Trans>Posting</Trans>
 								<Icon name="arrow-square-out" size={16} />
 							</Button>
 						)}
-						<OpenWorkspaceButton application={application} />
+						{isFeatureAvailable("interviews") && <OpenWorkspaceButton application={application} />}
 					</>
 				) : (
 					<Button variant="secondary" onClick={() => moveTo(application, "applied")}>
@@ -307,7 +277,7 @@ function Facts({ application, locale }: { application: Application; locale: stri
 		onSuccess: () => invalidate(application.id),
 		onError: () => toast.add({ type: "error", description: t`Couldn't save.` }),
 	});
-	const applied = new Date(application.appliedAt).toLocaleDateString(locale, {
+	const applied = formatInterfaceDate(application.appliedAt, locale, {
 		month: "short",
 		day: "numeric",
 		year: "numeric",
@@ -318,28 +288,46 @@ function Facts({ application, locale }: { application: Application; locale: stri
 			<InlineFact
 				label={t`Salary`}
 				value={application.salary}
-				onSave={(salary) => update.mutate({ id: application.id, salary })}
+				onSave={(salary) =>
+					update.mutate({
+						expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+						id: application.id,
+						salary,
+					})
+				}
 			/>
 			<InlineFact
 				label={t`Source`}
 				value={application.source}
-				onSave={(source) => update.mutate({ id: application.id, source })}
+				onSave={(source) =>
+					update.mutate({
+						expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+						id: application.id,
+						source,
+					})
+				}
 			/>
 			<div className="grid gap-0.5">
-				<dt className="text-xs font-semibold text-ink-3 uppercase">
+				<dt className="type-label text-ink-3 uppercase">
 					<Trans>Applied</Trans>
 				</dt>
-				<dd className="text-sm font-medium">{application.status === "saved" ? "—" : applied}</dd>
+				<dd className="type-body">{application.status === "saved" ? "—" : applied}</dd>
 			</div>
 			<div className="grid gap-0.5">
-				<dt className="text-xs font-semibold text-ink-3 uppercase">
+				<dt className="type-label text-ink-3 uppercase">
 					<Trans>Contact</Trans>
 				</dt>
 				<dd className="min-w-0">
 					<Contacts
 						contacts={application.contacts}
 						disabled={update.isPending}
-						onChange={(contacts) => update.mutate({ id: application.id, contacts })}
+						onChange={(contacts) =>
+							update.mutate({
+								expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+								id: application.id,
+								contacts,
+							})
+						}
 					/>
 				</dd>
 			</div>
@@ -363,7 +351,7 @@ function InlineFact({ label, value, onSave }: InlineFactProps) {
 
 	return (
 		<div className="grid gap-0.5">
-			<dt className="text-xs font-semibold text-ink-3 uppercase">
+			<dt className="type-label text-ink-3 uppercase">
 				<label htmlFor={id}>{label}</label>
 			</dt>
 			<dd>
@@ -372,7 +360,7 @@ function InlineFact({ label, value, onSave }: InlineFactProps) {
 						id={id}
 						type="button"
 						onClick={() => setDraft(value ?? "")}
-						className="w-full truncate rounded-md text-start text-sm font-medium hover:bg-hover"
+						className="w-full truncate rounded-md text-start type-body hover:bg-hover"
 					>
 						{value || "—"}
 					</button>
@@ -407,16 +395,17 @@ function Tags({ application }: { application: Application }) {
 		onSuccess: () => invalidate(application.id),
 		onError: () => toast.add({ type: "error", description: t`Couldn't save the tags.` }),
 	});
-	const save = (tags: string[]) => update.mutate({ id: application.id, tags });
+	const save = (tags: string[]) =>
+		update.mutate({ expectedUpdatedAt: new Date(application.updatedAt).toISOString(), id: application.id, tags });
 
 	return (
 		<section aria-labelledby="application-tags" className="grid gap-2">
-			<h3 id="application-tags" className="text-xs font-semibold text-ink-3 uppercase">
+			<h3 id="application-tags" className="type-label text-ink-3 uppercase">
 				<Trans>Tags</Trans>
 			</h3>
 			<div className="flex flex-wrap items-center gap-1.5">
 				{application.tags.map((value) => (
-					<span key={value} className="flex h-7 items-center gap-1 rounded-md bg-sunken ps-2 text-xs">
+					<span key={value} className="flex h-7 items-center gap-1 rounded-md bg-sunken ps-2 type-metadata">
 						{value}
 						<button
 							type="button"
@@ -459,6 +448,7 @@ function MarkAppliedDialog({ application, onClose }: MarkAppliedDialogProps) {
 	const id = useId();
 	const invalidate = useInvalidateApplications();
 	const [date, setDate] = useState(() => new Date().toLocaleDateString("en-CA"));
+	const validation = useSubmitValidation({ [`${id}-date`]: !date ? t`Choose a date.` : undefined });
 	const [resumeId, setResumeId] = useState(application.resumeId ?? "");
 	const [coverLetterId, setCoverLetterId] = useState(application.coverLetterId ?? "");
 	const [resumeFileSent, setResumeFileSent] = useState(true);
@@ -480,10 +470,13 @@ function MarkAppliedDialog({ application, onClose }: MarkAppliedDialogProps) {
 		>
 			<DialogContent>
 				<form
+					noValidate
 					className="grid gap-4"
 					onSubmit={(event) => {
 						event.preventDefault();
+						if (!validation.validate() || update.isPending) return;
 						update.mutate({
+							expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
 							id: application.id,
 							status: "applied",
 							stageEnteredAt: date,
@@ -507,25 +500,24 @@ function MarkAppliedDialog({ application, onClose }: MarkAppliedDialogProps) {
 					<div className="grid gap-1.5">
 						<label htmlFor={`${id}-date`}>
 							<Trans>Application date</Trans>
+							<span aria-hidden="true"> *</span>
 						</label>
 						<Input
 							id={`${id}-date`}
 							type="date"
-							required
+							aria-required
+							aria-invalid={!!validation.errors[`${id}-date`]}
+							aria-describedby={`${id}-date-error`}
 							value={date}
 							onChange={(event) => setDate(event.target.value)}
 						/>
+						<FieldError id={`${id}-date-error`}>{validation.errors[`${id}-date`]}</FieldError>
 					</div>
 					<div className="grid gap-1.5">
 						<label htmlFor={`${id}-resume`}>
 							<Trans>Resume submitted (optional)</Trans>
 						</label>
-						<select
-							id={`${id}-resume`}
-							value={resumeId}
-							onChange={(event) => setResumeId(event.target.value)}
-							className="h-9 rounded-md border border-line bg-surface px-2 text-sm"
-						>
+						<NativeSelect id={`${id}-resume`} value={resumeId} onChange={(event) => setResumeId(event.target.value)}>
 							<option value="">{t`None`}</option>
 							{documents
 								?.filter((document) => document.type === "resume")
@@ -534,17 +526,16 @@ function MarkAppliedDialog({ application, onClose }: MarkAppliedDialogProps) {
 										{document.name}
 									</option>
 								))}
-						</select>
+						</NativeSelect>
 					</div>
 					<div className="grid gap-1.5">
 						<label htmlFor={`${id}-letter`}>
 							<Trans>Cover letter submitted (optional)</Trans>
 						</label>
-						<select
+						<NativeSelect
 							id={`${id}-letter`}
 							value={coverLetterId}
 							onChange={(event) => setCoverLetterId(event.target.value)}
-							className="h-9 rounded-md border border-line bg-surface px-2 text-sm"
 						>
 							<option value="">{t`None`}</option>
 							{documents
@@ -554,36 +545,33 @@ function MarkAppliedDialog({ application, onClose }: MarkAppliedDialogProps) {
 										{document.name}
 									</option>
 								))}
-						</select>
+						</NativeSelect>
 					</div>
 					{application.resumeFileUrl && (
-						<label className="flex items-center gap-2 text-sm">
-							<input
-								type="checkbox"
-								checked={resumeFileSent}
-								onChange={(event) => setResumeFileSent(event.target.checked)}
-							/>
+						<label className="flex items-center gap-2 type-body">
+							<Checkbox checked={resumeFileSent} onCheckedChange={(checked) => setResumeFileSent(checked === true)} />
 							<Trans>Submitted attached resume: {application.resumeFileName ?? "PDF"}</Trans>
 						</label>
 					)}
 					{application.coverLetterUrl && (
-						<label className="flex items-center gap-2 text-sm">
-							<input
-								type="checkbox"
-								checked={letterFileSent}
-								onChange={(event) => setLetterFileSent(event.target.checked)}
-							/>
+						<label className="flex items-center gap-2 type-body">
+							<Checkbox checked={letterFileSent} onCheckedChange={(checked) => setLetterFileSent(checked === true)} />
 							<Trans>Submitted attached cover letter: {application.coverLetterName ?? "PDF"}</Trans>
 						</label>
 					)}
 					{update.error && (
-						<p role="alert" className="text-sm text-danger-text">
+						<p role="alert" className="type-body text-danger-text">
 							{getOrpcErrorMessage(update.error, { fallback: t`Couldn't record submission. Try again.` })}
 						</p>
 					)}
-					<Button type="submit" disabled={!date || update.isPending}>
-						<Trans>Confirm applied</Trans>
-					</Button>
+					<DialogFooter>
+						<Button type="button" variant="secondary" onClick={onClose}>
+							<Trans>Cancel</Trans>
+						</Button>
+						<Button type="submit" disabled={update.isPending} loading={update.isPending}>
+							<Trans>Confirm applied</Trans>
+						</Button>
+					</DialogFooter>
 				</form>
 			</DialogContent>
 		</Dialog>
@@ -596,7 +584,7 @@ function PostingDialog({ application, open, onOpenChange }: PostingDialogProps) 
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-h-[85svh] overflow-y-auto sm:max-w-xl">
 				<DialogHeader>
-					<DialogTitle>
+					<DialogTitle dir="auto">
 						{application.role} · {application.company}
 					</DialogTitle>
 					<DialogDescription>
@@ -615,7 +603,7 @@ function PostingDialog({ application, open, onOpenChange }: PostingDialogProps) 
 					</DialogDescription>
 				</DialogHeader>
 				{application.postingSource && (
-					<p className="text-xs text-ink-3">
+					<p className="type-metadata text-ink-3">
 						{application.postingSource.method === "paste" ? (
 							<Trans>Pasted description</Trans>
 						) : (
@@ -627,18 +615,18 @@ function PostingDialog({ application, open, onOpenChange }: PostingDialogProps) 
 					</p>
 				)}
 				{(application.postingSource?.truncated || application.postingSource?.completeness === "incomplete") && (
-					<p className="text-xs text-warn-text" role="alert">
+					<p className="type-metadata text-warn-text" role="alert">
 						<Trans>This saved description is clipped or incomplete. Review before preparing documents.</Trans>
 					</p>
 				)}
 				{application.requirements.length > 0 && (
 					<section aria-labelledby="posting-requirements" className="grid gap-2">
-						<h3 id="posting-requirements" className="text-xs font-semibold text-ink-3 uppercase">
+						<h3 id="posting-requirements" className="type-label text-ink-3 uppercase">
 							<Trans>What it asks for</Trans>
 						</h3>
 						<ul className="flex flex-wrap gap-1.5">
 							{application.requirements.map((requirement) => (
-								<li key={requirement} className="rounded-md bg-sunken px-2 py-1 text-xs">
+								<li key={requirement} dir="auto" className="rounded-md bg-sunken px-2 py-1 type-metadata">
 									{requirement}
 								</li>
 							))}
@@ -646,7 +634,9 @@ function PostingDialog({ application, open, onOpenChange }: PostingDialogProps) 
 					</section>
 				)}
 				{application.jobDescription && (
-					<p className="text-sm leading-6 whitespace-pre-wrap text-ink-2">{application.jobDescription}</p>
+					<p dir="auto" className="type-body whitespace-pre-wrap text-ink-2">
+						{application.jobDescription}
+					</p>
 				)}
 			</DialogContent>
 		</Dialog>
@@ -658,11 +648,11 @@ function OpenWorkspaceButton({ application }: { application: Application }) {
 	const navigate = useNavigate();
 	return (
 		<Button
-			className="ms-auto bg-accent-soft text-accent-text hover:bg-accent-soft hover:brightness-95"
+			className="ms-auto"
 			onClick={() =>
 				void navigate({
 					to: "/dashboard/applications/$applicationId/{-$tab}",
-					params: { applicationId: application.id },
+					params: { applicationId: application.id, tab: defaultWorkspaceTab(application, new Date()) },
 				})
 			}
 		>

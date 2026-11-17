@@ -7,6 +7,7 @@ import { withDatabaseOwner } from "@reactive-resume/db/owner-scope";
 import * as tables from "@reactive-resume/db/schema";
 import { sendCareerNotification } from "@reactive-resume/email/transport";
 import { env } from "@reactive-resume/env/server";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { generateId } from "@reactive-resume/utils/string";
 import { STALE_AGENT_RUN_TTL_MS } from "../agent/runs";
 import { aiProvidersService } from "../ai-providers/service";
@@ -581,6 +582,7 @@ async function runCareerJobsForOwner(maxJobs: number, maxEmails: number) {
 }
 
 export async function runCareerJobs() {
+	if (!isFeatureAvailable("careerAutomation")) return { processed: 0 };
 	const owners = await db.execute<{ userId: string }>(sql`SELECT user_id AS "userId" FROM master_cv_queue_owners()`);
 	let processed = 0;
 	let emailAttempts = 0;

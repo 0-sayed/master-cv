@@ -5,6 +5,7 @@ import { Trans } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	DropdownMenu,
@@ -174,7 +175,7 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 			</form>
 
 			{selected && (
-				<div role="status" className="grid gap-2.5 rounded-[10px] bg-ink p-3 text-[13px] text-bg">
+				<div role="status" className="grid gap-2.5 rounded-lg bg-sunken p-3 type-body text-ink">
 					<span className="flex items-center gap-2 font-medium">
 						<Icon name="clock-counter-clockwise" size={18} />
 						<Trans>
@@ -185,15 +186,9 @@ export function HistoryTimeline({ source }: { source: HistorySource }) {
 						<Button size="sm" disabled={source.locked || busy} onClick={() => restore(selected)}>
 							<Trans>Restore this version</Trans>
 						</Button>
-						<Button
-							size="sm"
-							variant="ghost"
-							disabled={busy}
-							className="text-bg underline underline-offset-[3px] hover:bg-transparent hover:text-bg"
-							onClick={() => setVersion(null)}
-						>
+						<BackNavigation disabled={busy} onClick={() => setVersion(null)}>
 							<Trans>Back to now</Trans>
-						</Button>
+						</BackNavigation>
 					</span>
 				</div>
 			)}

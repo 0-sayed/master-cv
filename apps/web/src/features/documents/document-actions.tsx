@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useCopyToClipboard } from "usehooks-ts";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { Button } from "@reactive-resume/ui/components/button";
 import { ContextMenuContent, ContextMenuItem, ContextMenuSeparator } from "@reactive-resume/ui/components/context-menu";
 import {
@@ -28,7 +29,9 @@ import { useNewDocumentsStore } from "./new-documents";
 import { ChipInput } from "@/components/input/chip-input";
 import { QueryListState } from "@/components/query-list-state";
 import { useDialogStore } from "@/dialogs/store";
+import { ApplicationPicker } from "@/features/applications/components/application-picker";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
+import { usePersonalToolAvailable } from "@/features/personal-tools/availability";
 import { useClosingValue } from "@/hooks/use-closing-value";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useCurrentSession } from "@/hooks/use-current-session";
@@ -82,7 +85,9 @@ export function useDocumentActions() {
 			const copied =
 				document.type === "resume"
 					? duplicateResume.mutateAsync({ id: document.id, name: t`${document.name} (copy)`, tags: document.tags })
-					: duplicateLetter.mutateAsync({ id: document.id }).then((letter) => letter.id);
+					: duplicateLetter
+							.mutateAsync({ id: document.id, name: t`${document.name} (copy)` })
+							.then((letter) => letter.id);
 			try {
 				markNew(await copied);
 				toast.add({ description: t`Duplicated` });
@@ -306,6 +311,7 @@ export function DocumentMenuContent({
 	const actions = useDocumentActions();
 	const navigate = useNavigate();
 	const session = useCurrentSession();
+	const applicationsEnabled = usePersonalToolAvailable("applications");
 	const [, copy] = useCopyToClipboard();
 	const url = publicResumeUrl(document, session?.user.username);
 
@@ -320,7 +326,7 @@ export function DocumentMenuContent({
 	];
 	const liveEntries: MenuEntry[] = [
 		{ icon: "arrow-square-out", label: t`Open`, onSelect: onOpen },
-		...(url
+		...(isFeatureAvailable("publicSharing") && url
 			? [
 					{
 						icon: "link-simple-horizontal",
@@ -332,13 +338,25 @@ export function DocumentMenuContent({
 		...(onSelect ? [{ icon: "check-square", label: t`Select`, onSelect } satisfies MenuEntry] : []),
 		{ icon: "pencil-simple", label: t`Rename`, onSelect: onRename, disabled: document.isLocked },
 		{ icon: "copy", label: t`Duplicate`, onSelect: () => void actions.duplicate(document) },
-		document.type === "resume"
-			? {
-					icon: "briefcase",
-					label: t`Copy for a job…`,
-					onSelect: () => void navigate({ to: "/dashboard/resumes/$resumeId/job", params: { resumeId: document.id } }),
-				}
-			: { icon: "briefcase", label: t`Link to application…`, onSelect: onLink, disabled: document.isLocked },
+		...(document.type === "resume"
+			? [
+					{
+						icon: "briefcase",
+						label: t`Copy for a job…`,
+						onSelect: () =>
+							void navigate({ to: "/dashboard/resumes/$resumeId/job", params: { resumeId: document.id } }),
+					} satisfies MenuEntry,
+				]
+			: applicationsEnabled
+				? [
+						{
+							icon: "briefcase",
+							label: t`Link to application…`,
+							onSelect: onLink,
+							disabled: document.isLocked,
+						} satisfies MenuEntry,
+					]
+				: []),
 		...(document.type === "resume"
 			? [
 					{
@@ -478,7 +496,8 @@ export function LinkApplicationDialog({ document: requested, onClose }: LinkAppl
 	const queryClient = useQueryClient();
 	// Closing keeps the list, its highlight and Unlink on screen until the dialog has faded out.
 	const [document, onOpenChangeComplete] = useClosingValue(requested);
-	const query = useQuery({ ...applicationsListQueryOptions(), enabled: requested !== null });
+	const applicationsEnabled = usePersonalToolAvailable("applications");
+	const query = useQuery({ ...applicationsListQueryOptions(), enabled: requested !== null && applicationsEnabled });
 	const link = useMutation(orpc.documents.linkApplication.mutationOptions());
 
 	const choose = async (applicationId: string | null) => {
@@ -492,7 +511,7 @@ export function LinkApplicationDialog({ document: requested, onClose }: LinkAppl
 		}
 	};
 
-	const jobs = (query.data ?? []).filter((application) => application.status !== "closed");
+	const jobs = query.data ?? [];
 
 	return (
 		<Dialog
@@ -509,7 +528,7 @@ export function LinkApplicationDialog({ document: requested, onClose }: LinkAppl
 						<Trans>The application this letter is for.</Trans>
 					</DialogDescription>
 				</DialogHeader>
-				<div className="grid max-h-72 gap-1 overflow-y-auto">
+				<div className="grid gap-1">
 					<QueryListState
 						query={query}
 						empty={jobs.length === 0}
@@ -517,22 +536,13 @@ export function LinkApplicationDialog({ document: requested, onClose }: LinkAppl
 						errorMessage={<Trans>Couldn't load this. Your saved data hasn't changed.</Trans>}
 						emptyMessage={<Trans>No applications yet. Add one in Applications first.</Trans>}
 					>
-						{jobs.map((application) => (
-							<Button
-								key={application.id}
-								variant={document?.application?.id === application.id ? "secondary" : "ghost"}
-								size="row"
-								className="justify-start text-start"
-								disabled={link.isPending}
-								onClick={() => void choose(application.id)}
-							>
-								<Icon name="briefcase" className="text-ink-2" />
-								<span className="grid min-w-0">
-									<span className="truncate font-medium">{application.role}</span>
-									<span className="truncate type-metadata text-ink-3">{application.company}</span>
-								</span>
-							</Button>
-						))}
+						<ApplicationPicker
+							aria-label={t`Link to application`}
+							applications={jobs}
+							value={document?.application?.id ?? null}
+							disabled={link.isPending}
+							onValueChange={(id) => void choose(id)}
+						/>
 					</QueryListState>
 				</div>
 				{document?.application && (

@@ -4,6 +4,7 @@ import type { Application } from "../types";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeAll, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
+import { msg } from "@lingui/core/macro";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -56,6 +57,8 @@ const application: Application = {
 	closedReason: null,
 	postingSource: null,
 	coverLetterId: null,
+	selectedResumeVersionId: null,
+	sentResumeRecordedAt: null,
 	sentResumeVersionId: null,
 	sentCoverLetterVersionId: null,
 	sentCheckScore: null,
@@ -169,3 +172,24 @@ it("keeps a failed save editable and cancellation performs no client storage cle
 	expect(mocks.upload).not.toHaveBeenCalled();
 	expect(mocks.removeFile).not.toHaveBeenCalled();
 });
+
+it("translates the selected application stage with the interface", async () => {
+	i18n.loadAndActivate({ locale: "ar-SA", messages: { [String(msg`Saved`.id)]: "محفوظ" } });
+	renderSheet();
+	expect(await screen.findByRole("combobox", { name: "Stage" })).toHaveTextContent("محفوظ");
+});
+
+it.each([null, { ...application, company: "", role: "" }])(
+	"announces empty required fields and focuses company on submit",
+	async (app) => {
+		i18n.loadAndActivate({ locale: "en-US", messages: {} });
+		renderSheet(app);
+		const save = screen.getByRole("button", { name: app ? "Save changes" : "Add to pipeline" });
+		expect(save).not.toBeDisabled();
+		fireEvent.click(save);
+		await waitFor(() => expect(screen.getByRole("textbox", { name: /Company/ })).toHaveFocus());
+		expect(screen.getAllByRole("alert")).toHaveLength(2);
+		expect(mocks.create).not.toHaveBeenCalled();
+		expect(mocks.update).not.toHaveBeenCalled();
+	},
+);

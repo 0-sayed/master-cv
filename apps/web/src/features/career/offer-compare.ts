@@ -1,4 +1,5 @@
 import type { CareerProfileData, OfferTerms } from "@reactive-resume/schema/career";
+import { getInterfaceDateLocale } from "@/libs/locale";
 
 type Pay = Pick<OfferTerms, "currency" | "period">;
 
@@ -20,7 +21,11 @@ export function meetsMinimum(offer: OfferTerms, minBase: CareerProfileData["minB
 }
 
 export const formatMoney = (locale: string, currency: string, amount: number) =>
-	new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 }).format(amount);
+	new Intl.NumberFormat(getInterfaceDateLocale(locale), {
+		style: "currency",
+		currency,
+		maximumFractionDigits: 0,
+	}).format(amount);
 
 /** A preferred place the offer's location names (or is named by), ignoring case. */
 export const matchingPlace = (location: string, places: string[]) => {

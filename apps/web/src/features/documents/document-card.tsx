@@ -4,6 +4,7 @@ import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { ContextMenu, ContextMenuTrigger } from "@reactive-resume/ui/components/context-menu";
 import { documentCardLayout } from "@reactive-resume/ui/components/document-card-layout";
@@ -13,7 +14,9 @@ import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { cn } from "@reactive-resume/utils/style";
 import { useDocumentsCopy } from "./copy.generated";
 import { DocumentMenuContent, useDocumentActions } from "./document-actions";
+import { DocumentType } from "./document-type";
 import { daysLeftInTrash } from "./filter";
+import { LetterCardDetails, LetterThumbnail } from "./letter-card-content";
 import { useNewDocumentsStore } from "./new-documents";
 import { ResumeThumbnail } from "./resume-thumbnail";
 import { TrashDocumentRow } from "./trash-row";
@@ -43,7 +46,7 @@ function useDocumentMeta(document: DocumentSummary) {
 	const type = document.type === "resume" ? t`Resume` : t`Letter`;
 	if (document.trashedAt) return t`${type} · ${daysLeftInTrash(document.trashedAt)} days left`;
 	const relativeTime = formatRelativeTime(document.updatedAt, i18n.locale);
-	return document.type === "resume" ? t`Edited ${relativeTime}` : t`${type} · Edited ${relativeTime}`;
+	return t`Edited ${relativeTime}`;
 }
 
 /** Opens the document in its editor: resumes and letters share the editor shell. */
@@ -113,22 +116,6 @@ function RenameInput({ document, onDone }: { document: DocumentSummary; onDone: 
 	);
 }
 
-/** A letter's page, drawn from lines: letters have no thumbnail render. */
-function LetterThumbnail({ name }: { name: string }) {
-	return (
-		<div aria-hidden="true" className="flex size-full flex-col gap-1.5 bg-white p-[14%] text-[0]">
-			<span className="h-1.5 w-2/5 rounded-full bg-[#c9c9c9]" />
-			<span className="mb-3 h-1 w-3/5 rounded-full bg-[#e2e2e2]" />
-			<span className="h-1 w-1/3 rounded-full bg-[#d4d4d4]" />
-			{Array.from({ length: 7 }, (_, index) => (
-				<span key={index} className={cn("h-1 rounded-full bg-[#e6e6e6]", index % 3 === 2 ? "w-4/5" : "w-full")} />
-			))}
-			<span className="mt-2 h-1 w-1/4 rounded-full bg-[#d4d4d4]" />
-			<span className="sr-only">{name}</span>
-		</div>
-	);
-}
-
 /** A status chip on the page thumbnail. The page is white in both themes, so the chip doesn't follow the theme. */
 function PaperBadge({ icon, label }: { icon: "globe" | "lock"; label: string }) {
 	return (
@@ -179,7 +166,7 @@ export function DocumentCard({
 					/>
 				}
 			>
-				<div className={documentCardLayout.preview({ library })}>
+				<div data-document-type={document.type} className={documentCardLayout.preview({ library })}>
 					<OpenLink
 						document={document}
 						label={document.name}
@@ -195,15 +182,20 @@ export function DocumentCard({
 						{document.type === "resume" ? (
 							<ResumeThumbnail resume={document} />
 						) : (
-							<LetterThumbnail name={document.name} />
+							<LetterThumbnail document={document} />
 						)}
-						<span className="absolute start-2 top-2 flex gap-1">
+						<span className={documentCardLayout.typeMarker}>
+							<DocumentType type={document.type} />
+						</span>
+						<span className="absolute start-2 bottom-2 flex gap-1">
 							{isNew && (
 								<span className="rounded bg-accent px-1.5 type-metadata font-semibold text-on-accent">
 									<Trans>New</Trans>
 								</span>
 							)}
-							{document.isPublic && <PaperBadge icon="globe" label={t`Public`} />}
+							{isFeatureAvailable("publicSharing") && document.isPublic && (
+								<PaperBadge icon="globe" label={t`Public`} />
+							)}
 							{document.isLocked && <PaperBadge icon="lock" label={t`Locked`} />}
 						</span>
 					</OpenLink>
@@ -232,11 +224,15 @@ export function DocumentCard({
 						<span data-slot="document-meta" title={meta} className="type-metadata text-ink-3">
 							{meta}
 						</span>
-						{document.application && (
-							<span className="flex min-w-0 items-center gap-1 type-metadata text-ink-2">
-								<Icon name="briefcase" size={14} />
-								<span className="truncate">{document.application.company}</span>
-							</span>
+						{document.type === "letter" ? (
+							<LetterCardDetails document={document} />
+						) : (
+							document.application && (
+								<span className="flex min-w-0 items-center gap-1 type-metadata text-ink-2">
+									<Icon name="briefcase" size={14} />
+									<span className="truncate">{document.application.company}</span>
+								</span>
+							)
 						)}
 					</div>
 					<DropdownMenu>
@@ -315,7 +311,7 @@ function ActiveDocumentRow({
 					</td>
 				)}
 				<td className={documentCardLayout.cell}>
-					<span className="flex min-w-0 items-center gap-2.5">
+					<span className={documentCardLayout.identity}>
 						<Icon name={document.type === "resume" ? "file-text" : "envelope-simple"} className="shrink-0 text-ink-2" />
 						{renaming ? (
 							<RenameInput document={document} onDone={() => setRenaming(false)} />
@@ -332,7 +328,7 @@ function ActiveDocumentRow({
 								<Trans>New</Trans>
 							</span>
 						)}
-						{document.isPublic && (
+						{isFeatureAvailable("publicSharing") && document.isPublic && (
 							<span title={t`Public`} className="shrink-0 text-ink-3">
 								<Icon name="globe" size={16} />
 								<span className="sr-only">
@@ -342,9 +338,12 @@ function ActiveDocumentRow({
 						)}
 						{document.isLocked && <Icon name="lock" size={16} className="shrink-0 text-ink-3" />}
 					</span>
+					<span className={documentCardLayout.mobileType}>
+						<DocumentType type={document.type} />
+					</span>
 				</td>
 				<td className="px-2 type-body text-ink-2 max-sm:hidden">
-					{document.type === "resume" ? <Trans>Resume</Trans> : <Trans>Letter</Trans>}
+					<DocumentType type={document.type} />
 				</td>
 				<td className="truncate px-2 type-body text-ink-2 max-sm:hidden">{document.application?.company ?? "—"}</td>
 				<td className="px-2 type-body whitespace-nowrap text-ink-3">

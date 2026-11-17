@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import { sampleResumeData } from "@reactive-resume/schema/resume/sample";
 import { getPublicResumeSocialMeta } from "./social-meta";
+const policy = vi.hoisted(() => ({ enabled: true }));
+vi.mock("@reactive-resume/schema/personal-tools", () => ({ isFeatureAvailable: () => policy.enabled }));
 
 // The real lookup query, run against a stand-in `pg` client that records the SQL and returns `rows`.
 const pg = vi.hoisted(() => ({ queries: [] as { text: string; params: unknown[] }[], rows: [] as unknown[][] }));
@@ -16,6 +18,13 @@ vi.mock("@reactive-resume/db/client", async () => {
 });
 
 describe("getPublicResumeSocialMeta", () => {
+	it("returns no public data and performs no lookup while sharing is withheld", async () => {
+		policy.enabled = false;
+		const count = pg.queries.length;
+		await expect(getPublicResumeSocialMeta({ username: "jane", slug: "resume" })).resolves.toBeNull();
+		expect(pg.queries).toHaveLength(count);
+		policy.enabled = true;
+	});
 	it("cards only public, password-free resumes outside Trash, showing what an anonymous visitor sees", async () => {
 		const data = structuredClone(sampleResumeData);
 		data.basics.name = "";

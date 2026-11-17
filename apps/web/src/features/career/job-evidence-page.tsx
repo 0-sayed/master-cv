@@ -8,6 +8,7 @@ import { buildJobPassages } from "@reactive-resume/resume/ats";
 import { Button } from "@reactive-resume/ui/components/button";
 import { SectionCard } from "@reactive-resume/ui/components/section-card";
 import { LiteralJobEvidence } from "./literal-job-evidence";
+import { FeatureBetaBadge } from "@/components/feature-beta-badge";
 import { ReviewLaunch, ReviewNotice, ReviewOperationPanel } from "@/features/resume/editor/proposals/review-operation";
 import { useVariantsCopy } from "@/features/resume/variants/copy.generated";
 import { TranslationReview } from "@/features/resume/variants/translation-review";
@@ -47,9 +48,12 @@ export function JobEvidencePage({
 	const selection = data.selection;
 	return (
 		<div className="grid gap-4">
-			<h2 className="type-section" dir="auto">
-				{copy("jobs.comparison.resultTitle", { jobTitle: data.job?.role ?? "" })}
-			</h2>
+			<div className="flex flex-wrap items-center gap-2">
+				<h2 className="type-section" dir="auto">
+					{copy("jobs.comparison.resultTitle", { jobTitle: data.job?.role ?? "" })}
+				</h2>
+				<FeatureBetaBadge />
+			</div>
 			{data.literal && <LiteralJobEvidence report={data.literal} resumeId={resumeId} />}
 			<SectionCard>
 				<h3 className="type-label">{copy("jobs.evidence.principleTitle")}</h3>

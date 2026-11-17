@@ -14,7 +14,7 @@ import { toast } from "@reactive-resume/ui/components/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { cn } from "@reactive-resume/utils/style";
 import { personalStorageGeneration } from "@/libs/browser-storage";
-import { formatRelativeTimeUnit } from "@/libs/locale";
+import { formatRelativeTimeUnit, getInterfaceDateLocale } from "@/libs/locale";
 import { D2, EASE, EXIT } from "@/libs/motion";
 
 // ---- Time: always in the user's timezone, "Thu 8 Oct, 17:58". Relative time is secondary text. ----
@@ -38,7 +38,7 @@ export function useCareerTime() {
 	const timeZone = session?.user.timezone ?? "UTC";
 	const locale = i18n.locale;
 	const format = (value: Date | string, options: Intl.DateTimeFormatOptions) =>
-		new Intl.DateTimeFormat(locale, { timeZone, ...options }).format(new Date(value));
+		new Intl.DateTimeFormat(getInterfaceDateLocale(locale), { timeZone, ...options }).format(new Date(value));
 
 	return {
 		timeZone,

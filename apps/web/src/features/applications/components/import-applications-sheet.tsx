@@ -3,9 +3,11 @@ import type { CsvField } from "../csv";
 import { t } from "@lingui/core/macro";
 import { Plural, Trans } from "@lingui/react/macro";
 import { useMutation } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
+import { DataTable } from "@reactive-resume/ui/components/data-table";
+import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Label } from "@reactive-resume/ui/components/label";
 import { NativeSelect } from "@reactive-resume/ui/components/native-select";
@@ -20,6 +22,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
 import { autoMapHeaders, CSV_FIELDS, mapCsvToApplications, parseCsv, rowsToCsv } from "../csv";
 import { useInvalidateApplications } from "../use-application-actions";
@@ -56,6 +59,7 @@ type ImportSheetProps = { open: boolean; onOpenChange: (open: boolean) => void }
 
 /** File selection, column matching and explicit review share the existing CSV validation contract. */
 export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps) {
+	const id = useId();
 	const invalidate = useInvalidateApplications();
 	const [text, setText] = useState("");
 	const [overrides, setOverrides] = useState<Record<number, CsvField | null>>({});
@@ -159,6 +163,10 @@ export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps
 					? t`Fix the invalid values in your CSV, or go back to Match columns and leave those columns out.`
 					: t`Each application needs a company and role. Go back to correct the data or column matches.`;
 
+	const validation = useSubmitValidation({
+		[`${id}-step-${step}`]: !(step < 3 ? canContinue : canImport) ? disabledReason : undefined,
+	});
+
 	return (
 		<Sheet
 			open={open}
@@ -215,7 +223,14 @@ export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps
 								}}
 							>
 								<Icon name="file-arrow-up" />
-								<Button variant="secondary" size="row" onClick={() => fileRef.current?.click()}>
+								<Button
+									id={step === 1 ? `${id}-step-1` : undefined}
+									aria-invalid={!!validation.errors[`${id}-step-1`]}
+									aria-describedby={`${id}-error`}
+									variant="secondary"
+									size="row"
+									onClick={() => fileRef.current?.click()}
+								>
 									<Trans>Drop a CSV file here or choose a file</Trans>
 								</Button>
 								<p className="type-metadata text-ink-2">
@@ -308,7 +323,7 @@ export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps
 								aria-label={t`Column matching table`}
 								tabIndex={0}
 							>
-								<table aria-label={t`Match columns`} className="w-full text-start type-body">
+								<DataTable aria-label={t`Match columns`} className="w-full text-start type-body">
 									<thead className="bg-sunken type-label">
 										<tr>
 											<th scope="col" className="p-3 text-start">
@@ -330,6 +345,9 @@ export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps
 												</th>
 												<td className="min-w-60 p-3">
 													<NativeSelect
+														id={index === 0 ? `${id}-step-2` : undefined}
+														aria-invalid={!!validation.errors[`${id}-step-2`]}
+														aria-describedby={`${id}-error`}
 														aria-label={t`Column ${header} goes to`}
 														value={mapping[index] ?? ""}
 														onChange={(event) =>
@@ -355,7 +373,7 @@ export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps
 											</tr>
 										))}
 									</tbody>
-								</table>
+								</DataTable>
 							</div>
 						</TabsContent>
 						<TabsContent value={3} className="grid min-w-0 content-start gap-4">
@@ -374,7 +392,7 @@ export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps
 								aria-label={t`Preview table`}
 								tabIndex={0}
 							>
-								<table aria-label={t`Application preview`} className="w-full text-start type-body">
+								<DataTable aria-label={t`Application preview`} className="w-full text-start type-body">
 									<thead className="bg-sunken type-label">
 										<tr>
 											<th scope="col" className="p-3 text-start">
@@ -434,7 +452,7 @@ export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps
 											</tr>
 										))}
 									</tbody>
-								</table>
+								</DataTable>
 							</div>
 							{!!result?.invalidValues.length && (
 								<Alert variant="warn">
@@ -508,9 +526,12 @@ export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps
 						</Button>
 						<Button
 							loading={importMutation.isPending}
-							disabled={reading || (step < 3 ? !canContinue : !canImport)}
-							aria-describedby={!(step < 3 ? canContinue : canImport) ? "import-csv-reason" : undefined}
+							id={step === 3 ? `${id}-step-3` : undefined}
+							disabled={importMutation.isPending}
+							aria-describedby={validation.errors[`${id}-step-${step}`] ? `${id}-error` : undefined}
 							onClick={() => {
+								if (!validation.validate() || importMutation.isPending) return;
+								validation.reset();
 								if (step < 3 && canContinue) {
 									setStep(step + 1);
 									setReached(Math.max(reached, step + 1));
@@ -531,11 +552,7 @@ export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps
 							)}
 						</Button>
 					</div>
-					{!(step < 3 ? canContinue : canImport) && (
-						<p id="import-csv-reason" className="type-metadata text-ink-2">
-							{disabledReason}
-						</p>
-					)}
+					<FieldError id={`${id}-error`}>{validation.errors[`${id}-step-${step}`]}</FieldError>
 				</SheetFooter>
 			</SheetContent>
 		</Sheet>

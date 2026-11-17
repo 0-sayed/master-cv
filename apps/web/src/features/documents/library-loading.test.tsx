@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import type { ReactNode } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
@@ -19,6 +19,7 @@ vi.mock("@/libs/orpc/client", () => ({
 vi.mock("@tanstack/react-router", () => ({
 	Link: ({ children }: { children: ReactNode }) => <a href="/dashboard">{children}</a>,
 	useRouter: () => ({}),
+	useRouteContext: () => ({ flags: { personalToolsAvailability: { coverLetters: true, applications: true } } }),
 }));
 vi.mock("@/features/resume/builder/draft", () => ({ isEditableElementFocused: () => false }));
 vi.mock("./document-actions", () => ({
@@ -110,3 +111,28 @@ it.each([
 		queryClient.clear();
 	},
 );
+
+it("creates another letter from a populated letter collection", async () => {
+	i18n.loadAndActivate({ locale: "en-US", messages: {} });
+	newLetter.mockClear();
+	loadDocuments
+		.mockReset()
+		.mockResolvedValue([
+			{ id: "letter", type: "letter", name: "Existing letter", tags: [], updatedAt: new Date(), createdAt: new Date() },
+		]);
+	const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	const view = render(
+		<I18nProvider i18n={i18n}>
+			<QueryClientProvider client={queryClient}>
+				<LocaleProvider locale="en-US" session={null}>
+					<DocumentsPage search={{ type: "letter", q: "", tags: [], sort: "edited" }} onSearchChange={vi.fn()} />
+				</LocaleProvider>
+			</QueryClientProvider>
+		</I18nProvider>,
+	);
+	fireEvent.click(await screen.findByRole("button", { name: /^New$/ }));
+	expect(within(screen.getByRole("tab", { name: /Cover letters/ })).getByText("Beta")).toBeVisible();
+	expect(newLetter).toHaveBeenCalledOnce();
+	view.unmount();
+	queryClient.clear();
+});

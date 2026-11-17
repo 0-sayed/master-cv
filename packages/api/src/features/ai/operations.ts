@@ -11,6 +11,7 @@ import {
 	agentMessage,
 	agentThread,
 	application,
+	coverLetter,
 	careerProfile,
 	resume,
 } from "@reactive-resume/db/schema";
@@ -77,6 +78,13 @@ export async function assertSourceRevisions(
 				.where(and(eq(resume.userId, userId), eq(resume.id, source.id)))
 				.for("share");
 			if (row && !row.trashedAt) revision = row.updatedAt.toISOString();
+		} else if (source.kind === "cover-letter") {
+			const [row] = await tx
+				.select()
+				.from(coverLetter)
+				.where(and(eq(coverLetter.userId, userId), eq(coverLetter.id, source.id)))
+				.for("share");
+			if (row && !row.trashedAt && !row.isLocked) revision = String(row.revision);
 		} else if (source.kind === "career") {
 			const [row] = await tx.select().from(careerProfile).where(eq(careerProfile.userId, userId)).for("share");
 			if (row && source.id === userId) revision = String(row.profileRevision);

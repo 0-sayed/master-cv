@@ -1,43 +1,50 @@
 import type { Application } from "../types";
 import type { InterviewKind, InterviewTimelineEntry } from "@reactive-resume/schema/applications/data";
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { m } from "motion/react";
 import { useId, useMemo, useState } from "react";
-import { interviewDetailsSchema } from "@reactive-resume/schema/applications/data";
+import { interviewDetailsSchema, interviewParticipantSchema } from "@reactive-resume/schema/applications/data";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { Button } from "@reactive-resume/ui/components/button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@reactive-resume/ui/components/dialog";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogTitle,
+} from "@reactive-resume/ui/components/dialog";
+import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
+import { ScrollArea } from "@reactive-resume/ui/components/scroll-area";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
 import { generateId } from "@reactive-resume/utils/string";
 import { cn } from "@reactive-resume/utils/style";
 import { fromZonedDateTime } from "@reactive-resume/utils/timezone";
-import { dayKey } from "../interviews";
+import { dayKey, interviewTypeLabel } from "../interviews";
+import { isHttpLink } from "../links";
 import { applicationsListQueryKey } from "../queries";
+import { ApplicationPicker } from "./application-picker";
+import { LocalDateInput } from "@/components/input/local-date-input";
 import { Combobox } from "@/components/ui/combobox";
-import { useCareerTime, confirmAction } from "@/features/career/shared";
+import { useCareerTime, useNow, confirmAction } from "@/features/career/shared";
 import { useClosingValue } from "@/hooks/use-closing-value";
-import { D2, EASE } from "@/libs/motion";
+import { getInterfaceDateLocale } from "@/libs/locale";
 import { orpc } from "@/libs/orpc/client";
 
-/** "Screening", "Behavioral": interview types in the interface language. */
-export const interviewTypeLabel = (kind: InterviewKind) =>
-	({
-		screening: t`Screening`,
-		technical: t`Technical`,
-		behavioral: t`Behavioral`,
-		onsite: t`Onsite`,
-		other: t`Other`,
-	})[kind];
+export { interviewTypeLabel } from "../interviews";
 
 const KINDS: InterviewKind[] = ["screening", "technical", "behavioral", "onsite", "other"];
 const LENGTHS = [30, 45, 60, 90];
+const meetingMode = (location = ""): "online" | "in-person" | "phone" =>
+	!location || isHttpLink(location) ? "online" : /^\+?[\d\s()-]{5,}$/.test(location) ? "phone" : "in-person";
 
 // ---- Wall-clock time in a named timezone ----
 
@@ -138,9 +145,6 @@ type InterviewDialogProps = {
 	day?: Date | null;
 };
 
-const FULL_SCREEN_ON_PHONES =
-	"max-sm:inset-s-0 max-sm:top-0 max-sm:h-dvh max-sm:max-h-none max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-none";
-
 /** W20: type, time, length, people and what they asked for. Date and time are wall-clock in the interview's timezone. */
 export function InterviewDialog({
 	open,
@@ -151,7 +155,10 @@ export function InterviewDialog({
 	day,
 }: InterviewDialogProps) {
 	const queryClient = useQueryClient();
-	const { when, timeZone: preferredZone } = useCareerTime();
+	const { i18n } = useLingui();
+	const now = useNow();
+	const { when, timeZone: savedZone } = useCareerTime();
+	const preferredZone = savedZone === "UTC" ? Intl.DateTimeFormat().resolvedOptions().timeZone : savedZone;
 	const id = useId();
 	// Held through the closing animation, so the title and Delete don't flip while it fades.
 	const [editing, onOpenChangeComplete] = useClosingValue(interview ?? null);
@@ -161,19 +168,10 @@ export function InterviewDialog({
 			: emptyDraft(application?.id ?? "", preferredZone, day),
 	);
 	const [otherZone, setOtherZone] = useState(false);
+	const [mode, setMode] = useState<"online" | "in-person" | "phone">(meetingMode(interview?.location));
 
 	// A fresh draft each time the dialog opens, adjusted during render so the first frame is never stale.
 	const [wasOpen, setWasOpen] = useState(open);
-	if (open !== wasOpen) {
-		setWasOpen(open);
-		if (open) {
-			const applicationId = application?.id ?? "";
-			setDraft(
-				interview ? draftFrom(applicationId, interview, preferredZone) : emptyDraft(applicationId, preferredZone, day),
-			);
-			setOtherZone(false);
-		}
-	}
 
 	const invalidate = (applicationId: string) => {
 		void queryClient.invalidateQueries({ queryKey: applicationsListQueryKey() });
@@ -223,8 +221,43 @@ export function InterviewDialog({
 				...(profileUrl.trim() ? { profileUrl: profileUrl.trim() } : {}),
 			})),
 	});
-	const participantsInvalid = details.error?.issues.some((issue) => issue.path[0] === "participants") ?? false;
-	const canSave = !!at && !!draft.applicationId && details.success && !pending;
+	const validation = useSubmitValidation({
+		[`${id}-application`]: !draft.applicationId ? t`Choose an application.` : undefined,
+		[`${id}-date`]: !draft.date ? t`Choose a valid date.` : undefined,
+		[`${id}-time`]: !draft.time || !at ? t`Choose a valid time in this time zone.` : undefined,
+		[`${id}-location`]:
+			mode === "online" && draft.location.trim() && !isHttpLink(draft.location)
+				? t`Enter a valid HTTP or HTTPS link.`
+				: mode === "phone" && draft.location.trim() && !/^\+?[\d\s()-]{5,}$/.test(draft.location)
+					? t`Enter a valid phone number.`
+					: undefined,
+		...Object.fromEntries(
+			draft.participants.flatMap((participant) => [
+				[
+					`${id}-${participant.id}-name`,
+					!participant.name.trim() && (participant.role.trim() || participant.profileUrl.trim())
+						? t`Enter this person's name.`
+						: undefined,
+				],
+				[
+					`${id}-${participant.id}-profile`,
+					participant.profileUrl &&
+					!interviewParticipantSchema.shape.profileUrl.safeParse(participant.profileUrl).success
+						? t`Profile links must be public HTTPS addresses.`
+						: undefined,
+				],
+			]),
+		),
+	});
+	const error = (field: string) => validation.errors[`${id}-${field}`];
+	const fieldProps = (field: string) => ({
+		"aria-invalid": Boolean(error(field)),
+		"aria-describedby": error(field) ? `${id}-${field}-error` : undefined,
+	});
+	const zoneName =
+		new Intl.DateTimeFormat(getInterfaceDateLocale(i18n.locale), { timeZone: draft.timezone, timeZoneName: "long" })
+			.formatToParts(at ?? now)
+			.find((part) => part.type === "timeZoneName")?.value ?? draft.timezone;
 	const showZone = otherZone || draft.timezone !== preferredZone;
 	const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((prev) => ({ ...prev, [key]: value }));
 	const setParticipant = (participantId: string, patch: Partial<Draft["participants"][number]>) =>
@@ -235,8 +268,21 @@ export function InterviewDialog({
 			),
 		}));
 
+	if (open !== wasOpen) {
+		setWasOpen(open);
+		if (open) {
+			const applicationId = application?.id ?? "";
+			setDraft(
+				interview ? draftFrom(applicationId, interview, preferredZone) : emptyDraft(applicationId, preferredZone, day),
+			);
+			setOtherZone(false);
+			validation.reset();
+			setMode(meetingMode(interview?.location));
+		}
+	}
+
 	const save = async () => {
-		if (!at || !canSave || !details.success) return;
+		if (!validation.validate() || !at || !details.success || pending) return;
 		const input = { id: draft.applicationId, at: at.toISOString(), ...details.data };
 		try {
 			if (editing) await update.mutateAsync({ ...input, entryId: editing.id });
@@ -247,11 +293,12 @@ export function InterviewDialog({
 		invalidate(draft.applicationId);
 		onOpenChange(false);
 		// The server moves this interview's briefing schedule with it; say where it went.
-		const schedules = editing
-			? await queryClient
-					.fetchQuery({ ...orpc.career.schedules.queryOptions({ input: {} }), staleTime: 0 })
-					.catch(() => [])
-			: [];
+		const schedules =
+			editing && isFeatureAvailable("careerAutomation")
+				? await queryClient
+						.fetchQuery({ ...orpc.career.schedules.queryOptions({ input: {} }), staleTime: 0 })
+						.catch(() => [])
+				: [];
 		const schedule = schedules.find(
 			(item) => item.kind === "prepare" && item.interviewId === editing?.id && item.enabled,
 		);
@@ -277,22 +324,17 @@ export function InterviewDialog({
 	const lengths = LENGTHS.includes(draft.durationMinutes)
 		? LENGTHS
 		: [...LENGTHS, draft.durationMinutes].sort((a, b) => a - b);
-	const pickable = applications.filter((item) => item.status !== "closed");
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange} onOpenChangeComplete={onOpenChangeComplete}>
 			<DialogContent
+				mobile="full-screen"
 				closeLabel={t`Close`}
-				className={cn(
-					"flex max-h-[min(820px,calc(100svh-2rem))] flex-col gap-0 overflow-hidden p-0 sm:max-w-[560px]",
-					FULL_SCREEN_ON_PHONES,
-				)}
+				className={cn("flex max-h-[min(820px,calc(100svh-2rem))] flex-col gap-0 overflow-hidden p-0 sm:max-w-xl")}
 			>
 				<div className="grid gap-0.5 ps-6 pe-14 pt-5">
-					<DialogTitle className="text-2xl leading-8">
-						{editing ? <Trans>Edit interview</Trans> : <Trans>Schedule an interview</Trans>}
-					</DialogTitle>
-					<DialogDescription className="text-[13px] leading-[18px]">
+					<DialogTitle>{editing ? <Trans>Edit interview</Trans> : <Trans>Schedule an interview</Trans>}</DialogTitle>
+					<DialogDescription>
 						{application ? (
 							<>
 								{application.role} · {application.company}
@@ -303,192 +345,244 @@ export function InterviewDialog({
 					</DialogDescription>
 				</div>
 
-				<div className="grid min-h-0 flex-1 content-start gap-4 overflow-y-auto overscroll-contain px-6 py-[18px]">
-					{!application && (
-						<Field label={t`Application`} htmlFor={`${id}-application`}>
-							<Combobox
-								id={`${id}-application`}
-								className="w-full"
-								value={draft.applicationId || null}
-								placeholder={t`Choose an application…`}
-								emptyMessage={t`No active applications.`}
-								options={pickable.map((item) => ({
-									value: item.id,
-									label: `${item.company} — ${item.role}`,
-									keywords: [item.company, item.role],
-								}))}
-								onValueChange={(value) => set("applicationId", value ?? "")}
-							/>
-						</Field>
-					)}
+				<ScrollArea className="flex-1">
+					<form
+						id={`${id}-form`}
+						noValidate
+						onSubmit={(event) => {
+							event.preventDefault();
+							void save();
+						}}
+						className="grid min-h-0 flex-1 content-start gap-6 px-6 py-5"
+					>
+						<section className="grid gap-3">
+							<h3 className="type-section">
+								<Trans>Interview details</Trans>
+							</h3>
+							{!application && (
+								<Field label={t`Application`} required htmlFor={`${id}-application`} error={error("application")}>
+									<ApplicationPicker
+										id={`${id}-application`}
+										className="w-full"
+										value={draft.applicationId || null}
+										placeholder={t`Choose an application…`}
+										{...fieldProps("application")}
+										aria-required
+										emptyMessage={t`No active applications.`}
+										applications={applications}
+										onValueChange={(value) => set("applicationId", value ?? "")}
+									/>
+								</Field>
+							)}
 
-					<Field label={t`Type`}>
-						<Segments
-							label={t`Type`}
-							value={draft.kind}
-							options={KINDS.map((kind) => ({ value: kind, label: interviewTypeLabel(kind) }))}
-							onChange={(kind) => set("kind", kind)}
-							className="h-auto flex-wrap sm:h-9 sm:flex-nowrap"
-						/>
-					</Field>
-
-					<div className="grid gap-2.5 sm:grid-cols-3">
-						<Field label={t`Date`} htmlFor={`${id}-date`}>
-							<Input
-								id={`${id}-date`}
-								type="date"
-								required
-								aria-invalid={!draft.date}
-								value={draft.date}
-								onChange={(event) => set("date", event.target.value)}
-							/>
-						</Field>
-						<Field label={t`Time · ${draft.timezone}`} htmlFor={`${id}-time`}>
-							<Input
-								id={`${id}-time`}
-								type="time"
-								required
-								aria-invalid={!draft.time || (!!draft.date && !at)}
-								aria-describedby={draft.date && draft.time && !at ? `${id}-time-error` : undefined}
-								value={draft.time}
-								onChange={(event) => set("time", event.target.value)}
-							/>
-						</Field>
-						<Field label={t`Length · minutes`}>
-							<Segments
-								label={t`Length in minutes`}
-								value={draft.durationMinutes}
-								options={lengths.map((minutes) => ({ value: minutes, label: String(minutes) }))}
-								onChange={(minutes) => set("durationMinutes", minutes)}
-							/>
-						</Field>
-					</div>
-
-					{draft.date && draft.time && !at && (
-						<p id={`${id}-time-error`} role="alert" className="text-xs text-danger-text">
-							<Trans>This time does not exist in the selected timezone. Choose another time.</Trans>
-						</p>
-					)}
-
-					{showZone ? (
-						<div className="-mt-1 grid gap-1.5">
-							<Field label={t`Interview timezone`} htmlFor={`${id}-timezone`}>
-								<Combobox
-									id={`${id}-timezone`}
-									className="w-full"
-									value={draft.timezone}
-									options={zones.map((zone) => ({ value: zone, label: zone.replaceAll("_", " ") }))}
-									onValueChange={(value) => value && set("timezone", value)}
+							<Field label={t`Type`}>
+								<Segments
+									label={t`Type`}
+									value={draft.kind}
+									options={KINDS.map((kind) => ({ value: kind, label: interviewTypeLabel(kind) }))}
+									onChange={(kind) => set("kind", kind)}
 								/>
 							</Field>
-							{at && draft.timezone !== preferredZone && (
-								<p className="text-xs text-ink-3">
-									<Trans>
-										{draft.time} in {draft.timezone} is {when(at)} in your timezone ({preferredZone}).
-									</Trans>
+						</section>
+						<section className="grid gap-3 border-t border-line pt-4">
+							<h3 className="type-section">
+								<Trans>When</Trans>
+							</h3>
+							<div className="grid gap-3 sm:grid-cols-2">
+								<Field label={t`Date`} required htmlFor={`${id}-date`} error={error("date")}>
+									<LocalDateInput
+										id={`${id}-date`}
+										locale={i18n.locale}
+										required
+										{...fieldProps("date")}
+										value={draft.date}
+										onValueChange={(value) => set("date", value)}
+									/>
+								</Field>
+								<Field label={t`Time`} required htmlFor={`${id}-time`} error={error("time")}>
+									<Input
+										id={`${id}-time`}
+										dir="ltr"
+										inputMode="numeric"
+										placeholder="09:00"
+										required
+										{...fieldProps("time")}
+										value={draft.time}
+										onChange={(event) => set("time", event.target.value)}
+									/>
+								</Field>
+							</div>
+							<Field label={t`Length · minutes`}>
+								<Segments
+									label={t`Length in minutes`}
+									value={draft.durationMinutes}
+									options={lengths.map((minutes) => ({ value: minutes, label: String(minutes) }))}
+									onChange={(minutes) => set("durationMinutes", minutes)}
+								/>
+							</Field>
+
+							{showZone ? (
+								<div className="-mt-1 grid gap-1.5">
+									<Field label={t`Interview timezone`} htmlFor={`${id}-timezone`}>
+										<Combobox
+											id={`${id}-timezone`}
+											className="w-full"
+											value={draft.timezone}
+											options={zones.map((zone) => ({ value: zone, label: zone.replaceAll("_", " ") }))}
+											onValueChange={(value) => value && set("timezone", value)}
+										/>
+									</Field>
+									{at && draft.timezone !== preferredZone && (
+										<p className="type-metadata text-ink-3">
+											<Trans>
+												{draft.time} in {draft.timezone} is{" "}
+												{new Intl.DateTimeFormat(getInterfaceDateLocale(i18n.locale), {
+													timeZone: preferredZone,
+													hour: "2-digit",
+													minute: "2-digit",
+													hourCycle: "h23",
+												}).format(at)}{" "}
+												in your timezone ({preferredZone}).
+											</Trans>
+										</p>
+									)}
+								</div>
+							) : (
+								<p className="-mt-2 type-metadata text-ink-3">
+									{zoneName}{" "}
+									<button
+										type="button"
+										className="underline underline-offset-2 transition-colors duration-quick hover:text-ink-2"
+										onClick={() => setOtherZone(true)}
+									>
+										<Trans>Interview is in another timezone</Trans>
+									</button>
 								</p>
 							)}
-						</div>
-					) : (
-						<p className="-mt-2 text-xs text-ink-3">
-							<Trans>Shown in your timezone.</Trans>{" "}
-							<button
-								type="button"
-								className="underline underline-offset-2 transition-colors duration-quick hover:text-ink-2"
-								onClick={() => setOtherZone(true)}
+						</section>
+						<section className="grid gap-3 border-t border-line pt-4">
+							<h3 className="type-section">
+								<Trans>Where</Trans>
+							</h3>
+							<Segments
+								label={t`Meeting format`}
+								value={mode}
+								options={[
+									{ value: "online", label: t`Online` },
+									{ value: "in-person", label: t`In person` },
+									{ value: "phone", label: t`Phone` },
+								]}
+								onChange={setMode}
+							/>
+							<Field
+								label={
+									mode === "online"
+										? t`Meeting link (optional)`
+										: mode === "phone"
+											? t`Phone number (optional)`
+											: t`Office address (optional)`
+								}
+								htmlFor={`${id}-location`}
+								error={error("location")}
 							>
-								<Trans>Interview is in another timezone</Trans>
-							</button>
-						</p>
-					)}
-
-					<Field label={t`Location`} htmlFor={`${id}-location`}>
-						<Input
-							id={`${id}-location`}
-							value={draft.location}
-							maxLength={500}
-							placeholder={t`Video link, office address, or phone number`}
-							onChange={(event) => set("location", event.target.value)}
-						/>
-					</Field>
-
-					<fieldset className="grid gap-2">
-						<legend className="mb-1.5 text-xs font-medium text-ink-2">
-							<Trans>Who you'll meet</Trans>
-						</legend>
-						{draft.participants.map((participant, index) => (
-							<div key={participant.id} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_32px] gap-2">
 								<Input
-									aria-label={t`Name of person ${index + 1}`}
-									placeholder={t`Name`}
-									value={participant.name}
-									maxLength={200}
-									onChange={(event) => setParticipant(participant.id, { name: event.target.value })}
-								/>
-								<Input
-									aria-label={t`Role of person ${index + 1}`}
-									placeholder={t`Role`}
-									value={participant.role}
-									maxLength={200}
-									onChange={(event) => setParticipant(participant.id, { role: event.target.value })}
-								/>
-								<IconButton
-									icon="x"
-									iconSize={18}
-									label={t`Remove person ${index + 1}`}
-									className="h-9 w-8 text-ink-2"
-									onClick={() =>
-										set(
-											"participants",
-											draft.participants.filter((item) => item.id !== participant.id),
-										)
+									id={`${id}-location`}
+									{...fieldProps("location")}
+									value={draft.location}
+									maxLength={500}
+									placeholder={
+										mode === "online"
+											? t`https://meet.example.com/your-meeting`
+											: mode === "phone"
+												? t`Phone number with country code`
+												: t`Building, street, city`
 									}
+									dir="auto"
+									onChange={(event) => set("location", event.target.value)}
 								/>
-								<Input
-									type="url"
-									aria-label={t`Profile link of person ${index + 1}`}
-									placeholder={t`Profile link (optional)`}
-									className="col-span-2"
-									value={participant.profileUrl}
-									maxLength={2048}
-									onChange={(event) => setParticipant(participant.id, { profileUrl: event.target.value })}
-								/>
-							</div>
-						))}
-						{participantsInvalid && (
-							<p role="status" className="text-xs text-danger-text">
-								<Trans>Profile links must be public HTTPS addresses.</Trans>
+							</Field>
+						</section>
+						<fieldset className="grid gap-3 border-t border-line pt-4">
+							<legend className="type-section">
+								<Trans>Who you'll meet</Trans>
+							</legend>
+							{draft.participants.map((participant, index) => (
+								<div key={participant.id} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_32px] gap-2">
+									<Input
+										aria-label={t`Name of person ${index + 1}`}
+										id={`${id}-${participant.id}-name`}
+										{...fieldProps(`${participant.id}-name`)}
+										placeholder={t`Name`}
+										value={participant.name}
+										maxLength={200}
+										onChange={(event) => setParticipant(participant.id, { name: event.target.value })}
+									/>
+									<Input
+										aria-label={t`Role of person ${index + 1}`}
+										placeholder={t`Role`}
+										value={participant.role}
+										maxLength={200}
+										onChange={(event) => setParticipant(participant.id, { role: event.target.value })}
+									/>
+									<IconButton
+										icon="x"
+										iconSize={18}
+										label={t`Remove person ${index + 1}`}
+										className="h-9 w-8 text-ink-2"
+										onClick={() =>
+											set(
+												"participants",
+												draft.participants.filter((item) => item.id !== participant.id),
+											)
+										}
+									/>
+									<Input
+										type="url"
+										aria-label={t`Profile link of person ${index + 1}`}
+										id={`${id}-${participant.id}-profile`}
+										{...fieldProps(`${participant.id}-profile`)}
+										placeholder={t`Profile link (optional)`}
+										className="col-span-2"
+										value={participant.profileUrl}
+										maxLength={2048}
+										onChange={(event) => setParticipant(participant.id, { profileUrl: event.target.value })}
+									/>
+									<FieldError id={`${id}-${participant.id}-name-error`}>{error(`${participant.id}-name`)}</FieldError>
+									<FieldError id={`${id}-${participant.id}-profile-error`}>
+										{error(`${participant.id}-profile`)}
+									</FieldError>
+								</div>
+							))}
+							<Button
+								size="sm"
+								variant="ghost"
+								className="w-fit text-ink-2"
+								disabled={draft.participants.length >= 20}
+								onClick={() =>
+									set("participants", [...draft.participants, { id: generateId(), name: "", role: "", profileUrl: "" }])
+								}
+							>
+								<Icon name="user-plus" size={18} />
+								<Trans>Add a person</Trans>
+							</Button>
+							<p className="type-metadata text-ink-3">
+								<Trans>Profile links are saved only as interview records.</Trans>
 							</p>
-						)}
-						<Button
-							size="sm"
-							variant="ghost"
-							className="w-fit text-ink-2"
-							disabled={draft.participants.length >= 20}
-							onClick={() =>
-								set("participants", [...draft.participants, { id: generateId(), name: "", role: "", profileUrl: "" }])
-							}
-						>
-							<Icon name="user-plus" size={18} />
-							<Trans>Add a person</Trans>
-						</Button>
-						<p className="text-xs text-ink-3">
-							<Trans>Public profile links are optional and only used if Web research is on.</Trans>
-						</p>
-					</fieldset>
+						</fieldset>
 
-					<Field label={t`What they asked you to prepare`} htmlFor={`${id}-notes`}>
-						<Textarea
-							id={`${id}-notes`}
-							rows={2}
-							value={draft.notes}
-							maxLength={5000}
-							onChange={(event) => set("notes", event.target.value)}
-						/>
-					</Field>
-				</div>
+						<Field label={t`What they asked you to prepare`} htmlFor={`${id}-notes`}>
+							<Textarea
+								id={`${id}-notes`}
+								rows={2}
+								value={draft.notes}
+								maxLength={5000}
+								onChange={(event) => set("notes", event.target.value)}
+							/>
+						</Field>
+					</form>
+				</ScrollArea>
 
-				<div className="flex items-center gap-2 border-t border-line px-6 py-3.5 pb-[max(14px,env(safe-area-inset-bottom))]">
+				<DialogFooter className="border-t border-line px-6 py-4">
 					{editing && (
 						<Button variant="ghost" className="text-danger-text" disabled={pending} onClick={deleteInterview}>
 							<Icon name="trash" size={18} />
@@ -499,10 +593,10 @@ export function InterviewDialog({
 					<Button variant="secondary" onClick={() => onOpenChange(false)}>
 						<Trans>Cancel</Trans>
 					</Button>
-					<Button loading={pending} disabled={!canSave} onClick={() => void save()}>
+					<Button type="submit" form={`${id}-form`} loading={pending} disabled={pending}>
 						<Trans>Save interview</Trans>
 					</Button>
-				</div>
+				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	);
@@ -518,27 +612,17 @@ type SegmentsProps<T extends string | number> = {
 
 /** A segmented control whose raised thumb slides between choices. */
 function Segments<T extends string | number>({ label, value, options, onChange, className }: SegmentsProps<T>) {
-	const id = useId();
 	return (
 		<SegmentedControl
+			data-wrap={options.length > 4}
+			size="toolbar"
 			aria-label={label}
 			value={value}
 			onValueChange={(next) => onChange(next as T)}
 			className={cn("flex w-full", className)}
 		>
 			{options.map((option) => (
-				<SegmentedControlItem
-					key={option.value}
-					value={option.value}
-					className="relative min-h-[30px] min-w-fit px-2 pointer-coarse:min-w-fit data-checked:bg-transparent data-checked:shadow-none"
-				>
-					{option.value === value && (
-						<m.span
-							layoutId={`${id}-thumb`}
-							transition={{ duration: D2, ease: EASE }}
-							className="absolute inset-0 rounded-sm bg-raised shadow-e1"
-						/>
-					)}
+				<SegmentedControlItem key={option.value} value={option.value}>
 					<span className="relative">{option.label}</span>
 				</SegmentedControlItem>
 			))}
@@ -546,15 +630,23 @@ function Segments<T extends string | number>({ label, value, options, onChange, 
 	);
 }
 
-type FieldProps = { label: string; htmlFor?: string; children: React.ReactNode };
+type FieldProps = {
+	label: string;
+	htmlFor?: string;
+	required?: boolean;
+	error?: string | undefined;
+	children: React.ReactNode;
+};
 
-function Field({ label, htmlFor, children }: FieldProps) {
+function Field({ label, htmlFor, required, error, children }: FieldProps) {
 	return (
-		<div className="grid content-start gap-1.5">
-			<Label htmlFor={htmlFor} className="text-xs font-medium text-ink-2">
+		<div className="grid min-w-0 content-start gap-1.5">
+			<Label htmlFor={htmlFor}>
 				{label}
+				{required && <span aria-hidden="true"> *</span>}
 			</Label>
 			{children}
+			<FieldError id={`${htmlFor}-error`}>{error}</FieldError>
 		</div>
 	);
 }

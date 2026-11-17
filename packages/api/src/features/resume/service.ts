@@ -13,6 +13,7 @@ import { db, withDatabaseOwner, withOwnerDatabase } from "@reactive-resume/db/cl
 import * as schema from "@reactive-resume/db/schema";
 import { detachEmbeddedLetters } from "@reactive-resume/resume/cover-letter";
 import { applyResumePatches, ResumePatchError } from "@reactive-resume/resume/patch";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { generateId } from "@reactive-resume/utils/string";
 import { admitResumeCreation, resolveResumeCreation } from "../ai/usage";
@@ -112,6 +113,7 @@ type ResumeUpdateInput = {
 
 export async function updateResumeTx(tx: DbOrTx, input: ResumeUpdateInput) {
 	if (input.isPublic === true) {
+		if (!isFeatureAvailable("publicSharing")) throw new ORPCError("FORBIDDEN", { message: "FEATURE_UNAVAILABLE" });
 		await lockDocumentOwner(tx, input.userId);
 		if (!input.expectedUpdatedAt)
 			throw new ORPCError("CONFLICT", { message: "Review the current document before publishing." });

@@ -7,8 +7,14 @@ import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { ORPCError } from "@orpc/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+// Retained integration behavior is qualified separately from the default-off product gate.
+vi.mock("@reactive-resume/schema/personal-tools", async (original) => ({
+	...(await original<typeof import("@reactive-resume/schema/personal-tools")>()),
+	isFeatureAvailable: () => true,
+}));
 
 const api = vi.hoisted(() => ({
+	breakpoint: "desktop",
 	bulkDelete: vi.fn(),
 	bulkUpdate: vi.fn(),
 	parsePosting: vi.fn(),
@@ -42,7 +48,7 @@ vi.mock("../use-application-actions", () => ({
 	useApplicationActions: () => ({ moveTo: api.moveTo, close: api.close, remove: { mutate: api.remove } }),
 }));
 vi.mock("@/hooks/use-confirm", () => ({ useConfirm: () => api.confirm }));
-vi.mock("@reactive-resume/ui/hooks/use-breakpoint", () => ({ useBreakpoint: () => "desktop" }));
+vi.mock("@reactive-resume/ui/hooks/use-breakpoint", () => ({ useBreakpoint: () => api.breakpoint }));
 vi.mock("@/features/settings/integrations/hooks/use-has-usable-ai-provider", () => ({
 	useHasUsableAiProvider: () => ({ hasUsableProvider: true }),
 }));
@@ -60,6 +66,8 @@ const application = (id: string, status: Application["status"]): Application => 
 	status,
 	closedReason: status === "closed" ? "not-selected" : null,
 	coverLetterId: null,
+	selectedResumeVersionId: null,
+	sentResumeRecordedAt: null,
 	sentResumeVersionId: null,
 	sentCoverLetterVersionId: null,
 	sentCheckScore: null,
@@ -100,6 +108,7 @@ const mount = (children: ReactNode) => {
 };
 beforeEach(() => {
 	vi.clearAllMocks();
+	api.breakpoint = "desktop";
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	api.confirm.mockResolvedValue(true);
 	api.bulkDelete.mockResolvedValue({ deleted: 1 });
@@ -109,13 +118,29 @@ afterEach(() => {
 	clients.splice(0).forEach((client) => client.clear());
 });
 
+it.each(["desktop", "mobile"])("selects and clears rows through the floating toolbar on %s", (breakpoint) => {
+	api.breakpoint = breakpoint;
+	const onOpen = vi.fn();
+	const view = mount(
+		<ApplicationList applications={[application("open", "saved")]} showClosed={false} onOpen={onOpen} />,
+	);
+	fireEvent.click(screen.getByRole("checkbox", { name: "Select Engineer at Open Co" }));
+	const toolbar = screen.getByRole("toolbar", { name: "Selected applications" });
+	expect(view.container.contains(toolbar)).toBe(false);
+	expect(toolbar.className).toContain("fixed");
+	expect(onOpen).not.toHaveBeenCalled();
+	fireEvent.click(screen.getByRole("button", { name: "Clear selection" }));
+	expect(screen.queryByRole("toolbar")).toBeNull();
+	expect(screen.getByRole("checkbox", { name: "Select Engineer at Open Co" })).not.toBeChecked();
+});
+
 it("removes hidden closed applications from bulk selection before deleting visible rows", async () => {
 	const rows = [application("open", "saved"), application("closed", "closed")];
-	const view = mount(<ApplicationList applications={rows} showClosed selectedId={null} onOpen={vi.fn()} />);
+	const view = mount(<ApplicationList applications={rows} showClosed onOpen={vi.fn()} />);
 	fireEvent.click(screen.getByRole("checkbox", { name: "Select Engineer at Open Co" }));
 	fireEvent.click(screen.getByRole("checkbox", { name: "Select Engineer at Closed Co" }));
 	expect(screen.getByText("2 selected")).toBeTruthy();
-	view.rerender(<ApplicationList applications={rows} showClosed={false} selectedId={null} onOpen={vi.fn()} />);
+	view.rerender(<ApplicationList applications={rows} showClosed={false} onOpen={vi.fn()} />);
 	expect(screen.queryByRole("checkbox", { name: "Select Engineer at Closed Co" })).toBeNull();
 	expect(screen.getByText("1 selected")).toBeTruthy();
 	fireEvent.click(screen.getByRole("button", { name: "Delete…" }));
@@ -159,7 +184,7 @@ it.each(["ai", "page"])(
 		fireEvent.click(screen.getByRole("button", { name: "Read job" }));
 		await screen.findByText(/Some job details couldn't be read/);
 		expect(screen.queryByText(/Found (the )?role,? (and )?company/)).toBeNull();
-		expect((screen.getByRole("button", { name: "Save job" }) as HTMLButtonElement).disabled).toBe(true);
+		expect((screen.getByRole("button", { name: "Save job" }) as HTMLButtonElement).disabled).toBe(false);
 		expect(screen.getByText("A general careers landing page")).toBeTruthy();
 		fireEvent.change(screen.getByRole("textbox", { name: "Role" }), { target: { value: "Engineer" } });
 		fireEvent.change(screen.getByRole("textbox", { name: "Company" }), { target: { value: "Known Company" } });
@@ -239,7 +264,7 @@ it("announces reading and preserves details edited while the request is pending"
 	});
 	fireEvent.click(screen.getByRole("button", { name: "Read job" }));
 	await screen.findByText("Reading the link…");
-	expect((screen.getByRole("button", { name: "Save and tailor CV" }) as HTMLButtonElement).disabled).toBe(true);
+	expect((screen.getByRole("button", { name: "Save and tailor CV" }) as HTMLButtonElement).disabled).toBe(false);
 	fireEvent.change(screen.getByRole("textbox", { name: "Role" }), { target: { value: "My edited role" } });
 	finish({
 		role: "Engineer",
@@ -255,4 +280,14 @@ it("announces reading and preserves details edited while the request is pending"
 	expect((screen.getByRole("textbox", { name: "Role" }) as HTMLInputElement).value).toBe("My edited role");
 	expect((screen.getByRole("textbox", { name: "Company" }) as HTMLInputElement).value).toBe("Example");
 	expect((screen.getByRole("button", { name: "Save and tailor CV" }) as HTMLButtonElement).disabled).toBe(false);
+});
+
+it("explains missing job details on empty submission without creating a job", async () => {
+	mount(<AddApplicationDialog open onOpenChange={vi.fn()} onAdded={vi.fn()} />);
+	const submit = screen.getByRole("button", { name: "Save job" });
+	expect(submit).not.toBeDisabled();
+	fireEvent.click(submit);
+	await waitFor(() => expect(screen.getByRole("textbox", { name: "Role" })).toHaveFocus());
+	expect(screen.getAllByRole("alert")).toHaveLength(2);
+	expect(api.create).not.toHaveBeenCalled();
 });

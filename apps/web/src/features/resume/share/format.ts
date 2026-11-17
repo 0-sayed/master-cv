@@ -1,5 +1,6 @@
 import type { RouterOutput } from "@/libs/orpc/client";
 import { t } from "@lingui/core/macro";
+import { getInterfaceDateLocale } from "@/libs/locale";
 import { formatRelativeTimeUnit } from "@/libs/locale";
 
 type DailyStat = { date: string; views: number; downloads: number };
@@ -37,12 +38,12 @@ export function formatTimeSince(date: Date, locale: string, now = Date.now()) {
 
 /** "Today 14:02", "Yesterday 09:15", "Sep 16", or "Sep 16, 2025" for another year. */
 export function formatVersionTime(date: Date, locale: string, now = new Date()) {
-	const time = date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+	const time = date.toLocaleTimeString(getInterfaceDateLocale(locale), { hour: "2-digit", minute: "2-digit" });
 	const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
 
 	if (date.getTime() >= startOfToday) return t`Today ${time}`;
 	if (date.getTime() >= startOfToday - DAY_MS) return t`Yesterday ${time}`;
-	return date.toLocaleDateString(locale, {
+	return date.toLocaleDateString(getInterfaceDateLocale(locale), {
 		month: "short",
 		day: "numeric",
 		...(date.getFullYear() === now.getFullYear() ? {} : { year: "numeric" }),
@@ -51,7 +52,7 @@ export function formatVersionTime(date: Date, locale: string, now = new Date()) 
 
 /** A version's full date and time, for sentences: "Sep 28, 2026, 7:36 PM". */
 export const formatVersionMoment = (date: Date, locale: string) =>
-	date.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" });
+	date.toLocaleString(getInterfaceDateLocale(locale), { dateStyle: "medium", timeStyle: "short" });
 
 /** A version's title in History: its name when the user named it, otherwise what made it. */
 export function getVersionTitle(version: Pick<VersionSummary, "kind" | "name">) {

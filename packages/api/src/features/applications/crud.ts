@@ -1,9 +1,11 @@
 import z from "zod";
-import { protectedProcedure } from "../../context";
 import { applicationDto } from "../../dto/application";
 import { resumeMutationRateLimit } from "../../middleware/rate-limit";
 import { paginate, paginationShape } from "../../pagination";
+import { personalToolProcedure } from "../personal-tools/procedure";
 import { applicationService } from "./service";
+
+const protectedProcedure = personalToolProcedure("applications");
 
 export const crudRouter = {
 	list: protectedProcedure

@@ -8,6 +8,7 @@ import { db } from "@reactive-resume/db/client";
 import { withDatabaseOwner } from "@reactive-resume/db/owner-scope";
 import { user } from "@reactive-resume/db/schema";
 import { env } from "@reactive-resume/env/server";
+import { deferredProcedure, isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 
 export type RequestPermission = "read" | "write" | "delete";
 export type RequestAuthentication = {
@@ -82,11 +83,11 @@ async function getAuthenticationFromApiKey(apiKey: string): Promise<RequestAuthe
 /** API key, then OAuth bearer token, then same-origin session cookies. */
 export async function resolveAuthenticationFromRequestHeaders(headers: Headers): Promise<RequestAuthentication | null> {
 	const apiKey = headers.get("x-api-key");
-	if (apiKey) {
+	if (apiKey && isFeatureAvailable("userApi")) {
 		const authentication = await getAuthenticationFromApiKey(apiKey);
 		if (authentication) return authentication;
 	}
-	const bearer = await getAuthenticationFromBearerToken(headers);
+	const bearer = isFeatureAvailable("userApi") ? await getAuthenticationFromBearerToken(headers) : null;
 	if (bearer) return bearer;
 	const origin = headers.get("origin");
 	if (
@@ -117,7 +118,9 @@ const base = os.$context<ORPCContext>();
 
 export const publicProcedure = base
 	.route({ spec: (operation) => ({ ...operation, security: [] }) })
-	.use(async ({ context, next }) => {
+	.use(async ({ context, procedure, next }) => {
+		const feature = deferredProcedure(procedure["~orpc"].route);
+		if (feature && !isFeatureAvailable(feature)) throw new ORPCError("FORBIDDEN", { message: "FEATURE_UNAVAILABLE" });
 		const authentication =
 			context.authentication === undefined
 				? await resolveAuthenticationFromRequestHeaders(context.reqHeaders)

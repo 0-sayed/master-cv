@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Link, useRouteContext } from "@tanstack/react-router";
 import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
-import { buttonVariants } from "@reactive-resume/ui/components/button";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { AuthHeading } from "../components/auth-heading";
 
@@ -84,19 +84,17 @@ export function AuthErrorPage({ code, description }: AuthErrorPageProps) {
 			</Alert>
 
 			{returnsToSettings ? (
-				<Link to="/dashboard/settings/account" className={buttonVariants({ variant: "secondary" })}>
-					<Icon name="arrow-left" size={16} />
+				<BackNavigation render={<Link to="/dashboard/settings/account" />}>
 					<Trans comment="Action returning a signed-in user to the page where they manage linked providers">
 						Back to authentication settings
 					</Trans>
-				</Link>
+				</BackNavigation>
 			) : (
-				<Link to="/auth/login" className={buttonVariants({ variant: "secondary" })}>
-					<Icon name="arrow-left" size={16} />
+				<BackNavigation render={<Link to="/auth/login" />}>
 					<Trans comment="Action returning the visitor to the sign-in page after a failed sign-in">
 						Back to sign in
 					</Trans>
-				</Link>
+				</BackNavigation>
 			)}
 		</>
 	);

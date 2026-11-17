@@ -1,9 +1,15 @@
 import z from "zod";
 import { env } from "@reactive-resume/env/server";
 import { aiAvailabilitySchema, type AiAvailability } from "@reactive-resume/schema/ai-operation";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
+import {
+	personalToolsAvailabilitySchema,
+	type PersonalToolsAvailability,
+} from "@reactive-resume/schema/personal-tools";
 import { publicProcedure } from "../../context";
 import { getAiAvailability } from "../ai/route-policy";
 import { isCareerSchedulingEnabled } from "../career/runner";
+import { getPersonalToolsAvailability } from "../personal-tools/availability";
 
 export type FeatureFlags = {
 	appUrl?: string | undefined;
@@ -13,6 +19,7 @@ export type FeatureFlags = {
 	smtpEnabled: boolean;
 	careerSchedulingEnabled?: boolean;
 	aiAvailability?: AiAvailability;
+	personalToolsAvailability?: PersonalToolsAvailability;
 };
 
 // Mirrors isSmtpEnabled() in packages/email/src/transport.ts (kept local to avoid an api -> email dependency).
@@ -35,6 +42,7 @@ export const flagsRouter = {
 			z.object({
 				appUrl: z.url().optional(),
 				aiAvailability: aiAvailabilitySchema,
+				personalToolsAvailability: personalToolsAvailabilitySchema,
 				disableSignups: z.boolean().describe("Whether new user signups are disabled on this instance."),
 				disableEmailAuth: z.boolean().describe("Whether email-based authentication is disabled on this instance."),
 				allowGuestLogin: z.boolean().describe("Whether visitors can continue as a guest on this instance."),
@@ -47,10 +55,11 @@ export const flagsRouter = {
 		.handler(() => ({
 			appUrl: env.APP_URL,
 			aiAvailability: getAiAvailability(),
+			personalToolsAvailability: getPersonalToolsAvailability(),
 			disableSignups: env.FLAG_DISABLE_SIGNUPS,
 			disableEmailAuth: env.FLAG_DISABLE_EMAIL_AUTH,
 			allowGuestLogin: env.FLAG_ENABLE_GUEST_LOGIN && !env.FLAG_DISABLE_SIGNUPS,
 			smtpEnabled: isSmtpEnabled(),
-			careerSchedulingEnabled: isCareerSchedulingEnabled(),
+			careerSchedulingEnabled: isFeatureAvailable("careerAutomation") && isCareerSchedulingEnabled(),
 		})),
 };

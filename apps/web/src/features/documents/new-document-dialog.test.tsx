@@ -22,10 +22,13 @@ afterEach(() => {
 
 vi.mock("@tanstack/react-router", () => ({
 	useNavigate: () => mutations.navigate,
-	useRouteContext: () => ({ session: { user: { id: "owner" } } }),
+	useRouteContext: () => ({
+		session: { user: { id: "owner" } },
+		flags: { personalToolsAvailability: { coverLetters: true, applications: true } },
+	}),
 }));
 
-it("explains a missing source resume and offers import or creation when copying directly from an application", () => {
+it("announces a missing source resume on submission and offers import or creation", async () => {
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	const queryClient = new QueryClient({
 		defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
@@ -33,7 +36,13 @@ it("explains a missing source resume and offers import or creation when copying 
 	queryClient.setQueryData(orpc.documents.list.queryKey({ input: { trashed: false } }), []);
 	queryClient.setQueryData(orpc.aiProviders.list.queryKey(), []);
 	queryClient.setQueryData(applicationsListQueryKey(), [
-		{ id: "application-1", company: "ABOUT YOU", status: "saved" } as Application,
+		{
+			id: "application-1",
+			company: "ABOUT YOU",
+			status: "saved",
+			role: "Engineer",
+			updatedAt: new Date(),
+		} as Application,
 	]);
 
 	render(
@@ -47,7 +56,11 @@ it("explains a missing source resume and offers import or creation when copying 
 	);
 
 	expect(screen.getByText(/You don't have a resume to copy yet/)).toBeVisible();
-	expect(screen.getByRole("button", { name: "Create and open" })).toBeDisabled();
+	expect(screen.getByRole("button", { name: "Create and open" })).toBeEnabled();
+	fireEvent.click(screen.getByRole("button", { name: "Create and open" }));
+	expect(screen.getByRole("alert")).toHaveTextContent("Choose a resume to copy.");
+	await waitFor(() => expect(screen.getByRole("group", { name: "Start from" })).toHaveFocus());
+	expect(mutations.copy).not.toHaveBeenCalled();
 	fireEvent.click(screen.getByRole("button", { name: "Import or create a resume" }));
 	expect(screen.getByRole("heading", { name: "How would you like to start?" })).toBeVisible();
 	expect(screen.getByRole("button", { name: /^Upload an existing CV/ })).toBeEnabled();
@@ -74,7 +87,13 @@ it("keeps the selected job and copy name inline after a quota denial", async () 
 	]);
 	queryClient.setQueryData(orpc.aiProviders.list.queryKey(), []);
 	queryClient.setQueryData(applicationsListQueryKey(), [
-		{ id: "job", company: "Synthetic Company", status: "saved" } as Application,
+		{
+			id: "job",
+			company: "Synthetic Company",
+			status: "saved",
+			role: "Engineer",
+			updatedAt: new Date(),
+		} as Application,
 	]);
 	mutations.copy.mockRejectedValue({ code: "PRECONDITION_FAILED", data: { reason: "JOB_COPY_LIMIT" } });
 	render(
@@ -92,7 +111,7 @@ it("keeps the selected job and copy name inline after a quota denial", async () 
 	fireEvent.click(screen.getByRole("button", { name: "Create and open" }));
 	await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("job copy"));
 	expect(screen.getByLabelText("Name", { exact: true })).toHaveValue("Keep this unsaved copy name");
-	expect(screen.getByRole("button", { name: "Synthetic Company" })).toHaveAttribute("aria-pressed", "true");
+	expect(screen.getByRole("combobox", { name: "For which job?" })).toHaveTextContent("Synthetic Company");
 });
 
 it("continues to the exact-job workflow without creating a copy or opening an assistant", () => {
@@ -115,7 +134,13 @@ it("continues to the exact-job workflow without creating a copy or opening an as
 	]);
 	queryClient.setQueryData(orpc.aiProviders.list.queryKey(), []);
 	queryClient.setQueryData(applicationsListQueryKey(), [
-		{ id: "job", company: "Synthetic Company", status: "saved" } as Application,
+		{
+			id: "job",
+			company: "Synthetic Company",
+			status: "saved",
+			role: "Engineer",
+			updatedAt: new Date(),
+		} as Application,
 	]);
 	mutations.copy.mockRejectedValue({ code: "PRECONDITION_FAILED", data: { reason: "JOB_COPY_LIMIT" } });
 	render(

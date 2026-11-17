@@ -123,6 +123,7 @@ type EditableFields = {
 	followUpNote?: string | null | undefined;
 	contacts?: Contact[] | undefined;
 	resumeId?: string | null | undefined;
+	selectedResumeVersionId?: string | null | undefined;
 	coverLetterId?: string | null | undefined;
 	requirements?: string[] | undefined;
 	tags?: string[] | undefined;
@@ -153,6 +154,30 @@ async function assertOwnedResume(userId: string, resumeId: string | null | undef
 	await resumeService.getById({ id: resumeId, userId });
 }
 
+async function assertOwnedResumeVersion(
+	client: DbOrTx,
+	userId: string,
+	resumeId: string | null | undefined,
+	versionId: string | null | undefined,
+) {
+	if (!versionId) return;
+	if (!resumeId) throw new ORPCError("BAD_REQUEST", { message: "Select the CV before its version." });
+	const [owned] = await client
+		.select({ id: schema.resumeVersion.id })
+		.from(schema.resumeVersion)
+		.innerJoin(schema.resume, eq(schema.resume.id, schema.resumeVersion.resumeId))
+		.where(
+			and(
+				eq(schema.resumeVersion.id, versionId),
+				eq(schema.resumeVersion.resumeId, resumeId),
+				eq(schema.resumeVersion.userId, userId),
+				eq(schema.resume.userId, userId),
+				isNull(schema.resume.trashedAt),
+			),
+		);
+	if (!owned) throw new ORPCError("NOT_FOUND");
+}
+
 async function assertOwnedCoverLetter(userId: string, coverLetterId: string | null | undefined) {
 	if (!coverLetterId) return;
 	await coverLetterService.getById({ id: coverLetterId, userId });
@@ -172,25 +197,37 @@ export async function recordSentResume(row: ApplicationRow, client: DbOrTx): Pro
 	if (!SENT_STAGES.has(row.status)) return row;
 	const changes: Partial<ApplicationRow> = {};
 
-	if (row.resumeId && !row.sentResumeVersionId) {
-		const [resume] = await client
-			.select()
-			.from(schema.resume)
-			.where(
-				and(eq(schema.resume.id, row.resumeId), eq(schema.resume.userId, row.userId), isNull(schema.resume.trashedAt)),
-			)
-			.for("update");
-		if (!resume)
-			throw new ORPCError("NOT_FOUND", { message: "The linked resume is unavailable. Restore it before submitting." });
-		const version = await writeVersion(client, {
-			resumeId: row.resumeId,
-			userId: row.userId,
-			data: resume.data,
-			kind: "sent",
-			name: row.company,
-		});
-		changes.sentResumeVersionId = version.id;
-		changes.sentCheckScore = lintResumeForAts(resume.data).score;
+	if (row.resumeId && !row.sentResumeVersionId && !row.sentResumeRecordedAt) {
+		changes.sentResumeRecordedAt = new Date();
+		if (row.selectedResumeVersionId) {
+			await assertOwnedResumeVersion(client, row.userId, row.resumeId, row.selectedResumeVersionId);
+			changes.sentResumeVersionId = row.selectedResumeVersionId;
+		} else {
+			const [resume] = await client
+				.select()
+				.from(schema.resume)
+				.where(
+					and(
+						eq(schema.resume.id, row.resumeId),
+						eq(schema.resume.userId, row.userId),
+						isNull(schema.resume.trashedAt),
+					),
+				)
+				.for("update");
+			if (!resume)
+				throw new ORPCError("NOT_FOUND", {
+					message: "The linked resume is unavailable. Restore it before submitting.",
+				});
+			const version = await writeVersion(client, {
+				resumeId: row.resumeId,
+				userId: row.userId,
+				data: resume.data,
+				kind: "sent",
+				name: row.company,
+			});
+			changes.sentResumeVersionId = version.id;
+			changes.sentCheckScore = lintResumeForAts(resume.data).score;
+		}
 	}
 
 	// The letter sent with it is kept the same way.
@@ -480,6 +517,7 @@ export const applicationService = {
 		return withDocumentFiles(userId, { resumeFile, coverLetterFile }, (uploadedFields) =>
 			db.transaction(async (tx) => {
 				await lockApplicationUser(tx, userId);
+				await assertOwnedResumeVersion(tx, userId, fields.resumeId, fields.selectedResumeVersionId);
 				const [row] = await tx
 					.insert(schema.application)
 					.values({
@@ -529,8 +567,13 @@ export const applicationService = {
 			};
 		});
 
-		const rows = await db.insert(schema.application).values(values).returning({ id: schema.application.id });
-		return { imported: rows.length };
+		return db.transaction(async (tx) => {
+			await lockApplicationUser(tx, input.userId);
+			for (const item of input.items)
+				await assertOwnedResumeVersion(tx, input.userId, item.resumeId, item.selectedResumeVersionId);
+			const rows = await tx.insert(schema.application).values(values).returning({ id: schema.application.id });
+			return { imported: rows.length };
+		});
 	},
 
 	update: async (
@@ -541,6 +584,7 @@ export const applicationService = {
 				status?: ApplicationStatus | undefined;
 				stageEnteredAt?: string | undefined;
 				expectedNotesRevision?: string | undefined;
+				expectedUpdatedAt?: string | undefined;
 				closedReason?: ApplicationClosedReason | null | undefined;
 			},
 	) => {
@@ -555,10 +599,13 @@ export const applicationService = {
 			resumeFile,
 			coverLetterFile,
 			expectedNotesRevision,
+			expectedUpdatedAt,
 			...fields
 		} = input;
 		if (
-			(existing.sentResumeVersionId && fields.resumeId !== undefined && fields.resumeId !== existing.resumeId) ||
+			((existing.sentResumeVersionId || existing.sentResumeRecordedAt) &&
+				fields.resumeId !== undefined &&
+				fields.resumeId !== existing.resumeId) ||
 			(existing.sentCoverLetterVersionId &&
 				fields.coverLetterId !== undefined &&
 				fields.coverLetterId !== existing.coverLetterId)
@@ -595,6 +642,21 @@ export const applicationService = {
 					.where(and(eq(schema.application.id, id), eq(schema.application.userId, userId)))
 					.for("update");
 				if (!current) throw new ORPCError("NOT_FOUND");
+				if (expectedUpdatedAt !== undefined && current.updatedAt.toISOString() !== expectedUpdatedAt)
+					throw new ORPCError("CONFLICT", { message: "The application changed. Reload before saving your draft." });
+				const nextResumeId = fields.resumeId === undefined ? current.resumeId : fields.resumeId;
+				const nextVersionId =
+					fields.selectedResumeVersionId === undefined
+						? nextResumeId === current.resumeId
+							? current.selectedResumeVersionId
+							: null
+						: fields.selectedResumeVersionId;
+				await assertOwnedResumeVersion(tx, userId, nextResumeId, nextVersionId);
+				if (
+					(current.sentResumeVersionId || current.sentResumeRecordedAt) &&
+					nextVersionId !== current.selectedResumeVersionId
+				)
+					throw new ORPCError("BAD_REQUEST", { message: "Recorded submitted documents cannot be replaced." });
 				if (
 					expectedNotesRevision !== undefined &&
 					new Date(current.updatedAt).toISOString() !== expectedNotesRevision
@@ -603,7 +665,9 @@ export const applicationService = {
 				}
 
 				if (
-					(current.sentResumeVersionId && fields.resumeId !== undefined && fields.resumeId !== current.resumeId) ||
+					((current.sentResumeVersionId || current.sentResumeRecordedAt) &&
+						fields.resumeId !== undefined &&
+						fields.resumeId !== current.resumeId) ||
 					(current.sentCoverLetterVersionId &&
 						fields.coverLetterId !== undefined &&
 						fields.coverLetterId !== current.coverLetterId)
@@ -616,6 +680,8 @@ export const applicationService = {
 					.update(schema.application)
 					.set({
 						...fields,
+						selectedResumeVersionId: nextVersionId,
+						updatedAt: new Date(Math.max(Date.now(), current.updatedAt.getTime() + 1)),
 						...uploadedFields,
 						...(status !== undefined ? { status } : {}),
 						...(appliedAtExpr ? { appliedAt: appliedAtExpr } : {}),

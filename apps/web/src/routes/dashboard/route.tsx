@@ -1,10 +1,15 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, notFound } from "@tanstack/react-router";
+import { deferredRoute, isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { AppShell } from "./-components/app-shell";
+import { DeferredRouteNotFound } from "@/features/personal-tools/unavailable";
 import { createNoindexFollowMeta } from "@/libs/seo";
 
 export const Route = createFileRoute("/dashboard")({
 	component: RouteComponent,
+	notFoundComponent: DeferredRouteNotFound,
 	beforeLoad: ({ context, location }) => {
+		const feature = deferredRoute(location.pathname);
+		if (feature && !isFeatureAvailable(feature)) throw notFound({ routeId: "/dashboard" });
 		if (!context.session)
 			throw redirect({
 				to: "/auth/login",

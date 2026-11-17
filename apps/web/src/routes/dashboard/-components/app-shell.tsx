@@ -27,6 +27,7 @@ import { useCareerCopy } from "@/features/career/copy.generated";
 import { CommandPaletteTrigger } from "@/features/command-palette/trigger";
 import { useDocumentsCopy } from "@/features/documents/copy.generated";
 import { LocaleSwitch } from "@/features/locale/switch";
+import { usePersonalToolAvailable } from "@/features/personal-tools/availability";
 import { isEditableElementFocused } from "@/features/resume/builder/draft";
 import { ThemeToggleButton } from "@/features/theme/toggle-button";
 import { UserDropdownMenu } from "@/features/user/dropdown-menu";
@@ -50,7 +51,8 @@ function useNavItems() {
 	const { t } = useLingui();
 	const copy = useDocumentsCopy();
 	const { data: counts } = useQuery(orpc.documents.counts.queryOptions());
-	const { data: applications } = useQuery(applicationsListQueryOptions());
+	const applicationsEnabled = usePersonalToolAvailable("applications");
+	const { data: applications } = useQuery({ ...applicationsListQueryOptions(), enabled: applicationsEnabled });
 
 	const items: NavItem[] = [
 		{
@@ -82,7 +84,7 @@ function useNavItems() {
 		...(counts?.trash ? { count: counts.trash } : {}),
 	};
 
-	return { items, trash };
+	return { items: items.filter((item) => item.to !== "/dashboard/applications" || applicationsEnabled), trash };
 }
 
 /** Whether the item is the current page: Documents is exact, the others match their section. */
@@ -121,9 +123,8 @@ export function AppShell({ children }: AppShellProps) {
 		? t({ message: "Career information", context: "editor.navigation.career" })
 		: copy("editor.navigation.documentsTitle");
 	const mobileTitle = careerInformation ? careerCopy("editor.career.title") : workspaceTitle;
-	const mobileWorkspace =
-		breakpoint === "mobile" &&
-		Boolean(matchRoute({ to: "/dashboard/applications/$applicationId/{-$tab}", fuzzy: true }));
+	const applicationMatch = matchRoute({ to: "/dashboard/applications/$applicationId/{-$tab}", fuzzy: true });
+	const mobileWorkspace = breakpoint === "mobile" && Boolean(applicationMatch && applicationMatch.tab);
 	const tabs = breakpoint === "mobile" && !mobileWorkspace;
 
 	useHotkey("N", () => {
@@ -409,6 +410,7 @@ function Rail({ toggle }: { toggle?: (() => void) | undefined }) {
 
 /** Phones keep the bottom-tab pattern, including Trash and the shared account menu. */
 function MobileTabs() {
+	const applicationsEnabled = usePersonalToolAvailable("applications");
 	const { t } = useLingui();
 	const ref = useRef<HTMLElement>(null);
 	useEffect(() => {
@@ -467,18 +469,20 @@ function MobileTabs() {
 					isCurrent("/dashboard/career/information"),
 				)}
 			</Link>
-			<Link
-				to="/dashboard/applications"
-				aria-current={isCurrent("/dashboard/applications") ? "page" : undefined}
-				viewTransition={false}
-				className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
-			>
-				{tab(
-					"briefcase",
-					t({ message: "Applications", context: "editor.navigation.applications" }),
-					isCurrent("/dashboard/applications"),
-				)}
-			</Link>
+			{applicationsEnabled && (
+				<Link
+					to="/dashboard/applications"
+					aria-current={isCurrent("/dashboard/applications") ? "page" : undefined}
+					viewTransition={false}
+					className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
+				>
+					{tab(
+						"briefcase",
+						t({ message: "Applications", context: "editor.navigation.applications" }),
+						isCurrent("/dashboard/applications"),
+					)}
+				</Link>
+			)}
 			<Link
 				to="/dashboard/trash"
 				aria-current={isCurrent("/dashboard/trash") ? "page" : undefined}

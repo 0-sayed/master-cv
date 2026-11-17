@@ -10,6 +10,7 @@ import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { assignChanged, useResumeWebMcpTools } from "./webmcp";
 import { useResumeStore } from "@/features/resume/builder/draft";
 import { clearPersonalStorage } from "@/libs/browser-storage";
+vi.mock("@reactive-resume/schema/personal-tools", () => ({ isFeatureAvailable: () => true }));
 
 const updateResume = vi.hoisted(() => vi.fn());
 const toastMocks = vi.hoisted(() => ({ add: vi.fn(), close: vi.fn() }));

@@ -47,6 +47,7 @@ const applicationSchema = createSelectSchema(schema.application, {
 		.nullable()
 		.describe("Why a closed application ended: accepted, not-selected, withdrew, accepted-other or no-response."),
 	resumeId: z.string().nullable().describe("The linked Master CV, if any."),
+	selectedResumeVersionId: z.string().nullable().describe("The exact CV version selected by the owner."),
 	coverLetterId: z.string().nullable().describe("The linked saved cover letter, if any."),
 	sentResumeVersionId: z
 		.string()
@@ -108,6 +109,7 @@ const editableSchema = applicationSchema.pick({
 	followUpNote: true,
 	contacts: true,
 	resumeId: true,
+	selectedResumeVersionId: true,
 	coverLetterId: true,
 	requirements: true,
 	tags: true,
@@ -152,6 +154,7 @@ export const applicationDto = {
 
 	update: {
 		input: editableSchema.partial().extend({
+			expectedUpdatedAt: z.iso.datetime(),
 			expectedNotesRevision: z.iso.datetime().optional(),
 			...documentFilesShape,
 			id: z.string(),

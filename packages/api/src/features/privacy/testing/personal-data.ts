@@ -130,6 +130,7 @@ export async function seedPersonalData(pool: Pool, owner: "alice" | "bob") {
 				data: { content: id("LETTER_REVISION_SENTINEL") },
 			},
 		],
+
 		career_profile: [{ user_id: owner, data: { name: id("PROFILE_SENTINEL") } }],
 		job_target: [{ id: id("job"), user_id: owner }],
 		job_target_revision: [
@@ -282,6 +283,17 @@ export async function seedPersonalData(pool: Pool, owner: "alice" | "bob") {
 				prompt_version: "1",
 				schema_version: "1",
 				parameters: { note: id("OPERATION_SENTINEL"), token: "SECRET_SENTINEL" },
+			},
+		],
+		cover_letter_proposal_decision: [
+			{
+				operation_id: id("operation"),
+				user_id: owner,
+				letter_id: id("letter"),
+				base_revision: 1,
+				decision: "accept",
+				request_key: "SECRET_SENTINEL",
+				version_id: id("letter-version"),
 			},
 		],
 		ai_operation_attempt: [

@@ -1,5 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { buttonVariants } from "@reactive-resume/ui/components/button";
 import { HelpPage } from "./page";
 import { PublicShell } from "./public-shell";
@@ -15,13 +16,9 @@ export function PublicHelp() {
 			headerActions={
 				<>
 					{/* On phones the logo already leads home, so the header keeps one row. */}
-					<Link
-						to="/"
-						search={{ locale }}
-						className={buttonVariants({ variant: "link", size: "link-touch", className: "max-sm:hidden" })}
-					>
+					<BackNavigation className="max-sm:hidden" render={<Link to="/" search={{ locale }} />}>
 						<Trans context="privacy.navigation.home">Back to home</Trans>
-					</Link>
+					</BackNavigation>
 					<Link
 						to="/auth/login"
 						search={{ locale, callbackURL: `/help?locale=${locale}` }}

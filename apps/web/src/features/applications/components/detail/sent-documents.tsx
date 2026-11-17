@@ -12,8 +12,10 @@ import { toast } from "@reactive-resume/ui/components/toast";
 import { PIPELINE } from "../../stages";
 import { useInvalidateApplications } from "../../use-application-actions";
 import { FileAttachmentField } from "../file-attachment-field";
+import { ResumeVersionSelect } from "../resume-version-select";
 import { useDialogStore } from "@/dialogs/store";
 import { getOrpcErrorMessage } from "@/libs/error-message";
+import { formatInterfaceDate } from "@/libs/locale";
 import { orpc } from "@/libs/orpc/client";
 
 /** When the application was sent: its first stage at Applied or beyond. */
@@ -69,13 +71,14 @@ export function SentDocuments({ application, disabled }: SentDocumentsProps) {
 
 	const resume = documents?.find((document) => document.type === "resume" && document.id === application.resumeId);
 	const letter = documents?.find((document) => document.type === "letter" && document.id === application.coverLetterId);
-	const date = sentOn(application).toLocaleDateString(i18n.locale, { month: "short", day: "numeric" });
+	const date = formatInterfaceDate(sentOn(application), i18n.locale, { month: "short", day: "numeric" });
 
 	// A structured letter: the server fills the recipient from the application and makes it the application's letter.
 	const writeLetter = async () => {
 		const letterInput = {
 			name: t`Cover letter — ${application.company}`.slice(0, 100),
 			applicationId: application.id,
+			documentLocale: "ar-SA" as const,
 			...(application.resumeId ? { resumeId: application.resumeId } : {}),
 		};
 		try {
@@ -95,6 +98,18 @@ export function SentDocuments({ application, disabled }: SentDocumentsProps) {
 			<h3 id="application-sent" className="text-xs font-semibold text-ink-3 uppercase">
 				{application.status === "saved" ? <Trans>Documents for this job</Trans> : <Trans>What you sent</Trans>}
 			</h3>
+			<ResumeVersionSelect
+				resumeId={application.resumeId}
+				value={application.selectedResumeVersionId}
+				disabled={Boolean(application.sentResumeVersionId || application.sentResumeRecordedAt) || update.isPending}
+				onChange={(value) =>
+					update.mutate({
+						id: application.id,
+						expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+						selectedResumeVersionId: value,
+					})
+				}
+			/>
 
 			{application.resumeId && (
 				<SentDocumentRow
@@ -186,6 +201,7 @@ export function SentDocuments({ application, disabled }: SentDocumentsProps) {
 						disabled={disabled || update.isPending}
 						onChange={(value) =>
 							update.mutate({
+								expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
 								id: application.id,
 								...(value ? { resumeFile: value } : { resumeFileUrl: null, resumeFileName: null }),
 							})
@@ -201,6 +217,7 @@ export function SentDocuments({ application, disabled }: SentDocumentsProps) {
 						disabled={disabled || update.isPending}
 						onChange={(value) =>
 							update.mutate({
+								expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
 								id: application.id,
 								...(value ? { coverLetterFile: value } : { coverLetterUrl: null, coverLetterName: null }),
 							})

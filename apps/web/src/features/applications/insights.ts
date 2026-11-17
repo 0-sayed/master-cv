@@ -10,8 +10,15 @@ const FORWARD: ApplicationStatus[] = ["saved", "applied", "screening", "intervie
 
 export type Insights = {
 	total: number;
-	tiles: { label: string; value: string; sub: string }[];
-	funnel: { label: string; color: string; count: number; reached: number; pct: number; conv: string }[];
+	funnel: {
+		status: ApplicationStatus;
+		label: string;
+		color: string;
+		count: number;
+		reached: number;
+		pct: number;
+		conv: string;
+	}[];
 	closed: number;
 };
 
@@ -26,14 +33,14 @@ export function computeInsights(byStage: StageCount[]): Insights {
 
 	// reached[i] = active apps that got at least as far as FORWARD[i].
 	const reached = FORWARD.map((_, i) => FORWARD.slice(i).reduce((sum, s) => sum + at(s), 0));
-	const appliedOn = reached[1] ?? 0; // everything that made it past "saved"
 
 	const funnel = FORWARD.map((status, i) => {
 		const stage = STAGES.find((s) => s.value === status);
 		const reachedCount = reached[i] ?? 0;
 		const prev = i === 0 ? reachedCount : (reached[i - 1] ?? reachedCount);
 		return {
-			label: stage?.label ?? status,
+			status,
+			label: status,
 			color: stage?.color ?? "var(--stage-saved)",
 			count: at(status),
 			reached: reachedCount,
@@ -42,26 +49,14 @@ export function computeInsights(byStage: StageCount[]): Insights {
 		};
 	});
 
-	const interviews = at("interview") + at("offer");
-	const offers = at("offer");
-	const responseRate = appliedOn > 0 ? Math.round(((reached[2] ?? 0) / appliedOn) * 100) : 0;
-
-	const tiles = [
-		{ label: "Total applications", value: String(total), sub: "in this view" },
-		{ label: "Applied", value: String(appliedOn), sub: "past saved" },
-		{ label: "Response rate", value: `${responseRate}%`, sub: "reached screening" },
-		{ label: "Interviews", value: String(interviews), sub: "interview or beyond" },
-		{ label: "Offers", value: String(offers), sub: closed > 0 ? `${closed} closed` : "so far" },
-	];
-
-	return { total, tiles, funnel, closed };
+	return { total, funnel, closed };
 }
 
 export type TimelineBucket = { label: string; count: number };
 
 // Bucket application dates into the last `weeks` calendar weeks (Sunday-started) so the Insights
 // view can show application velocity over time — a dimension the funnel/tiles don't capture.
-export function computeTimeline(applications: readonly OutcomeSource[], weeks = 8): TimelineBucket[] {
+export function computeTimeline(applications: readonly OutcomeSource[], weeks = 8, locale = "en-US"): TimelineBucket[] {
 	const msWeek = 7 * 86_400_000;
 	const startOfWeek = new Date();
 	startOfWeek.setHours(0, 0, 0, 0);
@@ -69,7 +64,14 @@ export function computeTimeline(applications: readonly OutcomeSource[], weeks = 
 
 	const buckets = Array.from({ length: weeks }, (_, i) => {
 		const start = new Date(startOfWeek.getTime() - (weeks - 1 - i) * msWeek);
-		return { start: start.getTime(), label: `${start.getMonth() + 1}/${start.getDate()}`, count: 0 };
+		return {
+			start: start.getTime(),
+			label: new Intl.DateTimeFormat(new Intl.Locale(locale, { calendar: "gregory", numberingSystem: "latn" }), {
+				month: "numeric",
+				day: "numeric",
+			}).format(start),
+			count: 0,
+		};
 	});
 
 	const first = buckets[0]?.start ?? 0;

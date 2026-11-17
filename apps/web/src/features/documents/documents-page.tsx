@@ -4,9 +4,12 @@ import { Trans } from "@lingui/react/macro";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { CollectionGrid } from "@reactive-resume/ui/components/collection-grid";
+import { DataTable } from "@reactive-resume/ui/components/data-table";
+import { documentCardLayout } from "@reactive-resume/ui/components/document-card-layout";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -30,10 +33,13 @@ import { DocumentCard, DocumentRow } from "./document-card";
 import { collectTags, filterDocuments } from "./filter";
 import { LibraryError } from "./library-error";
 import { useStartDocument } from "./new-document-dialog";
+import { FeatureBetaBadge } from "@/components/feature-beta-badge";
 import { PageHeader } from "@/components/layout/page-header";
+import { SelectionBar as FloatingSelectionBar } from "@/components/layout/selection-bar";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { useDialogStore } from "@/dialogs/store";
 import { useUiLocale } from "@/features/locale/provider";
+import { usePersonalToolAvailable } from "@/features/personal-tools/availability";
 import { isEditableElementFocused } from "@/features/resume/builder/draft";
 import { storageKey as registeredStorageKey, browserStorage } from "@/libs/browser-storage";
 import { PAGE_ENTER_CLASS } from "@/libs/motion";
@@ -58,10 +64,16 @@ type DocumentsPageProps = {
  * Documents: every resume and letter in one library, with type tabs, search (/), sort, grid or list, and tag
  * chips once tags exist. A file dropped anywhere on the page imports straight away.
  */
-export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
+export function DocumentsPage({ search: requestedSearch, onSearchChange }: DocumentsPageProps) {
+	const lettersEnabled = usePersonalToolAvailable("coverLetters");
+	const search =
+		requestedSearch.type === "letter" && !lettersEnabled
+			? { ...requestedSearch, type: "all" as const }
+			: requestedSearch;
 	const copy = useDocumentsCopy();
 	const { locale } = useUiLocale();
 	const openDialog = useDialogStore((state) => state.openDialog);
+	const { newLetter, creating } = useStartDocument();
 	const searchRef = useRef<HTMLInputElement>(null);
 	const [tagsFor, setTagsFor] = useState<DocumentSummary[] | null>(null);
 	const [selected, setSelected] = useState<ReadonlySet<string>>(() => new Set());
@@ -108,7 +120,7 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 		resume: all.filter((document) => document.type === "resume").length,
 		letter: all.filter((document) => document.type === "letter").length,
 	};
-	const hasPublic = all.some((document) => document.isPublic);
+	const hasPublic = isFeatureAvailable("publicSharing") && all.some((document) => document.isPublic);
 	// Actions apply to the selected documents the filters show.
 	const selection = shown.filter((document) => selected.has(documentKey(document)));
 	const selecting = selection.length > 0;
@@ -144,9 +156,13 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 				actions={
 					<Button
 						size="toolbar"
-						aria-keyshortcuts="N"
+						aria-keyshortcuts={search.type === "letter" ? undefined : "N"}
 						className="max-sm:w-full"
-						onClick={() => openDialog("document.new", undefined)}
+						loading={search.type === "letter" && creating}
+						onClick={() => {
+							if (search.type === "letter") void newLetter();
+							else openDialog("document.new", undefined);
+						}}
 					>
 						<Icon name="plus" />
 						<Trans>New</Trans>
@@ -179,17 +195,20 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 										<TabsCount>{counts.resume}</TabsCount>
 									</QuerySkeleton>
 								</TabsTrigger>
-								<TabsTrigger value="letter">
-									{copy("editor.navigation.letters")}
-									<QuerySkeleton
-										inline
-										loading={loading.pending}
-										shape="badge"
-										label={<Trans>Loading the total</Trans>}
-									>
-										<TabsCount>{counts.letter}</TabsCount>
-									</QuerySkeleton>
-								</TabsTrigger>
+								{lettersEnabled && (
+									<TabsTrigger value="letter">
+										{copy("editor.navigation.letters")}
+										<FeatureBetaBadge />
+										<QuerySkeleton
+											inline
+											loading={loading.pending}
+											shape="badge"
+											label={<Trans>Loading the total</Trans>}
+										>
+											<TabsCount>{counts.letter}</TabsCount>
+										</QuerySkeleton>
+									</TabsTrigger>
+								)}
 							</TabsList>
 						</Tabs>
 
@@ -259,7 +278,10 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 					)}
 
 					{loading.pending ? (
-						<QuerySkeleton shape={view === "list" ? "document-rows" : "documents"} count={6} />
+						<QuerySkeleton
+							shape={view === "list" ? "document-rows" : search.type === "all" ? "document-groups" : "documents"}
+							count={6}
+						/>
 					) : shown.length === 0 && !filtered ? (
 						search.type === "letter" ? (
 							<FirstLetter />
@@ -289,12 +311,12 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 							}
 						/>
 					) : view === "list" ? (
-						<table className={cn("w-full table-fixed border-collapse", viewEnter)}>
+						<DataTable className={cn("w-full table-fixed border-collapse", viewEnter)}>
 							<caption className="sr-only">
 								<Trans>Documents</Trans>
 							</caption>
 							<thead>
-								<tr className="border-b border-line text-start type-metadata font-medium text-ink-3">
+								<tr className={cn(documentCardLayout.headerRow, "text-start type-metadata font-medium text-ink-3")}>
 									<th className="w-10 ps-3">
 										<Checkbox
 											checked={allSelected}
@@ -306,7 +328,7 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 									<th className="h-10 ps-3 text-start font-medium">
 										<Trans>Name</Trans>
 									</th>
-									<th className="w-24 px-2 text-start font-medium max-sm:hidden">
+									<th className={documentCardLayout.typeColumn}>
 										<Trans>Type</Trans>
 									</th>
 									<th className="w-1/4 px-2 text-start font-medium max-sm:hidden">
@@ -332,19 +354,40 @@ export function DocumentsPage({ search, onSearchChange }: DocumentsPageProps) {
 									/>
 								))}
 							</tbody>
-						</table>
+						</DataTable>
 					) : (
-						<CollectionGrid className={cn(viewEnter)}>
-							{shown.map((document, index) => (
-								<DocumentCard
-									library
-									key={documentKey(document)}
-									document={document}
-									introIndex={intro ? index : undefined}
-									{...itemProps(document)}
-								/>
-							))}
-						</CollectionGrid>
+						<div className={cn(documentCardLayout.sections, viewEnter)}>
+							{(["resume", "letter"] as const).map((type) => {
+								const items = shown.filter((document) => document.type === type);
+								if (!items.length) return null;
+								return (
+									<section
+										key={type}
+										aria-label={type === "resume" ? copy("editor.documents.cvsTab") : copy("editor.navigation.letters")}
+										className={documentCardLayout.section}
+									>
+										{search.type === "all" && (
+											<h2 className={documentCardLayout.sectionHeading}>
+												<Icon name={type === "resume" ? "file-text" : "envelope-simple"} />
+												{type === "resume" ? copy("editor.documents.cvsTab") : copy("editor.navigation.letters")}
+												<span className="type-metadata text-ink-3">{items.length}</span>
+											</h2>
+										)}
+										<CollectionGrid>
+											{items.map((document, index) => (
+												<DocumentCard
+													library
+													key={documentKey(document)}
+													document={document}
+													introIndex={intro ? index : undefined}
+													{...itemProps(document)}
+												/>
+											))}
+										</CollectionGrid>
+									</section>
+								);
+							})}
+						</div>
 					)}
 				</>
 			)}
@@ -522,16 +565,7 @@ function SelectionBar({ selection, allSelected, onSelectAll, onClear, onTags }: 
 	};
 
 	return (
-		<div
-			role="toolbar"
-			aria-label={t`Selected documents`}
-			aria-hidden={count === 0}
-			inert={count === 0}
-			className={cn(
-				"fixed inset-x-0 bottom-6 z-30 mx-auto flex w-fit max-w-[calc(100vw-var(--space-32))] items-center gap-1 rounded-xl border border-line bg-raised p-1.5 shadow-e3 transition-[opacity,translate] duration-standard ease-enter max-sm:bottom-4",
-				count === 0 && "pointer-events-none translate-y-2 opacity-0",
-			)}
-		>
+		<FloatingSelectionBar count={count} label={t`Selected documents`}>
 			<span className="px-2 type-label whitespace-nowrap" aria-live="polite">
 				<Trans>{count} selected</Trans>
 			</span>
@@ -552,22 +586,26 @@ function SelectionBar({ selection, allSelected, onSelectAll, onClear, onTags }: 
 						<Button variant="ghost" size="sm" disabled={busy}>
 							<Icon name="globe" />
 							<span className="max-sm:sr-only">
-								<Trans>Sharing</Trans>
+								<Trans>Lock editing</Trans>
 							</span>
 							<Icon name="caret-down" size={14} />
 						</Button>
 					}
 				/>
 				<DropdownMenuContent side="top" align="center" className="w-48">
-					<DropdownMenuItem onClick={() => void run(() => batch.setPublic(selection, true))}>
-						<Icon name="globe" />
-						<Trans>Make public</Trans>
-					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => void run(() => batch.setPublic(selection, false))}>
-						<Icon name="eye-slash" />
-						<Trans>Make private</Trans>
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
+					{isFeatureAvailable("publicSharing") && (
+						<>
+							<DropdownMenuItem onClick={() => void run(() => batch.setPublic(selection, true))}>
+								<Icon name="globe" />
+								<Trans>Make public</Trans>
+							</DropdownMenuItem>
+							<DropdownMenuItem onClick={() => void run(() => batch.setPublic(selection, false))}>
+								<Icon name="eye-slash" />
+								<Trans>Make private</Trans>
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+						</>
+					)}
 					<DropdownMenuItem onClick={() => void run(() => batch.setLocked(selection, true))}>
 						<Icon name="lock" />
 						<Trans>Lock editing</Trans>
@@ -591,7 +629,7 @@ function SelectionBar({ selection, allSelected, onSelectAll, onClear, onTags }: 
 				</span>
 			</Button>
 			<IconButton icon="x" size="icon-sm" label={t`Clear selection`} className="text-ink-2" onClick={onClear} />
-		</div>
+		</FloatingSelectionBar>
 	);
 }
 

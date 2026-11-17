@@ -52,6 +52,7 @@ function* chunks(...parts: string[]) {
 
 beforeEach(() => {
 	vi.resetAllMocks();
+	store().reset();
 	store().load(letter);
 });
 
@@ -165,4 +166,38 @@ describe("drafts", () => {
 		expect(store().draft).toEqual({ phase: "idle" });
 		expect(store().letter?.content).toBe("<p>Mine</p>");
 	});
+});
+
+it("keeps unsaved manual edits when the same document reloads after a save failure", async () => {
+	mocks.update.mockRejectedValue(new Error("offline"));
+	store().edit({ content: "<p>Keep my manual edit.</p>" });
+	await store().flush();
+	store().load(letter);
+	expect(store().letter?.content).toBe("<p>Keep my manual edit.</p>");
+	expect(store().status).toBe("error");
+	expect(store().pending.content).toBe("<p>Keep my manual edit.</p>");
+	mocks.update.mockImplementation(async (input) => ({ ...letter, content: input.content, revision: 2 }));
+	expect(await store().flush()).toBe(true);
+	expect(store().letter?.content).toBe("<p>Keep my manual edit.</p>");
+});
+
+it("marks action conflicts and accepts an explicit reload of the saved revision", async () => {
+	const action = vi.fn().mockRejectedValue(new ORPCError("CONFLICT"));
+	await expect(store().change(action)).rejects.toMatchObject({ code: "CONFLICT" });
+	expect(store().status).toBe("conflict");
+	store().load({ ...letter, revision: 2 });
+	expect(store().status).toBe("conflict");
+	store().load({ ...letter, revision: 2 }, true);
+	expect(store().status).toBe("saved");
+	expect(store().letter?.revision).toBe(2);
+	expect(store().pending).toEqual({});
+});
+
+it("preserves a pending save conflict when a metadata change is requested", async () => {
+	mocks.update.mockRejectedValue(new ORPCError("CONFLICT"));
+	store().edit({ content: "<p>Keep this draft</p>" });
+	const action = vi.fn();
+	await expect(store().change(action)).rejects.toMatchObject({ code: "CONFLICT" });
+	expect(action).not.toHaveBeenCalled();
+	expect(store().pending.content).toBe("<p>Keep this draft</p>");
 });

@@ -1,6 +1,8 @@
-import { readFile } from "node:fs/promises";
+import { glob, readFile } from "node:fs/promises";
 import { expect, it } from "vite-plus/test";
 import { formatter } from "@lingui/format-po";
+import * as ts from "typescript/unstable/ast";
+import { closeParser, parseSource } from "../design-tokens/scan.mjs";
 
 async function catalog(locale: "ar-SA" | "en-US") {
 	return formatter().parse(await readFile(new URL(`../../apps/web/locales/${locale}.po`, import.meta.url), "utf8"), {
@@ -9,6 +11,53 @@ async function catalog(locale: "ar-SA" | "en-US") {
 		filename: `${locale}.po`,
 	});
 }
+
+it("extracts and translates toast text and conditional action labels", async () => {
+	const catalogs = await Promise.all([catalog("en-US"), catalog("ar-SA")]);
+	const problems: string[] = [];
+	const root = new URL("../../apps/web/src/", import.meta.url);
+	for await (const path of glob("**/*.{ts,tsx}", { cwd: root })) {
+		if (/\.(test|spec)\./u.test(path)) continue;
+		const text = await readFile(new URL(path, root), "utf8");
+		if (!text.includes("toast.add")) continue;
+		const source = parseSource(path, text);
+		const inspectValue = (value: ts.Node) => {
+			if (ts.isStringLiteral(value) || ts.isNoSubstitutionTemplateLiteral(value))
+				problems.push(`${path}: unlocalized toast text ${value.text}`);
+			else if (
+				ts.isTaggedTemplateExpression(value) &&
+				value.tag.getText(source) === "t" &&
+				ts.isNoSubstitutionTemplateLiteral(value.template)
+			) {
+				const text = value.template.text;
+				for (const [index, messages] of catalogs.entries()) {
+					const message = Object.values(messages).find((entry) => !entry.obsolete && entry.message === text);
+					if (!message?.translation?.trim() || (index === 1 && !/\p{Script=Arabic}/u.test(message.translation)))
+						problems.push(`${path}: missing ${index === 1 ? "Arabic" : "English"} toast text ${text}`);
+				}
+			} else if (ts.isConditionalExpression(value)) {
+				inspectValue(value.whenTrue);
+				inspectValue(value.whenFalse);
+			}
+		};
+		const inspectText = (node: ts.Node) => {
+			if (
+				ts.isPropertyAssignment(node) &&
+				["title", "description", "children", "label"].includes(node.name.getText(source))
+			)
+				inspectValue(node.initializer);
+			node.forEachChild(inspectText);
+		};
+		const visit = (node: ts.Node) => {
+			if (ts.isCallExpression(node) && node.expression.getText(source) === "toast.add")
+				for (const argument of node.arguments) inspectText(argument);
+			node.forEachChild(visit);
+		};
+		visit(source);
+	}
+	closeParser();
+	expect(problems).toEqual([]);
+});
 
 it("uses English source identities and complete English/Arabic interface catalogs", async () => {
 	for (const locale of ["en-US", "ar-SA"] as const) {

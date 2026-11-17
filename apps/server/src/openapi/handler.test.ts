@@ -7,7 +7,7 @@ vi.mock("@reactive-resume/auth/config", () => ({
 	verifyOAuthToken: vi.fn().mockRejectedValue(new Error("invalid token")),
 	isCustomOAuthProviderEnabled: () => false,
 }));
-const { handleOpenApi } = await import("./handler");
+const { handleOpenApi, handleOpenApiDocument } = await import("./handler");
 const request = (path: string, init?: RequestInit) =>
 	handleOpenApi(new Request(`http://localhost:3000/api/openapi${path}`, init), "127.0.0.1");
 
@@ -38,8 +38,6 @@ describe("REST boundary", () => {
 		"/resumes",
 		"/applications",
 		"/documents",
-		"/ai-providers",
-		"/agent/threads",
 		"/cover-letters",
 		"/resumes/private/exports/json",
 		"/cover-letters/private/exports/pdf",
@@ -47,6 +45,11 @@ describe("REST boundary", () => {
 		const response = await request(path);
 		expect(response.status).toBe(401);
 		expect(await response.json()).toMatchObject({ code: "UNAUTHORIZED", status: 401 });
+	});
+	it.each(["/ai-providers", "/agent/threads"])("withholds deferred private reads: %s", async (path) => {
+		const response = await request(path);
+		expect(response.status).toBe(403);
+		expect(await response.json()).toMatchObject({ code: "FORBIDDEN", message: "FEATURE_UNAVAILABLE" });
 	});
 	it("denies anonymous multipart PDF checks before decoding private content", async () => {
 		const form = new FormData();
@@ -67,4 +70,12 @@ describe("REST boundary", () => {
 		expect(response.status).toBe(400);
 		expect(await response.json()).toMatchObject({ code: "BAD_REQUEST", status: 400 });
 	});
+});
+
+it("retains the Master CV discovery identity behind the HTTP release gate", async () => {
+	const response = await handleOpenApiDocument();
+	const spec = await response.json();
+	expect(spec.info.title).toBe("Master CV");
+	expect(spec.info.contact).toEqual({ name: "Master CV", url: "https://github.com/0-sayed/master-cv" });
+	expect(spec.externalDocs.description).toBe("Upstream documentation");
 });

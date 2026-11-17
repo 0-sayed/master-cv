@@ -4,6 +4,7 @@ import { Trans } from "@lingui/react/macro";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useId, useState } from "react";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Collapsible, CollapsibleContent } from "@reactive-resume/ui/components/collapsible";
 import { Icon } from "@reactive-resume/ui/components/icon";
@@ -27,15 +28,19 @@ const CHOICES: Choice[] = [
  * as the test passes. Settings keep every other provider and option.
  */
 export function ProviderSetup() {
+	return isFeatureAvailable("byok") ? <ProviderSetupForm /> : null;
+}
+
+function ProviderSetupForm() {
 	const [open, setOpen] = useState<AIProvider | null>(null);
 
 	return (
 		<div className="grid gap-4 p-4">
 			<div className="grid gap-1">
-				<h3 className="text-[15px] font-semibold">
+				<h3 className="type-title-s">
 					<Trans>Connect an AI provider</Trans>
 				</h3>
-				<p className="text-sm text-ink-2">
+				<p className="type-body text-ink-2">
 					<Trans>The assistant uses your own key. Nothing is sent anywhere until you connect one.</Trans>
 				</p>
 			</div>
@@ -49,7 +54,7 @@ export function ProviderSetup() {
 								type="button"
 								aria-expanded={expanded}
 								onClick={() => setOpen(expanded ? null : choice.provider)}
-								className="flex h-11 w-full items-center justify-between px-3 text-start text-sm transition-colors duration-quick hover:bg-hover"
+								className="flex h-11 w-full items-center justify-between px-3 text-start type-label transition-colors duration-quick hover:bg-hover"
 							>
 								{choice.provider === "openai-compatible" ? <Trans>Other · OpenAI-compatible</Trans> : choice.label}
 								<Icon
@@ -71,7 +76,7 @@ export function ProviderSetup() {
 				})}
 			</ul>
 
-			<p className="text-xs text-ink-3">
+			<p className="type-metadata text-ink-3">
 				<Trans>
 					More providers and options are in{" "}
 					<Link to="/dashboard/settings/ai" className={buttonVariants({ variant: "link", size: "sm" })}>
@@ -158,7 +163,7 @@ function ConnectForm({ choice }: { choice: Choice }) {
 				<Input dir="ltr" id={`${id}-model`} value={model} onChange={(event) => setModel(event.target.value)} />
 			</div>
 			{failure && (
-				<p role="alert" className="text-xs text-danger-text">
+				<p role="alert" className="type-metadata text-danger-text">
 					{failure}
 				</p>
 			)}

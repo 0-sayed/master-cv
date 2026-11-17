@@ -96,19 +96,22 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("protected private 
 			expect((await runtime.query("SELECT id FROM resume")).rows).toEqual([]);
 		});
 	});
-	it("reads an owned letter before reporting a missing draft source", async () => {
-		await withDatabasePool(runtime, async () => {
-			const draft = createProcedureClient(letters.draft, { context });
-			const startDraft = async () => {
-				const iterator = await draft({ id: "alice-letter", variant: "draft" });
-				return iterator.next();
-			};
-			await expect(startDraft()).rejects.toMatchObject({
-				code: "BAD_REQUEST",
-				message: "Link the letter to a resume or an application first.",
+	it.each(["alice-letter", "bob-letter", "missing-letter"])(
+		"denies direct generation without exposing letter metadata: %s",
+		async (id) => {
+			await withDatabasePool(runtime, async () => {
+				const draft = createProcedureClient(letters.draft, { context });
+				const startDraft = async () => {
+					const iterator = await draft({ id, variant: "draft" });
+					return iterator.next();
+				};
+				await expect(startDraft()).rejects.toMatchObject({
+					code: "PRECONDITION_FAILED",
+					message: "Use reviewed cover-letter generation.",
+				});
 			});
-		});
-	});
+		},
+	);
 	it("delivers updates without an open transaction and releases its listener on cancellation", async () => {
 		await withDatabasePool(runtime, async () => {
 			const controller = new AbortController();

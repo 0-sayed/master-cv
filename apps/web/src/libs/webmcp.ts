@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import z from "zod";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 
 /**
  * WebMCP (https://webmachinelearning.github.io/webmcp/) lets a page offer tools to the AI agent in the user's browser,
@@ -42,6 +43,7 @@ const isModelContext = (value: unknown): value is ModelContext =>
 
 /** The page's tool registry: `document.modelContext`, or `navigator.modelContext` where only the older draft ships. */
 export function getModelContext(): ModelContext | null {
+	if (!isFeatureAvailable("userApi")) return null;
 	if (typeof document === "undefined") return null;
 	const current = (document as Document & WithModelContext).modelContext;
 	if (isModelContext(current)) return current;

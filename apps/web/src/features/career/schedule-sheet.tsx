@@ -22,7 +22,7 @@ import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { fromZonedDateTime } from "@reactive-resume/utils/timezone";
 import { PrivacyLine, Swap, useCareerTime, useNow } from "./shared";
 import { QuerySkeleton } from "@/components/query-skeleton";
-import { collectInterviews, interviewKindOf } from "@/features/applications/interviews";
+import { collectInterviews, interviewTypeLabel } from "@/features/applications/interviews";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
 import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
 import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
@@ -351,11 +351,9 @@ export function ScheduleSheet({ schedule, onScheduleChange, onDelete }: Schedule
 											>
 												{choices.map((item) => (
 													<option key={item.interview.id} value={item.interview.id}>
-														{[
-															item.application.company,
-															interviewKindOf(item.interview.kind)?.label ?? item.interview.kind,
-															when(item.start),
-														].join(" · ")}
+														{[item.application.company, interviewTypeLabel(item.interview.kind), when(item.start)].join(
+															" · ",
+														)}
 													</option>
 												))}
 											</NativeSelect>

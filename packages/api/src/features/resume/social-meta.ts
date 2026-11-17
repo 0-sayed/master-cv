@@ -1,5 +1,6 @@
 import type { ResumeSocialMeta } from "@reactive-resume/resume/social-meta";
 import { getResumeSocialMeta } from "@reactive-resume/resume/social-meta";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { redactResumeForViewer } from "./access-policy";
 import { parseStoredResumeData } from "./resume-data-validation";
 
@@ -32,6 +33,7 @@ const findResume = async ({ username, slug }: PublicResumeSocialMetaInput) => {
 };
 
 export async function getPublicResumeSocialMeta(input: PublicResumeSocialMetaInput): Promise<ResumeSocialMeta | null> {
+	if (!isFeatureAvailable("publicSharing")) return null;
 	const resume = await findResume(input);
 	if (!resume) return null;
 

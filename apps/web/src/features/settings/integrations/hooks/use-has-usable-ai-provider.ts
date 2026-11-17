@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { orpc } from "@/libs/orpc/client";
 
 /**
@@ -6,18 +7,22 @@ import { orpc } from "@/libs/orpc/client";
  * Replaces the predicate that was duplicated across the import dialog, agent setup, and AI settings.
  */
 export function useHasUsableAiProvider() {
-	const query = useQuery(orpc.aiProviders.list.queryOptions());
+	const enabled = isFeatureAvailable("byok");
+	const query = useQuery({ ...orpc.aiProviders.list.queryOptions(), enabled });
 	// An unsuccessful lookup cannot establish which connection is safe to use, even with stale cached data.
-	const usableProviders = query.isSuccess
-		? query.data.filter((provider) => provider.enabled && provider.testStatus === "success")
-		: [];
+	const usableProviders =
+		enabled && query.isSuccess
+			? query.data.filter((provider) => provider.enabled && provider.testStatus === "success")
+			: [];
 
 	return {
 		error: query.error,
 		hasUsableProvider: usableProviders.length > 0,
-		isLoading: query.isPending,
-		isUnavailable: query.isPending || query.isError,
-		retry: () => void query.refetch(),
+		isLoading: enabled && query.isPending,
+		isUnavailable: enabled && (query.isPending || query.isError),
+		retry: () => {
+			if (enabled) void query.refetch();
+		},
 		usableProviders,
 	};
 }

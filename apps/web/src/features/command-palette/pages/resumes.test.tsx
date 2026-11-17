@@ -11,11 +11,19 @@ import { Command, CommandInput, CommandList } from "@reactive-resume/ui/componen
 import { useCommandPaletteStore } from "../store";
 import { ResumesCommandGroup } from "./resumes";
 import { LinkApplicationDialog } from "@/features/documents/document-actions";
+vi.mock("@reactive-resume/schema/personal-tools", async (original) => ({
+	...(await original<typeof import("@reactive-resume/schema/personal-tools")>()),
+	isFeatureAvailable: () => true,
+}));
 
 const lookup = vi.hoisted(() => vi.fn());
+const navigate = vi.hoisted(() => vi.fn());
 vi.mock("@tanstack/react-router", () => ({
-	useNavigate: () => vi.fn(),
-	useRouteContext: () => ({ session: { user: { id: "synthetic-owner" } } }),
+	useNavigate: () => navigate,
+	useRouteContext: () => ({
+		session: { user: { id: "synthetic-owner" } },
+		flags: { personalToolsAvailability: { coverLetters: true, applications: true } },
+	}),
 }));
 vi.mock("@/libs/orpc/client", async (importOriginal) => {
 	const original = await importOriginal<typeof import("@/libs/orpc/client")>();
@@ -25,13 +33,14 @@ vi.mock("@/libs/orpc/client", async (importOriginal) => {
 			resume: { list: lookup },
 			applications: { list: lookup },
 			agent: { threads: { list: lookup } },
-			documents: { linkApplication: lookup },
+			documents: { linkApplication: lookup, list: lookup },
 		}),
 	};
 });
 
 beforeEach(() => {
 	lookup.mockReset();
+	navigate.mockReset();
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	useCommandPaletteStore.getState().reset();
 });
@@ -98,15 +107,19 @@ it.each(["resumes", "applications", "threads", "link"] as const)(
 			{
 				id: "synthetic-1",
 				name: "Sample CV",
+				type: "resume",
+				tags: [],
 				slug: "sample",
 				role: "Engineer",
 				company: "Sample company",
 				status: "saved",
+				updatedAt: new Date(),
 				title: "Sample conversation",
 				scope: "document",
 			},
 		]);
 		setup(page);
+		if (page === "link") fireEvent.click(await screen.findByRole("combobox"));
 		expect(
 			await screen.findByText(
 				page === "resumes" ? "Sample CV" : page === "threads" ? "Sample conversation" : "Engineer",
@@ -116,3 +129,14 @@ it.each(["resumes", "applications", "threads", "link"] as const)(
 		expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 	},
 );
+
+it("search identifies cover letters with their own type and editor route", async () => {
+	lookup.mockResolvedValueOnce([
+		{ id: "letter-1", type: "letter", name: "Application note", tags: [], application: null },
+	]);
+	setup("resumes");
+	expect(await screen.findByText("Application note")).toBeVisible();
+	expect(screen.getByLabelText("Cover letter", { selector: '[data-slot="document-type"]' })).toBeVisible();
+	fireEvent.click(screen.getByRole("option", { name: /Application note/ }));
+	expect(navigate).toHaveBeenCalledWith({ to: "/builder/letter/letter-1" });
+});

@@ -72,6 +72,7 @@ function show(complete: boolean) {
 }
 it("keeps literal occurrence available while semantic processing is unavailable", () => {
 	show(false);
+	expect(screen.getByText("Beta")).toBeDefined();
 	expect(screen.getByText("1 of 2 selected terms appear in this CV.")).toBeDefined();
 	expect(screen.getByText(/not ability or all advertised requirements/)).toBeDefined();
 	expect(screen.getByText(/requires a separately verified review/)).toBeDefined();

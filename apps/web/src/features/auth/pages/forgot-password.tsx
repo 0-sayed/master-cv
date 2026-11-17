@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
-import { Icon } from "@reactive-resume/ui/components/icon";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
+import { Button } from "@reactive-resume/ui/components/button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { AuthErrorSummary } from "../components/auth-error-summary";
 import { AuthHeading } from "../components/auth-heading";
@@ -71,10 +71,7 @@ export function ForgotPasswordPage() {
 					{copy("auth.verifyEmail.resend")}
 				</Button>
 			)}
-			<Link to="/auth/login" className={buttonVariants({ variant: "link", size: "link-touch" })}>
-				<Icon name="arrow-left" size={18} />
-				{copy("auth.navigation.backToSignIn")}
-			</Link>
+			<BackNavigation render={<Link to="/auth/login" />}>{copy("auth.navigation.backToSignIn")}</BackNavigation>
 		</>
 	);
 }

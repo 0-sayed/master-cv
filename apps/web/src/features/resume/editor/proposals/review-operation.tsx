@@ -58,7 +58,8 @@ export function ReviewLaunch({
 		| "review.job-evidence"
 		| "review.tailoring"
 		| "review.translation"
-		| "review.summary";
+		| "review.summary"
+		| "review.cover-letter";
 	prepare: () => Promise<{ sources: SourceRevision[]; parameters: Record<string, unknown> }>;
 	onStarted: (operationId: string) => void;
 	children: ReactNode;

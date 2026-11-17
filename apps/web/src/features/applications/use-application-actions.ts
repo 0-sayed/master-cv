@@ -74,14 +74,19 @@ export function useApplicationActions() {
 	return {
 		update,
 		remove,
-		moveTo: (application: Pick<Application, "id">, status: ApplicationStatus) =>
+		moveTo: (application: Pick<Application, "id" | "updatedAt">, status: ApplicationStatus) =>
 			update.mutate(
-				{ id: application.id, status },
+				{ expectedUpdatedAt: new Date(application.updatedAt).toISOString(), id: application.id, status },
 				{ onSuccess: () => toast.add({ description: t`Moved to ${getStageLabel(status)}` }) },
 			),
-		close: (application: Pick<Application, "id">, closedReason: ApplicationClosedReason) =>
+		close: (application: Pick<Application, "id" | "updatedAt">, closedReason: ApplicationClosedReason) =>
 			update.mutate(
-				{ id: application.id, status: "closed", closedReason },
+				{
+					expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+					id: application.id,
+					status: "closed",
+					closedReason,
+				},
 				{ onSuccess: () => toast.add({ description: t`Application closed` }) },
 			),
 	};

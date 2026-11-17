@@ -1,9 +1,11 @@
+import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useId, useState } from "react";
 import { useCopyToClipboard } from "usehooks-ts";
 import { Button } from "@reactive-resume/ui/components/button";
+import { DataTable } from "@reactive-resume/ui/components/data-table";
 import {
 	Dialog,
 	DialogContent,
@@ -23,6 +25,7 @@ import { SettingsSection } from "../section";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { authClient } from "@/libs/auth/client";
 import { getReadableErrorMessage } from "@/libs/error-message";
+import { getInterfaceDateLocale } from "@/libs/locale";
 import { ENTER_CLASS } from "@/libs/motion";
 import { client } from "@/libs/orpc/client";
 
@@ -39,7 +42,7 @@ type ApiKey = {
 };
 
 const shortDate = (date: Date) =>
-	date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+	date.toLocaleDateString(getInterfaceDateLocale(i18n.locale), { month: "short", day: "numeric", year: "numeric" });
 
 export function ApiKeysSection() {
 	const queryClient = useQueryClient();
@@ -102,7 +105,7 @@ export function ApiKeysSection() {
 					<Trans>No keys yet.</Trans>
 				</p>
 			) : (
-				<table className="w-full overflow-hidden rounded-xl type-body outline outline-line transition-opacity duration-standard ease-enter max-sm:block starting:opacity-0">
+				<DataTable className="w-full overflow-hidden rounded-xl type-body outline outline-line transition-opacity duration-standard ease-enter max-sm:block starting:opacity-0">
 					<caption className="sr-only">
 						<Trans>API keys</Trans>
 					</caption>
@@ -168,7 +171,7 @@ export function ApiKeysSection() {
 							</tr>
 						))}
 					</tbody>
-				</table>
+				</DataTable>
 			)}
 
 			<NewKeyDialog open={creating} onOpenChange={setCreating} onCreated={() => void refresh()} />

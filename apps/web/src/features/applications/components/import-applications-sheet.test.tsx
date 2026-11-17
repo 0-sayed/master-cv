@@ -47,8 +47,12 @@ async function next() {
 it("starts with a keyboard-operable file choice, then maps and reviews before writing", async () => {
 	renderSheet();
 	expect(screen.getByRole("button", { name: "Drop a CSV file here or choose a file" })).toBeTruthy();
-	expect(screen.getByRole("button", { name: "Next" }).hasAttribute("disabled")).toBe(true);
+	expect(screen.getByRole("button", { name: "Next" }).hasAttribute("disabled")).toBe(false);
 	expect(screen.queryByRole("textbox")).toBeNull();
+	await next();
+	expect(screen.getByRole("alert")).toHaveTextContent("Choose a CSV file");
+	expect(screen.getByRole("button", { name: "Drop a CSV file here or choose a file" })).toHaveFocus();
+	expect(mocks.import).not.toHaveBeenCalled();
 	await paste("Employer,Position,Stage\nExample,Engineer,applied");
 	expect(screen.getByLabelText("CSV data").getAttribute("rows")).toBe("8");
 	await next();
@@ -77,7 +81,7 @@ it("marks row errors and preserves the invalid-value block until mapping is corr
 	const preview = screen.getByRole("table", { name: "Application preview" });
 	expect(within(preview).getByText(/Stage:.*is invalid/).textContent).toContain("is invalid.");
 	expect(within(preview).getByText("Company and role are required.")).toBeTruthy();
-	expect(screen.getByRole("button", { name: "Import 1 application" }).hasAttribute("disabled")).toBe(true);
+	expect(screen.getByRole("button", { name: "Import 1 application" }).hasAttribute("disabled")).toBe(false);
 	await act(async () => fireEvent.click(screen.getByRole("tab", { name: /Match columns/ })));
 	fireEvent.change(screen.getByLabelText("Column Stage goes to"), { target: { value: "" } });
 	await next();
@@ -93,7 +97,7 @@ it("rejects non-CSV drops and keeps the empty flow blocked", async () => {
 		}),
 	);
 	expect(screen.getByRole("alert").textContent).toContain("Choose a .csv file.");
-	expect(screen.getByRole("button", { name: "Next" }).hasAttribute("disabled")).toBe(true);
+	expect(screen.getByRole("button", { name: "Next" }).hasAttribute("disabled")).toBe(false);
 });
 
 it("loads a CSV file and requires unmatched required columns to be assigned", async () => {
@@ -103,7 +107,7 @@ it("loads a CSV file and requires unmatched required columns to be assigned", as
 	await act(async () => fireEvent.change(input, { target: { files: [file] } }));
 	expect(await screen.findByText("Selected file: applications.csv")).toBeTruthy();
 	await next();
-	expect(screen.getByRole("button", { name: "Next" }).hasAttribute("disabled")).toBe(true);
+	expect(screen.getByRole("button", { name: "Next" }).hasAttribute("disabled")).toBe(false);
 	fireEvent.change(screen.getByLabelText("Column Business goes to"), { target: { value: "company" } });
 	fireEvent.change(screen.getByLabelText("Column Job goes to"), { target: { value: "role" } });
 	await next();
@@ -119,7 +123,7 @@ it("blocks invalid values beyond the first five preview rows", async () => {
 	);
 	await next();
 	await next();
-	expect(screen.getByRole("button", { name: "Import 5 applications" }).hasAttribute("disabled")).toBe(true);
+	expect(screen.getByRole("button", { name: "Import 5 applications" }).hasAttribute("disabled")).toBe(false);
 	expect(screen.getByText(/Row 7, Stage:/).textContent).toContain("invalid-stage");
 	expect(mocks.import).not.toHaveBeenCalled();
 });
@@ -130,7 +134,8 @@ it("keeps the zero-count primary an action and explains why import is blocked se
 	await next();
 	await next();
 	const primary = screen.getByRole("button", { name: "Import 0 applications" });
-	expect(primary.hasAttribute("disabled")).toBe(true);
+	expect(primary.hasAttribute("disabled")).toBe(false);
+	await act(async () => fireEvent.click(primary));
 	expect(document.getElementById(primary.getAttribute("aria-describedby") ?? "")?.textContent).toContain(
 		"Each application needs a company and role.",
 	);

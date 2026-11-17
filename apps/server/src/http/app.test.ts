@@ -1,5 +1,11 @@
 import { gunzipSync } from "node:zlib";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { createApp } from "./app";
+const policy = vi.hoisted(() => ({ enabled: true }));
+vi.mock("@reactive-resume/schema/personal-tools", async (original) => ({
+	...(await original<typeof import("@reactive-resume/schema/personal-tools")>()),
+	isFeatureAvailable: () => policy.enabled,
+}));
 
 const mocks = vi.hoisted(() => ({
 	trustedProxies: [] as string[],
@@ -93,6 +99,7 @@ const transportEnv = (remoteAddress: string) =>
 	}) as never;
 
 beforeEach(() => {
+	policy.enabled = true;
 	vi.clearAllMocks();
 	mocks.trustedProxies.length = 0;
 	mocks.handleAuth.mockResolvedValue(new Response("auth"));
@@ -120,7 +127,25 @@ beforeEach(() => {
 });
 
 describe("createApp", () => {
-	// The first case pays for the cold import of the whole app, which takes seconds under a parallel run.
+	it.each([
+		"/mcp",
+		"/openapi.json",
+		"/.well-known/integrations.json",
+		"/api/auth/api-key/create",
+		"/api/auth/oauth2/register",
+		"/api/auth/sign-in/social",
+		"/api/auth/callback/google",
+		"/api/resumes/synthetic/cv/pdf",
+		"/api/career/run",
+	])("denies deferred HTTP %s before its adapter", async (path) => {
+		policy.enabled = false;
+		const response = await createApp().request(`http://localhost:3000${path}`, { method: "POST" });
+		expect(response.status).toBe(403);
+		expect(await response.json()).toEqual({ code: "FEATURE_UNAVAILABLE" });
+		expect(mocks.handleAuth).not.toHaveBeenCalled();
+		expect(mocks.handleMcp).not.toHaveBeenCalled();
+		expect(mocks.handlePublicResumePdf).not.toHaveBeenCalled();
+	});
 	it.each([
 		["127.0.0.1", "127.0.0.1", "198.51.100.1", "198.51.100.1"],
 		["127.0.0.1", "::ffff:127.0.0.1", "198.51.100.1", "198.51.100.1"],
@@ -133,7 +158,6 @@ describe("createApp", () => {
 		"resolves auth client through trusted %s from socket %s",
 		async (proxy, peer, forwarded, expected) => {
 			mocks.trustedProxies.push(proxy);
-			const { createApp } = await import("./app");
 			const request = new Request("http://localhost/api/auth/sign-in/email", {
 				headers: { "x-forwarded-for": forwarded },
 			});
@@ -144,7 +168,6 @@ describe("createApp", () => {
 	);
 
 	it("routes /api/auth/oauth to the OAuth bridge before the Better Auth wildcard", async () => {
-		const { createApp } = await import("./app");
 		const app = createApp();
 		const request = new Request("http://localhost:3001/api/auth/oauth?client_id=test-client");
 
@@ -156,7 +179,6 @@ describe("createApp", () => {
 	});
 
 	it("uses the transport address for public PDF fallback despite rotated forwarding headers", async () => {
-		const { createApp } = await import("./app");
 		const app = createApp();
 		const first = new Request("http://localhost:3001/api/resumes/jane/resume/pdf", {
 			headers: { "x-forwarded-for": "198.51.100.1" },
@@ -178,7 +200,6 @@ describe("createApp", () => {
 	});
 
 	it("passes the transport address to RPC and OpenAPI and fails closed when it is unavailable", async () => {
-		const { createApp } = await import("./app");
 		const app = createApp();
 		const trustedRpcRequest = new Request("http://localhost:3001/api/rpc", {
 			headers: { "cf-connecting-ip": "198.51.100.1" },
@@ -206,8 +227,6 @@ describe("createApp", () => {
 		["/.well-known/api-catalog", "api-catalog"],
 		["/.well-known/mcp/server-card.json", "server-card"],
 	])("routes discovery document %s before the well-known fallback", async (path, body) => {
-		const { createApp } = await import("./app");
-
 		const response = await createApp().fetch(new Request(`http://localhost:3001${path}`));
 
 		expect(await response.text()).toBe(body);
@@ -215,7 +234,6 @@ describe("createApp", () => {
 	});
 
 	it("routes GET / to the web app before static files", async () => {
-		const { createApp } = await import("./app");
 		const app = createApp();
 		const request = new Request("http://localhost:3001/");
 
@@ -227,7 +245,6 @@ describe("createApp", () => {
 	});
 
 	it("compresses the web app's HTML but never API streams or the Vercel app", async () => {
-		const { createApp } = await import("./app");
 		const html = `<!doctype html>${"<p>Reactive Resume</p>".repeat(200)}`;
 		const htmlResponse = () =>
 			new Response(html, {
@@ -254,7 +271,6 @@ describe("createApp", () => {
 });
 
 it.each(["/auth/consent", "/auth/consent/", "/auth/login"])("prevents framing or caching %s", async (path) => {
-	const { createApp } = await import("./app");
 	mocks.serveWebDistStatic.mockImplementationOnce(async (_context: unknown, next: () => Promise<void>) => {
 		await next();
 	});
@@ -268,7 +284,6 @@ it.each(["/auth/consent", "/auth/consent/", "/auth/login"])("prevents framing or
 });
 
 it("rejects oversized REST requests before parsing multipart uploads", async () => {
-	const { createApp } = await import("./app");
 	const response = await createApp().request("http://localhost:3000/api/openapi/files", {
 		method: "POST",
 		headers: { "Content-Length": String(40 * 1024 * 1024 + 1) },

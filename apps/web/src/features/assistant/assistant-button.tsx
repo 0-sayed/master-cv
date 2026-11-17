@@ -1,4 +1,5 @@
 import { t } from "@lingui/core/macro";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { cn } from "@reactive-resume/utils/style";
 import { useEditorStore } from "@/features/resume/editor/store";
@@ -7,6 +8,7 @@ import { useEditorStore } from "@/features/resume/editor/store";
 export function AssistantButton() {
 	const open = useEditorStore((state) => state.assistantOpen);
 	const setOpen = useEditorStore((state) => state.setAssistantOpen);
+	if (!isFeatureAvailable("assistant")) return null;
 
 	return (
 		<IconButton

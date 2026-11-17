@@ -1,3 +1,8 @@
+// Exercise retained internals without changing the production release policy.
+vi.mock("@reactive-resume/schema/personal-tools", async (original) => ({
+	...(await original<typeof import("@reactive-resume/schema/personal-tools")>()),
+	isFeatureAvailable: (feature: string) => ["careerAutomation"].includes(feature),
+}));
 import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";

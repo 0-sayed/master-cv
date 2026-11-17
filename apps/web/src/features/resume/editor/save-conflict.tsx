@@ -14,6 +14,7 @@ import { SectionCard, SectionCardHeader } from "@reactive-resume/ui/components/s
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { useResumeStore } from "@/features/resume/builder/draft";
 import { getResumeErrorMessage } from "@/libs/error-message";
+import { getInterfaceDateLocale } from "@/libs/locale";
 import { orpc } from "@/libs/orpc/client";
 import { getSectionTitle } from "@/libs/resume/section";
 
@@ -81,7 +82,7 @@ export function SaveConflict() {
 				{saved && (
 					<>
 						<time className="type-meta" dateTime={saved.updatedAt.toISOString()}>
-							{saved.updatedAt.toLocaleString(i18n.locale)}
+							{saved.updatedAt.toLocaleString(getInterfaceDateLocale(i18n.locale))}
 						</time>
 						<ChangedSections value={saved} other={local} />
 					</>
