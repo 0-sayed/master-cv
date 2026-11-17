@@ -6,6 +6,7 @@ type FieldDirectionOptions = Pick<HTMLAttributes<HTMLElement>, "dir" | "style"> 
 	autoComplete?: string | undefined;
 	inputMode?: string | undefined;
 	placeholder?: string | undefined;
+	interfaceDirection?: "ltr" | "rtl" | undefined;
 };
 const technicalTypes = new Set([
 	"email",
@@ -41,6 +42,7 @@ export function fieldDirectionProps({
 	inputMode,
 	placeholder,
 	style,
+	interfaceDirection,
 }: FieldDirectionOptions) {
 	const technical =
 		technicalTypes.has(type ?? "") ||
@@ -49,6 +51,10 @@ export function fieldDirectionProps({
 		["email", "url", "tel", "numeric", "decimal"].includes(inputMode ?? "");
 	return {
 		dir: dir ?? (technical ? "ltr" : "auto"),
-		style: { "--field-placeholder-direction": placeholderDirection(placeholder), ...style } as CSSProperties,
+		style: {
+			"--field-placeholder-direction": placeholderDirection(placeholder),
+			"--field-interface-direction": interfaceDirection ?? "ltr",
+			...style,
+		} as CSSProperties,
 	};
 }

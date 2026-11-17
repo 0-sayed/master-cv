@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi, afterEach } from "vite-plus/test"
 import { setupI18n } from "@lingui/core";
 // @vitest-environment happy-dom
 import Cookies from "js-cookie";
-import { formatRelativeTime, getLocale, getLocaleMessages, getUiLocaleMessages } from "./locale";
+import { formatInterfaceDate, formatRelativeTime, getLocale, getLocaleMessages, getUiLocaleMessages } from "./locale";
 import { themeMap } from "./theme";
 
 describe("web UI locale resolution", () => {
@@ -59,3 +59,11 @@ it.each(["ar-SA", "en-US"])(
 		expect(formatRelativeTime(new Date(Date.now() - 86400000), locale)).toBe(formatter.format(-1, "day"));
 	},
 );
+
+it.each(["ar-SA", "en-US"])("formats interface dates with Gregorian Latin digits in %s", (locale) => {
+	const date = new Date("2026-11-16T22:30:00Z");
+	const result = formatInterfaceDate(date, locale, { day: "numeric", month: "long", year: "numeric" });
+	expect(result).toContain("17");
+	expect(result).toContain("2026");
+	expect(result).not.toMatch(/[٠-٩۰-۹]/u);
+});

@@ -27,6 +27,14 @@ function SectionCardHeader({ className, ...props }: ComponentProps<"header">) {
 	return <header data-slot="section-card-header" className={cn("flex items-center gap-3", className)} {...props} />;
 }
 
+function SectionCardTitle({ className, children, ...props }: ComponentProps<"h3">) {
+	return (
+		<h3 data-slot="section-card-title" className={cn("type-section text-ink", className)} {...props}>
+			{children}
+		</h3>
+	);
+}
+
 function SectionCardRow({
 	className,
 	variant = "outlined",
@@ -45,4 +53,4 @@ function SectionCardRow({
 	);
 }
 
-export { SectionCard, SectionCardEmpty, SectionCardHeader, SectionCardRow };
+export { SectionCard, SectionCardEmpty, SectionCardHeader, SectionCardRow, SectionCardTitle };

@@ -1,5 +1,7 @@
+import { badgeVariants } from "./badge";
 import { buttonVariants } from "./button";
 import { CollectionGrid, CollectionGridGroup, SectionCollection } from "./collection-grid";
+import { DataTable } from "./data-table";
 import { documentCardLayout } from "./document-card-layout";
 import { EmptyState } from "./empty-state";
 import { SectionCard, SectionCardHeader, SectionCardRow } from "./section-card";
@@ -15,6 +17,7 @@ export type SkeletonShape =
 	| "form"
 	| "conversation"
 	| "sections"
+	| "document-groups"
 	| "documents"
 	| "document-rows"
 	| "board"
@@ -76,6 +79,17 @@ export function SkeletonContent({
 	const count = requestedCount ?? (shape === "settings" ? 1 : 3);
 	if (shape === "badge") return <Skeleton as="span" className="inline-block h-6 w-6 rounded-full align-middle" />;
 	if (shape === "control") return <Skeleton className="h-11 w-full" />;
+	if (shape === "document-groups")
+		return (
+			<div className={documentCardLayout.sections}>
+				<section className={documentCardLayout.section}>
+					<div className={documentCardLayout.sectionHeading}>
+						<Skeleton className="h-lh w-24" />
+					</div>
+					<SkeletonContent shape="documents" count={count} />
+				</section>
+			</div>
+		);
 	if (shape === "documents")
 		return (
 			<CollectionGrid>
@@ -98,9 +112,9 @@ export function SkeletonContent({
 		);
 	if (shape === "document-rows")
 		return (
-			<table className="w-full table-fixed border-collapse">
+			<DataTable className="table-fixed">
 				<thead>
-					<tr className={documentCardLayout.row}>
+					<tr className={documentCardLayout.headerRow}>
 						<th className="h-10" />
 					</tr>
 				</thead>
@@ -108,12 +122,17 @@ export function SkeletonContent({
 					{Array.from({ length: count }, (_, index) => (
 						<tr key={index} className={documentCardLayout.row}>
 							<td className={documentCardLayout.cell}>
-								<Skeleton className="h-lh w-1/3 type-body" />
+								<span className={documentCardLayout.identity}>
+									<Skeleton className="h-lh w-1/3 type-body" />
+								</span>
+								<span className={documentCardLayout.mobileType}>
+									<Skeleton as="span" className={badgeVariants()} />
+								</span>
 							</td>
 						</tr>
 					))}
 				</tbody>
-			</table>
+			</DataTable>
 		);
 	if (shape === "sections") {
 		const cards = Array.from({ length: count }, (_, index) => (

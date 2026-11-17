@@ -1,8 +1,10 @@
+import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { GithubLogoIcon, StarIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@reactive-resume/ui/components/button";
 import { CountUp } from "../animation/count-up";
+import { getInterfaceDateLocale } from "@/libs/locale";
 import { orpc } from "@/libs/orpc/client";
 
 export function GithubStarsButton() {
@@ -10,7 +12,7 @@ export function GithubStarsButton() {
 
 	const ariaLabel =
 		starCount != null
-			? t`Star us on GitHub, currently ${starCount.toLocaleString()} stars (opens in new tab)`
+			? t`Star us on GitHub, currently ${starCount.toLocaleString(getInterfaceDateLocale(i18n.locale))} stars (opens in new tab)`
 			: t`Star us on GitHub (opens in new tab)`;
 
 	return (

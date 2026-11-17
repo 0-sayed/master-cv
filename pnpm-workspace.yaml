@@ -88,4 +88,5 @@ overrides:
   samlify@<2.13.0: ^2.13.0
   uuid@<11.1.1: ^11.1.1
 patchedDependencies:
+  "@dnd-kit/core@6.3.1": patches/@dnd-kit__core@6.3.1.patch
   react-native-enriched-html@1.1.1: apps/mobile/patches/react-native-enriched-html@1.1.1.patch

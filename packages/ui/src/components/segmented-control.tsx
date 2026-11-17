@@ -10,6 +10,7 @@ type SegmentedControlProps = RadioGroup.Props & {
 	size?: "default" | "toolbar";
 	/** `accent` fills the chosen segment with the accent color, for choices that drive a visible example. */
 	variant?: "default" | "accent";
+	"data-wrap"?: boolean;
 };
 
 function SegmentedControl({ className, size = "default", variant = "default", ...props }: SegmentedControlProps) {
