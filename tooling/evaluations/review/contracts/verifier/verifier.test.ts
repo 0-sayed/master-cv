@@ -1,13 +1,18 @@
 import type { TaskCase, TaskContract, VerifierTaskContext } from "../types";
 import { expect, it } from "vite-plus/test";
 import { z } from "zod";
-import { VARIANT_VERIFIER_VERSION, variantVerifierSchema } from "@reactive-resume/api/features/ai/variant-verifier";
+import { variantVerifierSchema } from "@reactive-resume/api/features/ai/variant-verifier";
 import { loadModels } from "../../config";
 import { preflightRequests } from "../../preflight";
 import { buildModelPayload, completionTokenLimit } from "../../production";
 import { required } from "../../required";
 import { routeFor, runBenchmark, verifierModelFor } from "../../runner";
-import { benchmarkInput, benchmarkVerifierSpec, verifierAuditFault } from "../../verifier";
+import {
+	benchmarkInput,
+	benchmarkVerifierSpec,
+	variantBenchmarkVerifierVersion,
+	verifierAuditFault,
+} from "../../verifier";
 import { withTaskRuntime } from "../runtime";
 import { tasksVerifierSchema } from "./schema";
 import { tasksVerifier } from "./verifier";
@@ -191,8 +196,8 @@ it("verifier caps fit route-policy limits", async () =>
 		for (const writer of loadModels()) {
 			const judge = verifierModelFor(writer);
 			const route = routeFor(judge, "offline-unused", true, task);
-			expect(route.maxOutputTokens).toBe(4096);
-			expect(completionTokenLimit(route)).toBe(5120);
+			expect(route.maxOutputTokens).toBe(judge.provider === "together" ? 13107 : 4096);
+			expect(completionTokenLimit(route)).toBe(judge.provider === "together" ? 16384 : 5120);
 		}
 		const preflight = await preflightRequests(loadModels().slice(0, 1), [task]);
 		expect(preflight.requests).toHaveLength(2);
@@ -200,7 +205,7 @@ it("verifier caps fit route-policy limits", async () =>
 
 it("dispatches the versioned default without changing core schemas", () => {
 	expect(benchmarkVerifierSpec(task)).toMatchObject({
-		version: VARIANT_VERIFIER_VERSION,
+		version: variantBenchmarkVerifierVersion,
 		schema: variantVerifierSchema,
 	});
 });

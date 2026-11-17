@@ -244,7 +244,11 @@ describe("applicationService sent resume", () => {
 				expect.anything(),
 				expect.objectContaining({ resumeId: "resume-1", kind: "sent", name: "Stripe", data }),
 			);
-			expect(setSent).toHaveBeenCalledWith({ sentResumeVersionId: "version-1", sentCheckScore: expect.any(Number) });
+			expect(setSent).toHaveBeenCalledWith({
+				sentResumeVersionId: "version-1",
+				sentCheckScore: expect.any(Number),
+				sentResumeRecordedAt: expect.any(Date),
+			});
 		},
 	);
 

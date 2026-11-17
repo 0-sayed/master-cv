@@ -26,6 +26,7 @@ import {
 	type ExecutionCase,
 } from "./execution";
 import { frozenStudyFor } from "./freeze";
+import { sessionRouterCostMicros } from "./instrument";
 import { reviewVerifierPolicy } from "./production";
 import { required } from "./required";
 import { benchmarkVerifierSpec } from "./verifier";
@@ -384,13 +385,14 @@ export function studyHash(
 		...(smokeCategory ? { smokeCategory } : {}),
 		payloadVersion: PAYLOAD_VERSION,
 		freeze: frozenStudyFor(study),
-		models: models.map(({ model, provider, providerEndpoint, reasoning, categories, sets }) => ({
+		models: models.map(({ model, provider, providerEndpoint, reasoning, categories, sets, fullHoldoutOnly }) => ({
 			model,
 			provider,
 			providerEndpoint,
 			reasoning,
 			categories,
 			sets,
+			fullHoldoutOnly,
 		})),
 		runs,
 		fixtures: cases.map((c) => ({
@@ -554,7 +556,7 @@ export function assessSmoke(
 						inputTokens: Math.max(...calls.map((c) => required(c.inputTokens))),
 						outputTokens: Math.max(...calls.map((c) => required(c.outputTokens))),
 						samples: calls.length,
-						pairOpenRouterCostMicros: Math.max(...calls.map((c) => c.openRouterCostMicros ?? required(c.costMicros))),
+						pairOpenRouterCostMicros: Math.max(...calls.map(sessionRouterCostMicros)),
 						pairOpenaiCostMicros: Math.max(...calls.map((c) => c.openaiCostMicros ?? 0)),
 						pairCostMicros: Math.max(...calls.map((c) => required(c.costMicros))),
 						referenceInputTokens: Math.max(

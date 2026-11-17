@@ -1,3 +1,8 @@
+// Exercise retained internals without changing the production release policy.
+vi.mock("@reactive-resume/schema/personal-tools", async (original) => ({
+	...(await original<typeof import("@reactive-resume/schema/personal-tools")>()),
+	isFeatureAvailable: (feature: string) => ["publicSharing"].includes(feature),
+}));
 import type { RequestPermission } from "../../context";
 import { expect, it, vi } from "vite-plus/test";
 import { createProcedureClient } from "@orpc/server";

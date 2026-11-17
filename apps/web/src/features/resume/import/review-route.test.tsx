@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import type { ReviewDraft } from "./review-draft";
+import type { ComponentProps } from "react";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
@@ -20,6 +21,11 @@ const mocks = vi.hoisted(() => ({
 	markNew: vi.fn(),
 }));
 vi.mock("@tanstack/react-router", () => ({
+	Link: ({ to, replace: _replace, children, ...props }: ComponentProps<"a"> & { to: string; replace?: boolean }) => (
+		<a href={to} {...props}>
+			{children}
+		</a>
+	),
 	createFileRoute: () => (options: object) => ({
 		options,
 		useLoaderData: () => mocks.draft,
@@ -169,7 +175,7 @@ it.each(["en-US", "ar-SA"] as const)(
 		i18n.loadAndActivate(await getUiLocaleMessages(locale));
 		mocks.draft = null;
 		render(page());
-		const recovery = screen.getByRole("button");
+		const recovery = screen.getByRole("link");
 		const alert = recovery.closest('[data-slot="alert"]');
 		expect(alert?.querySelector('[data-slot="alert-title"]')).toHaveTextContent(
 			locale === "ar-SA" ? "راجع المعلومات المستوردة" : "Review imported information",
@@ -180,6 +186,7 @@ it.each(["en-US", "ar-SA"] as const)(
 				: "This import review has expired or is unavailable on this device. Choose your file again.",
 		);
 		expect(recovery).toBeEnabled();
+		expect(recovery).toHaveAttribute("href", "/dashboard");
 		fireEvent.click(recovery);
 		await waitFor(() => expect(mocks.navigate).toHaveBeenCalledWith({ to: "/dashboard", replace: true }));
 	},
@@ -197,7 +204,7 @@ it.each(["en-US", "ar-SA"] as const)(
 			locale === "ar-SA" ? "حدث خطأ ما" : "Something went wrong",
 		);
 		expect(alert).toHaveTextContent(
-			locale === "ar-SA" ? "تعذر إغلاق هذه المراجعة. حاول مجددًا." : "Could not close this review. Try again.",
+			locale === "ar-SA" ? "تعذّر إغلاق هذه المراجعة. حاول مجددًا." : "Could not close this review. Try again.",
 		);
 		const recovery = within(alert).getByRole("button");
 		expect(recovery).toBeEnabled();

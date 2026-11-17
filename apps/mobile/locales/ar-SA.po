@@ -11052,3 +11052,7 @@ msgstr "تصغير"
 #: src/features/settings/locale-names.ts
 msgid "Zulu"
 msgstr "الزولو"
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr "ابدأ الكتابة."

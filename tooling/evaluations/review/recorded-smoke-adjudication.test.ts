@@ -108,7 +108,7 @@ it.each(["writer-length", "writer-invalid"] as const)("continues after writer fa
 	expect(artifact.calls[0]?.writerTruncated).toBe(fault === "writer-length");
 });
 it.each(["verifier-length", "verifier-invalid", "citation", "quote"] as const)(
-	"attributes %s to verifier and excludes writer penalties",
+	"keeps %s in safety coverage without inventing writer quality losses",
 	async (fault) => {
 		const artifact = await session(fault);
 		expect(artifact.calls).toHaveLength(2);
@@ -120,14 +120,18 @@ it.each(["verifier-length", "verifier-invalid", "citation", "quote"] as const)(
 			lostFacts: 0,
 			truncations: 0,
 			usefulnessMisses: 0,
-			writerRuns: 0,
-			requiredFacts: 0,
+			writerRuns: 2,
+			safetySamples: 2,
+			safetyPasses: 0,
+			requiredFacts: c.requiredFacts.length * 2,
+			verifierFaults: 2,
 			usefulnessSamples: 0,
 		});
 		expect(score.verifierTruncations).toBe(fault === "verifier-length" ? 2 : 0);
 		expect(score.pass).toBe(false);
 		expect(identityMapping(artifact).verifierFaults).toHaveLength(2);
-		expect(artifact.reservedUsd).toBe(0.000634);
+		expect(artifact.calls.every((call) => call.verifierJudgments?.[0]?.attempts.length === 3)).toBe(true);
+		expect(artifact.reservedUsd).toBe(0.0008);
 	},
 );
 it("keeps a legitimate lost verdict attributable to the writer", async () => {

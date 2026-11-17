@@ -92,9 +92,9 @@ def check(snapshot=None):
 
     table_text = (roadmap / 'tasks.md').read_text()
     table = parse_table(table_text)
-    task_ids = {f'T{i:03}' for i in range(16)}
+    task_ids = {f'T{i:03}' for i in range(18)}
     if set(table) != task_ids:
-        errors.append('Task table must contain exactly T000-T015.')
+        errors.append('Task table must contain exactly T000-T017.')
     for ident, tid in req_rows + screen_rows:
         if tid not in table:
             errors.append(f'{ident}: unknown owner {tid}')
@@ -111,8 +111,8 @@ def check(snapshot=None):
     files = [roadmap / 'README.md', roadmap / 'tasks.md'] + sorted((roadmap / 'tasks').glob('T*.md'))
     for file in files:
         errors.extend(f'{file.name}: {error}' for error in registry_claim_errors(file.read_text(), inventory, figma))
-    if len(files) != 18:
-        errors.append('Expected README, index and 16 briefs.')
+    if len(files) != 20:
+        errors.append('Expected README, index and 18 briefs.')
     path_count = 0
     required_sections = ['Goal', 'Scope (in)', 'Explicit exclusions', 'Requirement IDs', 'Figma targets',
                          'Source references', 'Ownership boundaries', 'Implementation notes',
@@ -186,14 +186,17 @@ def check(snapshot=None):
         reaches_final |= {dep for dep, target in edges if target in reaches_final}
         if reaches_final == previous:
             break
-    if reaches_final != task_ids - {'T014'}:
-        errors.append('Every task except independent mobile T014 must feed paid qualification T015.')
+    if reaches_final != task_ids:
+        errors.append('Every task must feed paid qualification T015.')
     required_dependencies = {
-        'T011': {'T007', 'T009'},
-        'T012': {'T005', 'T009'},
-        'T013': {'T007', 'T009', 'T011', 'T012'},
-        'T014': {'T003', 'T009'},
-        'T015': {'T008', 'T010', 'T013'},
+        'T011': {'T009', 'T007'},
+        'T010': {'T017', 'T005', 'T014'},
+        'T012': {'T013', 'T009', 'T005'},
+        'T013': {'T009', 'T011', 'T007', 'T010'},
+        'T014': {'T009', 'T003', 'T017'},
+        'T015': {'T013', 'T012', 'T008', 'T010'},
+        'T016': {'T008'},
+        'T017': {'T009', 'T016', 'T005'},
     }
     for tid, dependencies in required_dependencies.items():
         if tid not in table or set(table[tid]['deps']) != dependencies:
@@ -206,8 +209,8 @@ def check(snapshot=None):
         beta_ancestors |= {dep for dep, target in edges if target in beta_ancestors}
         if beta_ancestors == previous:
             break
-    if beta_ancestors & {'T008', 'T010', 'T014'}:
-        errors.append('Free beta must not depend on career tools, billing or mobile authentication.')
+    if not {'T010', 'T014', 'T017'} <= beta_ancestors or 'T012' in beta_ancestors:
+        errors.append('D43 requires Hostinger, phone OTP and test-mode billing before beta qualification, then Saudi production.')
     for row in table.values():
         for value in re.findall(r'`([^`]+)`', row['context']):
             if not (planning / value).is_file():
@@ -224,7 +227,7 @@ def check(snapshot=None):
     security_text = (context / 'technical/security.md').read_text()
     definitions = {}
     for label, source, pattern, expected in [
-        ('business decisions', decision_text, r'^\| (D\d{2}) \|', {f'D{i:02}' for i in range(1, 39)}),
+        ('business decisions', decision_text, r'^\| (D\d{2}) \|', {f'D{i:02}' for i in range(1, 44)}),
         ('technical decisions', decision_text, r'^\| (T\d{2}) \|', {f'T{i:02}' for i in range(1, 17)}),
         ('requirements', requirements_text, r'^\| (B-[CEO]\d{2}|A\d{2}) \|', required),
         ('OTP controls', security_text, r'^\| (OTP-\d{2}) \|', {f'OTP-{i:02}' for i in range(1, 13)}),

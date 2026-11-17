@@ -103,7 +103,7 @@ it("retains a provable remaining-cap check even with small calibrated reservatio
 	expect(a.calls).toHaveLength(0);
 	expect(a.stopReason).toBe("BUDGET_LIMIT");
 });
-it("preserves planned case order and reserves a calibrated pair with margin", async () => {
+it("preserves case order and catalog reservations after measured calibration", async () => {
 	const models = loadModels().slice(0, 1);
 	const smoke = await runBenchmark({
 		phase: "smoke",
@@ -126,8 +126,15 @@ it("preserves planned case order and reserves a calibrated pair with margin", as
 	});
 	expect(result.calls[0]?.holdout).toBe(false);
 	expect(result.stopReason).toBeNull();
-	expect(result.calls[0]?.reservedMicros).toBeLessThan(required(smoke.calls[0]).reservedMicros);
-	expect(estimateBenchmark(models, [tuning], 1, calibration).upperBoundUsd).toBeLessThan(
+	const uncalibrated = await runBenchmark({
+		models,
+		cases: [tuning, holdout],
+		runs: 1,
+		fake: true,
+		budgetUsd: 5,
+	});
+	expect(result.calls[0]?.reservedMicros).toBe(uncalibrated.calls[0]?.reservedMicros);
+	expect(estimateBenchmark(models, [tuning], 1, calibration).upperBoundUsd).toBe(
 		estimateBenchmark(models, [tuning], 1).upperBoundUsd,
 	);
 });

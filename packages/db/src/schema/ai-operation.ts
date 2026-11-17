@@ -91,7 +91,7 @@ export const aiOperationAttempt = pg.pgTable.withRLS(
 		pg
 			.foreignKey({ columns: [t.userId, t.operationId], foreignColumns: [aiOperation.userId, aiOperation.id] })
 			.onDelete("cascade"),
-		pg.check("ai_attempt_ordinal", sql`${t.ordinal} BETWEEN 1 AND 3`),
+		pg.check("ai_attempt_ordinal", sql`${t.ordinal} BETWEEN 1 AND 5`),
 		pg.check("ai_attempt_cost", sql`${t.costMicros} IS NULL OR ${t.costMicros} >= 0`),
 	],
 );

@@ -5,6 +5,8 @@ import { renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import z from "zod";
 import { defineWebMcpTool, getModelContext, useWebMcpTools } from "./webmcp";
+const policy = vi.hoisted(() => ({ enabled: true }));
+vi.mock("@reactive-resume/schema/personal-tools", () => ({ isFeatureAvailable: () => policy.enabled }));
 
 type Registry = {
 	registerTool: ReturnType<typeof vi.fn>;
@@ -34,6 +36,14 @@ const echo = defineWebMcpTool({
 });
 
 describe("getModelContext", () => {
+	it("does not access or register browser tools while user APIs are withheld", () => {
+		policy.enabled = false;
+		const registerTool = vi.fn();
+		install("document", { registerTool });
+		expect(getModelContext()).toBeNull();
+		expect(registerTool).not.toHaveBeenCalled();
+		policy.enabled = true;
+	});
 	it("is null where the browser has no WebMCP", () => {
 		expect(getModelContext()).toBeNull();
 	});

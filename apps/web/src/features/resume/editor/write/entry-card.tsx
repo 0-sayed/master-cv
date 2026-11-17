@@ -10,6 +10,7 @@ import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { AnimatePresence, m } from "motion/react";
 import { useEffect, useMemo } from "react";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Badge } from "@reactive-resume/ui/components/badge";
 import { Collapsible, CollapsibleContent } from "@reactive-resume/ui/components/collapsible";
 import {
@@ -226,14 +227,7 @@ function PhoneEntryScreen({ section, title, locked, onBack, onDelete, children }
 			exit={{ transform: offscreen, transition: { duration: D3 * EXIT, ease: EASE } }}
 		>
 			<div className="flex h-14 shrink-0 items-center gap-1 border-b border-line px-1.5">
-				<button
-					type="button"
-					onClick={onBack}
-					className="flex h-11 items-center gap-0.5 rounded-lg px-2 text-[15px] font-medium text-accent-text"
-				>
-					<Icon name="caret-left" size={24} />
-					{sectionTitle}
-				</button>
+				<BackNavigation onClick={onBack}>{sectionTitle}</BackNavigation>
 				<span className="min-w-0 flex-1" />
 				{!locked && <IconButton icon="trash" label={t`Delete entry`} className="text-danger-text" onClick={onDelete} />}
 			</div>

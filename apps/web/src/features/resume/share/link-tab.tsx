@@ -20,6 +20,7 @@ import { useCurrentResume, usePatchResume } from "@/features/resume/builder/draf
 import { ResumePasswordDialog } from "@/features/resume/builder/password-dialog";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useCurrentSession } from "@/hooks/use-current-session";
+import { getInterfaceDateLocale } from "@/libs/locale";
 import { ENTER_CLASS } from "@/libs/motion";
 import { orpc } from "@/libs/orpc/client";
 
@@ -398,7 +399,10 @@ function ViewsAndDownloads({ isPublic }: { isPublic: boolean }) {
 					<div className="flex justify-between font-mono text-[11px] font-medium text-ink-3">
 						<span>
 							{firstDay
-								? new Date(`${firstDay}T00:00:00`).toLocaleDateString(i18n.locale, { month: "short", day: "numeric" })
+								? new Date(`${firstDay}T00:00:00`).toLocaleDateString(getInterfaceDateLocale(i18n.locale), {
+										month: "short",
+										day: "numeric",
+									})
 								: ""}
 						</span>
 						<span>

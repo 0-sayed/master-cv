@@ -103,6 +103,9 @@ describe("semantic delivery boundary", () => {
 		expect(validateReviewResult({ ...snapshot, evidence: [sourceEvidence] }, output).kind).toBe("wording");
 	});
 	it.each([
+		["Built Node.js services using C# and AWS.", "Developed services using AWS, C# and Azure.", "AI_UNSUPPORTED_CLAIM"],
+		["Built Node.js services using C# and AWS.", "Developed services using AWS and C#.", "AI_LOST_FACT"],
+		["Built Node.js services using C# and AWS.", "Developed services using C# and Node.js.", "AI_LOST_FACT"],
 		["Delivered 30 projects.", "Delivered projects.", "AI_LOST_FACT"],
 		["Saved 500.", "Saved 500 €.", "AI_UNSUPPORTED_CLAIM"],
 		["Saved 5 million.", "Saved 5 billion.", "AI_UNSUPPORTED_CLAIM"],

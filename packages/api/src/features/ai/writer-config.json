@@ -2,8 +2,10 @@
 	"review.wording": { "model": "openai/gpt-6-luna", "reasoningEffort": "low" },
 	"review.extraction": { "model": "openai/gpt-6-luna", "reasoningEffort": "high" },
 	"review.questions": { "model": "openai/gpt-6.1-terra", "reasoningEffort": "medium" },
-	"review.job-evidence": { "model": "openai/gpt-6-luna", "reasoningEffort": "low" },
-	"review.tailoring": { "model": "openai/gpt-6-luna", "reasoningEffort": "low" },
-	"review.translation": { "model": "openai/gpt-6-luna", "reasoningEffort": "low" },
-	"review.summary": { "model": "openai/gpt-6-luna", "reasoningEffort": "low" }
+	"review.job-evidence": { "model": "openai/gpt-6.1-terra", "reasoningEffort": "medium", "maxOutputTokens": 512 },
+	"review.tailoring": { "model": "openai/gpt-6.1-terra", "reasoningEffort": "medium", "maxOutputTokens": 512 },
+	"review.translation": { "model": "openai/gpt-6-luna", "reasoningEffort": "low", "maxOutputTokens": 768 },
+	"review.summary": { "model": "openai/gpt-6.1-terra", "reasoningEffort": "medium", "maxOutputTokens": 768 },
+	"review.cover-letter": { "model": "openai/gpt-6.1-terra", "reasoningEffort": "medium", "maxOutputTokens": 1536 },
+	"review.interview-prep": { "model": "openai/gpt-6.1-terra", "reasoningEffort": "medium", "maxOutputTokens": 1536 }
 }

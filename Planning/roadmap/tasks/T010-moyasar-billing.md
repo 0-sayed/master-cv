@@ -1,11 +1,13 @@
 # T010 — Deliver Moyasar billing and entitlement lifecycle
 
 **Task:** T010 · **PR size:** L · **Branch:** `feat/t010-moyasar-billing`
-**Depends on:** T005, T013 · **Priority:** 136
+**Depends on:** T005, T014, T017 · **Priority:** 100
 **Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
 **Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
 
 ## Goal
+
+D43: build test-mode billing on the T017 Hostinger server after T014. Saudi deployment is not a test-mode prerequisite. Production charging requires T012, T015 and existing payment approvals.
 
 Implement the selected Moyasar adapter and paid entitlement lifecycle in the existing backend with server-verified
 outcomes and sandbox evidence.
@@ -16,6 +18,18 @@ outcomes and sandbox evidence.
   T011 can finish its truthful landing page before this task.
 
 - Consume B-C11 free enforcement from T005; add only paid grants/purchase/renewal/cancellation and B-O04 billing support.
+- D40 (owner, 2026-11-16): add one-off AI-operation top-up packs bought through the same Moyasar adapter. Credit them
+  through the T005 ledger with idempotent grants and reversals. Define how top-ups combine with the monthly Focus
+  operations (expiry, consumption order) as server-owned offer data that needs owner approval.
+- D40: add a visible usage meter in the dashboard shell and settings. It shows remaining operations, the plan, the
+  reset date (Focus), the operations each AI task costs, and Upgrade/Top-up actions once offers are approved. It
+  reads the T005 ledger and never runs a second counter.
+- D41 (owner, 2026-11-16): add server-owned discount codes the owner can send to people. A code is a percentage or a
+  fixed SAR amount off a plan or a top-up pack, with an expiry, a total-use limit and a per-user limit. The owner
+  creates and disables codes in an owner-only admin path. Apply the discount on the server before checkout, and
+  show the original price, the discount and the final price in SAR. Record each redemption idempotently with the
+  verified payment, and reverse it on refund. A code never grants AI operations without a verified payment, unless
+  the owner creates a free-grant code explicitly.
 - Own the post-beta Focus exhausted message (`billing.usage.operationsLimitHint`) and any plans action;
   T005 owns the Start S11 exhaustion message without a plans action.
 - Add the billing step to the T009 account-deletion flow: stop future renewals before deletion completes.

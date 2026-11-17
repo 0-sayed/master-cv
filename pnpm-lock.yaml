@@ -212,6 +212,9 @@ catalogs:
     '@radix-ui/react-presence':
       specifier: ^1.1.11
       version: 1.1.11
+    '@reactive-resume/ai':
+      specifier: workspace:*
+      version: workspace:*
     '@types/node':
       specifier: ^26.6.5
       version: 26.6.5
@@ -324,6 +327,7 @@ overrides:
   uuid@<11.1.1: ^11.1.1
 
 patchedDependencies:
+  '@dnd-kit/core@6.3.1': 15a22c8ffdbf3452e890b142d88f377529d2d6bc2b34944e2f68dbce72fb4bd6
   react-native-enriched-html@1.1.1: f031f2a0f7f317ba78b7d2c9de7bbf60383c916c2fcda373df4dc1fe982600c1
 
 importers:
@@ -339,15 +343,15 @@ importers:
       '@dotenvx/dotenvx':
         specifier: ^2.38.2
         version: 2.38.2
-      '@playwright/test':
-        specifier: ^1.64.1
-        version: 1.64.1
       '@orpc/client':
         specifier: 'catalog:'
         version: 1.15.7
       '@orpc/server':
         specifier: 'catalog:'
         version: 1.15.7(ws@8.21.3)
+      '@playwright/test':
+        specifier: ^1.64.1
+        version: 1.64.1
       '@reactive-resume/config':
         specifier: workspace:*
         version: link:packages/config
@@ -949,10 +953,10 @@ importers:
         version: 6.43.15
       '@dnd-kit/core':
         specifier: ^6.3.1
-        version: 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 6.3.1(patch_hash=15a22c8ffdbf3452e890b142d88f377529d2d6bc2b34944e2f68dbce72fb4bd6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@dnd-kit/sortable':
         specifier: ^10.0.0
-        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+        version: 10.0.0(@dnd-kit/core@6.3.1(patch_hash=15a22c8ffdbf3452e890b142d88f377529d2d6bc2b34944e2f68dbce72fb4bd6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@19.3.1)
@@ -2011,6 +2015,9 @@ importers:
 
   tooling:
     dependencies:
+      '@reactive-resume/ai':
+        specifier: 'catalog:'
+        version: link:../packages/ai
       '@reactive-resume/schema':
         specifier: workspace:*
         version: link:../packages/schema
@@ -13463,7 +13470,7 @@ snapshots:
       react: 19.3.1
       tslib: 2.8.1
 
-  '@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@dnd-kit/core@6.3.1(patch_hash=15a22c8ffdbf3452e890b142d88f377529d2d6bc2b34944e2f68dbce72fb4bd6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@dnd-kit/accessibility': 3.1.1(react@19.3.1)
       '@dnd-kit/utilities': 3.2.2(react@19.3.1)
@@ -13471,9 +13478,9 @@ snapshots:
       react-dom: 19.3.1(react@19.3.1)
       tslib: 2.8.1
 
-  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
+  '@dnd-kit/sortable@10.0.0(@dnd-kit/core@6.3.1(patch_hash=15a22c8ffdbf3452e890b142d88f377529d2d6bc2b34944e2f68dbce72fb4bd6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)':
     dependencies:
-      '@dnd-kit/core': 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@dnd-kit/core': 6.3.1(patch_hash=15a22c8ffdbf3452e890b142d88f377529d2d6bc2b34944e2f68dbce72fb4bd6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@dnd-kit/utilities': 3.2.2(react@19.3.1)
       react: 19.3.1
       tslib: 2.8.1

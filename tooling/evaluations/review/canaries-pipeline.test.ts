@@ -3,6 +3,7 @@ import type { TasksVerification } from "./contracts/verifier/schema";
 import { beforeAll, expect, it } from "vite-plus/test";
 import {
 	assertJudgeCanaries,
+	judgeCanaryCalibration,
 	loadJudgeCanaries,
 	planJudgeCanaries,
 	runJudgeCanaries,
@@ -32,6 +33,23 @@ it("credits a deterministic backstop independently of a verifier miss", () => {
 		falseReject: false,
 		pipelineFalseReject: false,
 	});
+});
+
+it("fails calibration when a valid verifier accepts a planted defect that the guard catches", () => {
+	const probe = required(plan.find((p) => p.c.category === "summary" && p.defect === "invented-metric"));
+	const receipt = structuredClone(good);
+	const row = required(receipt.results.find((r) => r.key === probe.key));
+	const accepted = tasksVerifier.fakeVerdict({ ...probe.c, gold: probe.output }, probe.output);
+	const first = required(row.judgments?.[0]);
+	first.verdict = accepted;
+	first.normalizedVerdict = accepted;
+	row.judgments = [first];
+	row.verdict = accepted;
+	row.rejectionVote = null;
+	row.voteFault = null;
+	expect(scoreJudgeCanary(probe, row)).toMatchObject({ caught: false, pipelineCaught: true, fault: null });
+	expect(() => assertJudgeCanaries(receipt, { studyHash: "study", models, mode: "fake" })).toThrow("JUDGE_CANARY_GATE");
+	expect(judgeCanaryCalibration(receipt, plan)?.recall).toBeLessThan(1);
 });
 
 it("counts a deterministic honest rejection in the pipeline even when the verifier accepts", () => {
@@ -66,6 +84,11 @@ it("gates the final protocol-fault rate at ten percent independently of semantic
 		const receipt = structuredClone(good);
 		for (const row of receipt.results.filter((r) => r.defect === "gold").slice(0, count)) {
 			(row.verdict as TasksVerification).absence.push({ id: "unrequested", verdict: "confirmed_absent" });
+			const first = required(row.judgments?.[0]);
+			first.verdict = structuredClone(row.verdict);
+			first.normalizedVerdict = structuredClone(row.verdict);
+			first.fault = "AI_VERIFICATION_INCOMPLETE";
+			row.voteFault = first.fault;
 			Object.assign(row, { verifierFaultRetries: 1 });
 		}
 		if (count === 7) expect(() => assertJudgeCanaries(receipt, binding)).not.toThrow();
@@ -73,7 +96,7 @@ it("gates the final protocol-fault rate at ten percent independently of semantic
 	}
 });
 
-it("retries a protocol fault once on the identical probe and records both paid attempts", async () => {
+it("retries a protocol fault on the same judgment and records both paid attempts", async () => {
 	const attempts = new Map<string, number>();
 	const receipt = required(
 		await runJudgeCanaries({
@@ -95,11 +118,12 @@ it("retries a protocol fault once on the identical probe and records both paid a
 			},
 		}),
 	);
-	expect([...attempts.values()]).toEqual(Array(72).fill(2));
-	expect(receipt.results.every((r) => "verifierFaultRetries" in r && r.verifierFaultRetries === 1)).toBe(true);
-	expect(receipt.results.every((r) => "attempts" in r && Array.isArray(r.attempts) && r.attempts.length === 2)).toBe(
+	for (const probe of plan) expect(attempts.get(`canary:${probe.key}`)).toBe(probe.expectedAccepted ? 2 : 3);
+	expect(receipt.results.every((r) => "verifierFaultRetries" in r && r.verifierFaultRetries === 0)).toBe(true);
+	expect(receipt.results.every((r) => "attempts" in r && Array.isArray(r.attempts) && r.attempts.length === 1)).toBe(
 		true,
 	);
+	expect(receipt.results.every((r) => r.judgments?.[0]?.attempts?.length === 2)).toBe(true);
 	expect(receipt).toMatchObject({ recall: 1, verifierRecall: 1, protocolFaults: 0, protocolFaultRate: 0 });
 	expect(() => assertJudgeCanaries(receipt, { studyHash: "study", models, mode: "fake" })).not.toThrow();
 });
@@ -119,6 +143,12 @@ it("allows exhausted isolated truncations in the protocol rate without calling t
 	const receipt = structuredClone(good);
 	const row = required(receipt.results.find((r) => r.defect === "gold"));
 	row.outcome = "truncated";
+	const first = required(row.judgments?.[0]);
+	first.verdict = structuredClone(row.verdict);
+	first.normalizedVerdict = structuredClone(row.verdict);
+	first.fault = "VERIFIER_TRUNCATED";
+	first.outcome = "truncated";
+	row.voteFault = first.fault;
 	Object.assign(row, { verifierFaultRetries: 1 });
 	const probe = required(plan.find((p) => p.key === row.key));
 	expect(scoreJudgeCanary(probe, row)).toMatchObject({
@@ -155,7 +185,7 @@ it("resumes a settled legacy truncated verdict with one retry and retains its hi
 	expect(resumed.openRouterMicros).toBe(resumed.results.reduce((n, r) => n + r.openRouterMicros, 0));
 });
 
-it("retains exhausted faults after exactly one retry and never retries a semantic rejection", async () => {
+it("retains exhausted protocol faults after exactly two fresh retries", async () => {
 	const counts = new Map<string, number>();
 	const receipt = required(
 		await runJudgeCanaries({
@@ -174,7 +204,7 @@ it("retains exhausted faults after exactly one retry and never retries a semanti
 			},
 		}),
 	);
-	expect([...counts.values()]).toEqual(Array(72).fill(2));
+	expect([...counts.values()]).toEqual(Array(72).fill(3));
 	expect(receipt).toMatchObject({ protocolFaults: 72, protocolFaultRate: 1 });
 	expect(() => assertJudgeCanaries(receipt, { studyHash: "study", models, mode: "fake" })).toThrow("JUDGE_CANARY_GATE");
 	await runJudgeCanaries({
@@ -191,10 +221,14 @@ it("retains exhausted faults after exactly one retry and never retries a semanti
 	expect(good.results.every((r) => r.verifierFaultRetries === 0 && r.attempts?.length === 1)).toBe(true);
 });
 
-it("qualifies a verifier miss caught by the guard without imposing an advisory verifier recall threshold", () => {
+it("rejects a valid verifier miss even when the deterministic guard catches the defect", () => {
 	const receipt = structuredClone(good);
 	const probe = required(plan.find((p) => p.c.category === "summary" && p.defect === "invented-metric"));
 	const row = required(receipt.results.find((r) => r.key === probe.key));
 	row.verdict = tasksVerifier.fakeVerdict({ ...probe.c, gold: probe.output }, probe.output);
-	expect(() => assertJudgeCanaries(receipt, { studyHash: "study", models, mode: "fake" })).not.toThrow();
+	row.judgments = [
+		{ ...required(row.judgments?.[0]), verdict: row.verdict, normalizedVerdict: row.verdict, accepted: true },
+	];
+	row.rejectionVote = null;
+	expect(() => assertJudgeCanaries(receipt, { studyHash: "study", models, mode: "fake" })).toThrow("JUDGE_CANARY_GATE");
 });

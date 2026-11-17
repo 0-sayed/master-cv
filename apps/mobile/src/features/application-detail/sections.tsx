@@ -86,7 +86,7 @@ export function StageStepper({ application, onMarkApplied }: StageStepperProps) 
 		if (stage === status) return;
 		if (status === "saved" && stage === "applied") return onMarkApplied();
 		update.mutate(
-			{ id: application.id, status: stage },
+			{ expectedUpdatedAt: new Date(application.updatedAt).toISOString(), id: application.id, status: stage },
 			{
 				onSuccess: () => showToast({ message: t`Moved to ${getStageLabel(stage)}` }),
 				onError: (error) => showToast({ message: applicationError(error) }),
@@ -453,8 +453,12 @@ export function Facts({ application }: SectionProps) {
 	const { space } = useTheme();
 	const { date } = useUserTime();
 	const { update } = useApplicationMutations();
-	const save = (patch: Omit<Parameters<typeof update.mutate>[0], "id">) =>
-		update.mutateAsync({ id: application.id, ...patch });
+	const save = (patch: Omit<Parameters<typeof update.mutate>[0], "id" | "expectedUpdatedAt">) =>
+		update.mutateAsync({
+			expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+			id: application.id,
+			...patch,
+		});
 
 	return (
 		<Section title={t`Facts`}>
@@ -489,7 +493,11 @@ export function Facts({ application }: SectionProps) {
 				placeholder={t`Add a tag`}
 				onChange={(tags) =>
 					update.mutate(
-						{ id: application.id, tags: [...new Set(tags.map((tag) => tag.trim()).filter(Boolean))] },
+						{
+							expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+							id: application.id,
+							tags: [...new Set(tags.map((tag) => tag.trim()).filter(Boolean))],
+						},
 						{ onError: () => showToast({ message: t`Couldn't save the tags.` }) },
 					)
 				}
@@ -534,6 +542,10 @@ export function Notes({ application }: SectionProps) {
 	const { t } = useLingui();
 	const queryClient = useQueryClient();
 	const id = application.id;
+	const notesRevision = useRef({ id, value: new Date(application.updatedAt).toISOString() });
+	useEffect(() => {
+		notesRevision.current = { id, value: new Date(application.updatedAt).toISOString() };
+	}, [id, application.updatedAt]);
 	const [key, setKey] = useState<string | null>(null);
 	const [notes, setNotes] = useState(application.notes ?? "");
 	const [failed, setFailed] = useState(false);
@@ -563,7 +575,12 @@ export function Notes({ application }: SectionProps) {
 		setFailed(false);
 		notesQueue
 			.save(key, value, async (text) => {
-				await client.applications.update({ id, notes: text.trim() ? text : null });
+				const saved = await client.applications.update({
+					id,
+					expectedUpdatedAt: notesRevision.current.value,
+					notes: text.trim() ? text : null,
+				});
+				notesRevision.current = { id, value: new Date(saved.updatedAt).toISOString() };
 				void queryClient.invalidateQueries({ queryKey: orpc.applications.key() });
 			})
 			.catch(() => {

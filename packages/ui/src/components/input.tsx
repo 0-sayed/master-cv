@@ -1,4 +1,5 @@
 import type * as React from "react";
+import { useDirection } from "@base-ui/react/direction-provider";
 import { Input as InputPrimitive } from "@base-ui/react/input";
 import { cn } from "@reactive-resume/utils/style";
 import { controlHeights } from "./control-size";
@@ -16,6 +17,7 @@ type InputProps = Omit<React.ComponentProps<"input">, "size"> & {
 };
 
 function Input({ className, type, size, variant = "default", ...props }: InputProps) {
+	const direction = useDirection();
 	return (
 		<InputPrimitive
 			type={type}
@@ -32,7 +34,7 @@ function Input({ className, type, size, variant = "default", ...props }: InputPr
 				className,
 			)}
 			{...props}
-			{...fieldDirectionProps({ ...props, type })}
+			{...fieldDirectionProps({ ...props, type, interfaceDirection: direction })}
 		/>
 	);
 }

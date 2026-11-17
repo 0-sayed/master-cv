@@ -1,18 +1,44 @@
 import type { JudgeCanaryReceipt } from "./canaries";
 import type { TasksVerification } from "./contracts/verifier/schema";
 import { beforeAll, expect, it } from "vite-plus/test";
-import { assertJudgeCanaries, planJudgeCanaries, runJudgeCanaries } from "./canaries";
+import {
+	assertJudgeCanaries,
+	judgeCanaryCalibration,
+	planJudgeCanaries,
+	runJudgeCanaries,
+	scoreJudgeCanary,
+} from "./canaries";
 import { loadModels } from "./config";
 import { tasksVerifier } from "./contracts/verifier/verifier";
+import { voteRejections } from "./rejection-vote";
 import { required } from "./required";
 
 const models = loadModels(new URL("./models-tasks.json", import.meta.url).pathname);
 const options = { models, cases: [], runs: 1, fake: true, budgetUsd: 13, openaiBudgetUsd: 40 };
+
+it("refuses a receipt that turns a faulty initial judgment into a valid final verdict", () => {
+	const receipt = structuredClone(good);
+	const row = required(receipt.results.find((r) => r.defect === "gold"));
+	const first = required(row.judgments?.[0]);
+	first.fault = "AI_VERIFICATION_INCOMPLETE";
+	row.voteFault = null;
+	expect(() => assertJudgeCanaries(receipt, { studyHash: "study", models, mode: "fake" })).toThrow("JUDGE_CANARY_GATE");
+});
 let good: JudgeCanaryReceipt;
 beforeAll(async () => {
 	good = required(await runJudgeCanaries({ phase: "smoke", studyHash: "study", options }));
 });
 const plan = planJudgeCanaries(models);
+it("catches invented SAP experience framed as a relevance bridge after two valid agreeing judgments", () => {
+	const probe = required(
+		plan.find((p) => p.c.category === "cover-letter" && p.c.language === "en" && p.defect === "job-only-keyword"),
+	);
+	expect(JSON.stringify(probe.output)).toContain("My experience using SAP at work matches the duties in your posting.");
+	const row = required(good.results.find((r) => r.key === probe.key));
+	expect(row.judgments).toHaveLength(2);
+	expect(row.rejectionVote?.targets.some((t) => t.rejectVotes === 2)).toBe(true);
+	expect(scoreJudgeCanary(probe, row).caught).toBe(true);
+});
 function changed(category: string, defect: string) {
 	const receipt = structuredClone(good);
 	const probe = required(plan.find((p) => p.c.category === category && p.c.language === "en" && p.defect === defect));
@@ -113,4 +139,101 @@ it("does not guess a defective claim from a mistyped ID or a safe question premi
 	for (const premise of safe.premises) premise.verdict = "no_candidate_premise";
 	interview.row.verdict = safe;
 	expect((await rescore(interview.receipt))?.verifierRecall).toBe(53 / 54);
+});
+
+const binding = { studyHash: "study", models, mode: "fake" as const };
+for (const count of [3, 4]) {
+	it(`${count === 3 ? "allows" : "blocks"} ${count} honest false rejects with perfect defect recall`, () => {
+		const receipt = structuredClone(good);
+		for (const probe of plan.filter((p) => p.expectedAccepted).slice(0, count)) {
+			const row = required(receipt.results.find((r) => r.key === probe.key));
+			const verdict = row.verdict as TasksVerification;
+			verdict.coverage.status = "uncovered";
+			const first = required(row.judgments?.[0]);
+			row.judgments = [0, 1, 2].map((index) => ({
+				...structuredClone(first),
+				key: first.key + (index ? `:judge:${index + 1}` : ""),
+				verdict: structuredClone(verdict),
+				normalizedVerdict: structuredClone(verdict),
+				accepted: false,
+			}));
+			row.rejectionVote = voteRejections(verdict, [verdict, verdict]);
+			row.verdict = row.rejectionVote.verdict;
+		}
+		const calibration = judgeCanaryCalibration(receipt, plan);
+		expect(calibration.honestFalseRejectRate).toBe(count / 18);
+		expect(calibration.byCategoryLanguage.filter((cell) => cell.honestFalseRejectRate === 1)).toHaveLength(count);
+		if (count === 3) expect(() => assertJudgeCanaries(receipt, binding)).not.toThrow();
+		else expect(() => assertJudgeCanaries(receipt, binding)).toThrow("JUDGE_CANARY_GATE");
+	});
+}
+it("blocks a missed planted defect even with no honest false rejects", () => {
+	const receipt = structuredClone(good);
+	const probe = required(
+		plan.find(
+			(p) =>
+				!p.expectedAccepted &&
+				!scoreJudgeCanary(p, required(receipt.results.find((r) => r.key === p.key))).guardRejected,
+		),
+	);
+	const verdict = required(receipt.results.find((r) => r.key === probe.key)).verdict as TasksVerification;
+	for (const claim of verdict.verdicts) claim.verdict = "supported";
+	for (const premise of verdict.premises) premise.verdict = "no_candidate_premise";
+	if (verdict.retention) verdict.retention.status = "retained";
+	verdict.coverage.status = "complete";
+	for (const absence of verdict.absence) absence.verdict = "confirmed_absent";
+	expect(scoreJudgeCanary(probe, required(receipt.results.find((r) => r.key === probe.key))).pipelineCaught).toBe(
+		false,
+	);
+	expect(() => assertJudgeCanaries(receipt, binding)).toThrow("JUDGE_CANARY_GATE");
+});
+
+it("qualifies exhausted protocol faults separately from valid planted misses", () => {
+	const receipt = structuredClone(good);
+	const probes = plan.filter((p) => !p.expectedAccepted).slice(0, 2);
+	for (const probe of probes) {
+		const row = required(receipt.results.find((r) => r.key === probe.key));
+		row.voteFault = "VERIFIER_DEGENERATE_OUTPUT";
+		required(row.judgments?.[0]).fault = "VERIFIER_DEGENERATE_OUTPUT";
+		required(row.judgments?.[0]).outcome = "invalid";
+		row.verifierFaultRetries = 1;
+	}
+	const calibration = judgeCanaryCalibration(receipt, plan);
+	expect(calibration.recall).toBe(1);
+	expect(calibration.defectValidVerdicts).toBe(52);
+	expect(calibration.defectNotCaught).toBe(0);
+	expect(calibration.protocolFaultProbes).toHaveLength(2);
+	expect(() => assertJudgeCanaries(receipt, binding)).not.toThrow();
+	const tooMany = structuredClone(receipt);
+	for (const probe of plan.filter((p) => !p.expectedAccepted).slice(0, 8)) {
+		const row = required(tooMany.results.find((r) => r.key === probe.key));
+		row.voteFault = "VERIFIER_DEGENERATE_OUTPUT";
+		required(row.judgments?.[0]).fault = "VERIFIER_DEGENERATE_OUTPUT";
+		required(row.judgments?.[0]).outcome = "invalid";
+		row.verifierFaultRetries = 1;
+	}
+	expect(() => assertJudgeCanaries(tooMany, binding)).toThrow("JUDGE_CANARY_GATE");
+});
+
+it("does not disguise a valid accepted defect as an exhausted protocol fault", () => {
+	const receipt = structuredClone(good);
+	const probe = required(
+		plan.find(
+			(p) =>
+				!p.expectedAccepted &&
+				!scoreJudgeCanary(p, required(receipt.results.find((r) => r.key === p.key))).guardRejected,
+		),
+	);
+	const row = required(receipt.results.find((r) => r.key === probe.key));
+	const verdict = tasksVerifier.fakeVerdict({ ...probe.c, gold: probe.output }, probe.output) as TasksVerification;
+	const first = required(row.judgments?.[0]);
+	row.verdict = verdict;
+	row.judgments = [{ ...first, verdict, normalizedVerdict: verdict, outcome: "valid", fault: null }];
+	row.rejectionVote = null;
+	row.voteFault = null;
+	expect(scoreJudgeCanary(probe, row)).toMatchObject({ fault: null, pipelineCaught: false });
+	expect(() => assertJudgeCanaries(receipt, binding)).toThrow("JUDGE_CANARY_GATE");
+	row.voteFault = "VERIFIER_DEGENERATE_OUTPUT";
+	row.verifierFaultRetries = 1;
+	expect(() => assertJudgeCanaries(receipt, binding)).toThrow("JUDGE_CANARY_GATE");
 });

@@ -12,6 +12,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { m } from "motion/react";
 import { useState } from "react";
 import { WORKSPACE_TABS } from "@reactive-resume/schema/career";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
@@ -35,7 +36,7 @@ import { QuerySkeleton } from "@/components/query-skeleton";
 import { ApplicationNotes } from "@/features/applications/components/application-notes";
 import { InterviewDialog } from "@/features/applications/components/interview-dialog";
 import { buildIcs } from "@/features/applications/ics";
-import { formatDuration, interviewKindOf, isInterview } from "@/features/applications/interviews";
+import { formatDuration, interviewTypeLabel, isInterview } from "@/features/applications/interviews";
 import { describeNextStep, getNextStep } from "@/features/applications/next-step";
 import { getStageLabel, PIPELINE } from "@/features/applications/stages";
 import { CommandPaletteTrigger } from "@/features/command-palette/trigger";
@@ -86,7 +87,7 @@ function currentInterview(application: Application, now: Date) {
 }
 
 /** Rule 7: the tab a stage opens on. Offers are compared in Career, so an offer opens on its messages. */
-function defaultTab(application: Application, now: Date): WorkspaceTab {
+export function defaultWorkspaceTab(application: Application, now: Date): WorkspaceTab {
 	const interview = currentInterview(application, now);
 	const ended = interview && +new Date(interview.at) + interview.durationMinutes * 60_000 < +now;
 	switch (application.status) {
@@ -130,13 +131,13 @@ export function Workspace({ applicationId, tab: requested, search }: WorkspacePr
 				<p role="alert" className="type-title-s">
 					<Trans>This application couldn't be opened.</Trans>
 				</p>
-				<Link to="/dashboard/applications" className={cn(buttonVariants({ variant: "secondary" }))}>
+				<BackNavigation render={<Link to="/dashboard/applications" />}>
 					<Trans>Back to applications</Trans>
-				</Link>
+				</BackNavigation>
 			</div>
 		);
 
-	const tab = requested ?? defaultTab(application, now);
+	const tab = requested ?? defaultWorkspaceTab(application, now);
 	const interview = currentInterview(application, now);
 	const version = search.version ? saved.data?.find((item) => item.id === search.version) : undefined;
 	const archived = search.version !== undefined;
@@ -287,9 +288,18 @@ export function Workspace({ applicationId, tab: requested, search }: WorkspacePr
 													</Button>
 												)}
 												{archived && (
-													<Button size="sm" variant="secondary" onClick={() => setSearch({ version: undefined })}>
+													<BackNavigation
+														render={
+															<Link
+																to="/dashboard/applications/$applicationId/{-$tab}"
+																params={{ applicationId, tab }}
+																search={{ ...search, version: undefined }}
+																replace
+															/>
+														}
+													>
 														<Trans>Back to current</Trans>
-													</Button>
+													</BackNavigation>
 												)}
 											</div>
 										</div>
@@ -301,9 +311,18 @@ export function Workspace({ applicationId, tab: requested, search }: WorkspacePr
 													<span className="flex-1">
 														<Trans>You're looking at a saved version. It can't be edited.</Trans>
 													</span>
-													<Button size="sm" variant="secondary" onClick={() => setSearch({ version: undefined })}>
+													<BackNavigation
+														render={
+															<Link
+																to="/dashboard/applications/$applicationId/{-$tab}"
+																params={{ applicationId, tab }}
+																search={{ ...search, version: undefined }}
+																replace
+															/>
+														}
+													>
 														<Trans>Back to current</Trans>
-													</Button>
+													</BackNavigation>
 												</div>
 											)}
 											<TabBody tab={value} {...props} />
@@ -396,13 +415,9 @@ function WorkspaceHeader({ application, onAskCoach }: WorkspaceHeaderProps) {
 				</>
 			}
 			back={
-				<Link
-					to="/dashboard/applications"
-					className="flex w-fit items-center gap-1 type-body text-ink-3 transition-colors duration-quick hover:text-ink-2"
-				>
-					<Icon name="caret-left" size={16} />
+				<BackNavigation render={<Link to="/dashboard/applications" />}>
 					<Trans>Applications</Trans>
-				</Link>
+				</BackNavigation>
 			}
 			description={
 				<span className="flex flex-wrap items-center gap-x-2 gap-y-1 type-metadata text-ink-2">
@@ -492,7 +507,7 @@ function ContextColumn({ application, interview, now, onEdit }: ContextColumnPro
 		const people = upcoming.participants.map((person) => [person.name, person.role].filter(Boolean).join(", "));
 		const ics = buildIcs({
 			uid: upcoming.id,
-			title: `${interviewKindOf(upcoming.kind)?.label ?? ""} interview · ${application.role}, ${application.company}`,
+			title: t`${interviewTypeLabel(upcoming.kind)} interview · ${application.role}, ${application.company}`,
 			start,
 			end: new Date(start.getTime() + upcoming.durationMinutes * 60_000),
 			...(upcoming.location ? { location: upcoming.location } : {}),
@@ -521,7 +536,7 @@ function ContextColumn({ application, interview, now, onEdit }: ContextColumnPro
 						<Icon name={upcoming ? "calendar-dot" : text.icon} className="mt-px shrink-0 text-ink-2" />
 						<div className="grid min-w-0 gap-0.5">
 							<p className="text-sm font-semibold">
-								{upcoming ? t`${interviewKindOf(upcoming.kind)?.label ?? ""} interview` : text.title}
+								{upcoming ? t`${interviewTypeLabel(upcoming.kind)} interview` : text.title}
 							</p>
 							{upcoming ? (
 								<>

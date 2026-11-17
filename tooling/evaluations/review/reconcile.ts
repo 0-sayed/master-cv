@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { withOpenRouterFee } from "./budget";
 const payer = z.strictObject({
 	openRouterBaseMicros: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
 	openaiMicros: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
@@ -24,7 +23,7 @@ export function validateSettlement(value: unknown, journalSha256: string, keys: 
 }
 export function settlementCharges(value: BillingSettlement) {
 	const result = {
-		openRouterMicros: withOpenRouterFee(value.writer.openRouterBaseMicros + value.verifier.openRouterBaseMicros),
+		openRouterMicros: value.writer.openRouterBaseMicros + value.verifier.openRouterBaseMicros,
 		openaiMicros: value.writer.openaiMicros + value.verifier.openaiMicros,
 	};
 	if (!Object.values(result).every((n) => Number.isSafeInteger(n) && n >= 0))

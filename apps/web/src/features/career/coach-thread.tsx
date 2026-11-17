@@ -31,6 +31,7 @@ import { AssistantMarkdown } from "@/features/assistant/markdown";
 import { storageKey as registeredStorageKey, browserStorage } from "@/libs/browser-storage";
 import { getOrpcErrorMessage } from "@/libs/error-message";
 import { isImeComposing } from "@/libs/keyboard";
+import { getInterfaceDateLocale } from "@/libs/locale";
 import { ENTER_CLASS } from "@/libs/motion";
 import { client, orpc } from "@/libs/orpc/client";
 
@@ -1040,7 +1041,7 @@ function Composer(props: ComposerProps) {
 	};
 
 	const size = (bytes: number) =>
-		new Intl.NumberFormat(i18n.locale, {
+		new Intl.NumberFormat(getInterfaceDateLocale(i18n.locale), {
 			style: "unit",
 			unit: bytes < 1_000_000 ? "kilobyte" : "megabyte",
 			maximumFractionDigits: 1,

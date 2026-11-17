@@ -94,12 +94,12 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 			group.calls.push(call);
 			groups.set(key, group);
 		}
-	return [...groups.values()].map(({ dimension, value, calls: rows }) => {
-		const first = required(rows[0]);
+	return [...groups.values()].map(({ dimension, value, calls: allRows }) => {
+		const rows = allRows.filter((c) => c.outcome !== "ACCOUNT_ERROR");
+		const costs = (fn: (c: BenchmarkCall) => number) => allRows.reduce((n, c) => n + fn(c), 0);
+		const first = required(allRows[0]);
 		const sum = (fn: (c: BenchmarkCall) => number) => rows.reduce((n, c) => n + fn(c), 0);
-		const writerRows = rows.filter(
-			(c) => c.outcome !== "transient" && !c.verifierFault && c.adjudication !== "verifier-fault",
-		);
+		const writerRows = rows.filter((c) => c.outcome !== "transient");
 		const writerSum = (fn: (c: BenchmarkCall) => number) => writerRows.reduce((n, c) => n + fn(c), 0);
 		const usefulRows = writerRows.filter(
 			(c) =>
@@ -144,9 +144,9 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 			verifierTruncations: sum((c) => Number(c.verifierTruncated ?? (c.truncated && c.outcome === "valid"))),
 			usefulnessSamples: usefulRows.length,
 			usefulnessCases: caseRows.size,
-			generationCostUsd: sum((c) => c.generationUsage?.costMicros ?? 0) / 1e6,
-			verifierCostUsd: sum((c) => c.verifierUsage?.costMicros ?? 0) / 1e6,
-			writerCostPer1000Usd: sum((c) => c.generationUsage?.costMicros ?? 0) / rows.length / 1000,
+			generationCostUsd: costs((c) => c.generationUsage?.costMicros ?? 0) / 1e6,
+			verifierCostUsd: costs((c) => c.verifierUsage?.costMicros ?? 0) / 1e6,
+			writerCostPer1000Usd: costs((c) => c.generationUsage?.costMicros ?? 0) / allRows.length / 1000,
 			outputsOverProductionCap: sum((c) =>
 				Number(
 					c.generationUsage !== undefined &&
@@ -158,7 +158,9 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 			inventedAccepted: writerSum((c) =>
 				c.guardAccepted && c.verifierAccepted ? (c.score?.unsupportedClaims.length ?? 0) : 0,
 			),
-			inventedProposed: writerSum((c) => c.score?.unsupportedClaims.length ?? 0),
+			inventedProposed: writerSum((c) =>
+				criticalSafetyFailure(c) ? Math.max(1, c.score?.unsupportedClaims.length ?? 0) : 0,
+			),
 			lostFacts: writerSum((c) => c.score?.lostFacts.length ?? 0),
 			schemaFailures: writerSum((c) => Number(!c.schemaValid)),
 			truncations: writerSum((c) => Number(c.writerTruncated ?? c.truncated)),
@@ -175,11 +177,12 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 			exploratory: first.exploratory,
 			disagreementCases: [...outputs.values()].filter((s) => s.size > 1).length,
 			openRouterCostUsd:
-				sum((c) => (c.openRouterCostMicros === undefined ? (c.costMicros ?? 0) : (c.openRouterCostMicros ?? 0))) / 1e6,
-			openaiCostUsd: sum((c) => c.openaiCostMicros ?? 0) / 1e6,
-			costUsd: sum((c) => c.costMicros ?? 0) / 1e6,
-			unknownCosts: sum((c) => Number(c.costMicros === null)),
-			costPerSessionUsd: sum((c) => c.costMicros ?? 0) / rows.length / 1e6,
+				costs((c) => (c.openRouterCostMicros === undefined ? (c.costMicros ?? 0) : (c.openRouterCostMicros ?? 0))) /
+				1e6,
+			openaiCostUsd: costs((c) => c.openaiCostMicros ?? 0) / 1e6,
+			costUsd: costs((c) => c.costMicros ?? 0) / 1e6,
+			unknownCosts: costs((c) => Number(c.costMicros === null)),
+			costPerSessionUsd: costs((c) => c.costMicros ?? 0) / allRows.length / 1e6,
 			p50Ms: percentile(0.5),
 			p95Ms: percentile(0.95),
 		};
@@ -197,4 +200,20 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 				summary.unknownCosts === 0,
 		};
 	});
+}
+
+/** A structural failure lowers the safety rate. An unsafe assertion disqualifies a finalist. */
+export function criticalSafetyFailure(call: BenchmarkCall): boolean {
+	// Exact annotation coverage is usability, not an invented candidate fact.
+	if (call.taskScore && call.guardError === "SUMMARY_UNCOVERED_TEXT" && call.verifierAccepted) return false;
+	// A rejected, disputed judge verdict remains unresolved until adjudication.
+	if (call.adjudication === "pending-human" || call.verifierFault) return false;
+	return (
+		Boolean(call.score?.unsupportedClaims.length) ||
+		(call.schemaValid &&
+			call.outcome === "valid" &&
+			!call.verifierFault &&
+			call.adjudication !== "verifier-fault" &&
+			(!call.guardAccepted || !call.verifierAccepted))
+	);
 }

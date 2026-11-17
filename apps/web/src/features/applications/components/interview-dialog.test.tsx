@@ -47,6 +47,8 @@ const application: Application = {
 	status: "interview",
 	closedReason: null,
 	coverLetterId: null,
+	selectedResumeVersionId: null,
+	sentResumeRecordedAt: null,
 	sentResumeVersionId: null,
 	sentCoverLetterVersionId: null,
 	sentCheckScore: null,
@@ -119,20 +121,47 @@ afterEach(() => {
 	clients.splice(0).forEach((client) => client.clear());
 });
 
+it("keeps scheduling enabled and focuses the missing application after submit", async () => {
+	const client = new QueryClient();
+	clients.push(client);
+	render(
+		<QueryClientProvider client={client}>
+			<I18nProvider i18n={i18n}>
+				<InterviewDialog open onOpenChange={vi.fn()} applications={[application]} />
+			</I18nProvider>
+		</QueryClientProvider>,
+	);
+	const save = screen.getByRole("button", { name: "Save interview" });
+	expect(save).not.toBeDisabled();
+	fireEvent.click(save);
+	const picker = screen.getByRole("combobox", { name: /Application/ });
+	await waitFor(() => expect(picker).toHaveFocus());
+	expect(picker).toHaveAttribute("aria-invalid", "true");
+	expect(screen.getByRole("alert")).toHaveTextContent("Choose an application.");
+	expect(api.add).not.toHaveBeenCalled();
+});
+
+it("preselects the application when scheduling from its details", async () => {
+	mount(false);
+	expect(screen.queryByRole("combobox", { name: /Application/ })).toBeNull();
+	fireEvent.click(screen.getByRole("button", { name: "Save interview" }));
+	await waitFor(() =>
+		expect(api.add).toHaveBeenCalledWith(expect.objectContaining({ id: application.id }), expect.anything()),
+	);
+});
+
 it.each([false, true])(
 	"rejects nonexistent Berlin DST time before sending an interview mutation (editing: %s)",
 	async (editing) => {
 		mount(editing);
-		fireEvent.change(await screen.findByLabelText("Date"), { target: { value: "2027-03-28" } });
-		const time = screen.getByLabelText("Time · Europe/Berlin");
+		fireEvent.change(await screen.findByLabelText(/^Date/), { target: { value: "03/28/2027" } });
+		const time = screen.getByLabelText(/^Time/);
 		fireEvent.change(time, { target: { value: "02:30" } });
-		expect((await screen.findByRole("alert")).textContent).toContain(
-			"This time does not exist in the selected timezone",
-		);
-		expect(time.getAttribute("aria-invalid")).toBe("true");
-		const save = screen.getByRole("button", { name: "Save interview" }) as HTMLButtonElement;
-		expect(save.disabled).toBe(true);
+		const save = screen.getByRole("button", { name: "Save interview" });
+		expect(save).not.toBeDisabled();
 		fireEvent.click(save);
+		await waitFor(() => expect(time).toHaveFocus());
+		expect(time).toHaveAttribute("aria-invalid", "true");
 		expect(api.add).not.toHaveBeenCalled();
 		expect(api.update).not.toHaveBeenCalled();
 	},

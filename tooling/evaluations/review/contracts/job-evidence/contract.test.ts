@@ -289,7 +289,7 @@ it("synthetic fixtures meet tuning and holdout counts with gold/honest/mutant co
 	const fixtures = loadTaskFixtures(fixtureFiles);
 	for (const language of ["ar", "en", "mixed"]) {
 		expect(fixtures.filter((f) => !f.holdout && f.language === language)).toHaveLength(3);
-		expect(fixtures.filter((f) => f.holdout && f.language === language)).toHaveLength(4);
+		expect(fixtures.filter((f) => f.holdout && f.language === language)).toHaveLength(12);
 	}
 	for (const fixture of fixtures) {
 		expect(fixture.category).toBe("job-evidence");
@@ -346,7 +346,9 @@ it("offline preflight, fake-transport session and journal round-trip use the rea
 				verifierAccepted: true,
 				safetyAccepted: true,
 			});
-		expect((await readJournal(path)).previousCalls).toEqual(run.calls);
+		expect((await readJournal(path)).previousCalls).toEqual(
+			[...run.calls].sort((a, b) => a.key.localeCompare(b.key, "en", { numeric: true })),
+		);
 	} finally {
 		await rm(folder, { recursive: true });
 	}
@@ -387,4 +389,35 @@ it("preserves all 126 core guard controls through the guarded test harness", () 
 		pass: true,
 		failures: [],
 	});
+});
+
+it("accepts recorded honest CV paraphrases without buying inference again", async () => {
+	const { default: rows } = await import("./recorded-honest-outputs.json");
+	for (const row of rows) {
+		const c = required(loadTaskFixtures(fixtureFiles).find((c) => c.id === row.caseId));
+		expect(evaluateOutput(c, row.output).guardAccepted, `${row.caseId}:${row.reasoning}`).toBe(true);
+	}
+});
+
+it("scores the same requirement verdicts equally when job spans are grouped differently", () => {
+	const task = structuredClone(c);
+	const gold = jobEvidenceSchema.parse(task.gold);
+	const first = required(gold.requirements[0]);
+	required(task.jobAd).segments.push({ id: "job-weekly", text: "Prepare weekly reports." });
+	first.spanIds.push("job-weekly");
+	task.gold = gold;
+	const split = structuredClone(gold);
+	required(split.requirements[0]).spanIds = ["job-excel"];
+	split.requirements.push({ ...first, id: "req-weekly", spanIds: ["job-weekly"] });
+	expect(jobEvidenceContract.score(task, split, null).quality.value).toBe(1);
+});
+
+it("retains a documented percentage without turning it into a hiring score", () => {
+	const task = structuredClone(c);
+	required(task.cv[0]).text = "Prepared weekly reports with Excel and maintained 95% data accuracy.";
+	const value = jobEvidenceSchema.parse(task.gold);
+	required(value.requirements[0]).explanation = required(task.cv[0]).text;
+	expect(jobEvidenceContract.score(task, value, null).safetyDeterministic.pass).toBe(true);
+	required(value.requirements[0]).explanation = "Your hiring match score is 95%.";
+	expect(jobEvidenceContract.score(task, value, null).safetyDeterministic.pass).toBe(false);
 });

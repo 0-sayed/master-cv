@@ -1,0 +1,2 @@
+# Unified patches contain significant blank context lines with a space prefix.
+patches/*.patch -whitespace

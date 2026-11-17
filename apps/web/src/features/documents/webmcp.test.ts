@@ -4,6 +4,7 @@ import type { WebMcpTool } from "@/libs/webmcp";
 import { renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { useDocumentWebMcpTools } from "./webmcp";
+vi.mock("@reactive-resume/schema/personal-tools", () => ({ isFeatureAvailable: () => true }));
 
 const mocks = vi.hoisted(() => ({ list: vi.fn(), navigate: vi.fn() }));
 vi.mock("@/libs/orpc/client", () => ({ client: { documents: { list: mocks.list } } }));

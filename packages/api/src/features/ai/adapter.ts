@@ -23,6 +23,7 @@ export type AttemptFailure = {
 	message: string;
 	bytesReceived: boolean;
 	generationId: string | null;
+	requestSent?: boolean;
 };
 /** Evidence retained by a buffering transport, without copying request headers. */
 export class AiTransportError extends Error {
@@ -32,6 +33,7 @@ export class AiTransportError extends Error {
 			httpStatus: number | null;
 			bytesReceived: boolean;
 			generationId: string | null;
+			requestSent?: boolean;
 			costMicros?: number | null;
 			upstreamCostMicros?: number | null;
 		},
@@ -289,7 +291,7 @@ function providerOutcome(status: number, error: Record<string, unknown> | null) 
 async function executeApprovedStepOnce(
 	input: ApprovedStepInput,
 ): Promise<ApprovedStepResult & { retryAfterMs?: number }> {
-	const evidence = {
+	const evidence: Parameters<typeof executeApprovedStepObserved>[1] = {
 		httpStatus: null as number | null,
 		bytesReceived: false,
 		generationId: null as string | null,
@@ -317,6 +319,7 @@ async function executeApprovedStepOnce(
 						httpStatus: evidence.httpStatus,
 						bytesReceived: evidence.bytesReceived,
 						generationId: evidence.generationId ?? result.responseId,
+						...(evidence.requestSent ? { requestSent: true } : {}),
 					}),
 					...(evidence.providerErrorCode ? { providerErrorCode: evidence.providerErrorCode } : {}),
 				},
@@ -328,6 +331,7 @@ async function executeApprovedStepObserved(
 		httpStatus: number | null;
 		bytesReceived: boolean;
 		generationId: string | null;
+		requestSent?: boolean;
 		error: unknown;
 		providerErrorCode: string | undefined;
 	},

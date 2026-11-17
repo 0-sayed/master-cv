@@ -1,24 +1,16 @@
 import type { Application } from "@/features/applications/types";
 import type { LetterDraft } from "@/features/letters/store";
 import type { CoverLetter } from "@reactive-resume/schema/cover-letter/data";
-import type { CSSProperties, ReactElement, ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Plural, Trans } from "@lingui/react/macro";
 import { ORPCError } from "@orpc/client";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { useReducedMotion } from "motion/react";
 import { useId, useRef, useState } from "react";
 import { coverLetterTextToHtml, defaultCoverLetterSignOff, greetingName } from "@reactive-resume/resume/cover-letter";
 import { DOCUMENT_FONT_PAIRINGS } from "@reactive-resume/schema/resume/font-policy";
-import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@reactive-resume/ui/components/dropdown-menu";
+import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
@@ -28,17 +20,15 @@ import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { templates } from "@/dialogs/resume/template/data";
+import { ApplicationPicker } from "@/features/applications/components/application-picker";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
-import { getStageColor, getStageLabel } from "@/features/applications/stages";
 import { useLetterWords } from "@/features/letters/compose";
 import { countWords, LETTER_LENGTH, letterLength } from "@/features/letters/length";
+import { LetterReviewComposer } from "@/features/letters/review";
 import { discardLetterDraft, startLetterDraft, useLetterEditorStore } from "@/features/letters/store";
 import { useLetterMode } from "@/features/letters/use-letter-mode";
 import { ACCENTS, matchFontPairing, rgbaToHex } from "@/features/resume/editor/design/presets";
 import { RichTextEditor } from "@/features/resume/editor/write/rich-text-editor";
-import { AiProviderLoadState } from "@/features/settings/integrations/ai-provider-load-state";
-import { useHasUsableAiProvider } from "@/features/settings/integrations/hooks/use-has-usable-ai-provider";
-import { getOrpcErrorMessage } from "@/libs/error-message";
 import { ENTER_CLASS } from "@/libs/motion";
 import { client, orpc } from "@/libs/orpc/client";
 
@@ -46,11 +36,24 @@ const BODY_ID = "letter-body-editor";
 
 const focusBody = () => window.setTimeout(() => document.getElementById(BODY_ID)?.focus(), 50);
 
-const failed = (error: unknown) =>
-	toast.add({
-		type: "error",
-		description: getOrpcErrorMessage(error, { fallback: t`Couldn't save that change. Try again.` }),
-	});
+import { showLetterChangeFailure as failed } from "@/features/letters/save-error";
+const saveLetterChange = (
+	changes: Omit<Parameters<typeof client.coverLetters.update>[0], "id" | "expectedRevision">,
+	onSaved?: () => void,
+) => {
+	const { letter, sessionId } = useLetterEditorStore.getState();
+	void updateLetter(changes)
+		.then(onSaved)
+		.catch((error: unknown) =>
+			failed(
+				error,
+				() => {
+					if (useLetterEditorStore.getState().sessionId === sessionId) saveLetterChange(changes, onSaved);
+				},
+				letter?.id,
+			),
+		);
+};
 
 /** Saves what's typed, then changes the letter on the server (links, the application, the resume). */
 const updateLetter = (changes: Omit<Parameters<typeof client.coverLetters.update>[0], "id" | "expectedRevision">) =>
@@ -63,17 +66,19 @@ const updateLetter = (changes: Omit<Parameters<typeof client.coverLetters.update
 		}),
 	);
 
-type SectionProps = { id: string; title: ReactNode; aside?: ReactNode; children: ReactNode };
+type SectionProps = { id: string; title?: ReactNode; aside?: ReactNode; children: ReactNode };
 
 function Section({ id, title, aside, children }: SectionProps) {
 	return (
-		<section aria-labelledby={id} className="grid gap-3 px-4 py-5">
-			<div className="flex items-center justify-between gap-3">
-				<h2 id={id} className="text-xs font-semibold tracking-[0.04em] text-ink-3 uppercase">
-					{title}
-				</h2>
-				{aside}
-			</div>
+		<section aria-labelledby={title ? id : undefined} className="grid gap-3 px-4 py-5">
+			{title && (
+				<div className="flex items-center justify-between gap-3">
+					<h2 id={id} className="text-xs font-semibold tracking-[0.04em] text-ink-3 uppercase">
+						{title}
+					</h2>
+					{aside}
+				</div>
+			)}
 			{children}
 		</section>
 	);
@@ -120,90 +125,33 @@ type ForSectionProps = {
 
 /** FOR: the application the letter is for. Linking one fills the recipient; without one, drafting uses the resume. */
 function ForSection({ letter, application, applications, disabled }: ForSectionProps) {
-	const choices = applications.filter((item) => item.status !== "closed" || item.id === application?.id);
-
-	const choose = (next: Application | null) =>
-		void updateLetter({
+	const choose = (next: Application | null) => {
+		if ((next?.id ?? null) === letter.sourceApplicationId) return;
+		saveLetterChange({
 			applicationId: next?.id ?? null,
 			// The recipient comes from the application: its company, and its first contact when it has one.
 			...(next && letter.layout === "structured"
 				? { recipientCompany: next.company, recipientName: next.contacts[0]?.name ?? "" }
 				: {}),
-		}).catch(failed);
-
-	const menu = (trigger: ReactElement) => (
-		<DropdownMenu>
-			<DropdownMenuTrigger disabled={disabled} render={trigger} />
-			<DropdownMenuContent align="end" className="max-h-80 w-72 overflow-y-auto">
-				{choices.map((item) => (
-					<DropdownMenuItem key={item.id} onClick={() => choose(item)}>
-						<Icon name="briefcase" />
-						<span className="grid min-w-0">
-							<span className="truncate">{item.role}</span>
-							<span className="truncate text-xs text-ink-3">{item.company}</span>
-						</span>
-					</DropdownMenuItem>
-				))}
-				{choices.length === 0 && (
-					<p className="px-2 py-1.5 text-sm text-ink-2">
-						<Trans>No applications yet. Add one in Applications first.</Trans>
-					</p>
-				)}
-				{application && (
-					<>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem onClick={() => choose(null)}>
-							<Icon name="link-simple-horizontal-break" />
-							<Trans>No application</Trans>
-						</DropdownMenuItem>
-					</>
-				)}
-			</DropdownMenuContent>
-		</DropdownMenu>
-	);
+		});
+	};
 
 	return (
-		<Section id="letter-for" title={<Trans>For</Trans>}>
-			{application ? (
-				<div className="flex items-center gap-3 rounded-xl border border-line p-3">
-					<span
-						aria-hidden="true"
-						className="grid size-9 shrink-0 place-items-center rounded-lg bg-sunken font-semibold text-ink-2"
-					>
-						{application.company.charAt(0).toUpperCase()}
-					</span>
-					<span className="grid min-w-0 flex-1">
-						<span className="truncate text-sm font-medium">{application.role}</span>
-						<span className="flex min-w-0 items-center gap-1.5 text-xs text-ink-3">
-							<span className="truncate">{application.company}</span>
-							<span aria-hidden="true">·</span>
-							<span
-								aria-hidden="true"
-								className="size-1.5 shrink-0 rounded-full"
-								style={{ background: getStageColor(application.status) }}
-							/>
-							{getStageLabel(application.status)}
-						</span>
-					</span>
-					{menu(
-						<Button size="sm" variant="secondary">
-							<Trans>Change</Trans>
-						</Button>,
-					)}
-				</div>
-			) : (
-				<>
-					{menu(
-						<Button variant="secondary" className="w-full justify-start gap-2">
-							<Icon name="briefcase" />
-							<Trans>Link an application</Trans>
-							<Icon name="caret-down" className="ms-auto text-ink-3" />
-						</Button>,
-					)}
-					<p className="text-xs text-ink-3">
-						<Trans>Without one, you fill in the recipient yourself and drafting uses only your resume.</Trans>
-					</p>
-				</>
+		<Section id="letter-for">
+			<ApplicationPicker
+				aria-label={t`Link job application`}
+				className="w-full"
+				applications={applications}
+				value={application?.id ?? null}
+				disabled={disabled}
+				placeholder={t`Link an application`}
+				noneLabel={t`No application`}
+				onValueChange={(id) => choose(applications.find((item) => item.id === id) ?? null)}
+			/>
+			{!application && (
+				<p className="type-metadata text-ink-3">
+					<Trans>Without one, you fill in the recipient yourself and drafting uses only your resume.</Trans>
+				</p>
 			)}
 		</Section>
 	);
@@ -218,7 +166,7 @@ function ToSection({ letter, application, disabled }: LetterSectionProps) {
 
 	if (letter.layout === "freeform") {
 		return (
-			<Section id="letter-to" title={<Trans>To</Trans>}>
+			<Section id="letter-to" title={<Trans>Recipient</Trans>}>
 				<RichTextEditor
 					label={t`Recipient`}
 					value={letter.recipient}
@@ -234,7 +182,7 @@ function ToSection({ letter, application, disabled }: LetterSectionProps) {
 	}
 
 	return (
-		<Section id="letter-to" title={<Trans>To</Trans>}>
+		<Section id="letter-to" title={<Trans>Recipient</Trans>}>
 			<div className="grid grid-cols-2 gap-3">
 				<div className="col-span-2 grid gap-1.5">
 					<Label htmlFor={`${id}-name`}>
@@ -292,23 +240,21 @@ function FromSection({ letter, disabled }: { letter: CoverLetter; disabled: bool
 	const resume = resumes?.find((item) => item.id === letter.sourceResumeId);
 
 	const setResume = (resumeId: string | null) =>
-		void updateLetter({
+		saveLetterChange({
 			resumeId,
 			// A letter taking a resume for the first time takes its details and design with it.
 			...(resumeId && !letter.sourceResumeId ? { senderLinked: true, designLinked: true } : {}),
-		}).catch(failed);
+		});
 
 	const setLinked = (senderLinked: boolean) =>
-		void updateLetter({ senderLinked })
-			.then(() =>
-				toast.add({
-					description: senderLinked ? t`Linked to the resume again` : t`Sender details copied into the letter`,
-				}),
-			)
-			.catch(failed);
+		saveLetterChange({ senderLinked }, () =>
+			toast.add({
+				description: senderLinked ? t`Linked to the resume again` : t`Sender details copied into the letter`,
+			}),
+		);
 
 	return (
-		<Section id="letter-from" title={<Trans>From</Trans>}>
+		<Section id="letter-from" title={<Trans>Sender</Trans>}>
 			<div className="grid gap-1.5">
 				<Label htmlFor={`${id}-resume`}>
 					<Trans>Resume</Trans>
@@ -363,6 +309,7 @@ function BodySection({ letter, application, disabled }: LetterSectionProps) {
 
 	return (
 		<Section id="letter-body" title={<Trans>Letter</Trans>}>
+			<LetterReviewComposer key={letter.id} letter={letter} disabled={disabled} />
 			{structured && (
 				<LetterFramingField
 					letter={letter}
@@ -458,51 +405,15 @@ function LetterFramingField({ letter, field, defaultValue, disabled }: LetterFra
 
 type EmptyBodyProps = { letter: CoverLetter; application: Application | null; disabled: boolean; onWrite: () => void };
 
-function EmptyBody({ letter, application, disabled, onWrite }: EmptyBodyProps) {
-	const providerState = useHasUsableAiProvider();
-	const { hasUsableProvider } = providerState;
-	const hasResume = Boolean(letter.sourceResumeId);
-	const company = application?.company;
-	const canDraft = hasResume || Boolean(application);
-
+function EmptyBody({ disabled, onWrite }: EmptyBodyProps) {
 	return (
 		<div className="grid justify-items-start gap-3 rounded-xl border border-dashed border-line-2 p-4">
 			<p className="text-sm text-ink-2">
-				{company && hasResume ? (
-					<Trans>Start typing, or draft from what we know: the {company} posting and your resume.</Trans>
-				) : company ? (
-					<Trans>Start typing, or draft from what we know: the {company} posting.</Trans>
-				) : hasResume ? (
-					<Trans>Start typing, or draft from what we know: your resume.</Trans>
-				) : (
-					<Trans>Start typing. To draft one, link a resume or an application first.</Trans>
-				)}
+				<Trans>Write your letter, or review a proposal based on your confirmed CV and saved job.</Trans>
 			</p>
-			<div className="flex flex-wrap gap-1.5">
-				{canDraft && hasUsableProvider && (
-					<Button
-						size="sm"
-						disabled={disabled}
-						className="bg-accent-soft text-accent-text hover:bg-accent-soft hover:brightness-95"
-						onClick={() => void startLetterDraft("draft")}
-					>
-						<Icon name="sparkle" size={16} />
-						{application ? <Trans>Draft from the posting</Trans> : <Trans>Draft from your resume</Trans>}
-					</Button>
-				)}
-				<Button size="sm" variant="ghost" disabled={disabled} onClick={onWrite}>
-					<Trans>Write it myself</Trans>
-				</Button>
-			</div>
-			{canDraft && <AiProviderLoadState state={providerState} />}
-			{canDraft && !providerState.isUnavailable && !hasUsableProvider && (
-				<p className="text-xs text-ink-3">
-					<Trans>Drafting needs an AI provider.</Trans>{" "}
-					<Link to="/dashboard/settings/ai" className={buttonVariants({ variant: "link", size: "sm" })}>
-						<Trans>Open AI settings</Trans>
-					</Link>
-				</p>
-			)}
+			<Button variant="secondary" disabled={disabled} onClick={onWrite}>
+				<Trans>Write it myself</Trans>
+			</Button>
 		</div>
 	);
 }

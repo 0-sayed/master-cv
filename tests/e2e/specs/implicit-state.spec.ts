@@ -1,6 +1,7 @@
 import { createAuthenticatedContext } from "../fixtures/auth";
 import { createAccount } from "../fixtures/data";
 import { deleteE2EUser } from "../fixtures/db";
+import { expectDeferredRoute } from "../fixtures/deferred";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
@@ -116,6 +117,11 @@ test("closing an action toast leaves data intact; explicit confirmation waits fo
 }) => {
 	const fact = "A synthetic fact retained until an acknowledged deletion.";
 	await page.goto("/dashboard/career/knowledge/facts");
+	if (await expectDeferredRoute(page, "/dashboard/career/knowledge/facts")) {
+		const response = await page.request.post("/api/openapi/career/facts", { data: { text: fact } });
+		expect(response.status()).toBe(403);
+		return;
+	}
 	await page.getByLabel("New fact").fill(fact);
 	await page.getByLabel("New fact").press("Enter");
 	await expect(page.getByText(fact, { exact: true })).toBeVisible();
@@ -155,6 +161,12 @@ test("an interview draft requires explicit restore and is bound to its owner and
 	await expect(response).toBeOK();
 	const id = (await response.json()) as string;
 	await page.goto(`/dashboard/applications/${id}/debrief`);
+	if (await expectDeferredRoute(page, `/dashboard/applications/${id}/debrief`)) {
+		expect(
+			await page.evaluate(() => Object.keys(sessionStorage).filter((key) => key.startsWith("career-debrief-draft:"))),
+		).toEqual([]);
+		return;
+	}
 	const question = page.getByRole("textbox", { name: "What did they ask?", exact: true });
 	await question.fill("A private synthetic interview question");
 	await page.reload();

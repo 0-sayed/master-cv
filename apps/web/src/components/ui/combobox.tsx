@@ -29,7 +29,7 @@ type ComboboxOption<TValue extends string | number = string> = {
 	disabled?: boolean;
 };
 
-type SingleComboboxProps<TValue extends string | number = string> = {
+type SingleComboboxProps<TValue extends string | number = string> = React.AriaAttributes & {
 	options: ComboboxOption<TValue>[];
 	value?: TValue | null | undefined;
 	defaultValue?: TValue | null | undefined;
@@ -45,7 +45,7 @@ type SingleComboboxProps<TValue extends string | number = string> = {
 	render?: UseRenderRenderProp<ComboboxTriggerState>;
 };
 
-type MultiComboboxProps<TValue extends string | number = string> = {
+type MultiComboboxProps<TValue extends string | number = string> = React.AriaAttributes & {
 	options: ComboboxOption<TValue>[];
 	value?: TValue[] | null | undefined;
 	defaultValue?: TValue[] | null | undefined;
@@ -161,11 +161,16 @@ function Combobox<TValue extends string | number = string>(props: ComboboxProps<
 	const triggerNode = (
 		<ComboboxTrigger
 			id={id}
+			aria-invalid={props["aria-invalid"]}
+			aria-describedby={props["aria-describedby"]}
+			aria-required={props["aria-required"]}
+			aria-label={props["aria-label"]}
 			disabled={disabled}
 			render={
 				render ?? (
 					<Button
 						variant="secondary"
+						size="row"
 						className={cn("justify-start text-start font-normal hover:bg-sunken/20", className)}
 					/>
 				)

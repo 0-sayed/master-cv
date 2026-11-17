@@ -1,3 +1,8 @@
+// Exercise retained internals without changing the production release policy.
+vi.mock("@reactive-resume/schema/personal-tools", async (original) => ({
+	...(await original<typeof import("@reactive-resume/schema/personal-tools")>()),
+	isFeatureAvailable: (feature: string) => ["byok"].includes(feature),
+}));
 // Exercise retained internals with synthetic transports; egress-policy tests cover the unmocked release gate.
 vi.mock("../ai/route-policy", async (original) => ({
 	...(await original<typeof import("../ai/route-policy")>()),

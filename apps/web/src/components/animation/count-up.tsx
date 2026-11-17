@@ -1,5 +1,7 @@
+import { useLingui } from "@lingui/react";
 import { m, useInView, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { useEffect, useRef } from "react";
+import { getInterfaceDateLocale } from "@/libs/locale";
 
 type CountUpProps = {
 	to: number;
@@ -7,13 +9,14 @@ type CountUpProps = {
 	"aria-hidden"?: boolean | "true" | "false";
 };
 
-// Integer count-up with en-US grouping. Starts once when scrolled into view; reduced motion shows the final value.
+// Integer count-up with interface-locale grouping. Starts once when scrolled into view; reduced motion shows the final value.
 export function CountUp({ to, className, "aria-hidden": ariaHidden }: CountUpProps) {
+	const { i18n } = useLingui();
 	const ref = useRef<HTMLSpanElement>(null);
 	const isInView = useInView(ref, { once: true });
 	const reducedMotion = useReducedMotion();
 	const spring = useSpring(0, { visualDuration: 0.8, bounce: 0 });
-	const text = useTransform(spring, (value) => Math.round(value).toLocaleString("en-US"));
+	const text = useTransform(spring, (value) => Math.round(value).toLocaleString(getInterfaceDateLocale(i18n.locale)));
 
 	useEffect(() => {
 		if (reducedMotion) spring.jump(to);

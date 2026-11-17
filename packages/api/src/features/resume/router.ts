@@ -1,3 +1,4 @@
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { publicProcedure } from "../../context";
 import { crudRouter } from "./crud";
 import { updatesRouter } from "./event-router";
@@ -13,10 +14,12 @@ export const resumeRouter = {
 	variants: variantsRouter,
 	confirmImport: confirmImportProcedure,
 	getRoot: publicProcedure.route({ tags: ["Internal"] }).handler(({ context }) =>
-		getRootResume({
-			requestHeaders: context.reqHeaders,
-			...(context.user?.id ? { currentUserId: context.user.id } : {}),
-		}),
+		isFeatureAvailable("publicSharing")
+			? getRootResume({
+					requestHeaders: context.reqHeaders,
+					...(context.user?.id ? { currentUserId: context.user.id } : {}),
+				})
+			: { status: "disabled" as const },
 	),
 	tags: tagsRouter,
 	statistics: resumeStatisticsRouter,

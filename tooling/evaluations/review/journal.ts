@@ -52,6 +52,7 @@ export async function readJournal(path: string) {
 	}
 	if (text && !text.endsWith("\n")) throw new Error("JOURNAL_INCOMPLETE");
 	const scored = new Set<string>();
+	const rawKeys = new Set<string>();
 	const unsettled = new Map<string, Reservation>();
 	for (const line of text.split("\n").filter(Boolean)) {
 		let event: Event;
@@ -73,17 +74,23 @@ export async function readJournal(path: string) {
 		}
 		if (event.type === "reserved") {
 			history.pendingReservations.push(event.data);
-			if (event.data.reservedMicros > 0 && scored.has(event.data.key)) unsettled.set(event.data.key, event.data);
+			if (event.data.reservedMicros > 0 && (scored.has(event.data.key) || rawKeys.has(event.data.key)))
+				unsettled.set(event.data.key, event.data);
 		} else if (event.type === "settled")
 			history.billingSettlements.push(validateSettlement(event.data, event.data.journalSha256, [event.data.key]));
-		else if (event.type === "raw") history.rawRecords.push(event.data);
-		else if (event.type === "attempt") history.attempts.push(event.data);
+		else if (event.type === "raw") {
+			history.rawRecords.push(event.data);
+			rawKeys.add(event.data.key);
+		} else if (event.type === "attempt") history.attempts.push(event.data);
 		else {
 			history.previousCalls.push(event.data);
 			scored.add(event.data.key);
 			unsettled.delete(event.data.key);
 		}
 	}
+	history.pendingReservations = [...new Map(history.pendingReservations.map((r) => [r.key, r])).values()];
 	history.unsettledRetryReservations = [...unsettled.values()];
+	// Stable logical replay order; equal keys retain their causal append order.
+	for (const rows of Object.values(history)) rows.sort((a, b) => a.key.localeCompare(b.key, "en", { numeric: true }));
 	return history;
 }

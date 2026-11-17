@@ -1,8 +1,9 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { prepareFirstCvCelebration } from "@/features/documents/first-cv-celebration";
@@ -131,9 +132,21 @@ function ReviewSession({ draft }: { draft: ReviewDraft | null }) {
 						<Trans>This import review has expired or is unavailable on this device. Choose your file again.</Trans>
 					</AlertDescription>
 					<AlertActions>
-						<Button variant="secondary" onClick={() => void leave()}>
+						<BackNavigation
+							render={
+								<Link
+									to="/dashboard"
+									replace
+									onClick={(event) => {
+										if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+										event.preventDefault();
+										void leave();
+									}}
+								/>
+							}
+						>
 							<Trans>Back to documents</Trans>
-						</Button>
+						</BackNavigation>
 					</AlertActions>
 				</Alert>
 			)}

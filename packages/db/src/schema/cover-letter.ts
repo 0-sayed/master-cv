@@ -2,6 +2,7 @@ import type { CoverLetterLayout, CoverLetterStyle } from "@reactive-resume/schem
 import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
 import { generateId } from "@reactive-resume/utils/string";
+import { aiOperation } from "./ai-operation";
 import { application } from "./applications";
 import { user } from "./auth";
 import { ownerPolicy } from "./ownership";
@@ -49,6 +50,7 @@ export const coverLetter = pg.pgTable.withRLS(
 	},
 	(table) => [
 		ownerPolicy(table.userId),
+		pg.unique("cover_letter_owner_id_unique").on(table.userId, table.id),
 		pg.pgPolicy("discovery_owner_read", { for: "select", to: "current_user", using: sql`true` }),
 		pg.index().on(table.userId, table.updatedAt.desc(), table.id.desc()),
 	],
@@ -103,5 +105,36 @@ export const coverLetterVersion = pg.pgTable.withRLS(
 			.uniqueIndex("cover_letter_version_session_unique")
 			.on(t.coverLetterId, t.sessionId)
 			.where(sql`${t.kind} = 'auto'`),
+	],
+);
+
+export const coverLetterProposalDecision = pg.pgTable.withRLS(
+	"cover_letter_proposal_decision",
+	{
+		operationId: pg.text("operation_id").primaryKey(),
+		userId: pg
+			.text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		letterId: pg.text("letter_id").notNull(),
+		baseRevision: pg.integer("base_revision").notNull(),
+		decision: pg.text("decision", { enum: ["accept", "reject"] }).notNull(),
+		requestKey: pg.text("request_key").notNull(),
+		versionId: pg.text("version_id"),
+		createdAt: pg.timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	},
+	(t) => [
+		ownerPolicy(t.userId),
+		pg.index().on(t.userId, t.letterId),
+		pg.unique().on(t.userId, t.requestKey),
+		pg
+			.foreignKey({ columns: [t.userId, t.operationId], foreignColumns: [aiOperation.userId, aiOperation.id] })
+			.onDelete("cascade"),
+		pg
+			.foreignKey({ columns: [t.userId, t.letterId], foreignColumns: [coverLetter.userId, coverLetter.id] })
+			.onDelete("cascade"),
+		pg.check("cover_letter_decision_valid", sql`${t.decision} in ('accept', 'reject')`),
+		pg.check("cover_letter_decision_version", sql`(${t.decision} = 'accept') = (${t.versionId} is not null)`),
+		pg.check("cover_letter_decision_revision", sql`${t.baseRevision} > 0`),
 	],
 );

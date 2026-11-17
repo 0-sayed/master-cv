@@ -2,6 +2,7 @@ import type { IconName } from "@reactive-resume/ui/components/icon";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { cn } from "@reactive-resume/utils/style";
 import { PageHeader } from "@/components/layout/page-header";
@@ -58,10 +59,9 @@ function RouteComponent() {
 				}
 				back={
 					!isRoot ? (
-						<Link to="/dashboard/settings" className="inline-flex items-center gap-1 type-body text-ink-2 sm:hidden">
-							<Icon name="caret-left" size={20} />
+						<BackNavigation render={<Link to="/dashboard/settings" />}>
 							<Trans context="account.navigation.settings">Settings</Trans>
-						</Link>
+						</BackNavigation>
 					) : undefined
 				}
 			/>

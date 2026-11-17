@@ -4,6 +4,7 @@ import { t } from "@lingui/core/macro";
 import { Plural, Trans } from "@lingui/react/macro";
 import { useId, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
+import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
 import {
@@ -14,6 +15,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "@reactive-resume/ui/components/sheet";
+import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
 import { exportApplicationsCsv, selectApplicationsForExport } from "../csv";
 import { Combobox } from "@/components/ui/combobox";
@@ -33,6 +35,10 @@ export function ExportApplicationsSheet({ open, onOpenChange, applications, filt
 	const validRange = !from || !to || from <= to;
 	const selected = selectApplicationsForExport(applications, filtered, { scope, from, to });
 
+	const validation = useSubmitValidation({
+		[`${id}-from`]: !validRange ? t`Start date must be on or before end date.` : undefined,
+		[`${id}-scope`]: !selected.length ? t`No applications match. Change the filters or date range.` : undefined,
+	});
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
 			<SheetContent side="right" className="w-full gap-0 data-[side=right]:sm:max-w-lg">
@@ -45,10 +51,11 @@ export function ExportApplicationsSheet({ open, onOpenChange, applications, filt
 					</SheetDescription>
 				</SheetHeader>
 				<form
+					noValidate
 					className="flex min-h-0 flex-1 flex-col"
 					onSubmit={(event) => {
 						event.preventDefault();
-						if (!validRange || selected.length === 0) return;
+						if (!validation.validate()) return;
 						const blob = new Blob([exportApplicationsCsv(selected)], { type: "text/csv;charset=utf-8" });
 						downloadWithAnchor(blob, `applications-${new Date().toISOString().slice(0, 10)}.csv`);
 						onOpenChange(false);
@@ -61,6 +68,8 @@ export function ExportApplicationsSheet({ open, onOpenChange, applications, filt
 							</Label>
 							<Combobox
 								id={`${id}-scope`}
+								aria-invalid={!!validation.errors[`${id}-scope`]}
+								aria-describedby={`${id}-scope-error`}
 								className="w-full"
 								value={scope}
 								onValueChange={(value) => value && setScope(value)}
@@ -70,6 +79,7 @@ export function ExportApplicationsSheet({ open, onOpenChange, applications, filt
 								]}
 							/>
 						</div>
+						<FieldError id={`${id}-scope-error`}>{validation.errors[`${id}-scope`]}</FieldError>
 						<div className="grid grid-cols-2 items-end gap-3">
 							<div className="space-y-1.5">
 								<Label htmlFor={`${id}-from`}>
@@ -77,6 +87,8 @@ export function ExportApplicationsSheet({ open, onOpenChange, applications, filt
 								</Label>
 								<Input
 									id={`${id}-from`}
+									aria-invalid={!!validation.errors[`${id}-from`]}
+									aria-describedby={`${id}-from-error`}
 									type="date"
 									value={from}
 									max={to || undefined}
@@ -96,12 +108,8 @@ export function ExportApplicationsSheet({ open, onOpenChange, applications, filt
 								/>
 							</div>
 						</div>
-						{!validRange && (
-							<p role="alert" className="text-sm text-danger-text">
-								<Trans>Start date must be on or before end date.</Trans>
-							</p>
-						)}
-						<p className="text-sm text-ink-3">
+						<FieldError id={`${id}-from-error`}>{validation.errors[`${id}-from`]}</FieldError>
+						<p className="type-body text-ink-3">
 							<Plural value={selected.length} one="# application to export" other="# applications to export" />
 						</p>
 					</div>
@@ -109,7 +117,7 @@ export function ExportApplicationsSheet({ open, onOpenChange, applications, filt
 						<Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
 							<Trans>Cancel</Trans>
 						</Button>
-						<Button type="submit" disabled={!validRange || selected.length === 0}>
+						<Button type="submit">
 							<Trans>Download CSV</Trans>
 						</Button>
 					</SheetFooter>

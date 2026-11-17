@@ -4,6 +4,7 @@ import { lockAccountForAccounting } from "@reactive-resume/db/account-state";
 import { withOwnerDatabase } from "@reactive-resume/db/owner-scope";
 import { aiOperation, aiOperationAttempt } from "@reactive-resume/db/schema";
 import { executeApprovedStep } from "./adapter";
+import { CONTENT_RETRY_STEP, currentContentAttempts, isContentRejection } from "./content-retry";
 import {
 	assertSourceRevisions,
 	claimNextOperation,
@@ -86,56 +87,95 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 			await failOperation(lease, "AI_REQUEST_COST_LIMIT");
 			return;
 		}
-		const completed = previous.find((a) => a.stepId !== "verify" && a.outcome === "valid" && a.finishedAt && a.output);
+		const currentAttempts = currentContentAttempts(previous);
+		let contentRetried = previous.some((a) => a.stepId === CONTENT_RETRY_STEP);
+		let retryRequested = false;
+		const completed = currentAttempts.find(
+			(a) => a.stepId !== "verify" && a.outcome === "valid" && a.finishedAt && a.output,
+		);
 		let generated = completed?.output ?? null;
-		const verified = previous.find((a) => a.stepId === "verify");
+		const verified = currentAttempts.find((a) => a.stepId === "verify");
+		let nextStep =
+			generated && handler.verifier
+				? "verify"
+				: currentAttempts.at(-1)?.outcome === "invalid"
+					? "repair"
+					: contentRetried
+						? CONTENT_RETRY_STEP
+						: "generate";
+		const rejectContent = async (error: unknown, failureCode: string): Promise<void> => {
+			if (!contentRetried && isContentRejection(error)) {
+				contentRetried = true;
+				retryRequested = true;
+				generated = null;
+				nextStep = CONTENT_RETRY_STEP;
+				return;
+			}
+			await failOperation(lease, failureCode);
+		};
+		const deliverContent = async (output: Record<string, unknown>): Promise<void> => {
+			const result = await deliverOperation(lease, output);
+			if (result.resultId)
+				console.info("[ai-operation]", {
+					event: "delivered",
+					kind: operation.kind,
+					operationId: lease.operationId,
+					generationAttempt: contentRetried ? 2 : 1,
+				});
+		};
 		const validateGenerated = async (output: Record<string, unknown>): Promise<boolean> => {
 			try {
 				const validateResult = handler.validateResult;
 				if (validateResult) await withOperationLease(lease, (tx) => validateResult(tx, lease.ownerId, request, output));
 				return true;
-			} catch {
-				await failOperation(lease, "AI_REVIEW_INVALID");
+			} catch (error) {
+				await rejectContent(error, "AI_REVIEW_INVALID");
 				return false;
 			}
 		};
-		if (generated && !(await validateGenerated(generated))) return;
-		if (completed?.output && (!handler.verifier || verified)) {
-			if (handler.verifier) {
-				if (verified?.outcome !== "valid" || !verified.finishedAt || !verified.output) {
-					await failOperation(lease, "AI_VERIFIER_UNAVAILABLE");
-					return;
+		if (generated && !(await validateGenerated(generated)) && !retryRequested) return;
+		if (!retryRequested && completed?.output && (!handler.verifier || verified)) {
+			try {
+				if (handler.verifier) {
+					if (verified?.outcome !== "valid" || !verified.finishedAt || !verified.output) {
+						await failOperation(lease, "AI_VERIFIER_UNAVAILABLE");
+						return;
+					}
+					const verifier = handler.verifier;
+					const validateInContext = verifier.validateInContext;
+					const completedOutput = completed.output;
+					const verifiedOutput = verified.output;
+					if (validateInContext)
+						await withOperationLease(lease, (tx) =>
+							validateInContext(tx, lease.ownerId, request, completedOutput, verifiedOutput),
+						);
+					else verifier.validate(completed.output, verified.output);
 				}
-				const verifier = handler.verifier;
-				const validateInContext = verifier.validateInContext;
-				const completedOutput = completed.output;
-				const verifiedOutput = verified.output;
-				if (validateInContext)
-					await withOperationLease(lease, (tx) =>
-						validateInContext(tx, lease.ownerId, request, completedOutput, verifiedOutput),
-					);
-				else verifier.validate(completed.output, verified.output);
+			} catch (error) {
+				await rejectContent(error, "AI_VERIFICATION_FAILED");
+				if (!retryRequested) return;
 			}
-			await deliverOperation(lease, completed.output);
-			return;
+			if (!retryRequested) {
+				await deliverContent(completed.output);
+				return;
+			}
 		}
-		const last = previous.at(-1);
-		if (last && !generated && !["invalid", "transient"].includes(last.outcome ?? "")) {
+		const last = currentAttempts.at(-1);
+		if (!retryRequested && last && !generated && !["invalid", "transient"].includes(last.outcome ?? "")) {
 			await failOperation(lease, "AI_RECOVERED_TERMINAL");
 			return;
 		}
 		let repairs = previous.filter((a) => a.stepId === "repair").length;
-		let nextStep =
-			generated && handler.verifier ? "verify" : previous.at(-1)?.outcome === "invalid" ? "repair" : "generate";
-		if (!generated && previous.at(-1)?.stepId === "repair") {
+		if (!retryRequested && !generated && last?.stepId === "repair") {
 			await failOperation(lease, "AI_REPAIR_LIMIT");
 			return;
 		}
-		for (let ordinal = previous.length + 1; ordinal <= 3; ordinal++) {
+		for (let ordinal = previous.length + 1; ordinal <= 5; ordinal++) {
 			const writerRoute = await resolveApprovedRoute(lease.ownerId, request);
 			const route = nextStep === "verify" ? resolveReviewVerifierRoute(writerRoute) : writerRoute;
 			if (Date.now() >= operation.deadlineAt.getTime()) throw new Error("AI_DEADLINE");
-			if (ordinal > route.maxCalls) break;
+			if (ordinal > route.maxCalls + (contentRetried ? (handler.verifier ? 2 : 1) : 0)) break;
+			retryRequested = false;
 			if (
 				route.requestCapMicros !== operation.reservedMicros ||
 				consumedMicros + route.maxCallCostMicros > operation.reservedMicros
@@ -250,20 +290,24 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 								validateInContext(tx, lease.ownerId, request, generatedOutput, verifiedOutput),
 							);
 						else verifier.validate(generated, outcome.output);
-					} catch {
-						await failOperation(lease, "AI_VERIFICATION_FAILED");
+					} catch (error) {
+						await rejectContent(error, "AI_VERIFICATION_FAILED");
+						if (retryRequested) continue;
 						return;
 					}
-					await deliverOperation(lease, generated);
+					await deliverContent(generated);
+					return;
+				}
+				if (!(await validateGenerated(outcome.output))) {
+					if (retryRequested) continue;
 					return;
 				}
 				if (handler.verifier) {
-					if (!(await validateGenerated(outcome.output))) return;
 					generated = outcome.output;
 					nextStep = "verify";
 					continue;
 				}
-				await deliverOperation(lease, outcome.output);
+				await deliverContent(outcome.output);
 				return;
 			}
 			if (stepId === "verify") {

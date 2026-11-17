@@ -74,7 +74,7 @@ it("reserves runtime suite time on its owning shard", () => {
 	expect(bins.map((bin) => bin.tests.length)).toEqual([9, 1]);
 });
 
-it("includes both synthetic runtime configs only on their owning shard with separate artifacts", () => {
+it("includes every synthetic runtime config only on its owning shard with separate artifacts", () => {
 	expect(runtimeCommands(3, ["--workers=1"])).toEqual([]);
 	expect(runtimeCommands(6, ["--workers=1", "--output", "/tmp/browser"])).toEqual([
 		[
@@ -96,6 +96,16 @@ it("includes both synthetic runtime configs only on their owning shard with sepa
 			"--workers=1",
 			"--output",
 			"/tmp/browser/review-browser",
+		],
+		[
+			"exec",
+			"playwright",
+			"test",
+			"--config",
+			"tests/e2e/personal-tools-release.config.ts",
+			"--workers=1",
+			"--output",
+			"/tmp/browser/release-visibility-browser",
 		],
 	]);
 });

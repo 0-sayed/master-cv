@@ -12,9 +12,26 @@ with reason `snapshot cleanup`; no inference, environment reads, staging, commit
 ## Slim tasks decision lane — owner decision 2026-11-14
 
 This is a rough decision with a smaller budget; a larger, properly funded benchmark follows later.
-Tasks-v1 defaults to **two full-stage repetitions**; explicit `--runs` overrides remain supported.
-Core retains three repetitions. Smoke stays one AR, one EN and one mixed case per category and
-variant (18 sessions per variant; 126 for seven, 72 for four).
+Tasks-v1 defaults to three full-stage repetitions. Explicit `--runs` overrides remain supported.
+
+## Personal career study preparation
+
+The CLI resolves category selection, writer variants, repetition counts, and study identity through `resolveStudyPlan`.
+Forecasts and execution use that same selection. The shared runner retains transport, retry, and accounting ownership.
+The owner campaign covers summary, job evidence, tailoring, translation, cover letters, and interview preparation.
+Interview preparation only informs the model decision. It does not enable an interview product feature.
+
+Use explicit `--credential-source process` for owner-authorized paid commands.
+This mode reads only `OPENROUTER_BENCHMARK_KEY` and rejects file credential arguments.
+Preload `no-env-file.mjs` before application imports to block environment-file loading.
+Offline preparation uses the test-isolation preload and never opens credentials or external transport.
+
+The allowed archive root is `/mnt/storage/master-cv-design-archive/ui-audit/personal-career-benchmark`.
+Output validation rejects symlinks that escape the allowed root.
+Each completed invocation writes a small `session.json` pointer to its existing session results.
+Use a separate output directory for each invocation. Historical sessions remain intact.
+Core and full tasks runs default to three repetitions. Smoke uses one AR, one EN, and one mixed case per category and writer.
+The combined grid has three writers and 54 smoke sessions. See docs/personal-career-benchmark.md for owner commands and current caps.
 
 Canary calibration runs **72 initial verifier calls**: every category × language cell has its
 honest gold, invented metric, dropped negation and one priority defect: summary invented skill
@@ -50,15 +67,14 @@ saved canaries and latest smoke sessions, writing per-variant/category acceptanc
 independent guard rejects. No inference or environment-file reads; historical artifacts cannot
 qualify a new study. Fake results are scripted controls.
 
-After tuning, use `--study tasks-v1 --variants <model@effort,...>` to remove finalists.
-With this flag, only the seven existing model/provider/effort/scope tuples are allowed; unknown, duplicate,
-empty or expanded selections fail. Canonical ordering is retained. Manifest `variants` records
-actual membership, and the study hash binds the selected models, repetitions and freeze.
-A subset requires **fresh smoke with that same subset and repetition setting**; a seven-variant
-smoke cannot qualify a four-variant full run. Keep all categories, partitions and languages.
-Existing custom tuning-only configs remain usable without this flag; full still requires
-the existing Terra reference. No pruning winners are selected here; the four-variant forecast is an illustrative subset,
-not an evidence-backed recommendation.
+The combined default grid contains Luna none, Luna low, and Terra medium. DeepSeek remains the pinned verifier.
+Use `--study tasks-v1 --variants <model@effort,...>` to select a supported subset.
+Unknown, duplicate, empty, or expanded selections fail. Canonical ordering remains stable.
+The manifest records actual membership. Smoke and full bind the same frozen campaign and the requested full repetition count (default three).
+Smoke executes one repeat. Full executes the requested repetition count and requires that exact smoke identity.
+A subset requires a fresh smoke with the same membership. Keep every category, partition, and language.
+Custom tuning-only configurations retain their existing validation. Full still requires Terra.
+No paid run or production model promotion occurs during offline preparation.
 
 Forecasts remain offline estimates, separated by OpenRouter (5.5% fee once) and OpenAI
 (no credit fee). Gold-token/core-judge proxies are not measured tasks usage. Report cap-based
@@ -79,7 +95,7 @@ The verifier now receives full minimized proposals and every candidate, includin
 
 Extraction benchmark verifiers receive 12,288 total completion tokens; other categories retain 5,120 and writer caps are unchanged. Reasons are prompted to be compact, without dropping claims. Reservations use the scaled cap. Saved-input and conditional compact-output capacity checks are offline diagnostics, not proof of live non-truncation. Two genuine writer failures have no valid verifier input. A fresh 132-session owner-run smoke is required; v8 cannot qualify or resume into v9.
 
-Smoke checks infrastructure, accounting, provider identity, coverage and systemic verifier health. Writer schema/truncation/refusal/provenance failures remain data with per-variant counts; unknown writer sources are rejected before judge dispatch. Isolated verifier faults are health exclusions, not writer errors. A variant without a complete attributable pair has no measured calibration and retains catalog reservation bounds; this alone does not block smoke. Existing systemic health thresholds and billing/coverage gates remain.
+Smoke checks infrastructure, accounting, provider identity, coverage and systemic verifier health. Writer schema/truncation/refusal/provenance failures remain data with per-variant counts; unknown writer sources are rejected before judge dispatch. Isolated verifier faults remain failed safety samples and block qualification. They are not writer schema errors. A variant without a complete attributable pair has no measured calibration and retains catalog reservation bounds; this alone does not block smoke. Existing systemic health thresholds and billing/coverage gates remain.
 
 Offline report (must supply `-o`; no network or environment-file reads): `pnpm --filter @reactive-resume/tooling eval:review:rescore --source evaluations/results/2026-11-13T13-29-43.354Z-27e0cb13 --approval-file <owner-approval.json> -o /tmp/t006-offline-rescore`. The 44 variant/category rows contain historical joint proxies, provisional saved-verdict re-scores, trusted rates and re-verification counts. Historical journal/results stay immutable. Cost is a token-price proxy, not new calibration. No inference, release approval or real-CV processing authorized.
 
@@ -134,7 +150,7 @@ and cooldown behavior.
 
 `MAX_VERIFIER_FAULT_RETRIES = 1` is persisted as `verifierFaultRetries` on each
 scored session. The first faulty judgment is journalled before retry dispatch;
-a second fault is final `verifier-fault`, excluded from writer metrics and listed
+a second fault is final `verifier-fault`, retained as a failed safety sample and listed
 for human adjudication after reveal. A finalized faulty session counts as completed
 coverage. Smoke validation still rejects verifier faults. Prompts, models, token caps,
 schemas, fixtures and scoring are unchanged; lane18 uses the new identity above.

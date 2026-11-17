@@ -4,7 +4,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
-import { DocumentRow } from "./document-card";
+import { DocumentCard, DocumentRow } from "./document-card";
 import { getUiLocaleMessages } from "@/libs/locale";
 const actions = vi.hoisted(() => ({ restore: vi.fn(), purge: vi.fn() }));
 vi.mock("./document-actions", () => ({ useDocumentActions: () => actions, DocumentMenuContent: () => null }));
@@ -78,4 +78,23 @@ it.each([
 	show(Number(days));
 	await act(async () => i18n.loadAndActivate(await getUiLocaleMessages("ar-SA")));
 	expect(screen.getByText(String(label), { exact: true })).toBeVisible();
+});
+
+it("identifies an active CV with the shared accessible type marker", () => {
+	show(30, false);
+	expect(screen.getAllByLabelText("CV", { selector: '[data-slot="document-type"]' })).toHaveLength(2);
+});
+
+it.each(["ar-SA", "en-US"] as const)("%s: keeps card timestamps separate from the document type", async (locale) => {
+	i18n.loadAndActivate(await getUiLocaleMessages(locale));
+	const { container } = render(
+		<I18nProvider i18n={i18n}>
+			<DocumentCard document={{ ...item, trashedAt: null }} onTags={vi.fn()} onLink={vi.fn()} />
+		</I18nProvider>,
+	);
+	const metadata = container.querySelector('[data-slot="document-meta"]');
+	expect(metadata).toHaveAttribute("title", metadata?.textContent);
+	expect(metadata?.previousElementSibling?.tagName).toBe("H2");
+	expect(container.querySelectorAll('[data-slot="document-type"]')).toHaveLength(1);
+	expect(metadata?.querySelector('[data-slot="document-type"]')).toBeNull();
 });

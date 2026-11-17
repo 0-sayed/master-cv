@@ -18,6 +18,12 @@ it.each([
 		effort: "medium",
 		tokens: 8192,
 	},
+	{ kind: "review.summary", parameters: {}, model: "openai/gpt-6.1-terra", effort: "medium", tokens: 1536 },
+	{ kind: "review.job-evidence", parameters: {}, model: "openai/gpt-6.1-terra", effort: "medium", tokens: 1024 },
+	{ kind: "review.tailoring", parameters: {}, model: "openai/gpt-6.1-terra", effort: "medium", tokens: 1024 },
+	{ kind: "review.translation", parameters: {}, model: "openai/gpt-6-luna", effort: "low", tokens: 960 },
+	{ kind: "review.cover-letter", parameters: {}, model: "openai/gpt-6.1-terra", effort: "medium", tokens: 3072 },
+	{ kind: "review.interview-prep", parameters: {}, model: "openai/gpt-6.1-terra", effort: "medium", tokens: 3072 },
 ])(
 	"dispatches configured $kind @ $effort with completion bounds and metered cost",
 	async ({ kind, parameters, model, effort, tokens }) => {

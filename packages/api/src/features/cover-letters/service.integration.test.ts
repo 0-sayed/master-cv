@@ -6,6 +6,7 @@ import { createRouterClient } from "@orpc/server";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
+import { withPersonalToolsPolicy } from "../personal-tools/availability";
 
 const fixture = vi.hoisted(() => ({
 	db: undefined as ReturnType<typeof drizzle> | undefined,
@@ -113,17 +114,9 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("cover-letter owned
 		const original = await service.create({ userId: "alice", name: "Submitted", applicationId: "alice-app" });
 		const version = await service.recordSent({ userId: "alice", id: original.id, company: "Lumen" });
 		await getPool().query("UPDATE application SET sent_cover_letter_version_id=$1 WHERE id='alice-app'", [version.id]);
-		const replacement = await service.create({ userId: "alice", name: "Replacement" });
 		const { documentsService } = await import("../documents/service");
 		for (const change of [
-			() =>
-				documentsService.linkApplication({
-					userId: "alice",
-					type: "letter",
-					id: replacement.id,
-					applicationId: "alice-app",
-				}),
-			() => service.update({ userId: "alice", id: replacement.id, expectedRevision: 1, applicationId: "alice-app" }),
+			() => documentsService.linkApplication({ userId: "alice", type: "letter", id: original.id, applicationId: null }),
 			() => service.update({ userId: "alice", id: original.id, expectedRevision: 1, applicationId: null }),
 		]) {
 			await expect(change()).rejects.toMatchObject({ code: "BAD_REQUEST" });
@@ -133,15 +126,120 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("cover-letter owned
 				)
 			).rows[0];
 			expect(application).toEqual({ cover_letter_id: original.id, sent_cover_letter_version_id: version.id });
-			expect(await service.getById({ userId: "alice", id: replacement.id })).toMatchObject({
+			expect(await service.getById({ userId: "alice", id: original.id })).toMatchObject({
 				revision: 1,
-				sourceApplicationId: null,
+				sourceApplicationId: "alice-app",
 			});
 		}
 		const { getLetterVersion } = await import("./versions");
 		expect(
 			await getLetterVersion({ userId: "alice", coverLetterId: original.id, versionId: version.id }),
 		).toMatchObject({ data: { name: "Submitted" } });
+		const copy = await service.duplicate({ userId: "alice", id: original.id });
+		expect(copy.sourceApplicationId).toBeNull();
+		await getPool().query("INSERT INTO application (id, user_id) VALUES ('alice-next','alice')");
+		await expect(
+			service.update({ userId: "alice", id: copy.id, expectedRevision: copy.revision, applicationId: "alice-next" }),
+		).resolves.toMatchObject({ sourceApplicationId: "alice-next" });
+	});
+
+	it("treats selecting the existing application as a no-op without bypassing revision safety", async () => {
+		const original = await service.create({
+			userId: "alice",
+			name: "Submitted",
+			applicationId: "alice-app",
+			recipientCompany: "Manual recipient",
+		});
+		const version = await service.recordSent({ userId: "alice", id: original.id, company: "Lumen" });
+		await getPool().query("UPDATE application SET sent_cover_letter_version_id=$1 WHERE id='alice-app'", [version.id]);
+		expect(
+			await service.update({
+				userId: "alice",
+				id: original.id,
+				expectedRevision: 1,
+				applicationId: "alice-app",
+				sessionId: "same-job",
+			}),
+		).toEqual(original);
+		const { listLetterVersions } = await import("./versions");
+		expect(
+			(await listLetterVersions({ userId: "alice", coverLetterId: original.id })).map((item) => item.kind),
+		).toEqual(["sent", "created"]);
+		await expect(
+			service.update({ userId: "alice", id: original.id, expectedRevision: 2, applicationId: "alice-app" }),
+		).rejects.toMatchObject({ code: "CONFLICT" });
+		await expect(
+			service.update({ userId: "bob", id: original.id, expectedRevision: 1, applicationId: "alice-app" }),
+		).rejects.toMatchObject({ code: "NOT_FOUND" });
+	});
+
+	it("links an editable copy back to a submitted job without replacing its sent letter", async () => {
+		const original = await service.create({
+			userId: "alice",
+			name: "Submitted",
+			applicationId: "alice-app",
+			content: "<p>Sent text</p>",
+		});
+		const version = await service.recordSent({ userId: "alice", id: original.id, company: "Lumen" });
+		await getPool().query(
+			"UPDATE application SET status='applied', sent_cover_letter_version_id=$1 WHERE id='alice-app'",
+			[version.id],
+		);
+		const copy = await service.duplicate({ userId: "alice", id: original.id });
+		expect(copy).toMatchObject({ sourceApplicationId: null, isLocked: false, revision: 1 });
+		const linked = await service.update({
+			userId: "alice",
+			id: copy.id,
+			expectedRevision: 1,
+			applicationId: "alice-app",
+		});
+		expect(linked).toMatchObject({ sourceApplicationId: "alice-app", revision: 2 });
+		const edited = await service.update({
+			userId: "alice",
+			id: copy.id,
+			expectedRevision: linked.revision,
+			content: "<p>New draft</p>",
+		});
+		expect(edited.content).toBe("<p>New draft</p>");
+		const { documentsService } = await import("../documents/service");
+		const another = await service.duplicate({ userId: "alice", id: original.id });
+		await documentsService.linkApplication({
+			userId: "alice",
+			type: "letter",
+			id: another.id,
+			applicationId: "alice-app",
+		});
+		expect(await service.getById({ userId: "alice", id: another.id })).toMatchObject({
+			sourceApplicationId: "alice-app",
+		});
+		await getPool().query("INSERT INTO application (id,user_id) VALUES ('alice-next','alice')");
+		expect(
+			await service.update({
+				userId: "alice",
+				id: copy.id,
+				expectedRevision: edited.revision,
+				applicationId: "alice-next",
+			}),
+		).toMatchObject({ sourceApplicationId: "alice-next" });
+		const fresh = await service.create({ userId: "alice", name: "New draft", applicationId: "alice-app" });
+		expect(fresh).toMatchObject({ sourceApplicationId: "alice-app", isLocked: false });
+		const { getLetterVersion } = await import("./versions");
+		expect(
+			await getLetterVersion({ userId: "alice", coverLetterId: original.id, versionId: version.id }),
+		).toMatchObject({ data: { content: "<p>Sent text</p>" } });
+		expect(
+			(
+				await getPool().query(
+					"SELECT cover_letter_id, sent_cover_letter_version_id FROM application WHERE id='alice-app'",
+				)
+			).rows[0],
+		).toEqual({ cover_letter_id: original.id, sent_cover_letter_version_id: version.id });
+		await expect(
+			service.update({ userId: "alice", id: another.id, expectedRevision: 2, applicationId: "bob-app" }),
+		).rejects.toMatchObject({ code: "NOT_FOUND" });
+		await expect(
+			service.update({ userId: "alice", id: another.id, expectedRevision: 1, applicationId: "alice-app" }),
+		).rejects.toMatchObject({ code: "CONFLICT" });
 	});
 
 	it("lists permanent checkpoints behind more than 100 recent autosaves", async () => {
@@ -162,62 +260,80 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("cover-letter owned
 		});
 	});
 
-	it("accepts procedure defaults, rejects invalid input, and permits only one concurrent writer", async () => {
-		const { coverLettersRouter } = await import("./router");
-		const client = createRouterClient(coverLettersRouter, { context: { user: { id: "alice" } } as never });
-		const created = await client.create({ name: "Through procedure" });
-		expect(created).toMatchObject({ recipient: "", content: "", revision: 1 });
-		await expect(client.create({ name: " " })).rejects.toMatchObject({ code: "BAD_REQUEST" });
-		await expect(client.list({ limit: 101 })).rejects.toMatchObject({ code: "BAD_REQUEST" });
-		const results = await Promise.allSettled([
-			client.update({ id: created.id, expectedRevision: 1, content: "First editor" }),
-			client.update({ id: created.id, expectedRevision: 1, content: "Second editor" }),
-		]);
-		expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
-		expect(results.find((result) => result.status === "rejected")).toMatchObject({ reason: { code: "CONFLICT" } });
-	});
+	it("accepts procedure defaults, rejects invalid input, and permits only one concurrent writer", async () =>
+		withPersonalToolsPolicy(
+			{
+				coverLetters: { disposition: "enabled", releaseApproved: true },
+				applications: { disposition: "enabled", releaseApproved: true },
+			},
+			async () => {
+				const { coverLettersRouter } = await import("./router");
+				const client = createRouterClient(coverLettersRouter, { context: { user: { id: "alice" } } as never });
+				const created = await client.create({ name: "Through procedure" });
+				expect(created).toMatchObject({ recipient: "", content: "", revision: 1 });
+				await expect(client.create({ name: " " })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+				await expect(client.list({ limit: 101 })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+				const results = await Promise.allSettled([
+					client.update({ id: created.id, expectedRevision: 1, content: "First editor" }),
+					client.update({ id: created.id, expectedRevision: 1, content: "Second editor" }),
+				]);
+				expect(results.filter((result) => result.status === "fulfilled")).toHaveLength(1);
+				expect(results.find((result) => result.status === "rejected")).toMatchObject({ reason: { code: "CONFLICT" } });
+			},
+		));
 
-	it("preserves custom and omitted letter framing through saves, copies, JSON and history", async () => {
-		const { coverLettersRouter } = await import("./router");
-		const client = createRouterClient(coverLettersRouter, { context: { user: { id: "alice" } } as never });
-		const created = await client.create({ name: "Custom framing", greeting: "Hallo Dana,", signOff: "Vielen Dank!" });
-		const custom = { greeting: "Hallo Dana,", signOff: "Vielen Dank!" };
-		expect(await client.getById({ id: created.id })).toMatchObject(custom);
-		expect(await client.duplicate({ id: created.id })).toMatchObject(custom);
-		const document = await client.export({ id: created.id });
-		expect(document).toMatchObject(custom);
-		expect(await client.import({ document })).toMatchObject(custom);
-		const named = await client.createVersion({ id: created.id, name: "Custom" });
-		expect((await client.getVersion({ id: created.id, versionId: named.id })).data).toMatchObject(custom);
-		const omitted = await client.update({
-			id: created.id,
-			expectedRevision: created.revision,
-			greeting: "",
-			signOff: "",
-		});
-		expect(await client.getById({ id: created.id })).toMatchObject({ greeting: "", signOff: "" });
-		const reset = await client.update({
-			id: created.id,
-			expectedRevision: omitted.revision,
-			greeting: null,
-			signOff: null,
-		});
-		expect(reset).toMatchObject({ greeting: null, signOff: null });
-		expect(await client.restoreVersion({ id: created.id, versionId: named.id })).toMatchObject(custom);
-		// Existing backups and history have no framing fields: restoring them returns to automatic defaults.
-		const { greeting: _greeting, signOff: _signOff, ...oldDocument } = document;
-		expect(await client.import({ document: oldDocument as typeof document })).toMatchObject({
-			greeting: null,
-			signOff: null,
-		});
-		await getPool().query("UPDATE cover_letter_version SET data = data - 'greeting' - 'signOff' WHERE id=$1", [
-			named.id,
-		]);
-		expect(await client.restoreVersion({ id: created.id, versionId: named.id })).toMatchObject({
-			greeting: null,
-			signOff: null,
-		});
-	});
+	it("preserves custom and omitted letter framing through saves, copies, JSON and history", async () =>
+		withPersonalToolsPolicy(
+			{
+				coverLetters: { disposition: "enabled", releaseApproved: true },
+				applications: { disposition: "enabled", releaseApproved: true },
+			},
+			async () => {
+				const { coverLettersRouter } = await import("./router");
+				const client = createRouterClient(coverLettersRouter, { context: { user: { id: "alice" } } as never });
+				const created = await client.create({
+					name: "Custom framing",
+					greeting: "Hallo Dana,",
+					signOff: "Vielen Dank!",
+				});
+				const custom = { greeting: "Hallo Dana,", signOff: "Vielen Dank!" };
+				expect(await client.getById({ id: created.id })).toMatchObject(custom);
+				expect(await client.duplicate({ id: created.id })).toMatchObject(custom);
+				const document = await client.export({ id: created.id });
+				expect(document).toMatchObject(custom);
+				expect(await client.import({ document })).toMatchObject(custom);
+				const named = await client.createVersion({ id: created.id, name: "Custom" });
+				expect((await client.getVersion({ id: created.id, versionId: named.id })).data).toMatchObject(custom);
+				const omitted = await client.update({
+					id: created.id,
+					expectedRevision: created.revision,
+					greeting: "",
+					signOff: "",
+				});
+				expect(await client.getById({ id: created.id })).toMatchObject({ greeting: "", signOff: "" });
+				const reset = await client.update({
+					id: created.id,
+					expectedRevision: omitted.revision,
+					greeting: null,
+					signOff: null,
+				});
+				expect(reset).toMatchObject({ greeting: null, signOff: null });
+				expect(await client.restoreVersion({ id: created.id, versionId: named.id })).toMatchObject(custom);
+				// Existing backups and history have no framing fields: restoring them returns to automatic defaults.
+				const { greeting: _greeting, signOff: _signOff, ...oldDocument } = document;
+				expect(await client.import({ document: oldDocument as typeof document })).toMatchObject({
+					greeting: null,
+					signOff: null,
+				});
+				await getPool().query("UPDATE cover_letter_version SET data = data - 'greeting' - 'signOff' WHERE id=$1", [
+					named.id,
+				]);
+				expect(await client.restoreVersion({ id: created.id, versionId: named.id })).toMatchObject({
+					greeting: null,
+					signOff: null,
+				});
+			},
+		));
 
 	it("saves letters a resume still carries as linked letters, once, and leaves the resume without them", async () => {
 		const { adoptEmbeddedLetters } = await import("./embedded");
@@ -397,7 +513,7 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("cover-letter owned
 		await getPool().query("UPDATE resume SET data=$1 WHERE id='alice-resume'", [changed]);
 		expect((await service.getById({ userId: "alice", id: created.id })).style).toMatchObject({
 			basics: { name: "New sender" },
-			metadata: { template: "gengar", page: { locale: "de-DE" } },
+			metadata: { template: "gengar", page: { locale: created.style.metadata.page.locale } },
 		});
 
 		const unlinked = await service.update({
@@ -423,11 +539,13 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("cover-letter owned
 		const own = await service.update({ userId: "alice", id: created.id, expectedRevision: 2, template: "ditto" });
 		expect(own).toMatchObject({
 			designLinked: false,
-			style: { metadata: { template: "ditto", page: { locale: "de-DE" } } },
+			style: { metadata: { template: "ditto", page: { locale: created.style.metadata.page.locale } } },
 		});
 		changed.metadata.page.locale = "en-US";
 		await getPool().query("UPDATE resume SET data=$1 WHERE id='alice-resume'", [changed]);
-		expect((await service.getById({ userId: "alice", id: created.id })).style.metadata.page.locale).toBe("de-DE");
+		expect((await service.getById({ userId: "alice", id: created.id })).style.metadata.page.locale).toBe(
+			created.style.metadata.page.locale,
+		);
 
 		await expect(
 			service.update({ userId: "alice", id: created.id, expectedRevision: 3, resumeId: null, senderLinked: true }),
@@ -514,5 +632,13 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("cover-letter owned
 		const copy = await service.duplicate({ userId: "alice", id: created.id });
 		await service.delete({ userId: "alice", id: created.id, expectedRevision: 1 });
 		expect((await service.getById({ userId: "alice", id: copy.id })).content).toBe("<p>Safe</p>");
+	});
+	it("preserves the letter locale while refreshing linked design", async () => {
+		const letter = await service.create({ userId: "alice", name: "Arabic letter", resumeId: "alice-resume" });
+		const style = structuredClone(letter.style);
+		style.metadata.page.locale = "ar-SA";
+		await getPool().query("UPDATE cover_letter SET style=$1 WHERE id=$2", [style, letter.id]);
+		const reopened = await service.getById({ userId: "alice", id: letter.id });
+		expect(reopened.style.metadata.page.locale).toBe("ar-SA");
 	});
 });

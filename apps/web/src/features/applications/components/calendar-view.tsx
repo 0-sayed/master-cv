@@ -17,10 +17,14 @@ import {
 	formatDuration,
 	groupByDay,
 	interviewKindOf,
+	interviewTypeLabel,
 	monthGrid,
 	upcomingInterviews,
 } from "../interviews";
+import { isHttpLink } from "../links";
 import { InterviewDialog } from "./interview-dialog";
+import { useCareerTime, useNow } from "@/features/career/shared";
+import { getInterfaceDateLocale } from "@/libs/locale";
 
 const MAX_CHIPS_PER_DAY = 3;
 
@@ -38,7 +42,7 @@ type ApplicationCalendarProps = {
 
 export function ApplicationCalendar({ applications, allApplications, onOpen }: ApplicationCalendarProps) {
 	const { i18n } = useLingui();
-	const locale = i18n.locale;
+	const locale = getInterfaceDateLocale(i18n.locale);
 	const [month, setMonth] = useState(() => {
 		const now = new Date();
 		return new Date(now.getFullYear(), now.getMonth(), 1);
@@ -84,12 +88,12 @@ export function ApplicationCalendar({ applications, allApplications, onOpen }: A
 	};
 
 	return (
-		<div className="flex min-h-0 flex-1 gap-6 max-lg:flex-col max-lg:overflow-y-auto">
-			<section className="flex min-h-0 flex-1 flex-col gap-3 lg:overflow-y-auto" data-testid="interview-calendar">
+		<div className="flex min-h-0 flex-1 gap-6 max-lg:flex-col">
+			<section className="flex min-h-0 min-w-0 flex-1 flex-col gap-3" data-testid="interview-calendar">
 				<div className="flex flex-wrap items-center gap-x-3 gap-y-2">
 					<div className="flex items-baseline gap-2">
 						<h2 className="text-lg font-semibold capitalize">{monthFormat.format(month)}</h2>
-						<span className="text-sm text-ink-3">
+						<span className="type-body text-ink-3">
 							{monthCount === 0 ? (
 								<Trans>No interviews</Trans>
 							) : monthCount === 1 ? (
@@ -173,7 +177,7 @@ export function ApplicationCalendar({ applications, allApplications, onOpen }: A
 										</button>
 										<span
 											className={cn(
-												"flex size-6 items-center justify-center rounded-full text-xs",
+												"flex size-6 items-center justify-center rounded-full type-metadata",
 												!inMonth && "text-ink-3",
 												isToday && "bg-accent font-semibold text-on-accent",
 											)}
@@ -202,7 +206,7 @@ export function ApplicationCalendar({ applications, allApplications, onOpen }: A
 												<Trans>+{extra} more</Trans>
 											</PopoverTrigger>
 											<PopoverContent align="start" className="flex w-60 flex-col gap-1 p-2">
-												<p className="px-1 pb-1 text-xs font-medium">{dayHeading(day)}</p>
+												<p className="px-1 pb-1 type-metadata font-medium">{dayHeading(day)}</p>
 												{items.map((item) => (
 													<InterviewChip
 														key={item.interview.id}
@@ -220,18 +224,18 @@ export function ApplicationCalendar({ applications, allApplications, onOpen }: A
 					</div>
 				</div>
 
-				<div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-3">
+				<div className="flex flex-wrap items-center gap-x-4 gap-y-1 type-metadata text-ink-3">
 					{INTERVIEW_KINDS.map((kind) => (
 						<span key={kind.value} className="flex items-center gap-1.5">
 							<span className="size-2 rounded-full" style={{ background: kind.color }} />
-							{kind.label}
+							{interviewTypeLabel(kind.value)}
 						</span>
 					))}
 				</div>
 			</section>
 
-			<aside className="flex shrink-0 flex-col gap-4 lg:w-80 lg:overflow-y-auto">
-				<h3 className="text-sm font-semibold">
+			<aside className="flex shrink-0 flex-col gap-4 lg:w-80">
+				<h3 className="type-body font-semibold">
 					<Trans>Upcoming interviews</Trans>
 				</h3>
 
@@ -256,13 +260,13 @@ export function ApplicationCalendar({ applications, allApplications, onOpen }: A
 						if (!first) return null;
 						return (
 							<div key={dayKey(first.start)} className="flex flex-col gap-2">
-								<h4 className="text-xs font-medium text-ink-3">{dayHeading(first.start)}</h4>
+								<h4 className="type-metadata font-medium text-ink-3">{dayHeading(first.start)}</h4>
 								{group.map((item) => (
 									<UpcomingCard
 										key={item.interview.id}
 										item={item}
 										timeRange={`${timeFormat.format(item.start)} – ${timeFormat.format(item.end)}`}
-										locale={locale}
+										locale={i18n.locale}
 										onEdit={() => edit(item)}
 										onOpenApplication={() => onOpen(item.application)}
 									/>
@@ -295,32 +299,65 @@ type UpcomingCardProps = {
 
 function UpcomingCard({ item, timeRange, locale, onEdit, onOpenApplication }: UpcomingCardProps) {
 	const kind = interviewKindOf(item.interview.kind);
+	const { relative } = useCareerTime();
+	const now = useNow();
+	const location = item.interview.location;
+	const joinUrl = isHttpLink(location) ? location : null;
+	const phone = /^\+?[\d\s()-]{5,}$/.test(location);
 	return (
-		<div
+		<article
 			data-upcoming-interview={item.interview.id}
-			className="relative overflow-hidden rounded-xl border border-line bg-surface ps-4 text-sm"
+			className="grid gap-3 rounded-xl border border-line bg-surface p-4 transition-colors focus-within:border-accent hover:border-line-2"
 		>
-			<span className="absolute inset-y-0 start-0 w-1" style={{ background: kind?.color }} />
-			<button type="button" className="block w-full py-3 pe-3 text-start hover:opacity-80" onClick={onEdit}>
-				<span className="flex items-center justify-between gap-2 text-xs">
-					<span className="font-medium">{timeRange}</span>
-					<span className="text-ink-3">{formatDuration(item.interview.durationMinutes, locale)}</span>
-				</span>
-				<span className="mt-1 block truncate font-semibold">{item.application.company}</span>
-				<span className="block truncate text-xs text-ink-3">
-					{kind?.label ?? item.interview.kind} · {item.application.role}
-				</span>
-				{item.interview.location && (
-					<span className="mt-1.5 flex items-center gap-1 text-xs text-ink-3">
-						<Icon name="map-pin" size={16} className="shrink-0" />
-						<span className="truncate">{item.interview.location}</span>
+			<button type="button" className="grid gap-3 text-start" onClick={onEdit}>
+				<span className="grid gap-1">
+					<span dir="auto" className="type-section tabular-nums">
+						{timeRange}
 					</span>
-				)}
+					<span className="type-metadata text-ink-2">
+						{relative(item.start, now)} · {formatDuration(item.interview.durationMinutes, locale)}
+					</span>
+				</span>
+				<span className="grid min-w-0 gap-1">
+					<span dir="auto" className="type-body font-semibold wrap-anywhere">
+						{item.application.company}
+					</span>
+					<span dir="auto" className="type-body wrap-anywhere text-ink-2">
+						{item.application.role}
+					</span>
+				</span>
+				<span className="flex items-center gap-2 type-metadata text-ink-2">
+					<span aria-hidden="true" className="size-2 rounded-full" style={{ background: kind?.color }} />
+					{interviewTypeLabel(item.interview.kind)}
+				</span>
 			</button>
-			<button type="button" className="mb-2 text-xs text-accent-text hover:underline" onClick={onOpenApplication}>
+			{location && (
+				<div className="flex min-w-0 items-center gap-2 type-metadata text-ink-2">
+					<Icon name={joinUrl ? "link-simple-horizontal" : phone ? "phone" : "map-pin"} className="shrink-0" />
+					<span dir="auto" className="min-w-0 flex-1 wrap-anywhere">
+						{location}
+					</span>
+					{joinUrl && (
+						<Button
+							size="sm"
+							variant="secondary"
+							nativeButton={false}
+							role="link"
+							render={<a href={joinUrl} target="_blank" rel="noopener noreferrer" />}
+						>
+							<Trans>Join</Trans>
+						</Button>
+					)}
+				</div>
+			)}
+			<button
+				type="button"
+				className="justify-self-start rounded-sm type-metadata text-accent-text underline-offset-4 hover:underline focus-visible:underline"
+				onClick={onOpenApplication}
+			>
 				<Trans>View application</Trans>
 			</button>
-		</div>
+		</article>
 	);
 }
 
@@ -335,9 +372,9 @@ function InterviewChip({ item, time, onOpen }: InterviewChipProps) {
 	return (
 		<button
 			type="button"
-			title={`${time} · ${kind?.label ?? item.interview.kind} · ${item.application.company} — ${item.application.role}`}
-			className="flex min-w-0 items-center gap-1.5 rounded-md border-s-2 bg-sunken/60 px-1.5 py-0.5 text-start text-[11px] leading-tight transition-colors hover:bg-sunken max-sm:justify-center max-sm:border-s-0 max-sm:bg-transparent"
-			style={{ borderInlineStartColor: kind?.color }}
+			title={`${time} · ${interviewTypeLabel(item.interview.kind)} · ${item.application.company} — ${item.application.role}`}
+			className="flex min-w-0 items-center gap-1.5 rounded-md bg-sunken/60 px-1.5 py-0.5 text-start text-[11px] leading-tight transition-colors hover:bg-sunken max-sm:justify-center max-sm:bg-transparent"
+
 			onClick={onOpen}
 		>
 			<span className="size-2 shrink-0 rounded-full sm:hidden" style={{ background: kind?.color }} />

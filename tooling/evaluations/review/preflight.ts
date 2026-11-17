@@ -6,6 +6,7 @@ import { executeApprovedStep, withAiRuntime, completionTokenLimit } from "./prod
 import { required } from "./required";
 import { routeFor, verifierModelFor } from "./runner";
 import { benchmarkInput, benchmarkVerifierSpec } from "./verifier";
+import { VERIFIER_WHITESPACE_STOPS } from "./verifier-protocol";
 
 type Schema = {
 	type?: string | string[];
@@ -105,6 +106,7 @@ export async function preflightRequests(models: ModelConfig[], cases: ExecutionC
 						fetch: (_url, init) => {
 							try {
 								const body = JSON.parse(String(init?.body));
+								if (spec.role === "verifier" && c.kind === "task") body.stop = VERIFIER_WHITESPACE_STOPS;
 								const vertex =
 									route.model.startsWith("google/gemini-") && route.downstreamProvider.startsWith("google-vertex");
 								if (

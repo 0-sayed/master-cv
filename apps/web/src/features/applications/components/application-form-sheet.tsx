@@ -6,8 +6,10 @@ import { Trans } from "@lingui/react/macro";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useId, useState } from "react";
 import { STAGES } from "@reactive-resume/schema/applications/data";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@reactive-resume/ui/components/accordion";
 import { Button } from "@reactive-resume/ui/components/button";
+import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
@@ -21,15 +23,19 @@ import {
 } from "@reactive-resume/ui/components/sheet";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
+import { isHttpLink } from "../links";
 import { applicationsListQueryKey } from "../queries";
+import { getStageLabel } from "../stages";
 import { FileAttachmentField } from "./file-attachment-field";
+import { ResumeVersionSelect } from "./resume-version-select";
 import { Combobox } from "@/components/ui/combobox";
 import { useClosingValue } from "@/hooks/use-closing-value";
 import { isImeComposing } from "@/libs/keyboard";
 import { orpc } from "@/libs/orpc/client";
 
 // Preset source suggestions surfaced via a <datalist>; the field itself stays free-text.
-const SOURCE_OPTIONS = ["LinkedIn", "Indeed", "Company Website", "Referral", "Recruiter", "Other"];
+const sourceOptions = () => [t`LinkedIn`, t`Indeed`, t`Company website`, t`Referral`, t`Recruiter`, t`Other`];
 // Mirrors the server-side cap on `applications.ai.autofill`.
 const MAX_JOB_DESCRIPTION_CHARS = 20_000;
 // ponytail: a paste shorter than this is a snippet, not a posting — don't burn an AI call on it.
@@ -44,6 +50,7 @@ const emptyForm = () => ({
 	source: "",
 	status: "saved" as ApplicationStatus,
 	resumeId: "",
+	selectedResumeVersionId: "",
 	tags: [] as string[],
 	sourceUrl: "",
 	stageEnteredAt: todayInputValue(),
@@ -69,6 +76,7 @@ function toForm(app: Application): FormState {
 		source: app.source ?? "",
 		status: app.status,
 		resumeId: app.resumeId ?? "",
+		selectedResumeVersionId: app.selectedResumeVersionId ?? "",
 		tags: app.tags,
 		sourceUrl: app.sourceUrl ?? "",
 		stageEnteredAt: "",
@@ -90,6 +98,7 @@ function toPayload(form: FormState) {
 		salary: form.salary.trim() || null,
 		source: form.source.trim() || null,
 		resumeId: form.resumeId || null,
+		selectedResumeVersionId: form.selectedResumeVersionId || null,
 		tags: form.tags,
 		sourceUrl: form.sourceUrl.trim() || null,
 		jobDescription: form.jobDescription.trim() || null,
@@ -147,7 +156,7 @@ function JobDescriptionAutofill({ value, onChange, onFill }: JobDescriptionAutof
 					</span>
 				</AccordionTrigger>
 				<AccordionContent className="flex flex-col gap-2">
-					<p className="text-xs text-ink-3">
+					<p className="type-metadata text-ink-3">
 						<Trans>
 							Copy the entire job description from the posting and paste it below. We'll fill in the fields for you and
 							keep the text with this application for match scoring and tailoring.
@@ -165,7 +174,7 @@ function JobDescriptionAutofill({ value, onChange, onFill }: JobDescriptionAutof
 						onPaste={(event) => runAutofill(event.clipboardData.getData("text"))}
 					/>
 					<div className="flex items-center justify-between gap-2">
-						<p className="text-[11px] text-ink-3">
+						<p className="type-metadata text-ink-3">
 							{autofill.isPending ? (
 								<Trans>Reading the posting…</Trans>
 							) : (
@@ -197,18 +206,25 @@ type Props = {
 };
 
 export function ApplicationFormSheet({ open, onOpenChange, application: requested }: Props) {
+	const formId = useId();
 	const queryClient = useQueryClient();
 	// Closing keeps the application (title and fields) on screen until the sheet has slid away.
 	const [application, onApplicationOpenChangeComplete] = useClosingValue(requested ?? null);
 	const isEditing = !!application;
 
 	const [form, setForm] = useState<FormState>(() => (application ? toForm(application) : emptyForm()));
+	const [baseRevision, setBaseRevision] = useState(() =>
+		application ? new Date(application.updatedAt).toISOString() : null,
+	);
 
 	// Re-sync the form when the sheet's target changes (a different app, or create ↔ edit).
 	const [syncedId, setSyncedId] = useState(application?.id ?? null);
-	if ((application?.id ?? null) !== syncedId) {
+	const [wasOpen, setWasOpen] = useState(open);
+	if (open !== wasOpen) setWasOpen(open);
+	if ((application?.id ?? null) !== syncedId || (open && !wasOpen)) {
 		setSyncedId(application?.id ?? null);
 		setForm(application ? toForm(application) : emptyForm());
+		setBaseRevision(application ? new Date(application.updatedAt).toISOString() : null);
 	}
 
 	const { data: resumes } = useQuery(orpc.resume.list.queryOptions());
@@ -217,8 +233,13 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 	const { data: allTags } = useQuery(orpc.applications.tags.queryOptions());
 
 	// Same gate as the rest of the AI surfaces: at least one enabled provider that tested green.
-	const { data: providers } = useQuery(orpc.aiProviders.list.queryOptions());
-	const aiEnabled = providers?.some((provider) => provider.enabled && provider.testStatus === "success") ?? false;
+	const { data: providers } = useQuery({
+		...orpc.aiProviders.list.queryOptions(),
+		enabled: isFeatureAvailable("byok"),
+	});
+	const aiEnabled =
+		isFeatureAvailable("byok") &&
+		(providers?.some((provider) => provider.enabled && provider.testStatus === "success") ?? false);
 
 	const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
 		setForm((prev) => ({ ...prev, [key]: value }));
@@ -257,11 +278,17 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 	);
 
 	const pending = create.isPending || update.isPending;
+	const validation = useSubmitValidation({
+		[`${formId}-company`]: !form.company.trim() ? t`Enter a company name.` : undefined,
+		[`${formId}-role`]: !form.role.trim() ? t`Enter a job title.` : undefined,
+		[`${formId}-sourceUrl`]:
+			form.sourceUrl.trim() && !isHttpLink(form.sourceUrl) ? t`Enter a valid HTTP or HTTPS link.` : undefined,
+	});
 
 	const submit = () => {
-		if (!form.company.trim() || !form.role.trim()) return;
+		if (!validation.validate() || pending) return;
 		const payload = toPayload(form);
-		if (application) update.mutate({ id: application.id, ...payload });
+		if (application && baseRevision) update.mutate({ expectedUpdatedAt: baseRevision, id: application.id, ...payload });
 		else create.mutate({ ...payload, stageEnteredAt: form.stageEnteredAt || undefined });
 	};
 
@@ -323,11 +350,29 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 						/>
 					)}
 
-					<Field label={t`Company`} required>
-						{(id) => <Input id={id} value={form.company} onChange={(event) => set("company", event.target.value)} />}
+					<Field label={t`Company`} id={`${formId}-company`} error={validation.errors[`${formId}-company`]} required>
+						{(id) => (
+							<Input
+								id={id}
+								aria-required
+								aria-invalid={Boolean(validation.errors[id])}
+								aria-describedby={validation.errors[id] ? `${id}-error` : undefined}
+								value={form.company}
+								onChange={(event) => set("company", event.target.value)}
+							/>
+						)}
 					</Field>
-					<Field label={t`Role / title`} required>
-						{(id) => <Input id={id} value={form.role} onChange={(event) => set("role", event.target.value)} />}
+					<Field label={t`Role / title`} id={`${formId}-role`} error={validation.errors[`${formId}-role`]} required>
+						{(id) => (
+							<Input
+								id={id}
+								aria-required
+								aria-invalid={Boolean(validation.errors[id])}
+								aria-describedby={validation.errors[id] ? `${id}-error` : undefined}
+								value={form.role}
+								onChange={(event) => set("role", event.target.value)}
+							/>
+						)}
 					</Field>
 
 					<div className="grid grid-cols-2 gap-3">
@@ -366,7 +411,7 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 										onChange={(event) => set("source", event.target.value)}
 									/>
 									<datalist id="application-sources">
-										{SOURCE_OPTIONS.map((option) => (
+										{sourceOptions().map((option) => (
 											<option key={option} value={option} />
 										))}
 									</datalist>
@@ -379,18 +424,24 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 									id={id}
 									className="w-full"
 									value={form.status}
-									options={STAGES.map((s) => ({ value: s.value, label: s.label }))}
+									options={STAGES.map((s) => ({ value: s.value, label: getStageLabel(s.value) }))}
 									onValueChange={(value) => value && set("status", value)}
 								/>
 							)}
 						</Field>
 					</div>
 
-					<Field label={t`Job posting link`}>
+					<Field
+						id={`${formId}-sourceUrl`}
+						error={validation.errors[`${formId}-sourceUrl`]}
+						label={t`Job posting link`}
+					>
 						{(id) => (
 							<Input
 								id={id}
 								type="url"
+								aria-invalid={!!validation.errors[`${formId}-sourceUrl`]}
+								aria-describedby={`${formId}-sourceUrl-error`}
 								value={form.sourceUrl}
 								placeholder="https://…"
 								onChange={(event) => set("sourceUrl", event.target.value)}
@@ -423,14 +474,22 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 									placeholder={t`Link a Master CV (recommended)`}
 									showClear
 									emptyMessage={t`No resumes yet.`}
-									onValueChange={(value) => set("resumeId", value ?? "")}
+									onValueChange={(value) =>
+										setForm((current) => ({ ...current, resumeId: value ?? "", selectedResumeVersionId: "" }))
+									}
+								/>
+								<ResumeVersionSelect
+									resumeId={form.resumeId || null}
+									value={form.selectedResumeVersionId || null}
+									onChange={(value) => set("selectedResumeVersionId", value ?? "")}
+									disabled={Boolean(application?.sentResumeVersionId || application?.sentResumeRecordedAt)}
 								/>
 								<FileAttachmentField
 									value={form.resumeFile}
 									attachLabel={t`Or upload a resume PDF`}
 									onChange={(value) => set("resumeFile", value)}
 								/>
-								<p className="text-[11px] text-ink-3">
+								<p className="type-metadata text-ink-3">
 									<Trans>Link a Master CV to use AI match scoring and tailoring.</Trans>
 								</p>
 							</div>
@@ -493,7 +552,7 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 					<Button type="button" variant="secondary" disabled={pending} onClick={() => onOpenChange(false)}>
 						<Trans>Cancel</Trans>
 					</Button>
-					<Button type="button" disabled={!form.company.trim() || !form.role.trim() || pending} onClick={submit}>
+					<Button type="button" loading={pending} disabled={pending} onClick={submit}>
 						{isEditing ? <Trans>Save changes</Trans> : <Trans>Add to pipeline</Trans>}
 					</Button>
 				</SheetFooter>
@@ -504,20 +563,24 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 
 type FieldProps = {
 	label: string;
+	id?: string;
+	error?: string | undefined;
 	required?: boolean;
 	// Render prop: receives the id to put on the labelled control.
 	children: (id: string) => React.ReactNode;
 };
 
-function Field({ label, required, children }: FieldProps) {
-	const id = useId();
+function Field({ label, required, children, id: suppliedId, error }: FieldProps) {
+	const generatedId = useId();
+	const id = suppliedId ?? generatedId;
 	return (
 		<div className="grid gap-1.5">
-			<Label htmlFor={id} className="text-xs text-ink-3">
+			<Label htmlFor={id} className="type-metadata text-ink-3">
 				{label}
 				{required && <span className="text-danger-text"> *</span>}
 			</Label>
 			{children(id)}
+			<FieldError id={`${id}-error`}>{error}</FieldError>
 		</div>
 	);
 }
@@ -570,7 +633,7 @@ function TagsField({ id, value, suggestions, onChange }: TagsFieldProps) {
 					{value.map((tag) => (
 						<span
 							key={tag}
-							className="inline-flex items-center gap-1 rounded-full bg-sunken px-2 py-0.5 text-xs text-ink-3"
+							className="inline-flex items-center gap-1 rounded-full bg-sunken px-2 py-0.5 type-metadata text-ink-3"
 						>
 							{tag}
 							<button

@@ -19,6 +19,7 @@ import {
 	translationPlaceholders,
 	translationStructureMatches,
 } from "@reactive-resume/resume/translation";
+import { letterGenerationInputSchema } from "@reactive-resume/schema/cover-letter/review";
 import { reviewTargetSchema } from "@reactive-resume/schema/resume/ai-review";
 import { readJobRevision } from "../career/job-targets";
 import { lockDocumentOwner } from "../documents/ownership";
@@ -29,7 +30,7 @@ import { variantOperationContracts } from "./variant-contracts";
 function conflict(): never {
 	throw new ORPCError("CONFLICT", { data: { reason: "AI_SOURCE_CHANGED" } });
 }
-export async function loadVariantSnapshot(
+async function loadSourceSnapshot(
 	tx: OwnerTransaction,
 	ownerId: string,
 	request: Pick<OperationRequest, "kind" | "parameters" | "sources">,
@@ -179,6 +180,29 @@ export async function loadVariantSnapshot(
 	)
 		conflict();
 	return snapshot;
+}
+
+export const loadVariantSnapshot = loadSourceSnapshot;
+
+export function loadConfirmedCvContext(
+	tx: OwnerTransaction,
+	ownerId: string,
+	request: Pick<OperationRequest, "kind" | "parameters" | "sources">,
+): Promise<Pick<VariantSnapshot, "cv" | "jobAd" | "resumeId" | "sourceRevision">> {
+	if (request.kind !== "review.cover-letter") return loadSourceSnapshot(tx, ownerId, request);
+	const parameters = letterGenerationInputSchema.parse(request.parameters);
+	// Reuse the exact T007 evidence and selection rules without creating a variant or an operation.
+	return loadSourceSnapshot(tx, ownerId, {
+		kind: "review.job-evidence",
+		parameters: {
+			resumeId: parameters.resumeId,
+			expectedUpdatedAt: parameters.expectedUpdatedAt,
+			jobId: parameters.jobId,
+			jobRevision: parameters.jobRevision,
+			expectedSelectionRevision: parameters.expectedSelectionRevision,
+		},
+		sources: request.sources.filter((source) => source.kind !== "cover-letter"),
+	});
 }
 
 export function prepareVariantReview(ownerId: string, input: { kind: VariantOperationKind } & Record<string, unknown>) {

@@ -5,10 +5,9 @@ import { Plural, Trans } from "@lingui/react/macro";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { buttonVariants } from "@reactive-resume/ui/components/button";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { cn } from "@reactive-resume/utils/style";
 import { useEditorStore, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP } from "./store";
@@ -102,20 +101,9 @@ export function BackLink() {
 	const label = t`Back to documents`;
 
 	return (
-		<Tooltip>
-			<TooltipTrigger
-				render={
-					<Link
-						to="/dashboard"
-						aria-label={label}
-						className={buttonVariants({ variant: "ghost", size: "icon", className: "text-ink-2" })}
-					/>
-				}
-			>
-				<Icon name="arrow-left" />
-			</TooltipTrigger>
-			<TooltipContent side="bottom">{label}</TooltipContent>
-		</Tooltip>
+		<BackNavigation iconOnly render={<Link to="/dashboard" />}>
+			{label}
+		</BackNavigation>
 	);
 }
 

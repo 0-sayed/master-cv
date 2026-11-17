@@ -1,12 +1,8 @@
 import type { Application } from "./types";
 import type { ApplicationStatus, Contact, PostingSource } from "@reactive-resume/schema/applications/data";
-import {
-	applicationStatusSchema,
-	contactSchema,
-	INTERVIEW_KINDS,
-	postingSourceSchema,
-	STAGES,
-} from "@reactive-resume/schema/applications/data";
+import { applicationStatusSchema, contactSchema, postingSourceSchema } from "@reactive-resume/schema/applications/data";
+import { interviewTypeLabel } from "./interviews";
+import { getStageLabel } from "./stages";
 
 // Minimal RFC-4180-ish CSV parser: handles quoted fields, escaped quotes (""), commas and
 // newlines inside quotes, and \r\n. Enough for spreadsheet exports; not a full streaming parser.
@@ -341,11 +337,11 @@ export function exportApplicationsCsv(applications: readonly Application[]): str
 		"Updated At",
 	];
 	const dateOnly = (date: Date) => new Date(date).toISOString().slice(0, 10);
-	const stageLabel = (stage: ApplicationStatus) => STAGES.find((item) => item.value === stage)?.label ?? stage;
+	const stageLabel = (stage: ApplicationStatus) => getStageLabel(stage);
 	const timelineText = (entry: Application["activity"][number]) => {
 		if (entry.type === "stage") return stageLabel(entry.stage);
 		if (entry.type === "note") return entry.text;
-		const kind = INTERVIEW_KINDS.find((item) => item.value === entry.kind)?.label ?? entry.kind;
+		const kind = interviewTypeLabel(entry.kind);
 		return `${kind} interview (${new Date(entry.at).toISOString()})`;
 	};
 	const rows = applications.map((application) => {

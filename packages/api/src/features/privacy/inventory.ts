@@ -224,6 +224,8 @@ export const personalDataInventory = {
 			"resumeId",
 			"coverLetterId",
 			"sentResumeVersionId",
+			"selectedResumeVersionId",
+			"sentResumeRecordedAt",
 			"sentCheckScore",
 			"sentCoverLetterVersionId",
 			"source",
@@ -656,6 +658,12 @@ export const personalDataInventory = {
 			"updatedAt",
 		],
 		excludedColumns: [],
+	},
+	cover_letter_proposal_decision: {
+		table: "coverLetterProposalDecision",
+		owner: "userId",
+		exportColumns: ["operationId", "userId", "letterId", "baseRevision", "decision", "versionId", "createdAt"],
+		excludedColumns: ["requestKey"],
 	},
 	cover_letter_version: {
 		table: "coverLetterVersion",

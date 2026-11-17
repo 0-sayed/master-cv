@@ -32,6 +32,7 @@ const modelSchema = z
 			)
 			.min(1)
 			.optional(),
+		fullHoldoutOnly: z.boolean().optional(),
 		sets: z
 			.array(z.enum(["tuning", "holdout"]))
 			.min(1)
@@ -55,7 +56,7 @@ export function variantCases<
 >(
 	model: ModelConfig,
 	cases: readonly T[],
-	phase: "smoke" | "full" = "full",
+	phase?: "smoke" | "full",
 	smokeCategory?: "extraction" | "wording-extraction",
 ): T[] {
 	const eligible = cases.filter(
@@ -63,7 +64,8 @@ export function variantCases<
 			(!model.categories || model.categories.some((category) => category === c.category)) &&
 			(!model.sets || model.sets.includes(c.holdout ? "holdout" : "tuning")),
 	);
-	if (phase === "full") return eligible;
+	if (phase !== "smoke")
+		return phase === "full" && model.fullHoldoutOnly ? eligible.filter((c) => c.holdout) : eligible;
 	const categories =
 		smokeCategory === "wording-extraction"
 			? ["wording", "extraction"]
@@ -200,6 +202,7 @@ export function parseOptions(args: string[]) {
 			categories: { type: "string" },
 			"env-file": { type: "string" },
 			"key-file": { type: "string" },
+			"credential-source": { type: "string" },
 			models: { type: "string" },
 			config: { type: "string" },
 			runs: { type: "string" },
@@ -221,6 +224,10 @@ export function parseOptions(args: string[]) {
 	});
 	if (values["startup-check"] && (values.fake || values["dry-run"] || values.preflight || values["refresh-catalog"]))
 		throw new Error("STARTUP_CHECK_MODE_CONFLICT");
+	if (values["credential-source"] !== undefined && values["credential-source"] !== "process")
+		throw new Error("INVALID_CREDENTIAL_SOURCE");
+	if (values["credential-source"] && (values["key-file"] || values["env-file"]))
+		throw new Error("DUPLICATE_CREDENTIAL_SOURCE");
 	if (values["key-file"] && values["env-file"]) throw new Error("DUPLICATE_CREDENTIAL_SOURCE");
 	if (values.chaos && !values.fake) throw new Error("CHAOS_REQUIRES_FAKE");
 	if (values.variants !== undefined && values.study !== "tasks-v1")
@@ -233,7 +240,7 @@ export function parseOptions(args: string[]) {
 		.int()
 		.min(1)
 		.max(20)
-		.parse(values.runs ?? (values.study === "tasks-v1" ? "2" : "3"));
+		.parse(values.runs ?? "3");
 	if (values.budget && values["budget-usd"]) throw new Error("DUPLICATE_BUDGET");
 	const budgetUsd = z.coerce
 		.number()
@@ -261,6 +268,7 @@ export function parseOptions(args: string[]) {
 		startupCheck: values["startup-check"],
 		categories: values.categories === undefined ? undefined : parseTaskCategories(values.categories),
 		smokeCategory: z.enum(["extraction", "wording-extraction"]).optional().parse(values["smoke-category"]),
+		credentialSource: values["credential-source"],
 		envFile: values["env-file"],
 		keyFile: values["key-file"],
 		selected: values.models?.split(","),

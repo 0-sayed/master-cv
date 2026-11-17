@@ -33,3 +33,13 @@ it("preserves the operation consent/budget binding and switches the pinned provi
 		maxCallCostMicros: 1234,
 	});
 });
+
+it.each([0, -1, 16385, 1.5])("rejects an invalid independent verifier output allowance: %s", (maxOutputTokens) => {
+	expect(() =>
+		resolveReviewVerifierRoute({
+			...syntheticRoute,
+			model: "openai/gpt-6-luna",
+			verifier: { evidenceVersion: "synthetic", maxCallCostMicros: 1234, maxOutputTokens },
+		}),
+	).toThrow("AI_INVALID_OUTPUT_LIMIT");
+});

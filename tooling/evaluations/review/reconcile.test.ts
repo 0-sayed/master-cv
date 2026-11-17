@@ -37,7 +37,7 @@ it("requires exact journal binding and actual payer evidence", () => {
 	expect(() => validateSettlement(receipt, "c".repeat(64), ["session"])).toThrow("RECONCILIATION_JOURNAL_MISMATCH");
 	expect(() => validateSettlement(receipt, "a".repeat(64), ["other"])).toThrow("RECONCILIATION_UNKNOWN_SESSION");
 	expect(settlementCharges(validateSettlement(receipt, "a".repeat(64), ["session"]))).toEqual({
-		openRouterMicros: 3,
+		openRouterMicros: 2,
 		openaiMicros: 3,
 	});
 });

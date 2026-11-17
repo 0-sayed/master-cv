@@ -1,3 +1,4 @@
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { ApiKeysSection } from "./api-keys";
 import { ConnectedAppsSection } from "./connected-apps";
 import { McpSection } from "./mcp";
@@ -6,6 +7,7 @@ import { WebAccessSection } from "./web-access";
 
 /** Providers and API keys together: both connect outside tools. */
 export function AiDeveloperSettings() {
+	if (!isFeatureAvailable("byok")) return null;
 	return (
 		<>
 			<ProvidersSection />

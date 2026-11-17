@@ -8,7 +8,7 @@ export default defineConfig({
 	...base,
 	testDir: resolve(process.cwd(), "tests/e2e/specs"),
 	testIgnore: [],
-	testMatch: "**/reviewable-ai*.spec.ts",
+	testMatch: ["**/reviewable-ai*.spec.ts", "**/cover-letter-review.spec.ts"],
 	webServer: servers.map((server, index) =>
 		index === 1 && server
 			? {

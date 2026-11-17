@@ -17,6 +17,9 @@ export class ProviderCooldown {
 			this.outages.set(key, { bursts, since: prior?.since ?? Date.now(), until: Date.now() + delay });
 		}
 	}
+	unrecovered(model: ModelConfig) {
+		return this.outages.has(this.key(model));
+	}
 	blocked(model: ModelConfig) {
 		return this.delay([model]) > 0;
 	}

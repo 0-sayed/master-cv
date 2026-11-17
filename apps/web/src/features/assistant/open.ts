@@ -1,3 +1,4 @@
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { useEditorStore } from "@/features/resume/editor/store";
 
 /**
@@ -6,6 +7,7 @@ import { useEditorStore } from "@/features/resume/editor/store";
  */
 export function openAssistantFrom(search: { assistant?: string | undefined; ask?: string | undefined }) {
 	if (!search.assistant && !search.ask) return false;
+	if (!isFeatureAvailable("assistant")) return true;
 	const editor = useEditorStore.getState();
 	const prepare = search.assistant === "prepare";
 	editor.setAssistantOpen(true);

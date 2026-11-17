@@ -12,7 +12,7 @@ it("retains default six categories and rejects ambiguous or incompatible scopes"
 });
 it("uses the complete recorded controls for an explicit full category scope", () => {
 	const all = recordedControls(undefined, "tasks-v1");
-	expect(all).toMatchObject({ checked: 1056, pass: true, failures: [] });
+	expect(all).toMatchObject({ checked: 1540, pass: true, failures: [] });
 	expect(recordedControls(undefined, "tasks-v1", [...taskCategories])).toEqual(all);
 	expect(recordedControls(undefined, "tasks-v1", [...taskCategories].reverse())).toEqual(all);
 });

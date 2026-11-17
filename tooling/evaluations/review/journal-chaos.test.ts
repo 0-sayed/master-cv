@@ -1,5 +1,4 @@
 import { expect, it } from "vite-plus/test";
-import { withOpenRouterFee } from "./budget";
 import { loadModels } from "./config";
 import { cases } from "./corpus";
 import { createFaultTransport } from "./faults";
@@ -83,9 +82,7 @@ for (const provider of ["openai", "together", "google-vertex"]) {
 			expect(resumed.calls).toHaveLength(42);
 			const oracle = new Map<string, number>();
 			for (const r of fake.receipts) oracle.set(r.key, (oracle.get(r.key) ?? 0) + r.openRouterMicros);
-			expect(Math.round(resumed.reservedUsd * 1e6)).toBe(
-				[...oracle.values()].reduce((n, c) => n + withOpenRouterFee(c), 0),
-			);
+			expect(Math.round(resumed.reservedUsd * 1e6)).toBe([...oracle.values()].reduce((n, c) => n + c, 0));
 			expect(Math.round(required(resumed.reservedOpenaiUsd) * 1e6)).toBe(
 				fake.receipts.reduce((n, r) => n + r.openaiMicros, 0),
 			);

@@ -49,6 +49,8 @@ export type VerifierTaskContext = {
 };
 
 export type TaskScore = {
+	questions?: { id: string; safe: boolean; languageAccepted: boolean; reason: string }[];
+	retainedQuestionIds?: string[];
 	/** Required by the existing journal's ReviewCaseScore envelope. */
 	caseId: string;
 	structuralFailure: boolean;

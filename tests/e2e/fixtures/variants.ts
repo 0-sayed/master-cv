@@ -6,6 +6,7 @@ import { RPCLink } from "@orpc/client/fetch";
 import { expect } from "@playwright/test";
 import { educationItemSchema, projectItemSchema } from "@reactive-resume/schema/resume/data";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
+import { assertSyntheticSession } from "./isolation";
 import { seedReview } from "./reviewable-ai";
 
 export async function seedVariantReview(page: Page, info: TestInfo, officialTerm = false) {
@@ -48,6 +49,9 @@ export function variantClient(page: Page): RouterClient<typeof router> {
 		new RPCLink({
 			url: new URL("/api/rpc", page.url()).href,
 			fetch: async (request, init) => {
+				const session = await page.request.get("/api/auth/get-session");
+				if (!session.ok()) throw new Error("Cannot establish disposable fixture ownership.");
+				assertSyntheticSession(await session.json());
 				const actual = new Request(request, init);
 				const response = await page.request.fetch(actual.url, {
 					method: actual.method,

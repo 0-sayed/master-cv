@@ -108,7 +108,7 @@ export const documentsService = {
 	/** Every live resume and letter (or everything in Trash), newest edit first. The app filters and sorts them. */
 	purgeExpired,
 
-	list: async (input: { userId: string; trashed: boolean }): Promise<DocumentSummary[]> => {
+	list: async (input: { userId: string; trashed: boolean; includeLetters?: boolean }): Promise<DocumentSummary[]> => {
 		const [resumes, letters] = await Promise.all([
 			db
 				.select({
@@ -166,12 +166,13 @@ export const documentsService = {
 				application: applicationId ? { id: applicationId, company: company ?? "", role: role ?? "" } : null,
 			});
 
-		return [...resumes.map(toSummary("resume")), ...letters.map(toSummary("letter"))].sort(
-			(a, b) => b.updatedAt.getTime() - a.updatedAt.getTime(),
-		);
+		return [
+			...resumes.map(toSummary("resume")),
+			...(input.includeLetters === false ? [] : letters.map(toSummary("letter"))),
+		].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
 	},
 
-	counts: async (input: { userId: string }) => {
+	counts: async (input: { userId: string; includeLetters?: boolean }) => {
 		const [[resumes], [letters], [trashedResumes], [trashedLetters]] = await Promise.all([
 			db
 				.select({ total: count() })
@@ -193,8 +194,8 @@ export const documentsService = {
 
 		return {
 			resume: resumes?.total ?? 0,
-			letter: letters?.total ?? 0,
-			trash: (trashedResumes?.total ?? 0) + (trashedLetters?.total ?? 0),
+			letter: input.includeLetters === false ? 0 : (letters?.total ?? 0),
+			trash: (trashedResumes?.total ?? 0) + (input.includeLetters === false ? 0 : (trashedLetters?.total ?? 0)),
 		};
 	},
 

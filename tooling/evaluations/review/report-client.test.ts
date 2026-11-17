@@ -8,6 +8,28 @@ import { runBenchmark } from "./runner";
 
 afterEach(() => vi.unstubAllGlobals());
 
+it("describes provisional task selection without the legacy Wilson qualification gate", async () => {
+	const artifact = await runBenchmark({
+		models: loadModels().slice(0, 1),
+		cases: cases.filter((c) => c.holdout).slice(0, 1),
+		runs: 1,
+		fake: true,
+		budgetUsd: 10,
+	});
+	artifact.study = {
+		name: "tasks-v1",
+		phase: "full",
+		hash: "synthetic-report-policy",
+		gitCommit: "synthetic",
+		controls: { checked: 0, pass: true, failures: [], knownLimitations: [], honestFalseRejects: [] },
+		calibration: [],
+	};
+	const data = identityMapping(artifact);
+	expect(data.selectionPolicy).toContain("PROVISIONAL");
+	expect(data.selectionPolicy).toContain("writer cost");
+	expect(data.selectionPolicy).toContain("not statistically proven");
+});
+
 it("blocks identity import until every original has two complete blind ratings", async () => {
 	const artifact = await runBenchmark({
 		models: loadModels().slice(0, 1),

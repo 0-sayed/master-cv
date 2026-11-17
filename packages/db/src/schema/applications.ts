@@ -39,11 +39,15 @@ export const application = pg.pgTable.withRLS(
 		// Live link to one of the user's resumes. Kept on resume delete (set null) so the
 		// application history survives.
 		resumeId: pg.text("resume_id").references(() => resume.id, { onDelete: "set null" }),
+		selectedResumeVersionId: pg
+			.text("selected_resume_version_id")
+			.references(() => resumeVersion.id, { onDelete: "set null" }),
 		// The saved cover letter sent with this application.
 		// Typed explicitly: cover_letter references application too, and the cycle would defeat inference.
 		coverLetterId: pg.text("cover_letter_id").references((): AnyPgColumn => coverLetter.id, { onDelete: "set null" }),
 		// The linked resume as it was when the application reached Applied, and its Check score then.
 		sentResumeVersionId: pg.text("sent_resume_version_id").references(() => resumeVersion.id, { onDelete: "set null" }),
+		sentResumeRecordedAt: pg.timestamp("sent_resume_recorded_at", { withTimezone: true }),
 		sentCheckScore: pg.smallint("sent_check_score"),
 		// The linked letter as it was when the application was sent.
 		sentCoverLetterVersionId: pg

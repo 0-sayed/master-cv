@@ -1,3 +1,4 @@
+import { expectDeferredRoute } from "../fixtures/deferred";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
@@ -20,6 +21,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await expect(page.locator("main h1").locator("xpath=ancestor::header").getByRole("button")).toHaveCount(0);
 		await expect(page.locator('[data-slot="page-toolbar"]')).toHaveCount(0);
 		await page.goto(`/dashboard/career/knowledge/facts?locale=${locale}`);
+		if (await expectDeferredRoute(page, "/dashboard/career/knowledge/facts")) return;
 		await expect(
 			page.getByText(locale === "ar-SA" ? "لا توجد حقائق بعد. أضف واحدة أعلاه." : "No facts yet. Add one above.", {
 				exact: true,
@@ -47,6 +49,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			).toBeOK();
 			for (const route of ["/dashboard", "/dashboard/applications", "/dashboard/career/knowledge/facts"]) {
 				await page.goto(`${route}?locale=${locale}`);
+				if (await expectDeferredRoute(page, route)) continue;
 				await expect(page.locator("main input[placeholder]").first()).toBeVisible();
 				await settleScreen(page);
 				const fits = await page.locator("main").evaluate((toolbar) => {

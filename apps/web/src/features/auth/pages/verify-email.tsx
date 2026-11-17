@@ -1,6 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { Link, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { AuthErrorSummary } from "../components/auth-error-summary";
@@ -76,9 +77,9 @@ export function VerifyEmailPage() {
 			<div aria-live="polite" className="type-body text-ink-2">
 				{remaining > 0 && <Trans>Verification email requested. Check your inbox.</Trans>}
 			</div>
-			<Link to="/auth/login" search={{ callbackURL }} className="text-center type-body text-accent-text underline">
+			<BackNavigation render={<Link to="/auth/login" search={{ callbackURL }} />}>
 				{copy("auth.navigation.backToSignIn")}
-			</Link>
+			</BackNavigation>
 			<Link
 				to="/auth/register"
 				search={{ callbackURL }}

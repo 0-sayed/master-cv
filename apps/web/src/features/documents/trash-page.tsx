@@ -4,12 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ActionGroup } from "@reactive-resume/ui/components/action-group";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
-import { buttonVariants } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
+import { DataTable } from "@reactive-resume/ui/components/data-table";
 import { documentCardLayout } from "@reactive-resume/ui/components/document-card-layout";
 import { EmptyState } from "@reactive-resume/ui/components/empty-state";
-import { Icon } from "@reactive-resume/ui/components/icon";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { useBatchActions } from "./document-actions";
 import { DocumentRow } from "./document-card";
@@ -49,10 +49,9 @@ export function TrashPage() {
 		<div className="contents">
 			<PageHeader
 				back={
-					<Link to="/dashboard" className={buttonVariants({ variant: "ghost" })}>
-						<Icon name="arrow-left" />
+					<BackNavigation render={<Link to="/dashboard" />}>
 						<Trans>Back to documents</Trans>
-					</Link>
+					</BackNavigation>
 				}
 				title={<Trans>Trash</Trans>}
 				description={<Trans>Items are deleted permanently after 30 days.</Trans>}
@@ -81,7 +80,7 @@ export function TrashPage() {
 							<Trans context="trash.bulk.empty">Empty trash</Trans>
 						</Button>
 					</ActionGroup>
-					<table className={documentCardLayout.trashTable}>
+					<DataTable className={documentCardLayout.trashTable}>
 						<caption className="sr-only">
 							<Trans>Trash</Trans>
 						</caption>
@@ -132,7 +131,7 @@ export function TrashPage() {
 								/>
 							))}
 						</tbody>
-					</table>
+					</DataTable>
 				</div>
 			)}
 		</div>

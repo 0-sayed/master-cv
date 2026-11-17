@@ -1,11 +1,13 @@
 # T015 — Qualify the paid release
 
 **Task:** T015 · **PR size:** L · **Branch:** `test/t015-paid-release-qualification`
-**Depends on:** T008, T010, T013 · **Priority:** 150
+**Depends on:** T008, T010, T012, T013 · **Priority:** 150
 **Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
 **Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
 
 ## Goal
+
+D43: paid release follows T012 Saudi production deployment after client pilot approval. T010 test-mode completion does not authorize production charging. Existing payment, security and processing gates still apply.
 
 Qualify the paid release after the free beta, paid-grant implementation and retained-tool dispositions.
 Task completion does not authorize charging, deployment or real-data processing.
@@ -18,7 +20,7 @@ Task completion does not authorize charging, deployment or real-data processing.
   S32-S34 may remain unavailable; qualify them only if enabled.
 - Confirm server-owned offer/usage data and truthful AR/EN claims; PDF never becomes a paid entitlement.
 - Reconcile real-data, payment/merchant, recurring-method, policy and hosting gates for the proposed release.
-- Mobile T014 remains independent and off unless separately activated after company/sender approval and A14-A16.
+- T014 precedes beta qualification under D43; mobile activation still requires company/sender approval and A14-A16.
 
 ## Explicit exclusions
 
@@ -100,7 +102,7 @@ Implement this inventory with existing shared components, the appropriate shared
 
 - Company registration, real-data gates, Moyasar written rate card/merchant-method activation,
   approved tax/refund/renewal policies and final owner go/no-go still precede paid activation.
-- T008 withholding is a valid disposition. T014 mobile activation and A14-A16 remain independent.
+- T008 withholding is a valid disposition. T014 precedes T013 under D43; A14-A16 still require their own evidence and approval.
 - A PDF/UI render or synthetic/sandbox result cannot certify a production payment or processing gate.
 
 ## Done definition

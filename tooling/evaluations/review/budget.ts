@@ -30,11 +30,11 @@ export function assertStudyForecast(
 		throw new Error("CALIBRATED_FORECAST_LIMIT");
 }
 
-/** OpenRouter credit purchase fee, included once in OpenRouter spend; never applied to OpenAI upstream billing. */
+/** Conservative reservation buffer only. Provider-reported spend excludes credit purchase fees. */
 export const openRouterFeeMultiplier = 1.055;
 export const withOpenRouterFee = (micros: number) => Math.ceil(micros * openRouterFeeMultiplier);
 
-/** Recorded pair costs include the 5.5% fee once. Scale each variant's mean, then add 25% headroom. */
+/** Recorded pair costs use actual provider charges. Scale each variant mean, then add 25% headroom. */
 export function calibratedExpectedFull(
 	smoke: { model: string; provider: string; reasoning: string; costMicros: number | null }[],
 	planned: { model: string; provider: string; reasoning: string; calls: number }[],

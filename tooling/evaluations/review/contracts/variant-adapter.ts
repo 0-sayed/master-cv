@@ -1,5 +1,6 @@
 import type { TaskCase, TaskContract } from "./types";
 import type { VariantSnapshot } from "@reactive-resume/api/features/ai/variant-types";
+import { isDeepStrictEqual } from "node:util";
 import {
 	variantOperationContracts,
 	buildVariantWriterPayload,
@@ -9,6 +10,7 @@ import {
 	assertVariantVerification,
 	variantVerificationInventory,
 } from "@reactive-resume/api/features/ai/variant-verifier";
+import { productionVerdict } from "./verifier/schema";
 
 function isVariantCategory(category: string): category is VariantSnapshot["category"] {
 	return Object.hasOwn(variantOperationContracts, `review.${category}`);
@@ -49,6 +51,19 @@ export function variantSnapshot(c: TaskCase): VariantSnapshot {
 		...(input.translationAliases ? { translationAliases: input.translationAliases } : {}),
 	};
 }
+export function provenUnchangedTailoring(c: TaskCase, output: unknown): boolean {
+	if (c.category !== "tailoring") return false;
+	try {
+		const snapshot = variantSnapshot(c);
+		validateVariantOutput(snapshot, output);
+		const value = output as { patches: unknown[]; order: unknown; notes: unknown[] };
+		return (
+			value.patches.length === 0 && value.notes.length === 0 && isDeepStrictEqual(value.order, snapshot.variant?.order)
+		);
+	} catch {
+		return false;
+	}
+}
 export function alignVariantContract<O>(historical: TaskContract<TaskCase, O>): TaskContract<TaskCase, O> {
 	if (!isVariantCategory(historical.category)) throw new Error("VARIANT_CATEGORY_REQUIRED");
 	const contract = variantOperationContracts[`review.${historical.category}`];
@@ -63,11 +78,14 @@ export function alignVariantContract<O>(historical: TaskContract<TaskCase, O>): 
 			const previous = historical.score(c, output, verdict);
 			try {
 				validateVariantOutput(variantSnapshot(c), output);
-				if (verdict !== null) assertVariantVerification(variantSnapshot(c), output, verdict);
+				if (verdict !== null && !provenUnchangedTailoring(c, output))
+					assertVariantVerification(variantSnapshot(c), output, productionVerdict(verdict));
+				if (previous.safetyDeterministic.reasons.some((r) => r.startsWith("VERIFIER_MQM"))) return previous;
 				// Job assessment rules supplement the production validator's evidence checks.
 				if (historical.category === "job-evidence") return previous;
 				return { ...previous, safetyDeterministic: { pass: true, reasons: [] }, unsupportedClaims: [], lostFacts: [] };
 			} catch (error) {
+				if (historical.category === "job-evidence" && !previous.safetyDeterministic.pass) return previous;
 				const reason = error instanceof Error ? error.message : "AI_INVALID_RESULT";
 				return { ...previous, safetyDeterministic: { pass: false, reasons: [reason] }, unsupportedClaims: [reason] };
 			}

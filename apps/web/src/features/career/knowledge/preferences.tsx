@@ -19,6 +19,7 @@ import { useCareerTime, useNow } from "../shared";
 import { parseAmount } from "./amount";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { getOrpcErrorMessage } from "@/libs/error-message";
+import { getInterfaceDateLocale } from "@/libs/locale";
 import { D2, EASE } from "@/libs/motion";
 import { client, orpc } from "@/libs/orpc/client";
 
@@ -336,14 +337,14 @@ const currencies = Intl.supportedValuesOf("currency");
 
 /** Minimum base: currency prefix and period suffix are small selects; the amount gets separators on blur. */
 function SalaryField({ id, locale, value, onChange }: SalaryFieldProps) {
-	const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
+	const number = new Intl.NumberFormat(getInterfaceDateLocale(locale), { maximumFractionDigits: 2 });
 	// While focused the raw typing shows; otherwise the formatted amount.
 	const [typing, setTyping] = useState<string | null>(null);
 	const [invalid, setInvalid] = useState(false);
 	const formatted = value.amount === null ? "" : number.format(value.amount);
 
 	const symbol = (currency: string) =>
-		new Intl.NumberFormat(locale, { style: "currency", currency, currencyDisplay: "symbol" })
+		new Intl.NumberFormat(getInterfaceDateLocale(locale), { style: "currency", currency, currencyDisplay: "symbol" })
 			.formatToParts(0)
 			.find((part) => part.type === "currency")?.value ?? currency;
 

@@ -1,3 +1,6 @@
+import { beforeAll } from "vite-plus/test";
+import { i18n } from "@lingui/core";
+beforeAll(() => i18n.loadAndActivate({ locale: "en-US", messages: {} }));
 import type { Application } from "./types";
 import { describe, expect, it } from "vite-plus/test";
 import { exportApplicationsCsv, mapCsvToApplications, parseCsv, selectApplicationsForExport } from "./csv";
@@ -9,6 +12,8 @@ const application: Application = {
 	status: "interview",
 	closedReason: null,
 	coverLetterId: null,
+	selectedResumeVersionId: null,
+	sentResumeRecordedAt: null,
 	sentResumeVersionId: null,
 	sentCoverLetterVersionId: null,
 	sentCheckScore: null,

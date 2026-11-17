@@ -67,7 +67,7 @@ it("sends canaries to verifier only in smoke and never calls a writer", async ()
 		studyHash: "study",
 		options: { ...options, fakeTransport },
 	});
-	expect(roles).toHaveLength(72);
+	expect(roles).toHaveLength(126);
 	expect(new Set(roles)).toEqual(new Set(["verifier"]));
 	expect(() => canaries.assertJudgeCanaries(receipt, { studyHash: "study", models, mode: "fake" })).not.toThrow();
 	expect(receipt).toMatchObject({ recall: 1, honestFalseRejects: 0, mode: "fake" });
@@ -126,7 +126,7 @@ it("blocks full on missed defects, honest gold rejects, faults, missing coverage
 		},
 	});
 	expect(permissive?.verifierRecall).toBe(0);
-	expect(permissive?.recall).toBeGreaterThan(0);
+	expect(permissive?.recall).toBe(0);
 	expect(() => canaries.assertJudgeCanaries(permissive, binding)).toThrow("JUDGE_CANARY_GATE");
 });
 it("reserves the selected payer durably, reuses completed probes on resume and refuses unsettled probes", async () => {
@@ -146,11 +146,13 @@ it("reserves the selected payer durably, reuses completed probes on resume and r
 	};
 	const receipt = await canaries.runJudgeCanaries(input);
 	expect(progress[0]?.results[0]?.outcome).toBe("pending");
-	expect(required(progress[0]).openRouterMicros + required(progress[0]).openaiMicros).toBeGreaterThan(0);
+	expect(required(progress[0]).openRouterMicros + required(progress[0]).openaiMicros).toBe(0);
+	const pending = required(required(progress[0]).results[0]?.pendingReservation);
+	expect(pending.router + pending.openai).toBeGreaterThan(0);
 	expect(required(receipt).openRouterMicros).toBeGreaterThan(0);
 	expect(required(receipt).openaiMicros).toBe(0);
 	await canaries.runJudgeCanaries({ ...input, previous: required(receipt) });
-	expect(sends).toBe(72);
+	expect(sends).toBe(126);
 	await expect(canaries.runJudgeCanaries({ ...input, previous: required(progress[0]) })).rejects.toThrow(
 		"CANARY_UNSETTLED",
 	);
@@ -172,10 +174,11 @@ it("runs pinned judges in parallel with serialized immutable checkpoints and dra
 		studyHash: "study",
 		options: {
 			...options,
+			togetherConcurrency: 2,
 			signal: controller.signal,
 			fakeTransport: (async (_u, _i, next, context) => {
-				expect(sent.has(context.key)).toBe(false);
-				sent.add(context.key);
+				expect(sent.has(context.requestKey ?? context.key)).toBe(false);
+				sent.add(context.requestKey ?? context.key);
 				const provider = context.model.provider;
 				const count = (active.get(provider) ?? 0) + 1;
 				active.set(provider, count);
@@ -209,7 +212,7 @@ it("runs pinned judges in parallel with serialized immutable checkpoints and dra
 		previous: required(last),
 	});
 	expect(completed).toBeGreaterThan(0);
-	expect(sent.size).toBe(72);
+	expect(sent.size).toBe(126);
 	expect(receipt?.results).toHaveLength(72);
 });
 
@@ -227,8 +230,8 @@ it("locks the checkpoint before reading it and atomically resumes the saved comp
 	});
 	const sent = new Set<string>();
 	const fakeTransport: FakeTransport = async (_u, _i, next, context) => {
-		expect(sent.has(context.key)).toBe(false);
-		sent.add(context.key);
+		expect(sent.has(context.requestKey ?? context.key)).toBe(false);
+		sent.add(context.requestKey ?? context.key);
 		entered();
 		await blocked;
 		controller.abort();
@@ -254,7 +257,7 @@ it("locks the checkpoint before reading it and atomically resumes the saved comp
 			options: { ...input.options, signal: new AbortController().signal },
 		});
 		expect(receipt?.results).toHaveLength(72);
-		expect(sent.size).toBe(72);
+		expect(sent.size).toBe(126);
 		expect(JSON.parse(await readFile(path, "utf8"))).toEqual(receipt);
 	} finally {
 		release();
@@ -292,4 +295,47 @@ it("slim plan keeps gold plus three priority defects across every category/langu
 		if (c.category === "job-evidence")
 			expect(jobEvidenceSchema.parse(probes[3]?.output).requirements[1]?.verdict).toBe("supported");
 	}
+});
+
+it("stops immediately on insufficient credit and resumes only the settled failed probe", async () => {
+	let sends = 0;
+	let saved: canaries.JudgeCanaryReceipt | undefined;
+	await expect(
+		canaries.runJudgeCanaries({
+			phase: "smoke",
+			studyHash: "credit-recovery",
+			options: {
+				...options,
+				sessionConcurrency: 1,
+				fakeTransport: async (_u, _i, _next) => {
+					sends++;
+					return new Response(JSON.stringify({ error: { message: "Insufficient credits" } }), {
+						status: 402,
+						headers: { "content-type": "application/json" },
+					});
+				},
+			},
+			onProgress: async (r) => {
+				saved = structuredClone(r);
+			},
+		}),
+	).rejects.toThrow("ACCOUNT_ERROR");
+	expect(sends).toBe(1);
+	expect(saved?.results).toHaveLength(1);
+	const complete = await canaries.runJudgeCanaries({
+		phase: "smoke",
+		studyHash: "credit-recovery",
+		previous: required(saved),
+		options: {
+			...options,
+			sessionConcurrency: 1,
+			recoverSystemic: true,
+			fakeTransport: async (_u, _i, next) => {
+				sends++;
+				return next();
+			},
+		},
+	});
+	expect(complete?.results).toHaveLength(72);
+	expect(sends).toBe(127);
 });

@@ -2,7 +2,7 @@ import type { Application } from "@/features/applications/types";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, stripSearchParams, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, stripSearchParams, useNavigate, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import z from "zod";
 import { Button } from "@reactive-resume/ui/components/button";
@@ -15,17 +15,16 @@ import {
 import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@reactive-resume/ui/components/input-group";
+import { Label } from "@reactive-resume/ui/components/label";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Skeleton } from "@reactive-resume/ui/components/skeleton";
 import { SkeletonContent } from "@reactive-resume/ui/components/skeleton-content";
+import { Switch } from "@reactive-resume/ui/components/switch";
 import { Tabs, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
-import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { cn } from "@reactive-resume/utils/style";
 import { PageHeader } from "@/components/layout/page-header";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { AddApplicationDialog } from "@/features/applications/components/add-application-dialog";
-import { ApplicationDetailSheet } from "@/features/applications/components/application-detail-sheet";
-import { ApplicationFormSheet } from "@/features/applications/components/application-form-sheet";
 import { ApplicationBoard } from "@/features/applications/components/board";
 import { ApplicationCalendar } from "@/features/applications/components/calendar-view";
 import { ExportApplicationsSheet } from "@/features/applications/components/export-applications-sheet";
@@ -34,6 +33,7 @@ import { ApplicationInsights, InsightsSkeleton } from "@/features/applications/c
 import { ApplicationList } from "@/features/applications/components/list-view";
 import { getNextStep } from "@/features/applications/next-step";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
+import { isPersonalToolAvailable } from "@/features/personal-tools/availability";
 import { storageKey as registeredStorageKey, browserStorage } from "@/libs/browser-storage";
 import { PAGE_ENTER_CLASS } from "@/libs/motion";
 import { ENTER_CLASS } from "@/libs/motion";
@@ -53,6 +53,16 @@ type Search = z.output<typeof searchSchema>;
 const defaultSearch: Search = { q: "", view: "list", closed: false, create: false };
 
 export const Route = createFileRoute("/dashboard/applications/")({
+	beforeLoad: ({ context, search }) => {
+		if (!isPersonalToolAvailable(context.flags.personalToolsAvailability, "applications"))
+			throw redirect({ to: "/dashboard", replace: true });
+		if (search.applicationId)
+			throw redirect({
+				to: "/dashboard/applications/$applicationId/{-$tab}",
+				params: { applicationId: search.applicationId },
+				replace: true,
+			});
+	},
 	component: RouteComponent,
 	validateSearch: searchSchema,
 	search: { middlewares: [stripSearchParams(defaultSearch)] },
@@ -74,22 +84,21 @@ function matches(application: Application, query: string) {
 }
 
 function RouteComponent() {
-	const { q, view, closed, create, applicationId } = Route.useSearch();
+	const { q, view, closed, create } = Route.useSearch();
 	const navigate = useNavigate({ from: Route.fullPath });
-	const phone = useBreakpoint() === "mobile";
 	// Typing filters at once; the URL only seeds the search.
 	const [query, setQuery] = useState(q);
 	const [adding, setAdding] = useState(false);
 	const [importing, setImporting] = useState(false);
 	const [exporting, setExporting] = useState(false);
-	const [editing, setEditing] = useState<Application | null>(null);
-	const [selectedId, setSelectedId] = useState<string | null>(null);
 	// Views animate in only after a switch, never on the page's first render.
 	const [viewSwitched, setViewSwitched] = useState(false);
 
 	const { data: applications, isPending, isError, isFetching, refetch } = useQuery(applicationsListQueryOptions());
 	const setSearch = (patch: Partial<Search>) =>
 		void navigate({ resetScroll: false, search: (prev: Search) => ({ ...prev, ...patch }) });
+	const openApplication = (id: string) =>
+		void navigate({ to: "/dashboard/applications/$applicationId/{-$tab}", params: { applicationId: id } });
 
 	useEffect(() => {
 		if (!create) return;
@@ -98,22 +107,10 @@ function RouteComponent() {
 		void navigate({ replace: true, resetScroll: false, search: (prev: Search) => ({ ...prev, create: false }) });
 	}, [create, navigate]);
 
-	useEffect(() => {
-		if (!applicationId || !applications) return;
-		// oxlint-disable-next-line react/set-state-in-effect -- takes the one-shot ?applicationId from the address, then clears it
-		setSelectedId(applicationId);
-		void navigate({
-			replace: true,
-			resetScroll: false,
-			search: (prev: Search) => ({ ...prev, applicationId: undefined }),
-		});
-	}, [applicationId, applications, navigate]);
-
 	const text = query.trim().toLowerCase();
 	const filtered = (applications ?? []).filter((application) => matches(application, text));
-	const selected = applications?.find((application) => application.id === selectedId) ?? null;
 	// The board needs room to drag: phones get the list instead.
-	const shown: View = phone && (view === "board" || view === "calendar") ? "list" : view;
+	const shown: View = view;
 	const loading = useSkeletonLoading(isPending);
 	const empty = !loading.pending && !!applications && applications.length === 0;
 	const noMatches = !!applications && !empty && text && filtered.length === 0;
@@ -161,26 +158,22 @@ function RouteComponent() {
 									<Icon name="rows" size={18} />
 									<Trans>List</Trans>
 								</TabsTrigger>
-								{!phone && (
-									<TabsTrigger value="board">
-										<Icon name="kanban" size={18} />
-										<Trans>Board</Trans>
-									</TabsTrigger>
-								)}
+								<TabsTrigger value="board">
+									<Icon name="kanban" size={18} />
+									<Trans>Board</Trans>
+								</TabsTrigger>
 								<TabsTrigger value="insights">
 									<Icon name="chart-line-up" size={18} />
 									<Trans>Insights</Trans>
 								</TabsTrigger>
-								{!phone && (
-									<TabsTrigger value="calendar">
-										<Icon name="calendar-dots" size={18} />
-										<Trans>Calendar</Trans>
-									</TabsTrigger>
-								)}
+								<TabsTrigger value="calendar">
+									<Icon name="calendar-dots" size={18} />
+									<Trans>Calendar</Trans>
+								</TabsTrigger>
 							</TabsList>
 						</Tabs>
 
-						<InputGroup className="max-w-72 min-w-40 flex-1">
+						<InputGroup className="min-w-40 flex-1 max-sm:order-last max-sm:basis-full">
 							<InputGroupAddon>
 								<Icon name="magnifying-glass" size={18} />
 							</InputGroupAddon>
@@ -194,22 +187,16 @@ function RouteComponent() {
 						</InputGroup>
 
 						{shown !== "insights" && (
-							<Button
-								size="toolbar"
-								variant="secondary"
-								aria-pressed={closed}
-								onClick={() => setSearch({ closed: !closed })}
-								className={cn(closed && "bg-sunken")}
-							>
-								<Icon name={closed ? "check-square" : "square"} size={18} />
+							<Label className="flex items-center gap-2 type-body">
+								<Switch checked={closed} onCheckedChange={(closed) => setSearch({ closed })} />
 								<Trans>Show closed</Trans>
-							</Button>
+							</Label>
 						)}
 					</>
 				)}
 			</PageHeader>
 
-			{applications && <FollowUpNudge applications={applications} onOpen={setSelectedId} />}
+			{applications && <FollowUpNudge applications={applications} onOpen={openApplication} />}
 
 			{isError && (
 				<div
@@ -255,16 +242,15 @@ function RouteComponent() {
 								<ApplicationList
 									applications={filtered}
 									showClosed={closed}
-									selectedId={selectedId}
-									onOpen={(application) => setSelectedId(application.id)}
+									onOpen={(application) => openApplication(application.id)}
 								/>
 							)}
 							{shown === "board" && (
-								<div className="h-[calc(100svh-var(--dashboard-workspace-inset))] min-h-96">
+								<div className="min-w-0">
 									<ApplicationBoard
 										applications={filtered}
 										showClosed={closed}
-										onOpen={(application) => setSelectedId(application.id)}
+										onOpen={(application) => openApplication(application.id)}
 									/>
 								</div>
 							)}
@@ -273,7 +259,7 @@ function RouteComponent() {
 								<ApplicationCalendar
 									applications={filtered.filter((application) => closed || application.status !== "closed")}
 									allApplications={applications ?? []}
-									onOpen={(application) => setSelectedId(application.id)}
+									onOpen={(application) => openApplication(application.id)}
 								/>
 							)}
 						</div>
@@ -281,26 +267,13 @@ function RouteComponent() {
 				</>
 			)}
 
-			<AddApplicationDialog open={adding} onOpenChange={setAdding} onAdded={setSelectedId} />
-			<ApplicationFormSheet
-				open={Boolean(editing)}
-				application={editing}
-				onOpenChange={(open) => !open && setEditing(null)}
-			/>
+			<AddApplicationDialog open={adding} onOpenChange={setAdding} onAdded={openApplication} />
 			<ImportApplicationsSheet open={importing} onOpenChange={setImporting} />
 			<ExportApplicationsSheet
 				open={exporting}
 				onOpenChange={setExporting}
 				applications={applications ?? []}
 				filtered={filtered.filter((application) => closed || application.status !== "closed")}
-			/>
-			<ApplicationDetailSheet
-				application={selected}
-				onOpenChange={(open) => !open && setSelectedId(null)}
-				onEditDetails={(application) => {
-					setSelectedId(null);
-					setEditing(application);
-				}}
 			/>
 		</div>
 	);

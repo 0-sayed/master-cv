@@ -6,6 +6,8 @@ import {
 	DragOverlay,
 	defaultDropAnimationSideEffects,
 	PointerSensor,
+	KeyboardSensor,
+	closestCenter,
 	pointerWithin,
 	useDraggable,
 	useDroppable,
@@ -24,6 +26,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@reactive-resume/ui/components/dialog";
+import { Icon } from "@reactive-resume/ui/components/icon";
+import { ScrollArea } from "@reactive-resume/ui/components/scroll-area";
 import { cn } from "@reactive-resume/utils/style";
 import { CLOSED_REASONS, getClosedReasonLabel, getStageColor, getStageLabel, PIPELINE } from "../stages";
 import { useApplicationActions } from "../use-application-actions";
@@ -69,7 +73,10 @@ export function ApplicationBoard({ applications, showClosed, onOpen }: BoardProp
 		pendingMove?.id === application.id ? pendingMove.to : application.status;
 
 	// A small activation distance so a click still opens the detail sheet instead of starting a drag.
-	const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+		useSensor(KeyboardSensor),
+	);
 	const stages: ApplicationStatus[] = showClosed ? [...PIPELINE, "closed"] : [...PIPELINE];
 
 	const byStage = new Map<ApplicationStatus, Application[]>(stages.map((stage) => [stage, []]));
@@ -94,12 +101,30 @@ export function ApplicationBoard({ applications, showClosed, onOpen }: BoardProp
 	};
 
 	return (
-		<DndContext sensors={sensors} collisionDetection={pointerWithin} onDragStart={onDragStart} onDragEnd={onDragEnd}>
-			<div className="flex h-full min-h-0 gap-3 overflow-x-auto pb-4">
+		<DndContext
+			sensors={sensors}
+			collisionDetection={(args) => (args.pointerCoordinates ? pointerWithin(args) : closestCenter(args))}
+			accessibility={{
+				screenReaderInstructions: {
+					draggable: t`Press Space to pick up a card. Use the arrow keys to move it, Space to drop, or Escape to cancel.`,
+				},
+				announcements: {
+					onDragStart: () => t`Moving application.`,
+					onDragOver: ({ over }) => (over ? t`Move to ${getStageLabel(over.id as ApplicationStatus)}` : undefined),
+					onDragEnd: ({ over }) =>
+						over ? t`Moved to ${getStageLabel(over.id as ApplicationStatus)}` : t`Move cancelled.`,
+					onDragCancel: () => t`Move cancelled.`,
+				},
+			}}
+			onDragStart={onDragStart}
+			onDragEnd={onDragEnd}
+			onDragCancel={() => setActiveId(null)}
+		>
+			<ScrollArea orientation="horizontal" className="application-board">
 				{stages.map((stage) => (
 					<Column key={stage} stage={stage} applications={byStage.get(stage) ?? []} onOpen={onOpen} />
 				))}
-			</div>
+			</ScrollArea>
 
 			{/* The overlay settles into the card's new slot (or back where it came from); the drop itself shows at once, see pendingMove. */}
 			<DragOverlay dropAnimation={reduceMotion ? null : { ...DRAG_SETTLE, sideEffects: dropSideEffects }}>
@@ -156,9 +181,10 @@ function Column({ stage, applications, onOpen }: ColumnProps) {
 	return (
 		<section
 			aria-label={getStageLabel(stage)}
+			style={{ "--stage-color": getStageColor(stage) } as React.CSSProperties}
 			className={cn(
-				"flex w-[272px] shrink-0 flex-col rounded-xl border bg-sunken transition-colors duration-quick",
-				isOver ? "border-accent bg-accent-soft" : "border-transparent",
+				"flex application-column min-w-0 flex-col rounded-xl border bg-sunken transition-colors duration-quick",
+				isOver ? "stage-drop-target" : "border-transparent",
 			)}
 		>
 			<h2 className="flex items-center gap-2 px-3 py-2.5 text-sm font-semibold">
@@ -166,7 +192,12 @@ function Column({ stage, applications, onOpen }: ColumnProps) {
 				{getStageLabel(stage)}
 				<span className="font-mono text-xs font-normal text-ink-3">{applications.length}</span>
 			</h2>
-			<div ref={setNodeRef} className="flex min-h-24 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2">
+			<div
+				ref={setNodeRef}
+				data-stage={stage}
+				data-drop-active={isOver}
+				className="flex min-h-24 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2"
+			>
 				{shown.map((application) => (
 					<DraggableCard key={application.id} application={application} onOpen={() => onOpen(application)} />
 				))}
@@ -187,11 +218,31 @@ function Column({ stage, applications, onOpen }: ColumnProps) {
 type DraggableCardProps = { application: Application; onOpen: () => void };
 
 function DraggableCard({ application, onOpen }: DraggableCardProps) {
-	const { setNodeRef, listeners, isDragging } = useDraggable({ id: application.id });
+	const { setNodeRef, setActivatorNodeRef, attributes, listeners, isDragging } = useDraggable({ id: application.id });
 
 	return (
-		<div ref={setNodeRef} {...listeners} className={cn(isDragging && "opacity-40")}>
-			<ApplicationCard application={application} onClick={onOpen} withMenu />
+		<div
+			ref={setNodeRef}
+			onPointerDown={(event) => listeners?.onPointerDown?.(event)}
+			className={cn(isDragging && "opacity-40")}
+		>
+			<ApplicationCard
+				application={application}
+				onClick={onOpen}
+				withMenu
+				dragHandle={
+					<Button
+						size="icon-xs"
+						variant="ghost"
+						ref={setActivatorNodeRef}
+						{...attributes}
+						onKeyDown={(event) => listeners?.onKeyDown?.(event)}
+						aria-label={t`Move ${application.role} at ${application.company}`}
+					>
+						<Icon name="dots-six-vertical" />
+					</Button>
+				}
+			/>
 		</div>
 	);
 }

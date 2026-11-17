@@ -6,6 +6,7 @@ import defaults from "./writer-config.json";
 const selectionSchema = z.strictObject({
 	model: z.enum(["openai/gpt-6-luna", "openai/gpt-6.1-terra", "deepseek/deepseek-v4.1-flash-1017"]),
 	reasoningEffort: z.enum(["none", "minimal", "low", "medium", "high", "xhigh", "max"]),
+	maxOutputTokens: z.number().int().min(1).max(16384).optional(),
 });
 const configurationSchema = z.strictObject({
 	"review.wording": selectionSchema,
@@ -15,6 +16,8 @@ const configurationSchema = z.strictObject({
 	"review.tailoring": selectionSchema,
 	"review.translation": selectionSchema,
 	"review.summary": selectionSchema,
+	"review.cover-letter": selectionSchema,
+	"review.interview-prep": selectionSchema,
 });
 
 export type WriterRouteApproval = Pick<
@@ -55,9 +58,13 @@ export function resolveWriterRoute(
 		(approved.model.startsWith("openai/") && approved.downstreamProvider !== "azure")
 	)
 		throw new Error("AI_WRITER_ROUTE_UNAPPROVED");
-	// Keep all route/consent/usage limits; only the explicitly approved writer and its call bound vary.
+	// Task allowances can only narrow the approved writer output ceiling.
 	return {
 		...route,
+		...(route.verifier
+			? { verifier: { ...route.verifier, maxOutputTokens: route.verifier.maxOutputTokens ?? route.maxOutputTokens } }
+			: {}),
+		maxOutputTokens: Math.min(route.maxOutputTokens, selection.maxOutputTokens ?? route.maxOutputTokens),
 		model: approved.model,
 		reasoningEffort: selection.reasoningEffort,
 		downstreamProvider: approved.downstreamProvider,

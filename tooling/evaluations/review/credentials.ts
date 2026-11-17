@@ -3,6 +3,15 @@ import { resolve } from "node:path";
 import { parseEnv } from "node:util";
 import { registerDiagnosticSecrets } from "./diagnostics";
 
+/** Explicit benchmark-only process input; never falls back to application credentials. */
+export function readBenchmarkProcessKey(values: NodeJS.ProcessEnv): string {
+	const key = values.OPENROUTER_BENCHMARK_KEY?.trim();
+	if (!key) throw new Error("BENCHMARK_KEY_REQUIRED");
+	if (/[\s=]/u.test(key)) throw new Error("BENCHMARK_TOKEN_INVALID");
+	registerDiagnosticSecrets({ OPENROUTER_BENCHMARK_KEY: key });
+	return key;
+}
+
 /** Never inherit the app credential or a shell credential for a paid benchmark. */
 export async function readBenchmarkKey(envFile: string | undefined): Promise<string> {
 	if (!envFile) throw new Error("ENV_FILE_REQUIRED");

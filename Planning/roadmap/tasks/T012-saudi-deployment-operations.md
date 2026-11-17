@@ -1,11 +1,13 @@
-# T012 — Prepare Saudi deployment and operational recovery
+# T012 — Prepare Saudi production deployment and operational recovery
 
 **Task:** T012 · **PR size:** L · **Branch:** `chore/t012-saudi-deployment-operations`
-**Depends on:** T005, T009 · **Priority:** 75
+**Depends on:** T005, T009, T013 · **Priority:** 140
 **Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
 **Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
 
 ## Goal
+
+D43 Stage 2: prepare Saudi production deployment after T013 beta qualification and explicit client approval of the Hostinger pilot. T017 owns proportionate pilot recovery basics. Existing production processing and release gates remain.
 
 Prepare owner-controlled Saudi deployment, restoration and operational controls with evidence, without procuring or
 activating production resources.
@@ -17,7 +19,7 @@ activating production resources.
 - Consume T009's active-data deletion and durable deletion record; own real backup restore and deletion replay evidence.
   Replay every applicable deletion before restored data can be served; test retries and failure recovery.
 - Qualify worker/queue/database/private-object failure recovery, redacted diagnostics, alerts and processor disablement.
-- Keep mobile routes/flags off; T014 owns SMS supplier/configuration/abuse-cost qualification and A15.
+- Keep unapproved mobile routes/flags off; T014 owns SMS supplier/configuration/abuse-cost qualification and A15.
 - No paid resources or real-data deployment is activated merely by merging this task.
 
 ## Explicit exclusions
@@ -39,7 +41,7 @@ deferred.
 - Own no product screens. Exercise affected saved-work, service-unavailable and account deletion/export consumers.
 - Use the current [figma-map.json](../../context/design/figma-map.json) for consumer states during implementation.
   Verify names/renders using authorized access; do not hard-code node IDs or implement Popup Simulator/Note frames.
-- Mobile S37-S39 supplier/outage acceptance is later T014 work, off the beta and paid critical paths.
+- T014 owns S37-S39 supplier/outage acceptance before T013 under D43; consume its approved activation disposition.
 
 Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
 
@@ -71,12 +73,14 @@ Implement this inventory with existing shared components, the appropriate shared
 
 ## Implementation notes
 
+- D42: T016 must land before deployment. Use the approved Sirawise name and owner-supplied domain.
+
 - Extend current deployment/configuration and persistent job mechanisms; avoid a second scheduler.
 - Core app, database and backups stay in Saudi Arabia under D09/D16; overseas AI remains separately consented/gated.
 - Encrypted consistent DB/private-object backups need approved finite retention and RPO/RTO.
   Replay T009 durable deletion records before restored data is served; stop serving on replay failure.
 - Alert on health, queue age, database/disk, failures and spend; budgets are alerts, not hard enforcement.
-- Keep both mobile flags false. Company registration and real-data gates precede real users;
+- Keep mobile flags off until T014 activation approvals pass. Company registration and real-data gates precede real users;
   SMS company/sender/contracts and A14-A16 belong to T014.
 - Reuse existing React/Vite/TanStack Router, Hono, Better Auth, schema and service conventions.
   No framework rewrite, second app, parallel UI library or unnecessary dependency upgrade.
@@ -107,4 +111,4 @@ Implement this inventory with existing shared components, the appropriate shared
 - The scoped implementation and recovery paths meet the stated acceptance evidence, with no fabricated completion.
 - Requirement/screen ownership, source conflicts, unsupported cases and external approvals are recorded honestly.
 - Required checks/reviews pass for the proposed merge scope; unresolved release gates remain explicit and disabled.
-- Update the single graph status and Mermaid class only after authorized merge, preserving all 16 large PRs.
+- Update the single graph status and Mermaid class only after authorized merge, preserving all 18 large PRs.

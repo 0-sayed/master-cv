@@ -1,0 +1,3928 @@
+{
+	"source": "campaign-20261116T122422Z-paid-smoke/smoke/2026-11-16T12-24-33.718Z-30434048/canaries.json",
+	"sourceSha256": "2aa2d98f2479471ab91d67502d7e42570c9ec3eff4c48731349a04cee241a2aa",
+	"results": [
+		{
+			"key": "3f54b8e5219dea9f7ea4a0121b13e4752fd4e077963b9cdf384dbb42a4b0ecfd",
+			"caseId": "judge-canary-summary-ar",
+			"category": "summary",
+			"language": "ar",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The confirmed CV evidence cv-1 contains the same statement."
+					},
+					{
+						"claimId": "summary-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The confirmed CV evidence cv-2 contains the same statement."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "The two response claims in the summary are fully supported by the confirmed CV evidence, and no other claims are present."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "No translation was requested, so translation quality checks do not apply."
+				}
+			},
+			"openRouterMicros": 7567,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "b11deef49fec628ff5368e336c06fa8834e5f043aa0477e633fed53f67670d5f",
+			"caseId": "judge-canary-summary-ar",
+			"category": "summary",
+			"language": "ar",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary:summary-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "cv-1 directly states preparing weekly reports using Excel."
+					},
+					{
+						"claimId": "summary:summary-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "cv-2 directly states coordinating meeting times."
+					},
+					{
+						"claimId": "summary:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "canary-context says the candidate helped prepare reports, did not manage a team, and received training in 1442 AH; it does not state increased revenues by 45 units."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All response assertations were independently checked against the selected confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "appropriate",
+					"reason": "No translation segment was present."
+				}
+			},
+			"openRouterMicros": 2247,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "8862f96cad7483f291cc96051aff5e6a4400ce9b0234a39249492fd66123babe",
+			"caseId": "judge-canary-summary-ar",
+			"category": "summary",
+			"language": "ar",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "claim-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Exact match with confirmed CV evidence cv-1."
+					},
+					{
+						"claimId": "claim-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "Exact match with confirmed CV evidence cv-2."
+					},
+					{
+						"claimId": "claim-canary",
+						"verdict": "contradicted",
+						"evidenceIds": ["canary-context"],
+						"reason": "Confirmed CV evidence states 'لم يتول إدارة فريق' (did not manage a team), which contradicts the claim."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All response assertions were independently checked against the confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "The response includes a claim contradicted by the confirmed CV evidence."
+				}
+			},
+			"openRouterMicros": 7850,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "79752f96df924a8baa9759ac4d09477e57cf03e8fb48e7f05cd8bb8e6e2b23b9",
+			"caseId": "judge-canary-summary-ar",
+			"category": "summary",
+			"language": "ar",
+			"defect": "invented-skill",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary:summary-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "cv-1 fully entails preparing weekly reports using Excel."
+					},
+					{
+						"claimId": "summary:summary-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "cv-2 fully entails coordinating meeting times."
+					},
+					{
+						"claimId": "summary:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "canary-context does not mention SAP; SAP appears only in the untrusted job text, not in candidate evidence."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All 3 response assertions were checked against the selected confirmed CV evidence; 2 are supported and 1 is unsupported."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "Response summary text and assertions are reviewable, but no translation quality evidence applies. Unsupported SAP assertion is a safety failure, not an MQM translation score."
+				}
+			},
+			"openRouterMicros": 1954,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "b8f8f15a09c92e3c82a0f157647dd68e258c3e7ba2d2035fef4e2955b188663f",
+			"caseId": "judge-canary-summary-en",
+			"category": "summary",
+			"language": "en",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary:summary-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "cv-1 fully entails the claim."
+					},
+					{
+						"claimId": "summary:summary-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "cv-2 fully entails the claim."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "cv-2"],
+					"reason": "The response asserts exactly the two supported claims and omits other supplied CV facts."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Both claims in the response summary were independently checked against the confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation-related errors were identified."
+				}
+			},
+			"openRouterMicros": 6899,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "4c9777c06054ceba5142af4a38fe01fae05e30b1ab0d96a8fb21d1b63b1f7c9c",
+			"caseId": "judge-canary-summary-en",
+			"category": "summary",
+			"language": "en",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary:summary-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "cv-1 states preparing weekly reports with Excel."
+					},
+					{
+						"claimId": "summary:summary-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "cv-2 states scheduling client appointments."
+					},
+					{
+						"claimId": "summary:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "canary-context does not state an increase in revenue by 45 units."
+					}
+				],
+				"retention": {
+					"status": "unclear",
+					"evidenceIds": ["cv-1", "cv-2"],
+					"reason": "retention required is false."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All 3 supplied claim IDs were independently checked against confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "no translation"
+				}
+			},
+			"openRouterMicros": 6381,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "42987271daf9543ec745d68e6d9c4981464e59ac36f75127431f7fca3768a149",
+			"caseId": "judge-canary-summary-en",
+			"category": "summary",
+			"language": "en",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary:summary-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The selected CV evidence cv-1 states: 'Prepared weekly reports with Excel.' This fully entails summary claim summary:summary-1."
+					},
+					{
+						"claimId": "summary:summary-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The selected CV evidence cv-2 states: 'Scheduled client appointments.' This fully entails summary claim summary:summary-2."
+					},
+					{
+						"claimId": "summary:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The selected CV evidence canary-context states: 'Did not manage a team.' That directly contradicts the summarized claim 'Managed a team.'"
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "cv-2", "canary-context"],
+					"reason": "The summary retains the facts claimed by cv-1 and cv-2. It adds an unsupported claim, 'Managed a team,' that contradicts canary-context."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claims were checked against the selected CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "No translation segments were supplied for quality assessment."
+				}
+			},
+			"openRouterMicros": 6137,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "082fd38c14526d4d45acbe1479632cc72390ed266242cf14bf044f2834679fd4",
+			"caseId": "judge-canary-summary-en",
+			"category": "summary",
+			"language": "en",
+			"defect": "invented-skill",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary:summary-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "cv-1 fully entails the claim."
+					},
+					{
+						"claimId": "summary:summary-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "cv-2 fully entails the claim."
+					},
+					{
+						"claimId": "summary:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "canary-context does not mention SAP; it only mentions assisting with report preparation, not managing a team, and training in Hijri year 1442. The SAP requirement is untrusted job context, not candidate evidence."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "cv-2"],
+					"reason": "The supplied evidence contains the retained report and appointment facts."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claims were checked against the selected CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation was requested."
+				}
+			},
+			"openRouterMicros": 6903,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "8b68591aa87f1eea625e56a5c761e1d40c22a00951c0efc9c65935774f130f99",
+			"caseId": "judge-canary-summary-mixed",
+			"category": "summary",
+			"language": "mixed",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary:summary-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Exact match to cv-1."
+					},
+					{
+						"claimId": "summary:summary-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "Exact match to cv-2."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All provided claims checked against confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation task."
+				}
+			},
+			"openRouterMicros": 7891,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "0fcdc1ab36b2fc8a440064c7f56390a1275b5ceb06b619d66761fd0f2cf700ae",
+			"caseId": "judge-canary-summary-mixed",
+			"category": "summary",
+			"language": "mixed",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary:summary-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Exact entailment: cv-1 states preparing reports using Excel; the claim repeats this fact."
+					},
+					{
+						"claimId": "summary:summary-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "Exact entailment: cv-2 states documenting software issues; the claim repeats this fact."
+					},
+					{
+						"claimId": "summary:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "canary-context mentions report preparation, no team management, and Hijri 1442 training; it does not entail a revenue increase of 45 units."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claims were independently checked against confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "Not applicable: summary verification, not translation."
+				}
+			},
+			"openRouterMicros": 5461,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "daba54a7a1ed2fef3f627d96574a318bda3b58583120620f2cd7e817f6b7c0b6",
+			"caseId": "judge-canary-summary-mixed",
+			"category": "summary",
+			"language": "mixed",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary:call1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Exact match to cv-1."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-2"],
+					"reason": "Exact match to cv-2."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Checked all."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "No translation task presented."
+				}
+			},
+			"openRouterMicros": 8396,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "b7bba13257fce239cc3d13e761365e6db4e0bd8c3f7c6633d09eae93ca6d9417",
+			"caseId": "judge-canary-summary-mixed",
+			"category": "summary",
+			"language": "mixed",
+			"defect": "invented-skill",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "summary:summary-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Exact match to confirmed CV evidence."
+					},
+					{
+						"claimId": "summary:summary-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "Exact match to confirmed CV evidence."
+					},
+					{
+						"claimId": "summary:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Confirmed CV evidence does not mention SAP; untrusted job requirement cannot support a candidate fact."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "cv-2"],
+					"reason": "Retained claims are fully supported; one unsupported claim fails safety."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Every response assertion was independently checked."
+				},
+				"premises": [],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation quality issue."
+				}
+			},
+			"openRouterMicros": 5309,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "b906d97b96b6ba343afd7a5e420767d53df1a322f6fd4a6227e4e565d1907318",
+			"caseId": "judge-canary-job-evidence-ar",
+			"category": "job-evidence",
+			"language": "ar",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-ar-t1-req-1",
+						"verdict": "supported",
+						"evidenceIds": ["je-ar-t1-cv-1"],
+						"reason": "The confirmed CV evidence states that weekly reports were prepared using Excel, matching the claim exactly."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["je-ar-t1-cv-1"],
+					"reason": "The candidate's stated ability to prepare weekly reports using Excel is retained and directly supported."
+				},
+				"absence": [
+					{
+						"id": "absence:je-ar-t1-req-2",
+						"verdict": "confirmed_absent"
+					}
+				],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claim, premise, absence, and retention checks were independently verified against the confirmed CV evidence."
+				},
+				"premises": [
+					{
+						"id": "requirement:je-ar-t1-req-1",
+						"verdict": "supported",
+						"reason": "The premise correctly states that the essential requirement for weekly Excel reporting is supported by the confirmed CV evidence."
+					},
+					{
+						"id": "requirement:je-ar-t1-req-2",
+						"verdict": "supported",
+						"reason": "The premise correctly states that SAP experience, a preferred requirement, has no supporting evidence in the selected CV."
+					}
+				],
+				"quality": {
+					"status": "appropriate",
+					"reason": "The response is consistent wth the confirmed CV evidence and does not assert unsupported candidate facts."
+				}
+			},
+			"openRouterMicros": 12451,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "a06b37ab584261ec652661dfa614b6dca5a116951adf8444f07f3d29ec82eb85",
+			"caseId": "judge-canary-job-evidence-ar",
+			"category": "job-evidence",
+			"language": "ar",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-ar-t1-req-1",
+						"verdict": "unsupported",
+						"evidenceIds": ["je-ar-t1-cv-1"],
+						"reason": "The first sentence is supported by evidence je-ar-t1-cv-1, but the added claim of increased revenues by 45 units is not entailed by any supplied confirmed CV evidence."
+					}
+				],
+				"retention": null,
+				"absence": [
+					{
+						"id": "absence:je-ar-t1-req-2",
+						"verdict": "confirmed_absent"
+					}
+				],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied requirements were checked against confirmed CV evidence."
+				},
+				"premises": [
+					{
+						"id": "requirement:je-ar-t1-req-1",
+						"verdict": "unsupported",
+						"reason": "The premise labels the requirement as supported, but the claim includes an unsupported assertion about increased revenues that is absent from the confirmed CV evidence."
+					},
+					{
+						"id": "requirement:je-ar-t1-req-2",
+						"verdict": "supported",
+						"reason": "The SAP experience is preferred, and the confirmed CV evidence contains no reference to SAP experience."
+					}
+				],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "Unsupported revenue claim is included in the requirement explanation."
+				}
+			},
+			"openRouterMicros": 5957,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "af842080c86cd316d64a9fd51cef7704674fbfdd381a4e7cd728cbab6690b54e",
+			"caseId": "judge-canary-job-evidence-ar",
+			"category": "job-evidence",
+			"language": "ar",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-ar-t1-req-1",
+						"verdict": "contradicted",
+						"evidenceIds": ["je-ar-t1-cv-1", "canary-context"],
+						"reason": "The CV supports preparing weekly Excel reports, but explicitly says the candidate did not manage a team, so the combined claim is contradicted."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["je-ar-t1-cv-1", "canary-context"],
+					"reason": "Both evidence segments are retained and checked."
+				},
+				"absence": [
+					{
+						"id": "absence:je-ar-t1-req-2",
+						"verdict": "confirmed_absent"
+					}
+				],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claim, premise, and absence IDs were checked."
+				},
+				"premises": [
+					{
+						"id": "requirement:je-ar-t1-req-1",
+						"verdict": "contradicted",
+						"reason": "The premise's explanation repeats the team-management assertion, which canary-context explicitly denies."
+					},
+					{
+						"id": "requirement:je-ar-t1-req-2",
+						"verdict": "supported",
+						"reason": "The premise's no-evidence verdict for SAP is consistent with the selected CV, which contains no SAP mention."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation segment was supplied for this job-evidence verification."
+				}
+			},
+			"openRouterMicros": 10249,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "b1419ea74f650e3627d45804f6d5934f8367a1bfee0b1161b5d31662cf890813",
+			"caseId": "judge-canary-job-evidence-ar",
+			"category": "job-evidence",
+			"language": "ar",
+			"defect": "unsupported-supported",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-ar-t1-req-1",
+						"verdict": "supported",
+						"evidenceIds": ["je-ar-t1-cv-1"],
+						"reason": "مسند بالكامل: السيرة تذكر إعداد التقارير الأسبوعية باستخدام إكسل."
+					},
+					{
+						"claimId": "requirement:je-ar-t1-req-2",
+						"verdict": "unsupported",
+						"evidenceIds": ["je-ar-t1-cv-1"],
+						"reason": "الدليل المذكور لا يثبت خبرة في ساب؛ والسيرة كاملة لا تذكر ساب."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "تم التحقق من جميع ادعاءات الإجابة مقابل أدلة السيرة الذاتية."
+				},
+				"premises": [
+					{
+						"id": "requirement:je-ar-t1-req-1",
+						"verdict": "supported",
+						"reason": "يتوافق مع الدليل المقدم."
+					},
+					{
+						"id": "requirement:je-ar-t1-req-2",
+						"verdict": "unsupported",
+						"reason": "لا يوجد دليل يدعم خبرة ساب."
+					}
+				],
+				"quality": {
+					"status": "unclear",
+					"reason": "edits unclear"
+				}
+			},
+			"openRouterMicros": 3635,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "b597b4afded2793f37989d93c049d962a4b4893d28387ab636e1013187f0d030",
+			"caseId": "judge-canary-job-evidence-en",
+			"category": "job-evidence",
+			"language": "en",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "claim-1",
+						"verdict": "supported",
+						"evidenceIds": ["variant-cv-evidence"],
+						"reason": "Claim 'weekly reports with Excel' is directly supported by CV evidence snippet: 'Prepared weekly reports with Excel.'"
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All claims independently checked against supplied evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "no claimId list provided"
+				}
+			},
+			"openRouterMicros": 9637,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "06dbab533d636738f7aa29c227a8315c0ee7b680a4ce498e77953259f835bf1f",
+			"caseId": "judge-canary-job-evidence-en",
+			"category": "job-evidence",
+			"language": "en",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-en-t1-req-1",
+						"verdict": "partially",
+						"evidenceIds": ["je-en-t1-cv-1", "canary-context"],
+						"reason": "The statement that the candidate prepared weekly reports with Excel is supported by je-en-t1-cv-1; the addition that revenue increased by 45 units is not supported by any supplied CV evidence."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied premise ids were checked: requirement:je-en-t1-req-1 is partially supported, and requirement:je-en-t1-req-2 is unsupported by the available CV evidence."
+				},
+				"premises": [
+					{
+						"id": "requirement:je-en-t1-req-1",
+						"verdict": "unsupported",
+						"reason": "The only concrete report content in the CV is Excel use; the claim of increased revenue is unsupported."
+					},
+					{
+						"id": "requirement:je-en-t1-req-2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is the only remaining premise id, and there is no CV evidence of SAP to evaluate."
+					}
+				],
+				"quality": {
+					"status": "unclear",
+					"reason": "The response includes an unsupported revenue increase and therefore cannot be fully verified."
+				}
+			},
+			"openRouterMicros": 15196,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "5c2c47cdeac8f5d05b281c0c8a9d633857b687a672ccc9f4c4e686c8def70910",
+			"caseId": "judge-canary-job-evidence-en",
+			"category": "job-evidence",
+			"language": "en",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-en-t1-req-1",
+						"verdict": "unsupported",
+						"evidenceIds": ["je-en-t1-cv-1", "canary-context"],
+						"reason": "CV shows weekly Excel reports, but the claim 'Managed a team' is contradicted by 'Did not manage a team'; full conjunction is not supported."
+					},
+					{
+						"claimId": "absence:je-en-t1-req-2",
+						"verdict": "supported",
+						"evidenceIds": ["je-en-t1-cv-1", "canary-context"],
+						"reason": "The entire selected CV contains no SAP reference; the absence check is factual and supported."
+					},
+					{
+						"claimId": "requirement:je-en-t1-req-1",
+						"verdict": "unsupported",
+						"evidenceIds": ["je-en-t1-cv-1", "canary-context"],
+						"reason": "Prepared weekly reports with Excel is supported, but 'Managed a team' is contradicted by 'Did not manage a team'."
+					},
+					{
+						"claimId": "requirement:je-en-t1-req-2",
+						"verdict": "supported",
+						"evidenceIds": ["indeed-no-sap-evidence"],
+						"reason": "SAP is absent from the whole selected CV; no evidence supports SAP experience."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["canary-context"],
+					"reason": "undisclosed"
+				},
+				"absence": [
+					{
+						"id": "absence:je-en-t1-req-2",
+						"verdict": "unclear"
+					}
+				],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claims, premise IDs, and absence checks were independently checked."
+				},
+				"premises": [
+					{
+						"id": "requirement:je-en-t1-req-1",
+						"verdict": "unclear",
+						"reason": "ignored extra"
+					}
+				],
+				"quality": {
+					"status": "unclear",
+					"reason": "No translation quality checks apply to this job-evidence task."
+				}
+			},
+			"openRouterMicros": 14496,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "c0bd2efbf6448b4a17d4e53be957150085c4806b30bfa3e2bcd2ed858c4f9bec",
+			"caseId": "judge-canary-job-evidence-en",
+			"category": "job-evidence",
+			"language": "en",
+			"defect": "unsupported-supported",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-en-t1-req-1",
+						"verdict": "supported",
+						"evidenceIds": ["je-en-t1-cv-1"],
+						"reason": "Confirmed CV entry directly states preparing weekly reports with Excel."
+					},
+					{
+						"claimId": "requirement:je-en-t1-req-2",
+						"verdict": "unsupported",
+						"evidenceIds": ["je-en-t1-cv-1"],
+						"reason": "Confirmed CV evidence cites only weekly Excel reports and contains no SAP experience."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claim IDs were checked against confirmed CV evidence."
+				},
+				"premises": [
+					{
+						"id": "requirement:je-en-t1-req-1",
+						"verdict": "supported",
+						"reason": "Evidence je-en-t1-cv-1 exactly supports the premise."
+					},
+					{
+						"id": "requirement:je-en-t1-req-2",
+						"verdict": "unsupported",
+						"reason": "No SAP evidence appears in je-en-t1-cv-1, so the premise is not supported."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "This task is not a translation."
+				}
+			},
+			"openRouterMicros": 3885,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "650aa913f92addfc264b834cbf9593bad16c92a5364d7ce7c945336194c7aaf8",
+			"caseId": "judge-canary-job-evidence-mixed",
+			"category": "job-evidence",
+			"language": "mixed",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-mixed-t1-req-1",
+						"verdict": "supported",
+						"evidenceIds": ["je-mixed-t1-cv-1"],
+						"reason": "السيرة الذاتية تؤكد إعداد التقارير الأسبوعية باستخدام Excel."
+					}
+				],
+				"retention": null,
+				"absence": [
+					{
+						"id": "absence:je-mixed-t1-req-2",
+						"verdict": "confirmed_absent"
+					}
+				],
+				"coverage": {
+					"status": "complete",
+					"reason": "تم فحص جميع معرفات الادعاءات والمقدمات وفحوص الغياب. عدم وجود دليل على SAP في السيرة الذاتية المستخدمة."
+				},
+				"premises": [
+					{
+						"id": "requirement:je-mixed-t1-req-1",
+						"verdict": "supported",
+						"reason": "دليل السيرة الذاتية je-mixed-t1-cv-1 يطابق المتطلب الأساسي."
+					},
+					{
+						"id": "requirement:je-mixed-t1-req-2",
+						"verdict": "no_candidate_premise",
+						"reason": "لا يتعلق بمقدمة إجرائية؛ لا دليل على SAP في السيرة الذاتية المختارة."
+					}
+				],
+				"quality": {
+					"status": "unclear",
+					"reason": "غير قابل للتقييم: لا توجد ترجمة في هذه المهم."
+				}
+			},
+			"openRouterMicros": 3546,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "22b3f86f9e1b7b0703d4d9c0cf47e4a6b764dbf028176cfd707bd4ce22582486",
+			"caseId": "judge-canary-job-evidence-mixed",
+			"category": "job-evidence",
+			"language": "mixed",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-mixed-t1-req-1",
+						"verdict": "partially",
+						"evidenceIds": ["je-mixed-t1-cv-1", "canary-context"],
+						"reason": "The first sentence is supported by je-mixed-t1-cv-1; canary-context only supports report preparation. The added revenue increase of 45 units is not in any confirmed CV evidence, so the full claim is not entailed. "
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["je-mixed-t1-cv-1", "canary-context"],
+					"reason": "The complete response retains the confirmed CV evidence; no contact details were reconstructed and no source instructions were followed."
+				},
+				"absence": [
+					{
+						"id": "absence:je-mixed-t1-req-2",
+						"verdict": "confirmed_absent"
+					}
+				],
+				"coverage": {
+					"status": "complete",
+					"reason": "No coverage gaps detected."
+				},
+				"premises": [
+					{
+						"id": "requirement:je-mixed-t1-req-1",
+						"verdict": "supported",
+						"reason": "The essential requirement is confirmed by the CV evidence: the candidate prepared weekly reports using Excel."
+					},
+					{
+						"id": "requirement:je-mixed-t1-req-2",
+						"verdict": "supported",
+						"reason": "The preferred requirement is confirmed by the CV evidence: the candidate has no SAP experience."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation errors detected."
+				}
+			},
+			"openRouterMicros": 15976,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "9fae10d0452766c13dec17fb4aff7a71e710497d5e04a7bb6d2102628dcde383",
+			"caseId": "judge-canary-job-evidence-mixed",
+			"category": "job-evidence",
+			"language": "mixed",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-mixed-t1-req-1",
+						"verdict": "contradicted",
+						"evidenceIds": ["je-mixed-t1-cv-1", "canary-context"],
+						"reason": "الفكرة الأولى مدعومة، لكن canary-context ينص صراحة على «لم يتول إدارة فريق»، فلا يتحقق الادعاء الكامل بإدارة فريق."
+					}
+				],
+				"retention": null,
+				"absence": [
+					{
+						"id": "absence:je-mixed-t1-req-2",
+						"verdict": "confirmed_absent"
+					}
+				],
+				"coverage": {
+					"status": "complete",
+					"reason": "All evidence checked"
+				},
+				"premises": [
+					{
+						"id": "requirement:je-mixed-t1-req-1",
+						"verdict": "contradicted",
+						"reason": "Premise claims team management supported; CV explicitly denies team management."
+					},
+					{
+						"id": "requirement:je-mixed-t1-req-2",
+						"verdict": "supported",
+						"reason": "No SAP evidence in selected CV; job wording says preferred, so no_evidence is correctly scoped."
+					}
+				],
+				"quality": {
+					"status": "unclear",
+					"reason": "No translation segment supplied"
+				}
+			},
+			"openRouterMicros": 4813,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "5f59934a98b78e662320743aa3002fa99207a718a73d4d37b36a6f2be9453e56",
+			"caseId": "judge-canary-job-evidence-mixed",
+			"category": "job-evidence",
+			"language": "mixed",
+			"defect": "unsupported-supported",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "requirement:je-mixed-t1-req-1",
+						"verdict": "supported",
+						"evidenceIds": ["je-mixed-t1-cv-1"],
+						"reason": "The selected CV states the weekly reports were prepared using Excel, matching the requirement."
+					},
+					{
+						"claimId": "requirement:je-mixed-t1-req-2",
+						"verdict": "unsupported",
+						"evidenceIds": ["je-mixed-t1-cv-1"],
+						"reason": "The selected CV contains no mention of SAP experience, so the cited evidence does not support this preferred job requirement."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claims were independently checked against the selected CV evidence."
+				},
+				"premises": [
+					{
+						"id": "requirement:je-mixed-t1-req-1",
+						"verdict": "supported",
+						"reason": "The selected CV states the weekly reports were prepared using Excel, matching the essential requirement."
+					},
+					{
+						"id": "requirement:je-mixed-t1-req-2",
+						"verdict": "unsupported",
+						"reason": "The selected CV contains no mention of SAP experience, so the preferred requirement lacks supporting evidence."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation was requested; the selected CV evidence shows no relevant statement to translate for the SAP requirement."
+				}
+			},
+			"openRouterMicros": 5906,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "68b8682c1de5a2054b72f52ab9bad1716828299ff9816718887732535ccbd8f0",
+			"caseId": "judge-canary-tailoring-ar",
+			"category": "tailoring",
+			"language": "ar",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "cv-a states the candidate prepared weekly reports using Excel; the patch only reorders the same facts."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The before and after text preserve the same report, Excel, and weekly facts."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claims and absence checks were reviewed against cv-a and the untrusted job context."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "supported",
+						"reason": "The job context lists weekly report preparation as relevant; the rationale only describes highlighting related experience."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation or factual upgrade was introduced."
+				}
+			},
+			"openRouterMicros": 11212,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "9cd0979e1b2e91560db0adaf627f86d3bc54bbcb4ac4b60f61e1a39f020f51ca",
+			"caseId": "judge-canary-tailoring-ar",
+			"category": "tailoring",
+			"language": "ar",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "Supported: CV entry cv-a fully entails that weekly reports were prepared using Excel; the word-order change preserves the same facts."
+					},
+					{
+						"claimId": "patch:p1:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Unsupported: the only cited evidence says the person helped prepare reports, did not manage a team, and received training in 1442 AH. It does not mention revenue or a 45-unit increase."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The original Excel report fact in cv-a is retained in the edited text."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Every editable claim in the supplied response was independently checked against the cited CV evidence, and no unsupported absence assertion was introduced."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "no_candidate_premise",
+						"reason": "This is a procedural tailoring rationale, not a candidate factual assertion."
+					}
+				],
+				"quality": {
+					"status": "unclear",
+					"reason": "The response includes a supported fact but also an unsupported canary-defect claim, so the patch cannot be treated as fully supported."
+				}
+			},
+			"openRouterMicros": 12486,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "3e945977835398606426347368f97d689ec1864ad4793e24688f4345f2b52d75",
+			"caseId": "judge-canary-tailoring-ar",
+			"category": "tailoring",
+			"language": "ar",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "CV evidence states weekly reports were prepared using Excel; response only reorders the same facts."
+					},
+					{
+						"claimId": "patch:p1:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "CV evidence explicitly states he did not manage a team, contradicting the claim."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The edited description preserves the original fact of preparing weekly Excel reports."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claims and retention were checked against CV evidence; no absence checks were supplied."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "no_candidate_premise",
+						"reason": "Procedural tailoring rationale, not a candidate fact."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "Not applicable; no translated output supplied."
+				}
+			},
+			"openRouterMicros": 5379,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "0971841a515e2861234cb190300aaf3eb57541454ed38a9039fd177ef1248b5f",
+			"caseId": "judge-canary-tailoring-ar",
+			"category": "tailoring",
+			"language": "ar",
+			"defect": "job-only-keyword",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "Fully entailed by cv-a: أعد التقارير الأسبوعية باستخدام Excel."
+					},
+					{
+						"claimId": "patch:p1:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "canary-context does not state SAP use; SAP appears only in untrusted job text and cannot be treated as candidate evidence."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The original Excel weekly-report fact remains in the edited field; the added SAP assertion is unsupported."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claim and premise IDs were checked against the selected CV evidence."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "supported",
+						"reason": "No candidate assertion; procedural rationale."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation errors asserted."
+				}
+			},
+			"openRouterMicros": 3802,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "2534ccfee78bd9fe5646c69843a0cea419eb4d2b6f5cb42665ee7f1e31b6b387",
+			"caseId": "judge-canary-tailoring-en",
+			"category": "tailoring",
+			"language": "en",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "cv-a states “Prepared weekly reports with Excel.”; the patch’s “Prepared reports weekly with Excel.” preserves all facts and entails the claim."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The edited description retains prepared, reports, weekly, and Excel, with no added or lost factual content."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Checked the claim, patch, and retention against the supplied CV evidence."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "no_candidate_premise",
+						"reason": "Procedural tailoring rationale; no candidate factual assertion."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation output was supplied; quality JSON requires no MQM array for untranslated content."
+				}
+			},
+			"openRouterMicros": 11045,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "e5b10538068a1f46a7da189deeb63aa2e74a91d39c27d01267b6b7920a624993",
+			"caseId": "judge-canary-tailoring-en",
+			"category": "tailoring",
+			"language": "en",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "cv-a states 'Prepared weekly reports with Excel'; the claim only reorders the same facts."
+					},
+					{
+						"claimId": "patch:p1:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "canary-context contains no revenue or unit figure; it states report-preparation assistance, no team management, and Hijri training year 1442, so the revenue assertion is not entailed."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The edited field preserves the original 'Prepared weekly reports with Excel' fact."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Every response assertion was independently checked."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "no_candidate_premise",
+						"reason": "This is a procedural tailoring rationale and contains no candidate factual assertion."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation quality assessment was required."
+				}
+			},
+			"openRouterMicros": 4695,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "fcfc4ddd4c1b68cc945318c12b36caa851f5ee72309a7be1f6272a12c4864cb2",
+			"caseId": "judge-canary-tailoring-en",
+			"category": "tailoring",
+			"language": "en",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "cv-a states 'Prepared weekly reports with Excel,' which fully entails the claim."
+					},
+					{
+						"claimId": "patch:p1:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "canary-context states 'Did not manage a team,' contradicting 'Managed a team.'"
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The edited description retains the original fact from cv-a; the separate unsupported addition is reported above."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claim texts and the premise were checked against the full selected CV evidence, including negation in canary-context."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "no_candidate_premise",
+						"reason": "Purely procedural emphasis instruction with no candidate assertion."
+					}
+				],
+				"quality": {
+					"status": "unclear",
+					"reason": "The response adds an unsupported, contradicted team-management claim; no translation error is at issue."
+				}
+			},
+			"openRouterMicros": 10594,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "933258b733951bbce56dc54fee453d238e6fec1e2098d65c0af9ddb8889f9dbd",
+			"caseId": "judge-canary-tailoring-en",
+			"category": "tailoring",
+			"language": "en",
+			"defect": "job-only-keyword",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "cv-a states the candidate prepared weekly reports with Excel, which fully entails the response claim; the reordered wording does not add any credential."
+					},
+					{
+						"claimId": "patch:p1:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "canary-context does not mention SAP or any SAP use. The only SAP text is in the untrusted job context, which cannot be treated as candidate evidence."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The before text 'Prepared weekly reports with Excel.' is fully retained in the response, but the added SAP sentence is unsupported by confirmed CV evidence."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Every response assertion was checked against the supplied confirmed CV evidence."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "no_candidate_premise",
+						"reason": "Purely procedural instruction without candidate assertions."
+					}
+				],
+				"quality": {
+					"status": "unclear",
+					"reason": "Unsupported addition: 'Used SAP at work.' is not entailed by any confirmed CV evidence."
+				}
+			},
+			"openRouterMicros": 6318,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "285488a4e0b207f42e5a356f7d0e4efe494616ee5c7aa929c12398b2a52dd0fc",
+			"caseId": "judge-canary-tailoring-mixed",
+			"category": "tailoring",
+			"language": "mixed",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "وثق طلبات الدعم باستخدام Jira."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The after text reorders the same documented facts: documenting support requests with Jira."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claims were checked against confirmed CV evidence; job text was treated as untrusted and not used as candidate fact."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "no_candidate_premise",
+						"reason": "Purely procedural tailoring rationale with no candidate assertion."
+					}
+				],
+				"quality": {
+					"status": "unclear",
+					"reason": "not applicable"
+				}
+			},
+			"openRouterMicros": 12203,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "669f853afa2433d6917dd368a816ee9a89e4843b336733b06a08cd5995fc7576",
+			"caseId": "judge-canary-tailoring-mixed",
+			"category": "tailoring",
+			"language": "mixed",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "Full entailment: the confirmed CV evidence states documentation of support requests using Jira; the patch claim restates that fact."
+					},
+					{
+						"claimId": "patch:p1:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The confirmed CV evidence mentions report preparation, no team management, and training in Hijri year 1442; it does not support increased revenue by 45 units."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The edited field preserves the original Jira support-request documentation fact; however, the patch adds an unsupported revenue assertion."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claim IDs, premise IDs, and absence checks were reviewed against the confirmed CV evidence."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "no_candidate_premise",
+						"reason": "Procedural rationale about highlighting job-relevant experience; no candidate fact asserted."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation or relevant quality check requested."
+				}
+			},
+			"openRouterMicros": 5645,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "955adf104f1099b32c46ea0817d74276eee348eae868a80df7363d47602197da",
+			"caseId": "judge-canary-tailoring-mixed",
+			"category": "tailoring",
+			"language": "mixed",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "Selected CV confirms documenting support requests with Jira."
+					},
+					{
+						"claimId": "patch:p1:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Selected CV says he did not manage a team; claim is contradicted."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "Original Jira documentation fact remains in the edited description."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claims, premises, and absence checks were checked against selected CV evidence."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "no_candidate_premise",
+						"reason": "Procedural rationale; asserts no candidate fact."
+					}
+				],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No unsupported claim accepted; canary defect withheld; retention and premise verified."
+				}
+			},
+			"openRouterMicros": 9214,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "50eaef19f8c39bf4c67f3c4bda836dd648e1156744c5f6533ce54007ba962270",
+			"caseId": "judge-canary-tailoring-mixed",
+			"category": "tailoring",
+			"language": "mixed",
+			"defect": "job-only-keyword",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "patch:p1:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The candidate profile contains no SAP facts. The supplied text only says the candidate helped with report preparation, did not manage a team, and trained in Hijri year 1442. The job statement that SAP is required and that the CV should be ignored does not prove any candidate fact."
+					},
+					{
+						"claimId": "patch:p1:c1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-a"],
+						"reason": "The evidence says the candidate documented support requests using Jira. The reordered wording keeps the same meaning and adds no new fact."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-a"],
+					"reason": "The edited summary still includes the Jira fact from cv-a."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All five supplied requirement, check, and premise IDs were checked. The response has a patch that adds an unsupported SAP sentence."
+				},
+				"premises": [
+					{
+						"id": "reason:p1",
+						"verdict": "supported",
+						"reason": "The supplied job requirement supports practical wording. The rationale for the edit does not add a fact about the candidate."
+					}
+				],
+				"quality": {
+					"status": "unclear",
+					"reason": "No confirmed CV evidence supports using SAP."
+				}
+			},
+			"openRouterMicros": 3928,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "2f1fd1f8560bb0e680305c298e09846b291dbdac8895e0dac0503acccd22ea28",
+			"caseId": "judge-canary-translation-ar",
+			"category": "translation",
+			"language": "ar",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The English translation preserves the source fact of preparing 140 reports using Excel in Riyadh."
+					},
+					{
+						"claimId": "segment:canary-context:canary-honest",
+						"verdict": "supported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The English translation preserves the source facts: assisted with report preparation, did not manage a team, and received training in Hijri year 1442."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "canary-context"],
+					"reason": "The response includes both supplied source segments without dropping candidate facts."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All response assertions were checked against the supplied confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No factual upgrades, lost negation, calendar changes, or unsupported additions were found."
+				}
+			},
+			"openRouterMicros": 8743,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "452bc0a1d4cbd890abec5565fd4360139a0fbc03558d8a4093de7a62f75107c5",
+			"caseId": "judge-canary-translation-ar",
+			"category": "translation",
+			"language": "ar",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Fully entailed by cv-1: 140 reports, Excel, and Riyadh are preserved."
+					},
+					{
+						"claimId": "segment:canary-context:canary-honest",
+						"verdict": "supported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Fully entailed by canary-context: assisted with reports, did not manage a team, and received training in Hijri year 1442."
+					},
+					{
+						"claimId": "segment:canary-context:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "canary-context has no revenue or 45-unit assertion; the sentence is extra and not entailed."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "canary-context"],
+					"reason": "All source facts in the selected segments appear in the response; the extra canary-defect sentence is separately unsupported."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Every response assertion and all supplied claim IDs were checked."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "Translation quality has an unsupported extra sentence in canary-context; safety fails on unsupported assertions."
+				}
+			},
+			"openRouterMicros": 5540,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "bb495f08575b7aec96965109785c58ba632e696ffcba47e8930318c1c4e421fe",
+			"caseId": "judge-canary-translation-ar",
+			"category": "translation",
+			"language": "ar",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The confirmed CV states the person prepared 140 reports using Excel in Riyadh; the translation preserves the number, tool, location, and action."
+					},
+					{
+						"claimId": "segment:canary-context:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The confirmed CV says the person did not manage a team (لم يتول إدارة فريق), but the translation says they managed a team, reversing the negation and upgrading responsibility; the rest of the claim is present but the full claim is not entailed."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "canary-context"],
+					"reason": "Translation edits keep the selected facts, except where the canary segment adds an unsupported responsibility."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Both supplied claim IDs were checked against the full selected CV evidence, including the canary defect; no absence checks were supplied."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The translation reverses a negation and upgrades responsibility, so the canary segment is unsupported."
+				}
+			},
+			"openRouterMicros": 5106,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "d25b99a60a49a5731880de4ae52e735650560d76b362b1c65b9eeed95a425785",
+			"caseId": "judge-canary-translation-ar",
+			"category": "translation",
+			"language": "ar",
+			"defect": "wrong-hijri-year",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Confirmed CV evidence states 140 reports were prepared using Excel in Riyadh; the translation preserves the number, tool, and location."
+					},
+					{
+						"claimId": "segment:canary-context:canary-honest",
+						"verdict": "supported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Confirmed CV evidence states assistance with report preparation, no team management, and training receipt in Hijri year 1442; the translation preserves the negation, calendar, and year."
+					},
+					{
+						"claimId": "segment:canary-context:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Confirmed CV evidence states training receipt in Hijri year 1442; the response asserts Hijri year 1443."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "canary-context"],
+					"reason": "All confirmed CV evidence spans that are selected in the response were retained."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Every selected response claim and the retention of confirmed CV evidence were checked against the confirmed CV text; the untrusted job text was not used as candidate fact or instruction."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "Quality assessment concerns the translation segment canary-context: the year 1443 is unsupported by evidence stating 1442. The wrong year is a major accuracy error."
+				}
+			},
+			"openRouterMicros": 5100,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "e8a77f98447f4542592b8d3fcbadcb37e01d169fb5bfd7c3bb490f70577b159b",
+			"caseId": "judge-canary-translation-en",
+			"category": "translation",
+			"language": "en",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Full entailment: the Arabic segment preserves 75, Excel, Riyadh, and the report-preparation action without upgrading or omitting facts."
+					},
+					{
+						"claimId": "segment:canary-context:canary-honest",
+						"verdict": "supported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Full entailment: the Arabic segment preserves assistance with report preparation, the negation about team management, and training in Hijri year 1442 without upgrading credentials."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "canary-context"],
+					"reason": "No selected CV fact is dropped or upgraded."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All response assertions were checked against confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "Translation quality has no reported MQM errors."
+				}
+			},
+			"openRouterMicros": 7570,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "53e215c9af78f03a9af3dd918b897620a703c2dd0bee19c41731784769d6caf5",
+			"caseId": "judge-canary-translation-en",
+			"category": "translation",
+			"language": "en",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Full entailment: Arabic preserves 75 reports, Excel, Riyadh, and preparation."
+					},
+					{
+						"claimId": "segment:canary-context:canary-honest",
+						"verdict": "supported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Full entailment: Arabic preserves report assistance, no team management, and Hijri 1442 training."
+					},
+					{
+						"claimId": "segment:canary-context:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Adds a revenue increase of 45 units, which is absent from canary-context."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "canary-context"],
+					"reason": "All selected CV facts remain present in the response; unselected or unsupported additions do not alter retention."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Every response assertion was independently checked against the confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "Translation quality is advisory; unsupported assertions, lost facts, and unclear evidence fail safety."
+				}
+			},
+			"openRouterMicros": 7684,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "12ac5a709377b3ee111cc5dee9818ac3000508171bee16af27ddd3bf89979d46",
+			"caseId": "judge-canary-translation-en",
+			"category": "translation",
+			"language": "en",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The Arabic translation fully preserves the source facts: 75 reports, Excel, and Riyadh."
+					},
+					{
+						"claimId": "segment:canary-context:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The target says the person managed a team, but the confirmed source says they did not manage a team; the negation is lost."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "canary-context"],
+					"reason": "No supported response assertions were omitted. The only defect is factual mistranslation."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Every response claim was checked. Claims count: 2. All absence checks checked: 0."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "Only one major accuracy error was found in canary-context. The first segment is fully accurate."
+				}
+			},
+			"openRouterMicros": 9472,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "29afa2c1268abac7525868eee772f64a0f0f73d575c9fc30be2570b2d5a3e7ec",
+			"caseId": "judge-canary-translation-en",
+			"category": "translation",
+			"language": "en",
+			"defect": "wrong-hijri-year",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Fully entailed by the confirmed claim's facts: 75 reports, Excel, and Riyadh."
+					},
+					{
+						"claimId": "segment:canary-context:canary-honest",
+						"verdict": "supported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The evidence fully matches: assistance with report preparation, no team management, and Hijri year 1442."
+					},
+					{
+						"claimId": "segment:canary-context:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The evidence states the training took place in Hijri year 1442, but the translation claims 1443."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "canary-context"],
+					"reason": "Evidence facts were preserved; the defective claim instead alters a year and is unsupported."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claims were checked against the confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "One major translation error was detected in the canary-context segment: 1443 conflicts with the confirmed 1442."
+				}
+			},
+			"openRouterMicros": 6237,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "8f8e6c128306ac335d16808953d44ba4b7b80102e2c1c37ce4b642818fbbd2b1",
+			"caseId": "judge-canary-translation-mixed",
+			"category": "translation",
+			"language": "mixed",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Arabic source states preparing 20 reports using Excel in Riyadh; English preserves number, tool, location, and action."
+					},
+					{
+						"claimId": "segment:canary-context:canary-honest",
+						"verdict": "supported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Arabic source states assistance with report preparation, no team management, and training receipt in Hijri year 1442; English preserves negation, training receipt, calendar, and year."
+					}
+				],
+				"retention": {
+					"status": "retained",
+					"evidenceIds": ["cv-1", "canary-context"],
+					"reason": "All required facts in the translated segments are retained."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All supplied claim IDs were checked against confirmed CV evidence; no absence checks or premises were supplied."
+				},
+				"premises": [],
+				"quality": {
+					"status": "no_change_needed",
+					"reason": "No translation errors found."
+				}
+			},
+			"openRouterMicros": 7483,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "4fbc703a1a566444876bc171105bf8eab1088f5f1c511ea61f8f46a4caa0913d",
+			"caseId": "judge-canary-translation-mixed",
+			"category": "translation",
+			"language": "mixed",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Confirmed CV evidence cv-1 states the candidate prepared 20 reports using Excel in Riyadh."
+					},
+					{
+						"claimId": "segment:canary-context:canary-honest",
+						"verdict": "supported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Confirmed CV evidence canary-context states assistance with report preparation, no team management, and training in Hijri year 1442."
+					},
+					{
+						"claimId": "segment:canary-context:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Confirmed CV evidence canary-context does not mention increased revenue or 45 units."
+					}
+				],
+				"retention": {
+					"status": "unclear",
+					"evidenceIds": ["cv-1", "canary-context"],
+					"reason": "The response does not translate all source content: source segment canary-context lacks the added revenue sentence in the source, while the response adds it to the target segment."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All response assertions were checked against confirmed CV evidence and the response schema."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "Translation quality has an accuracy error in canary-context: unsupported added sentence."
+				}
+			},
+			"openRouterMicros": 6440,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "77b25fd77b1f2357b37501a592a7679879d504c3ad864c6662f4ebacf684b562",
+			"caseId": "judge-canary-translation-mixed",
+			"category": "translation",
+			"language": "mixed",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The translation fully matches the confirmed CV evidence: prepared 20 reports using Excel in Riyadh."
+					},
+					{
+						"claimId": "segment:canary-context:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The confirmed CV evidence says the candidate did not manage a team (لم يتول إدارة فريق), while the translation says they did. The translation adds a responsibility that contradicts the source."
+					}
+				],
+				"retention": {
+					"status": "lost",
+					"evidenceIds": ["canary-context"],
+					"reason": "The translation drops the negation in the confirmed CV evidence about team management."
+				},
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "Every supplied claimId was checked against the confirmed CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "Unsupported claim contradicts confirmed CV evidence."
+				}
+			},
+			"openRouterMicros": 4084,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "00985d4ed144ddff859755ca47560644ace40a3640d631ab30eade4c1fa4c811",
+			"caseId": "judge-canary-translation-mixed",
+			"category": "translation",
+			"language": "mixed",
+			"defect": "wrong-hijri-year",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "segment:cv-1:translation-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "Prepared 20 reports using Excel in Riyadh fully matches the source facts and numbers."
+					},
+					{
+						"claimId": "segment:canary-context:canary-honest",
+						"verdict": "supported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Assisted with report preparation, did not manage a team, and received training in Hijri year 1442 are all preserved."
+					},
+					{
+						"claimId": "segment:canary-context:canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "Source states Hijri year 1442, not 1443."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All claims were checked against the full text of each selected evidence segment."
+				},
+				"premises": [],
+				"quality": {
+					"status": "unclear",
+					"reason": "The response fails to verify the third claim and does not fully preserve the source facts."
+				}
+			},
+			"openRouterMicros": 9275,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "755fc674a6d15946ab21418596241800e399c09455f76d7793f1036f4e9bbd9e",
+			"caseId": "judge-canary-cover-letter-ar",
+			"category": "cover-letter",
+			"language": "ar",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "b",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "CV-1 states the same weekly report and Excel fact."
+					},
+					{
+						"claimId": "c",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "CV-2 states the same office appointment coordination fact."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "The cited CV facts reasonably connect to the advertised records and request duties."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All candidate facts are supported, and job references match the supplied job context."
+				},
+				"premises": [],
+				"quality": {
+					"status": "appropriate",
+					"reason": "Meets length, paragraph, Arabic, role/employer, and two-specifics criteria."
+				}
+			},
+			"openRouterMicros": 12831,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "8eacedd57acbdd30b0d1760da7a3f6241ee011a4147e9fd0639c59b9d2247701",
+			"caseId": "judge-canary-cover-letter-ar",
+			"category": "cover-letter",
+			"language": "ar",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "b",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV states the candidate prepared weekly reports using Excel."
+					},
+					{
+						"claimId": "c",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV states the candidate coordinated office appointments."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "The cited CV facts reasonably relate to the advertised record-organization and request-follow-up duties."
+					},
+					{
+						"claimId": "canary-defect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The CV does not mention any revenue increase of 45 units."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "The unsupported revenue-increase sentence makes the response not fully covered."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The draft invents a revenue metric unsupported by the CV."
+				}
+			},
+			"openRouterMicros": 9522,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "471a0ecd17ec6f4f1056a74a755d1fdbf9c1eee9d067675572207fcfb022e8ec",
+			"caseId": "judge-canary-cover-letter-ar",
+			"category": "cover-letter",
+			"language": "ar",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "b",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV says the candidate prepared weekly reports using Excel."
+					},
+					{
+						"claimId": "c",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV says the candidate coordinated office appointments."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "The cited CV facts plausibly relate to the advertised records and request-follow-up duties."
+					},
+					{
+						"claimId": "canary-detect",
+						"verdict": "contradicted",
+						"evidenceIds": ["canary-context"],
+						"reason": "The CV explicitly says the candidate did not manage a team."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "A declared claim asserts team management, which the CV explicitly denies."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The draft includes a contradicted claim about managing a team."
+				}
+			},
+			"openRouterMicros": 9984,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "f13899786ce7f0055bc72d10ad2fef534e5a31feb4f277ec349e1def92044913",
+			"caseId": "judge-canary-cover-letter-ar",
+			"category": "cover-letter",
+			"language": "ar",
+			"defect": "job-only-keyword",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "b",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV states weekly reports were prepared using Excel."
+					},
+					{
+						"claimId": "c",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV states office appointments were coordinated."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "The cited reporting and scheduling facts reasonably link to the advertised record and request duties."
+					},
+					{
+						"claimId": "canary-detect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The cited CV segment does not mention SAP, and job-ad text cannot prove candidate experience."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "The body contains an unsupported SAP assertion."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The draft includes an unsupported SAP claim, so it is unsafe regardless of otherwise relevant content."
+				}
+			},
+			"openRouterMicros": 12170,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "71d3ec44808a3a4fe56d0d74ee8df410d1a66051cfe5ac2c13251f4fcbb4167f",
+			"caseId": "judge-canary-cover-letter-en",
+			"category": "cover-letter",
+			"language": "en",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "experience-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV states this exact fact."
+					},
+					{
+						"claimId": "experience-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV states this exact fact."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "partially",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "The CV supports record-related work but not request follow-up."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "The third declared claim is only partially supported because the CV does not show request follow-up."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The cover letter is repetitive and its relevance claim overstates the CV."
+				}
+			},
+			"openRouterMicros": 4315,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "268f8d0826976ad2d3438dc8827216d0883f688bafc16c17f91a66e4e29bf503",
+			"caseId": "judge-canary-cover-letter-en",
+			"category": "cover-letter",
+			"language": "en",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "experience-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV states that shipment records were updated."
+					},
+					{
+						"claimId": "experience-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV states that delivery reports were prepared."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "partially",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "Record updating supports record organisation, but report preparation does not show request follow-up."
+					},
+					{
+						"claimId": "canary-detect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The cited CV text does not mention revenue or units."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "The revenue claim is unsupported and the duties link is only partly supported."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The draft includes an unsupported revenue metric and a closing sign-off."
+				}
+			},
+			"openRouterMicros": 9129,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "94cf415e3d6e5436c75e2d2b78f8d40106fc4b8ec0e08b7230d1422f3720e401",
+			"caseId": "judge-canary-cover-letter-en",
+			"category": "cover-letter",
+			"language": "en",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "experience-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV states the candidate updated shipment records."
+					},
+					{
+						"claimId": "experience-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV states the candidate prepared delivery reports."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "partially",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "Record organisation is supported, but no cited fact shows request follow-up."
+					},
+					{
+						"claimId": "canary-detect",
+						"verdict": "contradicted",
+						"evidenceIds": ["canary-context"],
+						"reason": "The cited CV evidence states the candidate did not manage a team."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "A contradicted team-management claim and a partially supported duty bridge make the response unsafe."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "It includes a contradicted team-management statement."
+				}
+			},
+			"openRouterMicros": 12357,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "eef336a4ef34db750319f2173a25091690815b95c0eca8cd103b22e020be53cf",
+			"caseId": "judge-canary-cover-letter-en",
+			"category": "cover-letter",
+			"language": "en",
+			"defect": "job-only-keyword",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "experience-1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV states this exact fact."
+					},
+					{
+						"claimId": "experience-2",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV states this exact fact."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "partially",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "The CV supports shipment records but not request follow-up."
+					},
+					{
+						"claimId": "canary-detect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The cited CV text does not mention SAP."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "The response includes an unsupported SAP assertion and a partially supported relevance link."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "It includes an unsupported SAP claim and a partially supported relevance link."
+				}
+			},
+			"openRouterMicros": 7743,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "807e689fb9a41b69f40d72cd76b2de229cce8a7fe9305627bc8df6df9b4ef0ff",
+			"caseId": "judge-canary-cover-letter-mixed",
+			"category": "cover-letter",
+			"language": "mixed",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "b",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV states the candidate recorded customer requests."
+					},
+					{
+						"claimId": "c",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV states the candidate followed up service tickets."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "The cited CV facts align with the advertised records and follow-up duties without adding a new candidate skill."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All declared claims are supported and the remaining text is motivation, job reference, or open questions."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The conversation invitation is overlong and the closing thanks reads like a sign-off."
+				}
+			},
+			"openRouterMicros": 7094,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "e645b104f5b6cd73c37f46a254cf6d2a63e749a82fb9677601160ca240b8fc9f",
+			"caseId": "judge-canary-cover-letter-mixed",
+			"category": "cover-letter",
+			"language": "mixed",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "b",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV states the candidate recorded customer requests."
+					},
+					{
+						"claimId": "c",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV states the candidate followed up service tickets."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "The cited CV facts support a relation to organizing records and following up requests."
+					},
+					{
+						"claimId": "canary-detect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The cited CV evidence does not mention revenue or a 45-unit increase."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "The response includes an unsupported revenue-increase assertion."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The draft includes an unsupported revenue metric."
+				}
+			},
+			"openRouterMicros": 13728,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "a2b0bd6f8a319e8eae1dae7ee0213acb9c9d24d439d90891dda1548b7dc39566",
+			"caseId": "judge-canary-cover-letter-mixed",
+			"category": "cover-letter",
+			"language": "mixed",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "b",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV states the same customer-request recording fact."
+					},
+					{
+						"claimId": "c",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV states the same service-ticket tracking fact."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "The cited CV facts support the advertised-duty bridge without adding a new candidate fact."
+					},
+					{
+						"claimId": "canary-detect",
+						"verdict": "contradicted",
+						"evidenceIds": ["canary-context"],
+						"reason": "The CV explicitly denies having managed a team."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "The declared team-management claim contradicts the CV."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The letter asserts denied team management."
+				}
+			},
+			"openRouterMicros": 9148,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "6052e96281e8b0e8a26021d7a2b4e122cba341f43bc0193d037428497adadb60",
+			"caseId": "judge-canary-cover-letter-mixed",
+			"category": "cover-letter",
+			"language": "mixed",
+			"defect": "job-only-keyword",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "b",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1"],
+						"reason": "The CV states logging customer requests."
+					},
+					{
+						"claimId": "c",
+						"verdict": "supported",
+						"evidenceIds": ["cv-2"],
+						"reason": "The CV states following service tickets."
+					},
+					{
+						"claimId": "experience-role-connection",
+						"verdict": "supported",
+						"evidenceIds": ["cv-1", "cv-2"],
+						"reason": "The cited CV facts fit the advertised record-keeping and request-follow-up duties."
+					},
+					{
+						"claimId": "canary-detect",
+						"verdict": "unsupported",
+						"evidenceIds": ["canary-context"],
+						"reason": "The cited CV entry does not mention SAP."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "The SAP claim is unsupported by CV evidence."
+				},
+				"premises": [],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The draft asserts job-only SAP experience and includes a thank-you sign-off."
+				}
+			},
+			"openRouterMicros": 13755,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 1
+		},
+		{
+			"key": "265221421ae3489020fa9f4e9c0252ebdbcb50ff208e40c14b6e0a77715f55e7",
+			"caseId": "judge-canary-interview-prep-ar",
+			"category": "interview-prep",
+			"language": "ar",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "question:q1:premise:p1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-work"],
+						"reason": "The CV states she prepared monthly reports using Excel."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "The sole claim is supported and the remaining questions are open hypotheticals."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "supported",
+						"reason": "The CV states she prepared monthly reports using Excel."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about SAP with no candidate experience asserted."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical with no candidate assertion."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical with no candidate assertion."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical with no candidate assertion."
+					}
+				],
+				"quality": {
+					"status": "appropriate",
+					"reason": "The questions are relevant and grounded without unsupported candidate facts or D22 predictions."
+				}
+			},
+			"openRouterMicros": 3483,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "e3aa7cd0e696c981aa792e8eaf068b6f6e5e94b07dce00d24530bbb70b414712",
+			"caseId": "judge-canary-interview-prep-ar",
+			"category": "interview-prep",
+			"language": "ar",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "q1 asserts an unsupported 45-unit revenue increase."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "unsupported",
+						"reason": "The question asserts an unsupported 45-unit revenue increase."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical gap question."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical role question."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical role question."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical role question."
+					}
+				],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The first question invents an unsupported revenue increase."
+				}
+			},
+			"openRouterMicros": 2323,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "ad58f859fdcad5e9b48b0654afa861969d7de3f2728fd04fd63d625e07ee9b68",
+			"caseId": "judge-canary-interview-prep-ar",
+			"category": "interview-prep",
+			"language": "ar",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "Question 1 asserts team management, which the CV explicitly denies."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "contradicted",
+						"reason": "The CV states she did not manage a team."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "Open hypothetical gap question about SAP."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "Open role-based question with no candidate assertion."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "Open role-based question with no candidate assertion."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "Open role-based question with no candidate assertion."
+					}
+				],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "Question 1 presupposes team management contradicted by the CV."
+				}
+			},
+			"openRouterMicros": 2295,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "37853578d9b6617ca3a2f575f2252440b0ce2317d35f1949652c58d108849e69",
+			"caseId": "judge-canary-interview-prep-ar",
+			"category": "interview-prep",
+			"language": "ar",
+			"defect": "escalation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "q1 asserts that the candidate led the department, but the CV states she did not manage a team."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "contradicted",
+						"reason": "The CV states she did not manage a team, contradicting the premise that she led the entire department."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about using SAP and asserts no candidate experience."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open question about verifying report accuracy and asserts no candidate experience."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open question about preparing a report and asserts no candidate experience."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open question about presenting a note in a report and asserts no candidate experience."
+					}
+				],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "q1 assumes department leadership that the CV explicitly denies."
+				}
+			},
+			"openRouterMicros": 1972,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "9aa15e2143a1b598c1c74f72c6f882be84e7d66f6f6d59cc6106e0b197b5a699",
+			"caseId": "judge-canary-interview-prep-en",
+			"category": "interview-prep",
+			"language": "en",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "question:q1:premise:p1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-work"],
+						"reason": "The CV states the candidate tested Node.js services."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "All declared claims are supported and every question is safe, with no uncovered candidate assertions."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "supported",
+						"reason": "The CV supports that the candidate tested Node.js services."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about learning Kubernetes."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about investigating a failing test."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about clarifying before testing a service."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about documenting a reproducible failure."
+					}
+				],
+				"quality": {
+					"status": "appropriate",
+					"reason": "The questions are safe interview practice grounded in CV or role topics."
+				}
+			},
+			"openRouterMicros": 1355,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "4ba812d382a243fb6e43e414e3115acc9c31ceec135c5e2953b39a6ddc46a37f",
+			"caseId": "judge-canary-interview-prep-en",
+			"category": "interview-prep",
+			"language": "en",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "Question q1 asserts a 45-unit revenue increase not supported by the CV and not covered by any claim."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "unsupported",
+						"reason": "The CV supports Node.js testing but not a 45-unit revenue increase."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about learning Kubernetes."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about investigating a failing test."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about clarifying before testing."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about documenting a failure."
+					}
+				],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "Question q1 invents an unsupported revenue figure."
+				}
+			},
+			"openRouterMicros": 2381,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "5593c02846cfe84e4e0f0f7f7a3b4a28f3bed50c5ec29107f69acfe398be0a27",
+			"caseId": "judge-canary-interview-prep-en",
+			"category": "interview-prep",
+			"language": "en",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "The first question presupposes team management, which the CV denies."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "contradicted",
+						"reason": "The CV says the candidate did not manage a team."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question about learning Kubernetes."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question about investigating failures."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question about clarifying before testing."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question about documenting failures."
+					}
+				],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "The first question assumes team management that the CV explicitly denies."
+				}
+			},
+			"openRouterMicros": 1173,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "94ce3aefb48034376cb17110e2878905173aa8cbedcee6e3a776413634750fd9",
+			"caseId": "judge-canary-interview-prep-en",
+			"category": "interview-prep",
+			"language": "en",
+			"defect": "escalation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "Question 1 asserts department leadership that the CV expressly denies."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "contradicted",
+						"reason": "The CV states the candidate did not manage a team."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open gap question about learning Kubernetes."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question."
+					}
+				],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "Question 1 asserts contradicted department leadership experience."
+				}
+			},
+			"openRouterMicros": 1663,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "1aaa0e30d86ec14c884dae3fd2687b7e0de7557d6d879d13e015b47dbab5e6cc",
+			"caseId": "judge-canary-interview-prep-mixed",
+			"category": "interview-prep",
+			"language": "mixed",
+			"defect": "gold",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [
+					{
+						"claimId": "question:q1:premise:p1",
+						"verdict": "supported",
+						"evidenceIds": ["cv-work"],
+						"reason": "The CV states she coordinated appointments using Excel."
+					}
+				],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "complete",
+					"reason": "The sole candidate assertion is supported, and the other questions are open hypotheticals."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "supported",
+						"reason": "The CV states appointment coordination with Excel."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open gap question about learning a required system."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open role hypothetical without a candidate assertion."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open role hypothetical without a candidate assertion."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open role hypothetical without a candidate assertion."
+					}
+				],
+				"quality": {
+					"status": "appropriate",
+					"reason": "Questions are grounded in the CV and role without unsupported assertions."
+				}
+			},
+			"openRouterMicros": 2714,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "60eae3c0d1b11e7bcbfc259e746ed1319a036e540916133956506cd5fb171a2c",
+			"caseId": "judge-canary-interview-prep-mixed",
+			"category": "interview-prep",
+			"language": "mixed",
+			"defect": "invented-metric",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "Question 1 asserts an unsupported 45-unit revenue increase."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "unsupported",
+						"reason": "The CV supports Excel appointment coordination but not a 45-unit revenue increase."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open gap question about learning a new system."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question about handling appointment conflicts."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question about information needed before changing an appointment."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question about explaining schedule changes."
+					}
+				],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "Question 1 includes an unsupported revenue metric."
+				}
+			},
+			"openRouterMicros": 2647,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "22901ddb6a61932d4bd4999b97b01bdc1793e0c06bbb6c77acc1d3251c84e22d",
+			"caseId": "judge-canary-interview-prep-mixed",
+			"category": "interview-prep",
+			"language": "mixed",
+			"defect": "dropped-negation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "Question q1 presupposes team management, which the CV denies."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "contradicted",
+						"reason": "The CV states that the candidate did not manage a team."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open gap question about learning a new system."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question about handling conflicts."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This asks what information would be requested, without asserting prior experience."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical question about explaining schedule changes."
+					}
+				],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "Question q1 assumes team management that the CV explicitly denies."
+				}
+			},
+			"openRouterMicros": 1273,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		},
+		{
+			"key": "ca82b43f5baf6063f8f86eb65fba0e62331aa6a5853997c64cf25c16692fe326",
+			"caseId": "judge-canary-interview-prep-mixed",
+			"category": "interview-prep",
+			"language": "mixed",
+			"defect": "escalation",
+			"judge": {
+				"model": "deepseek/deepseek-v4.1-flash-1017",
+				"provider": "together",
+				"reasoning": "low"
+			},
+			"outcome": "valid",
+			"provider": "Together",
+			"verdict": {
+				"schemaVersion": 1,
+				"verdicts": [],
+				"retention": null,
+				"absence": [],
+				"coverage": {
+					"status": "uncovered",
+					"reason": "Question q1 includes a contradicted leadership premise, so coverage is not complete."
+				},
+				"premises": [
+					{
+						"id": "question:q1",
+						"verdict": "contradicted",
+						"reason": "The CV states she did not manage a team, contradicting the department-lead premise."
+					},
+					{
+						"id": "question:q2",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open question about future learning."
+					},
+					{
+						"id": "question:q3",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about handling conflicts."
+					},
+					{
+						"id": "question:q4",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about information to request."
+					},
+					{
+						"id": "question:q5",
+						"verdict": "no_candidate_premise",
+						"reason": "This is an open hypothetical about explaining schedule changes."
+					}
+				],
+				"quality": {
+					"status": "inappropriate",
+					"reason": "Question q1 assumes department leadership contrary to the CV."
+				}
+			},
+			"openRouterMicros": 2153,
+			"openaiMicros": 0,
+			"verifierFaultRetries": 0
+		}
+	]
+}

@@ -2,6 +2,7 @@ import type { Application } from "./types";
 import type { ApplicationClosedReason, ApplicationStatus } from "@reactive-resume/schema/applications/data";
 import { t } from "@lingui/core/macro";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRef } from "react";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { applicationsListQueryKey } from "./queries";
 import { getStageLabel } from "./stages";
@@ -35,6 +36,7 @@ export function useApplicationActions() {
 	const queryClient = useQueryClient();
 	const invalidate = useInvalidateApplications();
 	const listKey = applicationsListQueryKey();
+	const pending = useRef(new Set<string>());
 
 	const update = useMutation({
 		...orpc.applications.update.mutationOptions(),
@@ -59,7 +61,16 @@ export function useApplicationActions() {
 			if (context?.previous) queryClient.setQueryData(listKey, context.previous);
 			failed(error);
 		},
-		onSettled: (_data, _error, input) => invalidate(input.id),
+		onSuccess: (saved) => {
+			queryClient.setQueryData<Application[]>(listKey, (rows) =>
+				rows?.map((row) => (row.id === saved.id ? saved : row)),
+			);
+			queryClient.setQueryData(orpc.applications.getById.queryKey({ input: { id: saved.id } }), saved);
+		},
+		onSettled: (_data, _error, input) => {
+			pending.current.delete(input.id);
+			invalidate(input.id);
+		},
 	});
 
 	const remove = useMutation({
@@ -71,18 +82,36 @@ export function useApplicationActions() {
 		onError: failed,
 	});
 
+	const changeStage = (
+		application: Pick<Application, "id" | "updatedAt">,
+		status: ApplicationStatus,
+		closedReason?: ApplicationClosedReason,
+	) => {
+		if (pending.current.has(application.id)) return;
+		pending.current.add(application.id);
+		const current =
+			queryClient.getQueryData<Application[]>(listKey)?.find((row) => row.id === application.id) ??
+			queryClient.getQueryData<Application>(orpc.applications.getById.queryKey({ input: { id: application.id } })) ??
+			application;
+		update.mutate(
+			{
+				id: application.id,
+				expectedUpdatedAt: new Date(current.updatedAt).toISOString(),
+				status,
+				...(closedReason ? { closedReason } : {}),
+			},
+			{
+				onSuccess: () =>
+					toast.add({ description: closedReason ? t`Application closed` : t`Moved to ${getStageLabel(status)}` }),
+			},
+		);
+	};
 	return {
 		update,
 		remove,
-		moveTo: (application: Pick<Application, "id">, status: ApplicationStatus) =>
-			update.mutate(
-				{ id: application.id, status },
-				{ onSuccess: () => toast.add({ description: t`Moved to ${getStageLabel(status)}` }) },
-			),
-		close: (application: Pick<Application, "id">, closedReason: ApplicationClosedReason) =>
-			update.mutate(
-				{ id: application.id, status: "closed", closedReason },
-				{ onSuccess: () => toast.add({ description: t`Application closed` }) },
-			),
+		moveTo: (application: Pick<Application, "id" | "updatedAt">, status: ApplicationStatus) =>
+			changeStage(application, status),
+		close: (application: Pick<Application, "id" | "updatedAt">, closedReason: ApplicationClosedReason) =>
+			changeStage(application, "closed", closedReason),
 	};
 }

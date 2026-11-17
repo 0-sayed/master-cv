@@ -13,6 +13,8 @@ const state = vi.hoisted(() => ({
 	path: "/dashboard",
 	trash: 0,
 	count: 1,
+	applicationsEnabled: true,
+	query: vi.fn(),
 	open: vi.fn(),
 	toggle: vi.fn(),
 	locale: vi.fn(),
@@ -27,12 +29,16 @@ const user = {
 };
 vi.mock("@tanstack/react-hotkeys", () => ({ useHotkey: vi.fn() }));
 vi.mock("@tanstack/react-query", () => ({
-	useQuery: ({ kind }: { kind: string }) => ({
-		data:
-			kind === "counts"
-				? { resume: state.count, letter: 0, trash: state.trash }
-				: Array.from({ length: state.count }, () => ({ status: "active" })),
-	}),
+	useQuery: (options: { kind: string; enabled?: boolean }) => {
+		state.query(options);
+		const { kind } = options;
+		return {
+			data:
+				kind === "counts"
+					? { resume: state.count, letter: 0, trash: state.trash }
+					: Array.from({ length: state.count }, () => ({ status: "active" })),
+		};
+	},
 	useQueryClient: () => ({ clear: vi.fn() }),
 }));
 vi.mock("@tanstack/react-router", () => ({
@@ -56,7 +62,10 @@ vi.mock("@tanstack/react-router", () => ({
 			fuzzy ? state.path.startsWith(to) : state.path === to,
 	useRouteContext: ({ from }: { from: string }) => {
 		if (state.path === "/help" && from !== "__root__") throw new Error("Help has no dashboard route context");
-		return { session: { user } };
+		return {
+			session: { user },
+			flags: { personalToolsAvailability: { coverLetters: true, applications: state.applicationsEnabled } },
+		};
 	},
 	useRouterState: ({ select }: { select: (value: unknown) => unknown }) =>
 		select({ location: { pathname: state.path } }),
@@ -100,6 +109,7 @@ afterEach(() => {
 	state.path = "/dashboard";
 	state.trash = 0;
 	state.count = 1;
+	state.applicationsEnabled = true;
 });
 function show() {
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
@@ -241,4 +251,32 @@ it.each([1, 12, 120])("keeps Arabic accessible counts in Latin digits at %i", as
 	);
 	const link = screen.getByRole("link", { name: new RegExp(`سلة المهملات، ${count} `) });
 	expect(link.textContent).toBe(count > 99 ? "99+" : String(count));
+});
+
+it("hides unavailable applications and disables their query", () => {
+	state.applicationsEnabled = false;
+	state.query.mockClear();
+	try {
+		show();
+		expect(screen.queryAllByRole("link", { name: /Applications/ })).toHaveLength(0);
+		expect(state.query).toHaveBeenCalledWith({ kind: "applications", enabled: false });
+	} finally {
+		state.applicationsEnabled = true;
+	}
+});
+
+it.each([true, false])("matches mobile columns to available destinations (%s)", (enabled) => {
+	state.breakpoint = "mobile";
+	state.applicationsEnabled = enabled;
+	show();
+	expect(screen.getByRole("navigation").closest("[style]")?.getAttribute("style")).toContain(
+		`--app-mobile-nav-columns: ${enabled ? 5 : 4}`,
+	);
+	expect(screen.queryByRole("link", { name: "Applications" }) !== null).toBe(enabled);
+});
+it("retains the header on the application detail page", () => {
+	state.path = "/dashboard/applications/application-id";
+	show();
+	expect(screen.getByRole("complementary")).toBeDefined();
+	expect(screen.getByRole("button", { name: "New CV" })).toBeDefined();
 });

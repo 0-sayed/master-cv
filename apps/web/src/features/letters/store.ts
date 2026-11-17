@@ -56,7 +56,7 @@ type LetterEditorStore = {
 	/** One editing visit: its saves share one History version. */
 	sessionId: string;
 	draft: LetterDraft;
-	load: (letter: CoverLetter) => void;
+	load: (letter: CoverLetter, discardPending?: boolean) => void;
 	edit: (edits: LetterEdits) => void;
 	/** Saves everything typed so far. False on failure; edits remain for retry. */
 	flush: () => Promise<boolean>;
@@ -83,7 +83,9 @@ export const useLetterEditorStore = create<LetterEditorStore>()((set, get) => ({
 	sessionId: generateId(),
 	draft: idleDraft,
 
-	load: (letter) => {
+	load: (letter, discardPending = false) => {
+		if (!discardPending && get().letter?.id === letter.id && (hasEdits(get().pending) || get().status !== "saved"))
+			return;
 		clearTimeout(timer);
 		drafting?.abort();
 		drafting = null;
@@ -154,10 +156,20 @@ export const useLetterEditorStore = create<LetterEditorStore>()((set, get) => ({
 
 	change: async (action) => {
 		const { sessionId } = get();
-		if (!(await get().flush())) throw new Error(t`Couldn't save your changes. Try again before continuing.`);
+		if (!(await get().flush())) {
+			if (get().status === "conflict") throw new ORPCError("CONFLICT");
+			throw new Error(t`Couldn't save your changes. Try again before continuing.`);
+		}
 		const { letter } = get();
 		if (!letter || get().sessionId !== sessionId) throw new Error("No letter is open.");
-		const next = await action(letter);
+		let next: CoverLetter;
+		try {
+			next = await action(letter);
+		} catch (error) {
+			if (error instanceof ORPCError && error.code === "CONFLICT" && get().sessionId === sessionId)
+				set({ status: "conflict" });
+			throw error;
+		}
 		set((state) =>
 			state.letter?.id === letter.id && state.sessionId === sessionId
 				? { letter: applyEdits(next, state.pending) }

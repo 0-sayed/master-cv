@@ -49,6 +49,7 @@ catalog:
   expo-observe: ~58.0.15
   "@lingui/core": 6.10.0
   "@lingui/message-utils": 6.10.0
+  "@reactive-resume/ai": workspace:*
 allowBuilds:
   esbuild: true
   lefthook: true
@@ -59,6 +60,10 @@ minimumReleaseAge: 0
 audit:
   ignore:
     - GHSA-mrhx-c7xc-m3w5
+    # 2026-11-17: Picomatch 2.3.2/4.0.7 also exist on main. No patched release exists.
+    # Only repository/build globs reach these tooling dependencies; app inputs do not supply patterns.
+    # Temporary exception under the PR repair authorization; review by 2026-11-24.
+    - GHSA-fc5q-39xc-vjpf
 overrides:
   # Keep plugin imports on the same Vite and Vitest instances as Vite+.
   vite: npm:@voidzero-dev/vite-plus-core@1.3.0
@@ -88,4 +93,5 @@ overrides:
   samlify@<2.13.0: ^2.13.0
   uuid@<11.1.1: ^11.1.1
 patchedDependencies:
+  "@dnd-kit/core@6.3.1": patches/@dnd-kit__core@6.3.1.patch
   react-native-enriched-html@1.1.1: apps/mobile/patches/react-native-enriched-html@1.1.1.patch

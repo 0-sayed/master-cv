@@ -1,7 +1,7 @@
 # Master CV — Roadmap execution guide
 
 **Roadmap:** 1.1 · **Prepared:** 2026-11-03 · **Status:** Proposed implementation plan; owner review required.
-**Delivery policy:** 16 large PRs, T000-T015; every Task Graph row has size `L`.
+**Delivery policy:** 18 large PRs, T000-T017; every Task Graph row has size `L`.
 **Basis:** current context v0.8, Figma `K3UTevGCFBhsoSLXH7BDni`, fork-adapted bootstrap v1.2.
 
 ## What is source-derived and what is proposed
@@ -45,14 +45,15 @@ Task rows and matching Mermaid classes change when the PR is first shipped (owne
 T000 is the sole initial root. T001 proves document output while T002 supplies the bilingual shell.
 T003 delivers email accounts/private workspace and the career mapping consumed by T004's native import/editor.
 T005 owns free usage enforcement; T006/T007 add reviewed improvement, tailoring and independent language versions.
-T009 delivers active deletion/durable records; T012 depends on T009 and owns backup restore/deletion replay.
+T009 delivers active deletion/durable records; T012 depends on T005/T009/T013 and owns backup restore/deletion replay.
+D42 adds T016 after T008 merges and before T012 deployment, which needs the Sirawise name and owner-supplied domain.
 T011 follows T007/T009 with a simple truthful landing page; T010 adds paid grants and the pricing section later.
-T013 qualifies the free beta after T007/T009/T011/T012. T015 qualifies paid release after T008/T010/T013;
+D43 orders T008 -> T016 -> T017 Hostinger private beta -> T014 phone OTP -> T010 test-mode billing -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release. T012 requires client approval of the pilot;
 T008 may explicitly withhold either tool. S32-S34 and S24-S27 are post-beta.
-T014 activates mobile authentication after T003/T009, independently of beta and paid critical paths.
+T014 follows T003/T009/T017. T010 uses the T017 server for test mode; production charging remains gated behind T012/T015.
 Dependencies outrank numeric priority. After T005 merges, T006 and T009 may become eligible subject to
-their blockers; T012 becomes eligible after T009 as well. T008 and T010 wait for T013 and have priorities
-135 and 136, after T013 and before T014/T015. Preserve the exact
+their blockers. D39 moves T008 after T007. D42 retains the rename; D43 adds the two-stage deployment sequence above.
+T010 follows T014/T017 at priority 100 under D43. Preserve the exact
 [scheduler contract](tasks.md#scheduler-contract): no waves, ID-only FIFO or fake completed setup nodes.
 
 ## Large-PR and ownership rules

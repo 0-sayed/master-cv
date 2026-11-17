@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouter, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import z from "zod";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { DialogFooter } from "@reactive-resume/ui/components/dialog";
@@ -170,20 +171,17 @@ function TwoFactorVerificationPage({ backupCode = false }: TwoFactorVerification
 				</form.Field>
 
 				<DialogFooter>
-					<Button
-						variant="secondary"
-						nativeButton={false}
+					<BackNavigation
 						render={
-							<Link to={backupCode ? "/auth/verify-2fa" : "/auth/login"} search={{ callbackURL, reauthenticate }}>
-								<Icon name="arrow-left" />
-								{backupCode ? (
-									<Trans comment="Secondary navigation button on backup-code verification screen">Go Back</Trans>
-								) : (
-									<Trans comment="Secondary navigation button on 2FA verification screen">Back to sign in</Trans>
-								)}
-							</Link>
+							<Link to={backupCode ? "/auth/verify-2fa" : "/auth/login"} search={{ callbackURL, reauthenticate }} />
 						}
-					/>
+					>
+						{backupCode ? (
+							<Trans comment="Secondary navigation button on backup-code verification screen">Go Back</Trans>
+						) : (
+							<Trans comment="Secondary navigation button on 2FA verification screen">Back to sign in</Trans>
+						)}
+					</BackNavigation>
 
 					<Button type="submit" disabled={isSubmitting}>
 						<Icon name="check" />

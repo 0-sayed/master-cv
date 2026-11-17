@@ -4,18 +4,12 @@ import { readFile, mkdir, writeFile, access } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { assertStudyForecast, calibratedExpectedFull } from "./budget";
 import catalogSnapshot from "./catalog-snapshot.json";
-import {
-	parseOptions,
-	loadModels,
-	applyReasoning,
-	applyCatalogPrices,
-	pruneTaskVariants,
-	taskVariantId,
-} from "./config";
-import { readBenchmarkKey, readBenchmarkKeyFile } from "./credentials";
+import { parseOptions, loadModels, applyCatalogPrices, taskVariantId } from "./config";
+import { readBenchmarkKey, readBenchmarkKeyFile, readBenchmarkProcessKey } from "./credentials";
 import { diagnostic } from "./diagnostics";
 import { dispatchLimits } from "./dispatch";
-import { assertFrozenStudy } from "./freeze";
+import { assertFrozenStudy, billingRuntimeRevision } from "./freeze";
+import { sessionRouterCostMicros, smokeCellReport, blockedSmokeCategories } from "./instrument";
 import { appendEvent, readJournal } from "./journal";
 import { evaluationOutputFolder } from "./output-directory";
 import { captureCommand } from "./subprocess";
@@ -41,7 +35,9 @@ async function main() {
 	process.env.APP_URL ??= "http://localhost:3000";
 	process.env.DATABASE_URL ??= "postgresql://synthetic:synthetic@localhost:1/synthetic";
 	process.env.AUTH_SECRET ??= "synthetic-a02-benchmark-only";
+	const { bindSmokeCohort, selectedSmoke } = await import("./smoke-cohort");
 	const [
+		{ resolveStudyPlan },
 		{ cases: coreCases },
 		{ estimateBenchmark, refreshModels, runBenchmark },
 		{ renderReport, identityMapping },
@@ -51,50 +47,35 @@ async function main() {
 			recordedControls,
 			baselineChecks,
 			arabicApprovalProvenance,
-			loadStudyCases,
 			studyReviewItems,
 			smokeCases,
-			requireFullModels,
-			studyHash,
 			validateSmoke,
 			validateResume,
 			caseVersions,
 			assessSmoke,
 		},
 	] = await Promise.all([
+		import("./study-plan"),
 		import("./corpus"),
 		import("./runner"),
 		import("./report"),
 		import("./metrics"),
 		import("./study"),
 	]);
-	const cases = options.study === "core" ? coreCases : loadStudyCases(options.study, options.categories);
-	const config =
-		options.config ??
-		(options.study === "tasks-v1" ? new URL("./models-tasks.json", import.meta.url).pathname : undefined);
-	let models = applyReasoning(loadModels(config, options.selected, options.allowGoogle), options.reasoning);
-	if (options.study === "tasks-v1" && options.variants !== undefined)
-		models = pruneTaskVariants(models, options.variants);
-	if (options.study === "tasks-v1" && options.smokeCategory) throw new Error("TASKS_SMOKE_SCOPE_FORBIDDEN");
-	const categories = options.categories;
-	if (categories)
-		models = models
-			.map((model) => ({
-				...model,
-				categories: categories.filter((category) => !model.categories || model.categories.includes(category)),
-			}))
-			.filter((model) => model.categories.length > 0);
-	if (options.stage === "full") requireFullModels(models);
-	const selectedCases =
+	const { measuredForecast } = await import("./measured-forecast");
+	const plan = resolveStudyPlan(options);
+	const cases = plan.cases;
+	let models = plan.writers;
+	let selectedCases =
 		options.stage === "smoke" ? smokeCases(cases, models, options.smokeCategory) : cases.filter((c) => !c.exploratory);
-	const runs = options.stage === "smoke" ? 1 : options.runs;
+	const runs = plan.runs;
 	const tuningControl = controls(cases.filter((c) => !c.holdout && !c.exploratory));
 	const control = recordedControls(undefined, options.study, options.categories) ?? {
 		...tuningControl,
 		pass: false,
 		failures: [...tuningControl.failures, { id: "sealed", control: "freeze", reason: "SEALED_CONTROLS_REQUIRED" }],
 	};
-	const experimentHash = studyHash(models, cases, options.runs, options.smokeCategory, options.study);
+	let experimentHash = plan.identity;
 	const { assertJudgeCanaries, runJudgeCanaryFile, forecastJudgeCanaries } = await import("./canaries");
 	if (
 		options.study === "tasks-v1" &&
@@ -119,13 +100,23 @@ async function main() {
 			? arabicApprovalProvenance(approvalFiles, studyReviewItems(options.study, cases))
 			: [];
 	let key: string | undefined;
+	// Reject missing benchmark credentials locally before the full offline matrix.
+	// This does not contact a provider or bypass request/approval validation.
+	if (!options.fake && !options.dryRun && !options.preflight)
+		key =
+			options.credentialSource === "process"
+				? readBenchmarkProcessKey(process.env)
+				: options.keyFile
+					? await readBenchmarkKeyFile(options.keyFile)
+					: await readBenchmarkKey(options.envFile);
 	let calibration: Calibration[] = [];
 	let calibrationMode: "live" | "fake" | null = null;
 	let priorSpendMicros = 0;
 	let priorOpenaiSpendMicros = 0;
 	let smokeCalls: BenchmarkArtifact["calls"] = [];
+	let smokeCanaries: import("./canaries").JudgeCanaryReceipt | undefined;
 	let variantStatus: import("./study").SmokeVariant[] = [];
-	// Runs before credentials, catalog refresh or any paid transport. Smoke also
+	// Runs before catalog refresh or any paid transport. Smoke also
 	// checks the full planned category matrix, rather than just its three cases.
 	if (options.preflight || (!options.fake && !options.dryRun)) {
 		const { preflightRequests } = await import("./preflight");
@@ -142,6 +133,7 @@ async function main() {
 		if (options.stage === "full") {
 			if (!options.smokeFile) throw new Error("LIVE_SMOKE_REQUIRED");
 			const smoke = JSON.parse(await readFile(resolve(options.smokeFile), "utf8")) as BenchmarkArtifact;
+			if (options.study === "tasks-v1") experimentHash = bindSmokeCohort(smoke, models, cases, experimentHash);
 			if (
 				smoke.mode !== "live" ||
 				smoke.study?.phase !== "smoke" ||
@@ -149,33 +141,75 @@ async function main() {
 				smoke.study.hash !== experimentHash
 			)
 				throw new Error("LIVE_SMOKE_MISMATCH");
-			if (options.study === "tasks-v1")
+			if (options.study === "tasks-v1") {
 				assertJudgeCanaries(smoke.study.judgeCanaries, { studyHash: experimentHash, models, mode: "live" });
-			variantStatus = assessSmoke(smoke, models, smokeCases(cases, models, options.smokeCategory), options.study);
-			calibration = validateSmoke(smoke, models, smokeCases(cases, models, options.smokeCategory), options.study);
+				smokeCanaries = smoke.study.judgeCanaries;
+			}
+			variantStatus = assessSmoke(
+				selectedSmoke(smoke, models),
+				models,
+				smokeCases(cases, models, options.smokeCategory),
+				options.study,
+			);
+			calibration = validateSmoke(
+				selectedSmoke(smoke, models),
+				models,
+				smokeCases(cases, models, options.smokeCategory),
+				options.study,
+			);
 			calibrationMode = smoke.mode;
 			smokeCalls = smoke.calls;
 			priorSpendMicros = Math.ceil(smoke.reservedUsd * 1e6);
 			priorOpenaiSpendMicros = Math.ceil((smoke.reservedOpenaiUsd ?? 0) * 1e6);
 		}
-		key = options.keyFile ? await readBenchmarkKeyFile(options.keyFile) : await readBenchmarkKey(options.envFile);
 	}
 	if ((options.fake || options.dryRun) && options.smokeFile) {
 		const smoke = JSON.parse(await readFile(resolve(options.smokeFile), "utf8")) as BenchmarkArtifact;
+		if (options.study === "tasks-v1") experimentHash = bindSmokeCohort(smoke, models, cases, experimentHash);
 		if (
 			smoke.study?.phase !== "smoke" ||
 			(smoke.study.name ?? "core") !== options.study ||
 			smoke.study.hash !== experimentHash
 		)
 			throw new Error("LIVE_SMOKE_MISMATCH");
-		if (options.study === "tasks-v1")
+		if (options.study === "tasks-v1") {
 			assertJudgeCanaries(smoke.study.judgeCanaries, { studyHash: experimentHash, models, mode: smoke.mode });
-		variantStatus = assessSmoke(smoke, models, smokeCases(cases, models, options.smokeCategory), options.study);
-		calibration = validateSmoke(smoke, models, smokeCases(cases, models, options.smokeCategory), options.study);
+			smokeCanaries = smoke.study.judgeCanaries;
+		}
+		variantStatus = assessSmoke(
+			selectedSmoke(smoke, models),
+			models,
+			smokeCases(cases, models, options.smokeCategory),
+			options.study,
+		);
+		calibration = validateSmoke(
+			selectedSmoke(smoke, models),
+			models,
+			smokeCases(cases, models, options.smokeCategory),
+			options.study,
+		);
 		calibrationMode = smoke.mode;
 		smokeCalls = smoke.calls;
 		priorSpendMicros = Math.ceil(smoke.reservedUsd * 1e6);
 		priorOpenaiSpendMicros = Math.ceil((smoke.reservedOpenaiUsd ?? 0) * 1e6);
+	}
+
+	const blockedCategories = options.stage === "full" ? blockedSmokeCategories(smokeCalls) : [];
+	if (blockedCategories.length) {
+		selectedCases = selectedCases.filter((c) => !blockedCategories.includes(c.category));
+		models = models
+			.map((model) => ({
+				...model,
+				categories: [
+					...new Set(
+						selectedCases
+							.filter((c) => !model.categories || model.categories.includes(c.category))
+							.map((c) => c.category),
+					),
+				],
+			}))
+			.filter((model) => model.categories.length > 0);
+		if (!models.length) throw new Error("SMOKE_NO_USABLE_CATEGORY");
 	}
 
 	if (repairContext) {
@@ -228,11 +262,12 @@ async function main() {
 	const payerForecast = (field: "openRouterCostMicros" | "openaiCostMicros") =>
 		options.stage === "full" && calibration.length
 			? calibratedExpectedFull(
-					smokeCalls.map((c) => ({
-						...c,
-						costMicros:
-							field === "openRouterCostMicros" ? (c.openRouterCostMicros ?? c.costMicros) : (c.openaiCostMicros ?? 0),
-					})),
+					smokeCalls
+						.filter((c) => selectedCases.some((f) => f.category === c.category))
+						.map((c) => ({
+							...c,
+							costMicros: field === "openRouterCostMicros" ? sessionRouterCostMicros(c) : (c.openaiCostMicros ?? 0),
+						})),
 					estimate.perModel,
 				)
 			: null;
@@ -244,8 +279,14 @@ async function main() {
 			: calibratedExpectedOpenRouterUsd + calibratedExpectedOpenaiUsd;
 	const forecastNotices: string[] = [];
 	const recordForecastNotice = (message: string) => forecastNotices.push(message);
-	if (calibratedExpectedOpenRouterUsd !== null)
-		assertStudyForecast(calibratedExpectedOpenRouterUsd, priorSpendMicros, options.budgetUsd, recordForecastNotice);
+	if (calibratedExpectedOpenRouterUsd !== null) {
+		try {
+			assertStudyForecast(calibratedExpectedOpenRouterUsd, priorSpendMicros, options.budgetUsd, recordForecastNotice);
+		} catch (error) {
+			if (!options.dryRun && !options.startupCheck) throw error;
+			recordForecastNotice("CALIBRATED_FORECAST_LIMIT");
+		}
+	}
 	if (calibratedExpectedOpenaiUsd !== null) {
 		try {
 			assertStudyForecast(
@@ -255,14 +296,20 @@ async function main() {
 				recordForecastNotice,
 			);
 		} catch {
-			throw new Error("OPENAI_CALIBRATED_FORECAST_LIMIT");
+			if (!options.dryRun && !options.startupCheck) throw new Error("OPENAI_CALIBRATED_FORECAST_LIMIT");
+			recordForecastNotice("OPENAI_CALIBRATED_FORECAST_LIMIT");
 		}
 	}
+
 	let startupForecast: Record<string, unknown> | undefined;
 	if (options.dryRun || options.startupCheck) {
 		const judgeCanaries =
 			options.study === "tasks-v1" && options.stage === "smoke" ? forecastJudgeCanaries(models, verifierModels) : null;
+		const measured = options.study === "tasks-v1" ? measuredForecast(models, cases, runs, options.stage) : null;
 		const forecast = {
+			smokeCells: smokeCellReport(smokeCalls),
+			blockedCategories,
+			measuredExpected: measured,
 			judgeCanaries,
 			forecastNotices,
 			mode: options.startupCheck ? "startup-check" : "dry-run",
@@ -276,12 +323,12 @@ async function main() {
 			budgetUsd: options.budgetUsd,
 			openaiBudgetUsd: options.openaiBudgetUsd,
 			withinBudget:
-				(calibratedExpectedOpenRouterUsd ?? estimate.openRouterUpperBoundUsd) +
-					(judgeCanaries?.openRouterCeilingUsd ?? 0) +
+				(calibratedExpectedOpenRouterUsd ?? measured?.openRouterUsd ?? estimate.openRouterUpperBoundUsd) +
+					(calibratedExpectedOpenRouterUsd !== null ? (judgeCanaries?.openRouterCeilingUsd ?? 0) : 0) +
 					priorSpendMicros / 1e6 <=
 					options.budgetUsd &&
-				(calibratedExpectedOpenaiUsd ?? estimate.openaiUpperBoundUsd) +
-					(judgeCanaries?.openaiCeilingUsd ?? 0) +
+				(calibratedExpectedOpenaiUsd ?? measured?.openaiUsd ?? estimate.openaiUpperBoundUsd) +
+					(calibratedExpectedOpenaiUsd !== null ? (judgeCanaries?.openaiCeilingUsd ?? 0) : 0) +
 					priorOpenaiSpendMicros / 1e6 <=
 					options.openaiBudgetUsd,
 			calibratedExpectedFullUsd,
@@ -379,7 +426,17 @@ async function main() {
 	};
 	if (!options.resume && !options.startupCheck)
 		await writeFile(manifestPath, JSON.stringify(manifest, null, 2), { flag: "wx" });
+	await writeFile(
+		join(root, "session.json"),
+		JSON.stringify(
+			{ studyId: frozen.studyId, mode: options.fake ? "fake" : "live", resultsFile: join(folder, "results.json") },
+			null,
+			2,
+		),
+	);
 	const journal = join(folder, "calls.jsonl");
+	if (options.study === "tasks-v1" && !options.startupCheck)
+		await writeFile(join(folder, "billing-runtime.json"), JSON.stringify(billingRuntimeRevision, null, 2));
 	let history = await readJournal(journal);
 	if (options.reconcileFile) {
 		const { validateSettlement } = await import("./reconcile");
@@ -444,6 +501,7 @@ async function main() {
 					models,
 					verifierModels,
 					cases: [],
+					onRaw: (data) => appendEvent(journal, { type: "raw", data }),
 					runs: 1,
 					fake: options.fake,
 					budgetUsd: options.budgetUsd,
@@ -452,10 +510,13 @@ async function main() {
 					priorOpenaiSpendMicros,
 					...dispatchLimits(options),
 					signal: drain.signal,
+					recoverSystemic: options.recoverSystemic,
 					...(key ? { key } : {}),
 				},
 			});
 		}
+		if (judgeCanaries)
+			assertJudgeCanaries(judgeCanaries, { studyHash: experimentHash, models, mode: options.fake ? "fake" : "live" });
 		artifact = await runBenchmark({
 			signal: drain.signal,
 			recoverSystemic: options.recoverSystemic,
@@ -476,6 +537,10 @@ async function main() {
 			calibration,
 			priorSpendMicros: priorSpendMicros + (judgeCanaries?.openRouterMicros ?? 0),
 			...history,
+			recordedBillingModels: resumeManifest?.priceSnapshot
+				? [...resumeManifest.priceSnapshot.models, ...resumeManifest.priceSnapshot.verifierModels]
+				: undefined,
+			rawRecords: history.rawRecords.filter((r) => !r.key.startsWith("canary:")),
 			...(key ? { key } : {}),
 			onReserve: (data) => appendEvent(journal, { type: "reserved", data }),
 			onRaw: (data) => appendEvent(journal, { type: "raw", data }),
@@ -494,8 +559,9 @@ async function main() {
 				2,
 			),
 		);
+	const reportCanaries = judgeCanaries ?? smokeCanaries;
 	artifact.study = {
-		...(judgeCanaries ? { judgeCanaries } : {}),
+		...(reportCanaries ? { judgeCanaries: reportCanaries } : {}),
 		name: options.study,
 		approvalProvenance,
 		phase: options.stage,
@@ -516,6 +582,37 @@ async function main() {
 			artifact.stopReason = e instanceof Error ? e.message : "SMOKE_FAILED";
 		}
 	}
+	if (options.stage === "smoke" && calibration.length) {
+		const fullEstimate = estimateBenchmark(models, cases, 3, calibration, verifierModels, "full");
+		const payer = (field: "router" | "openai") =>
+			calibratedExpectedFull(
+				artifact.calls.map((c) => ({
+					...c,
+					costMicros: field === "router" ? sessionRouterCostMicros(c) : (c.openaiCostMicros ?? 0),
+				})),
+				fullEstimate.perModel,
+			);
+		await writeFile(
+			join(folder, "calibrated-full-forecast.json"),
+			JSON.stringify(
+				{
+					basis: "All billed smoke observations, including prior verifier attempts. Not a qualification decision.",
+					openRouterUsd: payer("router"),
+					openaiUsd: payer("openai"),
+					sessions: fullEstimate.calls,
+					smokeCells: smokeCellReport(artifact.calls),
+					blockedCategories: blockedSmokeCategories(artifact.calls),
+					serialHours:
+						(artifact.calls.reduce((n, c) => n + c.latencyMs, 0) * fullEstimate.calls) /
+						artifact.calls.length /
+						3600000,
+				},
+				null,
+				2,
+			),
+		);
+	}
+
 	artifact.study.calibration = calibration;
 	artifact.study.variantStatus = variantStatus;
 	const originalManifest = JSON.parse(await readFile(manifestPath, "utf8")) as Record<string, unknown>;
@@ -524,7 +621,7 @@ async function main() {
 		JSON.stringify(
 			{
 				...originalManifest,
-				...(judgeCanaries ? { judgeCanaries } : {}),
+				...(reportCanaries ? { judgeCanaries: reportCanaries } : {}),
 				approvalProvenance,
 				budgetUsd: options.budgetUsd,
 				openaiBudgetUsd: options.openaiBudgetUsd,
@@ -551,6 +648,7 @@ async function main() {
 				reservedOpenaiUsd: artifact.reservedOpenaiUsd,
 				reservedUsd: artifact.reservedUsd,
 				stopReason: artifact.stopReason,
+				billingNotes: artifact.billingNotes,
 				modelStops: artifact.modelStops,
 				incomplete: artifact.incomplete,
 				promptHashes: [...new Set(artifact.calls.map((c) => c.promptDigest))],
@@ -564,6 +662,14 @@ async function main() {
 	await writeFile(
 		join(folder, "results.json"),
 		JSON.stringify({ ...artifact, scores: scoreBenchmark(artifact.calls) }, null, 2),
+	);
+	await writeFile(
+		join(root, "session.json"),
+		JSON.stringify(
+			{ studyId: frozen.studyId, mode: options.fake ? "fake" : "live", resultsFile: join(folder, "results.json") },
+			null,
+			2,
+		),
 	);
 	await writeFile(join(folder, "price-snapshot.json"), JSON.stringify(priceSnapshot, null, 2));
 	await writeFile(
@@ -616,6 +722,7 @@ async function main() {
 				calls: artifact.calls.length,
 				plannedCalls: estimate.calls,
 				stopReason: artifact.stopReason,
+				billingNotes: artifact.billingNotes,
 				modelStops: artifact.modelStops,
 				variantStatus,
 				reservedOpenaiUsd: artifact.reservedOpenaiUsd,

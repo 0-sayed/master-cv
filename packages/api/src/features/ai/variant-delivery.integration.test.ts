@@ -18,6 +18,7 @@ let mode: "supported" | "missing" | "unavailable" | "changed" | "fabricated" = "
 let calls: Record<string, unknown>[] = [];
 const runtime = {
 	...syntheticReviewRuntime,
+	writerConfig: { "review.job-evidence": { model: "openai/gpt-6-luna", reasoningEffort: "low" } },
 	fetch: async (_url: unknown, init?: RequestInit) => {
 		const body = JSON.parse(String(init?.body));
 		calls.push(body);
@@ -203,7 +204,7 @@ it.each(["missing", "unavailable", "fabricated", "changed"] as const)(
 					.query("SELECT kind FROM ai_usage_ledger WHERE operation_id=$1 ORDER BY created_at", [operation.id])
 			).rows.map((row) => row.kind),
 		).toEqual(["reserve", "release"]);
-		if (value === "fabricated") expect(calls).toHaveLength(1);
+		if (value === "fabricated") expect(calls).toHaveLength(2);
 		mode = "supported";
 	},
 );

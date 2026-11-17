@@ -2,8 +2,22 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, it } from "vite-plus/test";
 import { assertFrozenStudy } from "./freeze";
+import { billingRuntimeRevision, frozenStudyFor } from "./freeze";
 import history from "./freeze-history.json";
 import { required } from "./required";
+
+it("keeps the paid study identity while accepting only the pinned billing revision", () => {
+	const read = (path: string) => readFileSync(resolve("..", path));
+	const original = frozenStudyFor("tasks-v1");
+	expect(assertFrozenStudy(read, "tasks-v1")).toBe(original);
+	for (const path of [
+		...Object.keys(billingRuntimeRevision.revisions),
+		"tooling/evaluations/review/billing-runtime.ts",
+	])
+		expect(() =>
+			assertFrozenStudy((p) => (p === path ? Buffer.from("unreviewed billing revision") : read(p)), "tasks-v1"),
+		).toThrow("STUDY_FREEZE_CHANGED");
+});
 it("seals both studies independently, including every task contract and glossary", () => {
 	const read = (path: string) => readFileSync(resolve("..", path));
 	const tasks = assertFrozenStudy(read, "tasks-v1");

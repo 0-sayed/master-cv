@@ -157,7 +157,7 @@ it.each(["en-US", "ar-SA"] as const)(
 		expect(
 			within(alert).getByText(
 				locale === "ar-SA"
-					? "تعذر تحميل المعلومات المهنية. حاول مجددًا."
+					? "تعذّر تحميل المعلومات المهنية. حاول مجددًا."
 					: "Could not load career information. Try again.",
 			),
 		).toBeVisible();

@@ -64,6 +64,7 @@ export const coverLetterDto = {
 	getById: { input: idSchema, output: coverLetterSchema },
 	create: {
 		input: editableSchema.extend({
+			documentLocale: z.enum(["ar-SA", "en-US"]).optional(),
 			recipient: editableSchema.shape.recipient.default(""),
 			content: editableSchema.shape.content.default(""),
 			resumeId: z.string().min(1).optional().describe("The resume it goes with; its details and design are linked."),

@@ -1,10 +1,12 @@
 import type { Claim, TaskCase, TaskContract, TaskScore } from "../types";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
+import { assessmentText } from "@reactive-resume/api/features/ai/variant-guard";
 import { buildModelPayload } from "../../production";
 import { guardTaskClaims } from "../guard";
 import { tasksVerifierSchema } from "../verifier/schema";
 import { tasksVerifier } from "../verifier/verifier";
+import { interviewQuestionAssessment } from "./question-assessment";
 
 const id = z.string().trim().min(1).max(200);
 /** T007/T008 draft; benchmark selection cannot release the Later B-C14 feature. */
@@ -101,7 +103,7 @@ function score(c: TaskCase, output: InterviewPrepOutput, rawVerdict: unknown | n
 		...output.questions.flatMap((q) => [q.text, ...q.premises.map((p) => p.text)]),
 		...output.notes,
 	]) {
-		if (prediction.test(text)) reasons.push("INTERVIEW_D22_ASSESSMENT");
+		if (prediction.test(assessmentText(text))) reasons.push("INTERVIEW_D22_ASSESSMENT");
 		if (skillAbsence.test(text)) reasons.push("INTERVIEW_ASSERTED_SKILL_ABSENCE");
 	}
 	if (rawVerdict !== null) {
@@ -120,21 +122,32 @@ function score(c: TaskCase, output: InterviewPrepOutput, rawVerdict: unknown | n
 	const requiredIds = expected.success ? basisIds(expected.data) : new Set<string>();
 	const covered = basisIds(output);
 	const coverage = requiredIds.size ? [...requiredIds].filter((id) => covered.has(id)).length / requiredIds.size : null;
+	const assessment = rawVerdict === null ? null : interviewQuestionAssessment(c, output, rawVerdict);
+	const rejectedQuestionIds =
+		assessment?.questions.filter((q) => !q.safe || !q.languageAccepted).map((q) => q.id) ?? [];
+	const globalReasons = reasons.filter(
+		(r) => !rejectedQuestionIds.some((id) => r.split(":").includes(id)) && r !== "INTERVIEW_VERIFIER_REJECTED",
+	);
+	const accepted = !globalReasons.length && (assessment?.accepted ?? true);
 	return {
+		...(assessment ? { questions: assessment.questions, retainedQuestionIds: assessment.safeQuestionIds } : {}),
 		caseId: c.id,
 		structuralFailure: false,
 		missingQuestion: !output.questions.length,
 		emptyAnswer: !output.questions.length,
-		safetyDeterministic: { pass: !reasons.length, reasons },
+		safetyDeterministic: {
+			pass: accepted,
+			reasons: accepted ? [] : reasons.length ? reasons : ["INTERVIEW_INSUFFICIENT_SAFE_QUESTIONS"],
+		},
 		quality: { metric: "question-basis-coverage", value: coverage, pass: coverage === null ? null : coverage === 1 },
 		lostFacts: [],
-		unsupportedClaims: reasons,
+		unsupportedClaims: [],
 	};
 }
 
 export const interviewPrepContract: TaskContract<TaskCase, InterviewPrepOutput> = {
 	category: "interview-prep",
-	promptVersion: "t006-interview-prep-v1",
+	promptVersion: "interview-prep-v3-structured-coverage",
 	schemaVersion: "t006-interview-prep-schema-v1",
 	systemPrompt: readFileSync(new URL("./prompt.md", import.meta.url), "utf8"),
 	outputSchema: interviewPrepOutputSchema,
@@ -145,21 +158,29 @@ export const interviewPrepContract: TaskContract<TaskCase, InterviewPrepOutput> 
 	buildInput: (c) => {
 		const names = protectedNames(c);
 		return buildModelPayload({
-			selections: c.cv.length
-				? c.cv.map((f) => ({
-						id: f.id,
-						kind: "confirmed_content",
-						section: f.section,
-						text: names.reduce((text, name, i) => text.replaceAll(name, `[NAME_${i + 1}]`), f.text),
-					}))
-				: [
-						{
-							id: "interview-empty-cv",
-							kind: "user_supplied",
-							section: "summary",
-							text: "No confirmed CV evidence supplied. Ask open hypothetical role questions; never assume experience.",
-						},
-					],
+			selections: [
+				...(c.cv.length
+					? c.cv.map((f) => ({
+							id: f.id,
+							kind: "confirmed_content" as const,
+							section: f.section,
+							text: names.reduce((text, name, i) => text.replaceAll(name, `[NAME_${i + 1}]`), f.text),
+						}))
+					: [
+							{
+								id: "interview-empty-cv",
+								kind: "user_supplied" as const,
+								section: "summary",
+								text: "No confirmed CV evidence supplied. Ask open hypothetical role questions; never assume experience.",
+							},
+						]),
+				{
+					id: "interview-task",
+					kind: "user_supplied" as const,
+					section: "summary",
+					text: JSON.stringify({ outputLanguage: c.language === "en" ? "English" : "Arabic", jobAd: c.jobAd ?? null }),
+				},
+			],
 			contactValues: [],
 		});
 	},

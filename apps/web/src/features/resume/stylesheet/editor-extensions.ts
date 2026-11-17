@@ -1,12 +1,14 @@
 import type { SemanticCssColorToken } from "./color-tokens";
 import type { SemanticCssEditorMetadata } from "./protocol";
 import type { Completion, CompletionContext, CompletionResult, CompletionSource } from "@codemirror/autocomplete";
-import type { EditorState, Extension } from "@codemirror/state";
+import type { Extension } from "@codemirror/state";
 import type { DecorationSet, EditorView as EditorViewType, ViewUpdate } from "@codemirror/view";
 import type { SemanticNode } from "@reactive-resume/resume/stylesheet/registry";
 import { autocompletion } from "@codemirror/autocomplete";
 import { search, searchKeymap } from "@codemirror/search";
+import { EditorState } from "@codemirror/state";
 import { Decoration, EditorView, hoverTooltip, keymap, ViewPlugin, WidgetType } from "@codemirror/view";
+import { t } from "@lingui/core/macro";
 import {
 	escapeCssIdentifier,
 	escapeCssString,
@@ -117,22 +119,60 @@ function completionLabels(source: string, position: number, metadata: SemanticCs
 	}
 }
 
+function systemVariableDescription(variable: string): string {
+	const descriptions: Record<string, string> = {
+		"--resume-primary-color": t`Builder primary color.`,
+		"--resume-text-color": t`Builder text color.`,
+		"--resume-background-color": t`Builder background color.`,
+		"--resume-body-font-size": t`Builder body font size.`,
+		"--resume-body-line-height": t`Builder body line-height multiplier.`,
+		"--resume-heading-font-size": t`Builder heading font size.`,
+		"--resume-heading-line-height": t`Builder heading line-height multiplier.`,
+		"--resume-page-gap-x": t`Builder horizontal page gap.`,
+		"--resume-page-gap-y": t`Builder vertical page gap.`,
+		"--resume-page-margin-x": t`Builder horizontal page margin.`,
+		"--resume-page-margin-y": t`Builder vertical page margin.`,
+		"--resume-page-width": t`Resolved authored page width.`,
+		"--resume-page-height": t`Resolved authored page height.`,
+		"--resume-sidebar-width": t`Builder sidebar width.`,
+		"--resume-picture-size": t`Builder picture size.`,
+		"--resume-picture-rotation": t`Builder picture rotation.`,
+		"--resume-picture-aspect-ratio": t`Builder picture aspect ratio.`,
+		"--resume-picture-border-radius": t`Builder picture border radius.`,
+		"--resume-picture-border-width": t`Builder picture border width.`,
+		"--resume-picture-border-color": t`Builder picture border color.`,
+		"--resume-picture-shadow-width": t`Builder picture shadow width.`,
+		"--resume-picture-shadow-color": t`Builder picture shadow color.`,
+	};
+	return descriptions[variable] ?? variable;
+}
+
 function getSemanticCssHoverDocumentation(label: string, metadata: SemanticCssEditorMetadata): string | undefined {
 	const semantic = SEMANTIC_REGISTRY_V1[label as keyof typeof SEMANTIC_REGISTRY_V1];
 	if (semantic) {
-		return `Semantic element ${label}. Attributes: ${semantic.attributes.join(", ") || "none"}. Roles: ${semantic.roles.join(", ") || "none"}.`;
+		const attributes = semantic.attributes.join(", ") || t`None`;
+		const roles = semantic.roles.join(", ") || t`None`;
+		return t`Semantic element ${label}. Attributes: ${attributes}. Roles: ${roles}.`;
 	}
 	const property = PROPERTY_REGISTRY_V1[label];
 	if (property) {
-		return `Semantic CSS ${property.category} property ${label}. ${property.inheritable ? "Inherited" : "Not inherited"}. Applies to: ${property.appliesTo.join(", ")}.`;
+		const inheritance = property.inheritable ? t`Inherited` : t`Not inherited`;
+		const elements = property.appliesTo.join(", ");
+		return t`Semantic CSS property ${label}. ${inheritance}. Applies to: ${elements}.`;
 	}
 	const systemVariable = SYSTEM_VARIABLE_REGISTRY_V1[label as keyof typeof SYSTEM_VARIABLE_REGISTRY_V1];
-	if (systemVariable) return `Read-only Semantic CSS system variable. ${systemVariable.description}`;
+	if (systemVariable) {
+		const description = systemVariableDescription(label);
+		return t`Read-only Semantic CSS system variable. ${description}`;
+	}
 	const normalized = label.startsWith("#") ? label.slice(1) : label;
 	const currentNode = walk(metadata.semanticTree).find((node) => node.id === normalized);
-	if (currentNode) return `Current resume ${currentNode.kind} ID.`;
+	if (currentNode) {
+		const kind = currentNode.kind;
+		return t`Current resume element ID (${kind}).`;
+	}
 	const part = label.match(/^template-part\[name="(.+)"\]$/)?.[1] ?? label;
-	if (metadata.templateParts.includes(part)) return `Current template part ${part}.`;
+	if (metadata.templateParts.includes(part)) return t`Current template part ${part}.`;
 	return;
 }
 
@@ -223,7 +263,8 @@ class ColorSwatch extends WidgetType {
 		const button = document.createElement("button");
 		button.type = "button";
 		button.className = "semantic-css-color-swatch";
-		button.title = `Edit color ${this.token.value}`;
+		const color = this.token.value;
+		button.title = t`Edit color ${color}`;
 		button.setAttribute("aria-label", button.title);
 		button.style.backgroundColor = this.token.value;
 		button.addEventListener("click", () => this.onSelect(this.token, button.getBoundingClientRect()));
@@ -293,6 +334,25 @@ export function createSemanticCssEditorExtensions(input: {
 	return [
 		autocompletion({ override: [completionSource(input.metadata)] }),
 		hoverExtension(input.metadata),
+		EditorState.phrases.of({
+			"Go to line": t`Go to line`,
+			go: t`Go`,
+			Find: t`Find`,
+			Replace: t`Replace`,
+			next: t`Next`,
+			previous: t`Previous`,
+			all: t`All`,
+			"match case": t`Match case`,
+			regexp: t`Regular expression`,
+			"by word": t`Whole words`,
+			replace: t`Replace`,
+			"replace all": t`Replace all`,
+			close: t`Close`,
+			"current match": t`Current match`,
+			"on line": t`on line`,
+			"replaced match on line $": t`Replaced match on line $`,
+			"replaced $ matches": t`Replaced $ matches`,
+		}),
 		search({ top: true }),
 		keymap.of(searchKeymap),
 		colorExtension(input.colorTokens, input.onColorSelect),

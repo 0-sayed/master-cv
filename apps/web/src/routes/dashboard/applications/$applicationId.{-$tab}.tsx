@@ -1,9 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import z from "zod";
 import { workspaceTabSchema } from "@reactive-resume/schema/career";
+import { ApplicationDetailPage } from "@/features/applications/components/application-detail-page";
 import { Workspace } from "@/features/career/workspace/shell";
+import { isPersonalToolAvailable } from "@/features/personal-tools/availability";
 
 export const Route = createFileRoute("/dashboard/applications/$applicationId/{-$tab}")({
+	beforeLoad: ({ context }) => {
+		if (!isPersonalToolAvailable(context.flags.personalToolsAvailability, "applications"))
+			throw redirect({ to: "/dashboard", replace: true });
+	},
 	// Sheets and dialogs are URL state, so back, forward, reload and notification links all open them.
 	validateSearch: z.object({
 		// true: the newest conversation about this job; "new": a fresh one; otherwise that conversation's id.
@@ -24,5 +30,6 @@ function RouteComponent() {
 	const { applicationId, tab } = Route.useParams();
 	const search = Route.useSearch();
 	const parsed = workspaceTabSchema.safeParse(tab);
+	if (!tab) return <ApplicationDetailPage key={applicationId} applicationId={applicationId} />;
 	return <Workspace applicationId={applicationId} tab={parsed.success ? parsed.data : undefined} search={search} />;
 }

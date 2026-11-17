@@ -306,7 +306,7 @@ it("keeps provider mismatch and unknown billing aborts in force after restart", 
 	for (const [patch, reason] of [
 		[{ actualProvider: "azure" }, "PROVIDER_MISMATCH"],
 		[
-			{ costMicros: null, openaiCostMicros: null, reservedOpenaiMicros: 50001, unknownExposureMicros: 50001 },
+			{ costMicros: null, openaiCostMicros: null, reservedOpenaiMicros: 1500001, unknownExposureMicros: 1500001 },
 			"BILLING_UNKNOWN",
 		],
 	] as const) {

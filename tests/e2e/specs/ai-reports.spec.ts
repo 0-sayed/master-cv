@@ -53,14 +53,28 @@ test("stores a private AI report, exports it, and deletes it only after account 
 	await page.getByRole("checkbox").check();
 	await page.getByRole("button", { name: "Permanently delete my account", exact: true }).click();
 	await page.waitForURL("/deletion-requested");
-	await expect
-		.poll(
-			() =>
-				privacyDatabase(
-					async (pool) =>
-						(await pool.query("SELECT id FROM ai_content_report WHERE user_id=$1", [fixture.userId])).rowCount,
-				),
-			{ timeout: 30000 },
-		)
-		.toBe(0);
+	let queue: unknown = null;
+	try {
+		await expect
+			.poll(
+				() =>
+					privacyDatabase(async (pool) => {
+						const count = (await pool.query("SELECT id FROM ai_content_report WHERE user_id=$1", [fixture.userId]))
+							.rowCount;
+						queue = (
+							await pool.query(
+								"SELECT now() AS observed_at, kind, status, attempts, due_at, lease_until, failure_code FROM privacy_work WHERE user_id=$1 ORDER BY created_at",
+								[fixture.userId],
+							)
+						).rows;
+						return count;
+					}),
+				{ timeout: 30000 },
+			)
+			.toBe(0);
+	} finally {
+		await test
+			.info()
+			.attach("deletion-queue-state", { body: JSON.stringify(queue, null, 2), contentType: "application/json" });
+	}
 });

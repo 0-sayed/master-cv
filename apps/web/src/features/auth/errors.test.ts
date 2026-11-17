@@ -65,7 +65,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		}
 		expect(accountErrorMessage(new Error("PRIVATE_PROVIDER_DETAIL"))).toBe(
 			locale === "ar-SA"
-				? "تعذر إكمال هذا الطلب. حاول مجددًا."
+				? "تعذّر إكمال هذا الطلب. حاول مجددًا."
 				: "We could not complete this request. Please try again.",
 		);
 	});

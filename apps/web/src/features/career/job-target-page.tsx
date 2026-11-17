@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useId, useState } from "react";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
@@ -122,9 +123,9 @@ export function JobTargetPage({ resumeId }: { resumeId: string }) {
 				title={copy("jobs.tailoring.title.compact")}
 				description={copy("jobs.comparison.resultHint")}
 				back={
-					<Link to="/dashboard">
-						<Trans>My documents</Trans>
-					</Link>
+					<BackNavigation render={<Link to="/dashboard" />}>
+						<Trans>Back to documents</Trans>
+					</BackNavigation>
 				}
 			/>
 			{cv.isPending || evidence.isPending ? (

@@ -113,6 +113,9 @@ it("shows loading until a real first-page image loads, then replaces the skeleto
 	expect(image.getAttribute("src")).toBe("blob:preview-first");
 	fireEvent.load(image);
 	expect(container.querySelector('[data-slot="skeleton"]')).toBeNull();
+	expect(container.querySelector('[data-slot="document-preview-heading"]')).toHaveTextContent(
+		sampleResumeData.basics.name,
+	);
 });
 
 it("fetches the revised document and regenerates the preview after edits", async () => {
@@ -136,4 +139,15 @@ it("replaces a failed preview image with an explicit error rather than a blank o
 	fireEvent.error(image);
 	expect(screen.getByText("Preview unavailable")).toBeVisible();
 	expect(container.querySelector("img")).toBeNull();
+});
+
+it("renders a supplied letter through the shared first-page renderer", async () => {
+	const { DocumentThumbnail } = await import("./resume-thumbnail");
+	const { container } = render(
+		<DocumentThumbnail document={summary()} data={sampleResumeData} empty={false} failed={false} kind="letter" />,
+		{ wrapper },
+	);
+	await waitFor(() => expect(mocks.pdf).toHaveBeenCalledWith(sampleResumeData));
+	expect(container.querySelector('[data-slot="letter-thumbnail"]')).toHaveAttribute("dir", "auto");
+	expect(mocks.getById).not.toHaveBeenCalled();
 });

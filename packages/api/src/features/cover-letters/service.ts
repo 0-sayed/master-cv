@@ -27,6 +27,7 @@ import { getLetterVersion, saveLetterSessionVersion, writeLetterVersion } from "
 type OwnedId = { userId: string; id: string };
 type RevisionInput = OwnedId & { expectedRevision: number };
 type CreateInput = {
+	documentLocale?: "ar-SA" | "en-US" | undefined;
 	userId: string;
 	name: string;
 	recipient?: string | undefined;
@@ -49,8 +50,8 @@ function toLetter(row: typeof schema.coverLetter.$inferSelect): CoverLetter {
 }
 
 /** The stored letter, with the copies in `style` as they are. */
-async function getRow(input: OwnedId): Promise<CoverLetter> {
-	const [row] = await db
+async function getRow(input: OwnedId, client: DbOrTx = db): Promise<CoverLetter> {
+	const [row] = await client
 		.select()
 		.from(schema.coverLetter)
 		.where(and(eq(schema.coverLetter.id, input.id), eq(schema.coverLetter.userId, input.userId)));
@@ -77,7 +78,14 @@ async function resolveLinks(letter: CoverLetter, userId: string): Promise<CoverL
 		style: {
 			...letter.style,
 			...(letter.senderLinked ? { basics: linked.basics, picture: linked.picture } : {}),
-			...(letter.designLinked ? { metadata: linked.metadata } : {}),
+			...(letter.designLinked
+				? {
+						metadata: {
+							...linked.metadata,
+							page: { ...linked.metadata.page, locale: letter.style.metadata.page.locale },
+						},
+					}
+				: {}),
 		},
 	};
 }
@@ -111,8 +119,8 @@ async function assertOwnedApplication(userId: string, id?: string) {
 }
 
 /**
- * A letter for an application is the letter that application sends: a new one becomes its letter if it has none, and
- * moving a letter to another application takes it along.
+ * A draft can target a submitted application without replacing its recorded letter or sent snapshot.
+ * Before submission, moving a letter also updates the application's selected letter.
  */
 async function linkLetterApplication(
 	client: DbOrTx,
@@ -136,6 +144,8 @@ async function linkLetterApplication(
 		.for("update");
 	if (input.to && !applications.some((application) => application.id === input.to)) throw new ORPCError("NOT_FOUND");
 	for (const application of applications) {
+		// Targeting a submitted job associates the draft only; its submitted document stays selected.
+		if (application.id === input.to && application.sentVersion) continue;
 		const next =
 			application.id === input.from && application.coverLetterId === input.letterId
 				? null
@@ -145,6 +155,7 @@ async function linkLetterApplication(
 		if (next === application.coverLetterId) continue;
 		if (application.sentVersion)
 			throw new ORPCError("BAD_REQUEST", {
+				data: { reason: "SUBMITTED_DOCUMENT_IMMUTABLE" },
 				message:
 					"Recorded submitted documents cannot be replaced. Prepare a copy to keep the submitted versions intact.",
 			});
@@ -265,6 +276,7 @@ export const coverLetterService = {
 	create: async (input: CreateInput) => {
 		const application = await getOwnedApplication(input.userId, input.applicationId);
 		const style = await getResumeStyle(input.userId, input.resumeId);
+		if (input.documentLocale) style.metadata.page.locale = input.documentLocale;
 		if (input.template) style.metadata.template = input.template;
 		const linked = Boolean(input.resumeId) && !input.template;
 		const letter = await db.transaction(async (tx) => {
@@ -350,6 +362,20 @@ export const coverLetterService = {
 		if (input.letterDate !== undefined) changes.letterDate = input.letterDate;
 
 		const persist = async (client: DbOrTx) => {
+			if (
+				input.applicationId !== undefined &&
+				input.applicationId === stored.sourceApplicationId &&
+				Object.entries(changes).every(([key, value]) => value === stored[key as keyof CoverLetter])
+			) {
+				const current = await getRow(input, client);
+				if (current.isLocked)
+					throw new ORPCError("DOCUMENT_LOCKED", { status: 400, message: "Unlock the letter first." });
+				if (current.revision !== input.expectedRevision)
+					throw new ORPCError("CONFLICT", {
+						message: "This cover letter changed elsewhere. Reload it before saving again.",
+					});
+				return current;
+			}
 			const updated = await updateRevision(input, changes, client);
 			if (input.applicationId !== undefined) {
 				await linkLetterApplication(client, {
@@ -371,6 +397,7 @@ export const coverLetterService = {
 					})),
 			input.userId,
 		);
+		if (updated.revision === input.expectedRevision) return updated;
 		await saveLetterSessionVersion({
 			letter: updated,
 			userId: input.userId,
@@ -382,12 +409,14 @@ export const coverLetterService = {
 		const letter = await getById(input);
 		const style = await getResumeStyle(input.userId, input.resumeId, letter.style.sectionId, letter.style.itemId);
 		style.metadata.template = letter.style.metadata.template;
+		style.metadata.page.locale = letter.style.metadata.page.locale;
 		return resolveLinks(await updateRevision(input, { style, sourceResumeId: input.resumeId }), input.userId);
 	},
 	duplicate: async (input: OwnedId & { name?: string | undefined }) => {
 		const letter = await getRow(input);
 		const copy = await insert({
 			...letter,
+			sourceApplicationId: null,
 			userId: input.userId,
 			name: input.name ?? `${letter.name} (copy)`.slice(0, 100),
 		});

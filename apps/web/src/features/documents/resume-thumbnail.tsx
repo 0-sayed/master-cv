@@ -6,6 +6,7 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useInView } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { documentCardLayout } from "@reactive-resume/ui/components/document-card-layout";
 import { PreviewPlaceholder } from "@reactive-resume/ui/components/preview-placeholder";
 import { Skeleton, useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { cn } from "@reactive-resume/utils/style";
@@ -175,30 +176,60 @@ function useResumeThumbnail(
 
 /** The resume's first page, rendered once it scrolls near view and cached until it changes. */
 export function ResumeThumbnail({ resume }: ResumeThumbnailProps) {
-	const { t } = useLingui();
-	const containerRef = useRef<HTMLDivElement>(null);
-	const [image, setImage] = useState<{ url: string; status: "ready" | "error" } | null>(null);
-	const isInView = useInView(containerRef, { amount: 0.1, margin: "240px" });
-	const size = useThumbnailSize(containerRef, isInView);
+	const ref = useRef<HTMLDivElement>(null);
+	const visible = useInView(ref, { amount: 0.1, margin: "240px" });
 	const resumeQuery = orpc.resume.getById.queryOptions({ input: { id: resume.id } });
 	const { data: resumeData, isError: resumeIsError } = useQuery({
 		...resumeQuery,
 		// A summary revision must fetch its own data: a still-fresh editor/cache entry may belong to an older edit.
 		queryKey: [...resumeQuery.queryKey, { previewRevision: resume.updatedAt.toISOString() }],
-		enabled: isInView,
+		enabled: visible,
 	});
-	const isEmpty = Boolean(resumeData && !hasResumePreviewContent(resumeData.data));
-	const cacheKey = getResumeThumbnailCacheKey(resume.id, resumeData?.updatedAt ?? resume.updatedAt);
-	const thumbnail = useResumeThumbnail(isEmpty ? undefined : resumeData?.data, cacheKey, size, isInView);
+	return (
+		<div ref={ref} className="size-full">
+			<DocumentThumbnail
+				document={resume}
+				data={resumeData?.data}
+				empty={Boolean(resumeData && !hasResumePreviewContent(resumeData.data))}
+				failed={resumeIsError}
+				kind="resume"
+			/>
+		</div>
+	);
+}
+
+/** Both document types share page rendering, sizing, revision caching and recovery states. */
+export function DocumentThumbnail({
+	document,
+	data,
+	empty: isEmpty,
+	failed,
+	kind,
+}: {
+	document: { id: string; updatedAt: Date; name?: string };
+	data: ResumeData | undefined;
+	empty: boolean;
+	failed: boolean;
+	kind: "resume" | "letter";
+}) {
+	const { t } = useLingui();
+	const containerRef = useRef<HTMLDivElement>(null);
+	const [image, setImage] = useState<{ url: string; status: "ready" | "error" } | null>(null);
+	const isInView = useInView(containerRef, { amount: 0.1, margin: "240px" });
+	const size = useThumbnailSize(containerRef, isInView);
+	const cacheKey = getResumeThumbnailCacheKey(`${kind}:${document.id}`, document.updatedAt);
+	const thumbnail = useResumeThumbnail(isEmpty ? undefined : data, cacheKey, size, isInView);
 	const imageState = thumbnail.status === "ready" && image?.url === thumbnail.url ? image.status : "loading";
-	const hasFailed = resumeIsError || thumbnail.status === "error" || imageState === "error";
+	const hasFailed = failed || thumbnail.status === "error" || imageState === "error";
 	const status = isEmpty ? "empty" : hasFailed ? "error" : imageState === "ready" ? "ready" : "loading";
 	const loading = useSkeletonLoading(status === "loading");
 
 	return (
 		<div
 			ref={containerRef}
-			data-slot="resume-thumbnail"
+			data-slot={`${kind}-thumbnail`}
+			dir="auto"
+			lang={data?.metadata.page.locale}
 			data-state={status}
 			className="@container/thumbnail relative size-full overflow-hidden bg-white"
 		>
@@ -206,9 +237,11 @@ export function ResumeThumbnail({ resume }: ResumeThumbnailProps) {
 				<PreviewPlaceholder
 					variant="thumbnail"
 					appearance="empty"
-					label={t`Empty CV`}
+					label={kind === "letter" ? t`Empty letter` : t`Empty CV`}
 					thumbnailSrc={
-						resumeData && getTemplateImageUrl(resumeData.data.metadata.template, resumeData.data.metadata.page.locale)
+						kind === "resume" && data
+							? getTemplateImageUrl(data.metadata.template, data.metadata.page.locale)
+							: undefined
 					}
 				/>
 			) : status === "error" ? (
@@ -220,10 +253,22 @@ export function ResumeThumbnail({ resume }: ResumeThumbnailProps) {
 							alt=""
 							data-slot="resume-preview-image"
 							src={thumbnail.url}
-							className={cn("absolute inset-0 size-full object-contain", status !== "ready" && "opacity-0")}
+							className={cn(documentCardLayout.previewImage, status !== "ready" && "opacity-0")}
 							onLoad={() => setImage({ url: thumbnail.url, status: "ready" })}
 							onError={() => setImage({ url: thumbnail.url, status: "error" })}
 						/>
+					)}
+					{data && !loading.pending && (
+						<span data-slot="document-preview-heading" className={documentCardLayout.previewHeading}>
+							<span dir="auto" className={documentCardLayout.previewName}>
+								{kind === "resume" ? data.basics.name || document.name : document.name}
+							</span>
+							{kind === "resume" && data.basics.headline && (
+								<span dir="auto" className={documentCardLayout.previewSubtitle}>
+									{data.basics.headline}
+								</span>
+							)}
+						</span>
 					)}
 					{loading.pending && (
 						<QuerySkeleton

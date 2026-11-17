@@ -2,7 +2,13 @@ import { mkdtemp, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, it } from "vite-plus/test";
-import { readBenchmarkKey } from "./credentials";
+import { readBenchmarkKey, readBenchmarkProcessKey } from "./credentials";
+
+it("accepts only an explicitly supplied benchmark process key", () => {
+	expect(readBenchmarkProcessKey({ OPENROUTER_BENCHMARK_KEY: " synthetic-benchmark " })).toBe("synthetic-benchmark");
+	expect(() => readBenchmarkProcessKey({ OPENROUTER_API_KEY: "application-key" })).toThrow("BENCHMARK_KEY_REQUIRED");
+	expect(() => readBenchmarkProcessKey({ OPENROUTER_BENCHMARK_KEY: "two tokens" })).toThrow("BENCHMARK_TOKEN_INVALID");
+});
 
 it("requires an explicit file and only accepts its benchmark key", async () => {
 	const directory = await mkdtemp(join(tmpdir(), "benchmark-key-"));

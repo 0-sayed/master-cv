@@ -60,7 +60,12 @@ export function CloseSheet({ application, open, onClose }: ApplicationSheetProps
 						onPress={() => {
 							onClose();
 							update.mutate(
-								{ id: application.id, status: "closed", closedReason: reason },
+								{
+									expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+									id: application.id,
+									status: "closed",
+									closedReason: reason,
+								},
 								{
 									onSuccess: () => showToast({ message: t`Application closed` }),
 									onError: (error) => showToast({ message: applicationError(error) }),
@@ -164,6 +169,7 @@ function MarkAppliedForm({ application, onClose }: Omit<ApplicationSheetProps, "
 				onPress={() =>
 					update.mutate(
 						{
+							expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
 							id: application.id,
 							status: "applied",
 							stageEnteredAt: date,
@@ -208,7 +214,12 @@ function FollowUpForm({ application, onClose }: Omit<ApplicationSheetProps, "ope
 
 	const save = (followUpAt: Date | null) =>
 		update.mutate(
-			{ id: application.id, followUpAt, followUpNote: followUpAt ? note.trim() || null : null },
+			{
+				expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+				id: application.id,
+				followUpAt,
+				followUpNote: followUpAt ? note.trim() || null : null,
+			},
 			{
 				onSuccess: async (saved) => {
 					onClose();
@@ -384,7 +395,11 @@ function PostingBody({ application, onClose }: Omit<ApplicationSheetProps, "open
 				disabled={text === (application.jobDescription ?? "")}
 				onPress={() =>
 					update.mutate(
-						{ id: application.id, jobDescription: text.trim() ? text : null },
+						{
+							expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+							id: application.id,
+							jobDescription: text.trim() ? text : null,
+						},
 						{ onSuccess: onClose, onError: () => showToast({ message: t`Couldn't save.` }) },
 					)
 				}
@@ -404,7 +419,7 @@ export function ContactsSheet({ application, open, onClose }: ApplicationSheetPr
 	const [error, setError] = useState("");
 	const save = (contacts: Contact[], onSuccess = () => {}) =>
 		update.mutate(
-			{ id: application.id, contacts },
+			{ expectedUpdatedAt: new Date(application.updatedAt).toISOString(), id: application.id, contacts },
 			{ onSuccess, onError: () => showToast({ message: t`Couldn't save the contacts.` }) },
 		);
 	const set = (key: keyof typeof EMPTY_CONTACT) => (value: string) => {

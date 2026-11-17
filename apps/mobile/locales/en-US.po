@@ -11052,3 +11052,7 @@ msgstr "Zoom out"
 #: src/features/settings/locale-names.ts
 msgid "Zulu"
 msgstr "Zulu"
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr "Start typing."

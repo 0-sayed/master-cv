@@ -13,9 +13,14 @@ import { taskContractFor } from "./contracts/runtime";
 import { variantSnapshot } from "./contracts/variant-adapter";
 import { prepareCase, goldOutput } from "./execution";
 import { loadStudyCases } from "./study";
-import { benchmarkInput, benchmarkVerifierSpec } from "./verifier";
+import {
+	benchmarkInput,
+	benchmarkVerifierSpec,
+	variantBenchmarkProtocol,
+	variantBenchmarkVerifierVersion,
+} from "./verifier";
 
-it("uses identical production writer and complete verifier bytes for all four categories", () => {
+it("keeps production writers, verifier payloads and schemas with explicit benchmark protocol guidance", () => {
 	const scope = ["summary", "job-evidence", "tailoring", "translation"] as const;
 	const cases = loadStudyCases("tasks-v1", [...scope]);
 	for (const category of scope) {
@@ -29,13 +34,21 @@ it("uses identical production writer and complete verifier bytes for all four ca
 		expect(contract.promptVersion).toBe(production.promptVersion);
 		expect(contract.schemaVersion).toBe(production.schemaVersion);
 		expect(prepareCase(fixture).payload).toEqual(buildVariantWriterPayload(snapshot));
-		expect(benchmarkInput(fixture, goldOutput(fixture))).toEqual(
+		const input = benchmarkInput(fixture, goldOutput(fixture));
+		expect({ ...input, selections: input.selections.slice(0, -1) }).toEqual(
 			buildVariantVerificationPayload(snapshot, goldOutput(fixture)),
 		);
+		const context = input.selections.at(-1);
+		expect(context && "id" in context ? context.id : null).toBe("benchmark-verification-context");
 		expect(benchmarkVerifierSpec(fixture)).toEqual({
-			version: VARIANT_VERIFIER_VERSION,
-			systemPrompt: variantVerifierPrompt,
-			schema: variantVerifierSchema,
+			version: variantBenchmarkVerifierVersion,
+			systemPrompt: `${variantVerifierPrompt}\n\n${variantBenchmarkProtocol}`,
+			schema: category === "translation" ? expect.anything() : variantVerifierSchema,
 		});
+		if (category === "translation")
+			expect(benchmarkVerifierSpec(fixture).schema.toJSONSchema()).toMatchObject({
+				properties: { quality: { required: expect.arrayContaining(["mqm"]) } },
+			});
+		expect(variantBenchmarkVerifierVersion).toBe(`${VARIANT_VERIFIER_VERSION}+benchmark-protocol-v4-compact-json`);
 	}
 });

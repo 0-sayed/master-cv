@@ -1,14 +1,72 @@
 import { eventIterator } from "@orpc/server";
 import z from "zod";
-import { protectedProcedure } from "../../context";
+import { sourceRevisionSchema } from "@reactive-resume/schema/ai-operation";
+import { coverLetterSchema } from "@reactive-resume/schema/cover-letter/data";
+import {
+	letterGenerationInputSchema,
+	letterReviewDecisionInputSchema,
+} from "@reactive-resume/schema/cover-letter/review";
 import { coverLetterDto } from "../../dto/cover-letter";
 import { aiRequestRateLimit, resumeMutationRateLimit } from "../../middleware/rate-limit";
 import { paginate } from "../../pagination";
+import { personalToolProcedure } from "../personal-tools/procedure";
 import { draftLetterBody } from "./draft";
+import { prepareLetterReview, decideLetterReview, getLetterReview, latestLetterReview } from "./review";
 import { coverLetterService } from "./service";
 import { deleteLetterVersion, getLetterVersion, listLetterVersions, renameLetterVersion } from "./versions";
 
+const protectedProcedure = personalToolProcedure("coverLetters");
+
 export const coverLettersRouter = {
+	latestReview: protectedProcedure
+		.route({
+			method: "GET",
+			path: "/cover-letters/{letterId}/review",
+			tags: ["Cover Letters"],
+			operationId: "latestCoverLetterReview",
+		})
+		.input(z.object({ letterId: z.string().min(1) }))
+		.output(z.object({ operationId: z.string(), expectedRevision: z.number().int().positive() }).nullable())
+		.handler(({ context, input }) => latestLetterReview(context.user.id, input.letterId)),
+	getReview: protectedProcedure
+		.route({
+			method: "GET",
+			path: "/cover-letters/review",
+			tags: ["Cover Letters"],
+			operationId: "getCoverLetterReview",
+		})
+		.input(z.object({ letterId: z.string().min(1), operationId: z.string().min(1) }))
+		.output(z.object({ decision: z.enum(["accept", "reject"]).nullable(), versionId: z.string().nullable() }))
+		.handler(({ context, input }) => getLetterReview(context.user.id, input)),
+	prepareReview: protectedProcedure
+		.route({
+			method: "POST",
+			path: "/cover-letters/review/prepare",
+			tags: ["Cover Letters"],
+			operationId: "prepareCoverLetterReview",
+		})
+		.input(letterGenerationInputSchema)
+		.output(
+			z.object({
+				kind: z.literal("review.cover-letter"),
+				parameters: letterGenerationInputSchema,
+				sources: z.array(sourceRevisionSchema),
+			}),
+		)
+		.handler(({ context, input }) => prepareLetterReview(context.user.id, input)),
+	decideReview: protectedProcedure
+		.use(resumeMutationRateLimit)
+		.route({
+			method: "POST",
+			path: "/cover-letters/review/decide",
+			tags: ["Cover Letters"],
+			operationId: "decideCoverLetterReview",
+		})
+		.input(letterReviewDecisionInputSchema)
+		.output(
+			z.object({ letter: coverLetterSchema, decision: z.enum(["accept", "reject"]), versionId: z.string().nullable() }),
+		)
+		.handler(({ context, input }) => decideLetterReview(context.user.id, input)),
 	list: protectedProcedure
 		.route({
 			method: "GET",

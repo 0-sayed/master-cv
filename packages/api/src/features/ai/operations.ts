@@ -11,6 +11,7 @@ import {
 	agentMessage,
 	agentThread,
 	application,
+	coverLetter,
 	careerProfile,
 	resume,
 } from "@reactive-resume/db/schema";
@@ -18,6 +19,7 @@ import { operationRequestSchema } from "@reactive-resume/schema/ai-operation";
 import { generateId } from "@reactive-resume/utils/string";
 import { lockDocumentOwner } from "../documents/ownership";
 import { createResumeInTransaction } from "../resume/service";
+import { currentContentAttempts } from "./content-retry";
 import { loadReviewSource, lockReviewProfile, removeExpiredReviewSources } from "./review-sources";
 import { getOperationHandler, canonicalJson, operationFingerprint, resolveApprovedRoute } from "./route-policy";
 import {
@@ -77,6 +79,13 @@ export async function assertSourceRevisions(
 				.where(and(eq(resume.userId, userId), eq(resume.id, source.id)))
 				.for("share");
 			if (row && !row.trashedAt) revision = row.updatedAt.toISOString();
+		} else if (source.kind === "cover-letter") {
+			const [row] = await tx
+				.select()
+				.from(coverLetter)
+				.where(and(eq(coverLetter.userId, userId), eq(coverLetter.id, source.id)))
+				.for("share");
+			if (row && !row.trashedAt && !row.isLocked) revision = String(row.revision);
 		} else if (source.kind === "career") {
 			const [row] = await tx.select().from(careerProfile).where(eq(careerProfile.userId, userId)).for("share");
 			if (row && source.id === userId) revision = String(row.profileRevision);
@@ -370,10 +379,13 @@ export function deliverOperation(lease: OperationLease, output: Record<string, u
 				.select()
 				.from(aiOperationAttempt)
 				.where(eq(aiOperationAttempt.operationId, operation.id));
-			const generated = attempts.find(
+			const currentAttempts = currentContentAttempts(attempts);
+			const generated = currentAttempts.find(
 				(a) => a.stepId !== "verify" && a.outcome === "valid" && a.finishedAt && a.output,
 			);
-			const verified = attempts.find((a) => a.stepId === "verify" && a.outcome === "valid" && a.finishedAt && a.output);
+			const verified = currentAttempts.find(
+				(a) => a.stepId === "verify" && a.outcome === "valid" && a.finishedAt && a.output,
+			);
 			try {
 				if (
 					!generated?.output ||

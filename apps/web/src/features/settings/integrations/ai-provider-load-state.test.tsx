@@ -5,6 +5,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+vi.mock("@reactive-resume/schema/personal-tools", () => ({ isFeatureAvailable: () => true }));
 
 const api = vi.hoisted(() => ({ list: vi.fn() }));
 vi.mock("@/libs/orpc/client", () => ({

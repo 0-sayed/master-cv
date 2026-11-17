@@ -1,0 +1,1 @@
+ALTER TABLE "ai_operation_attempt" DROP CONSTRAINT "ai_attempt_ordinal", ADD CONSTRAINT "ai_attempt_ordinal" CHECK ("ordinal" BETWEEN 1 AND 5);

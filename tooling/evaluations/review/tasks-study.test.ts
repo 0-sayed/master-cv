@@ -22,11 +22,11 @@ const tasks = loadTaskFixtures(
 
 it("binds the recorded task controls to the current freeze and the actual guard scan", () => {
 	const actual = study.controls(tasks);
-	expect(actual).toMatchObject({ checked: 1056, pass: true, failures: [] });
+	expect(actual).toMatchObject({ checked: 1540, pass: true, failures: [] });
 	expect(study.recordedControls(undefined, "tasks-v1")).toEqual(actual);
 	const scope = config.parseTaskCategories("summary,job-evidence,tailoring,translation");
 	const scoped = study.controls(study.loadStudyCases("tasks-v1", scope));
-	expect(scoped).toMatchObject({ checked: 699, pass: true, failures: [] });
+	expect(scoped).toMatchObject({ checked: 1135, pass: true, failures: [] });
 	expect(study.recordedControls(undefined, "tasks-v1", scope)).toEqual(scoped);
 });
 
@@ -137,33 +137,29 @@ it("cross-study smoke/resume rejected even with otherwise matching identity fiel
 	expect(study.validateSmoke(run, models, fixtures, "tasks-v1")).toHaveLength(1);
 });
 
-it("loads the seven finalist variants without a DeepSeek-low writer and keeps stage separate", () => {
+it("loads exactly three writer finalists and keeps stage separate from verifier selection", () => {
 	expect(parseOptions(["--study", "tasks-v1", "--stage", "smoke"]).study).toBe("tasks-v1");
 	const models = loadModels(new URL("./models-tasks.json", import.meta.url).pathname);
 	expect(models.map((m) => `${m.model}@${m.reasoning}`)).toEqual([
 		"openai/gpt-6-luna@none",
 		"openai/gpt-6-luna@low",
-		"openai/gpt-6-luna@high",
-		"openai/gpt-6.1-terra@low",
 		"openai/gpt-6.1-terra@medium",
-		"openai/gpt-6.1-terra@high",
-		"deepseek/deepseek-v4.1-flash-1017@none",
 	]);
 	expect(study.smokeCases(tasks, models)).toHaveLength(18);
 });
 
-it("tasks defaults to two full repetitions while core and explicit overrides stay unchanged", () => {
-	expect(parseOptions(["--study", "tasks-v1"]).runs).toBe(2);
+it("tasks defaults to three full repetitions while core and explicit overrides stay unchanged", () => {
+	expect(parseOptions(["--study", "tasks-v1"]).runs).toBe(3);
 	expect(parseOptions([]).runs).toBe(3);
 	expect(parseOptions(["--study", "tasks-v1", "--runs", "4"]).runs).toBe(4);
 });
 it("prunes only canonical task variants and binds the subset without reducing smoke language/category coverage", () => {
 	expect(config.pruneTaskVariants).toBeTypeOf("function");
 	const all = loadModels(new URL("./models-tasks.json", import.meta.url).pathname);
-	const ids = all.slice(0, 4).map((m) => `${m.model}@${m.reasoning}`);
+	const ids = all.slice(0, 2).map((m) => `${m.model}@${m.reasoning}`);
 	expect(parseOptions(["--study", "tasks-v1", "--variants", ids.join(",")]).variants).toEqual(ids);
 	const subset = config.pruneTaskVariants(all, ids);
-	expect(subset).toEqual(all.slice(0, 4));
+	expect(subset).toEqual(all.slice(0, 2));
 	expect(study.studyHash(subset, tasks, 2, undefined, "tasks-v1")).not.toBe(
 		study.studyHash(all, tasks, 2, undefined, "tasks-v1"),
 	);

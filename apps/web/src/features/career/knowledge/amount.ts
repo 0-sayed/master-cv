@@ -1,5 +1,11 @@
+import { getInterfaceDateLocale } from "@/libs/locale";
+
 /** Parse a complete nonnegative amount. Invalid notation must never silently change a saved requirement. */
 export function parseAmount(input: string, locale: string): number | null | undefined {
+	const latin = parseLocalizedAmount(input, getInterfaceDateLocale(locale).toString());
+	return latin === undefined ? parseLocalizedAmount(input, locale) : latin;
+}
+function parseLocalizedAmount(input: string, locale: string): number | null | undefined {
 	const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
 	const parts = number.formatToParts(12345.6);
 	const decimal = parts.find((part) => part.type === "decimal")?.value ?? ".";

@@ -26,7 +26,7 @@ export function realAiConfig(environment: Environment) {
 	const route: ApprovedRoute = {
 		routeId: "local-real-ai",
 		routeRevision: "provisional-1",
-		configRevision: "t006-writers-terra-questions-deepseek-verifier-v3",
+		configRevision: "personal-career-writers-2026-11-17-provisional-v1",
 		endpoint,
 		model: "openai/gpt-6-luna",
 		downstreamProvider: "azure",
@@ -44,7 +44,7 @@ export function realAiConfig(environment: Environment) {
 				model: "openai/gpt-6.1-terra",
 				downstreamProvider: "azure",
 				reasoningEffort: "medium",
-				evidenceVersion: "local-synthetic-questions-medium-not-release-approved",
+				evidenceVersion: "local-synthetic-terra-medium-2026-11-17-not-release-approved",
 				maxCallCostMicros: 100000,
 			},
 		],
@@ -61,7 +61,8 @@ export function realAiConfig(environment: Environment) {
 		requestCapMicros: 200000,
 		dayCapMicros: 3000000,
 		verifier: {
-			evidenceVersion: "local-synthetic-verifier-v2",
+			evidenceVersion: "local-synthetic-verifier-output-2026-11-17",
+			maxOutputTokens: 16384,
 			maxCallCostMicros: 100000,
 			policy: reviewVerifierPolicy("openai/gpt-6-luna"),
 		},

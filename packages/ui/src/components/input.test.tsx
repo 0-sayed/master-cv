@@ -1,8 +1,32 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { expect, it } from "vite-plus/test";
+import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { Input } from "./input";
 import { InputGroup, InputGroupInput } from "./input-group";
 import { Textarea } from "./textarea";
+
+it.each(["url", "email", "tel"])("keeps the interface placeholder direction and LTR typed %s values", (type) => {
+	const view = render(
+		<DirectionProvider direction="rtl">
+			<Input aria-label="Contact" type={type} placeholder="https://example.test" />
+		</DirectionProvider>,
+	);
+	const input = screen.getByLabelText<HTMLInputElement>("Contact");
+	expect(input.value).toBe("");
+	expect(input.style.getPropertyValue("--field-interface-direction")).toBe("rtl");
+	expect(input).toHaveClass("field-direction");
+	fireEvent.change(input, { target: { value: "example123" } });
+	expect(input.value).toBe("example123");
+	expect(input).toHaveAttribute("dir", "ltr");
+	fireEvent.change(input, { target: { value: "" } });
+	expect(input.style.getPropertyValue("--field-interface-direction")).toBe("rtl");
+	view.rerender(
+		<DirectionProvider direction="ltr">
+			<Input aria-label="Contact" type={type} placeholder="Email" />
+		</DirectionProvider>,
+	);
+	expect(input.style.getPropertyValue("--field-interface-direction")).toBe("ltr");
+});
 
 it.each(["email", "url", "tel", "password", "number", "date"])("isolates a %s field in an Arabic interface", (type) => {
 	render(

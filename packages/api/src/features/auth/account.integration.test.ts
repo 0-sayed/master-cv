@@ -1,5 +1,10 @@
+// Exercise retained internals without changing the production release policy.
+vi.mock("@reactive-resume/schema/personal-tools", async (original) => ({
+	...(await original<typeof import("@reactive-resume/schema/personal-tools")>()),
+	isFeatureAvailable: (feature: string) => ["userApi"].includes(feature),
+}));
 import { createHmac } from "node:crypto";
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { createRouterClient } from "@orpc/server";
 import { eq } from "drizzle-orm";
 import { auth } from "@reactive-resume/auth/config";

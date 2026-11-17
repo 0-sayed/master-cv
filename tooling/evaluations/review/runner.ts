@@ -3,8 +3,9 @@ import { createHash, randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import { z } from "zod";
 import { splitReviewClaims } from "@reactive-resume/schema/resume/ai-review";
-import { captureResponse } from "./attempt";
-import { Budget, withOpenRouterFee, openRouterFeeMultiplier } from "./budget";
+import { captureResponse, lookupGenerationBill } from "./attempt";
+import { settleRecordedCalls, settleFinishedCharge, unknownExposureLimit } from "./billing-runtime";
+import { Budget, withOpenRouterFee } from "./budget";
 import { loadModels, variantCases, type ModelConfig } from "./config";
 import { buildTaskRoute } from "./contracts/route";
 import { taskContractFor } from "./contracts/runtime";
@@ -20,11 +21,15 @@ import {
 	type ApprovedRoute,
 	type ReasoningEffort,
 } from "./production";
+import { normalizeCapacityResponse, requestTokenAllowance } from "./provider-rate-policy";
 import { settlementCharges, type BillingSettlement } from "./reconcile";
+import { REJECTION_JUDGMENTS, type RejectionVote } from "./rejection-vote";
 import { repairSlot, sessionPromptHash, type RepairPlan } from "./repair";
 import { required } from "./required";
+import { reserveTransportRetry } from "./retry-reservation";
 import { fixtureHash, returnedProvider } from "./study";
 import { benchmarkInput, verifierBound, verifyBenchmark, writerEvidenceValid } from "./verifier";
+import { verifierBudgetRoute, usesExpandedVerifierBudget } from "./verifier-budget";
 import { MAX_VERIFIER_FAULT_RETRIES, systemicVerifierFault } from "./verifier-health";
 
 const digest = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
@@ -33,6 +38,7 @@ export type BenchmarkCall = Evaluation & {
 	schemaErrorCount?: number;
 	sessionAttempts?: number;
 	billingReconciled?: string;
+	billingNotes?: string[];
 	/** Raw OpenRouter charges across all purchased attempts, before the single fee rounding. */
 	totalOpenRouterBaseMicros?: number | null;
 	/** Calibrated/estimated exposure only; the full payer ceiling remains reserved. */
@@ -44,11 +50,14 @@ export type BenchmarkCall = Evaluation & {
 	/** Settled charges (or held reservations) from earlier transient attempts, excluding a reused writer. */
 	priorAttemptOpenRouterMicros?: number;
 	priorAttemptOpenaiMicros?: number;
+	taskScore?: import("./contracts/types").TaskScore;
 	verifierAccepted: boolean;
 	safetyAccepted?: boolean;
 	qualityAccepted?: boolean | null;
 	responseAssessment?: { status: string; reason: string } | null;
 	verifierVerdict: unknown;
+	verifierJudgments?: import("./verifier").VerifierJudgment[];
+	verifierVote?: RejectionVote | null;
 	honestOutput: boolean;
 	adjudication?: "verifier" | "pending-human" | "verifier-fault";
 	verifierFault?: string | null;
@@ -118,6 +127,7 @@ export type BenchmarkCall = Evaluation & {
 };
 type PlannedSession = { model: string; provider: string; reasoning: string; caseId: string; runIndex: number };
 export type BenchmarkArtifact = {
+	billingNotes?: { key: string; note: string }[];
 	dispatch?: ReturnType<typeof dispatchLimits> & { worstCaseUnverifiedWriterUsd: number };
 	incomplete?: PlannedSession[];
 	study?: {
@@ -153,6 +163,7 @@ export type AttemptRecord = {
 	failure: import("@reactive-resume/api/features/ai/adapter").AttemptFailure;
 };
 export type RawRecord = {
+	billingPrice?: import("./billing-runtime").BillingPrice;
 	key: string;
 	model: string;
 	provider: string;
@@ -194,9 +205,7 @@ export function benchmarkCaps(reasoning: ReasoningEffort, category?: string | Ex
 		return {
 			writerVisibleOutputTokens: contract.visibleCap(reasoning),
 			writerCompletionTokenCap: completionTokenLimit(routeFor(model, "unused", false, category)),
-			verifierCompletionTokenCap: completionTokenLimit(
-				routeFor({ ...model, reasoning: "low" }, "unused", true, category),
-			),
+			verifierCompletionTokenCap: completionTokenLimit(routeFor(verifierModelFor(model), "unused", true, category)),
 		};
 	}
 	const name = typeof category === "object" ? category.category : category;
@@ -243,7 +252,8 @@ export function routeFor(
 		maxCallCostMicros: 1000000,
 		dayCapMicros: 1000000,
 	};
-	return task ? buildTaskRoute(taskContractFor(task), model.reasoning, binding, verification) : binding;
+	const route = task ? buildTaskRoute(taskContractFor(task), model.reasoning, binding, verification) : binding;
+	return task && verification && usesExpandedVerifierBudget(route) ? verifierBudgetRoute(route) : route;
 }
 export function verifierModelFor(writer: ModelConfig, available: ModelConfig[] = loadModels()): ModelConfig {
 	const policy = reviewVerifierPolicy(writer.model);
@@ -271,53 +281,60 @@ function callBound(model: ModelConfig, c: ExecutionCase, calibration: Calibratio
 	const outputTokens = completionTokenLimit(writerRoute);
 	const vm = verifierModelFor(model, available);
 	const verify = verifierBound(vm, c, routeFor(vm, "unused", true, c));
+	const maxJudgments = c.kind === "task" ? REJECTION_JUDGMENTS : 1;
 	const generationInput = Math.ceil((inputTokens - 4096) / 3);
 	const measured = calibration.find(
 		(m) => m.model === model.model && m.provider === model.provider && m.reasoning === model.reasoning,
 	);
 	const generationMicros = Math.ceil(inputTokens * model.inputPerMillion + outputTokens * model.outputPerMillion);
 	const routerBound = withOpenRouterFee(
-		(model.provider === "openai" ? 0 : generationMicros) + (vm.provider === "openai" ? 0 : verify.micros),
+		(model.provider === "openai" ? 0 : generationMicros) +
+			(vm.provider === "openai" ? 0 : verify.micros * maxJudgments),
 	);
 	const openaiBound =
-		(model.provider === "openai" ? generationMicros : 0) + (vm.provider === "openai" ? verify.micros : 0);
-	const calibrated = (value: number | undefined, fallback: number) =>
-		value === undefined
-			? fallback
-			: Math.ceil(value * 1.25 * Math.max(1, generationInput / (measured?.referenceInputTokens ?? generationInput)));
-	const routerMicros = calibrated(measured?.pairOpenRouterCostMicros, routerBound);
-	const openaiMicros = calibrated(measured?.pairOpenaiCostMicros, openaiBound);
+		(model.provider === "openai" ? generationMicros : 0) +
+		(vm.provider === "openai" ? verify.micros * maxJudgments : 0);
+
+	const routerMicros = routerBound;
+	const openaiMicros = openaiBound;
 	const generationExpected =
 		generationInput * model.inputPerMillion +
 		Math.ceil(((Buffer.byteLength(JSON.stringify(goldOutput(c))) / 3) * outputTokens) / writerRoute.maxOutputTokens) *
 			model.outputPerMillion;
 	const verificationExpected =
 		verify.estimatedInputTokens * vm.inputPerMillion + verify.estimatedOutputTokens * vm.outputPerMillion;
-	const expectedMicros =
-		measured?.pairOpenRouterCostMicros !== undefined && measured.pairOpenaiCostMicros !== undefined
-			? routerMicros + openaiMicros
-			: withOpenRouterFee(
-					Math.ceil(
-						(model.provider === "openai" ? 0 : generationExpected) +
-							(vm.provider === "openai" ? 0 : verificationExpected),
-					),
-				) +
-				Math.ceil(
+	const scale = measured
+		? 1.25 * Math.max(1, generationInput / Math.max(1, measured.referenceInputTokens ?? generationInput))
+		: 1;
+	const expectedRouterMicros =
+		measured?.pairOpenRouterCostMicros !== undefined
+			? Math.ceil(measured.pairOpenRouterCostMicros * scale)
+			: Math.ceil(
+					(model.provider === "openai" ? 0 : generationExpected) +
+						(vm.provider === "openai" ? 0 : verificationExpected),
+				);
+	const expectedOpenaiMicros =
+		measured?.pairOpenaiCostMicros !== undefined
+			? Math.ceil(measured.pairOpenaiCostMicros * scale)
+			: Math.ceil(
 					(model.provider === "openai" ? generationExpected : 0) +
 						(vm.provider === "openai" ? verificationExpected : 0),
 				);
+	const expectedMicros = expectedRouterMicros + expectedOpenaiMicros;
 	return {
 		expectedMicros,
+		expectedRouterMicros,
+		expectedOpenaiMicros,
 		generationMicros,
 		generationInput: Math.ceil((inputTokens - 4096) / 3),
 		generationOutput: Math.ceil(
-			((Buffer.byteLength(JSON.stringify(goldOutput(c))) / 3) * outputTokens) / visibleOutputTokens,
+			((Buffer.byteLength(JSON.stringify(goldOutput(c))) / 3) * outputTokens) / writerRoute.maxOutputTokens,
 		),
 		verifier: verify,
 		inputTokens: inputTokens + verify.inputTokens,
 		outputTokens: outputTokens + verify.outputTokens,
 		openRouterMicros: routerMicros,
-		openaiMicros,
+		openaiMicros: openaiMicros,
 		micros: routerMicros + openaiMicros,
 		estimatedInputTokens: verify.estimatedInputTokens + Math.ceil((inputTokens - 4096) / 3),
 		estimatedOutputTokens:
@@ -343,24 +360,24 @@ export function estimateBenchmark(
 		let reservation = 0;
 		let routerReservation = 0;
 		let openaiReservation = 0;
+		let routerExpected = 0;
+		let openaiExpected = 0;
 		const eligible = variantCases(m, cases, phase, smokeCategory);
 		for (const c of eligible) {
 			const b = callBound(m, c, calibration, verifierModels ?? models);
 			generation += b.generationInput * m.inputPerMillion + b.generationOutput * m.outputPerMillion;
 			verification +=
 				b.verifier.estimatedInputTokens * vm.inputPerMillion + b.verifier.estimatedOutputTokens * vm.outputPerMillion;
-			reservation += b.micros;
-			routerReservation += b.openRouterMicros;
-			openaiReservation += b.openaiMicros;
+			reservation += b.micros * 5;
+			routerReservation += b.openRouterMicros * 5;
+			openaiReservation += b.openaiMicros * 5;
+			routerExpected += b.expectedRouterMicros;
+			openaiExpected += b.expectedOpenaiMicros;
 		}
-		const routerExpected =
-			((m.provider === "openai" ? 0 : generation) + (vm.provider === "openai" ? 0 : verification)) *
-			openRouterFeeMultiplier;
-		const openaiExpected = (m.provider === "openai" ? generation : 0) + (vm.provider === "openai" ? verification : 0);
 		return {
 			...benchmarkCaps(m.reasoning),
-			openRouterEstimatedUsd: ((calibration.length ? routerReservation : routerExpected) * runs) / 1e6,
-			openaiEstimatedUsd: ((calibration.length ? openaiReservation : openaiExpected) * runs) / 1e6,
+			openRouterEstimatedUsd: (routerExpected * runs) / 1e6,
+			openaiEstimatedUsd: (openaiExpected * runs) / 1e6,
 			openRouterUpperBoundUsd: (routerReservation * runs) / 1e6,
 			openaiUpperBoundUsd: (openaiReservation * runs) / 1e6,
 			model: m.model,
@@ -376,29 +393,29 @@ export function estimateBenchmark(
 				inputPerMillion: vm.inputPerMillion,
 				outputPerMillion: vm.outputPerMillion,
 			},
-			generationEstimatedUsd: (generation * runs * (m.provider === "openai" ? 1 : openRouterFeeMultiplier)) / 1e6,
-			verifierEstimatedUsd: (verification * runs * (vm.provider === "openai" ? 1 : openRouterFeeMultiplier)) / 1e6,
+			generationEstimatedUsd: (generation * runs) / 1e6,
+			verifierEstimatedUsd: (verification * runs) / 1e6,
 			calls: eligible.length * runs,
 			providerCalls: eligible.length * runs * 2,
 			upperBoundUsd: (reservation * runs) / 1e6,
-			estimatedUsd: ((calibration.length ? reservation : routerExpected + openaiExpected) * runs) / 1e6,
+			estimatedUsd: ((routerExpected + openaiExpected) * runs) / 1e6,
 		};
 	});
 	return {
 		openRouterEstimatedUsd: perModel.reduce((n, m) => n + m.openRouterEstimatedUsd, 0),
 		openaiEstimatedUsd: perModel.reduce((n, m) => n + m.openaiEstimatedUsd, 0),
-		openRouterUpperBoundUsd: perModel.reduce((n, m) => n + m.openRouterUpperBoundUsd, 0),
-		openaiUpperBoundUsd: perModel.reduce((n, m) => n + m.openaiUpperBoundUsd, 0),
+		openRouterUpperBoundUsd: perModel.reduce((n, m) => n + Math.round(m.openRouterUpperBoundUsd * 1e6), 0) / 1e6,
+		openaiUpperBoundUsd: perModel.reduce((n, m) => n + Math.round(m.openaiUpperBoundUsd * 1e6), 0) / 1e6,
 		calls: perModel.reduce((n, m) => n + m.calls, 0),
 		providerCalls: perModel.reduce((n, m) => n + m.providerCalls, 0),
-		upperBoundUsd: perModel.reduce((n, m) => n + m.upperBoundUsd, 0),
+		upperBoundUsd: perModel.reduce((n, m) => n + Math.round(m.upperBoundUsd * 1e6), 0) / 1e6,
 		estimatedUsd: perModel.reduce((n, m) => n + m.estimatedUsd, 0),
 		calibrated: calibration.length > 0,
 		perModel,
 		generationAndVerifier: true,
 		openRouterFeePercent: 5.5,
 		basis:
-			"Independent writer/verifier prices. Calibrated reservation = largest measured pair cost x 1.25 x max(1, source token estimate / smoke reference). Catalog bounds apply before smoke. Unknown billing is held within 3 sessions/$0.05; excess billing stops the run; calibration is an estimate, not a provider billing guarantee.",
+			"Independent writer/verifier prices. Measured expectations include 25% margin and source-length scaling. Reservations always retain catalog token bounds, including transport attempts. Unknown billing is held within 3 sessions/$0.05; excess billing stops the run; calibration is an estimate, not a provider billing guarantee.",
 	};
 }
 const endpointSchema = z.object({
@@ -474,7 +491,7 @@ export type FakeTransport = (
 	url: Parameters<typeof fetch>[0],
 	init: RequestInit | undefined,
 	next: () => Promise<Response>,
-	context: { key: string; role: "writer" | "verifier"; model: ModelConfig; route?: ApprovedRoute },
+	context: { key: string; requestKey?: string; role: "writer" | "verifier"; model: ModelConfig; route?: ApprovedRoute },
 ) => Promise<Response>;
 export type RunOptions = DispatchLimits & {
 	/** Guard-only revision: whitelist paid judges; a missing saved writer is fatal. */
@@ -502,6 +519,9 @@ export type RunOptions = DispatchLimits & {
 	onCall?: (call: BenchmarkCall) => Promise<void>;
 	id?: string;
 	previousCalls?: BenchmarkCall[];
+	/** Historical receipts use their original prices, not the refreshed live catalog. */
+	recordedBillingModels?: ModelConfig[] | undefined;
+	attempts?: AttemptRecord[];
 	unsettledRetryReservations?: {
 		key: string;
 		reservedMicros: number;
@@ -526,22 +546,18 @@ export type RunOptions = DispatchLimits & {
 	calibration?: Calibration[];
 	priorSpendMicros?: number;
 };
-function unknownBillingExceeded(calls: BenchmarkCall[]) {
+function unknownBillingExceeded(calls: BenchmarkCall[], routerUsd: number, openaiUsd: number) {
 	const held = calls.filter((c) => c.costMicros === null);
 
 	return (
-		held.length > 3 ||
-		held.reduce((n, c) => n + (c.unknownExposureMicros ?? 0), 0) +
-			calls
-				.filter((c) => c.unknownExposureMicros === undefined && c.costMicros === null)
-				.reduce(
-					(n, c) =>
-						n +
-						(c.openRouterCostMicros == null ? (c.reservedOpenRouterMicros ?? c.reservedMicros) : 0) +
-						(c.openaiCostMicros === null ? (c.reservedOpenaiMicros ?? 0) : 0),
-					0,
-				) >
-			50000
+		held.reduce(
+			(n, c) =>
+				n +
+				(c.unknownExposureMicros ??
+					(c.openRouterCostMicros == null ? (c.reservedOpenRouterMicros ?? c.reservedMicros) : 0) +
+						(c.openaiCostMicros === null ? (c.reservedOpenaiMicros ?? 0) : 0)),
+			0,
+		) > unknownExposureLimit(routerUsd, openaiUsd)
 	);
 }
 export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkArtifact> {
@@ -573,7 +589,27 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 			c.costMicros !== null) ||
 		invalidated(c) ||
 		(Boolean(c.verifierFault) && (c.verifierFaultRetries ?? 0) < MAX_VERIFIER_FAULT_RETRIES);
-	const completed = new Map((options.previousCalls ?? []).map((c) => [c.key, c]));
+	const settledCalls = await settleRecordedCalls(
+		options.previousCalls ?? [],
+		options.rawRecords ?? [],
+		options.attempts ?? [],
+		options.recordedBillingModels ?? [...models, ...(options.verifierModels ?? loadModels())],
+		!fake && options.key
+			? async (id, byok) => {
+					const bill = await lookupGenerationBill(options.transport ?? globalThis.fetch, id, {
+						headers: { Authorization: `Bearer ${options.key}` },
+						body: JSON.stringify({ provider: { only: byok ? ["openai"] : ["together"] } }),
+					});
+					return bill
+						? { router: bill.costMicros, openai: byok ? bill.upstreamCostMicros : 0, source: "generation-stats" }
+						: null;
+				}
+			: undefined,
+	);
+	for (let index = 0; index < settledCalls.length; index++) {
+		if (settledCalls[index] !== options.previousCalls?.[index]) await options.onCall?.(required(settledCalls[index]));
+	}
+	const completed = new Map(settledCalls.map((c) => [c.key, c]));
 	const raws = new Map((options.rawRecords ?? []).map((r) => [r.key, r]));
 	if (options.reverifyKeys) {
 		for (const key of options.reverifyKeys) {
@@ -620,10 +656,14 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 		}
 	// An interrupted multi-attempt sequence has no durable aggregate settlement.
 	// Keep its parent reservation; replaying just the last body would lose earlier charges.
+	const latestReservations = new Map((options.pendingReservations ?? []).map((r) => [r.key, r]));
 	const rawCounts = new Map<string, number>();
 	for (const raw of options.rawRecords ?? []) rawCounts.set(raw.key, (rawCounts.get(raw.key) ?? 0) + 1);
 	const interruptedRetry = (options.rawRecords ?? []).some((raw) => {
-		if (completed.has(raw.key.replace(/:verify$/u, "")) || settlements.has(raw.key.replace(/:verify$/u, "")))
+		if (
+			completed.has(raw.key.replace(/:verify(?::judge:[23])?(?::(?:expanded|fresh|retry:[12]))?$/u, "")) ||
+			settlements.has(raw.key.replace(/:verify(?::judge:[23])?(?::(?:expanded|fresh|retry:[12]))?$/u, ""))
+		)
 			return false;
 		if ((rawCounts.get(raw.key) ?? 0) > 1) return true;
 		try {
@@ -642,21 +682,29 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 				: (c.openRouterCostMicros ?? c.reservedOpenRouterMicros ?? c.reservedMicros);
 		openaiBudget.consumed += c.openaiCostMicros ?? c.reservedOpenaiMicros ?? 0;
 	}
+	const unsettledRetries = (options.unsettledRetryReservations ?? []).filter((r) => !settlements.has(r.key));
+	const unsettledKeys = new Set(unsettledRetries.map((r) => r.key));
 	for (const r of raws.values())
-		if (!completed.has(r.key.replace(/:verify$/u, "")) && !settlements.has(r.key.replace(/:verify$/u, ""))) {
-			budget.consumed += r.reservedOpenRouterMicros ?? r.reservedMicros;
-			openaiBudget.consumed += r.reservedOpenaiMicros ?? 0;
+		if (
+			!unsettledKeys.has(r.key) &&
+			!completed.has(r.key.replace(/:verify(?::judge:[23])?(?::(?:expanded|fresh|retry:[12]))?$/u, "")) &&
+			!settlements.has(r.key.replace(/:verify(?::judge:[23])?(?::(?:expanded|fresh|retry:[12]))?$/u, ""))
+		) {
+			const held = latestReservations.get(r.key) ?? r;
+			budget.consumed += held.reservedOpenRouterMicros ?? held.reservedMicros;
+			openaiBudget.consumed += held.reservedOpenaiMicros ?? 0;
 		}
-	const pending = (options.pendingReservations ?? []).filter(
+	const pending = [...latestReservations.values()].filter(
 		(r) =>
 			r.reservedMicros > 0 &&
 			!settlements.has(r.key) &&
-			!completed.has(r.key.replace(/:verify$/u, "")) &&
+			!unsettledKeys.has(r.key) &&
+			!completed.has(r.key.replace(/:verify(?::judge:[23])?(?::(?:expanded|fresh|retry:[12]))?$/u, "")) &&
 			!raws.has(r.key),
 	);
 	budget.consumed += pending.reduce((n, r) => n + (r.reservedOpenRouterMicros ?? r.reservedMicros), 0);
 	openaiBudget.consumed += pending.reduce((n, r) => n + (r.reservedOpenaiMicros ?? 0), 0);
-	const unsettledRetries = (options.unsettledRetryReservations ?? []).filter((r) => !settlements.has(r.key));
+
 	for (const r of unsettledRetries) {
 		budget.consumed += r.reservedOpenRouterMicros ?? r.reservedMicros;
 		openaiBudget.consumed += r.reservedOpenaiMicros ?? 0;
@@ -698,6 +746,21 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 		const key = (s: PlannedSession) => JSON.stringify([s.model, s.provider, s.reasoning, s.caseId, s.runIndex]);
 		const done = new Set(artifact.calls.filter((c) => c.costMicros !== null && !retryable(c)).map(key));
 		artifact.incomplete = planned.filter((s) => !done.has(key(s)));
+		artifact.billingNotes = artifact.calls.flatMap((call) => {
+			const notes = (call.billingNotes ?? []).filter((note) =>
+				/exceeded reservation|repaired negative settlement/u.test(note),
+			);
+			for (const [payer, reserved, actual] of [
+				["OpenRouter", call.reservedOpenRouterMicros ?? call.reservedMicros, call.openRouterCostMicros],
+				["OpenAI", call.reservedOpenaiMicros ?? 0, call.openaiCostMicros],
+			] as const) {
+				if (actual != null && actual > reserved)
+					notes.push(
+						`${payer}: settled ${actual} microdollars exceeded reservation by ${actual - reserved} microdollars (Sayed D39)`,
+					);
+			}
+			return [...new Set(notes)].map((note) => ({ key: call.key, note }));
+		});
 		artifact.reservedUsd = budget.consumed / 1e6;
 		artifact.reservedOpenaiUsd = openaiBudget.consumed / 1e6;
 		return artifact;
@@ -721,11 +784,9 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 								returnedProvider(c.verifierUsage.provider) !== reviewVerifierPolicy(c.model).downstreamProvider,
 					  )
 					? "VERIFIER_PROVIDER_MISMATCH"
-					: unknownBillingExceeded(artifact.calls)
+					: unknownBillingExceeded(artifact.calls, options.budgetUsd, options.openaiBudgetUsd ?? 10)
 						? "BILLING_UNKNOWN"
-						: artifact.calls.some((c) => (c.costMicros ?? 0) > c.reservedMicros)
-							? "BILLING_BOUND_EXCEEDED"
-							: null);
+						: null);
 	if (previousAbort) {
 		artifact.stopReason = previousAbort;
 		return finish();
@@ -789,9 +850,9 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 					const ceiling = callBound(model, c, [], options.verifierModels ?? models);
 					const bound = {
 						...estimated,
-						openRouterMicros: ceiling.openRouterMicros * 5,
-						openaiMicros: ceiling.openaiMicros * 5,
-						micros: ceiling.micros * 5,
+						openRouterMicros: ceiling.openRouterMicros,
+						openaiMicros: ceiling.openaiMicros,
+						micros: ceiling.micros,
 					};
 					const { handler, payload, snapshot } = prepareCase(c);
 					const promptHash = sessionPromptHash(c);
@@ -896,7 +957,8 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 		]),
 	);
 	const execute = async (job: (typeof jobs)[number], releaseWriter: () => void) => {
-		const { c, runIndex, model, bound, handler, payload, snapshot, promptHash, key, vm } = job;
+		const { c, runIndex, model, handler, payload, snapshot, promptHash, key, vm } = job;
+		const bound = { ...job.bound };
 		const previous = completed.get(key);
 		const settlement = !previous ? settlements.get(key) : undefined;
 		const settled = settlement ? settlementCharges(settlement) : undefined;
@@ -914,6 +976,37 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 			return;
 		}
 		const cached = previous ? (reusableWriter ? recorded : undefined) : recorded;
+		if (cached && !previous && !settlement) {
+			const held = latestReservations.get(key) ?? cached;
+			bound.openRouterMicros = held.reservedOpenRouterMicros ?? held.reservedMicros;
+			bound.openaiMicros = held.reservedOpenaiMicros ?? 0;
+			bound.micros = bound.openRouterMicros + bound.openaiMicros;
+		}
+		const held = {
+			key,
+			reservedMicros: bound.micros,
+			reservedOpenRouterMicros: bound.openRouterMicros,
+			reservedOpenaiMicros: bound.openaiMicros,
+		};
+		const reserveRetry = (provider: string, micros: number) =>
+			reserveTransportRetry({
+				router: budget,
+				openai: openaiBudget,
+				held,
+				provider,
+				micros,
+				persist: async (r) => {
+					bound.micros = r.reservedMicros;
+					bound.openRouterMicros = r.reservedOpenRouterMicros;
+					bound.openaiMicros = r.reservedOpenaiMicros;
+					await options.onReserve?.(r);
+				},
+			}).catch((error: unknown) => {
+				if (error instanceof Error && ["BUDGET_LIMIT", "OPENAI_BUDGET_LIMIT"].includes(error.message))
+					artifact.stopReason ??= error.message;
+				throw error;
+			});
+
 		if (!cached || previous || settlement) {
 			if (bound.openRouterMicros > budget.capMicros - budget.consumed) {
 				artifact.stopReason = "BUDGET_LIMIT";
@@ -996,25 +1089,50 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 							route: routeFor(model, options.key ?? "fake-key", false, c),
 						})
 				: scriptedBase;
+		let writerRequestsSent = 0;
+		let blockedByVerifier = false;
 		const transport: typeof fetch = async (url, init) => {
 			// Price ceilings prevent a catalog change from invalidating reservations.
 			const body = JSON.parse(String(init?.body)) as { provider: Record<string, unknown> };
 			body.provider.max_price = { prompt: model.inputPerMillion, completion: model.outputPerMillion };
 			if (artifact.stopReason && !cached) throw new Error("BENCHMARK_STOPPED");
 
+			if (!cached && !fake) {
+				const pacing = pool.beforeRequest(model, requestTokenAllowance(body));
+				if (pacing) await pacing;
+			}
 			const response = await captureResponse(
-				base,
+				async (request, requestInit) => {
+					if (
+						!cached &&
+						(verifierCooldown.delay([vm]) > 0 || (writerRequestsSent === 0 && verifierCooldown.unrecovered(vm)))
+					) {
+						blockedByVerifier = true;
+						throw new Error("BENCHMARK_VERIFIER_UNAVAILABLE");
+					}
+					if (!cached) {
+						if (writerRequestsSent > 0) await reserveRetry(model.provider, bound.generationMicros);
+						writerRequestsSent++;
+					}
+					return base(request, requestInit);
+				},
 				url,
 				{ ...init, body: JSON.stringify(body) },
 				!cached && (!fake || Boolean(options.fakeTransport)),
 			);
 			const received = await response.text();
 			const rawBody = options.key ? received.replaceAll(options.key, "[REDACTED]") : received;
-			rateLimited = isRateLimited(response.status, rawBody);
+			const normalized = normalizeCapacityResponse(
+				new Response(rawBody, { status: response.status, headers: response.headers }),
+				rawBody,
+			);
+			rateLimited = isRateLimited(normalized.status, rawBody);
+			if (!cached && !fake) pool.observeResponse(model, response, rawBody);
 			if (!cached && rateLimited) cooldown.record(model, true, "transient");
-			pool.observe(model, rateLimited, response.ok && !rateLimited);
+			if (!cached) pool.observe(model, rateLimited, response.ok && !rateLimited);
 			if (!cached)
 				await options.onRaw?.({
+					billingPrice: { inputPerMillion: model.inputPerMillion, outputPerMillion: model.outputPerMillion },
 					key,
 					model: model.model,
 					provider: model.provider,
@@ -1064,7 +1182,7 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 			} catch {
 				/* Adapter retains schema/error outcomes; never log provider error bodies. */
 			}
-			return new Response(rawBody, { status: response.status, headers: response.headers });
+			return normalized;
 		};
 		const start = performance.now();
 		let result;
@@ -1082,6 +1200,7 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 						signal: new AbortController().signal,
 					},
 					{
+						billingPrice: model,
 						concurrencyLimit: pool.limit(model),
 						onAttempt: async (r) => {
 							observeFailure(model, r);
@@ -1094,6 +1213,8 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 		} finally {
 			releaseWriter();
 		}
+		if (blockedByVerifier && writerRequestsSent === 0)
+			result = { ...result, costMicros: 0, openRouterCostMicros: 0, openaiCostMicros: 0 };
 		const paidWriter =
 			previous?.writerBilling ??
 			(settlement
@@ -1145,6 +1266,7 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 						options,
 						onResult: (r) => observeFailure(vm, r),
 						cooldown: verifierCooldown,
+						reserveRetry,
 						pool,
 						stopped: () => Boolean(artifact.stopReason),
 						model: verifierModelFor(model, options.verifierModels ?? models),
@@ -1160,6 +1282,17 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 						runIndex,
 						promptHash,
 						fixtureHash: fixtureHash(c),
+						cachedJudgments: [...raws.values()].filter(
+							(r) =>
+								(r.key === key + ":verify" || r.key.startsWith(key + ":verify:")) &&
+								(!previous ||
+									(c.kind === "task" &&
+										previous.verifierJudgments?.some((j) =>
+											(j.attempts ?? [j]).some(
+												(a) => a.key === r.key && ["valid", "invalid", "truncated"].includes(a.outcome),
+											),
+										))),
+						),
 						...(!previous && raws.get(key + ":verify") ? { cached: raws.get(key + ":verify") } : {}),
 					})
 				: null;
@@ -1169,13 +1302,14 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 			observeFailure(vm, verification.result);
 		const combine = (a: number | null, b: number | null | undefined) =>
 			a === null || b === null ? null : a + (b ?? 0);
-		const routerRaw = combine(result.openRouterCostMicros, verification?.result.openRouterCostMicros);
-		const priorRouter = previous
-			? (previous.priorAttemptOpenRouterMicros ?? 0) +
-				(previous.openRouterCostMicros ?? previous.reservedOpenRouterMicros ?? previous.reservedMicros) -
-				(cached ? withOpenRouterFee(result.openRouterCostMicros ?? 0) : 0)
-			: (settled?.openRouterMicros ?? 0) -
-				(settlement && cached ? withOpenRouterFee(result.openRouterCostMicros ?? 0) : 0);
+		const routerRaw = combine(
+			result.openRouterCostMicros,
+			verification?.result.openRouterCostMicros === null
+				? null
+				: verification?.result.openRouterCostMicros === undefined
+					? undefined
+					: verification.result.openRouterCostMicros - (previous ? verification.reusedCosts.openRouterMicros : 0),
+		);
 		const previousBase =
 			previous?.totalOpenRouterBaseMicros ??
 			(settlement ? settlement.writer.openRouterBaseMicros + settlement.verifier.openRouterBaseMicros : 0);
@@ -1184,13 +1318,16 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 				? null
 				: previousBase + routerRaw - ((previous || settlement) && cached ? (result.openRouterCostMicros ?? 0) : 0);
 		const hasBase = !previous || previous.totalOpenRouterBaseMicros !== undefined;
-		const openRouterCostMicros =
-			routerRaw === null
+		// New expense comes from receipts, never from subtracting a held reservation.
+		const openRouterCostMicros = routerRaw;
+		const openaiCostMicros = combine(
+			result.openaiCostMicros,
+			verification?.result.openaiCostMicros === null
 				? null
-				: hasBase && totalOpenRouterBaseMicros !== null
-					? withOpenRouterFee(totalOpenRouterBaseMicros) - priorRouter
-					: withOpenRouterFee(routerRaw);
-		const openaiCostMicros = combine(result.openaiCostMicros, verification?.result.openaiCostMicros);
+				: verification?.result.openaiCostMicros === undefined
+					? undefined
+					: verification.result.openaiCostMicros - (previous ? verification.reusedCosts.openaiMicros : 0),
+		);
 		const costMicros = combine(openRouterCostMicros, openaiCostMicros);
 		const inputTokens =
 			result.inputTokens === null || (verification && verification.result.inputTokens === null)
@@ -1215,6 +1352,7 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 				? { billingReconciled: previous?.billingReconciled ?? required(settlement).evidenceSha256 }
 				: {}),
 			unknownExposureMicros: bound.expectedMicros,
+			billingNotes: [...result.billingNotes, ...(verification?.result.billingNotes ?? [])],
 			writerBilling: { openRouterCostMicros: result.openRouterCostMicros, openaiCostMicros: result.openaiCostMicros },
 			...(hasBase ? { totalOpenRouterBaseMicros } : {}),
 			...(result.failure?.providerErrorCode ? { providerErrorCode: result.failure.providerErrorCode } : {}),
@@ -1222,13 +1360,17 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 			...(previous && (previous.promptDigest !== promptHash || previous.schemaRepair)
 				? { schemaRepair: previous.schemaRepair ?? { fromPromptHash: previous.promptDigest, toPromptHash: promptHash } }
 				: {}),
-			verifierFaultRetries: (previous?.verifierFaultRetries ?? 0) + Number(Boolean(previous?.verifierFault)),
+			verifierFaultRetries: verification?.boundedProtocolRetryExhausted
+				? MAX_VERIFIER_FAULT_RETRIES
+				: (previous?.verifierFaultRetries ?? 0) +
+					Number(Boolean(previous?.verifierFault)) +
+					(verification?.judgments.reduce((count, judgment) => count + Math.max(0, judgment.attempts.length - 1), 0) ??
+						0),
 			priorAttemptOpenRouterMicros: previous
 				? (previous.priorAttemptOpenRouterMicros ?? 0) +
 					(previous.openRouterCostMicros ?? previous.reservedOpenRouterMicros ?? previous.reservedMicros) -
-					(cached ? withOpenRouterFee(result.openRouterCostMicros ?? 0) : 0)
-				: (settled?.openRouterMicros ?? 0) -
-					(settlement && cached ? withOpenRouterFee(result.openRouterCostMicros ?? 0) : 0),
+					(cached ? (result.openRouterCostMicros ?? 0) : 0)
+				: (settled?.openRouterMicros ?? 0) - (settlement && cached ? (result.openRouterCostMicros ?? 0) : 0),
 			priorAttemptOpenaiMicros: previous
 				? (previous.priorAttemptOpenaiMicros ?? 0) +
 					(previous.openaiCostMicros ?? previous.reservedOpenaiMicros ?? 0) -
@@ -1241,6 +1383,8 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 			qualityAccepted: verification?.qualityAccepted ?? null,
 			responseAssessment: verification?.responseAssessment ?? null,
 			verifierVerdict: verification?.verdict ?? null,
+			verifierJudgments: verification?.judgments ?? [],
+			verifierVote: verification?.rejectionVote ?? null,
 			honestOutput: verification?.accepted ?? false,
 			adjudication: verification?.fault ? "verifier-fault" : verification?.accepted ? "verifier" : "pending-human",
 			verifierFault: verification?.fault ?? null,
@@ -1309,13 +1453,11 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 			cachedTokens: result.cachedTokens,
 			openRouterCostMicros,
 			openaiCostMicros,
-			reservedOpenRouterMicros: previous
-				? bound.openRouterMicros
-				: (cached?.reservedOpenRouterMicros ?? bound.openRouterMicros),
-			reservedOpenaiMicros: previous ? bound.openaiMicros : (cached?.reservedOpenaiMicros ?? bound.openaiMicros),
+			reservedOpenRouterMicros: bound.openRouterMicros,
+			reservedOpenaiMicros: bound.openaiMicros,
 			costMicros,
-			reservedMicros: previous ? bound.micros : (cached?.reservedMicros ?? bound.micros),
-			latencyMs: cached?.latencyMs ?? performance.now() - start,
+			reservedMicros: bound.micros,
+			latencyMs: (previous?.latencyMs ?? cached?.latencyMs ?? 0) + performance.now() - start,
 			outcome:
 				actualProvider !== null && returnedProvider(actualProvider) !== model.provider
 					? "PROVIDER_MISMATCH"
@@ -1363,37 +1505,36 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 		if (!artifact.stopReason && systemicVerifierFault(artifact.calls)) artifact.stopReason = "VERIFIER_FAULT";
 		awaitingVerification.delete(key);
 		unverified.set(verifierKey(vm), Math.max(0, (unverified.get(verifierKey(vm)) ?? 1) - 1));
-		await options.onCall?.(call);
 		try {
 			// Cached writer expense is already charged. Reserve the same pair bound, settle only new work.
 			const routerIncrement =
 				call.openRouterCostMicros == null
 					? null
-					: call.openRouterCostMicros -
-						((previous || settlement) && cached ? withOpenRouterFee(result.openRouterCostMicros ?? 0) : 0);
+					: call.openRouterCostMicros - ((previous || settlement) && cached ? (result.openRouterCostMicros ?? 0) : 0);
 			const openaiIncrement =
 				call.openaiCostMicros == null
 					? null
 					: call.openaiCostMicros - ((previous || settlement) && cached ? (result.openaiCostMicros ?? 0) : 0);
-			for (const [reserved, actual] of [
-				[call.reservedOpenRouterMicros ?? call.reservedMicros, routerIncrement],
-				[call.reservedOpenaiMicros ?? 0, openaiIncrement],
-			] as const)
-				if (actual !== null && (!Number.isSafeInteger(actual) || actual < 0 || actual > required(reserved)))
-					throw new Error("BILLING_BOUND_EXCEEDED");
-			budget.settle(call.reservedOpenRouterMicros ?? call.reservedMicros, routerIncrement);
-			openaiBudget.settle(call.reservedOpenaiMicros ?? 0, openaiIncrement);
+			for (const [ledger, reserved, actual, payer] of [
+				[budget, call.reservedOpenRouterMicros ?? call.reservedMicros, routerIncrement, "OpenRouter"],
+				[openaiBudget, call.reservedOpenaiMicros ?? 0, openaiIncrement, "OpenAI"],
+			] as const) {
+				const note = settleFinishedCharge(ledger, reserved, actual, payer);
+				if (note) call.billingNotes?.push(note);
+			}
 		} catch {
-			artifact.stopReason = "BILLING_BOUND_EXCEEDED";
+			artifact.stopReason = "INVALID_SETTLED_COST";
+			await options.onCall?.(call);
 			return;
 		}
+		await options.onCall?.(call);
 		if (artifact.stopReason) return;
 		if (actualProvider !== null && returnedProvider(actualProvider) !== model.provider) {
 			call.outcome = "PROVIDER_MISMATCH";
 			artifact.stopReason = "PROVIDER_MISMATCH";
 			return;
 		}
-		if (unknownBillingExceeded(artifact.calls)) {
+		if (unknownBillingExceeded(artifact.calls, options.budgetUsd, options.openaiBudgetUsd ?? 10)) {
 			artifact.stopReason = "BILLING_UNKNOWN";
 			return;
 		}
@@ -1437,7 +1578,9 @@ export async function runBenchmark(inputOptions: RunOptions): Promise<BenchmarkA
 			const previous = completed.get(key);
 			if ((previous && !retryable(previous)) || attempted.has(key)) continue;
 
-			// A failed judge must first recover via resume; never buy another writer to probe it.
+			// A failed judge must first recover through a cached answer; never buy another writer to probe it.
+			if (!awaitingVerification.has(key) && !successfulWriter(raws.get(key)) && verifierCooldown.unrecovered(vm))
+				continue;
 			if (!awaitingVerification.has(key) && (unverified.get(verifierKey(vm)) ?? 0) >= limits.maxUnverified) continue;
 			if (cooldown.expired([model]) || verifierCooldown.expired([vm])) continue;
 			const delay = Math.max(cooldown.delay([model]), verifierCooldown.delay([vm]));

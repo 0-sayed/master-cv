@@ -286,9 +286,8 @@ it("reconciles a rejected master revision without replacing local corrections or
 		.mockResolvedValueOnce({ resumeId: "saved" });
 	review();
 	fireEvent.click(screen.getByRole("button", { name: "Use confirmed career information" }));
-	await screen.findByRole("button", { name: /^Skills/ });
 	fireEvent.click(
-		within(screen.getByRole("navigation", { name: "Review sections" })).getByRole("button", { name: /^Skills/ }),
+		await within(screen.getByRole("navigation", { name: "Review sections" })).findByRole("button", { name: /^Skills/ }),
 	);
 	expect(screen.getByText("Original skill", { selector: "dd" })).toBeVisible();
 	fireEvent.click(screen.getByRole("button", { name: /^Basic information/ }));

@@ -1,13 +1,15 @@
 # T014 — Activate mobile authentication
 
 **Task:** T014 · **PR size:** L · **Branch:** `feat/t014-mobile-authentication`
-**Depends on:** T003, T009 · **Priority:** 140
+**Depends on:** T003, T009, T017 · **Priority:** 90
 **Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
 **Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
 
 ## Goal
 
-Activate the later mobile authentication increment under D20/D21 without blocking free beta or paid release.
+D43: build phone OTP after T017 on the Hostinger pilot before T010 and T013. The owner suggests Saudi SMS provider "T2"; verify its exact name and suitability later. Company registration, sender approval and A14-A16 remain activation gates.
+
+Activate the mobile authentication increment under D20/D21 in the D43 pilot build order.
 Mobile signup, SMS verification/reset, recovery codes and S37-S39 stay off at launch.
 
 ## Scope (in)
@@ -21,7 +23,7 @@ Mobile signup, SMS verification/reset, recovery codes and S37-S39 stay off at la
 - Own A14/A15/A16 evidence: company registration, approved sender, Taqnyat primary/Unifonic fallback,
   each route's DPA/processing/templates/domain/cost caps and shared atomic abuse controls.
 - Start with synthetic supplier doubles. No live send before A15; activation also requires A14/A16.
-- Keep SMS-only sign-in Phase 2 server-denied. Beta T013 and paid T015 never depend on T014.
+- Keep SMS-only sign-in Phase 2 server-denied. D43 places this task before T010, T013 and the production release path.
 
 ## Explicit exclusions
 

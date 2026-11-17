@@ -5,7 +5,7 @@ import { cases } from "../corpus";
 import { runBenchmark } from "../runner";
 import { smokeCases } from "../study";
 
-it("old categories byte-identical", async () => {
+it("core categories retain their approved deterministic receipt", async () => {
 	const raw: unknown[] = [];
 	const artifact = await runBenchmark({
 		models: loadModels(),
@@ -23,6 +23,10 @@ it("old categories byte-identical", async () => {
 	expect(artifact.stopReason).toBeNull();
 	expect(artifact.calls).toHaveLength(132);
 	const calls = artifact.calls.map(({ id: _id, latencyMs: _latencyMs, ...call }) => call);
-	const hash = createHash("sha256").update(JSON.stringify({ raw, calls })).digest("hex");
-	expect(hash).toBe("81ad82002eec450c3c781ce226fe99b2735ec6af8623c55e6de0aee95a15b48c");
+	// Judgment receipts now include timings too. Keep all receipt fields except elapsed time.
+	const hash = createHash("sha256")
+		.update(JSON.stringify({ raw, calls }, (key, value) => (key === "latencyMs" ? undefined : value)))
+		.digest("hex");
+	// Shared guard v11 and the authorized per-attempt billing ledger define this receipt.
+	expect(hash).toBe("d19d350b874a422888a48585a4ba94d6b07a73331385e73fdc1a8a108e145f29");
 });

@@ -3,6 +3,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { CommandGroup, CommandItem, CommandShortcut } from "@reactive-resume/ui/components/command";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Kbd } from "@reactive-resume/ui/components/kbd";
@@ -11,6 +12,7 @@ import { BaseCommandGroup } from "./base";
 import { QueryListState } from "@/components/query-list-state";
 import { useDialogStore } from "@/dialogs/store";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
+import { DocumentType } from "@/features/documents/document-type";
 import { orpc } from "@/libs/orpc/client";
 
 type Application = RouterOutput["applications"]["list"][number];
@@ -38,9 +40,13 @@ export function ResumesCommandGroup() {
 	return (
 		<>
 			<BaseCommandGroup heading={<Trans>Search for…</Trans>}>
-				<CommandItem keywords={[t`Resumes`]} value="search.resumes" onSelect={() => pushPage("resumes")}>
+				<CommandItem
+					keywords={[t`Documents`, t`Resumes`, t`Cover letter`]}
+					value="search.resumes"
+					onSelect={() => pushPage("resumes")}
+				>
 					<Icon name="file-text" size={16} />
-					<Trans>Resumes</Trans>
+					<Trans>Documents</Trans>
 				</CommandItem>
 
 				<CommandItem keywords={[t`Applications`]} value="search.applications" onSelect={() => pushPage("applications")}>
@@ -48,19 +54,21 @@ export function ResumesCommandGroup() {
 					<Trans>Applications</Trans>
 				</CommandItem>
 
-				<CommandItem
-					keywords={[t`Conversations`, t`Assistant`, t`Threads`]}
-					value="search.threads"
-					onSelect={() => pushPage("threads")}
-				>
-					<Icon name="chat-text" size={16} />
-					<Trans>Assistant conversations</Trans>
-				</CommandItem>
+				{isFeatureAvailable("assistant") && (
+					<CommandItem
+						keywords={[t`Conversations`, t`Assistant`, t`Threads`]}
+						value="search.threads"
+						onSelect={() => pushPage("threads")}
+					>
+						<Icon name="chat-text" size={16} />
+						<Trans>Assistant conversations</Trans>
+					</CommandItem>
+				)}
 			</BaseCommandGroup>
 
 			{searchPage === "resumes" ? <ResumesPage /> : null}
 			{searchPage === "applications" ? <ApplicationsPage /> : null}
-			{searchPage === "threads" ? <ThreadsPage /> : null}
+			{isFeatureAvailable("assistant") && searchPage === "threads" ? <ThreadsPage /> : null}
 		</>
 	);
 }
@@ -70,8 +78,10 @@ function ResumesPage() {
 	const { openDialog } = useDialogStore();
 	const reset = useCommandPaletteStore((state) => state.reset);
 	const search = useCommandPaletteStore((state) => state.search);
-	const query = useQuery(orpc.resume.list.queryOptions({ input: { sort: "lastUpdatedAt", tags: [] } }));
-	const filteredResumes = (query.data ?? []).filter((resume) => matchesSearch(search, [resume.name, resume.slug]));
+	const query = useQuery(orpc.documents.list.queryOptions({ input: { trashed: false } }));
+	const filteredResumes = (query.data ?? []).filter((resume) =>
+		matchesSearch(search, [resume.name, ...resume.tags, resume.application?.company, resume.application?.role]),
+	);
 
 	const onCreate = () => {
 		reset();
@@ -84,7 +94,7 @@ function ResumesPage() {
 	};
 
 	return (
-		<CommandGroup forceMount heading={<Trans>Resumes</Trans>}>
+		<CommandGroup forceMount heading={<Trans>Documents</Trans>}>
 			<CommandItem value="resumes.create" onSelect={onCreate}>
 				<Icon name="plus" size={16} />
 				<Trans>Create a new resume</Trans>
@@ -93,19 +103,28 @@ function ResumesPage() {
 			<QueryListState
 				query={query}
 				empty={filteredResumes.length === 0}
-				loadingMessage={<Trans>Loading resumes…</Trans>}
+				loadingMessage={<Trans>Loading…</Trans>}
 				errorMessage={<Trans>Couldn't load this. Your saved data hasn't changed.</Trans>}
 				emptyMessage={<Trans>No results found.</Trans>}
 			>
 				{filteredResumes.map((resume) => (
 					<CommandItem
-						key={resume.id}
-						value={`resume.${resume.id}`}
-						keywords={[resume.name, resume.slug]}
-						onSelect={() => onNavigate(`/builder/${resume.id}`)}
+						key={`${resume.type}:${resume.id}`}
+						value={`${resume.type}.${resume.id}`}
+						keywords={[
+							resume.name,
+							...resume.tags,
+							...(resume.application ? [resume.application.company, resume.application.role] : []),
+						]}
+						onSelect={() =>
+							onNavigate(resume.type === "letter" ? `/builder/letter/${resume.id}` : `/builder/${resume.id}`)
+						}
 					>
-						<Icon name="file-text" size={16} />
-						{resume.name}
+						<Icon name={resume.type === "resume" ? "file-text" : "envelope-simple"} size={16} />
+						<span dir="auto" className="min-w-0 truncate">
+							{resume.name}
+						</span>
+						<DocumentType type={resume.type} />
 
 						<CommandShortcut className="opacity-0 group-data-[selected=true]/command-item:opacity-100">
 							<Trans comment="Command palette hint that pressing Enter opens the selected resume">

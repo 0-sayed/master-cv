@@ -1,37 +1,14 @@
-import type { Claim, TaskCase, TaskContract, TaskScore } from "../types";
 import { readFileSync } from "node:fs";
-import { z } from "zod";
+import { coverLetterOutputSchema, type CoverLetterOutput } from "@reactive-resume/schema/cover-letter/review";
+export { coverLetterOutputSchema, type CoverLetterOutput } from "@reactive-resume/schema/cover-letter/review";
+import type { Claim, TaskCase, TaskContract, TaskScore } from "../types";
+import { letterDraftSystemPrompt } from "@reactive-resume/ai/prompts";
 import { HARD_FACTS_VERSION } from "@reactive-resume/api/features/ai/hard-facts";
 import { buildModelPayload } from "../../production";
 import { guardTaskClaims } from "../guard";
 import { tasksVerifier } from "../verifier/verifier";
 
 export const coverLetterHardFactsVersion = HARD_FACTS_VERSION;
-
-const identifier = z.string().trim().min(1).max(200);
-const claimFields = {
-	id: identifier,
-	text: z.string().trim().min(1).max(2000),
-	evidenceIds: z.array(identifier).min(1).max(50),
-	kind: z.literal("fact"),
-};
-const claimSchema = z.union([
-	z.strictObject(claimFields),
-	z.strictObject({ ...claimFields, jobSpanIds: z.array(identifier).min(1).max(50) }),
-]);
-export const coverLetterOutputSchema = z.strictObject({
-	paragraphs: z
-		.array(
-			z.strictObject({
-				text: z.string().trim().min(1).max(8000),
-				claims: z.array(claimSchema).max(30),
-			}),
-		)
-		.min(1)
-		.max(4),
-	notes: z.array(z.string().trim().min(1).max(600)).max(5),
-});
-export type CoverLetterOutput = z.infer<typeof coverLetterOutputSchema>;
 
 /** The production editor stores body paragraphs only; greeting and sign-off are separate fields. */
 export function renderPlainText(output: CoverLetterOutput): string {
@@ -145,12 +122,12 @@ function score(c: TaskCase, output: CoverLetterOutput, verdict: unknown | null):
 
 export const coverLetterContract: TaskContract<TaskCase, CoverLetterOutput> = {
 	category: "cover-letter",
-	promptVersion: "t006-cover-letter-v2-cited-bridge",
-	schemaVersion: "t006-cover-letter-schema-v2",
-	systemPrompt: readFileSync(new URL("./prompt.md", import.meta.url), "utf8"),
+	promptVersion: "cover-letter-v4-complete-annotations",
+	schemaVersion: "cover-letter-schema-v2",
+	systemPrompt: `${letterDraftSystemPrompt}\n\n${readFileSync(new URL("./prompt.md", import.meta.url), "utf8")}`,
 	outputSchema: coverLetterOutputSchema,
 	guardPolicy,
-	visibleCap: () => 4096,
+	visibleCap: () => 16384,
 	verifierCap: 12288,
 	deadlineMs: 120_000,
 	buildInput: (c) => {
@@ -180,7 +157,7 @@ export const coverLetterContract: TaskContract<TaskCase, CoverLetterOutput> = {
 		retention: "not_applicable",
 		absenceChecks: [],
 		taskInstruction:
-			"Draft only the plain-text cover-letter body for B-C10. Independently read EVERY sentence in paragraphs and every note, including unannotated text; require full sentence-level coverage of every candidate factual assertion. Annotations must copy the entire factual sentence and cite CV facts only. Detect omissions, hidden or detached claims, strengthened responsibility, dropped negation and job-only skills such as SAP. Job spans can establish the role and employer, NEVER candidate experience. For cover-letter and tailoring only, a non-assertive sentence may link cited CV facts to advertised duties when its separate jobSpanIds cite that duty wording and it asserts no new candidate fact, skill, metric or responsibility. Check the CV proposition using evidenceIds only and check the job reference against jobSpanIds; never merge the evidence pools. A bridge claiming a job-ad skill as the candidate's own, such as خبرتي في SAP المطلوبة في إعلانكم, is unsupported without CV evidence. Independently verify relational relevance; the deterministic bridge grammar does not prove semantic support. Motivation, job references and the conversation invitation are not candidate facts and need no CV claim; reject invented company facts too. Notes must contain no candidate assertions. D22 forbids ATS scores, match percentages, hiring probabilities and assertions that absent evidence means lack of skill. Do not treat legitimate supported achievement percentages as assessment scores. Quality checks (advisory): 180–320 whitespace words with Arabic clitics attached, three or four paragraphs, natural Saudi professional Arabic or posting language (otherwise CV language), role and employer mentioned in body when supplied, two or three supported specifics, no greeting/sign-off/formatting/placeholders, short conversation invitation. Omitted unselected CV facts are allowed; revision modes are outside this T007/T008 draft contract.",
+			"Draft only the plain-text cover-letter body for B-C10. Independently read EVERY sentence in paragraphs and every note, including unannotated text; require full sentence-level coverage of every candidate factual assertion. Annotations must copy the entire factual sentence and cite CV facts only. Detect omissions, hidden or detached claims, strengthened responsibility, dropped negation and job-only skills such as SAP. Job spans can establish the role and employer, NEVER candidate experience. For cover-letter and tailoring only, a non-assertive sentence may link cited CV facts to advertised duties when its separate jobSpanIds cite that duty wording and it asserts no new candidate fact, skill, metric or responsibility. Check the CV proposition using evidenceIds only and check the job reference against jobSpanIds; never merge the evidence pools. A bridge claiming a job-ad skill as the candidate's own, such as خبرتي في SAP المطلوبة في إعلانكم, is unsupported without CV evidence. Independently verify relational relevance; the deterministic bridge grammar does not prove semantic support. Neutral motivation, job references and a neutral conversation invitation need no CV claim. An opening or invitation that mentions candidate experience is a factual sentence and needs a complete claim; reject invented company facts too. Notes must contain no candidate assertions. D22 forbids ATS scores, match percentages, hiring probabilities and assertions that absent evidence means lack of skill. Do not treat legitimate supported achievement percentages as assessment scores. Quality checks (advisory): 180–320 whitespace words with Arabic clitics attached, three or four paragraphs, natural Saudi professional Arabic or posting language (otherwise CV language), role and employer mentioned in body when supplied, two or three supported specifics, no greeting/sign-off/formatting/placeholders, short conversation invitation. Omitted unselected CV facts are allowed; revision modes are outside this T007/T008 draft contract.",
 	}),
 	score,
 };

@@ -4,7 +4,7 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useMatchRoute, useRouteContext, useRouterState } from "@tanstack/react-router";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@reactive-resume/ui/components/avatar";
 import { SidebarCountBadge } from "@reactive-resume/ui/components/badge";
 import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
@@ -27,6 +27,7 @@ import { useCareerCopy } from "@/features/career/copy.generated";
 import { CommandPaletteTrigger } from "@/features/command-palette/trigger";
 import { useDocumentsCopy } from "@/features/documents/copy.generated";
 import { LocaleSwitch } from "@/features/locale/switch";
+import { usePersonalToolAvailable } from "@/features/personal-tools/availability";
 import { isEditableElementFocused } from "@/features/resume/builder/draft";
 import { ThemeToggleButton } from "@/features/theme/toggle-button";
 import { UserDropdownMenu } from "@/features/user/dropdown-menu";
@@ -50,7 +51,8 @@ function useNavItems() {
 	const { t } = useLingui();
 	const copy = useDocumentsCopy();
 	const { data: counts } = useQuery(orpc.documents.counts.queryOptions());
-	const { data: applications } = useQuery(applicationsListQueryOptions());
+	const applicationsEnabled = usePersonalToolAvailable("applications");
+	const { data: applications } = useQuery({ ...applicationsListQueryOptions(), enabled: applicationsEnabled });
 
 	const items: NavItem[] = [
 		{
@@ -82,7 +84,7 @@ function useNavItems() {
 		...(counts?.trash ? { count: counts.trash } : {}),
 	};
 
-	return { items, trash };
+	return { items: items.filter((item) => item.to !== "/dashboard/applications" || applicationsEnabled), trash };
 }
 
 /** Whether the item is the current page: Documents is exact, the others match their section. */
@@ -93,8 +95,8 @@ function useIsCurrent() {
 
 /**
  * The app shell for Documents, Trash, Applications and Settings: a collapsible 236px sidebar at ≥1024, an icon rail at
- * 640–1023 and a bottom tab bar below 640. An application's workspace is full screen on phones, with its own back
- * link and action bar, so it has no tab bar. N opens New anywhere outside a field.
+ * 640–1023 and a bottom tab bar below 640. An application's tabbed workspace is full screen on phones, with its own back
+ * link and action bar. The default detail page retains the shared header and tab bar. N opens New anywhere outside a field.
  */
 type AppShellProps = { children: ReactNode };
 
@@ -103,6 +105,7 @@ export function AppShell({ children }: AppShellProps) {
 	const copy = useDocumentsCopy();
 	const careerCopy = useCareerCopy();
 	const breakpoint = useBreakpoint();
+	const applicationsEnabled = usePersonalToolAvailable("applications");
 	const { session } = useRouteContext({ from: "__root__" });
 	if (!session) throw new Error("AppShell requires an authenticated session");
 	const { collapsed, toggle } = useSidebarPreference(session.user.id);
@@ -121,9 +124,8 @@ export function AppShell({ children }: AppShellProps) {
 		? t({ message: "Career information", context: "editor.navigation.career" })
 		: copy("editor.navigation.documentsTitle");
 	const mobileTitle = careerInformation ? careerCopy("editor.career.title") : workspaceTitle;
-	const mobileWorkspace =
-		breakpoint === "mobile" &&
-		Boolean(matchRoute({ to: "/dashboard/applications/$applicationId/{-$tab}", fuzzy: true }));
+	const applicationMatch = matchRoute({ to: "/dashboard/applications/$applicationId/{-$tab}", fuzzy: true });
+	const mobileWorkspace = breakpoint === "mobile" && Boolean(applicationMatch && applicationMatch.tab);
 	const tabs = breakpoint === "mobile" && !mobileWorkspace;
 
 	useHotkey("N", () => {
@@ -151,6 +153,7 @@ export function AppShell({ children }: AppShellProps) {
 
 	return (
 		<div
+			style={{ "--app-mobile-nav-columns": applicationsEnabled ? 5 : 4 } as CSSProperties}
 			className={cn(
 				"dashboard-shell grid h-svh min-h-0 overflow-hidden bg-bg",
 				breakpoint === "mobile"
@@ -409,6 +412,7 @@ function Rail({ toggle }: { toggle?: (() => void) | undefined }) {
 
 /** Phones keep the bottom-tab pattern, including Trash and the shared account menu. */
 function MobileTabs() {
+	const applicationsEnabled = usePersonalToolAvailable("applications");
 	const { t } = useLingui();
 	const ref = useRef<HTMLElement>(null);
 	useEffect(() => {
@@ -467,18 +471,20 @@ function MobileTabs() {
 					isCurrent("/dashboard/career/information"),
 				)}
 			</Link>
-			<Link
-				to="/dashboard/applications"
-				aria-current={isCurrent("/dashboard/applications") ? "page" : undefined}
-				viewTransition={false}
-				className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
-			>
-				{tab(
-					"briefcase",
-					t({ message: "Applications", context: "editor.navigation.applications" }),
-					isCurrent("/dashboard/applications"),
-				)}
-			</Link>
+			{applicationsEnabled && (
+				<Link
+					to="/dashboard/applications"
+					aria-current={isCurrent("/dashboard/applications") ? "page" : undefined}
+					viewTransition={false}
+					className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
+				>
+					{tab(
+						"briefcase",
+						t({ message: "Applications", context: "editor.navigation.applications" }),
+						isCurrent("/dashboard/applications"),
+					)}
+				</Link>
+			)}
 			<Link
 				to="/dashboard/trash"
 				aria-current={isCurrent("/dashboard/trash") ? "page" : undefined}

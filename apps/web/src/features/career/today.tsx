@@ -23,7 +23,7 @@ import { QuerySkeleton } from "@/components/query-skeleton";
 import {
 	collectInterviews,
 	formatDuration,
-	interviewKindOf,
+	interviewTypeLabel,
 	upcomingInterviews,
 } from "@/features/applications/interviews";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
@@ -604,7 +604,7 @@ function ComingUp({ now, className }: ComingUpProps) {
 	if (!next) return null;
 
 	const { application, interview, start } = next;
-	const kind = interviewKindOf(interview.kind)?.label ?? interview.kind;
+	const kind = interviewTypeLabel(interview.kind);
 	const ready = briefings?.some((item) => item.interviewId === interview.id);
 
 	return (
@@ -719,7 +719,7 @@ function Schedules({ deleted, onOpenSchedule, className }: SchedulesProps) {
 		if (row.kind === "discovery") return row.query;
 		if (row.kind === "follow-up") return application ? `${application.company} · ${application.role}` : "";
 		const interview = application?.activity.find((entry) => entry.type === "interview" && entry.id === row.interviewId);
-		const kind = interview?.type === "interview" ? (interviewKindOf(interview.kind)?.label ?? interview.kind) : null;
+		const kind = interview?.type === "interview" ? interviewTypeLabel(interview.kind) : null;
 		return [application?.company, kind ? t`${kind} interview` : null].filter(Boolean).join(" · ");
 	};
 

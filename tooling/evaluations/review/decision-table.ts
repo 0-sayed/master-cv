@@ -6,7 +6,7 @@ import { z } from "zod";
 import { blindCalls } from "./blind";
 import { getTaskContract } from "./contracts";
 import { decideEvidence, qualityPolicies, SAFETY_CI_THRESHOLD } from "./decision";
-import { caseClusteredSafety, safetyPass } from "./metrics";
+import { caseClusteredSafety, safetyPass, criticalSafetyFailure } from "./metrics";
 import { reviewHandlers } from "./production";
 
 export type { OwnerRating, DecisionRow } from "./decision";
@@ -35,14 +35,22 @@ export function artifactComplete(a: BenchmarkArtifact): boolean {
 		slots.add(key);
 		// Exploratory cases can legitimately use a different grid.
 		if (!c.exploratory) {
-			const group = expected.get(variant) ?? new Set<string>();
+			const groupKey = `${c.category}/${variant}`;
+			const group = expected.get(groupKey) ?? new Set<string>();
 			group.add(slot);
-			expected.set(variant, group);
+			expected.set(groupKey, group);
 		}
 	}
-	const groups = [...expected.values()];
-	const union = new Set(groups.flatMap((g) => [...g]));
-	return groups.length > 0 && groups.every((g) => g.size === union.size);
+	return (
+		expected.size > 0 &&
+		[...new Set(a.calls.map((c) => c.category))].every((category) => {
+			const groups = [...expected.entries()]
+				.filter(([key]) => key.startsWith(`${category}/`))
+				.map(([, group]) => group);
+			const union = new Set(groups.flatMap((g) => [...g]));
+			return groups.every((g) => g.size === union.size);
+		})
+	);
 }
 
 function quality(c: BenchmarkCall, metric: string): number | null {
@@ -100,7 +108,7 @@ export function buildDecisionEvidence(a: BenchmarkArtifact, study: "core" | "tas
 							c.writerTruncated,
 					)
 				)
-					issues.push("fault or invalid output");
+					if (study !== "tasks-v1") issues.push("fault or invalid output");
 				if (
 					calls.some(
 						(c) =>
@@ -129,6 +137,11 @@ export function buildDecisionEvidence(a: BenchmarkArtifact, study: "core" | "tas
 				) as DecisionCandidate["perLanguage"];
 				const observedSafe =
 					issues.length === 0 && languages.every((l) => perLanguage[l].n > 0 && perLanguage[l].safetyRate === 1);
+				if (
+					study === "tasks-v1" &&
+					calls.some((c) => !c.generationUsage || !Number.isFinite(c.generationUsage.costMicros))
+				)
+					issues.push("unknown writer cost");
 				const times = calls.map((c) => c.latencyMs).sort((a, b) => a - b);
 				const percentile = (p: number) => times[Math.max(0, Math.ceil(times.length * p) - 1)] ?? null;
 				return {
@@ -136,10 +149,38 @@ export function buildDecisionEvidence(a: BenchmarkArtifact, study: "core" | "tas
 					reasoning: first.reasoning,
 					perLanguage,
 					observedSafe,
-					qualified: observedSafe && languages.every((l) => perLanguage[l].ci95[0] >= SAFETY_CI_THRESHOLD),
+					qualified:
+						study === "tasks-v1"
+							? issues.length === 0 &&
+								!calls.some(criticalSafetyFailure) &&
+								!calls.some(
+									(c) =>
+										c.adjudication === "pending-human" ||
+										c.verifierFault ||
+										(c.category === "translation" && c.taskScore?.quality.value == null),
+								) &&
+								!a.calls.some(
+									(c) =>
+										c.category === first.category &&
+										c.model === first.model &&
+										c.reasoning === first.reasoning &&
+										c.promptVersion === first.promptVersion &&
+										criticalSafetyFailure(c),
+								) &&
+								languages.every((l) => perLanguage[l].n >= 12)
+							: observedSafe && languages.every((l) => perLanguage[l].ci95[0] >= SAFETY_CI_THRESHOLD),
 					issues,
-					costPer1000Usd: calls.every((c) => c.costMicros !== null)
-						? (mean(calls.map((c) => c.costMicros ?? 0)) ?? 0) / 1000
+					costPer1000Usd: calls.every(
+						(c) =>
+							c.costMicros !== null &&
+							(study !== "tasks-v1" ||
+								(c.generationUsage !== undefined &&
+									Number.isFinite(c.generationUsage.costMicros) &&
+									c.generationUsage.costMicros >= 0)),
+					)
+						? (mean(
+								calls.map((c) => (study === "tasks-v1" ? (c.generationUsage?.costMicros ?? 0) : (c.costMicros ?? 0))),
+							) ?? 0) / 1000
 						: null,
 					p50Ms: percentile(0.5),
 					p95Ms: percentile(0.95),
@@ -154,6 +195,7 @@ export function buildDecisionEvidence(a: BenchmarkArtifact, study: "core" | "tas
 			});
 			return {
 				category,
+				provisionalPolicy: study === "tasks-v1",
 				qualityPolicy: policy,
 				candidates,
 				blocked:

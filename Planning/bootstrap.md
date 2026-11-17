@@ -152,7 +152,7 @@ This planning commit is **not** a completion claim or a separate PR. Do not run 
 
 Never disable protections or force-push merely to seed Planning. If direct main commits are forbidden, use Mode A. If the orchestration system cannot read a task branch, that blocks **automated bootstrap**, not safe execution of T000 by a focused agent. Full multi-task orchestration waits for the merged T000 foundation.
 
-[Task Graph](roadmap/tasks.md#task-graph) remains the only scheduling/status authority: 16 rows, every size `L`, three-digit IDs T000–T015, dependencies before numeric priority, no execution waves. The Mermaid graph mirrors status: unchecked `[ ]` = gray, checked `[x]` = green. Do not mark T000 done just because planning has been committed.
+[Task Graph](roadmap/tasks.md#task-graph) remains the only scheduling/status authority: 18 rows, every size `L`, three-digit IDs T000–T017, dependencies before numeric priority, no execution waves. The Mermaid graph mirrors status: unchecked `[ ]` = gray, checked `[x]` = green. Do not mark T000 done just because planning has been committed.
 
 ## Phase 1 — Audit and Adapt Existing Tooling
 

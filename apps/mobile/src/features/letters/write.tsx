@@ -10,6 +10,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Keyboard, ScrollView, View } from "react-native";
 import { coverLetterTextToHtml, defaultCoverLetterSignOff, greetingName } from "@reactive-resume/resume/cover-letter";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { useLetterWords } from "./compose";
 import { designSummary } from "./design-presets";
 import { discardLetterDraft, startLetterDraft, useLetterDrafting } from "./drafting";
@@ -522,7 +523,7 @@ function EmptyBody({ letter, application, disabled, onWrite }: EmptyBodyProps) {
 	const [setup, setSetup] = useState(false);
 	const hasResume = !!letter.sourceResumeId;
 	const company = application?.company;
-	const canDraft = hasResume || !!application;
+	const canDraft = isFeatureAvailable("byok") && (hasResume || !!application);
 
 	return (
 		<View
@@ -536,13 +537,15 @@ function EmptyBody({ letter, application, disabled, onWrite }: EmptyBodyProps) {
 			}}
 		>
 			<Text color="ink2">
-				{company && hasResume
-					? t`Start typing, or draft from what we know: the ${company} posting and your resume.`
-					: company
-						? t`Start typing, or draft from what we know: the ${company} posting.`
-						: hasResume
-							? t`Start typing, or draft from what we know: your resume.`
-							: t`Start typing. To draft one, link a resume or an application first.`}
+				{!isFeatureAvailable("byok")
+					? t`Start typing.`
+					: company && hasResume
+						? t`Start typing, or draft from what we know: the ${company} posting and your resume.`
+						: company
+							? t`Start typing, or draft from what we know: the ${company} posting.`
+							: hasResume
+								? t`Start typing, or draft from what we know: your resume.`
+								: t`Start typing. To draft one, link a resume or an application first.`}
 			</Text>
 			<View style={{ flexDirection: "row", flexWrap: "wrap", gap: space.s2 }}>
 				{canDraft && ai.hasAIProvider ? (

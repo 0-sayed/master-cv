@@ -6,6 +6,7 @@ import { required } from "./required";
 import { runBenchmark } from "./runner";
 import { loadStudyCases, smokeCases } from "./study";
 
+const historicalModels = loadModels(new URL("./models.json", import.meta.url).pathname);
 const fixtures = loadStudyCases("tasks-v1").filter((c) => !c.holdout);
 const models = loadModels(new URL("./models-tasks.json", import.meta.url).pathname);
 afterEach(() => vi.useRealTimers());
@@ -22,7 +23,7 @@ for (const category of [
 			it.each(faultNames)(`${category}/${provider}/${role}/%s fails closed`, async (fault) => {
 				vi.useFakeTimers();
 				const c = required(fixtures.find((c) => c.category === category));
-				const model = required(models.find((m) => m.provider === provider));
+				const model = required([...models, ...historicalModels].find((m) => m.provider === provider));
 				const fake = createFaultTransport({ fault, role, session: 1 });
 				const pending = runBenchmark({
 					models: [model],
@@ -43,7 +44,7 @@ for (const category of [
 					if (role === "writer") expect(result.calls.every((c) => !c.safetyAccepted)).toBe(true);
 					else expect(result.calls[0]?.verifierFaultRetries).toBe(1);
 			});
-it("chaos tasks-v1 seed 19 completes all 126 sessions with stable resume spending", async () => {
+it("chaos tasks-v1 seed 19 completes all 54 sessions with stable resume spending", async () => {
 	vi.useFakeTimers();
 	const fake = createFaultTransport({ fault: "none", role: "writer", session: 3, chaos: true, seed: 19 });
 	const options = {
@@ -62,7 +63,7 @@ it("chaos tasks-v1 seed 19 completes all 126 sessions with stable resume spendin
 	expect(fake.injections.length).toBeGreaterThan(0);
 	expect(result.stopReason).toBeNull();
 	expect(result.incomplete).toEqual([]);
-	expect(result.calls).toHaveLength(126);
+	expect(result.calls).toHaveLength(54);
 	const sends = fake.receipts.length;
 	const resumed = await runBenchmark({ ...options, previousCalls: result.calls });
 	expect(fake.receipts).toHaveLength(sends);

@@ -9,6 +9,7 @@ import { compress } from "hono/compress";
 import { prepareStagedBody, withStagedBody } from "@reactive-resume/api/features/storage/transport";
 import { env } from "@reactive-resume/env/server";
 import { prepareMcpDiscovery } from "@reactive-resume/mcp";
+import { deferredHttpRoute, isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { handleMcp } from "../mcp/handler";
 import { handleOpenApi, handleOpenApiDocument } from "../openapi/handler";
 import {
@@ -69,6 +70,11 @@ export function createApp(options: AppOptions = {}) {
 	prepareMcpDiscovery();
 	const app = new Hono<ServerEnvironment>();
 	app.use("*", requestObservability);
+	app.use("*", async (c, next) => {
+		const feature = deferredHttpRoute(c.req.path);
+		if (feature && !isFeatureAvailable(feature)) return c.json({ code: "FEATURE_UNAVAILABLE" }, 403);
+		await next();
+	});
 	app.onError(handleHttpError);
 	const proxies = new BlockList();
 	for (const range of env.TRUSTED_PROXIES) {

@@ -122,7 +122,7 @@ it("gates a failed verifier, bounds verification backlog, and resumes cached wri
 	expect(regenerated).toBe(0);
 });
 
-it("reserves five-attempt catalog bounds rather than calibrated means before concurrency", async () => {
+it("reserves catalog bounds before transport and buys retry capacity only when needed", async () => {
 	const reservations: number[] = [];
 	const options = { ...base, models: [luna], cases: selected.slice(0, 1) };
 	const worst = estimateBenchmark(options.models, options.cases, 1);
@@ -144,7 +144,10 @@ it("reserves five-attempt catalog bounds rather than calibrated means before con
 			if (!r.key.endsWith(":verify")) reservations.push(r.reservedMicros);
 		},
 	});
-	expect(reservations[0]).toBeGreaterThanOrEqual(Math.round(worst.upperBoundUsd * 1e6) * 5);
+	// The frozen fixture costs 61,111 micros per catalog-bounded attempt.
+	// The public worst-case forecast still includes all five transport attempts.
+	expect(reservations).toEqual([61_111]);
+	expect(worst.upperBoundUsd).toBe(0.305555);
 });
 
 it("parses explicit session, provider and backlog limits", () => {
@@ -166,7 +169,7 @@ it("parses explicit session, provider and backlog limits", () => {
 	});
 });
 
-it("raises Together only after improving clean windows, and backs off immediately on 429", () => {
+it("ramps Together after clean responses and halves its limit immediately on 429", () => {
 	vi.useFakeTimers();
 	const pool = new ProviderDispatch(dispatchLimits({}), () => false);
 	const window = (ms: number) => {
@@ -176,23 +179,23 @@ it("raises Together only after improving clean windows, and backs off immediatel
 		}
 	};
 	window(1000);
-	expect(pool.limit(deepseek)).toBe(2);
-	window(900);
 	expect(pool.limit(deepseek)).toBe(3);
-	window(800);
+	window(900);
 	expect(pool.limit(deepseek)).toBe(4);
+	window(800);
+	expect(pool.limit(deepseek)).toBe(5);
 	window(900);
-	expect(pool.limit(deepseek)).toBe(3);
+	expect(pool.limit(deepseek)).toBe(6);
 	pool.observe(deepseek, true, false);
-	expect(pool.limit(deepseek)).toBe(1);
+	expect(pool.limit(deepseek)).toBe(3);
 	window(100);
-	expect(pool.limit(deepseek)).toBe(1);
+	expect(pool.limit(deepseek)).toBe(3);
 });
 
 it("shares provider slots across writer/verifier models and blocks acquisitions after stop", async () => {
 	let stop = false;
 	const pool = new ProviderDispatch(dispatchLimits({}), () => stop);
-	const releases = Array.from({ length: 4 }, () => required(pool.tryAcquire(luna)));
+	const releases = Array.from({ length: 2 }, () => required(pool.tryAcquire(luna)));
 	const terra = required(loadModels().find((m) => m.model.includes("terra")));
 	expect(pool.tryAcquire(terra)).toBeUndefined();
 	required(releases.pop())();
@@ -366,17 +369,15 @@ it("bounds actual provider calls across multiple writer and verifier variants", 
 	expect([...peaks.values()].some((peak) => peak > 1)).toBe(true);
 });
 
-it("reaches four actual Together calls after adaptive growth through the production adapter", async () => {
+it("grows actual Together parallelism within the retained adapter ceiling", async () => {
 	const options = { ...base, models: loadModels(), cases: selected, runs: 2, budgetUsd: 100, openaiBudgetUsd: 100 };
 	const raw = await recordings(options);
 	const normal = replay(raw);
 	const active = new Map<string, number>();
 	const peaks = new Map<string, number>();
-	let now = Date.now();
-	let togetherCompletions = 0;
-	const clock = vi.spyOn(Date, "now").mockImplementation(() => now);
+	vi.useFakeTimers();
 	try {
-		const result = await runBenchmark({
+		const pending = runBenchmark({
 			...options,
 			fake: false,
 			key: "synthetic",
@@ -389,20 +390,20 @@ it("reaches four actual Together calls after adaptive growth through the product
 					return await normal(url, init);
 				} finally {
 					active.set(model, (active.get(model) ?? 1) - 1);
-					if (body.provider.only[0] === "together") {
-						now += togetherCompletions < 8 ? 1000 : togetherCompletions < 16 ? 900 : 100;
-						togetherCompletions++;
-					}
 				}
 			},
 		});
+		await vi.runAllTimersAsync();
+		const result = await pending;
 		expect(result.stopReason).toBeNull();
 		expect(result.calls).toHaveLength(options.models.length * selected.length * 2);
-		expect(peaks.get(deepseek.model)).toBe(4);
-		expect(peaks.get(luna.model)).toBe(4);
+		expect(peaks.get(deepseek.model)).toBeGreaterThan(2);
+		expect(peaks.get(deepseek.model)).toBeLessThanOrEqual(8);
+		expect(peaks.get(luna.model)).toBeGreaterThan(1);
+		expect(peaks.get(luna.model)).toBeLessThanOrEqual(8);
 		expect(peaks.has("google/gemini-4-hydrogen")).toBe(false);
 	} finally {
-		clock.mockRestore();
+		vi.useRealTimers();
 	}
 });
 
@@ -422,11 +423,13 @@ it("lets DeepSeek writers finish through Luna while keeping Luna writers gated o
 		...base,
 		fake: false,
 		key: "synthetic",
+		onRaw: async (record) => {
+			if (record.model === deepseek.model && record.key.includes(":verify") && record.status === 429) failed = true;
+		},
 		transport: async (url, init) => {
 			const body = JSON.parse(String(init?.body));
 			const verifier = String(body.messages[0].content).includes("usefulness");
 			if (verifier && body.model === deepseek.model) {
-				failed = true;
 				return Response.json({ error: { code: 429 } }, { status: 429 });
 			}
 			if (!verifier && failed && body.model === luna.model) gatedWriterSends++;
@@ -509,6 +512,8 @@ it("retains unknown charges and prevents queued provider sends after a session b
 			const response = await normal(url, init);
 			const body = await response.json();
 			delete body.usage.cost_details;
+			delete body.usage.prompt_tokens;
+			delete body.usage.completion_tokens;
 			return Response.json(body);
 		},
 	});
@@ -542,7 +547,12 @@ it("reports a resumable stop when a resumed legacy backlog exceeds the new verif
 });
 
 it("counts cached writers toward backpressure before purchasing any new session on resume", async () => {
-	const options = { ...base, models: loadModels().filter((m) => m.provider === "openai"), cases: selected.slice(0, 3) };
+	const options = {
+		...base,
+		maxUnverified: 4,
+		models: loadModels().filter((m) => m.provider === "openai"),
+		cases: selected.slice(0, 3),
+	};
 	const raw = await recordings(options);
 	const seed = await runBenchmark(options);
 	const cached = seed.calls.filter((c) => c.caseId === selected[2]?.id);
@@ -598,6 +608,24 @@ it("gates writer retry attempts as soon as their verifier enters cooldown", asyn
 	});
 	await vi.runAllTimersAsync();
 	const result = await pending;
-	expect(sendsAfterJudge429).toBeGreaterThan(0);
+	expect(sendsAfterJudge429).toBe(0);
+	expect(required(result.incomplete).length).toBeGreaterThan(0);
 	expect(result.stopReason).toBeNull();
+});
+
+it("ramps both providers to the retained adapter ceiling and observes a full quiet minute after throttling", () => {
+	vi.useFakeTimers();
+	const pool = new ProviderDispatch(dispatchLimits({}), () => false);
+	for (const model of [luna, deepseek]) {
+		expect(pool.limit(model)).toBe(2);
+		for (let i = 0; i < 64; i++) pool.observe(model, false, true);
+		expect(pool.limit(model)).toBe(8);
+		pool.observe(model, true, false);
+		expect(pool.limit(model)).toBe(4);
+		for (let i = 0; i < 8; i++) pool.observe(model, false, true);
+		expect(pool.limit(model)).toBe(4);
+		vi.advanceTimersByTime(60000);
+		for (let i = 0; i < 8; i++) pool.observe(model, false, true);
+		expect(pool.limit(model)).toBe(5);
+	}
 });

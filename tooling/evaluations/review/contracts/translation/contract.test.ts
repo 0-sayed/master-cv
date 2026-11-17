@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, it } from "vite-plus/test";
 import { z } from "zod";
+import { HARD_FACTS_VERSION } from "@reactive-resume/api/features/ai/hard-facts";
 import { loadModels } from "../../config";
 import { evaluateOutput, prepareCase } from "../../execution";
 import { appendEvent, readJournal } from "../../journal";
@@ -63,7 +64,7 @@ const fixtures = () =>
 it("registers a strict translation contract and records the installed guard version", () => {
 	expect(getTaskContract("translation")).toBe(translationContract);
 	assertStrictOutputSchema(z.toJSONSchema(translationOutputSchema));
-	expect(translationHardFactsVersion).toMatch(/^t006-hard-facts-/u);
+	expect(translationHardFactsVersion).toBe(HARD_FACTS_VERSION);
 	expect(translationContract.guardPolicy).toEqual({
 		lostFact: true,
 		subsetEntities: false,
@@ -294,7 +295,9 @@ it("scores validated MQM major/minor target spans as advisory, with unknown qual
 		safetyDeterministic: { pass: true },
 		quality: { metric: "mqm-weighted-errors", value: 6, pass: null },
 	});
-	expect(score(value, task, verdict).quality.value).toBeNull();
+	expect(
+		score(value, task, { ...verdict, quality: { ...verdict.quality, mqm: null, reason: "Not rated" } }).quality.value,
+	).toBeNull();
 	expect(score(value).quality.value).toBeNull();
 	const empty = { ...rated, quality: { ...rated.quality, reason: '{"mqm":[]}' } };
 	expect(score(value, task, empty).quality.value).toBe(0);
@@ -311,7 +314,7 @@ it("scores validated MQM major/minor target spans as advisory, with unknown qual
 it("keeps the historical glossary in owner-review envelopes without authorizing global production aliases", () => {
 	const bytes = readFileSync(new URL("./glossary.json", import.meta.url));
 	expect(translationGlossaryHash).toBe(createHash("sha256").update(bytes).digest("hex"));
-	expect(translationContract.promptVersion).toBe("translation-v3-source-boundary");
+	expect(translationContract.promptVersion).toBe("translation-v4-full-response-verification");
 	expect(JSON.stringify(prepareCase(task).payload)).not.toContain(translationGlossaryHash);
 	expect(JSON.parse(required(prepareCase(task).payload.selections[0]).text).translationAliases).toBeUndefined();
 	const items = taskReviewItems(
@@ -334,7 +337,7 @@ it("authors 9 tuning and 8 holdout per language, with gold, honest paraphrases a
 	const cases = fixtures();
 	expect(cases.filter((c) => !c.holdout)).toHaveLength(9);
 	for (const language of ["ar", "en", "mixed"])
-		expect(cases.filter((c) => c.holdout && c.language === language)).toHaveLength(8);
+		expect(cases.filter((c) => c.holdout && c.language === language)).toHaveLength(12);
 	for (const c of cases) {
 		expect(c.category).toBe("translation");
 		expect(c.exploratory).toBe(false);
@@ -395,8 +398,39 @@ it("passes offline preflight, fake-transport sessions and journal round-trip", a
 			});
 			await appendEvent(path, { type: "scored", data: call });
 		}
-		expect((await readJournal(path)).previousCalls).toEqual(run.calls);
+		expect((await readJournal(path)).previousCalls).toEqual(
+			[...run.calls].sort((a, b) => a.key.localeCompare(b.key, "en", { numeric: true })),
+		);
 	} finally {
 		await rm(folder, { recursive: true });
 	}
+});
+
+it("scores translation quality from the production verifier response", () => {
+	const value = output();
+	const verdict = {
+		schemaVersion: 1,
+		verdicts: [],
+		retention: null,
+		absence: [],
+		coverage: { status: "complete", reason: "All claims checked" },
+		premises: [],
+		quality: { status: "appropriate", reason: '{"mqm":[]}' },
+	};
+	expect(translationMqm(value, verdict)).toMatchObject({ weightedErrors: 0, major: 0, minor: 0 });
+	verdict.quality.reason = '{"mqm":[{"sourceId":"cv-1","start":0,"end":8,"severity":"major","category":"fluency"}]}';
+	expect(translationMqm(value, verdict)).toMatchObject({ weightedErrors: 5, major: 1, minor: 0 });
+});
+
+it("scores all eleven valid MQM spans accepted by the verifier schema", () => {
+	const value = output();
+	const verdict = tasksVerifierSchema.parse(tasksVerifier.fakeVerdict(task, value));
+	verdict.quality.mqm = Array.from({ length: 11 }, (_, start) => ({
+		sourceId: "cv-1",
+		start,
+		end: start + 1,
+		severity: "minor" as const,
+		category: "fluency" as const,
+	}));
+	expect(translationMqm(value, verdict)?.weightedErrors).toBe(11);
 });

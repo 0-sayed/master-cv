@@ -1,7 +1,12 @@
 import type { Claim, GuardPolicy, TaskCase } from "./types";
 import { describe, expect, it } from "vite-plus/test";
+import { guardTaskClaims as productionGuard } from "@reactive-resume/api/features/ai/variant-guard";
 import { required } from "../required";
 import { guardTaskClaims } from "./guard";
+
+it("uses the production guard function directly", () => {
+	expect(guardTaskClaims).toBe(productionGuard);
+});
 
 const subset: GuardPolicy = { lostFact: false, subsetEntities: true };
 const translation: GuardPolicy = { lostFact: true, subsetEntities: false, entityChecker: "translation" };

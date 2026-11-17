@@ -4,7 +4,7 @@ import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	Dialog,
@@ -20,15 +20,18 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
+import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
-import { interviewKindOf } from "../../interviews";
+import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
+import { interviewKindOf, interviewTypeLabel } from "../../interviews";
 import { getStageColor, getStageLabel } from "../../stages";
 import { useInvalidateApplications } from "../../use-application-actions";
 import { useClosingValue } from "@/hooks/use-closing-value";
 import { useConfirm } from "@/hooks/use-confirm";
+import { formatInterfaceDate } from "@/libs/locale";
 import { orpc } from "@/libs/orpc/client";
 
 const byNewest = (a: ApplicationTimelineEntry, b: ApplicationTimelineEntry) =>
@@ -52,8 +55,14 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 	const { i18n } = useLingui();
 	const invalidate = useInvalidateApplications();
 	const confirm = useConfirm();
+	const id = useId();
 	const [note, setNote] = useState("");
+	const noteValidation = useSubmitValidation({ [`${id}-note`]: !note.trim() ? t`Enter a note.` : undefined });
 	const [editing, setEditing] = useState<{ entry: ApplicationTimelineEntry; date: string; text: string } | null>(null);
+	const editValidation = useSubmitValidation({
+		[`${id}-date`]: editing && !editing.date ? t`Choose a date.` : undefined,
+		[`${id}-text`]: editing?.entry.type === "note" && !editing.text.trim() ? t`Enter a note.` : undefined,
+	});
 	// Closing keeps the entry's title and fields on screen until the dialog has faded out.
 	const [shownEdit, onEditOpenChangeComplete] = useClosingValue(editing);
 
@@ -80,7 +89,7 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 	const sorted = [...application.activity].sort(byNewest);
 	const anchorId = sorted.find((entry) => entry.type === "stage" && entry.stage === application.status)?.id;
 	const formatDate = (value: Date | string, withTime: boolean) =>
-		new Date(value).toLocaleDateString(i18n.locale, {
+		formatInterfaceDate(value, i18n.locale, {
 			month: "short",
 			day: "numeric",
 			// Stage and note entries are whole days, stored at noon UTC.
@@ -92,13 +101,21 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 			return { dot: getStageColor(entry.stage), text: t`Moved to ${getStageLabel(entry.stage)}` };
 		if (entry.type === "note") return { dot: "var(--ink-3)", text: entry.text };
 		const kind = interviewKindOf(entry.kind);
-		return { dot: kind?.color ?? "var(--ink-3)", text: t`${kind?.label ?? entry.kind} interview` };
+		return { dot: kind?.color ?? "var(--ink-3)", text: t`${interviewTypeLabel(entry.kind)} interview` };
 	};
 
 	const submit = () => {
 		const text = note.trim();
-		if (!text || addNote.isPending) return;
-		addNote.mutate({ id: application.id, text }, { onSuccess: () => setNote("") });
+		if (!noteValidation.validate() || addNote.isPending) return;
+		addNote.mutate(
+			{ id: application.id, text },
+			{
+				onSuccess: () => {
+					setNote("");
+					noteValidation.reset();
+				},
+			},
+		);
 	};
 
 	return (
@@ -107,22 +124,30 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 				<Trans>Activity</Trans>
 			</h3>
 			<form
-				className="flex gap-1.5"
+				noValidate
+				className="grid grid-cols-[1fr_auto] gap-1.5"
 				onSubmit={(event) => {
 					event.preventDefault();
 					submit();
 				}}
 			>
 				<Input
+					id={`${id}-note`}
+					aria-required
+					aria-invalid={!!noteValidation.errors[`${id}-note`]}
+					aria-describedby={`${id}-note-error`}
 					aria-label={t`Add a note`}
 					placeholder={t`Add a note…`}
 					value={note}
 					disabled={addNote.isPending}
 					onChange={(event) => setNote(event.target.value)}
 				/>
-				<Button type="submit" variant="secondary" disabled={!note.trim() || addNote.isPending}>
+				<Button type="submit" variant="secondary" disabled={addNote.isPending} loading={addNote.isPending}>
 					<Trans>Add</Trans>
 				</Button>
+				<FieldError id={`${id}-note-error`} className="col-span-full">
+					{noteValidation.errors[`${id}-note`]}
+				</FieldError>
 			</form>
 
 			<ol className="grid">
@@ -213,11 +238,12 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 					</DialogHeader>
 					{shownEdit && (
 						<form
-							id="timeline-entry-form"
+							noValidate
+							id={`${id}-edit-form`}
 							className="grid gap-3"
 							onSubmit={(event) => {
 								event.preventDefault();
-								if (!editing) return;
+								if (!editing || !editValidation.validate() || updateEntry.isPending) return;
 								updateEntry.mutate({
 									id: application.id,
 									entryId: editing.entry.id,
@@ -228,6 +254,10 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 						>
 							{shownEdit.entry.type === "note" && (
 								<Textarea
+									id={`${id}-text`}
+									aria-required
+									aria-invalid={!!editValidation.errors[`${id}-text`]}
+									aria-describedby={`${id}-text-error`}
 									aria-label={t`Note`}
 									rows={3}
 									value={shownEdit.text}
@@ -238,6 +268,10 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 								/>
 							)}
 							<Input
+								id={`${id}-date`}
+								aria-required
+								aria-invalid={!!editValidation.errors[`${id}-date`]}
+								aria-describedby={`${id}-date-error`}
 								type="date"
 								aria-label={t`Date`}
 								value={shownEdit.date}
@@ -246,13 +280,20 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 									setEditing((current) => current && { ...current, date });
 								}}
 							/>
+							<FieldError id={`${id}-date-error`}>{editValidation.errors[`${id}-date`]}</FieldError>
+							<FieldError id={`${id}-text-error`}>{editValidation.errors[`${id}-text`]}</FieldError>
 						</form>
 					)}
 					<DialogFooter>
 						<Button variant="secondary" onClick={() => setEditing(null)}>
 							<Trans>Cancel</Trans>
 						</Button>
-						<Button type="submit" form="timeline-entry-form" disabled={!shownEdit?.date || updateEntry.isPending}>
+						<Button
+							type="submit"
+							form={`${id}-edit-form`}
+							disabled={updateEntry.isPending}
+							loading={updateEntry.isPending}
+						>
 							<Trans>Save</Trans>
 						</Button>
 					</DialogFooter>

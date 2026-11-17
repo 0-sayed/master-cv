@@ -4,6 +4,7 @@ import { setupI18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { composeCoverLetter, createCoverLetterResumeData } from "@reactive-resume/resume/cover-letter";
+import { getInterfaceDateLocale } from "@/libs/locale";
 import { getLocaleMessages, resolveLocale } from "@/libs/locale";
 
 /** Document translations stay independent of the app's active language. */
@@ -17,7 +18,7 @@ export async function createLetterWordsForLocale(locale: string): Promise<Letter
 		hiringTeam: t(i18n)`Hiring team`,
 		signOff: t(i18n)`Kind regards,`,
 		formatDate: (date: string) =>
-			new Date(`${date}T12:00:00Z`).toLocaleDateString(i18n.locale, {
+			new Date(`${date}T12:00:00Z`).toLocaleDateString(getInterfaceDateLocale(i18n.locale), {
 				day: "numeric",
 				month: "long",
 				year: "numeric",

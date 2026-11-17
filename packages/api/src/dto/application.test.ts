@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vite-plus/test";
 import { applicationDto } from "./application";
 
+it("requires the last persisted application revision for edits", () => {
+	expect(() => applicationDto.update.input.parse({ id: "app", notes: "draft" })).toThrow();
+	expect(
+		applicationDto.update.input.parse({
+			id: "app",
+			notes: "draft",
+			expectedUpdatedAt: "2026-11-16T12:00:00.123Z",
+			selectedResumeVersionId: "owned-version",
+		}),
+	).toMatchObject({ selectedResumeVersionId: "owned-version" });
+});
+
 describe("applicationDto sourceUrl", () => {
 	it("rejects URLs that would be unsafe in anchors", () => {
 		expect(() =>
@@ -35,7 +47,7 @@ describe("applicationDto document files", () => {
 	it.each(["create", "update"] as const)(
 		"%s accepts PDFs and rejects wrong MIME types and oversized files",
 		(operation) => {
-			const input = { id: "app-1", company: "Stripe", role: "Engineer" };
+			const input = { id: "app-1", company: "Stripe", role: "Engineer", expectedUpdatedAt: "2026-11-16T12:00:00.000Z" };
 			const pdf = new File(["%PDF"], "resume.pdf", { type: "application/pdf" });
 			expect(applicationDto[operation].input.parse({ ...input, resumeFile: pdf, coverLetterFile: pdf })).toMatchObject({
 				resumeFile: pdf,

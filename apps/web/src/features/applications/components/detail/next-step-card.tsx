@@ -20,10 +20,12 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
+import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
 import { cn } from "@reactive-resume/utils/style";
 import { buildIcs } from "../../ics";
@@ -125,10 +127,12 @@ function FollowUpDialog({ application, open, onOpenChange }: FollowUpDialogProps
 	const invalidate = useInvalidateApplications();
 	const [date, setDate] = useState("");
 	const [note, setNote] = useState("");
+	const validation = useSubmitValidation({ [`${id}-date`]: !date ? t`Choose a date.` : undefined });
 	const [wasOpen, setWasOpen] = useState(false);
 	if (open !== wasOpen) {
 		setWasOpen(open);
 		if (open) {
+			validation.reset();
 			setDate(application.followUpAt ? dayKey(new Date(application.followUpAt)) : "");
 			setNote(application.followUpNote ?? "");
 		}
@@ -154,20 +158,37 @@ function FollowUpDialog({ application, open, onOpenChange }: FollowUpDialogProps
 					</DialogDescription>
 				</DialogHeader>
 				<form
+					noValidate
 					id={`${id}-form`}
 					className="grid gap-3"
 					onSubmit={(event) => {
 						event.preventDefault();
+						if (!validation.validate() || update.isPending) return;
 						// A date at 9:00 local time, so it reads as that day everywhere.
 						const at = date ? new Date(`${date}T09:00`) : null;
-						update.mutate({ id: application.id, followUpAt: at, followUpNote: note.trim() || null });
+						update.mutate({
+							expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+							id: application.id,
+							followUpAt: at,
+							followUpNote: note.trim() || null,
+						});
 					}}
 				>
 					<div className="grid gap-1.5">
 						<Label htmlFor={`${id}-date`}>
 							<Trans>Date</Trans>
+							<span aria-hidden="true"> *</span>
 						</Label>
-						<Input id={`${id}-date`} type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+						<Input
+							id={`${id}-date`}
+							type="date"
+							aria-required
+							aria-invalid={!!validation.errors[`${id}-date`]}
+							aria-describedby={`${id}-date-error`}
+							value={date}
+							onChange={(event) => setDate(event.target.value)}
+						/>
+						<FieldError id={`${id}-date-error`}>{validation.errors[`${id}-date`]}</FieldError>
 					</div>
 					<div className="grid gap-1.5">
 						<Label htmlFor={`${id}-note`}>
@@ -185,13 +206,24 @@ function FollowUpDialog({ application, open, onOpenChange }: FollowUpDialogProps
 					{application.followUpAt && (
 						<Button
 							variant="ghost"
+							disabled={update.isPending}
 							className="me-auto"
-							onClick={() => update.mutate({ id: application.id, followUpAt: null, followUpNote: null })}
+							onClick={() =>
+								update.mutate({
+									expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
+									id: application.id,
+									followUpAt: null,
+									followUpNote: null,
+								})
+							}
 						>
 							<Trans>Clear</Trans>
 						</Button>
 					)}
-					<Button type="submit" form={`${id}-form`} disabled={!date || update.isPending}>
+					<Button variant="secondary" onClick={() => onOpenChange(false)}>
+						<Trans>Cancel</Trans>
+					</Button>
+					<Button type="submit" form={`${id}-form`} disabled={update.isPending} loading={update.isPending}>
 						<Trans>Save</Trans>
 					</Button>
 				</DialogFooter>

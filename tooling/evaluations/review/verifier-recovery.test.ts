@@ -1,5 +1,4 @@
 import { afterEach, expect, it, vi } from "vite-plus/test";
-import { withOpenRouterFee } from "./budget";
 import { loadModels } from "./config";
 import { cases } from "./corpus";
 import { scoreBenchmark } from "./metrics";
@@ -67,9 +66,14 @@ it.each(["length", "invalid", "citation"] as const)(
 		expect(result.calls.every((c) => c.verifierAccepted && !c.verifierFault)).toBe(true);
 		expect(h.writers()).toBe(2);
 		expect(h.requests).toHaveLength(3);
-		expect(h.requests[0]).toBe(h.requests[1]);
+		expect(JSON.parse(required(h.requests[1])).model).toBe(JSON.parse(required(h.requests[0])).model);
+		if (fault === "length")
+			expect(JSON.parse(required(h.requests[1])).max_tokens).toBeGreaterThan(
+				JSON.parse(required(h.requests[0])).max_tokens,
+			);
+		else expect(h.requests[0]).toBe(h.requests[1]);
 		const rawCost = required(h.seed.calls[0]?.totalOpenRouterBaseMicros);
-		const routerCharge = withOpenRouterFee(rawCost * 2) + withOpenRouterFee(rawCost);
+		const routerCharge = rawCost * 2 + rawCost;
 		expect(result.reservedUsd).toBe(routerCharge / 1e6);
 		expect(result.reservedOpenaiUsd).toBe(required(h.seed.reservedOpenaiUsd) * 2);
 		const again = await runBenchmark({ ...base, runs: 2, previousCalls: result.calls, transport: h.transport });
@@ -78,17 +82,24 @@ it.each(["length", "invalid", "citation"] as const)(
 	},
 );
 
-it("excludes persistent truncation after one retry, counts coverage, and continues", async () => {
-	const h = await harness(2);
+it("excludes persistent truncation after two fresh retries, counts coverage, and continues", async () => {
+	const h = await harness(3);
 	const result = await runBenchmark({ ...base, runs: 2, fake: false, key: "synthetic", transport: h.transport });
 	expect(result.stopReason).toBeNull();
 	expect(result.incomplete).toEqual([]);
 	expect(h.writers()).toBe(2);
-	expect(h.requests).toHaveLength(3);
+	expect(h.requests).toHaveLength(4);
 	expect(result.calls[0]).toMatchObject({ verifierFault: "VERIFIER_TRUNCATED", adjudication: "verifier-fault" });
 	expect(result.calls[1]?.verifierAccepted).toBe(true);
 	const score = required(scoreBenchmark(result.calls).find((g) => g.dimension === "model"));
-	expect(score).toMatchObject({ runs: 2, writerRuns: 1, verifierFaults: 1, truncations: 0 });
+	expect(score).toMatchObject({
+		runs: 2,
+		writerRuns: 2,
+		safetySamples: 2,
+		qualitySamples: 1,
+		verifierFaults: 1,
+		truncations: 0,
+	});
 	const report = identityMapping(result);
 	expect(report.recommendationAllowed).toBe(true);
 	expect(report.verifierFaults).toHaveLength(1);
@@ -120,7 +131,7 @@ it("retries legacy faults once on resume, preserves other sessions and never dou
 		expect(result.stopReason).toBeNull();
 		expect(result.calls[0]?.verifierAccepted).toBe(true);
 		expect(h.writers()).toBe(0);
-		expect(result.reservedUsd).toBe(withOpenRouterFee(required(original.totalOpenRouterBaseMicros) * 2) / 1e6);
+		expect(result.reservedUsd).toBe((required(original.totalOpenRouterBaseMicros) * 2) / 1e6);
 		expect(result.reservedOpenaiUsd).toBe(h.seed.reservedOpenaiUsd);
 		const settled = await runBenchmark({ ...base, previousCalls: result.calls, rawRecords: h.raw });
 		expect(settled.reservedUsd).toBe(result.reservedUsd);
@@ -162,15 +173,14 @@ it("checks both payer budgets before a fault retry and resumes only that verific
 		onReserve: async () => {},
 	});
 	expect(result.stopReason).toBeNull();
-	expect(calls).toHaveLength(2);
+	expect(calls).toHaveLength(1);
 	const first = required(calls[0]);
 	for (const payer of ["budgetUsd", "openaiBudgetUsd"] as const) {
 		const cost = payer === "budgetUsd" ? required(first.openRouterCostMicros) : required(first.openaiCostMicros);
 		const blocked = await runBenchmark({
 			...base,
 			[payer]: cost / 1e6,
-			previousCalls: [first],
-			rawRecords: raw,
+			rawRecords: raw.filter((r) => !r.key.endsWith(":retry:2")),
 			fake: false,
 			key: "synthetic",
 			transport: h.transport,
@@ -242,7 +252,7 @@ it("retains a fault retry's unsettled reservation after interruption without dis
 		});
 		await expect(interrupted).rejects.toThrow("synthetic interruption");
 		const history = await readJournal(path);
-		expect(history.previousCalls).toHaveLength(1);
+		expect(history.previousCalls).toHaveLength(0);
 		expect(history.unsettledRetryReservations).toHaveLength(1);
 		const count = h.requests.length;
 		const resumed = await runBenchmark({ ...base, ...history, fake: false, key: "synthetic", transport: h.transport });
@@ -347,7 +357,7 @@ it("drains a systemic stop durably and does not spend again on an unchanged resu
 	expect(stopped.calls).toHaveLength(51);
 	expect(stopped.calls.filter((c) => c.verifierFault)).toHaveLength(6);
 	expect(stopped.incomplete).toHaveLength(9);
-	expect(scored).toHaveLength(57);
+	expect(scored).toHaveLength(51);
 	const count = h.requests.length;
 	const resumed = await runBenchmark({
 		...base,
@@ -396,7 +406,7 @@ it("shares the verifier dispatch limit across initial requests and fault retries
 	expect(result.stopReason).toBeNull();
 	expect(result.calls).toHaveLength(4);
 	expect(h.writers()).toBe(4);
-	expect(h.requests).toHaveLength(8);
+	expect(h.requests).toHaveLength(12);
 	expect(maximum).toBe(2);
 });
 

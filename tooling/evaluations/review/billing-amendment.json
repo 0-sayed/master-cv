@@ -1,0 +1,34 @@
+{
+	"owner": "Sayed",
+	"date": "2026-11-17",
+	"scope": "billing-only",
+	"studyId": "tasks-v1-personal-career-0c679b93a99e",
+	"decision": "D39 billing settlement and exposure amendment",
+	"revisions": {
+		"tooling/evaluations/review/attempt.ts": {
+			"before": "0c3a16f09de38d50d79e1c3a074166c0b5230aeb9fbb289223f2555d22b4f2e4",
+			"after": "44e14d0262aeacfb5b74de8a66e5034e0f04b44d1f96f6f5818079a4e7df2842"
+		},
+		"tooling/evaluations/review/production.ts": {
+			"before": "0050c0a7ff7d2078d08efea790c2bf9670876b70ce94ea2530e95e5493fe9350",
+			"after": "0050c0a7ff7d2078d08efea790c2bf9670876b70ce94ea2530e95e5493fe9350"
+		},
+		"tooling/evaluations/review/runner.ts": {
+			"before": "9df0115fa11b57faf9caa3469698e1b0704ec1910b3629878ce980bf16924597",
+			"after": "6f4e3be1ded14604fc8685642653b8164f282d89a4910265613031d7b76900b8"
+		},
+		"tooling/evaluations/review/verifier.ts": {
+			"before": "936cfeff26478fda218d15f870ecfca2c752b123b880baccc715d64dda644216",
+			"after": "936cfeff26478fda218d15f870ecfca2c752b123b880baccc715d64dda644216"
+		},
+		"tooling/evaluations/review/freeze.ts": {
+			"before": "9e5b7eff76e7f08d72788a6940995511f259a9a0f21de53c0e8b4e8cf46e32ee",
+			"after": "749f5cdbb6e80bbc6db5ecfe8ccbb0c242b3cc42e5c9045d094585ccf7a389ca"
+		},
+		"tooling/evaluations/review/cli.ts": {
+			"before": "a5f057c6730e7c1f18b5e4cba5e1fee96d13a255c2f2bd50c464ac5b0c924e19",
+			"after": "a5f057c6730e7c1f18b5e4cba5e1fee96d13a255c2f2bd50c464ac5b0c924e19"
+		}
+	},
+	"runtimeSha256": "bde47daa196830da2e1342829544b7a2dcc2fc81c2cebf59482c4ae44857538a"
+}

@@ -306,7 +306,7 @@ function scorecard() {
 		]),
 	);
 	element("decision").textContent =
-		"Safety = guard + independent verifier + zero accepted inventions. Every language needs a case-clustered CI95 lower bound >= 0.95; lexical retention flags and quality metrics are advisory. Ties require two independent blind ratings per output. Contract changes expire decisions. Synthetic benchmark selection does not approve release. " +
+		data.selectionPolicy +
 		(!fidelityComplete ||
 		!arabicReviewComplete(
 			data.groups.filter((g) => g.holdout),

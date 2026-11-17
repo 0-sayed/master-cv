@@ -97,6 +97,7 @@ export function BasicsCard({ locked }: { locked: boolean }) {
 						<TextField
 							label={<Trans>Email</Trans>}
 							type="email"
+							wide
 							autoComplete="email"
 							validate={validateEmail}
 							{...text("email")}

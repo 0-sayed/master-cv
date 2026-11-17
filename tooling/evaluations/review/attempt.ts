@@ -26,7 +26,8 @@ async function lookupOnce(base: typeof fetch, id: string, init?: RequestInit) {
 			method: "GET",
 			...(init?.headers ? { headers: init.headers } : {}),
 			redirect: "error",
-			signal: AbortSignal.any([...(init?.signal ? [init.signal] : []), AbortSignal.timeout(5000)]),
+			// Billing lookup still runs after the generation request times out.
+			signal: AbortSignal.timeout(5000),
 		});
 		const chunks: Uint8Array[] = [];
 		await readBounded(response, chunks);
@@ -45,7 +46,7 @@ async function lookupOnce(base: typeof fetch, id: string, init?: RequestInit) {
 	}
 }
 /** Generation metadata can lag the completion response. Retry GET only, never inference. */
-async function lookup(base: typeof fetch, id: string, init?: RequestInit) {
+export async function lookupGenerationBill(base: typeof fetch, id: string, init?: RequestInit) {
 	const byok = JSON.parse(String(init?.body ?? "{}")).provider?.only?.includes("openai") === true;
 	let latest: Awaited<ReturnType<typeof lookupOnce>> = null;
 	for (let attempt = 0; attempt < 3; attempt++) {
@@ -75,22 +76,46 @@ export async function captureResponse(
 	try {
 		response = await base(url, init);
 	} catch (error) {
-		if (error instanceof Error && ["TimeoutError", "AbortError"].includes(error.name))
-			throw new AiTransportError(error, {
-				httpStatus: null,
-				bytesReceived: false,
-				generationId: null,
-				costMicros: null,
-				upstreamCostMicros: null,
-			});
-		throw error;
+		let id: string | null = null;
+		let dispatched = false;
+		let connectionFailed = false;
+		let current = error;
+		const seen = new Set<unknown>();
+		while (current instanceof Error && !seen.has(current)) {
+			seen.add(current);
+			if (
+				"code" in current &&
+				typeof current.code === "string" &&
+				["ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN", "UND_ERR_CONNECT_TIMEOUT"].includes(current.code)
+			)
+				connectionFailed = true;
+			if (
+				"generationId" in current &&
+				typeof current.generationId === "string" &&
+				/^[A-Za-z0-9_-]+$/u.test(current.generationId)
+			)
+				id ??= current.generationId;
+			if ("bytesWritten" in current && typeof current.bytesWritten === "number" && current.bytesWritten > 0)
+				dispatched = true;
+			current = current.cause;
+		}
+		const bill = id && reconcile ? await lookupGenerationBill(base, id, init) : null;
+		const unbilled = !id && !dispatched && connectionFailed;
+		throw new AiTransportError(error, {
+			httpStatus: null,
+			bytesReceived: false,
+			generationId: id,
+			...(!unbilled ? { requestSent: true } : {}),
+			costMicros: bill?.costMicros ?? (unbilled ? 0 : null),
+			upstreamCostMicros: bill?.upstreamCostMicros ?? (unbilled ? 0 : null),
+		});
 	}
 	const chunks: Uint8Array[] = [];
 	try {
 		await readBounded(response, chunks);
 	} catch (error) {
 		const id = generationId(Buffer.concat(chunks).toString("utf8"));
-		const bill = id && reconcile ? await lookup(base, id, init) : null;
+		const bill = id && reconcile ? await lookupGenerationBill(base, id, init) : null;
 		throw new AiTransportError(error, {
 			httpStatus: response.status,
 			bytesReceived: chunks.some((c) => c.length > 0),
@@ -113,7 +138,7 @@ export async function captureResponse(
 					(micros(data.usage?.cost_details?.upstream_inference_cost) === null ||
 						typeof data.usage?.is_byok !== "boolean")))
 		) {
-			const bill = await lookup(base, data.id, init);
+			const bill = await lookupGenerationBill(base, data.id, init);
 			if (bill) {
 				data.usage ??= {};
 				if (!data.provider && bill.provider) data.provider = bill.provider;
@@ -133,6 +158,14 @@ export async function captureResponse(
 		}
 	} catch {
 		/* Malformed bodies remain visible to the strict adapter. */
+		const id = generationId(text);
+		const bill = id && reconcile ? await lookupGenerationBill(base, id, init) : null;
+		if (bill) {
+			const headers = new Headers(response.headers);
+			if (bill.costMicros !== null) headers.set("x-benchmark-router-micros", String(bill.costMicros));
+			if (bill.upstreamCostMicros !== null) headers.set("x-benchmark-upstream-micros", String(bill.upstreamCostMicros));
+			return new Response(text, { status: response.status, headers });
+		}
 	}
 	return new Response(text, { status: response.status, headers: response.headers });
 }

@@ -6,6 +6,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "motion/react";
 import { useState } from "react";
 import * as z from "zod";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { EmptyState } from "@reactive-resume/ui/components/empty-state";
@@ -147,9 +148,11 @@ export function StoriesPage({ storyId, edit }: StoriesPageProps) {
 					<p className="text-sm text-ink-2">
 						<Trans>It may have been deleted. Choose another story or add a new one.</Trans>
 					</p>
-					<Button variant="secondary" onClick={() => open(undefined)}>
+					<BackNavigation
+						render={<Link to="/dashboard/career/knowledge/stories/{-$storyId}" params={{ storyId: undefined }} />}
+					>
 						<Trans>Back to stories</Trans>
-					</Button>
+					</BackNavigation>
 				</div>
 			) : selected || editing ? (
 				<div className="relative rounded-xl border border-line bg-surface px-4 py-5 sm:px-6 sm:py-[22px]">

@@ -1,0 +1,108 @@
+[
+	{
+		"caseId": "judge-canary-summary-ar",
+		"defect": "invented-skill",
+		"expectedFault": "AI_VERIFICATION_INCOMPLETE",
+		"verdict": {
+			"schemaVersion": 1,
+			"verdicts": [],
+			"retention": null,
+			"absence": [],
+			"coverage": {
+				"status": "complete",
+				"reason": "not provided"
+			},
+			"premises": [
+				{
+					"id": "summary:summary-1",
+					"verdict": "supported",
+					"reason": "ضد"
+				},
+				{
+					"id": "summary:summary-2",
+					"verdict": "supported",
+					"reason": "ضد"
+				},
+				{
+					"id": "summary:canary-defect",
+					"verdict": "unsupported",
+					"reason": "ضد"
+				}
+			],
+			"quality": {
+				"status": "unclear",
+				"reason": "ضد"
+			}
+		}
+	},
+	{
+		"caseId": "judge-canary-tailoring-ar",
+		"defect": "invented-metric",
+		"expectedFault": "AI_VERIFICATION_RETENTION_SCOPE",
+		"verdict": {
+			"schemaVersion": 1,
+			"verdicts": [
+				{
+					"claimId": "patch:p1:c1",
+					"verdict": "supported",
+					"evidenceIds": ["cv-c1"],
+					"reason": "The source res"
+				},
+				{
+					"claimId": "patch:p1:canary-defect",
+					"verdict": "unsupported",
+					"evidenceIds": ["cv-a"],
+					"reason": "The source CV contains no revenue-related statement; the cited evidence mentions only report assistance, no team management, and 1442 AH training."
+				}
+			],
+			"retention": null,
+			"absence": [],
+			"coverage": {
+				"status": "complete",
+				"reason": "Every inventory item and response assertion was checked independently; unsupported revenue assertion fails safety."
+			},
+			"premises": [
+				{
+					"id": "reason:p1",
+					"verdict": "unsupported",
+					"reason": "The patch highlights a job-relevant duty, but the same edited field also adds an unsupported revenue claim, so the stated purpose is only partially aligned; unsupported content withholds output."
+				}
+			],
+			"quality": {
+				"status": "unclear",
+				"reason": "No quality instruction was supplied."
+			}
+		}
+	},
+	{
+		"caseId": "judge-canary-tailoring-en",
+		"defect": "gold",
+		"expectedFault": "AI_VERIFICATION_INCOMPLETE",
+		"verdict": {
+			"schemaVersion": 1,
+			"verdicts": [
+				{
+					"claimId": "patch:p1:c1",
+					"verdict": "supported",
+					"evidenceIds": ["cv-a"],
+					"reason": "CV evidence cv-a states the candidate prepared weekly reports with Excel; the patch uses equivalent wording and adds no new fact."
+				}
+			],
+			"retention": {
+				"status": "retained",
+				"evidenceIds": ["cv-a"],
+				"reason": "The edited description preserves the weekly Excel reporting fact supported by cv-a."
+			},
+			"absence": [],
+			"coverage": {
+				"status": "complete",
+				"reason": "All response claims and the retention check were independently verified against the supplied CV evidence."
+			},
+			"premises": [],
+			"quality": {
+				"status": "unclear",
+				"reason": "No translation quality assessment is applicable to this tailoring response."
+			}
+		}
+	}
+]

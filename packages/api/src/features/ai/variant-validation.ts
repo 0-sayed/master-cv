@@ -7,6 +7,7 @@ import {
 	translationOutputSchema,
 } from "@reactive-resume/schema/resume/variant-outputs";
 import { buildModelPayload } from "./payload";
+import { boundedEvidenceAbsence, assessmentText } from "./variant-guard";
 import { assertPatchRetention, guardTaskClaims } from "./variant-guard";
 
 const unique = (ids: readonly string[]) => ids.length === new Set(ids).size;
@@ -72,16 +73,13 @@ export function validateVariantOutput(snapshot: VariantSnapshot, raw: unknown) {
 				guard(snapshot, [
 					{ id: requirement.id, text: requirement.explanation, evidenceIds: requirement.evidenceIds, kind: "fact" },
 				]);
-			if (
-				requirement.verdict === "no_evidence" &&
-				!/(?:(?:this|supplied) (?:CV|resume)|هذه السيرة|السيرة الذاتية المقدمة)/iu.test(requirement.explanation)
-			)
+			if (requirement.verdict === "no_evidence" && !boundedEvidenceAbsence(requirement.explanation))
 				fail("JOB_UNBOUNDED_ABSENCE");
 		}
 		for (const text of [...output.requirements.map((requirement) => requirement.explanation), ...output.notes])
 			if (
 				/\b(?:(?:ATS|match|compatibility|hiring) (?:score|probability|chance)|hiring chance|match\s+\d+)\b|احتمال التوظيف|نسبة المطابقة|درجة التوافق|\byou lack\b|يفتقر المرشح/iu.test(
-					text,
+					assessmentText(text),
 				)
 			)
 				fail("JOB_INVALID_ASSESSMENT");

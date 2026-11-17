@@ -94,6 +94,7 @@ export function ApplicationNotes({ application }: ApplicationNotesProps) {
 				id: sent.identity.documentId,
 				notes: sent.value.trim() ? sent.value : null,
 				expectedNotesRevision: sent.identity.baseRevision,
+				expectedUpdatedAt: sent.identity.baseRevision,
 			});
 			if (generation.current !== personalStorageGeneration()) return;
 			const latest = current.current;
@@ -142,6 +143,7 @@ export function ApplicationNotes({ application }: ApplicationNotesProps) {
 				<Trans>Notes</Trans>
 			</label>
 			<Textarea
+				dir="auto"
 				id={id}
 				rows={3}
 				maxLength={5000}

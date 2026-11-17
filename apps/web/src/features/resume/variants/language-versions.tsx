@@ -2,6 +2,7 @@ import { Trans } from "@lingui/react/macro";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
 import { SectionCard } from "@reactive-resume/ui/components/section-card";
 import { ReviewLaunch, ReviewNotice, ReviewOperationPanel } from "../editor/proposals/review-operation";
@@ -41,9 +42,9 @@ export function LanguageVersions({ resumeId }: { resumeId: string }) {
 				title={copy("language.copies.title")}
 				description={copy("language.interface.independenceHint")}
 				back={
-					<Link to="/dashboard">
-						<Trans>My documents</Trans>
-					</Link>
+					<BackNavigation render={<Link to="/dashboard" />}>
+						<Trans>Back to documents</Trans>
+					</BackNavigation>
 				}
 			/>
 			{family.error ? (

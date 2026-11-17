@@ -4,6 +4,15 @@ import { i18n } from "@lingui/core";
 import { msg } from "@lingui/core/macro";
 import Cookies from "js-cookie";
 import { defaultLocale, isLocale, resolveUiLocale } from "@reactive-resume/utils/locale";
+import { formatUiTimestamp } from "@reactive-resume/utils/ui-format";
+
+export function getInterfaceDateLocale(locale: string) {
+	return new Intl.Locale(locale, { numberingSystem: "latn", calendar: "gregory" });
+}
+
+export function formatInterfaceDate(value: Date | string, locale: string, options: Intl.DateTimeFormatOptions = {}) {
+	return formatUiTimestamp(new Date(value), resolveUiLocale({ saved: locale }), options);
+}
 
 const storageKey = "locale";
 const messageLoaders = import.meta.glob<{ messages: Messages }>("../../locales/*.po");

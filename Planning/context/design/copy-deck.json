@@ -58888,7 +58888,7 @@
 		{
 			"key": "workspace.career-information.could.not.save.your.choice.please.try.again_OEKlXF",
 			"messages": {
-				"ar-SA": "تعذر حفظ اختيارك. حاول مجددًا.",
+				"ar-SA": "تعذّر حفظ اختيارك. حاول مجددًا.",
 				"en-US": "Could not save your choice. Please try again."
 			},
 			"context": {
@@ -59002,7 +59002,7 @@
 		{
 			"key": "workspace.documents.couldn.t.create.the.document_V-GqdE",
 			"messages": {
-				"ar-SA": "تعذر إنشاء المستند.",
+				"ar-SA": "تعذّر إنشاء المستند.",
 				"en-US": "Couldn't create the document."
 			},
 			"context": {
@@ -59040,7 +59040,7 @@
 		{
 			"key": "workspace.documents.couldn.t.import_lvqH9G",
 			"messages": {
-				"ar-SA": "تعذر الاستيراد",
+				"ar-SA": "تعذّر الاستيراد",
 				"en-US": "Couldn't import"
 			},
 			"context": {
@@ -59116,7 +59116,7 @@
 		{
 			"key": "workspace.documents.couldn.t.load.documents_C0C2fg",
 			"messages": {
-				"ar-SA": "تعذر تحميل المستندات",
+				"ar-SA": "تعذّر تحميل المستندات",
 				"en-US": "Couldn't load documents"
 			},
 			"context": {
@@ -59154,7 +59154,7 @@
 		{
 			"key": "workspace.documents.couldn.t.reach.the.ai.provider.try.again.in.a.moment_3KssxT",
 			"messages": {
-				"ar-SA": "تعذر الوصول إلى مزوّد الذكاء الاصطناعي. حاول مرة أخرى بعد قليل.",
+				"ar-SA": "تعذّر الوصول إلى مزوّد الذكاء الاصطناعي. حاول مرة أخرى بعد قليل.",
 				"en-US": "Couldn't reach the AI provider. Try again in a moment."
 			},
 			"context": {
@@ -64796,7 +64796,7 @@
 		{
 			"key": "workspace.documents.something.went.wrong.try.again_D2AZQg",
 			"messages": {
-				"ar-SA": "حدث خطأ ما. حاول ثانية.",
+				"ar-SA": "حدث خطأ ما. حاول مرة أخرى.",
 				"en-US": "Something went wrong. Try again."
 			},
 			"context": {
@@ -66283,7 +66283,7 @@
 		{
 			"key": "workspace.auth.unable.to.create.this.account.try.signing.in.or.use.another.email_sWbyMt",
 			"messages": {
-				"ar-SA": "تعذر إنشاء هذا الحساب. جرّب تسجيل الدخول أو استخدم بريدًا آخر.",
+				"ar-SA": "تعذّر إنشاء هذا الحساب. جرّب تسجيل الدخول أو استخدم بريدًا آخر.",
 				"en-US": "Unable to create this account. Try signing in or use another email."
 			},
 			"context": {
@@ -66976,7 +66976,7 @@
 		{
 			"key": "workspace.auth.we.could.not.complete.this.request.please.try.again_8a9yz4",
 			"messages": {
-				"ar-SA": "تعذر إكمال هذا الطلب. حاول مجددًا.",
+				"ar-SA": "تعذّر إكمال هذا الطلب. حاول مجددًا.",
 				"en-US": "We could not complete this request. Please try again."
 			},
 			"context": {
@@ -71057,7 +71057,7 @@
 			"key": "review.import.copyNuIMwy",
 			"messages": {
 				"en-US": "Could not close this review. Try again.",
-				"ar-SA": "تعذر إغلاق هذه المراجعة. حاول مجددًا."
+				"ar-SA": "تعذّر إغلاق هذه المراجعة. حاول مجددًا."
 			},
 			"context": {
 				"surfaces": ["screens:S05", "screens:S06", "screens:S07", "screens:S08"],
@@ -71095,7 +71095,7 @@
 			"key": "review.import.copymtbp0u",
 			"messages": {
 				"en-US": "Could not keep this review on this device. Try again.",
-				"ar-SA": "تعذر الاحتفاظ بهذه المراجعة على هذا الجهاز. حاول مجددًا."
+				"ar-SA": "تعذّر الاحتفاظ بهذه المراجعة على هذا الجهاز. حاول مجددًا."
 			},
 			"context": {
 				"surfaces": ["screens:S05", "screens:S06", "screens:S07", "screens:S08"],
@@ -71133,7 +71133,7 @@
 			"key": "review.import.copy6XIskB",
 			"messages": {
 				"en-US": "Could not load career information. Try again.",
-				"ar-SA": "تعذر تحميل المعلومات المهنية. حاول مجددًا."
+				"ar-SA": "تعذّر تحميل المعلومات المهنية. حاول مجددًا."
 			},
 			"context": {
 				"surfaces": ["screens:S05", "screens:S06", "screens:S07", "screens:S08"],
@@ -71171,7 +71171,7 @@
 			"key": "review.import.copyAyN9OS",
 			"messages": {
 				"en-US": "Could not save your CV. Retry to finish using your career information.",
-				"ar-SA": "تعذر حفظ سيرتك. أعد المحاولة لإكمال استخدام معلوماتك المهنية."
+				"ar-SA": "تعذّر حفظ سيرتك. أعد المحاولة لإكمال استخدام معلوماتك المهنية."
 			},
 			"context": {
 				"surfaces": ["screens:S05", "screens:S06", "screens:S07", "screens:S08"],
@@ -87800,7 +87800,7 @@
 			"key": "review.check.copydE8PR2",
 			"messages": {
 				"en-US": "A damaged embedded font can hide words.",
-				"ar-SA": "قد يتعذر استخراج الكلمات من خط مضمّن تالف."
+				"ar-SA": "قد يتعذّر استخراج الكلمات من خط مضمّن تالف."
 			},
 			"context": {
 				"surfaces": ["messages:workspace"],
@@ -103114,7 +103114,7 @@
 			"key": "trash.bulk.deleted",
 			"messages": {
 				"en-US": "{count, plural, one {Deleted {deleted} of # document. Failed items remain in Trash.} other {Deleted {deleted} of # documents. Failed items remain in Trash.}}",
-				"ar-SA": "{count, plural, zero {لم يُحذف أي مستند. تبقى العناصر التي تعذر حذفها في سلة المهملات.} one {تم حذف {deleted} من مستند واحد. تبقى العناصر التي تعذر حذفها في سلة المهملات.} two {تم حذف {deleted} من مستندين. تبقى العناصر التي تعذر حذفها في سلة المهملات.} few {تم حذف {deleted} من # مستندات. تبقى العناصر التي تعذر حذفها في سلة المهملات.} many {تم حذف {deleted} من # مستندًا. تبقى العناصر التي تعذر حذفها في سلة المهملات.} other {تم حذف {deleted} من # مستند. تبقى العناصر التي تعذر حذفها في سلة المهملات.}}"
+				"ar-SA": "{count, plural, zero {لم يُحذف أي مستند. تبقى العناصر التي تعذّر حذفها في سلة المهملات.} one {تم حذف {deleted} من مستند واحد. تبقى العناصر التي تعذّر حذفها في سلة المهملات.} two {تم حذف {deleted} من مستندين. تبقى العناصر التي تعذّر حذفها في سلة المهملات.} few {تم حذف {deleted} من # مستندات. تبقى العناصر التي تعذّر حذفها في سلة المهملات.} many {تم حذف {deleted} من # مستندًا. تبقى العناصر التي تعذّر حذفها في سلة المهملات.} other {تم حذف {deleted} من # مستند. تبقى العناصر التي تعذّر حذفها في سلة المهملات.}}"
 			},
 			"context": {
 				"surfaces": ["messages:workspace"],
@@ -115333,6 +115333,879 @@
 					"version": "2026-11-16"
 				}
 			}
+		},
+		{
+			"key": "letters.save.submittedCopy",
+			"messages": {
+				"ar-SA": "يبقى الخطاب المُرسَل دون تغيير. أنشئ نسخة لفتح مسودة قابلة للتحرير وغير مرتبطة بطلب. يمكنك ربط المسودة بأي طلب وظيفة.",
+				"en-US": "The submitted letter stays unchanged. Create a copy to open an unlinked, editable draft. You can link the draft to any application."
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["A draft association never replaces the submitted letter or its saved version."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "The submitted letter stays unchanged. Create a copy to open an unlinked, editable draft. You can link the draft to any application.",
+				"msgctxt": "",
+				"runtimeId": "YcsQBh",
+				"mappingStatus": "implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/save-error.ts"
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.saved",
+			"messages": {
+				"ar-SA": "تم حفظ المقترح كنسخة من الخطاب.",
+				"en-US": "Proposal saved as a letter version."
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Proposal saved as a letter version.",
+				"msgctxt": "",
+				"runtimeId": "tU1TQN",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.rejected",
+			"messages": {
+				"ar-SA": "تم رفض المقترح. لم يتغير خطابك.",
+				"en-US": "Proposal rejected. Your letter is unchanged."
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Proposal rejected. Your letter is unchanged.",
+				"msgctxt": "",
+				"runtimeId": "nGZosb",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.currentTitle",
+			"messages": {
+				"ar-SA": "خطابك الحالي",
+				"en-US": "Your current letter"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Your current letter",
+				"msgctxt": "",
+				"runtimeId": "Bo4nO3",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.proposalTitle",
+			"messages": {
+				"ar-SA": "الخطاب المقترح",
+				"en-US": "Proposed letter"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Proposed letter",
+				"msgctxt": "",
+				"runtimeId": "tYr3R8",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.evidenceTitle",
+			"messages": {
+				"ar-SA": "حقائق مؤكدة من السيرة الذاتية",
+				"en-US": "Confirmed CV evidence"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Confirmed CV evidence",
+				"msgctxt": "",
+				"runtimeId": "zN8273",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.decisionFailed",
+			"messages": {
+				"ar-SA": "تعذّر حفظ القرار. نصك اليدوي محفوظ. أعد المحاولة، أو اطلب مراجعة جديدة إذا تغير المصدر.",
+				"en-US": "Could not save this decision. Your manual text is kept. Retry, or request a new review if the source changed."
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Could not save this decision. Your manual text is kept. Retry, or request a new review if the source changed.",
+				"msgctxt": "",
+				"runtimeId": "XBWlvZ",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.reject",
+			"messages": {
+				"ar-SA": "رفض المقترح",
+				"en-US": "Reject proposal"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Reject proposal",
+				"msgctxt": "",
+				"runtimeId": "Hbm8l6",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.accept",
+			"messages": {
+				"ar-SA": "قبول المقترح",
+				"en-US": "Accept proposal"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Accept proposal",
+				"msgctxt": "",
+				"runtimeId": "kpOIbA",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.createEnglish",
+			"messages": {
+				"ar-SA": "إنشاء خطاب إنجليزي مستقل",
+				"en-US": "Create a separate English letter"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Create a separate English letter",
+				"msgctxt": "",
+				"runtimeId": "mLXyLx",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.createArabic",
+			"messages": {
+				"ar-SA": "إنشاء خطاب عربي مستقل",
+				"en-US": "Create a separate Arabic letter"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Create a separate Arabic letter",
+				"msgctxt": "",
+				"runtimeId": "VmjF93",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.createFailed",
+			"messages": {
+				"ar-SA": "تعذّر إنشاء الخطاب المستقل. لم يتغير خطابك الحالي.",
+				"en-US": "Could not create the separate letter. Your current letter is kept."
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Could not create the separate letter. Your current letter is kept.",
+				"msgctxt": "",
+				"runtimeId": "-W_NKn",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.length",
+			"messages": {
+				"ar-SA": "طول المقترح",
+				"en-US": "Proposal length"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Proposal length",
+				"msgctxt": "",
+				"runtimeId": "XuVaZo",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.normal",
+			"messages": {
+				"ar-SA": "متوسط",
+				"en-US": "Normal"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Normal",
+				"msgctxt": "",
+				"runtimeId": "CsekCi",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.short",
+			"messages": {
+				"ar-SA": "قصير",
+				"en-US": "Short"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Short",
+				"msgctxt": "",
+				"runtimeId": "RRXpo1",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.start",
+			"messages": {
+				"ar-SA": "مراجعة خطاب مخصص للوظيفة",
+				"en-US": "Review a job-specific letter"
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Review a job-specific letter",
+				"msgctxt": "",
+				"runtimeId": "ErEYrc",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.evidenceHint",
+			"messages": {
+				"ar-SA": "اختر أولًا وظيفة محفوظة في السيرة المرتبطة. يستند المقترح إلى حقائق السيرة المؤكدة فقط. يبقى نصك اليدوي حتى تقبل المقترح.",
+				"en-US": "Select a saved job in the linked CV first. Only confirmed CV facts support the proposal. Your manual text stays until you accept."
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Select a saved job in the linked CV first. Only confirmed CV facts support the proposal. Your manual text stays until you accept.",
+				"msgctxt": "",
+				"runtimeId": "B6c39S",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/letters/review.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "letters.review.writeHint",
+			"messages": {
+				"ar-SA": "اكتب خطابك، أو راجع مقترحًا يستند إلى سيرتك المؤكدة والوظيفة المحفوظة.",
+				"en-US": "Write your letter, or review a proposal based on your confirmed CV and saved job."
+			},
+			"context": {
+				"surfaces": ["S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3184", "49:1971"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Write your letter, or review a proposal based on your confirmed CV and saved job.",
+				"msgctxt": "",
+				"runtimeId": "hvYpKO",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/routes/builder/letter/-components/write-panel.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "applications.version.label",
+			"messages": {
+				"ar-SA": "نسخة السيرة الذاتية",
+				"en-US": "CV version"
+			},
+			"context": {
+				"surfaces": ["S33", "S34"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3321", "49:2018", "38:3466", "49:2096"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "CV version",
+				"msgctxt": "",
+				"runtimeId": "LiEaWr",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/applications/components/resume-version-select.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "applications.version.current",
+			"messages": {
+				"ar-SA": "السيرة الحالية عند تسجيل التقديم",
+				"en-US": "Current CV when recorded"
+			},
+			"context": {
+				"surfaces": ["S33", "S34"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3321", "49:2018", "38:3466", "49:2096"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Current CV when recorded",
+				"msgctxt": "",
+				"runtimeId": "zBUJcH",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/applications/components/resume-version-select.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "applications.version.loadFailed",
+			"messages": {
+				"ar-SA": "تعذّر تحميل نسخ السيرة الذاتية.",
+				"en-US": "CV versions could not load."
+			},
+			"context": {
+				"surfaces": ["S33", "S34"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3321", "49:2018", "38:3466", "49:2096"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "CV versions could not load.",
+				"msgctxt": "",
+				"runtimeId": "U_KwBL",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/applications/components/resume-version-select.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "applications.version.retained",
+			"messages": {
+				"ar-SA": "يبقى اختيارك محفوظا دون تغيير.",
+				"en-US": "Your selection stays unchanged."
+			},
+			"context": {
+				"surfaces": ["S33", "S34"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Personal letter review; pending owner copy review."]
+			},
+			"nodeIds": ["38:3321", "49:2018", "38:3466", "49:2096"],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Your selection stays unchanged.",
+				"msgctxt": "",
+				"runtimeId": "rj1XtB",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/features/applications/components/resume-version-select.tsx",
+				"verification": "Synthetic review and persistence tests; pending owner review."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "T008 / 2026-11-16"
+				}
+			}
+		},
+		{
+			"key": "feature.status.beta",
+			"messages": {
+				"ar-SA": "تجريبي",
+				"en-US": "Beta"
+			},
+			"context": {
+				"surfaces": ["screens:S20", "screens:S32"],
+				"audience": "Candidate / account owner",
+				"translatorNotes": ["Owner Sayed marks cover letters and job evidence Beta on 2026-11-17."]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Beta",
+				"msgctxt": "feature.status.beta",
+				"runtimeId": "afYMqx",
+				"mappingStatus": "extracted implementation binding",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src/components/feature-beta-badge.tsx",
+				"verification": "Arabic/English badge render tests."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "2026-11-17 Beta labels"
+				},
+				"en-US": {
+					"status": "pending-owner-review",
+					"owner": "product-owner",
+					"version": "2026-11-17 Beta labels"
+				}
+			}
 		}
 	],
 	"screens": {
@@ -116865,7 +117738,24 @@
 				"jobs.letter.lengthLabel",
 				"jobs.letter.label",
 				"jobs.letter.confirmedFactsHint.compact",
-				"jobs.letter.missingEvidenceHint.compact"
+				"jobs.letter.missingEvidenceHint.compact",
+				"letters.review.saved",
+				"letters.review.rejected",
+				"letters.review.currentTitle",
+				"letters.review.proposalTitle",
+				"letters.review.evidenceTitle",
+				"letters.review.decisionFailed",
+				"letters.review.reject",
+				"letters.review.accept",
+				"letters.review.createEnglish",
+				"letters.review.createArabic",
+				"letters.review.createFailed",
+				"letters.review.length",
+				"letters.review.normal",
+				"letters.review.short",
+				"letters.review.start",
+				"letters.review.evidenceHint",
+				"letters.review.writeHint"
 			]
 		},
 		"S33": {
@@ -116895,7 +117785,11 @@
 				"jobs.application.empty",
 				"jobs.application.appliedAt",
 				"jobs.application.status.interested",
-				"jobs.application.addedAt"
+				"jobs.application.addedAt",
+				"applications.version.label",
+				"applications.version.current",
+				"applications.version.loadFailed",
+				"applications.version.retained"
 			]
 		},
 		"S34": {
@@ -116938,7 +117832,11 @@
 				"jobs.application.notesLabel",
 				"jobs.application.notesHint",
 				"jobs.application.detailPageTitle",
-				"jobs.application.notesHint.compact"
+				"jobs.application.notesHint.compact",
+				"applications.version.label",
+				"applications.version.current",
+				"applications.version.loadFailed",
+				"applications.version.retained"
 			]
 		},
 		"S35": {

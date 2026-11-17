@@ -2,8 +2,9 @@ import type { Application } from "./types";
 import type { InterviewTimelineEntry } from "@reactive-resume/schema/applications/data";
 import type { IconName } from "@reactive-resume/ui/components/icon";
 import { plural, t } from "@lingui/core/macro";
-import { interviewKindOf, isInterview } from "./interviews";
+import { interviewTypeLabel, isInterview } from "./interviews";
 import { getClosedReasonLabel } from "./stages";
+import { formatInterfaceDate } from "@/libs/locale";
 import { formatRelativeTimeUnit } from "@/libs/locale";
 
 const DAY_MS = 86_400_000;
@@ -64,7 +65,7 @@ export function getNextStep(application: NextStepSource, now = new Date()): Next
 export type NextStepText = { icon: IconName; title: string; sub: string; tone: "normal" | "warn" | "muted" };
 
 const formatWhen = (date: Date, locale: string, withTime: boolean) =>
-	date.toLocaleString(locale, {
+	formatInterfaceDate(date, locale, {
 		weekday: "short",
 		day: "numeric",
 		month: "short",
@@ -79,7 +80,7 @@ export function describeNextStep(
 ): NextStepText {
 	switch (step.kind) {
 		case "interview": {
-			const kind = interviewKindOf(step.interview.kind)?.label ?? step.interview.kind;
+			const kind = interviewTypeLabel(step.interview.kind);
 			const where = step.interview.location ? ` · ${step.interview.location}` : "";
 			return {
 				icon: "calendar-dot",

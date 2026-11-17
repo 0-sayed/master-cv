@@ -14,7 +14,7 @@ const options = {
 	openaiBudgetUsd: 40,
 };
 it.each(["fake-response", "fake-verifier"])(
-	"records 132 offline smoke sessions while holding three ambiguous %s failures without re-buying",
+	"settles two no-response faults and holds one ambiguous %s response without re-buying",
 	async (target) => {
 		const cheap = loadModels().map((m) => ({ ...m, inputPerMillion: 0.001, outputPerMillion: 0.001 }));
 		const original = Response.json.bind(Response);
@@ -22,8 +22,9 @@ it.each(["fake-response", "fake-verifier"])(
 		let injected = 0;
 		const spy = vi.spyOn(Response, "json").mockImplementation((body, init) => {
 			if (body?.id === target && injected < 3) {
-				if (++injected === 1) throw new TypeError("fetch rejected");
-				if (injected === 2) throw new Error("local throw");
+				const cause = Object.assign(new Error("offline connection setup"), { code: "ECONNREFUSED", bytesWritten: 0 });
+				if (++injected === 1) throw new TypeError("fetch rejected", { cause });
+				if (injected === 2) throw new Error("local throw", { cause });
 				return new Response(
 					new ReadableStream({
 						start(c) {
@@ -50,8 +51,8 @@ it.each(["fake-response", "fake-verifier"])(
 			const result = await pending;
 			expect(result.stopReason).toBeNull();
 			expect(result.calls).toHaveLength(132);
-			expect(result.calls.filter((c) => c.outcome === "valid")).toHaveLength(129);
-			expect(result.calls.filter((c) => c.costMicros === null)).toHaveLength(3);
+			expect(result.calls.filter((c) => c.outcome === "valid")).toHaveLength(131);
+			expect(result.calls.filter((c) => c.costMicros === null)).toHaveLength(1);
 			expect(attempts).toHaveLength(3);
 			expect(attempts[2]).toMatchObject({
 				failure: {
@@ -205,8 +206,9 @@ it.each(["writer", "verifier"])(
 
 it.each([
 	[3, 50000, null],
-	[4, 40000, "BILLING_UNKNOWN"],
-	[1, 50001, "BILLING_UNKNOWN"],
+	[16, 40000, null],
+	[1, 4900000, null],
+	[1, 4900001, "BILLING_UNKNOWN"],
 ] as const)("bounds unknown holds at %s sessions / %s micros", async (count, micros, stop) => {
 	const seed = required((await runBenchmark(options)).calls[0]);
 	const unknown = Array.from({ length: count }, (_, i) => ({

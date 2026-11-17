@@ -1,8 +1,11 @@
 // @vitest-environment happy-dom
 
 import { afterEach, describe, expect, it } from "vite-plus/test";
+import { openSearchPanel } from "@codemirror/search";
 import { EditorView } from "@codemirror/view";
-import { revealStyleRule } from "./editor-extensions";
+import { i18n } from "@lingui/core";
+import { createSemanticCssEditorExtensions, revealStyleRule } from "./editor-extensions";
+import { getUiLocaleMessages } from "@/libs/locale";
 
 const views: EditorView[] = [];
 
@@ -11,6 +14,31 @@ afterEach(() => {
 });
 
 describe("Semantic CSS editor extensions", () => {
+	it("labels the color action in the interface language", async () => {
+		i18n.loadAndActivate(await getUiLocaleMessages("ar-SA"));
+		const parent = document.createElement("div");
+		document.body.append(parent);
+		const view = new EditorView({
+			parent,
+			doc: "red",
+			extensions: createSemanticCssEditorExtensions({
+				metadata: {
+					semanticTree: { key: "resume", kind: "resume", attributes: {}, roles: [], children: [] },
+					templateParts: [],
+				},
+				colorTokens: [{ from: 0, to: 3, value: "red" }],
+				onColorSelect: () => {},
+			}),
+		});
+		views.push(view);
+		expect(parent.querySelector("button.semantic-css-color-swatch")?.getAttribute("aria-label")).toBe(
+			"تعديل اللون red",
+		);
+		openSearchPanel(view);
+		expect(parent.querySelector('input[name="search"]')?.getAttribute("aria-label")).not.toBe("Find");
+		expect(parent.querySelector(".cm-search")?.textContent).not.toMatch(/match case|regexp|by word|replace all/);
+		parent.remove();
+	});
 	it("adds a rule for a picked element once, then moves the cursor into it", () => {
 		const view = new EditorView({ doc: "header { color: red; }" });
 		views.push(view);

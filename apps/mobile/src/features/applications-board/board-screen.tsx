@@ -144,7 +144,7 @@ function Board() {
 		}
 		setPending({ id: application.id, from: application.status as ApplicationStatus, to: stage });
 		update.mutate(
-			{ id: application.id, status: stage },
+			{ id: application.id, expectedUpdatedAt: new Date(application.updatedAt).toISOString(), status: stage },
 			{
 				onSuccess: () => showToast({ message: t`Moved to ${getStageLabel(stage)}` }),
 				onError: (error) => {

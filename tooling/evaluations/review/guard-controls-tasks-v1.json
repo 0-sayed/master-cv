@@ -1,11 +1,11 @@
 {
 	"study": "tasks-v1",
-	"freezeHash": "a28e82fb560c4405077d29ca31c9c66424c5757aa993b7952dae1d52a4ac2dcb",
-	"reason": "Deletion-aware account accounting dependency update after host root-CI validation: bind the worker and its account-state lock helper to a new tasks study identity. Corpus, golds, prompts, model pins, verifier and scoring are unchanged. Prior study/control bytes remain immutable Git objects recorded in history; historical core identity and receipts remain unchanged and stale. Fresh deterministic/scripted controls only; no paid inference, environment-file reads, human approval, semantic qualification or release.",
-	"controlsBasis": "Fresh all-category and scoped deterministic/scripted scans plus scoped deterministic canary scan. No paid calls or measured semantic qualification.",
-	"scannedAt": "2026-11-14T17:28:39.029Z",
+	"freezeHash": "27a6ccb0a8ddbc1679a386eb7c236bac2e697bf00ab580fd6673e223ba670262",
+	"reason": "Review corrections bind billing exposure, retry accounting, language validation, MQM scoring and verifier versions. Fresh offline controls only.",
+	"controlsBasis": "Fresh all-category, scoped and canary deterministic scans. No semantic qualification or paid calls.",
+	"scannedAt": "2026-11-17T19:44:03.829Z",
 	"all": {
-		"checked": 1056,
+		"checked": 1540,
 		"pass": true,
 		"failures": [],
 		"knownLimitations": [],
@@ -14,7 +14,7 @@
 	"scoped": {
 		"categories": ["summary", "job-evidence", "tailoring", "translation"],
 		"result": {
-			"checked": 699,
+			"checked": 1135,
 			"pass": true,
 			"failures": [],
 			"knownLimitations": [],
@@ -22,7 +22,7 @@
 		}
 	},
 	"canaries": {
-		"checked": 72,
+		"checked": 108,
 		"pass": true,
 		"failures": [],
 		"knownLimitations": [],

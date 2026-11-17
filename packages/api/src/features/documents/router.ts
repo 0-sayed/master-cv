@@ -3,6 +3,7 @@ import { protectedProcedure } from "../../context";
 import { documentsDto } from "../../dto/documents";
 import { resumeMutationRateLimit } from "../../middleware/rate-limit";
 import { paginate } from "../../pagination";
+import { getPersonalToolsAvailability, requirePersonalTool } from "../personal-tools/availability";
 import { documentsService } from "./service";
 
 const route = (
@@ -36,7 +37,11 @@ export const documentsRouter = {
 		.output(documentsDto.list.output)
 		.handler(async ({ context, input }) =>
 			paginate(
-				await documentsService.list({ userId: context.user.id, trashed: input.trashed }),
+				await documentsService.list({
+					userId: context.user.id,
+					trashed: input.trashed,
+					includeLetters: getPersonalToolsAvailability().coverLetters,
+				}),
 				input,
 				context.resHeaders,
 			),
@@ -54,14 +59,19 @@ export const documentsRouter = {
 		)
 		.input(z.object({}).optional())
 		.output(documentsDto.counts.output)
-		.handler(({ context }) => documentsService.counts({ userId: context.user.id })),
+		.handler(({ context }) =>
+			documentsService.counts({ userId: context.user.id, includeLetters: getPersonalToolsAvailability().coverLetters }),
+		),
 
 	rename: protectedProcedure
 		.route(route("POST", "/documents/rename", "renameDocument", "Rename a document", "Renames a resume or letter."))
 		.input(documentsDto.rename.input)
 		.use(resumeMutationRateLimit)
 		.output(documentsDto.rename.output)
-		.handler(({ context, input }) => documentsService.rename({ ...input, userId: context.user.id })),
+		.handler(({ context, input }) => {
+			if (input.type === "letter") requirePersonalTool("coverLetters");
+			return documentsService.rename({ ...input, userId: context.user.id });
+		}),
 
 	setTags: protectedProcedure
 		.route(
@@ -76,7 +86,10 @@ export const documentsRouter = {
 		.input(documentsDto.setTags.input)
 		.use(resumeMutationRateLimit)
 		.output(documentsDto.setTags.output)
-		.handler(({ context, input }) => documentsService.setTags({ ...input, userId: context.user.id })),
+		.handler(({ context, input }) => {
+			if (input.type === "letter") requirePersonalTool("coverLetters");
+			return documentsService.setTags({ ...input, userId: context.user.id });
+		}),
 
 	setLocked: protectedProcedure
 		.route(
@@ -91,7 +104,10 @@ export const documentsRouter = {
 		.input(documentsDto.setLocked.input)
 		.use(resumeMutationRateLimit)
 		.output(documentsDto.setLocked.output)
-		.handler(({ context, input }) => documentsService.setLocked({ ...input, userId: context.user.id })),
+		.handler(({ context, input }) => {
+			if (input.type === "letter") requirePersonalTool("coverLetters");
+			return documentsService.setLocked({ ...input, userId: context.user.id });
+		}),
 
 	linkApplication: protectedProcedure
 		.route(
@@ -106,7 +122,11 @@ export const documentsRouter = {
 		.input(documentsDto.linkApplication.input)
 		.use(resumeMutationRateLimit)
 		.output(documentsDto.linkApplication.output)
-		.handler(({ context, input }) => documentsService.linkApplication({ ...input, userId: context.user.id })),
+		.handler(({ context, input }) => {
+			if (input.type === "letter") requirePersonalTool("coverLetters");
+			requirePersonalTool("applications");
+			return documentsService.linkApplication({ ...input, userId: context.user.id });
+		}),
 
 	trash: protectedProcedure
 		.route(
@@ -121,7 +141,10 @@ export const documentsRouter = {
 		.input(documentsDto.trash.input)
 		.use(resumeMutationRateLimit)
 		.output(documentsDto.trash.output)
-		.handler(({ context, input }) => documentsService.trash({ ...input, userId: context.user.id })),
+		.handler(({ context, input }) => {
+			if (input.type === "letter") requirePersonalTool("coverLetters");
+			return documentsService.trash({ ...input, userId: context.user.id });
+		}),
 
 	restore: protectedProcedure
 		.route(
@@ -136,7 +159,10 @@ export const documentsRouter = {
 		.input(documentsDto.restore.input)
 		.use(resumeMutationRateLimit)
 		.output(documentsDto.restore.output)
-		.handler(({ context, input }) => documentsService.restore({ ...input, userId: context.user.id })),
+		.handler(({ context, input }) => {
+			if (input.type === "letter") requirePersonalTool("coverLetters");
+			return documentsService.restore({ ...input, userId: context.user.id });
+		}),
 
 	purge: protectedProcedure
 		.route(
@@ -151,7 +177,10 @@ export const documentsRouter = {
 		.input(documentsDto.purge.input)
 		.use(resumeMutationRateLimit)
 		.output(documentsDto.purge.output)
-		.handler(({ context, input }) => documentsService.purge({ ...input, userId: context.user.id })),
+		.handler(({ context, input }) => {
+			if (input.type === "letter") requirePersonalTool("coverLetters");
+			return documentsService.purge({ ...input, userId: context.user.id });
+		}),
 
 	copyForJob: protectedProcedure
 		.route(
@@ -164,6 +193,10 @@ export const documentsRouter = {
 			),
 		)
 		.input(documentsDto.copyForJob.input)
+		.use(({ next }) => {
+			requirePersonalTool("applications");
+			return next();
+		})
 		.use(resumeMutationRateLimit)
 		.output(documentsDto.copyForJob.output)
 		.handler(({ context, input }) => documentsService.copyForJob({ ...input, userId: context.user.id })),
