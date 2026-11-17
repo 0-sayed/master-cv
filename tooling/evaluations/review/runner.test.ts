@@ -209,35 +209,68 @@ it("reports independent model disagreement, accepted inventions, p50/p95 and ses
 		pass: false,
 	});
 });
-it("stops paid calls after unknown billing and preserves the reservation", async () => {
-	const artifact = await runBenchmark({
-		sessionConcurrency: 1,
-		models: loadModels(undefined, undefined, false).slice(0, 1),
-		cases: cases.slice(0, 1),
-		runs: 5,
-		budgetUsd: 5,
-		fake: false,
-		key: "test-only",
-		transport: () =>
-			Promise.resolve(
-				Response.json({
-					id: "unknown",
-					provider: "OpenAI",
-					model: "test",
-					choices: [
-						{
-							index: 0,
-							message: { role: "assistant", content: '{"proposals":[],"questions":[],"notes":[]}' },
-							finish_reason: "stop",
-						},
-					],
-					usage: { prompt_tokens: 10, completion_tokens: 10, total_tokens: 20 },
-				}),
-			),
+it("uses the reservation fallback when a held call has no recorded exposure", async () => {
+	const options = { models: loadModels().slice(0, 1), cases: cases.slice(0, 1), runs: 1, fake: true, budgetUsd: 5 };
+	const seed = required((await runBenchmark(options)).calls[0]);
+	const held = {
+		...seed,
+		costMicros: null,
+		openRouterCostMicros: null,
+		openaiCostMicros: 0,
+		reservedOpenRouterMicros: 1500001,
+		reservedOpenaiMicros: 0,
+		reservedMicros: 1500001,
+	};
+	Reflect.deleteProperty(held, "unknownExposureMicros");
+	let requests = 0;
+	const result = await runBenchmark({
+		...options,
+		runs: 2,
+		previousCalls: [held],
+		onRaw: async () => {
+			requests++;
+		},
 	});
-	expect(artifact.calls).toHaveLength(4);
-	expect(artifact.stopReason).toBe("BILLING_UNKNOWN");
-	expect(artifact.reservedUsd).toBeGreaterThan(0);
+	expect(result.stopReason).toBe("BILLING_UNKNOWN");
+	expect(requests).toBe(0);
+	expect(result.reservedUsd).toBe(1.500001);
+});
+
+it("continues after twelve verifier holds whose recorded exposure is below the unknown-cost ceiling", async () => {
+	const options = {
+		models: loadModels().slice(0, 1),
+		cases: cases.slice(0, 1),
+		runs: 1,
+		fake: true,
+		budgetUsd: 40,
+		openaiBudgetUsd: 15,
+	};
+	const seeds = (await runBenchmark({ ...options, runs: 12 })).calls;
+	expect(seeds).toHaveLength(12);
+	const held = seeds.map((seed) => ({
+		...seed,
+		outcome: "transient" as const,
+		costMicros: null,
+		openRouterCostMicros: null,
+		openaiCostMicros: 350,
+		reservedOpenRouterMicros: 500000,
+		reservedOpenaiMicros: 350,
+		reservedMicros: 500350,
+		unknownExposureMicros: 75000,
+	}));
+	let requests = 0;
+	const result = await runBenchmark({
+		...options,
+		runs: 13,
+		previousCalls: held,
+		onRaw: async () => {
+			requests++;
+		},
+	});
+	expect(result.stopReason).toBeNull();
+	expect(requests).toBeGreaterThan(0);
+	expect(result.calls).toHaveLength(13);
+	expect(result.calls.filter((c) => c.costMicros === null)).toHaveLength(12);
 });
 
 it("selects every approved synthetic reasoning variant independently", () => {
@@ -319,8 +352,17 @@ it("forecasts reasoning-inclusive output usage until smoke replaces estimates", 
 it("stops mid-run at the explicit fee-inclusive budget before reserving a second pair", async () => {
 	const models = loadModels().slice(0, 1);
 	const corpus = cases.slice(0, 1);
-	const first = await runBenchmark({ models, cases: corpus, runs: 1, fake: true, budgetUsd: 5 });
-	const reserve = estimateBenchmark(models, corpus, 1).openRouterUpperBoundUsd * 5;
+	let reserve = 0;
+	const first = await runBenchmark({
+		models,
+		cases: corpus,
+		runs: 1,
+		fake: true,
+		budgetUsd: 5,
+		onReserve: async (r) => {
+			if (r.reservedMicros) reserve = (r.reservedOpenRouterMicros ?? r.reservedMicros) / 1e6;
+		},
+	});
 	const budgetUsd = reserve + required(first.calls[0]?.openRouterCostMicros ?? null) / 2e6;
 	const run = await runBenchmark({ models, cases: corpus, runs: 2, fake: true, budgetUsd });
 	expect(run.calls).toHaveLength(1);
@@ -331,6 +373,20 @@ it("stops mid-run at the explicit fee-inclusive budget before reserving a second
 it("records incomplete case/run coverage and interleaves variants before a hard budget stop", async () => {
 	const models = loadModels().slice(0, 3);
 	const corpus = cases.slice(0, 2);
+	const bounds: number[] = [];
+	const sample = await runBenchmark({
+		models,
+		cases: corpus,
+		runs: 1,
+		fake: true,
+		budgetUsd: 5,
+		onReserve: async (r) => {
+			if (r.reservedMicros) bounds.push(r.reservedOpenRouterMicros ?? r.reservedMicros);
+		},
+	});
+	const capMicros =
+		Math.max(...bounds) + sample.calls.reduce((n, c) => n + required(c.openRouterCostMicros ?? null), 1000);
+	const budgetUsd = capMicros / 1e6;
 	const reservations: number[] = [];
 	let committed = 1000;
 	const run = await runBenchmark({
@@ -338,10 +394,10 @@ it("records incomplete case/run coverage and interleaves variants before a hard 
 		cases: corpus,
 		runs: 20,
 		fake: true,
-		budgetUsd: 0.32,
+		budgetUsd,
 		priorSpendMicros: 1000,
 		onReserve: async (r) => {
-			expect(committed + (r.reservedOpenRouterMicros ?? r.reservedMicros)).toBeLessThanOrEqual(320000);
+			expect(committed + (r.reservedOpenRouterMicros ?? r.reservedMicros)).toBeLessThanOrEqual(capMicros);
 			if (r.reservedMicros > 0) reservations.push(r.reservedMicros);
 		},
 		onCall: async (c) => {
@@ -351,7 +407,7 @@ it("records incomplete case/run coverage and interleaves variants before a hard 
 	expect(run.stopReason).toBe("BUDGET_LIMIT");
 	expect(run.calls.length).toBeGreaterThan(3);
 	expect(reservations).toHaveLength(run.calls.length);
-	expect(run.reservedUsd).toBeLessThanOrEqual(0.32);
+	expect(run.reservedUsd).toBeLessThanOrEqual(budgetUsd);
 	expect(run.calls.slice(0, 6).map((c) => c.reasoning)).toEqual(["low", "medium", "high", "low", "medium", "high"]);
 	const counts = models.map((m) => run.calls.filter((c) => c.reasoning === m.reasoning).length);
 	expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(1);
@@ -367,7 +423,7 @@ it.each(["fake-response", "fake-verifier"])(
 		vi.useFakeTimers();
 		const original = Response.json.bind(Response);
 		let errors = 0;
-		let reservations = 0;
+		const reservations = new Set<string>();
 		let settlements = 0;
 		const raw: RawRecord[] = [];
 		const spy = vi.spyOn(Response, "json").mockImplementation((data, init) => {
@@ -389,11 +445,11 @@ it.each(["fake-response", "fake-verifier"])(
 				budgetUsd: 10,
 				fake: true,
 				onReserve: async (r) => {
-					if (r.reservedMicros) reservations++;
+					if (r.reservedMicros) reservations.add(r.key);
 				},
 				onRaw: async (r) => {
 					raw.push(r);
-					if (JSON.parse(r.body).error) expect(reservations).toBe(settlements + 1);
+					if (JSON.parse(r.body).error) expect(reservations.size).toBe(settlements + 1);
 				},
 				onCall: async () => {
 					settlements++;
@@ -427,3 +483,43 @@ it.each(["fake-response", "fake-verifier"])(
 		}
 	},
 );
+
+it("resumes a finished over-reservation charge and reports the billing note before dispatch", async () => {
+	const options = {
+		models: loadModels().slice(0, 1),
+		cases: cases.slice(0, 1),
+		runs: 1,
+		fake: true,
+		budgetUsd: 40,
+		openaiBudgetUsd: 15,
+	};
+	const seed = required((await runBenchmark(options)).calls[0]);
+	const paid = {
+		...seed,
+		reservedMicros: 1,
+		reservedOpenRouterMicros: 1,
+		reservedOpenaiMicros: 0,
+		costMicros: 27014,
+		openRouterCostMicros: 26712,
+		openaiCostMicros: 302,
+		totalOpenRouterBaseMicros: 26712,
+	};
+	let dispatched = 0;
+	const result = await runBenchmark({
+		...options,
+		runs: 2,
+		previousCalls: [paid],
+		onRaw: async () => {
+			dispatched++;
+		},
+	});
+	expect(result.stopReason).toBeNull();
+	expect(dispatched).toBeGreaterThan(0);
+	expect(result.calls.find((c) => c.key === paid.key)?.costMicros).toBe(27014);
+	expect(result.billingNotes).toEqual(
+		expect.arrayContaining([
+			expect.objectContaining({ key: paid.key, note: expect.stringContaining("exceeded reservation") }),
+		]),
+	);
+	expect(result.reservedUsd).toBeGreaterThanOrEqual(26712 / 1e6);
+});

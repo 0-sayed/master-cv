@@ -1,0 +1,49 @@
+{
+	"source": "/mnt/storage/master-cv-design-archive/ui-audit/personal-career-benchmark/campaign-20261116T144807Z-paid-smoke/smoke/2026-11-16T14-48-18.882Z-33d32372/results.json",
+	"sourceSha256": "ae308bd35e2912e2aafa7616254dc98901ef1e5f79b1e1ffeeebcdbae1573782",
+	"canarySource": "/mnt/storage/master-cv-design-archive/ui-audit/personal-career-benchmark/campaign-20261116T144807Z-paid-smoke/smoke/2026-11-16T14-48-18.882Z-33d32372/canaries.json",
+	"canarySourceSha256": "6bb8384f8865dd2a21d792b07278de5f4623f72bfb732aef3075156852ca23bf",
+	"models": [
+		{
+			"model": "openai/gpt-6-luna",
+			"reasoning": "none",
+			"samples": 18,
+			"writerMicros": 224.05555555555554,
+			"verifierMicros": 5661.944444444444,
+			"writerInputTokens": 1115.3333333333333,
+			"verifierInputTokens": 1966.6666666666667,
+			"writerInputPerMillion": 0.1,
+			"serialSeconds": 22.75243774966665
+		},
+		{
+			"model": "openai/gpt-6-luna",
+			"reasoning": "low",
+			"samples": 18,
+			"writerMicros": 275.22222222222223,
+			"verifierMicros": 4883.5,
+			"writerInputTokens": 1115.3333333333333,
+			"verifierInputTokens": 1980.6666666666667,
+			"writerInputPerMillion": 0.1,
+			"serialSeconds": 22.370071520944514
+		},
+		{
+			"model": "openai/gpt-6.1-terra",
+			"reasoning": "medium",
+			"samples": 18,
+			"writerMicros": 3079.1111111111113,
+			"verifierMicros": 4261.722222222223,
+			"writerInputTokens": 1115.3333333333333,
+			"verifierInputTokens": 1890.611111111111,
+			"writerInputPerMillion": 1,
+			"serialSeconds": 22.135718520944405
+		}
+	],
+	"canaryMicros": 4425.222222222223,
+	"canarySamples": 72,
+	"verifierInputPerMillion": 0.3,
+	"note": "Recorded OpenRouter charges include prior verifier attempts and fee allowances. Do not add fees again. OpenAI costs use upstream_inference_cost, not an invoice.",
+	"canaryAttempts": 82,
+	"canaryFirstAttemptMicros": 273734,
+	"canaryRetryMicros": 44882,
+	"feesIncluded": true
+}

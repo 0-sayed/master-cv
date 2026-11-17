@@ -1,0 +1,236 @@
+[
+	{
+		"caseId": "je-ar-t1",
+		"model": "openai/gpt-6-luna",
+		"reasoning": "none",
+		"output": {
+			"requirements": [
+				{
+					"id": "R1",
+					"spanIds": ["je-ar-t1-job-1"],
+					"importance": "essential",
+					"verdict": "partial",
+					"evidenceIds": ["je-ar-t1-cv-1"],
+					"explanation": "تذكر السيرة إعداد التقارير الأسبوعية باستخدام إكسل، لكنها لا تثبت استيفاء أي متطلبات أخرى غير مذكورة في هذه الجملة."
+				},
+				{
+					"id": "R2",
+					"spanIds": ["je-ar-t1-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على استخدام ساب."
+				}
+			],
+			"notes": []
+		}
+	},
+	{
+		"caseId": "je-ar-t1",
+		"model": "openai/gpt-6-luna",
+		"reasoning": "low",
+		"output": {
+			"requirements": [
+				{
+					"id": "req-1",
+					"spanIds": ["je-ar-t1-job-1"],
+					"importance": "essential",
+					"verdict": "supported",
+					"evidenceIds": ["je-ar-t1-cv-1"],
+					"explanation": "تثبت السيرة إعداد التقارير الأسبوعية باستخدام إكسل."
+				},
+				{
+					"id": "req-2",
+					"spanIds": ["je-ar-t1-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على استخدام ساب."
+				}
+			],
+			"notes": []
+		}
+	},
+	{
+		"caseId": "je-ar-t1",
+		"model": "openai/gpt-6.1-terra",
+		"reasoning": "medium",
+		"output": {
+			"requirements": [
+				{
+					"id": "req-1",
+					"spanIds": ["je-ar-t1-job-1"],
+					"importance": "essential",
+					"verdict": "supported",
+					"evidenceIds": ["je-ar-t1-cv-1"],
+					"explanation": "تذكر السيرة الذاتية إعداد التقارير الأسبوعية باستخدام إكسل."
+				},
+				{
+					"id": "req-2",
+					"spanIds": ["je-ar-t1-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على الخبرة في ساب."
+				}
+			],
+			"notes": []
+		}
+	},
+	{
+		"caseId": "je-en-t1",
+		"model": "openai/gpt-6-luna",
+		"reasoning": "none",
+		"output": {
+			"requirements": [
+				{
+					"id": "R1",
+					"spanIds": ["je-en-t1-job-1"],
+					"importance": "essential",
+					"verdict": "supported",
+					"evidenceIds": ["je-en-t1-cv-1"],
+					"explanation": "The CV states that weekly reports were prepared with Excel."
+				},
+				{
+					"id": "R2",
+					"spanIds": ["je-en-t1-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "No evidence of SAP in this CV."
+				}
+			],
+			"notes": []
+		}
+	},
+	{
+		"caseId": "je-en-t1",
+		"model": "openai/gpt-6-luna",
+		"reasoning": "low",
+		"output": {
+			"requirements": [
+				{
+					"id": "req-1",
+					"spanIds": ["je-en-t1-job-1"],
+					"importance": "essential",
+					"verdict": "supported",
+					"evidenceIds": ["je-en-t1-cv-1"],
+					"explanation": "The CV states that weekly reports were prepared with Excel."
+				},
+				{
+					"id": "req-2",
+					"spanIds": ["je-en-t1-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "No evidence of SAP experience in this CV."
+				}
+			],
+			"notes": []
+		}
+	},
+	{
+		"caseId": "je-en-t1",
+		"model": "openai/gpt-6.1-terra",
+		"reasoning": "medium",
+		"output": {
+			"requirements": [
+				{
+					"id": "req-1",
+					"spanIds": ["je-en-t1-job-1"],
+					"importance": "essential",
+					"verdict": "supported",
+					"evidenceIds": ["je-en-t1-cv-1"],
+					"explanation": "The CV states that weekly reports were prepared with Excel."
+				},
+				{
+					"id": "req-2",
+					"spanIds": ["je-en-t1-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "No evidence of SAP experience was found in this CV."
+				}
+			],
+			"notes": []
+		}
+	},
+	{
+		"caseId": "je-mixed-t1",
+		"model": "openai/gpt-6-luna",
+		"reasoning": "none",
+		"output": {
+			"requirements": [
+				{
+					"id": "R1",
+					"spanIds": ["je-mixed-t1-job-1"],
+					"importance": "essential",
+					"verdict": "partial",
+					"evidenceIds": ["je-mixed-t1-cv-1"],
+					"explanation": "تثبت السيرة إعداد تقارير أسبوعية باستخدام Excel، لكنها لا تثبت إعداد التقارير بالمعنى الأوسع الوارد في المتطلب."
+				},
+				{
+					"id": "R2",
+					"spanIds": ["je-mixed-t1-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على استخدام SAP."
+				}
+			],
+			"notes": []
+		}
+	},
+	{
+		"caseId": "je-mixed-t1",
+		"model": "openai/gpt-6-luna",
+		"reasoning": "low",
+		"output": {
+			"requirements": [
+				{
+					"id": "R1",
+					"spanIds": ["je-mixed-t1-job-1"],
+					"importance": "essential",
+					"verdict": "supported",
+					"evidenceIds": ["je-mixed-t1-cv-1"],
+					"explanation": "تثبت هذه المعلومة إعداد التقارير الأسبوعية باستخدام Excel."
+				},
+				{
+					"id": "R2",
+					"spanIds": ["je-mixed-t1-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على استخدام SAP."
+				}
+			],
+			"notes": []
+		}
+	},
+	{
+		"caseId": "je-mixed-t1",
+		"model": "openai/gpt-6.1-terra",
+		"reasoning": "medium",
+		"output": {
+			"requirements": [
+				{
+					"id": "req-1",
+					"spanIds": ["je-mixed-t1-job-1"],
+					"importance": "essential",
+					"verdict": "supported",
+					"evidenceIds": ["je-mixed-t1-cv-1"],
+					"explanation": "توضح السيرة إعداد تقارير أسبوعية باستخدام Excel."
+				},
+				{
+					"id": "req-2",
+					"spanIds": ["je-mixed-t1-job-2"],
+					"importance": "preferred",
+					"verdict": "no_evidence",
+					"evidenceIds": [],
+					"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
+				}
+			],
+			"notes": []
+		}
+	}
+]

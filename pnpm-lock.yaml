@@ -212,6 +212,9 @@ catalogs:
     '@radix-ui/react-presence':
       specifier: ^1.1.11
       version: 1.1.11
+    '@reactive-resume/ai':
+      specifier: workspace:*
+      version: workspace:*
     '@types/node':
       specifier: ^26.6.5
       version: 26.6.5
@@ -340,15 +343,15 @@ importers:
       '@dotenvx/dotenvx':
         specifier: ^2.38.2
         version: 2.38.2
-      '@playwright/test':
-        specifier: ^1.64.1
-        version: 1.64.1
       '@orpc/client':
         specifier: 'catalog:'
         version: 1.15.7
       '@orpc/server':
         specifier: 'catalog:'
         version: 1.15.7(ws@8.21.3)
+      '@playwright/test':
+        specifier: ^1.64.1
+        version: 1.64.1
       '@reactive-resume/config':
         specifier: workspace:*
         version: link:packages/config
@@ -2012,6 +2015,9 @@ importers:
 
   tooling:
     dependencies:
+      '@reactive-resume/ai':
+        specifier: 'catalog:'
+        version: link:../packages/ai
       '@reactive-resume/schema':
         specifier: workspace:*
         version: link:../packages/schema

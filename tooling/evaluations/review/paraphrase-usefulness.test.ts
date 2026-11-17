@@ -35,9 +35,7 @@ it.each(["en", "ar"] as const)(
 		expect(call.verifierAccepted).toBe(true);
 		expect(call.honestOutput).toBe(true);
 		expect(call.verifierUsage?.model).toBe("deepseek/deepseek-v4.1-flash-1017");
-		expect(call.costMicros).toBe(
-			(call.generationUsage?.costMicros ?? 0) + Math.ceil((call.verifierUsage?.costMicros ?? 0) * 1.055),
-		);
+		expect(call.costMicros).toBe((call.generationUsage?.costMicros ?? 0) + (call.verifierUsage?.costMicros ?? 0));
 		expect(run.reservedUsd).toBeCloseTo(required(call.openRouterCostMicros ?? null) / 1e6);
 		const score = required(scoreBenchmark(run.calls).find((g) => g.dimension === "model"));
 		expect(score).toMatchObject({ honestOutputs: 1, falseRejects: 1 });
@@ -234,7 +232,7 @@ it.each(["improved", "unchanged"] as const)(
 			verifierAccepted: true,
 			honestOutput: true,
 			usefulnessMiss: status !== "improved",
-			costMicros: 311,
+			costMicros: 300,
 		});
 	},
 );

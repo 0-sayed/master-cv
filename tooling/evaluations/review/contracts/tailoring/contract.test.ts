@@ -326,7 +326,7 @@ it("offline preflight and fake transport session round-trip through journal", as
 
 it("requires eight mixed holdouts", () => {
 	const cases = loadTaskFixtures(files);
-	expect(cases.filter((c) => c.holdout && c.language === "mixed")).toHaveLength(8);
+	expect(cases.filter((c) => c.holdout && c.language === "mixed")).toHaveLength(12);
 });
 it("preserves non-BMP and numeric target identifiers", () => {
 	const c = structuredClone(task);

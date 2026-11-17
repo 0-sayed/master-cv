@@ -9,11 +9,13 @@ import {
 	variantVerificationInventory,
 } from "@reactive-resume/api/features/ai/variant-verifier";
 import { buildModelPayload } from "../../production";
+import { interviewQuestionAssessment, OUTSIDE_INTERVIEW_QUESTIONS_ID } from "../interview-prep/question-assessment";
 import { isProductionVariantCase, taskContractFor } from "../runtime";
-import { variantSnapshot } from "../variant-adapter";
-import { tasksVerifierSchema, type TasksVerification } from "./schema";
+import { provenUnchangedTailoring, variantSnapshot } from "../variant-adapter";
+import { productionVerdict, translationQualityFault, tasksVerifierWireSchema } from "./schema";
+import { tasksVerifierSchema } from "./schema";
 
-export const tasksVerifierVersion = "tasks-verifier-v3-production-variant-dispatch";
+export const tasksVerifierVersion = "tasks-verifier-v8-compact-json";
 const systemPrompt = readFileSync(new URL("./prompt.md", import.meta.url), "utf8");
 const identifierKeys = new Set([
 	"id",
@@ -68,6 +70,9 @@ function verification(c: TaskCase, raw: Record<string, unknown>) {
 		if (typeof text !== "string" || !text.trim()) throw new Error("TASK_INVALID_QUESTION");
 		return { id: `question:${q.id}`, text };
 	});
+	if (c.category === "interview-prep" && Array.isArray(raw.notes) && raw.notes.length > 0) {
+		premises.push({ id: OUTSIDE_INTERVIEW_QUESTIONS_ID, text: JSON.stringify({ notes: raw.notes }) });
+	}
 	if (!unique(premises.map((p) => p.id))) throw new Error("TASK_DUPLICATE_VERIFICATION_ID");
 	return { claims, context, sources, premises };
 }
@@ -101,7 +106,45 @@ function sanitizer(c: TaskCase) {
 }
 
 function buildInput(c: TaskCase, output: Record<string, unknown>) {
-	if (isProductionVariantCase(c)) return buildVariantVerificationPayload(variantSnapshot(c), output);
+	if (isProductionVariantCase(c)) {
+		const payload = buildVariantVerificationPayload(variantSnapshot(c), output);
+		const snapshot = variantSnapshot(c);
+		const context = {
+			trustedVariant: snapshot.variant ?? null,
+			absenceSemantics:
+				"confirmed_absent means the positive subject has no supporting CV evidence. It never means the negative explanation is missing. present requires an actual supporting CV fact. No evidence is not proof of no skill.",
+			absenceChecks:
+				c.category === "job-evidence"
+					? ((output.requirements as { id: string; spanIds: string[]; verdict: string; explanation: string }[]) ?? [])
+							.filter((r) => r.verdict === "no_evidence")
+							.map((r) => ({
+								id: `absence:${r.id}`,
+								positiveSubject:
+									c.jobAd?.segments
+										.filter((j) => r.spanIds.includes(j.id))
+										.map((j) => j.text)
+										.join(" ") ?? r.id,
+								boundedAssertion: r.explanation,
+							}))
+					: [],
+			qualityInstruction:
+				c.category === "translation"
+					? "Return quality.mqm as a structured array of error spans, or [] after examining every translated segment. Use target UTF-16 offsets and sourceId. Never put JSON in quality.reason."
+					: null,
+		};
+		return {
+			...payload,
+			selections: [
+				...payload.selections,
+				{
+					id: "benchmark-verification-context",
+					kind: "user_supplied" as const,
+					section: "summary" as const,
+					text: JSON.stringify(context),
+				},
+			],
+		};
+	}
 	const { claims, context, premises } = verification(c, output);
 	if (c.cv.length + (c.jobAd?.segments.length ?? 0) > 50) throw new Error("TASK_SELECTION_LIMIT");
 	const clean = sanitizer(c);
@@ -160,8 +203,8 @@ const quoteText = (text: string) =>
 function auditFault(c: TaskCase, output: Record<string, unknown>, raw: unknown): string | null {
 	if (isProductionVariantCase(c)) {
 		try {
-			parseVariantVerification(variantSnapshot(c), output, raw);
-			return null;
+			parseVariantVerification(variantSnapshot(c), output, productionVerdict(raw));
+			return c.category === "translation" ? translationQualityFault(output, raw) : null;
 		} catch (error) {
 			return error instanceof Error ? error.message : "INVALID_VERIFIER_OUTPUT";
 		}
@@ -217,7 +260,11 @@ function auditFault(c: TaskCase, output: Record<string, unknown>, raw: unknown):
 		...verdict.premises.map((p) => p.reason),
 	])
 		for (const match of reason.matchAll(/(?<!\p{L})["“'«]([^"”'»\n]{4,})["”'»]/gu))
-			if (!input.includes(quoteText(match[1] ?? ""))) return "VERIFIER_UNSUPPLIED_QUOTE";
+			if (!input.includes(quoteText(match[1] ?? ""))) {
+				// This grammatical label translates the supplied conditional, not candidate evidence.
+				if (match[1] === "if any" && /ان وجدت/u.test(input)) continue;
+				return "VERIFIER_UNSUPPLIED_QUOTE";
+			}
 	return null;
 }
 
@@ -226,12 +273,19 @@ function assess(c: TaskCase, output: Record<string, unknown>, raw: Record<string
 	if (fault) throw new Error(fault);
 	const verdict = tasksVerifierSchema.parse(raw);
 	return {
-		accepted:
-			verdict.verdicts.every((v) => v.verdict === "supported") &&
-			(!verdict.retention || verdict.retention.status === "retained") &&
-			verdict.absence.every((check) => check.verdict === "confirmed_absent") &&
-			verdict.coverage.status === "complete" &&
-			verdict.premises.every((p) => ["supported", "no_candidate_premise"].includes(p.verdict)),
+		accepted: provenUnchangedTailoring(c, output)
+			? true
+			: c.category === "interview-prep"
+				? interviewQuestionAssessment(
+						c,
+						output as unknown as import("../interview-prep/contract").InterviewPrepOutput,
+						verdict,
+					).accepted
+				: verdict.verdicts.every((v) => v.verdict === "supported") &&
+					(!verdict.retention || verdict.retention.status === "retained") &&
+					verdict.absence.every((check) => check.verdict === "confirmed_absent") &&
+					verdict.coverage.status === "complete" &&
+					verdict.premises.every((p) => ["supported", "no_candidate_premise"].includes(p.verdict)),
 		qualityAccepted: ["appropriate", "no_change_needed"].includes(verdict.quality.status),
 		responseAssessment: verdict.quality,
 		retention: verdict.retention?.status ?? ("not_applicable" as const),
@@ -241,7 +295,7 @@ function assess(c: TaskCase, output: Record<string, unknown>, raw: Record<string
 }
 
 /** Scripted oracle only. Equality to a synthetic gold output is never measured semantic evidence. */
-function fakeVerdict(c: TaskCase, output: Record<string, unknown>): TasksVerification {
+function fakeVerdict(c: TaskCase, output: Record<string, unknown>): Record<string, unknown> {
 	const inventory = isProductionVariantCase(c) ? variantVerificationInventory(variantSnapshot(c), output) : null;
 	const { claims, context, premises } = inventory
 		? {
@@ -267,14 +321,18 @@ function fakeVerdict(c: TaskCase, output: Record<string, unknown>): TasksVerific
 		absence: context.absenceChecks.map((check) => ({ id: check.id, verdict: gold ? "confirmed_absent" : "unclear" })),
 		coverage: { status: gold ? "complete" : "unclear", reason },
 		premises: premises.map((p) => ({ id: p.id, verdict: gold ? "no_candidate_premise" : "unclear", reason })),
-		quality: { status: gold ? "appropriate" : "unclear", reason },
+		quality: {
+			status: gold ? "appropriate" : "unclear",
+			reason: c.category === "translation" && gold ? '{"mqm":[]}' : reason,
+			...(c.category === "translation" ? { mqm: [] } : isProductionVariantCase(c) ? {} : { mqm: null }),
+		},
 	};
 }
 
 export const tasksVerifier: TaskVerifierAdapter = {
 	version: tasksVerifierVersion,
 	systemPrompt,
-	schema: tasksVerifierSchema,
+	schema: tasksVerifierWireSchema,
 	buildInput,
 	fakeVerdict,
 	auditFault,

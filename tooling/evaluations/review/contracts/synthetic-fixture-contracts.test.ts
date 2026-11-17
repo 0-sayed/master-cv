@@ -81,9 +81,15 @@ it("keeps concise Arabic courtesy and complete factual paraphrases in all letter
 		}
 	}
 	for (const id of ["letter-holdout-ar-08", "letter-holdout-mixed-08"]) {
-		const output = find(id).mutants.find((m) => m.id === "honest-factual-paraphrase")?.output;
-		expect(JSON.stringify(output)).toContain("راجعت مدى اكتمال السجلات.");
-		expect(JSON.stringify(output)).not.toContain("تحققت من اكتمال السجلات");
+		const c = find(id);
+		const output = c.mutants.find((m) => m.id === "honest-factual-paraphrase")?.output;
+		expect(JSON.stringify(output)).not.toContain("راجعت مدى اكتمال السجلات.");
+		expect(output).not.toEqual(c.gold);
+		const claims = (letter: unknown) =>
+			(letter as { paragraphs: { claims: { id: string; evidenceIds: string[] }[] }[] }).paragraphs.flatMap((p) =>
+				p.claims.map(({ id, evidenceIds }) => ({ id, evidenceIds })),
+			);
+		expect(claims(output)).toEqual(claims(c.gold));
 	}
 });
 

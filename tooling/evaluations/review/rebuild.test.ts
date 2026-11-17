@@ -81,14 +81,13 @@ it("rating HTML contains no model identities, including its source", async () =>
 	const html = await renderReport(a);
 	for (const model of loadModels()) expect(html).not.toContain(model.model);
 	expect(html).toContain(
-		"Luna/Terra measured via OpenAI first-party (BYOK) for the benchmark; production routes via Azure ZDR; quality same model, latency may differ",
+		"Writer sessions use the benchmark transport. Production uses a separate approved route. Latency can differ.",
 	);
 	expect(
-		html.replace(
-			"Luna/Terra measured via OpenAI first-party (BYOK) for the benchmark; production routes via Azure ZDR; quality same model, latency may differ.",
-			"",
+		[...html.matchAll(/\b(?:Terra|Luna|DeepSeek|Azure|Together)\b/giu)].map((match) =>
+			html.slice(Math.max(0, match.index - 30), match.index + match[0].length + 30),
 		),
-	).not.toMatch(/\b(?:Terra|Luna|DeepSeek|Azure|Together)\b/iu);
+	).toEqual([]);
 	expect(html).not.toContain('"identities":{');
 });
 it("reuses one blind assignment for HTML and its private identity mapping", async () => {

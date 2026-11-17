@@ -90,3 +90,41 @@ it("serializes concurrent durable appends in submitted order without torn or dup
 		await rm(folder, { recursive: true });
 	}
 });
+
+it("replays independent session records in stable key order despite concurrent completion order", async () => {
+	const folder = await mkdtemp(join(tmpdir(), "journal-order-"));
+	try {
+		const paths = [join(folder, "first.jsonl"), join(folder, "second.jsonl")];
+		const events = [
+			{ type: "reserved" as const, data: { key: "a", reservedMicros: 1 } },
+			{ type: "reserved" as const, data: { key: "b", reservedMicros: 2 } },
+		];
+		await Promise.all([...events].reverse().map((e) => appendEvent(required(paths[0]), e)));
+		await Promise.all(events.map((e) => appendEvent(required(paths[1]), e)));
+		expect((await readJournal(required(paths[0]))).pendingReservations).toEqual(
+			(await readJournal(required(paths[1]))).pendingReservations,
+		);
+	} finally {
+		await rm(folder, { recursive: true, force: true });
+	}
+});
+
+it("retains the latest cumulative reservation before an interrupted transport retry", async () => {
+	const folder = await mkdtemp(join(tmpdir(), "retry-reservation-"));
+	const path = join(folder, "calls.jsonl");
+	try {
+		await appendEvent(path, {
+			type: "reserved",
+			data: { key: "a", reservedMicros: 100, reservedOpenRouterMicros: 100 },
+		});
+		await appendEvent(path, {
+			type: "reserved",
+			data: { key: "a", reservedMicros: 150, reservedOpenRouterMicros: 150 },
+		});
+		expect((await readJournal(path)).pendingReservations).toEqual([
+			{ key: "a", reservedMicros: 150, reservedOpenRouterMicros: 150 },
+		]);
+	} finally {
+		await rm(folder, { recursive: true, force: true });
+	}
+});

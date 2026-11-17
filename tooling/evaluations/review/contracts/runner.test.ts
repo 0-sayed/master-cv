@@ -135,9 +135,9 @@ it("preflight, reservation and dispatch serialize identical caps", async () =>
 						schema: z.toJSONSchema(outputSchema, { unrepresentable: "any" }),
 					}),
 				) + 4096;
-			// OpenAI writer's full byte ceiling × five retry attempts, independently held before dispatch.
+			// Hold one writer attempt here. Each transport retry reserves its own ceiling before dispatch.
 			expect(call.reservedOpenaiMicros).toBe(
-				5 * Math.ceil(writerBytes * model.inputPerMillion + completionTokenLimit(writerRoute) * model.outputPerMillion),
+				Math.ceil(writerBytes * model.inputPerMillion + completionTokenLimit(writerRoute) * model.outputPerMillion),
 			);
 			expect(reserves).toEqual([call.reservedMicros]);
 		}

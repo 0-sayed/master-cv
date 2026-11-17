@@ -53,6 +53,11 @@ it("offline CLI acceptance for tasks-v1 smoke with repeated approval provenance 
 		const folder = required((await readdir(out, { withFileTypes: true })).find((f) => f.isDirectory()));
 		const manifest = JSON.parse(await readFile(join(out, folder.name, "manifest.json"), "utf8"));
 		const artifact = JSON.parse(await readFile(join(out, folder.name, "results.json"), "utf8"));
+		expect(JSON.parse(await readFile(join(out, "session.json"), "utf8"))).toEqual({
+			studyId: manifest.freeze.studyId,
+			mode: "fake",
+			resultsFile: join(out, folder.name, "results.json"),
+		});
 		expect(manifest.study).toBe("tasks-v1");
 		expect(manifest.variants).toEqual(
 			manifest.models.map((m: { model: string; reasoning: string }) => `${m.model}@${m.reasoning}`),
@@ -62,7 +67,7 @@ it("offline CLI acceptance for tasks-v1 smoke with repeated approval provenance 
 			"synthetic-reviewer-1",
 		]);
 		expect(artifact.study).toMatchObject({ name: "tasks-v1", approvalProvenance: manifest.approvalProvenance });
-		expect(artifact.calls).toHaveLength(126);
+		expect(artifact.calls).toHaveLength(54);
 		expect(artifact.study.judgeCanaries).toMatchObject({ mode: "fake", recall: 1, honestFalseRejects: 0 });
 		expect(artifact.study.judgeCanaries.results).toHaveLength(72);
 		expect(artifact.priorSpendUsd).toBe(artifact.study.judgeCanaries.openRouterMicros / 1e6);
@@ -96,14 +101,20 @@ it("offline CLI acceptance for tasks-v1 smoke with repeated approval provenance 
 			"--fake",
 			"--dry-run",
 			"--variants",
-			manifest.variants.slice(0, 4).join(","),
+			manifest.variants.slice(1).join(","),
 			"--smoke-file",
 			join(out, folder.name, "results.json"),
 			"-o",
 			join(out, "pruned"),
 		]);
-		expect(pruned.status).toBe(1);
-		expect(JSON.parse(await readFile(join(out, "pruned", "error.json"), "utf8")).code).toBe("LIVE_SMOKE_MISMATCH");
+		expect(pruned.status, pruned.stderr).toBe(0);
+		const scopedForecast = JSON.parse(await readFile(join(out, "pruned", "forecast.json"), "utf8"));
+		expect(
+			scopedForecast.perModel.map((model: { model: string; reasoning: string }) => `${model.model}@${model.reasoning}`),
+		).toEqual(manifest.variants.slice(1));
+		expect(scopedForecast.perModel.map((model: { provider: string }) => model.provider)).toEqual(["openai", "openai"]);
+		expect(scopedForecast.priorSpendUsd).toBe(Math.ceil(artifact.reservedUsd * 1e6) / 1e6);
+		expect(scopedForecast.priorOpenaiSpendUsd).toBe(Math.ceil(artifact.reservedOpenaiUsd * 1e6) / 1e6);
 		const exportDir = join(out, "review");
 		const review = captureCommand(
 			process.execPath,
@@ -126,7 +137,7 @@ it("tasks-v1 CLI dry-run writes its study forecast only through -o", async () =>
 		);
 		expect(result.stdout).toBe("");
 		const forecast = JSON.parse(await readFile(join(out, "forecast.json"), "utf8"));
-		expect(forecast).toMatchObject({ study: "tasks-v1", phase: "smoke", calls: 126 });
+		expect(forecast).toMatchObject({ study: "tasks-v1", phase: "smoke", calls: 54 });
 	} finally {
 		await rm(out, { recursive: true, force: true });
 	}
@@ -179,10 +190,15 @@ it("keeps existing tuning-only configs usable without the pruning flag", async (
 	try {
 		const models = JSON.parse(await readFile(new URL("./models-tasks.json", import.meta.url), "utf8"));
 		const config = join(out, "tuning.json");
-		await writeFile(config, JSON.stringify(models.map((m: Record<string, unknown>) => ({ ...m, sets: ["tuning"] }))));
+		await writeFile(
+			config,
+			JSON.stringify(
+				models.map((m: Record<string, unknown>) => ({ ...m, fullHoldoutOnly: undefined, sets: ["tuning"] })),
+			),
+		);
 		const result = cli(["--study", "tasks-v1", "--fake", "--dry-run", "--config", config, "-o", out]);
 		expect(result.status, result.stderr).toBe(0);
-		expect(JSON.parse(await readFile(join(out, "forecast.json"), "utf8")).calls).toBe(756);
+		expect(JSON.parse(await readFile(join(out, "forecast.json"), "utf8")).calls).toBe(486);
 	} finally {
 		await rm(out, { recursive: true, force: true });
 	}

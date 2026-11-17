@@ -82,7 +82,7 @@ export function caseClusteredSafety(calls: readonly BenchmarkCall[]) {
 }
 export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 	const groups = new Map<string, { dimension: string; value: string; calls: BenchmarkCall[] }>();
-	for (const call of calls)
+	for (const call of calls.filter((c) => c.outcome !== "ACCOUNT_ERROR"))
 		for (const [dimension, value] of [
 			["model", "all"],
 			["category", call.category],
@@ -97,9 +97,7 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 	return [...groups.values()].map(({ dimension, value, calls: rows }) => {
 		const first = required(rows[0]);
 		const sum = (fn: (c: BenchmarkCall) => number) => rows.reduce((n, c) => n + fn(c), 0);
-		const writerRows = rows.filter(
-			(c) => c.outcome !== "transient" && !c.verifierFault && c.adjudication !== "verifier-fault",
-		);
+		const writerRows = rows.filter((c) => c.outcome !== "transient");
 		const writerSum = (fn: (c: BenchmarkCall) => number) => writerRows.reduce((n, c) => n + fn(c), 0);
 		const usefulRows = writerRows.filter(
 			(c) =>
@@ -158,7 +156,9 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 			inventedAccepted: writerSum((c) =>
 				c.guardAccepted && c.verifierAccepted ? (c.score?.unsupportedClaims.length ?? 0) : 0,
 			),
-			inventedProposed: writerSum((c) => c.score?.unsupportedClaims.length ?? 0),
+			inventedProposed: writerSum((c) =>
+				criticalSafetyFailure(c) ? Math.max(1, c.score?.unsupportedClaims.length ?? 0) : 0,
+			),
 			lostFacts: writerSum((c) => c.score?.lostFacts.length ?? 0),
 			schemaFailures: writerSum((c) => Number(!c.schemaValid)),
 			truncations: writerSum((c) => Number(c.writerTruncated ?? c.truncated)),
@@ -197,4 +197,20 @@ export function scoreBenchmark(calls: readonly BenchmarkCall[]): ScoreGroup[] {
 				summary.unknownCosts === 0,
 		};
 	});
+}
+
+/** A structural failure lowers the safety rate. An unsafe assertion disqualifies a finalist. */
+export function criticalSafetyFailure(call: BenchmarkCall): boolean {
+	// Exact annotation coverage is usability, not an invented candidate fact.
+	if (call.taskScore && call.guardError === "SUMMARY_UNCOVERED_TEXT" && call.verifierAccepted) return false;
+	// A rejected, disputed judge verdict remains unresolved until adjudication.
+	if (call.adjudication === "pending-human" || call.verifierFault) return false;
+	return (
+		Boolean(call.score?.unsupportedClaims.length) ||
+		(call.schemaValid &&
+			call.outcome === "valid" &&
+			!call.verifierFault &&
+			call.adjudication !== "verifier-fault" &&
+			(!call.guardAccepted || !call.verifierAccepted))
+	);
 }

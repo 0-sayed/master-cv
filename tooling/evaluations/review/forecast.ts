@@ -74,7 +74,11 @@ export function forecastTasksFromCore(
 				),
 				openaiMicros: (model.provider === "openai" ? generation : 0) + (vm.provider === "openai" ? verification : 0),
 			});
-			const ceiling = payers(writerCeiling, judgeCeiling);
+			const singleCeiling = payers(writerCeiling, judgeCeiling);
+			const ceiling = {
+				openRouterMicros: singleCeiling.openRouterMicros * 5,
+				openaiMicros: singleCeiling.openaiMicros * 5,
+			};
 			const projection = payers(writerProjection, measuredJudgeProjection);
 			return {
 				caseId: c.id,

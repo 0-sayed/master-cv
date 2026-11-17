@@ -28,6 +28,7 @@
 		"eval:review:reguard": "node --import tsx evaluations/review/reguard-cli.ts"
 	},
 	"dependencies": {
+		"@reactive-resume/ai": "catalog:",
 		"@reactive-resume/schema": "workspace:*"
 	},
 	"devDependencies": {

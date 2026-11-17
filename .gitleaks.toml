@@ -1,0 +1,23 @@
+title = "Master CV secret scanning"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+# These reviewed fields contain benchmark call identifiers or a sealed file hash.
+# Keep other values and all other files subject to the default secret rules.
+[[rules.allowlists]]
+condition = "AND"
+paths = [
+	'^tooling/evaluations/review/billing-runtime\.test\.ts$',
+	'^tooling/evaluations/review/tasks-study\.json$',
+	'^tooling/evaluations/review/fixtures/recorded-billing\.json$',
+	'^tooling/evaluations/review/contracts/verifier/fixtures/judge-calibration\.json$',
+	'^tooling/evaluations/review/contracts/verifier/fixtures/recorded-smoke\.json$',
+]
+regexTarget = "line"
+regexes = [
+	'^\s*(?:const key =|"key":|"tooling/evaluations/review/credentials\.ts":)\s*"[a-f0-9]{64}(?::verify(?::judge:\d+)?)?"[,;]?\s*$',
+]

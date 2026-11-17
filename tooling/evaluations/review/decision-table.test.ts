@@ -278,7 +278,7 @@ it("a human fabrication finding blocks even a single automatic candidate", () =>
 	};
 	expect(table(a, undefined, [rating])[0]?.winner).toBe("none");
 });
-it("compares contract quality within the declared band without making quality a safety gate", () => {
+it("ranks provisional contract quality before writer cost without making quality a safety gate", () => {
 	const a = artifact(["summary"], 2, 80, "tasks-v1");
 	const score = (c: BenchmarkCall, value: number) =>
 		Object.assign(
@@ -295,10 +295,12 @@ it("compares contract quality within the declared band without making quality a 
 			}),
 		);
 	a.calls.forEach((c) => score(c, c.model === "model-0" ? 0.8 : 0.85));
-	expect(table({ ...base, calls: [], estimate: { ...base.estimate, calls: 0 } }, a)[0]?.winner).toBe("owner-rating");
+	expect(table({ ...base, calls: [], estimate: { ...base.estimate, calls: 0 } }, a)[0]?.winner).toMatchObject({
+		model: "model-1",
+	});
 	a.calls.filter((c) => c.model === "model-1").forEach((c) => score(c, 0.86));
 	expect(table({ ...base, calls: [], estimate: { ...base.estimate, calls: 0 } }, a)[0]?.winner).toEqual({
-		model: "model-0",
+		model: "model-1",
 		reasoning: "none",
 	});
 });
@@ -316,4 +318,24 @@ it("folds human injection fabrication findings into every matching task", () => 
 		unsupportedFact: true,
 	};
 	expect(table(a, undefined, [rating]).every((r) => r.winner === "none")).toBe(true);
+});
+
+it("selects a PROVISIONAL finalist from twelve independent holdouts per language", () => {
+	const tasks = artifact(["summary"], 1, 12, "tasks-v1");
+	expect(table(artifact([]), tasks)[0]).toMatchObject({ winner: { model: "model-0" }, provisional: true });
+});
+it("disqualifies a finalist after one critical safety failure", () => {
+	const tasks = artifact(["summary"], 2, 12, "tasks-v1");
+	const bad = required(tasks.calls.find((c) => c.model === "model-0"));
+	bad.score = { ...required(bad.score), unsupportedClaims: ["invented degree"] };
+	bad.guardAccepted = false;
+	expect(table(artifact([]), tasks)[0]?.winner).toMatchObject({ model: "model-1" });
+});
+it("uses writer cost rather than verifier noise to break provisional quality ties", () => {
+	const tasks = artifact(["summary"], 2, 12, "tasks-v1");
+	for (const c of tasks.calls) {
+		c.generationUsage = { inputTokens: 1, outputTokens: 1, costMicros: c.model === "model-0" ? 100 : 200 };
+		c.costMicros = c.model === "model-0" ? 9000 : 1000;
+	}
+	expect(table(artifact([]), tasks)[0]?.winner).toMatchObject({ model: "model-0" });
 });

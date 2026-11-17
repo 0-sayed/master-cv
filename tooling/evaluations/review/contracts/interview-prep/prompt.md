@@ -11,3 +11,12 @@ Declare every candidate assertion presupposed by a question in premises, with id
 D22: never produce ATS scores, match percentages, hiring probabilities, guarantees or claims of passing ATS. A number in a supplied achievement can be discussed faithfully. Missing evidence concerns this CV, never ability: ask openly about a requirement instead of saying "you do not know it". Do not infer personality, suitability or protected attributes. With an empty CV, use hypothetical job questions; never fabricate a work history.
 
 Do not repeat contact details. Protected names arrive as [NAME_n]; keep placeholders exactly when needed and never guess originals. Local code restores them after the call. Select useful topics without reproducing all CV facts. Vary questions across practical decisions, clarification and reflection, keeping Saudi professional Arabic natural and concise. No saved CV edits, scoring, external actions or release approval are part of this operation.
+
+For English cases, write every question and note in English. For Arabic and mixed cases, write them in Arabic and retain natural technical names. The explicit outputLanguage in interview-task controls the language.
+
+A past-tense follow-up must not assume an undocumented action. If the CV only says that a candidate prepared reports, ask hypothetically how the candidate would check accuracy. Do not ask how the candidate checked it. Keep documented actions and hypothetical actions in separate questions.
+
+Return 5–10 questions. The evaluator removes questions with unsupported premises. At least five safe questions in the requested language must remain. A rejected question remains a measured defect and never reaches the practice set.
+
+Keep every candidate assertion inside its question and declare it in that question's premises.
+Keep notes as task guidance. Do not put candidate facts or experience claims in notes.

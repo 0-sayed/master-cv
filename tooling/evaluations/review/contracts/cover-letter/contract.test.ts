@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, it } from "vite-plus/test";
 import { z } from "zod";
+import { HARD_FACTS_VERSION } from "@reactive-resume/api/features/ai/hard-facts";
 import { loadModels } from "../../config";
 import { cases as coreCases } from "../../corpus";
 import { assertTaskGoldFits, evaluateOutput, prepareCase } from "../../execution";
@@ -42,7 +43,10 @@ it("registers a strict draft preserving production body rules and excluding revi
 	assertStrictOutputSchema(z.toJSONSchema(coverLetterOutputSchema));
 	expect(coverLetterContract.guardPolicy).toEqual({ lostFact: false, subsetEntities: true });
 	expect(coverLetterContract.systemPrompt).toMatch(/180.*320/u);
-	expect(coverLetterContract.systemPrompt).toContain("T007/T008");
+	expect(coverLetterContract.systemPrompt).toContain("The user reviews each proposal before acceptance");
+	expect(coverLetterContract.systemPrompt).toContain("Never overwrite authored text");
+	expect(coverLetterContract.systemPrompt).toMatch(/80.*140/u);
+	expect(coverLetterContract.systemPrompt).toContain("saved-document locale");
 	expect(coverLetterContract.systemPrompt).toContain("posting");
 	const { c, o } = example();
 	expect(coverLetterContract.verifierContext(c, o)).toMatchObject({ retention: "not_applicable", absenceChecks: [] });
@@ -267,7 +271,9 @@ it("preflights and runs all languages through fake transport and journal round-t
 	try {
 		const path = join(folder, "calls.jsonl");
 		for (const call of run.calls) await appendEvent(path, { type: "scored", data: call });
-		expect((await readJournal(path)).previousCalls).toEqual(run.calls);
+		expect((await readJournal(path)).previousCalls).toEqual(
+			[...run.calls].sort((a, b) => a.key.localeCompare(b.key, "en", { numeric: true })),
+		);
 	} finally {
 		await rm(folder, { recursive: true });
 	}
@@ -298,6 +304,6 @@ it("replays the current 126 core controls offline", () => {
 	expect(result).toMatchObject({ pass: true, checked: 126, failures: [] });
 });
 
-it("records the exact hard-facts guard version without changing production", () => {
-	expect(coverLetterHardFactsVersion).toBe("t006-hard-facts-v10-literal-evidence");
+it("records the shared production hard-facts guard version", () => {
+	expect(coverLetterHardFactsVersion).toBe(HARD_FACTS_VERSION);
 });

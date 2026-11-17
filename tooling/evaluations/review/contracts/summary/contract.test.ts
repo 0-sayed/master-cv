@@ -277,7 +277,9 @@ it("passes offline preflight and fake-transport sessions and round-trips the jou
 	try {
 		const path = join(folder, "calls.jsonl");
 		for (const call of run.calls) await appendEvent(path, { type: "scored", data: call });
-		expect((await readJournal(path)).previousCalls).toEqual(run.calls);
+		expect((await readJournal(path)).previousCalls).toEqual(
+			[...run.calls].sort((a, b) => a.key.localeCompare(b.key, "en", { numeric: true })),
+		);
 	} finally {
 		await rm(folder, { recursive: true });
 	}

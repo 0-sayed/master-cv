@@ -1,5 +1,4 @@
 import { afterEach, expect, it, vi } from "vite-plus/test";
-import { withOpenRouterFee } from "./budget";
 import { loadModels } from "./config";
 import { cases } from "./corpus";
 import { createFaultTransport, faultNames } from "./faults";
@@ -106,7 +105,7 @@ export function registerFaultRecoveryCases(role: "writer" | "verifier", session:
 				const oracle = new Map<string, number>();
 				for (const receipt of fake.receipts)
 					oracle.set(receipt.key, (oracle.get(receipt.key) ?? 0) + receipt.openRouterMicros);
-				const rawRouter = [...oracle.values()].reduce((n, cost) => n + withOpenRouterFee(cost), 0);
+				const rawRouter = [...oracle.values()].reduce((n, cost) => n + cost, 0);
 				expect(router).toBe(rawRouter);
 			},
 		);

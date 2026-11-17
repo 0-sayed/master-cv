@@ -20,7 +20,7 @@ it("forecast is a ceiling from fixture/gold tokens × caps with measured core ve
 	const models = loadModels(new URL("./models-tasks.json", import.meta.url).pathname);
 	const projected = forecast.forecastTasksFromCore(core, models, cases, 3);
 	expect(projected.kind).toBe("ceiling");
-	expect(projected.calls).toBe(189);
+	expect(projected.calls).toBe(81);
 	expect(projected.measuredCoreVerifierSamples).toBeGreaterThan(0);
 	expect(
 		projected.perCase.some((p) => p.verifier.model.startsWith("deepseek/") && p.verifier.reasoning === "low"),
@@ -96,7 +96,7 @@ it("makes progress through all smoke sessions within $13/$40 including concurren
 		},
 	});
 	expect(run.stopReason).toBeNull();
-	expect(run.calls).toHaveLength(126);
+	expect(run.calls).toHaveLength(54);
 	expect(peakRouter + 1_000_000).toBeLessThanOrEqual(13_000_000);
 	expect(peakOpenai + 1_000_000).toBeLessThanOrEqual(40_000_000);
 	expect(peakRouter).toBeGreaterThan(0);
@@ -108,7 +108,7 @@ it("defaults the tasks forecast to two runs and separates proxy costs by payer",
 	const models = loadModels(new URL("./models-tasks.json", import.meta.url).pathname);
 	const p = forecast.forecastTasksFromCore(core, models, cases);
 	expect(p.runs).toBe(2);
-	expect(p.calls).toBe(126);
+	expect(p.calls).toBe(54);
 	expect(p.openRouterProxyUsd).toBeGreaterThan(0);
 	expect(p.openaiProxyUsd).toBeGreaterThan(0);
 	expect(p.tokenProjectionUsd).toBeCloseTo(p.openRouterProxyUsd + p.openaiProxyUsd, 6);

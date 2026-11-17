@@ -1,0 +1,92 @@
+{
+	"campaign": "campaign-20261117T050828Z-paid-smoke",
+	"callsSha256": "86c115dba55bced97971298496da2e1a0c93dfbfe4396eee08516e270931a9b7",
+	"overall": {
+		"requests": 201,
+		"actualUsd": 0.693853848,
+		"rawProtocolFaults": 34,
+		"rawPerCallFaultRate": 0.1691542288557214,
+		"meanRequestMicros": 3452.0091940298507,
+		"requestsPerLogicalJudgment": 1.197767381995495,
+		"retryBasis": "Observed per-call faults; bounded independent approximation 1 + p + p^2, not a guarantee",
+		"meanLatencyMs": 10286.321769437809,
+		"meanInputTokens": 2582.676616915423,
+		"maxCompleteOutputTokens": 16384
+	},
+	"categories": {
+		"summary": {
+			"requests": 29,
+			"actualUsd": 0.0280902,
+			"rawProtocolFaults": 2,
+			"rawPerCallFaultRate": 0.06896551724137931,
+			"meanRequestMicros": 968.6275862068966,
+			"requestsPerLogicalJudgment": 1.0737217598097502,
+			"retryBasis": "Observed per-call faults; bounded independent approximation 1 + p + p^2, not a guarantee",
+			"meanLatencyMs": 3183.360297310345,
+			"meanInputTokens": 1874.9655172413793,
+			"maxCompleteOutputTokens": 1601
+		},
+		"job-evidence": {
+			"requests": 32,
+			"actualUsd": 0.09714748800000002,
+			"rawProtocolFaults": 2,
+			"rawPerCallFaultRate": 0.0625,
+			"meanRequestMicros": 3035.8590000000004,
+			"requestsPerLogicalJudgment": 1.06640625,
+			"retryBasis": "Observed per-call faults; bounded independent approximation 1 + p + p^2, not a guarantee",
+			"meanLatencyMs": 10006.548658125002,
+			"meanInputTokens": 2195.75,
+			"maxCompleteOutputTokens": 5241
+		},
+		"tailoring": {
+			"requests": 30,
+			"actualUsd": 0.08662861200000001,
+			"rawProtocolFaults": 4,
+			"rawPerCallFaultRate": 0.13333333333333333,
+			"meanRequestMicros": 2887.6204000000002,
+			"requestsPerLogicalJudgment": 1.151111111111111,
+			"retryBasis": "Observed per-call faults; bounded independent approximation 1 + p + p^2, not a guarantee",
+			"meanLatencyMs": 10483.155006699997,
+			"meanInputTokens": 2079.9666666666667,
+			"maxCompleteOutputTokens": 5708
+		},
+		"translation": {
+			"requests": 30,
+			"actualUsd": 0.13012848,
+			"rawProtocolFaults": 0,
+			"rawPerCallFaultRate": 0.0,
+			"meanRequestMicros": 4337.616,
+			"requestsPerLogicalJudgment": 1.0,
+			"retryBasis": "Observed per-call faults; bounded independent approximation 1 + p + p^2, not a guarantee",
+			"meanLatencyMs": 15137.603388533333,
+			"meanInputTokens": 2025.6,
+			"maxCompleteOutputTokens": 5643
+		},
+		"cover-letter": {
+			"requests": 40,
+			"actualUsd": 0.23348215200000003,
+			"rawProtocolFaults": 12,
+			"rawPerCallFaultRate": 0.3,
+			"meanRequestMicros": 5837.053800000001,
+			"requestsPerLogicalJudgment": 1.3900000000000001,
+			"retryBasis": "Observed per-call faults; bounded independent approximation 1 + p + p^2, not a guarantee",
+			"meanLatencyMs": 14549.305725000002,
+			"meanInputTokens": 3672.85,
+			"maxCompleteOutputTokens": 16384
+		},
+		"interview-prep": {
+			"requests": 40,
+			"actualUsd": 0.11837691600000003,
+			"rawProtocolFaults": 14,
+			"rawPerCallFaultRate": 0.35,
+			"meanRequestMicros": 2959.4229000000005,
+			"requestsPerLogicalJudgment": 1.4725000000000001,
+			"retryBasis": "Observed per-call faults; bounded independent approximation 1 + p + p^2, not a guarantee",
+			"meanLatencyMs": 7610.717227950003,
+			"meanInputTokens": 3109.975,
+			"maxCompleteOutputTokens": 16384
+		}
+	},
+	"canaryLogicalJudgments": 131,
+	"canaryLogicalJudgmentsBasis": "72 initial judgments + 54 planted rejections + 1 observed honest rejection + 4 observed valid first/second disagreements. Protocol retries are a separate multiplier. Writer forecasts retain both repeats until a fresh smoke calibrates agreement."
+}

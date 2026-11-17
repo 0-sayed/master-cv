@@ -12,9 +12,26 @@ with reason `snapshot cleanup`; no inference, environment reads, staging, commit
 ## Slim tasks decision lane — owner decision 2026-11-14
 
 This is a rough decision with a smaller budget; a larger, properly funded benchmark follows later.
-Tasks-v1 defaults to **two full-stage repetitions**; explicit `--runs` overrides remain supported.
-Core retains three repetitions. Smoke stays one AR, one EN and one mixed case per category and
-variant (18 sessions per variant; 126 for seven, 72 for four).
+Tasks-v1 defaults to three full-stage repetitions. Explicit `--runs` overrides remain supported.
+
+## Personal career study preparation
+
+The CLI resolves category selection, writer variants, repetition counts, and study identity through `resolveStudyPlan`.
+Forecasts and execution use that same selection. The shared runner retains transport, retry, and accounting ownership.
+The owner campaign covers summary, job evidence, tailoring, translation, cover letters, and interview preparation.
+Interview preparation only informs the model decision. It does not enable an interview product feature.
+
+Use explicit `--credential-source process` for owner-authorized paid commands.
+This mode reads only `OPENROUTER_BENCHMARK_KEY` and rejects file credential arguments.
+Preload `no-env-file.mjs` before application imports to block environment-file loading.
+Offline preparation uses the test-isolation preload and never opens credentials or external transport.
+
+The allowed archive root is `/mnt/storage/master-cv-design-archive/ui-audit/personal-career-benchmark`.
+Output validation rejects symlinks that escape the allowed root.
+Each completed invocation writes a small `session.json` pointer to its existing session results.
+Use a separate output directory for each invocation. Historical sessions remain intact.
+Core and full tasks runs retain three repetitions. Smoke uses one AR, one EN, and one mixed case per category and writer.
+The combined grid has three writers and 54 smoke sessions. See docs/personal-career-benchmark.md for owner commands and current caps.
 
 Canary calibration runs **72 initial verifier calls**: every category × language cell has its
 honest gold, invented metric, dropped negation and one priority defect: summary invented skill
@@ -50,15 +67,14 @@ saved canaries and latest smoke sessions, writing per-variant/category acceptanc
 independent guard rejects. No inference or environment-file reads; historical artifacts cannot
 qualify a new study. Fake results are scripted controls.
 
-After tuning, use `--study tasks-v1 --variants <model@effort,...>` to remove finalists.
-With this flag, only the seven existing model/provider/effort/scope tuples are allowed; unknown, duplicate,
-empty or expanded selections fail. Canonical ordering is retained. Manifest `variants` records
-actual membership, and the study hash binds the selected models, repetitions and freeze.
-A subset requires **fresh smoke with that same subset and repetition setting**; a seven-variant
-smoke cannot qualify a four-variant full run. Keep all categories, partitions and languages.
-Existing custom tuning-only configs remain usable without this flag; full still requires
-the existing Terra reference. No pruning winners are selected here; the four-variant forecast is an illustrative subset,
-not an evidence-backed recommendation.
+The combined default grid contains Luna none, Luna low, and Terra medium. DeepSeek remains the pinned verifier.
+Use `--study tasks-v1 --variants <model@effort,...>` to select a supported subset.
+Unknown, duplicate, empty, or expanded selections fail. Canonical ordering remains stable.
+The manifest records actual membership. Smoke and full bind the same frozen campaign and its three-repeat full policy.
+Smoke executes one repeat. Full executes three repeats and requires that exact smoke identity.
+A subset requires a fresh smoke with the same membership. Keep every category, partition, and language.
+Custom tuning-only configurations retain their existing validation. Full still requires Terra.
+No paid run or production model promotion occurs during offline preparation.
 
 Forecasts remain offline estimates, separated by OpenRouter (5.5% fee once) and OpenAI
 (no credit fee). Gold-token/core-judge proxies are not measured tasks usage. Report cap-based

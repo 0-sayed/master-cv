@@ -1,0 +1,68 @@
+{
+	"source": "campaign-20261117T043347Z-paid-smoke",
+	"caseId": "judge-canary-job-evidence-mixed",
+	"defect": "invented-metric",
+	"output": {
+		"requirements": [
+			{
+				"id": "je-mixed-t1-req-1",
+				"spanIds": ["je-mixed-t1-job-1"],
+				"importance": "essential",
+				"verdict": "supported",
+				"evidenceIds": ["je-mixed-t1-cv-1", "canary-context"],
+				"explanation": "أعددت التقارير الأسبوعية باستخدام Excel. زاد revenue بمقدار 45 وحدة."
+			},
+			{
+				"id": "je-mixed-t1-req-2",
+				"spanIds": ["je-mixed-t1-job-2"],
+				"importance": "preferred",
+				"verdict": "no_evidence",
+				"evidenceIds": [],
+				"explanation": "لا يوجد في هذه السيرة الذاتية دليل على خبرة في SAP."
+			}
+		],
+		"notes": []
+	},
+	"verdict": {
+		"schemaVersion": 1,
+		"verdicts": [
+			{
+				"claimId": "requirement:je-mixed-t1-req-1",
+				"verdict": "partially",
+				"evidenceIds": ["je-mixed-t1-cv-1"],
+				"reason": "The CV supports weekly Excel reporting, but not the added revenue increase of 45 units."
+			}
+		],
+		"retention": null,
+		"absence": [
+			{
+				"id": "absence:je-mixed-t1-req-2",
+				"verdict": "confirmed_absent"
+			},
+			{
+				"id": "absence:je-mixed-t1-req-2",
+				"verdict": "confirmed_absent"
+			}
+		],
+		"coverage": {
+			"status": "complete",
+			"reason": ", complete false remains safe but release not eligible."
+		},
+		"premises": [
+			{
+				"id": "requirement:je-mixed-t1-req-1",
+				"verdict": "supported",
+				"reason": "The weekly Excel reporting requirement is supported, but the premise also asserts an unsupported revenue increase and cites extra evidence not establishing it."
+			},
+			{
+				"id": "requirement:je-mixed-t1-req-2",
+				"verdict": "supported",
+				"reason": "SAP is preferred in the job context and the CV contains no SAP evidence, so no_evidence is correct."
+			}
+		],
+		"quality": {
+			"status": "unclear",
+			"reason": "No translation quality assessment is in scope for this job-evidence response."
+		}
+	}
+}

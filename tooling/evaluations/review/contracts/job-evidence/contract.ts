@@ -1,6 +1,7 @@
 import type { Claim, TaskCase, TaskContract, TaskScore } from "../types";
 import type { z } from "zod";
 import { readFileSync } from "node:fs";
+import { boundedEvidenceAbsence, assessmentText } from "@reactive-resume/api/features/ai/variant-guard";
 import { matchJobDescription } from "@reactive-resume/resume/ats-pdf";
 import { jobEvidenceSchema } from "@reactive-resume/schema/resume/variant-outputs";
 import { buildModelPayload } from "../../production";
@@ -14,7 +15,6 @@ export type JobEvidenceOutput = z.infer<typeof jobEvidenceSchema>;
 const guardPolicy = { lostFact: false, subsetEntities: true } as const;
 const notChecked = "No job ad supplied; comparison not checked.";
 const unique = (ids: string[]) => new Set(ids).size === ids.length;
-const spansKey = (spans: string[]) => JSON.stringify([...spans].sort());
 
 function protectedNames(c: TaskCase): string[] {
 	return [...new Set(c.cv.flatMap((f) => f.protected?.filter((p) => p.kind === "name").map((p) => p.text) ?? []))]
@@ -36,7 +36,7 @@ function claims(c: TaskCase, output: JobEvidenceOutput): Claim[] {
 				evidenceIds: r.evidenceIds,
 			})),
 		...output.notes.flatMap((text, i) =>
-			text === notChecked
+			text === notChecked || (!c.jobAd && /(?:no job|لم.*(?:إعلان|وصف)|لا.*(?:إعلان|وصف))/iu.test(text))
 				? []
 				: [
 						{
@@ -52,16 +52,9 @@ function claims(c: TaskCase, output: JobEvidenceOutput): Claim[] {
 
 // These apply only to generated assessment text; untrusted job spans may legitimately include them.
 const assessmentPrediction =
-	/[%٪]|\b(?:score|percentage|probability|chance(?:s)?\s+of\s+(?:hiring|employment|being\s+hired)|(?:pass(?:es)?|beat)\s+(?:the\s+)?ATS)\b|(?:نسبة|درجة)\s*(?:المطابقة|التوافق|التطابق|اجتياز)|احتمال(?:ية)?\s*(?:التوظيف|القبول)|(?:يضمن|ضمان)\s*(?:التوظيف|القبول)/iu;
+	/\d+(?:\.\d+)?\s*[%٪]\s*(?:aligned|match|compatib)|\b(?:(?:match|hiring|ATS)\s+(?:score|percentage|probability)|chance(?:s)?\s+of\s+(?:hiring|employment|being\s+hired)|(?:pass(?:es)?|beat)\s+(?:the\s+)?ATS)\b|(?:نسبة|درجة)\s*(?:المطابقة|التوافق|التطابق|اجتياز)|احتمال(?:ية)?\s*(?:التوظيف|القبول)|(?:يضمن|ضمان)\s*(?:التوظيف|القبول)/iu;
 const lackOfSkill =
 	/\b(?:you|candidate|applicant|person)\b[^.!?\n]*(?:\b(?:lack\w*|cannot|can['’]?t)\b|\b(?:do(?:es)?\s+not|don['’]?t|doesn['’]?t)\s+(?:know|have|possess|use)|\b(?:unskilled|unable)\b)|(?:أنت|انت|المتقدم|المرشح)[^.!?؟\n]*(?:لا\s+(?:يجيد|تجيد|يعرف|تعرف|يمتلك|تمتلك|يملك|تملك)|يفتقر|تفتقر)/iu;
-function boundedAbsence(text: string): boolean {
-	const scope = /\b(?:this|the\s+supplied)\s+(?:CV|resume)\b|هذه\s+السيرة|السيرة\s+الذاتية\s+المقدمة/iu;
-	const absence =
-		/\bno\s+evidence\b|\b(?:does\s+not|doesn['’]?t)\s+(?:show|provide|contain|document)\b|\bno\b.*\b(?:documented|recorded|shown)\b|لا\s+(?:يوجد|توجد).*دليل|لا\s+(?:يظهر|تظهر|تتضمن|تقدم|توثق|تذكر)|لم\s+تذكر/iu;
-	// Dots can be part of technical entities such as Node.js, so keep them in the scoped passage.
-	return text.split(/[!?؟\n]/u).some((passage) => scope.test(passage) && absence.test(passage));
-}
 
 function score(c: TaskCase, output: JobEvidenceOutput): TaskScore {
 	const reasons: string[] = [];
@@ -81,21 +74,29 @@ function score(c: TaskCase, output: JobEvidenceOutput): TaskScore {
 			reasons.push(`AI_INVALID_EVIDENCE:${r.id}`);
 		if ((r.verdict === "supported" || r.verdict === "partial") && !r.evidenceIds.length)
 			reasons.push(`AI_INVALID_EVIDENCE:${r.id}`);
-		if (r.verdict === "no_evidence" && !boundedAbsence(r.explanation)) reasons.push(`JOB_UNBOUNDED_ABSENCE:${r.id}`);
+		if (r.verdict === "no_evidence" && !boundedEvidenceAbsence(r.explanation))
+			reasons.push(`JOB_UNBOUNDED_ABSENCE:${r.id}`);
 	}
 	for (const text of [...output.requirements.map((r) => r.explanation), ...output.notes]) {
-		if (assessmentPrediction.test(text)) reasons.push("JOB_D22_ASSESSMENT");
+		if (assessmentPrediction.test(assessmentText(text))) reasons.push("JOB_D22_ASSESSMENT");
 		if (lackOfSkill.test(text)) reasons.push("JOB_ASSERTED_SKILL_ABSENCE");
 	}
-	if (!c.jobAd && (output.requirements.length || !output.notes.includes(notChecked))) reasons.push("JOB_NOT_SUPPLIED");
+	if (
+		!c.jobAd &&
+		(output.requirements.length ||
+			!output.notes.some((text) =>
+				/(?:no job.*(?:not checked|not assessed)|(?:لم|لا).*(?:إعلان|وصف).*(?:لم|لا).*(?:مقارنة|تقييم))/iu.test(text),
+			))
+	)
+		reasons.push("JOB_NOT_SUPPLIED");
 	const guard = guardTaskClaims(c, claims(c, output), guardPolicy);
 	reasons.push(...guard.details);
 	const expected = jobEvidenceSchema.safeParse(c.gold);
 	const gold = expected.success ? expected.data.requirements : [];
-	const correct = gold.filter((r) =>
-		output.requirements.some((o) => spansKey(o.spanIds) === spansKey(r.spanIds) && o.verdict === r.verdict),
-	).length;
-	const denominator = Math.max(gold.length, output.requirements.length);
+	const expectedSpans = new Map(gold.flatMap((r) => r.spanIds.map((id) => [id, r.verdict] as const)));
+	const actualSpans = new Map(output.requirements.flatMap((r) => r.spanIds.map((id) => [id, r.verdict] as const)));
+	const correct = [...expectedSpans].filter(([id, verdict]) => actualSpans.get(id) === verdict).length;
+	const denominator = new Set([...expectedSpans.keys(), ...actualSpans.keys()]).size;
 	const value = expected.success ? (denominator ? correct / denominator : 1) : null;
 	return {
 		caseId: c.id,

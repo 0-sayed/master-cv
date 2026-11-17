@@ -46,6 +46,7 @@ it("drains exactly eight active sessions after SIGINT then resumes to full cover
 	const rawRecords: RawRecord[] = [];
 	let active = 0;
 	let peak = 0;
+	const dispatchedSessions = new Set<string>();
 	const options = {
 		models: loadModels(),
 		cases: smokeCases(cases),
@@ -56,6 +57,7 @@ it("drains exactly eight active sessions after SIGINT then resumes to full cover
 		openaiBudgetUsd: 40,
 		openaiConcurrency: 8,
 		togetherConcurrency: 8,
+		sessionConcurrency: 8,
 		maxUnverified: 8,
 		onRaw: async (r: RawRecord) => {
 			rawRecords.push(r);
@@ -64,7 +66,8 @@ it("drains exactly eight active sessions after SIGINT then resumes to full cover
 	const pending = runBenchmark({
 		...options,
 		signal: controller.signal,
-		fakeTransport: async (_url, _init, next) => {
+		fakeTransport: async (_url, _init, next, context) => {
+			dispatchedSessions.add(context.key);
 			peak = Math.max(peak, ++active);
 			if (active === 8) process.emit("SIGINT");
 			await new Promise<void>((resolve) => setTimeout(resolve, 10));
@@ -81,7 +84,7 @@ it("drains exactly eight active sessions after SIGINT then resumes to full cover
 	expect(peak).toBe(8);
 	expect(active).toBe(0);
 	expect(first.stopReason).toBe("INTERRUPTED");
-	expect(first.calls).toHaveLength(8);
+	expect(first.calls).toHaveLength(dispatchedSessions.size);
 	const resumed = await runBenchmark({ ...options, previousCalls: first.calls, rawRecords });
 	expect(resumed.stopReason).toBeNull();
 	expect(resumed.calls).toHaveLength(132);

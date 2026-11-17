@@ -27,7 +27,7 @@ it("uses equal visible allowances with effort-scaled request caps and records th
 	expect(result.calls.every((c) => c.verifierCompletionTokenCap === 5120)).toBe(true);
 	const html = await renderReport(result);
 	expect(html).toContain("xhigh: 40,960");
-	expect(html).toContain("verifier low: 5,120");
+	expect(html).toContain("verifier low: 16,384");
 });
 
 it("labels unmeasured efforts and scales only writer completion tokens, preserving the verifier", async () => {

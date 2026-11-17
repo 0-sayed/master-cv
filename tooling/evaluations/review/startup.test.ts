@@ -89,16 +89,18 @@ it("startup-check follows live gates and parses the explicit key without network
 			credential: "[REDACTED]",
 			study: "tasks-v1",
 			phase: "smoke",
-			controls: { checked: 1056, pass: true },
+			controls: { checked: 1540, pass: true },
 			judgeCanaries: { calls: 72 },
-			calls: 126,
+			calls: 54,
 		});
 		expect(raw).not.toContain("fake-startup-secret-only");
 		expect(result.stdout).toBe("");
+		await rm(join(f.out, "preflight.json"));
 		await writeFile(f.keyFile, "OPENROUTER_API_KEY=fake-app-only\n");
 		const bad = f.run(["--startup-check"]);
 		expect(bad.status).toBe(1);
 		expect(JSON.parse(await readFile(join(f.out, "error.json"), "utf8")).code).toBe("BENCHMARK_KEY_REQUIRED");
+		await expect(readFile(join(f.out, "preflight.json"), "utf8")).rejects.toMatchObject({ code: "ENOENT" });
 	} finally {
 		await rm(f.out, { recursive: true, force: true });
 	}

@@ -189,8 +189,10 @@ it("allows honest conditional questions without diagnosing missing ability", () 
 		"إذا كنت أنت لا تعرف سبب اختلاف السجلين، فما الذي ستراجعه؟",
 	]) {
 		const value = output();
+		const language = /\p{Script=Arabic}/u.test(text) ? ("ar" as const) : ("en" as const);
+		if (language === "ar") for (const q of value.questions) q.text = "كيف ستتعامل مع متطلبات هذا الدور؟";
 		required(value.questions[2]).text = text;
-		const c = { ...task, gold: value };
+		const c = { ...task, language, gold: value };
 		expect(
 			interviewPrepContract.score(c, value, tasksVerifier.fakeVerdict(c, value)).safetyDeterministic.pass,
 			text,
@@ -291,7 +293,7 @@ it("authors balanced synthetic fixtures with gold, honest paraphrases, implicit-
 	const cases = fixtures();
 	expect(cases.filter((c) => !c.holdout)).toHaveLength(9);
 	for (const language of ["ar", "en", "mixed"])
-		expect(cases.filter((c) => c.holdout && c.language === language)).toHaveLength(4);
+		expect(cases.filter((c) => c.holdout && c.language === language)).toHaveLength(12);
 	for (const c of cases) {
 		expect(c.category).toBe("interview-prep");
 		const gold = interviewPrepOutputSchema.parse(c.gold);
@@ -366,7 +368,9 @@ it("passes offline preflight and injected fake sessions, preserves source and jo
 	try {
 		const path = join(dir, "calls.jsonl");
 		for (const call of run.calls) await appendEvent(path, { type: "scored", data: call });
-		expect((await readJournal(path)).previousCalls).toEqual(run.calls);
+		expect((await readJournal(path)).previousCalls).toEqual(
+			[...run.calls].sort((a, b) => a.key.localeCompare(b.key, "en", { numeric: true })),
+		);
 	} finally {
 		await rm(dir, { recursive: true });
 	}

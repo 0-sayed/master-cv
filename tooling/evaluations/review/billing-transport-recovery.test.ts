@@ -14,6 +14,26 @@ import { smokeCases, validateSmoke } from "./study";
 const model = required(loadModels()[0]);
 const options = { models: [model], cases: cases.slice(0, 1), runs: 1, fake: true, budgetUsd: 9, openaiBudgetUsd: 40 };
 afterEach(() => vi.useRealTimers());
+it("settles a timeout with a known generation before classifying its charge", async () => {
+	const base: typeof fetch = async (_url, init) => {
+		if (init?.method === "GET")
+			return Response.json({ data: { id: "gen-timeout", total_cost: 0.000007, upstream_inference_cost: 0.000013 } });
+		throw Object.assign(new Error("request timed out"), { generationId: "gen-timeout" });
+	};
+	await expect(
+		captureResponse(base, "https://openrouter.ai/api/v1/chat/completions", { method: "POST" }),
+	).rejects.toMatchObject({
+		evidence: { generationId: "gen-timeout", costMicros: 7, upstreamCostMicros: 13 },
+	});
+});
+it("keeps a dispatched request without a response as unknown rather than free", async () => {
+	const base: typeof fetch = async () => {
+		throw new TypeError("connection reset", { cause: Object.assign(new Error("request sent"), { bytesWritten: 128 }) });
+	};
+	await expect(captureResponse(base, "https://openrouter.ai/api/v1/chat/completions")).rejects.toMatchObject({
+		evidence: { costMicros: null, upstreamCostMicros: null },
+	});
+});
 it("waits for lagging BYOK and provider metadata even when the router cost is already known", async () => {
 	vi.useFakeTimers();
 	let polls = 0;
@@ -80,7 +100,11 @@ it("uses calibrated pair exposure rather than the reservation ceiling for an iso
 		fakeTransport: async (_url, init, next, context) => {
 			if (init?.method === "GET") return Response.json({ error: { code: 404 } }, { status: 404 });
 			const data = await (await next()).json();
-			if (context.role === "writer") delete data.usage.cost_details;
+			if (context.role === "writer") {
+				delete data.usage.cost_details;
+				delete data.usage.prompt_tokens;
+				delete data.usage.completion_tokens;
+			}
 			return Response.json(data);
 		},
 	});
@@ -103,6 +127,49 @@ async function step(transport: typeof fetch) {
 		}),
 	);
 }
+it("settles malformed response envelopes through generation metadata without repairing their output", async () => {
+	let posts = 0;
+	let lookups = 0;
+	const raw = '{"id":"gen-malformed","choices":[';
+	const base: typeof fetch = async (_url, init) => {
+		if (init?.method === "GET") {
+			lookups++;
+			return Response.json({
+				data: {
+					id: "gen-malformed",
+					total_cost: 0.000002,
+					upstream_inference_cost: 0.000007,
+					provider_name: "OpenAI",
+					tokens_prompt: 10,
+					tokens_completion: 10,
+					is_byok: true,
+				},
+			});
+		}
+		posts++;
+		return new Response(raw, { status: 200 });
+	};
+	const result = await step((url, init) => captureResponse(base, url, init));
+	expect(result.outcome).not.toBe("valid");
+	expect(result.openRouterCostMicros).toBe(2);
+	expect(result.openaiCostMicros).toBe(7);
+	expect(result.costMicros).toBe(9);
+	expect(posts).toBe(1);
+	expect(lookups).toBe(1);
+});
+
+it("records a connection timeout before any response as unbilled with a note", async () => {
+	vi.useFakeTimers();
+	const base: typeof fetch = async () => {
+		throw new TypeError("fetch failed: connect ETIMEDOUT");
+	};
+	const pending = step((url, init) => captureResponse(base, url, init));
+	await vi.runAllTimersAsync();
+	const result = await pending;
+	expect(result.costMicros).toBe(0);
+	expect(result.billingNotes).toContain("connection failure before response: zero cost (Sayed D39)");
+	expect(result.failure).toMatchObject({ bytesReceived: false, generationId: null, httpStatus: null });
+});
 it("expires verifier cooldown by time", () => {
 	vi.useFakeTimers();
 	const cooldown = new ProviderCooldown();
@@ -306,7 +373,7 @@ it("requires fake mode for seeded chaos", async () => {
 	expect(() => parseOptions(["--chaos"])).toThrow("CHAOS_REQUIRES_FAKE");
 	expect(parseOptions(["--fake", "--chaos", "--seed", "19"])).toMatchObject({ fake: true, chaos: true, seed: 19 });
 });
-it("rounds the OpenRouter fee once across cached-writer verifier retries", async () => {
+it("records the reported OpenRouter cost across cached-writer verifier retries without a purchase surcharge", async () => {
 	let calls = 0;
 	const result = await runBenchmark({
 		...options,
@@ -320,7 +387,7 @@ it("rounds the OpenRouter fee once across cached-writer verifier retries", async
 		},
 	});
 	expect(calls).toBe(2);
-	expect(result.reservedUsd).toBe(0.000003);
+	expect(result.reservedUsd).toBe(0.000002);
 	const again = await runBenchmark({ ...options, previousCalls: result.calls });
 	expect(again.reservedUsd).toBe(result.reservedUsd);
 });

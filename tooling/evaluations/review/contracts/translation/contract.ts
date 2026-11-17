@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { z } from "zod";
 import { HARD_FACTS_VERSION } from "@reactive-resume/api/features/ai/hard-facts";
+import { variantVerifierSchema } from "@reactive-resume/api/features/ai/variant-verifier";
 import { translationOutputSchema } from "@reactive-resume/schema/resume/variant-outputs";
 import { buildModelPayload } from "../../production";
 import { guardTaskClaims } from "../guard";
@@ -95,10 +96,14 @@ const mqmSchema = z.strictObject({
 });
 /** MQM target offsets use JS UTF-16 indices. Missing/invalid ratings stay unknown, never perfect. */
 export function translationMqm(output: TranslationOutput, rawVerdict: unknown) {
-	const verdict = tasksVerifierSchema.safeParse(rawVerdict);
+	const verdict = tasksVerifierSchema.or(variantVerifierSchema).safeParse(rawVerdict);
 	if (!verdict.success) return null;
 	try {
-		const result = mqmSchema.safeParse(JSON.parse(verdict.data.quality.reason));
+		const result = mqmSchema.safeParse(
+			"mqm" in verdict.data.quality && verdict.data.quality.mqm !== null
+				? { mqm: verdict.data.quality.mqm }
+				: JSON.parse(verdict.data.quality.reason),
+		);
 		if (!result.success) return null;
 		const spans = result.data.mqm;
 		if (
@@ -200,7 +205,9 @@ function score(c: TaskCase, raw: TranslationOutput, rawVerdict: unknown | null):
 				mqm = translationMqm(output, verdict);
 			}
 		} catch {
-			reasons.push("TRANSLATION_INVALID_VERIFIER");
+			const production = variantVerifierSchema.safeParse(rawVerdict);
+			if (production.success) mqm = translationMqm(output, production.data);
+			else reasons.push("TRANSLATION_INVALID_VERIFIER");
 		}
 	}
 	return {
@@ -223,7 +230,7 @@ export const translationContract: TaskContract<TaskCase, TranslationOutput> = al
 	systemPrompt: readFileSync(new URL("./prompt.md", import.meta.url), "utf8"),
 	outputSchema: translationOutputSchema,
 	guardPolicy: policy,
-	visibleCap: () => 4096,
+	visibleCap: () => 8192,
 	verifierCap: 12288,
 	deadlineMs: 120_000,
 	buildInput: (c) => {

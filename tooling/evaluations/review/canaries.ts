@@ -1,5 +1,6 @@
 import type { ModelConfig } from "./config";
 import type { TaskCase } from "./contracts/types";
+import type { RawRecord } from "./runner";
 import type { RunOptions } from "./runner";
 import { createHash } from "node:crypto";
 import { open, readFile, rename, unlink } from "node:fs/promises";
@@ -13,10 +14,20 @@ import { jobEvidenceSchema } from "./contracts/job-evidence/contract";
 import { tasksVerifierSchema } from "./contracts/verifier/schema";
 import { tasksVerifier } from "./contracts/verifier/verifier";
 import { dispatchLimits, ProviderDispatch } from "./dispatch";
+import {
+	REJECTION_JUDGMENTS,
+	REJECTION_VOTE_POLICY,
+	rejectionTargets,
+	mergeScopedJudgment,
+	voteRejections,
+	type RejectionVote,
+} from "./rejection-vote";
 import { required } from "./required";
+import { reserveTransportRetry } from "./retry-reservation";
 import { routeFor, verifierModelFor } from "./runner";
 import { returnedProvider } from "./study";
 import { verifierBound, verifyBenchmark } from "./verifier";
+import { rawVerifierProtocolRates } from "./verifier-protocol";
 
 const hash = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 export const loadJudgeCanaries = (): TaskCase[] =>
@@ -68,6 +79,11 @@ export function planJudgeCanaries(models: ModelConfig[], catalog?: ModelConfig[]
 		});
 }
 type CanaryResult = {
+	rawJudgments?: RawRecord[];
+	judgments?: import("./verifier").VerifierJudgment[];
+	rejectionVote?: RejectionVote | null;
+	voteFault?: string | null;
+	pendingReservation?: { router: number; openai: number };
 	key: string;
 	caseId: string;
 	category: TaskCase["category"];
@@ -81,6 +97,8 @@ type CanaryResult = {
 	openaiMicros: number;
 	verifierFaultRetries?: number;
 	attempts?: {
+		judgments?: import("./verifier").VerifierJudgment[];
+		rawJudgments?: RawRecord[];
 		outcome: string;
 		provider: string | null;
 		verdict: unknown;
@@ -90,6 +108,7 @@ type CanaryResult = {
 };
 export type JudgeCanaryReceipt = {
 	version: 1;
+	votePolicy?: string;
 	studyHash: string;
 	planHash: string;
 	mode: "fake" | "live";
@@ -98,6 +117,9 @@ export type JudgeCanaryReceipt = {
 	openaiMicros: number;
 	recall: number;
 	honestFalseRejects: number;
+	rawHonestFalseRejects?: number;
+	rawHonestFalseRejectRate?: number;
+	finalHonestFalseRejectRate?: number;
 	verifierRecall?: number;
 	verifierHonestFalseRejects?: number;
 	protocolFaults?: number;
@@ -174,8 +196,11 @@ export function scoreJudgeCanary(probe: ReturnType<typeof planJudgeCanaries>[num
 		reasons: [] as string[],
 		fault,
 		...pipeline(false, false),
+		pipelineCaught: false,
+		pipelineFalseReject: false,
 	});
 	if (!result || returnedProvider(result.provider ?? "") !== probe.model.provider) return empty("CANARY_UNAVAILABLE");
+	if (result.voteFault) return empty(result.voteFault);
 	if (result.outcome === "truncated") return empty("VERIFIER_TRUNCATED");
 	if (result.outcome === "invalid") return empty("INVALID_VERIFIER_OUTPUT");
 	if (result.outcome !== "valid") return empty("CANARY_UNAVAILABLE");
@@ -240,14 +265,162 @@ function summarize(receipt: JudgeCanaryReceipt, plan: ReturnType<typeof planJudg
 			receipt.results.find((r) => r.key === probe.key),
 		),
 	);
+	const validDefects = scores.filter((s, i) => !plan[i]?.expectedAccepted && !s.fault).length;
 	const defects = plan.filter((p) => !p.expectedAccepted).length;
-	receipt.recall = scores.filter((s) => s.pipelineCaught).length / defects;
+	receipt.recall = validDefects ? scores.filter((s) => !s.fault && s.caught).length / validDefects : 0;
 	receipt.honestFalseRejects = scores.filter((s) => s.pipelineFalseReject).length;
+	const honest = plan.filter((p) => p.expectedAccepted);
+	receipt.rawHonestFalseRejects = honest.filter(
+		(p) => scoreJudgeCanary(p, firstJudgment(receipt.results.find((r) => r.key === p.key))).pipelineFalseReject,
+	).length;
+	receipt.rawHonestFalseRejectRate = receipt.rawHonestFalseRejects / honest.length;
+	receipt.finalHonestFalseRejectRate = receipt.honestFalseRejects / honest.length;
 	receipt.verifierRecall = scores.filter((s) => s.caught).length / defects;
 	receipt.verifierHonestFalseRejects = scores.filter((s) => s.falseReject).length;
 	receipt.protocolFaults = scores.filter((s) => s.fault).length;
 	receipt.protocolFaultRate = receipt.protocolFaults / plan.length;
 }
+/** Owner Sayed, D39: one in six honest probes, rounded down (3 of 18). */
+export const MAX_CANARY_HONEST_FALSE_REJECT_RATE = 1 / 6;
+function firstJudgment(row: CanaryResult | undefined): CanaryResult | undefined {
+	const first = row?.judgments?.[0];
+	return row && first
+		? {
+				...row,
+				verdict: first.normalizedVerdict ?? first.verdict,
+				voteFault: first.fault,
+				outcome: first.outcome,
+				provider: first.provider,
+			}
+		: row;
+}
+export function judgeCanaryCalibration(
+	receipt: JudgeCanaryReceipt,
+	plan = planJudgeCanaries(loadModels(new URL("./models-tasks.json", import.meta.url).pathname)),
+) {
+	const outcomes = (probes: ReturnType<typeof planJudgeCanaries>) => {
+		const scored = probes.map((p) => ({
+			honest: p.expectedAccepted,
+			...scoreJudgeCanary(
+				p,
+				receipt.results.find((r) => r.key === p.key),
+			),
+		}));
+		return {
+			honestAccepted: scored.filter((s) => s.honest && !s.fault && !s.pipelineFalseReject).length,
+			honestRejected: scored.filter((s) => s.honest && s.pipelineFalseReject).length,
+			honestProtocolFaults: scored.filter((s) => s.honest && s.fault).length,
+			defectProbes: scored.filter((s) => !s.honest).length,
+			defectProtocolFaults: scored.filter((s) => !s.honest && s.fault).length,
+			defectValidVerdicts: scored.filter((s) => !s.honest && !s.fault).length,
+			defectCaught: scored.filter((s) => !s.honest && !s.fault && s.pipelineCaught).length,
+			defectNotCaught: scored.filter((s) => !s.honest && !s.fault && !s.pipelineCaught).length,
+		};
+	};
+	const audited = structuredClone(receipt);
+	summarize(audited, plan);
+	const honest = plan.filter((p) => p.expectedAccepted);
+	const rawFalse = honest.filter(
+		(p) => scoreJudgeCanary(p, firstJudgment(receipt.results.find((r) => r.key === p.key))).pipelineFalseReject,
+	).length;
+	const byCategoryLanguage = [...new Set(honest.map((p) => `${p.c.category}/${p.c.language}`))].map((key) => {
+		const probes = plan.filter((p) => `${p.c.category}/${p.c.language}` === key);
+		const controls = probes.filter((p) => p.expectedAccepted);
+		const raw = controls.filter(
+			(p) => scoreJudgeCanary(p, firstJudgment(receipt.results.find((r) => r.key === p.key))).pipelineFalseReject,
+		).length;
+		const final = controls.filter(
+			(p) =>
+				scoreJudgeCanary(
+					p,
+					receipt.results.find((r) => r.key === p.key),
+				).pipelineFalseReject,
+		).length;
+		const voted = probes.flatMap((p) => {
+			const r = receipt.results.find((r) => r.key === p.key);
+			return r?.rejectionVote ? [r.rejectionVote] : [];
+		});
+		return {
+			...outcomes(probes),
+			category: required(controls[0]).c.category,
+			language: required(controls[0]).c.language,
+			honestProbes: controls.length,
+			honestFalseRejects: final,
+			honestFalseRejectRate: final / controls.length,
+			rawHonestFalseRejects: raw,
+			rawHonestFalseRejectRate: raw / controls.length,
+			finalHonestFalseRejectRate: final / controls.length,
+			rejudgedProbes: voted.length,
+			unanimousProbes: voted.filter((v) => v.agreement).length,
+			agreementRate: voted.length ? voted.filter((v) => v.agreement).length / voted.length : null,
+		};
+	});
+	return {
+		...outcomes(plan),
+		votePolicy: receipt.votePolicy ?? "single-judgment-legacy",
+		rawVerifierProtocol: rawVerifierProtocolRates(receipt.results),
+		honestFalseRejects: audited.honestFalseRejects,
+		honestProbes: honest.length,
+		honestFalseRejectRate: audited.honestFalseRejects / honest.length,
+		rawHonestFalseRejects: rawFalse,
+		rawHonestFalseRejectRate: rawFalse / honest.length,
+		finalHonestFalseRejectRate: audited.honestFalseRejects / honest.length,
+		allowedHonestFalseRejects: Math.floor(honest.length * MAX_CANARY_HONEST_FALSE_REJECT_RATE),
+		recall: audited.recall,
+		verifierRecall: audited.verifierRecall,
+		protocolFaultRate: audited.protocolFaultRate ?? null,
+		protocolFaultProbes: plan.flatMap((p) => {
+			const row = receipt.results.find((r) => r.key === p.key);
+			const fault = scoreJudgeCanary(p, row).fault;
+			return fault
+				? [
+						{
+							key: p.key,
+							category: p.c.category,
+							language: p.c.language,
+							defect: p.defect,
+							honest: p.expectedAccepted,
+							fault,
+							retries: row?.verifierFaultRetries ?? 0,
+						},
+					]
+				: [];
+		}),
+		recallDenominator: "valid-planted-verdicts; exhausted protocol faults remain in the 10% fault gate",
+		byCategoryLanguage,
+	};
+}
+function auditRecordedVotes(receipt: JudgeCanaryReceipt) {
+	if (receipt.votePolicy !== REJECTION_VOTE_POLICY) return;
+	for (const row of receipt.results) {
+		const first = required(row.judgments?.[0]);
+		if (first.fault || first.outcome !== "valid") {
+			if (!row.voteFault && row.outcome === "valid") throw new Error("VERIFIER_VOTE_RESULT_MISMATCH");
+			continue;
+		}
+		const initial = first.normalizedVerdict ?? first.verdict;
+		const targets = rejectionTargets(initial);
+		const judgments = required(row.judgments);
+		if (judgments.length < 1 || judgments.length > REJECTION_JUDGMENTS || (!targets.length && judgments.length !== 1))
+			throw new Error("INCOMPLETE_CANARY_VOTE");
+		const repeats = judgments
+			.slice(1)
+			.map((j) =>
+				j.fault || j.outcome !== "valid"
+					? null
+					: mergeScopedJudgment(initial, j.normalizedVerdict ?? j.verdict, targets),
+			);
+		const vote = targets.length ? voteRejections(initial, repeats) : null;
+		if (targets.length && !vote?.complete) {
+			if (!row.voteFault || !judgments.some((j) => j.fault || j.outcome !== "valid"))
+				throw new Error("INCOMPLETE_CANARY_VOTE");
+			continue;
+		}
+		if (row.voteFault || !isDeepStrictEqual(row.verdict, vote?.verdict ?? initial))
+			throw new Error("CANARY_VOTE_MISMATCH");
+	}
+}
+
 const MAX_CANARY_PROTOCOL_FAULT_RATE = 0.1;
 const MAX_CANARY_VERIFIER_FAULT_RETRIES = 1;
 /** Re-audit raw verdicts and exact probe coverage. Summary numbers alone never qualify a full study. */
@@ -266,6 +439,7 @@ export function assertJudgeCanaries(raw: unknown, binding: Binding) {
 			plan.some((p) => !receipt.results.some((r) => r.key === p.key))
 		)
 			throw new Error("coverage");
+		auditRecordedVotes(receipt);
 		summarize(receipt, plan);
 		if (
 			plan.some((p) => {
@@ -279,17 +453,21 @@ export function assertJudgeCanaries(raw: unknown, binding: Binding) {
 			(receipt.protocolFaultRate ?? 1) > MAX_CANARY_PROTOCOL_FAULT_RATE
 		)
 			throw new Error("protocol");
-		if (receipt.recall !== 1 || receipt.honestFalseRejects !== 0) throw new Error("calibration");
+		const maxHonestFalseRejects = Math.floor(
+			plan.filter((p) => p.expectedAccepted).length * MAX_CANARY_HONEST_FALSE_REJECT_RATE,
+		);
+		if (receipt.recall !== 1 || receipt.honestFalseRejects > maxHonestFalseRejects) throw new Error("calibration");
 	} catch {
 		throw new Error("JUDGE_CANARY_GATE");
 	}
 }
-/** Two protocol attempts, each bounded by the adapter's five transport attempts. */
+/** Conservative reservation bound also covers legacy probe retries and bounded transport retries. */
 export function forecastJudgeCanaries(models: ModelConfig[], catalog?: ModelConfig[]) {
 	const plan = planJudgeCanaries(models, catalog);
 	const bounds = plan.map((p) => {
 		const route = routeFor(p.model, "unused", true, p.c);
-		const micros = verifierBound(p.model, p.c, route).micros * 5 * (1 + MAX_CANARY_VERIFIER_FAULT_RETRIES);
+		const micros =
+			verifierBound(p.model, p.c, route).micros * REJECTION_JUDGMENTS * 5 * (1 + MAX_CANARY_VERIFIER_FAULT_RETRIES);
 		return {
 			openRouterMicros: p.model.provider === "openai" ? 0 : withOpenRouterFee(micros),
 			openaiMicros: p.model.provider === "openai" ? micros : 0,
@@ -297,6 +475,8 @@ export function forecastJudgeCanaries(models: ModelConfig[], catalog?: ModelConf
 	});
 	return {
 		calls: plan.length,
+		expectedJudgments: plan.length + 2 * (plan.filter((p) => !p.expectedAccepted).length + 2),
+		maxJudgments: plan.length * REJECTION_JUDGMENTS,
 		maxAttempts: 5 * (1 + MAX_CANARY_VERIFIER_FAULT_RETRIES),
 		maxVerifierAttempts: 1 + MAX_CANARY_VERIFIER_FAULT_RETRIES,
 		openRouterCeilingUsd: bounds.reduce((n, b) => n + b.openRouterMicros, 0) / 1e6,
@@ -321,6 +501,7 @@ export async function runJudgeCanaries(input: {
 		? structuredClone(input.previous)
 		: {
 				version: 1,
+				votePolicy: REJECTION_VOTE_POLICY,
 				studyHash: input.studyHash,
 				planHash: identity,
 				mode: options.fake ? "fake" : "live",
@@ -337,7 +518,13 @@ export async function runJudgeCanaries(input: {
 		receipt.mode !== (options.fake ? "fake" : "live")
 	)
 		throw new Error("JUDGE_CANARY_GATE");
-	if (receipt.results.some((r) => ["pending", "billing-unknown"].includes(r.outcome)))
+	if (
+		receipt.results.some(
+			(r) =>
+				r.outcome === "billing-unknown" ||
+				(r.outcome === "pending" && (!r.pendingReservation || !r.rawJudgments?.length)),
+		)
+	)
 		throw new Error("CANARY_UNSETTLED");
 	if (
 		new Set(receipt.results.map((r) => r.key)).size !== receipt.results.length ||
@@ -353,9 +540,18 @@ export async function runJudgeCanaries(input: {
 	}
 	const router = new Budget(Math.floor(options.budgetUsd * 1e6));
 	const openai = new Budget(Math.floor((options.openaiBudgetUsd ?? 10) * 1e6));
-	router.reserve((options.priorSpendMicros ?? 0) + receipt.openRouterMicros);
-	openai.reserve((options.priorOpenaiSpendMicros ?? 0) + receipt.openaiMicros);
+	router.reserve(
+		(options.priorSpendMicros ?? 0) +
+			receipt.openRouterMicros +
+			receipt.results.reduce((n, r) => n + (r.pendingReservation?.router ?? 0), 0),
+	);
+	openai.reserve(
+		(options.priorOpenaiSpendMicros ?? 0) +
+			receipt.openaiMicros +
+			receipt.results.reduce((n, r) => n + (r.pendingReservation?.openai ?? 0), 0),
+	);
 	const limits = dispatchLimits(options);
+	const canaryConcurrency = Math.min(limits.sessionConcurrency, limits.openaiConcurrency, limits.togetherConcurrency);
 	let failure: unknown;
 	const pool = new ProviderDispatch(limits, () => Boolean(failure));
 	let persistence = Promise.resolve();
@@ -368,6 +564,10 @@ export async function runJudgeCanaries(input: {
 		const row = receipt.results.find((r) => r.key === p.key);
 		return (
 			!row ||
+			(row.outcome === "pending" && Boolean(row.pendingReservation && row.rawJudgments?.length)) ||
+			(options.recoverSystemic &&
+				(row.outcome === "ACCOUNT_ERROR" ||
+					(row.outcome === "transient" && row.openRouterMicros === 0 && row.openaiMicros === 0))) ||
 			(scoreJudgeCanary(p, row).fault !== null &&
 				["valid", "truncated", "invalid"].includes(row.outcome) &&
 				returnedProvider(row.provider ?? "") === p.model.provider &&
@@ -378,7 +578,7 @@ export async function runJudgeCanaries(input: {
 	const providers = new Map<string, number>();
 	const execute = async (probe: (typeof plan)[number]) => {
 		const route = routeFor(probe.model, options.key ?? "fake-key", true, probe.c);
-		const bound = verifierBound(probe.model, probe.c, route).micros * 5;
+		const bound = verifierBound(probe.model, probe.c, route).micros * REJECTION_JUDGMENTS;
 		let row = receipt.results.find((r) => r.key === probe.key);
 		if (!row) {
 			row = {
@@ -397,7 +597,7 @@ export async function runJudgeCanaries(input: {
 				attempts: [],
 			};
 			receipt.results.push(row);
-		} else {
+		} else if (!row.pendingReservation) {
 			// Preserve the paid legacy verdict and cost before spending its one protocol retry.
 			row.attempts ??= [
 				{
@@ -408,23 +608,65 @@ export async function runJudgeCanaries(input: {
 					openaiMicros: row.openaiMicros,
 				},
 			];
-			row.verifierFaultRetries = (row.verifierFaultRetries ?? 0) + 1;
+			row.verifierFaultRetries =
+				(row.verifierFaultRetries ?? 0) + Number(["valid", "invalid", "truncated"].includes(row.outcome));
+			const settledJudgments = row.judgments?.flatMap((j) => j.attempts ?? [j]);
+			const hasReusableJudgments =
+				row.outcome === "valid" || settledJudgments?.some((j) => j.fault || j.outcome !== "valid");
+			row.rawJudgments = (row.rawJudgments ?? []).filter(
+				(raw) =>
+					hasReusableJudgments &&
+					settledJudgments?.some((j) => j.key === raw.key && ["valid", "invalid", "truncated"].includes(j.outcome)),
+			);
 		}
 		while (true) {
-			const heldRouter = probe.model.provider === "openai" ? 0 : withOpenRouterFee(bound);
-			const heldOpenai = probe.model.provider === "openai" ? bound : 0;
-			if (router.consumed + heldRouter > router.capMicros || openai.consumed + heldOpenai > openai.capMicros)
-				throw new Error("BUDGET_LIMIT");
-			router.reserve(heldRouter);
-			openai.reserve(heldOpenai);
-			row.outcome = "pending";
-			row.openRouterMicros += heldRouter;
-			row.openaiMicros += heldOpenai;
-			receipt.openRouterMicros += heldRouter;
-			receipt.openaiMicros += heldOpenai;
-			await persist();
+			const resuming = row.pendingReservation;
+			let heldRouter = resuming?.router ?? (probe.model.provider === "openai" ? 0 : withOpenRouterFee(bound));
+			let heldOpenai = resuming?.openai ?? (probe.model.provider === "openai" ? bound : 0);
+			if (!resuming) {
+				if (router.consumed + heldRouter > router.capMicros || openai.consumed + heldOpenai > openai.capMicros)
+					throw new Error("BUDGET_LIMIT");
+				router.reserve(heldRouter);
+				openai.reserve(heldOpenai);
+				row.outcome = "pending";
+				row.pendingReservation = { router: heldRouter, openai: heldOpenai };
+				await persist();
+			}
+			const held = {
+				key: probe.key,
+				reservedMicros: heldRouter + heldOpenai,
+				reservedOpenRouterMicros: heldRouter,
+				reservedOpenaiMicros: heldOpenai,
+			};
 			const judged = await verifyBenchmark({
-				options,
+				reserveRetry: (provider, micros) =>
+					reserveTransportRetry({
+						router,
+						openai,
+						held,
+						provider,
+						micros,
+						persist: async (r) => {
+							heldRouter = r.reservedOpenRouterMicros;
+							heldOpenai = r.reservedOpenaiMicros;
+							row.pendingReservation = { router: heldRouter, openai: heldOpenai };
+							await persist();
+						},
+					}).catch((error: unknown) => {
+						failure ??= error;
+						throw error;
+					}),
+				options: {
+					...options,
+					onRaw: async (raw) => {
+						row.rawJudgments ??= [];
+						row.rawJudgments.push(raw);
+						await persist();
+						await options.onRaw?.(raw);
+					},
+				},
+				cachedJudgments: row.rawJudgments ?? [],
+				stopped: () => Boolean(failure),
 				pool,
 				model: probe.model,
 				c: probe.c,
@@ -435,27 +677,48 @@ export async function runJudgeCanaries(input: {
 				promptHash: identity,
 				fixtureHash: hash(probe.c),
 			});
-			const routerCost = judged.result.openRouterCostMicros;
-			const openaiCost = judged.result.openaiCostMicros;
-			const paidRouter = routerCost === null ? heldRouter : withOpenRouterFee(routerCost);
-			const paidOpenai = openaiCost ?? heldOpenai;
-			router.settle(heldRouter, routerCost === null ? null : paidRouter);
+			const routerCost =
+				judged.result.openRouterCostMicros === null
+					? null
+					: judged.result.openRouterCostMicros - (resuming ? 0 : judged.reusedCosts.openRouterMicros);
+			const openaiCost =
+				judged.result.openaiCostMicros === null
+					? null
+					: judged.result.openaiCostMicros - (resuming ? 0 : judged.reusedCosts.openaiMicros);
+			const paidRouter = routerCost ?? 0;
+			const paidOpenai = openaiCost ?? 0;
+			router.settle(heldRouter, routerCost);
 			openai.settle(heldOpenai, openaiCost);
 			row.outcome = routerCost === null || openaiCost === null ? "billing-unknown" : judged.result.outcome;
 			row.provider = judged.provider;
 			row.verdict = judged.verdict;
-			row.openRouterMicros += paidRouter - heldRouter;
-			row.openaiMicros += paidOpenai - heldOpenai;
-			receipt.openRouterMicros += paidRouter - heldRouter;
-			receipt.openaiMicros += paidOpenai - heldOpenai;
+			row.judgments = judged.judgments;
+			row.rejectionVote = judged.rejectionVote;
+			row.voteFault = judged.fault;
+			if (routerCost !== null && openaiCost !== null) delete row.pendingReservation;
+			row.openRouterMicros += paidRouter;
+			row.openaiMicros += paidOpenai;
+			receipt.openRouterMicros += paidRouter;
+			receipt.openaiMicros += paidOpenai;
 			row.attempts?.push({
 				outcome: row.outcome,
 				provider: row.provider,
 				verdict: row.verdict,
 				openRouterMicros: paidRouter,
 				openaiMicros: paidOpenai,
+				judgments: judged.judgments,
+				rawJudgments: structuredClone(row.rawJudgments ?? []),
 			});
 			await persist();
+			if (judged.boundedProtocolRetryExhausted) {
+				row.verifierFaultRetries = MAX_CANARY_VERIFIER_FAULT_RETRIES;
+				await persist();
+				break;
+			}
+			if (["ACCOUNT_ERROR", "PAYER_MISMATCH", "SYSTEMIC_REQUEST_ERROR"].includes(row.outcome)) {
+				failure = new Error(row.outcome);
+				break;
+			}
 			if (
 				!judged.fault ||
 				!["valid", "truncated", "invalid"].includes(row.outcome) ||
@@ -464,11 +727,16 @@ export async function runJudgeCanaries(input: {
 			)
 				break;
 			row.verifierFaultRetries = (row.verifierFaultRetries ?? 0) + 1;
+			row.rawJudgments = (row.rawJudgments ?? []).filter((raw) =>
+				row.judgments
+					?.flatMap((j) => j.attempts ?? [j])
+					.some((j) => j.key === raw.key && ["valid", "invalid", "truncated"].includes(j.outcome)),
+			);
 		}
 	};
 	while (queue.length || active.size) {
 		if (!failure && !options.signal?.aborted) {
-			for (let i = 0; i < queue.length && active.size < limits.sessionConcurrency;) {
+			for (let i = 0; i < queue.length && active.size < canaryConcurrency;) {
 				const probe = queue[i];
 				if (!probe) break;
 				const provider = probe.model.provider;
@@ -477,10 +745,11 @@ export async function runJudgeCanaries(input: {
 					continue;
 				}
 				const route = routeFor(probe.model, "unused", true, probe.c);
-				const bound = verifierBound(probe.model, probe.c, route).micros * 5;
+				const bound = verifierBound(probe.model, probe.c, route).micros * REJECTION_JUDGMENTS;
 				const fits =
-					router.consumed + (provider === "openai" ? 0 : withOpenRouterFee(bound)) <= router.capMicros &&
-					openai.consumed + (provider === "openai" ? bound : 0) <= openai.capMicros;
+					Boolean(receipt.results.find((r) => r.key === probe.key)?.pendingReservation) ||
+					(router.consumed + (provider === "openai" ? 0 : withOpenRouterFee(bound)) <= router.capMicros &&
+						openai.consumed + (provider === "openai" ? bound : 0) <= openai.capMicros);
 				if (!fits) {
 					i++;
 					continue;

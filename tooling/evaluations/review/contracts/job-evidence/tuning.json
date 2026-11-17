@@ -266,7 +266,7 @@
 							"importance": "essential",
 							"verdict": "partial",
 							"evidenceIds": ["je-en-t2-cv-1"],
-							"explanation": "Used Excel for stock records for 2 years;"
+							"explanation": "For 2 years, I used Excel for stock records."
 						},
 						{
 							"id": "je-en-t2-req-2",
@@ -477,7 +477,7 @@
 							"importance": "unstated",
 							"verdict": "supported",
 							"evidenceIds": ["je-en-t3-cv-1"],
-							"explanation": "Recorded customer requests in Excel;"
+							"explanation": "Customer requests were recorded in Excel."
 						},
 						{
 							"id": "je-en-t3-req-2",
@@ -891,7 +891,7 @@
 							"importance": "essential",
 							"verdict": "partial",
 							"evidenceIds": ["je-ar-t2-cv-1"],
-							"explanation": "استخدمت إكسل لتسجيل المخزون لمدة سنتين؛"
+							"explanation": "لتسجيل المخزون، استخدمت إكسل لمدة سنتين."
 						},
 						{
 							"id": "je-ar-t2-req-2",
@@ -1102,7 +1102,7 @@
 							"importance": "unstated",
 							"verdict": "supported",
 							"evidenceIds": ["je-ar-t3-cv-1"],
-							"explanation": "سجلت طلبات العملاء باستخدام إكسل؛"
+							"explanation": "باستخدام إكسل، سجلت طلبات العملاء."
 						},
 						{
 							"id": "je-ar-t3-req-2",
@@ -1516,7 +1516,7 @@
 							"importance": "essential",
 							"verdict": "partial",
 							"evidenceIds": ["je-mixed-t2-cv-1"],
-							"explanation": "استخدمت Excel لتسجيل المخزون لمدة سنتين؛"
+							"explanation": "لتسجيل المخزون، استخدمت Excel لمدة سنتين."
 						},
 						{
 							"id": "je-mixed-t2-req-2",
@@ -1727,7 +1727,7 @@
 							"importance": "unstated",
 							"verdict": "supported",
 							"evidenceIds": ["je-mixed-t3-cv-1"],
-							"explanation": "سجلت طلبات العملاء باستخدام Excel؛"
+							"explanation": "باستخدام Excel، سجلت طلبات العملاء."
 						},
 						{
 							"id": "je-mixed-t3-req-2",
