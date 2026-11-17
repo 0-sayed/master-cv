@@ -8,7 +8,8 @@
 				"playwright.design.config.ts",
 				"tests/e2e/privacy-retention-worker.ts",
 				"tests/e2e/t005-runtime.config.ts",
-				"tests/e2e/reviewable-ai-runtime.config.ts"
+				"tests/e2e/reviewable-ai-runtime.config.ts",
+				"tests/e2e/personal-tools-release.config.ts"
 			]
 		},
 		"apps/mobile": {
@@ -110,8 +111,16 @@
 			]
 		},
 		"tooling": {
+			"ignoreExportsUsedInFile": true,
 			"entry": [
 				"**/*.mjs",
+				"evaluations/review/guard-replay-cli.ts",
+				"evaluations/review/instrument-replay-cli.ts",
+				"evaluations/review/task-completion-cli.ts",
+				"evaluations/review/task-decision-cli.ts",
+				"evaluations/review/contracts/guard.ts",
+				"evaluations/review/contracts/types.ts",
+				"evaluations/review/verifier.ts",
 				"locales/bind-privacy-copy.mts",
 				"mcp/seed.ts",
 				"vitest.documents.config.ts",

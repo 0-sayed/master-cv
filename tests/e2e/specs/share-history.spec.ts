@@ -1,5 +1,10 @@
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { createSampleResumeFromDashboard, makeResumePublic } from "../fixtures/resume";
 import { expect, test } from "../fixtures/test";
+test.skip(
+	!isFeatureAvailable("publicSharing"),
+	"A13 withholds public sharing; denial coverage lives in deferred-features-unavailable.",
+);
 
 test("renames the public address and keeps the old one redirecting", async ({ browser, authPage: page }, testInfo) => {
 	await createSampleResumeFromDashboard(page, testInfo);

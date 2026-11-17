@@ -1,5 +1,10 @@
 import { createHash, randomBytes } from "node:crypto";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { expect, test } from "../fixtures/test";
+test.skip(
+	!isFeatureAvailable("userApi"),
+	"A13 withholds user OAuth grants; denial coverage lives in deferred-features-unavailable.",
+);
 
 test("requires explicit OAuth consent before denying or allowing access", async ({ authPage: page, baseURL }) => {
 	const origin = new URL(baseURL ?? "http://localhost:3000").origin;

@@ -1,4 +1,9 @@
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { expect, test } from "../fixtures/test";
+test.skip(
+	!isFeatureAvailable("integrations"),
+	"A13 withholds external connectors; denial coverage lives in deferred-features-unavailable.",
+);
 
 test("selects, replaces and removes one optional web connection while the built-in reader stays active", async ({
 	authPage: page,

@@ -1,9 +1,18 @@
 import { readFile } from "node:fs/promises";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { expect, test } from "../fixtures/test";
 
 test("public API and MCP metadata identify this Master CV instance", async ({ request, baseURL }) => {
 	if (!baseURL) throw new Error("The browser test requires a configured baseURL");
 	const origin = new URL(baseURL).origin;
+	if (!isFeatureAvailable("userApi")) {
+		for (const path of ["/openapi.json", "/.well-known/mcp/server-card.json"]) {
+			const response = await request.get(path);
+			expect(response.status()).toBe(403);
+			expect(await response.json()).toEqual({ code: "FEATURE_UNAVAILABLE" });
+		}
+		return;
+	}
 	const specResponse = await request.get("/openapi.json");
 	await expect(specResponse).toBeOK();
 	const spec = await specResponse.json();
@@ -38,11 +47,13 @@ test("obsolete upstream funding identity and install previews are no longer publ
 });
 
 test("the downloaded application chart includes the Master CV mark", async ({ authPage: page }) => {
-	await expect(
-		await page.request.post("/api/openapi/applications", {
-			data: { company: "Synthetic brand check", role: "Engineer", status: "applied" },
-		}),
-	).toBeOK();
+	for (let index = 0; index < 3; index++) {
+		await expect(
+			await page.request.post("/api/openapi/applications", {
+				data: { company: `Synthetic brand check ${index}`, role: "Engineer", status: "applied" },
+			}),
+		).toBeOK();
+	}
 	await page.goto("/dashboard/applications?view=insights");
 	await expect(page.getByRole("img", { name: "Pipeline flow", exact: true })).toBeVisible();
 	const pending = page.waitForEvent("download");

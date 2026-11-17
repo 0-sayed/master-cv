@@ -2,6 +2,16 @@ name: Application Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      tooling_only:
+        description: Recheck tooling units after a completed full run
+        type: boolean
+        default: false
+      browser_partition:
+        description: Recheck one weighted browser partition after a completed full run
+        type: choice
+        default: all
+        options: [all, "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
   pull_request:
   push:
     branches: ["main"]
@@ -30,7 +40,7 @@ env:
   OAUTH_TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:55432/oauth_test
 
 concurrency:
-  group: application-${{ github.event.pull_request.number || github.ref }}
+  group: application-${{ github.event.pull_request.number || github.ref }}-${{ inputs.tooling_only && 'tooling' || inputs.browser_partition || 'all' }}
   cancel-in-progress: true
 
 jobs:
@@ -41,25 +51,37 @@ jobs:
     timeout-minutes: 30
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - { part: unit, group: tooling, shard: 1, label: "Tooling 1/4" }
-          - { part: unit, group: tooling, shard: 2, label: "Tooling 2/4" }
-          - { part: unit, group: tooling, shard: 3, label: "Tooling 3/4" }
-          - { part: unit, group: tooling, shard: 4, label: "Tooling 4/4" }
-          - { part: unit, group: web, label: "Web units" }
-          - { part: unit, group: api, label: "API integration" }
-          - { part: unit, group: remaining, label: "Remaining units and integration" }
-          - { part: browser, shard: 1, label: "Browser 1/10" }
-          - { part: browser, shard: 2, label: "Browser 2/10" }
-          - { part: browser, shard: 3, label: "Browser 3/10" }
-          - { part: browser, shard: 4, label: "Browser 4/10" }
-          - { part: browser, shard: 5, label: "Browser 5/10" }
-          - { part: browser, shard: 6, label: "Browser 6/10" }
-          - { part: browser, shard: 7, label: "Browser 7/10" }
-          - { part: browser, shard: 8, label: "Browser 8/10" }
-          - { part: browser, shard: 9, label: "Browser 9/10" }
-          - { part: browser, shard: 10, label: "Browser 10/10" }
+      matrix: >-
+        ${{ fromJSON(
+        inputs.tooling_only &&
+        '{ "include": [
+          {"part": "unit", "group": "tooling", "shard": 1, "label": "Tooling 1/4"},
+          {"part": "unit", "group": "tooling", "shard": 2, "label": "Tooling 2/4"},
+          {"part": "unit", "group": "tooling", "shard": 3, "label": "Tooling 3/4"},
+          {"part": "unit", "group": "tooling", "shard": 4, "label": "Tooling 4/4"}
+        ] }' ||
+        inputs.browser_partition && inputs.browser_partition != 'all' &&
+        format('{{"include":[{{"part":"browser","shard":{0},"label":"Browser {0}/10"}}]}}', inputs.browser_partition) ||
+        '{ "include": [
+          {"part": "unit", "group": "tooling", "shard": 1, "label": "Tooling 1/4"},
+          {"part": "unit", "group": "tooling", "shard": 2, "label": "Tooling 2/4"},
+          {"part": "unit", "group": "tooling", "shard": 3, "label": "Tooling 3/4"},
+          {"part": "unit", "group": "tooling", "shard": 4, "label": "Tooling 4/4"},
+          {"part": "unit", "group": "web", "label": "Web units"},
+          {"part": "unit", "group": "api", "label": "API integration"},
+          {"part": "unit", "group": "remaining", "label": "Remaining units and integration"},
+          {"part": "browser", "shard": 1, "label": "Browser 1/10"},
+          {"part": "browser", "shard": 2, "label": "Browser 2/10"},
+          {"part": "browser", "shard": 3, "label": "Browser 3/10"},
+          {"part": "browser", "shard": 4, "label": "Browser 4/10"},
+          {"part": "browser", "shard": 5, "label": "Browser 5/10"},
+          {"part": "browser", "shard": 6, "label": "Browser 6/10"},
+          {"part": "browser", "shard": 7, "label": "Browser 7/10"},
+          {"part": "browser", "shard": 8, "label": "Browser 8/10"},
+          {"part": "browser", "shard": 9, "label": "Browser 9/10"},
+          {"part": "browser", "shard": 10, "label": "Browser 10/10"}
+        ] }'
+        ) }}
 
     services:
       postgres:
@@ -165,19 +187,18 @@ jobs:
 
       - name: Run Database Migrations
         if: matrix.part == 'browser' || matrix.group == 'api' || matrix.group == 'remaining'
-        run: pnpm db:migrate
+        run: pnpm --filter @reactive-resume/db exec drizzle-kit migrate --config=drizzle.config.ts
 
       - name: Prepare OAuth Test Database
         if: matrix.part == 'browser' || matrix.group == 'remaining'
         run: |
           psql "$DATABASE_URL" -c "CREATE DATABASE oauth_test"
-          DATABASE_URL="$OAUTH_TEST_DATABASE_URL" DATABASE_MIGRATION_URL="$OAUTH_TEST_DATABASE_URL" pnpm db:migrate
+          DATABASE_URL="$OAUTH_TEST_DATABASE_URL" DATABASE_MIGRATION_URL="$OAUTH_TEST_DATABASE_URL" pnpm --filter @reactive-resume/db exec drizzle-kit migrate --config=drizzle.config.ts
 
       - name: Prepare restricted synthetic runtime role
         if: matrix.part == 'browser' || matrix.group == 'api' || matrix.group == 'remaining'
         run: |
-          node tooling/local/database-roles.mjs
-          node --input-type=module -e 'import {readFileSync,appendFileSync} from "node:fs"; const line=readFileSync(".env.runtime.local","utf8").split("\n").find(value=>value.startsWith("DATABASE_URL=")); appendFileSync(process.env.GITHUB_ENV,`${line}\n`);'
+          node tooling/local/database-roles.mjs --github-env
 
       # Four native Vitest tooling shards, web, API and every remaining test:ci workspace.
       # Keep packages serial inside each runner to avoid PDF/rate-limit pool contention.
@@ -196,11 +217,17 @@ jobs:
 
       - name: Build
         if: matrix.part == 'browser'
+        env:
+          NODE_OPTIONS: --import=${{ github.workspace }}/tooling/evaluations/review/no-env-file.mjs
+          TEST_INFERENCE_ISOLATION: "true"
         run: pnpm build
 
       # Balance the complete suite across ten runners, including shard 6 synthetic runtime suites.
       - name: Run E2E Tests
         if: matrix.part == 'browser'
+        env:
+          NODE_OPTIONS: --import=${{ github.workspace }}/tooling/evaluations/review/no-env-file.mjs
+          TEST_INFERENCE_ISOLATION: "true"
         run: |
           COVER_LETTER_TEST_DATABASE_URL="$DATABASE_URL" pnpm --filter server exec node --import ../../tooling/local/test-isolation.mjs --import tsx ../../tests/e2e/privacy-retention-worker.ts &
           worker=$!
@@ -253,7 +280,7 @@ jobs:
 
   # One stable check name for branch protection, summarising every unit and browser shard.
   e2e:
-    name: Unit integration and browser
+    name: ${{ inputs.tooling_only && 'Tooling recheck' || inputs.browser_partition && inputs.browser_partition != 'all' && 'Browser recheck' || 'Unit integration and browser' }}
     if: always()
     needs: tests
     runs-on: ubuntu-22.04
@@ -263,6 +290,7 @@ jobs:
         run: test "${{ needs.tests.result }}" = "success"
 
   document-qualification:
+    if: ${{ !inputs.tooling_only && (!inputs.browser_partition || inputs.browser_partition == 'all') }}
     name: Arabic document qualification
     runs-on: ubuntu-22.04
     timeout-minutes: 20

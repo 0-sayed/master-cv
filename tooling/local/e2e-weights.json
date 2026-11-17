@@ -368,6 +368,12 @@
 			"config": "tests/e2e/reviewable-ai-runtime.config.ts",
 			"output": "review-browser",
 			"seconds": 256
+		},
+		{
+			"shard": 6,
+			"config": "tests/e2e/personal-tools-release.config.ts",
+			"output": "release-visibility-browser",
+			"seconds": 20
 		}
 	]
 }

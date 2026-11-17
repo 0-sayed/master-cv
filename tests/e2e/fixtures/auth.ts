@@ -1,5 +1,6 @@
 import type { E2EAccount } from "./data";
 import type { APIRequestContext, Browser, BrowserContext, BrowserContextOptions, Page } from "@playwright/test";
+import { assertSyntheticSession } from "./isolation";
 import { capturedAuthLink } from "./mail";
 
 async function assertAuthResponse(response: Awaited<ReturnType<APIRequestContext["post"]>>) {
@@ -81,6 +82,9 @@ export async function createAuthenticatedContext(
 			data: { email: account.email, password: account.password },
 		}),
 	);
+	const session = await request.get("/api/auth/get-session");
+	await assertAuthResponse(session);
+	assertSyntheticSession(await session.json(), account.email);
 	// Most inherited specs start at a document deep link. Complete onboarding through its real public contract.
 	await assertAuthResponse(
 		await request.post("/api/openapi/career/personal-workspace/welcome", { headers: { origin: baseURL }, data: {} }),

@@ -47,7 +47,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		);
 	});
 }
-test("Arabic job link placeholder is LTR and mixed content selects its own direction", async ({
+test("Arabic job link placeholder follows the interface and typed links stay LTR", async ({
 	authPage: page,
 	baseURL,
 }) => {
@@ -61,7 +61,7 @@ test("Arabic job link placeholder is LTR and mixed content selects its own direc
 	const field = page.getByPlaceholder("https://…");
 	await expect(field).toBeVisible();
 	await expect(field).toHaveAttribute("dir", "ltr");
-	expect(await field.evaluate((el) => getComputedStyle(el).direction)).toBe("ltr");
+	expect(await field.evaluate((el) => getComputedStyle(el).direction)).toBe("rtl");
 	expect(await field.evaluate((el) => getComputedStyle(el).textAlign)).toBe("start");
 	await page.getByRole("tab", { name: "لصق النص", exact: true }).click();
 	const description = page.getByRole("dialog").locator("textarea");

@@ -1,3 +1,4 @@
+import { expectDeferredRoute } from "../fixtures/deferred";
 import { settleScreen } from "../fixtures/screen";
 import { expectSettingsColumn } from "../fixtures/settings-layout";
 import { expect, test } from "../fixtures/test";
@@ -36,6 +37,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			let firstSidebar: { x: number; width: number } | undefined;
 			for (const route of [...routes, `/dashboard/applications/${id}`]) {
 				await page.goto(`${route}?locale=${locale}`);
+				if (await expectDeferredRoute(page, route)) continue;
 				await expect(page.locator("main h1").first()).toBeVisible();
 				await expect(page.locator("html")).toHaveAttribute("lang", locale);
 				await settleScreen(page);
@@ -101,6 +103,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		).toBeOK();
 		for (const route of ["/dashboard", "/dashboard/applications"]) {
 			await page.goto(`${route}?locale=${locale}`);
+			if (await expectDeferredRoute(page, route)) continue;
 			await expect(page.locator("main input[type=search]")).toBeVisible();
 			await settleScreen(page);
 			const heights = await page.locator("main").evaluate((main) => {

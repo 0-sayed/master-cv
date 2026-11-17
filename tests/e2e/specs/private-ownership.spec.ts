@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile, rm } from "node:fs/promises";
 import { join } from "node:path";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { createAuthenticatedContext } from "../fixtures/auth";
 import { createAccount } from "../fixtures/data";
 import { deleteE2EUser } from "../fixtures/db";
@@ -33,16 +34,27 @@ test("real HTTP and restricted PostgreSQL deny foreign master, CV and file acces
 		const resume = await owned.json();
 		const sharedEndpoint = `/api/openapi/resumes/${account.username}/${resume.slug}`;
 		const pdfEndpoint = `/api/resumes/${account.username}/${resume.slug}/pdf`;
-		expect((await alice.request.get(sharedEndpoint)).status()).toBe(200);
-		const pdf = await alice.request.get(pdfEndpoint);
-		expect(pdf.status()).toBe(200);
-		expect(pdf.headers()["content-type"]).toContain("application/pdf");
-		expect((await pdf.body()).subarray(0, 4).toString()).toBe("%PDF");
-		expect((await alice.request.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(200);
-		expect((await (await alice.request.get(`/api/openapi/resumes/${resumeId}/statistics`)).json()).downloads).toBe(0);
-		expect((await other.get(pdfEndpoint)).status()).toBe(404);
-		expect((await other.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(404);
-		expect((await other.get(sharedEndpoint)).status()).toBe(404);
+		const sharingEnabled = isFeatureAvailable("publicSharing");
+		expect((await alice.request.get(sharedEndpoint)).status()).toBe(sharingEnabled ? 200 : 403);
+		if (sharingEnabled) {
+			const pdf = await alice.request.get(pdfEndpoint);
+			expect(pdf.status()).toBe(200);
+			expect(pdf.headers()["content-type"]).toContain("application/pdf");
+			expect((await pdf.body()).subarray(0, 4).toString()).toBe("%PDF");
+			expect((await alice.request.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(200);
+			expect((await (await alice.request.get(`/api/openapi/resumes/${resumeId}/statistics`)).json()).downloads).toBe(0);
+			expect((await other.get(pdfEndpoint)).status()).toBe(404);
+			expect((await other.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(404);
+			expect((await other.get(sharedEndpoint)).status()).toBe(404);
+		} else {
+			for (const viewer of [alice.request, other]) {
+				for (const endpoint of [sharedEndpoint, pdfEndpoint]) {
+					expect((await viewer.get(endpoint)).status()).toBe(403);
+				}
+				expect((await viewer.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(403);
+			}
+		}
+
 		expect((await other.get(`/api/openapi/resumes/${resumeId}`)).status()).toBe(404);
 		expect(
 			(
@@ -114,9 +126,11 @@ test("real HTTP and restricted PostgreSQL deny foreign master, CV and file acces
 		try {
 			expect((await anonymous.request.get(path)).status()).toBe(404);
 			expect((await anonymous.request.get(`/api/openapi/resumes/${resumeId}`)).status()).toBe(401);
-			expect((await anonymous.request.get(sharedEndpoint)).status()).toBe(404);
-			expect((await anonymous.request.get(pdfEndpoint)).status()).toBe(404);
-			expect((await anonymous.request.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(404);
+			expect((await anonymous.request.get(sharedEndpoint)).status()).toBe(sharingEnabled ? 404 : 403);
+			expect((await anonymous.request.get(pdfEndpoint)).status()).toBe(sharingEnabled ? 404 : 403);
+			expect((await anonymous.request.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(
+				sharingEnabled ? 404 : 403,
+			);
 		} finally {
 			await anonymous.close();
 		}
@@ -151,31 +165,41 @@ test("real HTTP and restricted PostgreSQL deny foreign master, CV and file acces
 			expect(await denied.text()).not.toContain(foreignBytes);
 		}
 		expect(await (await other.get(foreignPath)).text()).toBe(foreignBytes);
-		// An authenticated foreign viewer gets public access, never the owner's private scope.
-		const current = await (await alice.request.get(`/api/openapi/resumes/${resumeId}`)).json();
-		expect(
-			(
-				await alice.request.put(`/api/openapi/resumes/${resumeId}`, {
-					data: { isPublic: true, expectedUpdatedAt: current.updatedAt },
-				})
-			).ok(),
-		).toBe(true);
-		expect((await other.get(sharedEndpoint)).status()).toBe(200);
-		expect((await other.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(200);
-		expect((await other.get(`/api/openapi/resumes/${resumeId}`)).status()).toBe(404);
-		expect((await other.get(path)).status()).toBe(404);
-		expect((await alice.request.put(`/api/openapi/resumes/${resumeId}`, { data: { isPublic: false } })).ok()).toBe(
-			true,
-		);
-		expect((await other.get(sharedEndpoint)).status()).toBe(404);
-		expect(
-			(
-				await alice.request.put(`/api/openapi/resumes/${resumeId}/password`, {
-					data: { password: "Synthetic-pass-123" }, // Synthetic disposable fixture. gitleaks:allow
-				})
-			).status(),
-		).toBe(200);
-		expect((await alice.request.get(pdfEndpoint)).status()).toBe(200);
+		if (sharingEnabled) {
+			// An authenticated foreign viewer gets public access, never the owner's private scope.
+			const current = await (await alice.request.get(`/api/openapi/resumes/${resumeId}`)).json();
+			expect(
+				(
+					await alice.request.put(`/api/openapi/resumes/${resumeId}`, {
+						data: { isPublic: true, expectedUpdatedAt: current.updatedAt },
+					})
+				).ok(),
+			).toBe(true);
+			expect((await other.get(sharedEndpoint)).status()).toBe(200);
+			expect((await other.post(`${sharedEndpoint}/statistics/download`, { data: {} })).status()).toBe(200);
+			expect((await other.get(`/api/openapi/resumes/${resumeId}`)).status()).toBe(404);
+			expect((await other.get(path)).status()).toBe(404);
+			expect((await alice.request.put(`/api/openapi/resumes/${resumeId}`, { data: { isPublic: false } })).ok()).toBe(
+				true,
+			);
+			expect((await other.get(sharedEndpoint)).status()).toBe(404);
+			expect(
+				(
+					await alice.request.put(`/api/openapi/resumes/${resumeId}/password`, {
+						data: { password: "Synthetic-pass-123" }, // Synthetic disposable fixture. gitleaks:allow
+					})
+				).status(),
+			).toBe(200);
+			expect((await alice.request.get(pdfEndpoint)).status()).toBe(200);
+		} else {
+			const current = await (await alice.request.get(`/api/openapi/resumes/${resumeId}`)).json();
+			const publish = await alice.request.put(`/api/openapi/resumes/${resumeId}`, {
+				data: { isPublic: true, expectedUpdatedAt: current.updatedAt },
+			});
+			expect(publish.status()).toBe(403);
+			expect((await (await alice.request.get(`/api/openapi/resumes/${resumeId}`)).json()).isPublic).toBe(false);
+			expect((await other.get(`/api/openapi/resumes/${resumeId}`)).status()).toBe(404);
+		}
 	} finally {
 		if (folder) await rm(folder, { recursive: true, force: true });
 		if (foreignFolder) await rm(foreignFolder, { recursive: true, force: true });

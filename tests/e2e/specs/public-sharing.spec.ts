@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { createSampleResumeFromDashboard, makeResumePublic } from "../fixtures/resume";
 import { expect, test } from "../fixtures/test";
+test.skip(
+	!isFeatureAvailable("publicSharing"),
+	"A13 withholds public sharing; denial coverage lives in deferred-features-unavailable.",
+);
 
 test("counts a visitor's PDF download without counting the preview", async ({ browser, authPage: page }, testInfo) => {
 	test.setTimeout(60_000);

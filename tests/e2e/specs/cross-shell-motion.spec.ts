@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 import { writeFile } from "node:fs/promises";
-import { createSampleResumeFromDashboard, makeResumePublic } from "../fixtures/resume";
+import { createSampleResumeFromDashboard } from "../fixtures/resume";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
@@ -41,7 +41,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await page.setViewportSize({ width: 1440, height: 900 });
 		await createSampleResumeFromDashboard(page, info);
 		const resume = new URL(page.url()).pathname;
-		const publicResume = new URL(await makeResumePublic(page), baseURL).pathname;
+		const publicResume = "/synthetic/not-shared";
 		const created = await page.request.post("/api/openapi/cover-letters", { data: { name: "Synthetic shell guard" } });
 		await expect(created).toBeOK();
 		const letter = `/builder/letter/${((await created.json()) as { id: string }).id}`;

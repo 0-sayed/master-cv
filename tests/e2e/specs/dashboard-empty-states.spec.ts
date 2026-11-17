@@ -1,11 +1,14 @@
 import type { Page, TestInfo } from "@playwright/test";
 import { writeFile } from "node:fs/promises";
+import { expectDeferredRoute } from "../fixtures/deferred";
 import { capturedAuthLink } from "../fixtures/mail";
 import { privacyPost, privacyDatabase } from "../fixtures/privacy";
 import { expect, test } from "../fixtures/test";
 
 async function capture(page: Page, info: TestInfo, name: string) {
-	await expect(page.locator("main h1")).toBeAttached();
+	await expect(
+		page.locator('main h1, [data-slot="alert"][data-variant="info"] [data-slot="alert-title"]'),
+	).toBeAttached();
 	await page.evaluate(async () => {
 		await Promise.all([
 			document.fonts.load('400 16px "Noto Sans"', "Master CV"),
@@ -22,7 +25,11 @@ async function capture(page: Page, info: TestInfo, name: string) {
 	expect(metrics.fonts.some((f) => f.includes("Noto"))).toBe(true);
 	await writeFile(info.outputPath(`${name}.json`), JSON.stringify(metrics));
 	await page.screenshot({ path: info.outputPath(`${name}.png`), fullPage: true, animations: "disabled" });
-	const scroller = (await page.getByRole("dialog").count()) ? page.getByRole("dialog") : page.locator("main");
+	const scroller = (await page.getByRole("dialog").count())
+		? page.getByRole("dialog")
+		: (await page.locator("main").count())
+			? page.locator("main")
+			: page.locator("body");
 	const sizes = await scroller.evaluate((e) => ({ height: e.clientHeight, total: e.scrollHeight }));
 	for (
 		let top = sizes.height - 80, index = 1;
@@ -86,6 +93,10 @@ for (const locale of ["en-US", "ar-SA"] as const)
 				["/dashboard/settings/privacy", "export-empty"],
 			]) {
 				await page.goto(path);
+				if (await expectDeferredRoute(page, path)) {
+					await shot(name);
+					continue;
+				}
 				if (name === "export-empty") {
 					await expect(page.locator('main [role="status"]')).toContainText(
 						locale === "en-US" ? "No data copy requested yet" : "لم تطلب نسخة من بياناتك بعد",

@@ -1,7 +1,12 @@
 import type { Page } from "@playwright/test";
 import { Pool } from "pg";
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { startAiStub } from "../fixtures/ai-stub";
 import { expect, test } from "../fixtures/test";
+test.skip(
+	!isFeatureAvailable("careerAutomation"),
+	"D39 excludes the legacy career workspace; denial coverage lives in deferred-features-unavailable.",
+);
 
 async function createApplication(page: Page) {
 	const response = await page.request.post("/api/openapi/applications", {

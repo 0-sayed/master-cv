@@ -45,6 +45,7 @@
 		"test:coverage": "node tooling/local/test-ai-guard.mjs && turbo run test:coverage --concurrency=1",
 		"test:ci": "node tooling/local/test-ai-guard.mjs && turbo run test:ci --concurrency=1",
 		"test:e2e": "playwright test",
+		"test:e2e:live": "playwright test --config=playwright.live.config.ts",
 		"test:e2e:ui": "playwright test --ui",
 		"test:agent": "node tooling/local/test-ai-guard.mjs && turbo run test:agent --concurrency=1",
 		"pdf:translations": "pnpm --filter @reactive-resume/tooling pdf:translations",

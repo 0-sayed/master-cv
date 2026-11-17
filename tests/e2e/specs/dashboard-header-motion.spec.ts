@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
+import { deferredRoute, isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
@@ -141,7 +142,13 @@ for (const locale of ["ar-SA", "en-US"]) {
 					return frames;
 				};
 			});
-			const destinations = [...core.slice(1), ...core, ...remaining, `/dashboard/applications/${id}`, ...core];
+			// Withheld pages replace the shell entirely. Its motion contract covers delivered dashboard routes.
+			const destinations = [...core.slice(1), ...core, ...remaining, `/dashboard/applications/${id}`, ...core].filter(
+				(route) => {
+					const feature = deferredRoute(route);
+					return !feature || isFeatureAvailable(feature);
+				},
+			);
 			for (const route of destinations) {
 				await page.evaluate((destination) => {
 					(globalThis as RecordingWindow).shellAction = destination;

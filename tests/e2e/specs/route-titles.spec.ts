@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
+import { deferredRoute } from "@reactive-resume/schema/personal-tools";
 import { navigateDashboard } from "../fixtures/dashboard-navigation";
-import { createSampleResumeFromDashboard, makeResumePublic } from "../fixtures/resume";
+import { createSampleResumeFromDashboard } from "../fixtures/resume";
 import { expect, test } from "../fixtures/test";
 
 async function saveLocale(page: Page, baseURL: string | undefined, locale: string) {
@@ -68,6 +69,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 	test(`${locale} auth routes have explicit translated tab titles`, async ({ page }) => {
 		test.setTimeout(90_000);
 		for (const [path, ar, en] of authTitles) {
+			if (deferredRoute(path.split("?")[0])) continue;
 			await page.goto(`${path}${path.includes("?") ? "&" : "?"}locale=${locale}`);
 			await expect(page).toHaveTitle(`${locale === "ar-SA" ? ar : en} — Master CV`);
 		}
@@ -81,6 +83,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await saveLocale(page, baseURL, locale);
 		await page.setViewportSize({ width: 1440, height: 1024 });
 		for (const entry of dashboardTitles) {
+			if (deferredRoute(entry[0])) continue;
 			await page.goto(`${entry[0]}?locale=${locale}`);
 			await expect(page).toHaveTitle(`${entry[labelIndex]} — Master CV`);
 		}
@@ -148,11 +151,6 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		const letter = (await created.json()) as { id: string };
 		await page.goto(`/builder/letter/${letter.id}?locale=${locale}`);
 		await expect(page).toHaveTitle(`${letterName} — Master CV`);
-		// Existing helper uses English control names; publishing remains confined to this disposable synthetic account.
-		await page.goto(`${resumePath}?locale=en-US`);
-		const publicPath = await makeResumePublic(page);
-		await page.goto(`${publicPath}?locale=${locale}`);
-		await expect(page).toHaveTitle("E2E Test User — Master CV");
 		await page.goto(`/synthetic-title-check/not-shared?locale=${locale}`);
 		await expect(page).toHaveTitle(
 			`${locale === "ar-SA" ? "لم تتم مشاركة هذه السيرة الذاتية في الوقت الحالي." : "This resume isn't shared right now."} — Master CV`,

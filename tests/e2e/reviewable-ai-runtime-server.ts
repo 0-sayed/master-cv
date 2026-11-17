@@ -15,15 +15,29 @@ import { withAiRuntime } from "../../packages/api/src/features/ai/route-policy";
 import { syntheticReviewRuntime as syntheticRuntime } from "../../packages/api/src/features/ai/testing/runtime";
 import { variantReviewHandlers } from "../../packages/api/src/features/ai/variant-handlers";
 import { splitReviewClaims } from "../../packages/schema/src/resume/ai-review";
+import { scriptedLetterResponse } from "./fixtures/letter-transport";
 import { scriptedVariantResponse } from "./fixtures/variant-transport";
 
 type Selection = { id: string; kind: string; section: string; text: string };
 const runtime = {
 	...syntheticRuntime,
-	handlers: { ...reviewHandlers, ...variantReviewHandlers },
+	handlers: { ...syntheticRuntime.handlers, ...reviewHandlers, ...variantReviewHandlers },
 	fetch: (_url: unknown, init?: RequestInit) => {
 		const body = JSON.parse(String(init?.body));
 		const selections: Selection[] = JSON.parse(body.messages.at(-1).content).selections;
+		const letter = scriptedLetterResponse(selections);
+		if (letter !== undefined)
+			return Promise.resolve(
+				Response.json({
+					id: "synthetic-letter",
+					model: "synthetic/model",
+					provider: "Test",
+					choices: [
+						{ index: 0, message: { role: "assistant", content: JSON.stringify(letter) }, finish_reason: "stop" },
+					],
+					usage: { prompt_tokens: 5, completion_tokens: 5, total_tokens: 10, cost: 0.00001 },
+				}),
+			);
 		const variantResult = scriptedVariantResponse(selections);
 		if (variantResult instanceof Response) return Promise.resolve(variantResult);
 		if (variantResult !== undefined)

@@ -134,6 +134,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					if (pendingCard && cardSelector) {
 						const readyCard = await page.locator(cardSelector).boundingBox();
 						if (!readyCard) throw new Error("Loaded document card is missing");
+						expect(Math.abs(readyCard.y - pendingCard.y)).toBeLessThanOrEqual(1);
 						expect(Math.abs(readyCard.width - pendingCard.width)).toBeLessThanOrEqual(1);
 						expect(Math.abs(readyCard.height - pendingCard.height)).toBeLessThanOrEqual(1);
 					}
@@ -166,7 +167,9 @@ test("reduced motion makes query placeholders static", async ({ authPage: page }
 	}
 });
 
-test("related Today reads arrive together without moving sibling content", async ({ authPage: page }) => {
+test("related personal information reads arrive together without moving sibling content", async ({
+	authPage: page,
+}) => {
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.addInitScript(() => {
 		(globalThis as typeof globalThis & { queryCLS: number }).queryCLS = 0;
@@ -186,7 +189,7 @@ test("related Today reads arrive together without moving sibling content", async
 		await route.continue();
 	});
 	try {
-		await page.goto("/dashboard/career");
+		await page.goto("/dashboard/career/information");
 		await expect(page.locator('main [data-visible="true"] [data-slot="skeleton"]').first()).toBeVisible();
 		await page.evaluate(() => {
 			(globalThis as typeof globalThis & { queryCLS: number }).queryCLS = 0;

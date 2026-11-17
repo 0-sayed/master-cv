@@ -1,3 +1,4 @@
+import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { createSampleResumeFromDashboard } from "../fixtures/resume";
 import { expect, test } from "../fixtures/test";
 
@@ -9,8 +10,8 @@ test("fresh account prepares a linked blank resume and selects only submitted at
 	const save = page.getByRole("dialog", { name: "Save a job", exact: true });
 	await save.getByRole("tab", { name: "Paste text", exact: true }).click();
 	await save.getByLabel("Job description").fill("Write useful software for Fresh Company.");
-	await save.getByLabel("Role", { exact: true }).fill("Engineer");
-	await save.getByLabel("Company", { exact: true }).fill("Fresh Company");
+	await save.getByRole("textbox", { name: "Role", exact: true }).fill("Engineer");
+	await save.getByRole("textbox", { name: "Company", exact: true }).fill("Fresh Company");
 	await save.getByRole("button", { name: "Save and tailor CV", exact: true }).click();
 	await page.getByRole("button", { name: "Import or create a resume" }).click();
 	await page.getByRole("button", { name: /^Write from scratch/ }).click();
@@ -23,14 +24,18 @@ test("fresh account prepares a linked blank resume and selects only submitted at
 	expect(job).toMatchObject({ status: "saved", resumeId, sentResumeVersionId: null });
 	expect((await (await page.request.get(`/api/openapi/resumes/${resumeId}`)).json()).applicationId).toBe(job.id);
 	const attachment = await page.request.put(`/api/openapi/applications/${job.id}`, {
-		data: { resumeFileUrl: "https://example.com/draft.pdf", resumeFileName: "Draft.pdf" },
+		data: {
+			expectedUpdatedAt: job.updatedAt,
+			resumeFileUrl: "https://example.com/draft.pdf",
+			resumeFileName: "Draft.pdf",
+		},
 	});
 	await expect(attachment).toBeOK();
 	await page.goto("/dashboard/applications");
 	await page.getByText("Engineer", { exact: true }).first().click();
 	await page.getByRole("button", { name: "Mark as applied", exact: true }).click();
 	const confirm = page.getByRole("dialog", { name: "Mark as applied", exact: true });
-	await confirm.getByLabel("Submitted attached resume: Draft.pdf").uncheck();
+	await confirm.getByRole("checkbox", { name: "Submitted attached resume: Draft.pdf", exact: true }).uncheck();
 	await confirm.getByRole("button", { name: "Confirm applied" }).click();
 	await expect(confirm).not.toBeVisible();
 	const applied = await (await page.request.get(`/api/openapi/applications/${job.id}`)).json();
@@ -52,8 +57,8 @@ test("save, manually prepare a copy, and confirm submitted documents without ser
 	await save
 		.getByLabel("Job description")
 		.fill("Engineer at Example. Build accessible web applications with TypeScript.");
-	await save.getByLabel("Role", { exact: true }).fill("Engineer");
-	await save.getByLabel("Company", { exact: true }).fill("Example");
+	await save.getByRole("textbox", { name: "Role", exact: true }).fill("Engineer");
+	await save.getByRole("textbox", { name: "Company", exact: true }).fill("Example");
 	await save.getByRole("combobox", { name: "Resume (optional)", exact: true }).click();
 	await page.getByRole("option", { name: baseName, exact: true }).click();
 	await save.getByRole("button", { name: "Save and tailor CV", exact: true }).click();
@@ -114,11 +119,16 @@ test("unreadable link preserves fields and source while offering immediate paste
 	const dialog = page.getByRole("dialog", { name: "Save a job", exact: true });
 	const source = "https://127.0.0.1/job";
 	await dialog.getByLabel("Job link", { exact: true }).fill(source);
-	await dialog.getByLabel("Role", { exact: true }).fill("Manual role");
-	await dialog.getByLabel("Company", { exact: true }).fill("Manual company");
-	await dialog.getByRole("button", { name: "Read job", exact: true }).click();
+	await dialog.getByRole("textbox", { name: "Role", exact: true }).fill("Manual role");
+	await dialog.getByRole("textbox", { name: "Company", exact: true }).fill("Manual company");
+	if (isFeatureAvailable("jobSearch")) {
+		await dialog.getByRole("button", { name: "Read job", exact: true }).click();
+	} else {
+		await expect(dialog.getByRole("button", { name: "Read job", exact: true })).toHaveCount(0);
+		await dialog.getByRole("tab", { name: "Paste text", exact: true }).click();
+	}
 	await expect(dialog.getByLabel("Job description")).toBeVisible();
-	await expect(dialog.getByLabel("Role", { exact: true })).toHaveValue("Manual role");
+	await expect(dialog.getByRole("textbox", { name: "Role", exact: true })).toHaveValue("Manual role");
 	await expect(dialog.getByText("The original link stays with this job.", { exact: true })).toBeVisible();
 	await dialog.getByRole("tab", { name: "Link", exact: true }).click();
 	await expect(dialog.getByLabel("Job link", { exact: true })).toHaveValue(source);
@@ -128,8 +138,9 @@ test("unreadable link preserves fields and source while offering immediate paste
 	await expect(dialog).not.toBeVisible();
 	const jobs = await (await page.request.get("/api/openapi/applications")).json();
 	expect(jobs[0]).toMatchObject({ sourceUrl: source, jobDescription: "Complete manual description", status: "saved" });
-	await page.getByRole("button", { name: "Open workspace", exact: true }).click();
-	const external = page.getByRole("link", { name: "View posting", exact: true });
+	await page.goto(`/dashboard/applications/${jobs[0].id}`);
+	await page.getByRole("button", { name: "Posting", exact: true }).click();
+	const external = page.getByRole("dialog").getByRole("link", { name: source, exact: true });
 	await expect(external).toHaveAttribute("href", source);
 	const popup = page.waitForEvent("popup");
 	await external.click();
@@ -146,8 +157,8 @@ test("pasted descriptions announce clipping before preparation and preserve boun
 	await dialog.getByRole("tab", { name: "Paste text", exact: true }).click();
 	await dialog.getByLabel("Job description").fill("Description ".repeat(2000));
 	await expect(dialog.getByRole("alert")).toContainText("clipped or incomplete");
-	await dialog.getByLabel("Role", { exact: true }).fill("Engineer");
-	await dialog.getByLabel("Company", { exact: true }).fill("Clipped");
+	await dialog.getByRole("textbox", { name: "Role", exact: true }).fill("Engineer");
+	await dialog.getByRole("textbox", { name: "Company", exact: true }).fill("Clipped");
 	await dialog.getByRole("button", { name: "Save job", exact: true }).click();
 	await expect(dialog).not.toBeVisible();
 	const jobs = await (await page.request.get("/api/openapi/applications")).json();

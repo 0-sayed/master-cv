@@ -7,7 +7,7 @@ test("Arabic back arrows point right and the tablet home link names Master CV", 
 	await page.setViewportSize({ width: 390, height: 844 });
 	await createSampleResumeFromDashboard(page, testInfo);
 	await page.goto(`${new URL(page.url()).pathname}?locale=ar-SA`);
-	const back = page.locator('a[href="/dashboard"][aria-label] [data-slot="icon"]').first();
+	const back = page.locator('a[href="/dashboard"][data-slot="back-navigation"] [data-slot="icon"]').first();
 	const horizontalDirection = (element: Element) => {
 		const style = getComputedStyle(element);
 		return (Number.parseFloat(style.scale) || 1) * Math.cos(((Number.parseFloat(style.rotate) || 0) * Math.PI) / 180);
@@ -30,9 +30,12 @@ test("the mobile application workspace starts with its own header", async ({ aut
 	await expect(response).toBeOK();
 	const id = (await response.json()) as string;
 	await page.goto(`/dashboard/applications/${id}`);
-	await expect(page.getByRole("heading", { name: "Engineer · Synthetic workspace" })).toBeVisible();
-	const header = page
-		.getByRole("heading", { name: "Engineer · Synthetic workspace" })
-		.locator("xpath=ancestor::header");
-	expect((await header.boundingBox())?.y).toBe(0);
+	await expect(page.getByRole("heading", { name: "Engineer", exact: true })).toBeVisible();
+	const header = page.getByRole("heading", { name: "Engineer", exact: true }).locator("xpath=ancestor::header");
+	const shell = page.locator('[data-slot="dashboard-header-content"]').locator("..");
+	await expect(shell).toBeVisible();
+	const shellBox = await shell.boundingBox();
+	const headerBox = await header.boundingBox();
+	if (!shellBox || !headerBox) throw new Error("Application header missing");
+	expect(headerBox.y - shellBox.y - shellBox.height).toBe(20);
 });
