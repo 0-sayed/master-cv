@@ -204,7 +204,7 @@ it.each(["missing", "unavailable", "fabricated", "changed"] as const)(
 					.query("SELECT kind FROM ai_usage_ledger WHERE operation_id=$1 ORDER BY created_at", [operation.id])
 			).rows.map((row) => row.kind),
 		).toEqual(["reserve", "release"]);
-		if (value === "fabricated") expect(calls).toHaveLength(1);
+		if (value === "fabricated") expect(calls).toHaveLength(2);
 		mode = "supported";
 	},
 );

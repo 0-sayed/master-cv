@@ -19,6 +19,7 @@ import { operationRequestSchema } from "@reactive-resume/schema/ai-operation";
 import { generateId } from "@reactive-resume/utils/string";
 import { lockDocumentOwner } from "../documents/ownership";
 import { createResumeInTransaction } from "../resume/service";
+import { currentContentAttempts } from "./content-retry";
 import { loadReviewSource, lockReviewProfile, removeExpiredReviewSources } from "./review-sources";
 import { getOperationHandler, canonicalJson, operationFingerprint, resolveApprovedRoute } from "./route-policy";
 import {
@@ -378,10 +379,13 @@ export function deliverOperation(lease: OperationLease, output: Record<string, u
 				.select()
 				.from(aiOperationAttempt)
 				.where(eq(aiOperationAttempt.operationId, operation.id));
-			const generated = attempts.find(
+			const currentAttempts = currentContentAttempts(attempts);
+			const generated = currentAttempts.find(
 				(a) => a.stepId !== "verify" && a.outcome === "valid" && a.finishedAt && a.output,
 			);
-			const verified = attempts.find((a) => a.stepId === "verify" && a.outcome === "valid" && a.finishedAt && a.output);
+			const verified = currentAttempts.find(
+				(a) => a.stepId === "verify" && a.outcome === "valid" && a.finishedAt && a.output,
+			);
 			try {
 				if (
 					!generated?.output ||

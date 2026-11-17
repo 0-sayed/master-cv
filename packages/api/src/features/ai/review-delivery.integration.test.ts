@@ -206,7 +206,11 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("review delivery", 
 					.admin()
 					.query("SELECT step_id FROM ai_operation_attempt WHERE operation_id=$1 ORDER BY ordinal", [operation.id])
 			).rows;
-			expect(attempts.map((a) => a.step_id)).toEqual(["generate", "verify"]);
+			expect(attempts.map((a) => a.step_id)).toEqual(
+				["unsupported", "contradicted", "lost"].includes(mode)
+					? ["generate", "verify", "regenerate", "verify"]
+					: ["generate", "verify"],
+			);
 			expect(
 				(
 					await database
