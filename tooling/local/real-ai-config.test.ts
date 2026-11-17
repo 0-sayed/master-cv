@@ -1,4 +1,6 @@
 import { expect, it } from "vite-plus/test";
+import { completionTokenLimit } from "@reactive-resume/api/features/ai/route-policy";
+import { resolveReviewVerifierRoute } from "@reactive-resume/api/features/ai/verifier-policy";
 import { resolveWriterRoute } from "@reactive-resume/api/features/ai/writer-policy";
 import { realAiConfig } from "./real-ai-config";
 
@@ -73,4 +75,46 @@ it("approves the existing result-question mode on Terra medium separately", () =
 		downstreamProvider: "azure",
 		maxCallCostMicros: 100000,
 	});
+});
+
+it.each([
+	["summary", "openai/gpt-6.1-terra", "medium", 768, 1536],
+	["job-evidence", "openai/gpt-6.1-terra", "medium", 512, 1024],
+	["tailoring", "openai/gpt-6.1-terra", "medium", 512, 1024],
+	["translation", "openai/gpt-6-luna", "low", 768, 960],
+	["cover-letter", "openai/gpt-6.1-terra", "medium", 1536, 3072],
+	["interview-prep", "openai/gpt-6.1-terra", "medium", 1536, 3072],
+])(
+	"resolves the owner-selected %s writer and measured completion budget",
+	(task, model, reasoningEffort, visible, total) => {
+		const { route } = realAiConfig({ OPENROUTER_API_KEY: "fake" });
+		const selected = resolveWriterRoute(route, { kind: `review.${task}`, parameters: {} });
+		expect(selected).toMatchObject({ model, reasoningEffort, maxOutputTokens: visible });
+		expect(completionTokenLimit(selected)).toBe(total);
+		expect(resolveReviewVerifierRoute(selected)).toMatchObject({
+			model: "deepseek/deepseek-v4.1-flash-1017",
+			reasoningEffort: "low",
+			maxOutputTokens: 16384,
+		});
+		expect(completionTokenLimit(resolveReviewVerifierRoute(selected))).toBe(20480);
+	},
+);
+
+it("keeps task output allowances inside the approved bundle and rejects invalid limits", () => {
+	const { route } = realAiConfig({ OPENROUTER_API_KEY: "fake" });
+	expect(
+		resolveWriterRoute({ ...route, maxOutputTokens: 256 }, { kind: "review.cover-letter", parameters: {} })
+			.maxOutputTokens,
+	).toBe(256);
+	for (const maxOutputTokens of [0, -1, 16385, 1.5]) {
+		expect(() =>
+			resolveWriterRoute(
+				route,
+				{ kind: "review.summary", parameters: {} },
+				{
+					"review.summary": { model: "openai/gpt-6.1-terra", reasoningEffort: "medium", maxOutputTokens },
+				},
+			),
+		).toThrow();
+	}
 });

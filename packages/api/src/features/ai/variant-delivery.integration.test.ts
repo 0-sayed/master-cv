@@ -18,6 +18,7 @@ let mode: "supported" | "missing" | "unavailable" | "changed" | "fabricated" = "
 let calls: Record<string, unknown>[] = [];
 const runtime = {
 	...syntheticReviewRuntime,
+	writerConfig: { "review.job-evidence": { model: "openai/gpt-6-luna", reasoningEffort: "low" } },
 	fetch: async (_url: unknown, init?: RequestInit) => {
 		const body = JSON.parse(String(init?.body));
 		calls.push(body);

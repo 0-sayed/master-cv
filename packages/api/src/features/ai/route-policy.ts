@@ -21,7 +21,12 @@ export type ApprovedRoute = RouteBinding & {
 	writers?: readonly WriterRouteApproval[];
 	/** Explicitly approved cross-family verification in this consent/config bundle. */
 	verifier?:
-		| { evidenceVersion: string; maxCallCostMicros: number; policy?: import("./verifier-policy").VerifierPolicy }
+		| {
+				evidenceVersion: string;
+				maxCallCostMicros: number;
+				maxOutputTokens?: number;
+				policy?: import("./verifier-policy").VerifierPolicy;
+		  }
 		| undefined;
 	endpoint: string;
 	model: string;
@@ -54,7 +59,7 @@ export function completionTokenLimit(
 		!Object.hasOwn(visiblePercent, effort) ||
 		!Number.isSafeInteger(route.maxOutputTokens) ||
 		route.maxOutputTokens <= 0 ||
-		route.maxOutputTokens > 4096
+		route.maxOutputTokens > 16384
 	)
 		throw new Error("AI_INVALID_OUTPUT_LIMIT");
 	const scaled = Math.ceil((route.maxOutputTokens * 100) / visiblePercent[effort]);
@@ -192,7 +197,7 @@ export async function resolveApprovedRoute(userId: string, request: OperationReq
 		route.callTimeoutMs > 30000 ||
 		route.deadlineMs > 120000 ||
 		route.maxInputCodePoints > 32000 ||
-		route.maxOutputTokens > 4096 ||
+		route.maxOutputTokens > 16384 ||
 		route.requestCapMicros > route.dayCapMicros ||
 		!Number.isSafeInteger(route.maxCalls * route.maxCallCostMicros) ||
 		route.maxCalls * route.maxCallCostMicros > route.requestCapMicros ||

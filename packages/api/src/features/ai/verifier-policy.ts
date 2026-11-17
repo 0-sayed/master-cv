@@ -1,4 +1,5 @@
 import type { ApprovedRoute, ReasoningEffort } from "./route-policy";
+import { completionTokenLimit } from "./route-policy";
 
 export type VerifierPolicy = { model: string; downstreamProvider: string; reasoningEffort: ReasoningEffort };
 export function reviewVerifierPolicy(writerModel: string): VerifierPolicy {
@@ -18,10 +19,13 @@ export function resolveReviewVerifierRoute(writer: ApprovedRoute): ApprovedRoute
 		throw new Error("AI_VERIFIER_ROUTE_UNAPPROVED");
 	const policy = { ...reviewVerifierPolicy(writer.model), ...approved.policy };
 	if (policy.model.split("/")[0] === writer.model.split("/")[0]) throw new Error("AI_VERIFIER_FAMILY_CONFLICT");
-	return {
+	const route = {
 		...writer,
 		...policy,
+		maxOutputTokens: approved.maxOutputTokens ?? writer.maxOutputTokens,
 		maxCallCostMicros: approved.maxCallCostMicros,
 		evidenceVersion: approved.evidenceVersion,
 	};
+	completionTokenLimit(route);
+	return route;
 }
