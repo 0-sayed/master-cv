@@ -17,8 +17,8 @@ Start after T008 merges. Land before T012 deployment because deployment needs th
 - Cover `Planning/context/design/copy-deck.json`, ar-SA/en-US locales, landing and legal pages.
 - Cover meta/OG tags, manifest/PWA, favicon and logo assets, accessible names and alternative text.
 - Replace product branding with Sirawise through existing shared constants where they exist.
-- Use the owner-approved Arabic name/transliteration when supplied. Do not invent an Arabic brand.
-- Replace logo and favicon assets with owner-supplied artwork. Artwork delivery is an explicit gate.
+- Use the owner-approved Arabic name سيراوايز (2026-11-18).
+- Preserve current icon geometry and asset bytes. New S/س artwork is deferred by owner exception (2026-11-18).
 - Inventory Figma brand references and record their updates as follow-up through authorized access.
 - Record each surface, source, replacement, retained exception and actual test evidence in one inventory.
 
@@ -92,10 +92,9 @@ A05 still gates DOCX availability. Metadata changes do not authorize an export f
 
 ## Open approvals/blockers affecting the task
 
-- Owner input: Arabic product name/transliteration.
-- Owner input: logo and favicon artwork. Asset replacement waits for supplied artwork.
-- Owner input: domain, needed before T012 deployment.
-- Owner input: email sender name.
+- Resolved 2026-11-18: Sirawise / SIRAWISE, سيراوايز, sirawise.io and `Sirawise <noreply@sirawise.io>`.
+- Resolved 2026-11-18: retain artwork bytes and geometry, defer new S/س artwork.
+- T012 retains DNS, certificates, sirawise.co redirect and sender activation.
 - Authorized Figma access and follow-up remain separate from this local planning update.
 - Existing data, export, mobile, billing and deployment gates remain unchanged.
 
@@ -106,3 +105,17 @@ A05 still gates DOCX availability. Metadata changes do not authorize an export f
 - Focused tests and AR/EN desktop/mobile evidence pass for the changed scope.
 - T016 lands after T008 merges and before T012 deployment.
 - Tick the Task Graph row and update its Mermaid class when the PR is first shipped.
+
+## Owner-added local demo, 2026-11-18
+
+Provide a fail-closed loopback-only seed with one verified fictional account, structured master, three CVs, three letters, two applications/job targets, six facts and three stories. Use existing owner-scoped services, restricted runtime credentials and revision checks. Preserve user edits on rerun. Populate atomically, refuse identity collisions and unexpected partial content, and never use AI or deliver mail.
+
+## Implementation evidence, 2026-11-18
+
+The completed uncommitted implementation and retained-name inventory are in [T016 evidence](T016-sirawise-rename-evidence.md).
+
+The owner keeps the roadmap row unchecked and the dependency pending until shipment. This overrides the execution plan bookkeeping step.
+
+The product name is Sirawise / SIRAWISE, with سيراوايز in Arabic. The primary domain is sirawise.io. The default sender is `Sirawise <noreply@sirawise.io>`.
+
+All locale catalogs use the approved brand. Artwork bytes and geometry remain unchanged. The local synthetic demo includes 3 CVs, 3 letters, and 2 applications. Docker-published loopback PostgreSQL is supported through the guarded restricted role. Hermes compiler evidence is skipped by owner instruction. Existing release gates remain closed where applicable.

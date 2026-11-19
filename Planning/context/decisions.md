@@ -264,3 +264,15 @@ Keep the original study identity and the Arabic approval. Update only the operat
 Owner decision: Sayed, 2026-11-17, provisional. Use `openai/gpt-6.1-terra` at medium reasoning for summary, job-evidence, tailoring, cover-letter and interview-prep. Use `openai/gpt-6-luna` at low reasoning for translation. Tailoring and interview-prep have formal provisional benchmark winners. Summary, job-evidence, translation and cover-letter are practical owner choices with no formally eligible winner. The verifier stays `deepseek/deepseek-v4.1-flash-1017` at low reasoning through Together. Preserve the T006 wording, extraction and result-question model/effort choices. Shared configuration records interview-prep, but the product remains disabled and benchmark-only. Production has no approved route manifest. This decision authorizes no live inference or release.
 
 The final decision document is `ui-audit/benchmark-decision-tasks-v1-final.md` in the sibling `master-cv-design-archive` directory. The Drive benchmark package also contains these results. The corrected study is `tasks-v1-personal-career-1b478d23ef9e`. Source results SHA-256: `f4253396195eee15e2de5e4db199cb74c39beb116386a1f4da8d8007e0520d63`. T008 evidence records measured limits and the policy ceiling.
+
+## D43 amendment, owner decision 2026-11-19
+
+The 2026-11-16 build order above remains history. T014 phone OTP is not part of the MVP; it moves after T015 and blocks no MVP task. Google OAuth sign-in stays in T017. Current order: T017 Hostinger private beta (invite-only, Google sign-in) -> T010 Moyasar billing in test mode on T017 -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release -> T014 later. All other D43 terms, gates and approvals are unchanged.
+
+## D42 amendment, owner decision 2026-11-18
+
+The 2026-11-16 decision above remains history. Current names are Sirawise / SIRAWISE and سيراوايز. Use sirawise.io as the primary domain and `Sirawise <noreply@sirawise.io>` as the default sender. Preserve explicit sender overrides and local origins.
+
+Preserve current icon geometry and asset bytes, including the embedded favicon title. Defer replacement S/س artwork under this owner-approved T016 exception. Add one guarded, verified local demo account with invented data and fixed documented credentials. No external AI, paid calls or mail delivery is authorized.
+
+T012 owns the later sirawise.co redirect, DNS, certificates, deployment and sender activation. Repository/package names, internal/database identifiers, attribution, historical sources and saved user content stay unchanged. A01–A16 and release gates remain unchanged.

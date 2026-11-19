@@ -1,13 +1,13 @@
 # T014 — Activate mobile authentication
 
 **Task:** T014 · **PR size:** L · **Branch:** `feat/t014-mobile-authentication`
-**Depends on:** T003, T009, T017 · **Priority:** 90
+**Depends on:** T003, T009, T017 · **Priority:** 160
 **Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
 **Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
 
 ## Goal
 
-D43: build phone OTP after T017 on the Hostinger pilot before T010 and T013. The owner suggests Saudi SMS provider "T2"; verify its exact name and suitability later. Company registration, sender approval and A14-A16 remain activation gates.
+D43 as amended 2026-11-19: phone OTP is post-MVP, after T015; it no longer blocks T010 or T013. Google sign-in stays in T017. The owner suggests Saudi SMS provider "T2"; verify its exact name and suitability later. Company registration, sender approval and A14-A16 remain activation gates.
 
 Activate the mobile authentication increment under D20/D21 in the D43 pilot build order.
 Mobile signup, SMS verification/reset, recovery codes and S37-S39 stay off at launch.

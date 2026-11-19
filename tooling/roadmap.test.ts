@@ -1,7 +1,17 @@
 import { spawnSync } from "node:child_process";
-import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+	cpSync,
+	existsSync,
+	mkdirSync,
+	mkdtempSync,
+	readFileSync,
+	readdirSync,
+	rmSync,
+	symlinkSync,
+	writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, it } from "vite-plus/test";
 
@@ -16,8 +26,19 @@ it.each([
 	try {
 		cpSync(join(source, "Planning"), join(root, "Planning"), { recursive: true });
 		for (const entry of readdirSync(source)) {
-			if (entry !== "Planning" && entry !== ".git" && entry !== ".archon")
+			if (!["Planning", "docs", ".git", ".archon"].includes(entry) && !entry.startsWith(".env"))
 				symlinkSync(join(source, entry), join(root, entry));
+		}
+		// Ignored local plans must not hide broken links in the CI snapshot.
+		const documents = spawnSync("git", ["ls-files", "--cached", "--others", "--exclude-standard", "-z", "--", "docs"], {
+			cwd: source,
+			encoding: "utf8",
+		});
+		expect(documents.status, documents.stderr).toBe(0);
+		for (const document of documents.stdout.split("\0").filter(Boolean)) {
+			if (!existsSync(join(source, document))) continue;
+			mkdirSync(dirname(join(root, document)), { recursive: true });
+			cpSync(join(source, document), join(root, document));
 		}
 		const table = join(root, "Planning/roadmap/tasks.md");
 		writeFileSync(

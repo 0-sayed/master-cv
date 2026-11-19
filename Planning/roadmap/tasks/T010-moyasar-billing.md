@@ -1,13 +1,13 @@
 # T010 — Deliver Moyasar billing and entitlement lifecycle
 
 **Task:** T010 · **PR size:** L · **Branch:** `feat/t010-moyasar-billing`
-**Depends on:** T005, T014, T017 · **Priority:** 100
+**Depends on:** T005, T017 · **Priority:** 100
 **Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
 **Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
 
 ## Goal
 
-D43: build test-mode billing on the T017 Hostinger server after T014. Saudi deployment is not a test-mode prerequisite. Production charging requires T012, T015 and existing payment approvals.
+D43 as amended 2026-11-19: build test-mode billing on the T017 Hostinger server right after T017; T014 phone OTP is post-MVP. Saudi deployment is not a test-mode prerequisite. Production charging requires T012, T015 and existing payment approvals.
 
 Implement the selected Moyasar adapter and paid entitlement lifecycle in the existing backend with server-verified
 outcomes and sandbox evidence.

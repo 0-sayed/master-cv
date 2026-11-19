@@ -108,7 +108,7 @@ def check(snapshot=None):
             errors.append('v1.0 scheduler contract changed.')
         output.append('v1.0 comparison: task rows and scheduler contract ' + ('FAIL.' if errors else 'unchanged.'))
 
-    files = [roadmap / 'README.md', roadmap / 'tasks.md'] + sorted((roadmap / 'tasks').glob('T*.md'))
+    files = [roadmap / 'README.md', roadmap / 'tasks.md'] + sorted(file for file in (roadmap / 'tasks').glob('T*.md') if not file.name.endswith('-evidence.md'))
     for file in files:
         errors.extend(f'{file.name}: {error}' for error in registry_claim_errors(file.read_text(), inventory, figma))
     if len(files) != 20:
@@ -186,11 +186,12 @@ def check(snapshot=None):
         reaches_final |= {dep for dep, target in edges if target in reaches_final}
         if reaches_final == previous:
             break
-    if reaches_final != task_ids:
-        errors.append('Every task must feed paid qualification T015.')
+    post_mvp = {'T014'}
+    if reaches_final != task_ids - post_mvp or reaches_final & post_mvp:
+        errors.append('Every MVP task must feed paid qualification T015; post-MVP T014 must not.')
     required_dependencies = {
         'T011': {'T009', 'T007'},
-        'T010': {'T017', 'T005', 'T014'},
+        'T010': {'T017', 'T005'},
         'T012': {'T013', 'T009', 'T005'},
         'T013': {'T009', 'T011', 'T007', 'T010'},
         'T014': {'T009', 'T003', 'T017'},
@@ -209,8 +210,8 @@ def check(snapshot=None):
         beta_ancestors |= {dep for dep, target in edges if target in beta_ancestors}
         if beta_ancestors == previous:
             break
-    if not {'T010', 'T014', 'T017'} <= beta_ancestors or 'T012' in beta_ancestors:
-        errors.append('D43 requires Hostinger, phone OTP and test-mode billing before beta qualification, then Saudi production.')
+    if not {'T010', 'T017'} <= beta_ancestors or {'T012', 'T014'} & beta_ancestors:
+        errors.append('Amended D43 requires Hostinger and test-mode billing before beta qualification, then Saudi production; phone OTP is post-MVP.')
     for row in table.values():
         for value in re.findall(r'`([^`]+)`', row['context']):
             if not (planning / value).is_file():

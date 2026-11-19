@@ -33,10 +33,9 @@ flowchart TD
     T007 --> T011
     T009 --> T011
 
-    %% D43: T008 -> T016 -> T017 -> T014 -> T010 -> T013 -> T012 -> T015.
+    %% D43 (amended 2026-11-19): T008 -> T016 -> T017 -> T010 -> T013 -> T012 -> T015; T014 post-MVP.
     %% T012 follows client pilot approval; production charging waits for T012/T015.
     T005 --> T010
-    T014 --> T010
     T017 --> T010
     T005 --> T012
     T009 --> T012
@@ -59,5 +58,5 @@ flowchart TD
 
     classDef pending fill:#e5e7eb,stroke:#6b7280,color:#111827;
     classDef done fill:#dcfce7,stroke:#16a34a,color:#14532d;
-    class T000,T001,T002,T003,T004,T005,T006,T007,T008,T009,T011 done;
-    class T010,T012,T013,T014,T015,T016,T017 pending;
+    class T000,T001,T002,T003,T004,T005,T006,T007,T008,T009,T011,T016 done;
+    class T010,T012,T013,T014,T015,T017 pending;
