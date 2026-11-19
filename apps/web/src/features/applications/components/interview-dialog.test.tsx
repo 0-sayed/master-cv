@@ -195,3 +195,31 @@ it("keeps the saved round until deletion is explicitly confirmed and acknowledge
 	expect(api.add).not.toHaveBeenCalled();
 	expect(api.update).not.toHaveBeenCalled();
 });
+
+it.each(["https://example.test/room", "javascript:alert(1)", "Office"])(
+	"keeps safe interview access for %s",
+	(location) => {
+		const client = new QueryClient();
+		clients.push(client);
+		const onOpenApplication = vi.fn();
+		render(
+			<QueryClientProvider client={client}>
+				<I18nProvider i18n={i18n}>
+					<InterviewDialog
+						open
+						onOpenChange={vi.fn()}
+						application={application}
+						interview={{ ...interview, location }}
+						onOpenApplication={onOpenApplication}
+					/>
+				</I18nProvider>
+			</QueryClientProvider>,
+		);
+		if (location.startsWith("https:")) {
+			expect(screen.getByRole("link", { name: "Join" })).toHaveAttribute("href", location);
+			expect(screen.getByRole("link", { name: "Join" })).toHaveAttribute("rel", "noopener noreferrer");
+		} else expect(screen.queryByRole("link", { name: "Join" })).toBeNull();
+		fireEvent.click(screen.getByRole("button", { name: "View application" }));
+		expect(onOpenApplication).toHaveBeenCalledWith(application);
+	},
+);

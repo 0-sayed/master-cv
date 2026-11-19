@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import { useRouter } from "@tanstack/react-router";
-import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { cn } from "@reactive-resume/utils/style";
+import { BrandIcon } from "@/components/ui/brand-icon";
 
 export function LoadingScreen() {
 	const { t } = useLingui();

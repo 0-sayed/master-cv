@@ -31,7 +31,7 @@ const authTitles = [
 		"هذه السيرة الذاتية محمية بكلمة مرور",
 		"This resume is password protected",
 	],
-	["/auth/native-callback", "افتح تطبيق Master CV", "Open the Master CV app"],
+	["/auth/native-callback", "افتح تطبيق سيراوايز", "Open the Sirawise app"],
 ] as const;
 
 const dashboardTitles = [
@@ -50,6 +50,8 @@ const dashboardTitles = [
 	["/dashboard/career/knowledge/stories", "القصص", "Stories"],
 	["/dashboard/career/knowledge/preferences", "التفضيلات", "Preferences"],
 	["/dashboard/career/offers", "العروض", "Offers"],
+	["/dashboard/review-guide", "دليل المراجعة", "Review guide"],
+	["/dashboard/ats-guide", "دليل المراجعة", "Review guide"],
 	// Retained upstream addresses must take their destination's title after redirecting.
 	["/dashboard/settings/profile", "الحساب", "Account"],
 	["/dashboard/settings/authentication", "الحساب", "Account"],
@@ -71,7 +73,9 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		for (const [path, ar, en] of authTitles) {
 			if (deferredRoute(path.split("?")[0])) continue;
 			await page.goto(`${path}${path.includes("?") ? "&" : "?"}locale=${locale}`);
-			await expect(page).toHaveTitle(`${locale === "ar-SA" ? ar : en} — Master CV`);
+			await expect(page).toHaveTitle(
+				`${locale === "ar-SA" ? ar : en} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
+			);
 		}
 	});
 
@@ -85,7 +89,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		for (const entry of dashboardTitles) {
 			if (deferredRoute(entry[0])) continue;
 			await page.goto(`${entry[0]}?locale=${locale}`);
-			await expect(page).toHaveTitle(`${entry[labelIndex]} — Master CV`);
+			await expect(page).toHaveTitle(`${entry[labelIndex]} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`);
 		}
 		const created = await page.request.post("/api/openapi/applications", {
 			data: { company: "Synthetic title check", role: "Engineer", status: "saved" },
@@ -93,7 +97,9 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await expect(created).toBeOK();
 		const applicationId = (await created.json()) as string;
 		await page.goto(`/dashboard/applications/${applicationId}?locale=${locale}`);
-		await expect(page).toHaveTitle(`${locale === "ar-SA" ? "طلبات التقديم" : "Applications"} — Master CV`);
+		await expect(page).toHaveTitle(
+			`${locale === "ar-SA" ? "طلبات التقديم" : "Applications"} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
+		);
 	});
 
 	test(`${locale} settings stays reachable through the active account menu in every layout`, async ({
@@ -111,7 +117,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await page.getByRole("menuitem", { name: locale === "ar-SA" ? "الإعدادات" : "Settings", exact: true }).click();
 			const title =
 				width === 390 ? (locale === "ar-SA" ? "الإعدادات" : "Settings") : locale === "ar-SA" ? "الحساب" : "Account";
-			await expect(page).toHaveTitle(`${title} — Master CV`);
+			await expect(page).toHaveTitle(`${title} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`);
 		}
 	});
 
@@ -124,12 +130,14 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await page.goto(`/dashboard?locale=${locale}`);
 		for (const entry of dashboardTitles.slice(1, 4)) {
 			await navigateDashboard(page, entry[0]);
-			await expect(page).toHaveTitle(`${entry[labelIndex]} — Master CV`);
+			await expect(page).toHaveTitle(`${entry[labelIndex]} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`);
 		}
 		await page
 			.getByRole("button", { name: locale === "ar-SA" ? "تغيير الواجهة إلى الإنجليزية" : "Switch interface to Arabic" })
 			.click();
-		await expect(page).toHaveTitle(`${locale === "ar-SA" ? "Account" : "الحساب"} — Master CV`);
+		await expect(page).toHaveTitle(
+			`${locale === "ar-SA" ? "Account" : "الحساب"} — ${locale === "ar-SA" ? "Sirawise" : "سيراوايز"}`,
+		);
 	});
 
 	test(`${locale} welcome, editor and public pages use their actual names`, async ({
@@ -139,31 +147,34 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		test.setTimeout(90_000);
 		await page.goto(`/dashboard/welcome?locale=${locale}`);
 		await expect(page).toHaveTitle(
-			`${locale === "ar-SA" ? `مرحبًا ${account.name}، لنبدأ بسيرتك` : `Welcome ${account.name}, let us start your CV`} — Master CV`,
+			`${locale === "ar-SA" ? `مرحبًا ${account.name}، لنبدأ بسيرتك` : `Welcome ${account.name}, let us start your CV`} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
 		);
 		const name = await createSampleResumeFromDashboard(page, testInfo);
 		const resumePath = new URL(page.url()).pathname;
 		await page.goto(`${resumePath}?locale=${locale}`);
-		await expect(page).toHaveTitle(`${name} — Master CV`);
+		await expect(page).toHaveTitle(`${name} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`);
 		const letterName = "Synthetic title check — خطاب";
 		const created = await page.request.post("/api/openapi/cover-letters", { data: { name: letterName } });
 		await expect(created).toBeOK();
 		const letter = (await created.json()) as { id: string };
 		await page.goto(`/builder/letter/${letter.id}?locale=${locale}`);
-		await expect(page).toHaveTitle(`${letterName} — Master CV`);
+		await expect(page).toHaveTitle(`${letterName} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`);
 		await page.goto(`/synthetic-title-check/not-shared?locale=${locale}`);
 		await expect(page).toHaveTitle(
-			`${locale === "ar-SA" ? "لم تتم مشاركة هذه السيرة الذاتية في الوقت الحالي." : "This resume isn't shared right now."} — Master CV`,
+			`${locale === "ar-SA" ? "لم تتم مشاركة هذه السيرة الذاتية في الوقت الحالي." : "This resume isn't shared right now."} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
 		);
 		await page.goto(`/?locale=${locale}`);
 		await expect(page).toHaveTitle(
-			`Master CV — ${locale === "ar-SA" ? "اكتب سيرتك وراجعها، ثم نزّلها بصيغة PDF." : "Write and review your CV, then download a PDF."}`,
+			`${locale === "ar-SA" ? "سيراوايز" : "Sirawise"} — ${locale === "ar-SA" ? "اكتب سيرتك وراجعها، ثم نزّلها بصيغة PDF." : "Write and review your CV, then download a PDF."}`,
 		);
 		await page.goto(`/ats-checker?locale=${locale}`);
+		await expect(page).toHaveURL(new RegExp(`/dashboard(?:\\?locale=${locale})?$`));
 		await expect(page).toHaveTitle(
-			`${locale === "ar-SA" ? "مدقق السيرة الذاتية ATS مجانًا" : "Free ATS resume checker"} — Master CV`,
+			`${locale === "ar-SA" ? "مستنداتي" : "My documents"} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
 		);
 		await page.goto(`/templates/azurill.pdf?locale=${locale}`);
-		await expect(page).toHaveTitle(`${locale === "ar-SA" ? "القالب" : "Template"} — Master CV`);
+		await expect(page).toHaveTitle(
+			`${locale === "ar-SA" ? "القالب" : "Template"} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
+		);
 	});
 }

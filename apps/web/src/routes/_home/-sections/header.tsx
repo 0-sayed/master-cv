@@ -1,11 +1,9 @@
 import { t } from "@lingui/core/macro";
-import { ArrowRightIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
 import { useMotionValueEvent, useScroll } from "motion/react";
 import { useState } from "react";
-import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
-import { Button } from "@reactive-resume/ui/components/button";
-import { GithubStarsButton } from "@/components/input/github-stars-button";
+import { BrandIcon } from "@/components/ui/brand-icon";
+import { LandingHeader } from "@/features/homepage/header";
 import { LocaleSwitch } from "@/features/locale/switch";
 import { ThemeToggleButton } from "@/features/theme/toggle-button";
 
@@ -23,7 +21,7 @@ export function Header() {
 			className="fixed inset-x-0 top-0 z-50 animate-in border-b border-transparent bg-bg/80 backdrop-blur-lg ease-out-strong animation-duration-300 [transition:translate_250ms_var(--ease-out-strong)] fade-in data-[hidden=true]:-translate-y-full"
 		>
 			<nav aria-label={t`Main navigation`} className="container mx-auto flex items-center gap-x-4 p-3 lg:px-12">
-				<Link to="/" className="transition-opacity hover:opacity-80" aria-label={t`Master CV - Go to homepage`}>
+				<Link to="/" className="transition-opacity hover:opacity-80" aria-label={t`Sirawise - Go to homepage`}>
 					<BrandIcon className="size-10" approveOnMount />
 				</Link>
 
@@ -32,20 +30,7 @@ export function Header() {
 
 					<ThemeToggleButton />
 
-					<div className="hidden items-center gap-x-4 sm:flex">
-						<GithubStarsButton />
-
-						<Button
-							size="icon"
-							nativeButton={false}
-							aria-label={t`Go to dashboard`}
-							render={
-								<Link to="/dashboard">
-									<ArrowRightIcon aria-hidden="true" className="rtl:rotate-180" />
-								</Link>
-							}
-						/>
-					</div>
+					<LandingHeader />
 				</div>
 			</nav>
 		</header>

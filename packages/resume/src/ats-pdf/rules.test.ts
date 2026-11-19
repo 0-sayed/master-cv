@@ -24,6 +24,18 @@ const withLines = (lines: readonly string[], overrides: FixtureOptions = {}) =>
 	makeRawExtraction({ lines, ...overrides });
 
 describe("parseability checks", () => {
+	it.each(["Jane Doe", "محمد علي"])("checks a short selectable document: %s", (text) => {
+		const result = report(withLines([text]));
+		expect(statusOf(result, "NO_TEXT_LAYER")).toBe("pass");
+		expect(statusOf(result, "LOW_TEXT_DENSITY")).toBe("fail");
+		expect(statusOf(result, "VERY_SHORT_DOCUMENT")).toBe("fail");
+		expect(statusOf(result, "NO_EMAIL")).toBe("fail");
+		expect(result.cappedBy).not.toContain("NO_TEXT_LAYER");
+	});
+
+	it.each([" ", "\uFFFD\uFFFD", "\uE000\uE001"])("treats unusable text as no text: %s", (text) => {
+		expect(statusOf(report(withLines([text])), "NO_TEXT_LAYER")).toBe("fail");
+	});
 	it("caps a file with no text layer", () => {
 		const result = report(withLines([]));
 
@@ -251,6 +263,93 @@ describe("section checks", () => {
 });
 
 describe("contact checks", () => {
+	it.each(["References", "المراجع"])(
+		"does not count reference contact details as the candidate's after %s",
+		(heading) => {
+			const raw = makeRawExtraction({
+				lines: [
+					"Synthetic Candidate",
+					"Experience",
+					"Engineer",
+					heading,
+					"Reference Person ref@example.test +1 212 555 0101",
+				],
+			});
+			const result = report(raw);
+			expect(statusOf(result, "NO_EMAIL")).toBe("fail");
+			expect(statusOf(result, "NO_PHONE")).toBe("fail");
+		},
+	);
+	it("accepts candidate contact details after a later section and ignores reference contacts", () => {
+		const raw = makeRawExtraction({
+			lines: [
+				"Synthetic Candidate",
+				"References",
+				"Ref ref@example.test",
+				"Projects",
+				"candidate@example.test",
+				"+1 212 555 0101",
+			],
+		});
+		const result = report(raw);
+		expect(statusOf(result, "NO_EMAIL")).toBe("pass");
+		expect(statusOf(result, "NO_PHONE")).toBe("pass");
+	});
+	it("keeps a contact in the other column when references appear beside it", () => {
+		const raw = makeRawExtraction({
+			lines: [
+				...Array.from({ length: 12 }, (_, i) => ({ text: `Entry ${i}`, x: 56, y: 200 + i * 20 })),
+				...Array.from({ length: 12 }, (_, i) => ({ text: `Detail ${i}`, x: 340, y: 200 + i * 20 })),
+				{ text: "References", x: 56, y: 80 },
+				{ text: "ref@example.test", x: 56, y: 100 },
+				{ text: "candidate@example.test", x: 340, y: 100 },
+			],
+		});
+		expect(statusOf(report(raw), "NO_EMAIL")).toBe("pass");
+	});
+	it("does not count references beside a section heading in a sidebar", () => {
+		const raw = makeRawExtraction({
+			lines: [
+				{ text: "Synthetic Candidate", x: 200, y: 60 },
+				{ text: "References", x: 30, y: 120 },
+				{ text: "Reference ref@example.test", x: 200, y: 120 },
+				...Array.from({ length: 10 }, (_, i) => ({ text: `Reference entry ${i}`, x: 200, y: 140 + i * 20 })),
+			],
+		});
+		expect(statusOf(report(raw), "NO_EMAIL")).toBe("fail");
+	});
+	it("excludes other people's reference emails from the personal contact rule", () => {
+		const raw = makeRawExtraction({
+			lines: [
+				...healthyResumeLines,
+				{ text: "References", size: 12 },
+				"Reviewer One reviewer1@sirawise.test",
+				"Reviewer Two reviewer2@sirawise.test",
+				"Reviewer Three reviewer3@sirawise.test",
+			],
+		});
+		expect(codesOf(raw)).not.toContain("MULTIPLE_EMAILS");
+	});
+	it.each(["References", "المراجع"])("excludes reference contacts near the top of page one after %s", (heading) => {
+		const raw = makeRawExtraction({
+			lines: [
+				"Ada Lovelace",
+				"ada@example.com",
+				heading,
+				"Reviewer One reviewer1@sirawise.test",
+				"Reviewer Two reviewer2@sirawise.test",
+			],
+		});
+		expect(codesOf(raw)).not.toContain("MULTIPLE_EMAILS");
+	});
+	it("detects two personal emails in the candidate contact block", () => {
+		const raw = makeRawExtraction({
+			lines: healthyResumeLines.map((line) =>
+				typeof line === "string" && line.includes("ada@example.com") ? `${line} ada@personal.test` : line,
+			),
+		});
+		expect(codesOf(raw)).toContain("MULTIPLE_EMAILS");
+	});
 	it("caps a resume with no email address", () => {
 		const withoutEmail = healthyResumeLines.filter(
 			(line) => typeof line !== "string" || !line.includes("ada@example.com"),
@@ -343,4 +442,19 @@ describe("date checks", () => {
 
 		expect(codes).not.toContain("UNPARSEABLE_DATE_RANGE");
 	});
+});
+
+it.each([
+	["ar-SA", "المهارات", "خبرة طويلة في تحسين الخدمات وتنسيق الفرق"],
+	["en-US", "Skills", "Experience improving services and coordinating teams"],
+])("detects a large %s skills heading beside body text with a narrow column gap", (locale, heading, body) => {
+	const raw = makeRawExtraction({
+		metadata: { language: locale },
+		lines: [
+			{ text: heading, x: 100, y: 120, size: 14, fontRef: "heading" },
+			{ text: body, x: 100 + heading.length * 7 + 8, y: 120, size: 8, fontRef: "body" },
+			{ text: body, x: 100, y: 150, size: 8, fontRef: "body" },
+		],
+	});
+	expect(statusOf(report(raw), "NO_SKILLS_SECTION")).toBe("pass");
 });

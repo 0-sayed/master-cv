@@ -99,19 +99,20 @@ export function SectionRow({ section, locked, onMove, children }: SectionRowProp
 			)}
 		>
 			<div className="group/row flex h-11 items-center gap-0.5 rounded-lg pe-1 hover:bg-hover">
-				<button
+				<IconButton
 					type="button"
-					aria-label={t`Reorder ${title}`}
+					label={t`Reorder ${title}`}
+					size="icon-xs"
 					disabled={locked || hidden}
 					className={cn(
-						"flex h-11 w-7 shrink-0 cursor-grab items-center justify-center text-ink-3 active:cursor-grabbing disabled:cursor-default",
+						"cursor-grab text-ink-3 active:cursor-grabbing disabled:cursor-default",
 						hidden && "opacity-40",
 					)}
 					{...attributes}
 					{...listeners}
-				>
-					<Icon name="dots-six-vertical" size={18} />
-				</button>
+					icon="dots-six-vertical"
+					iconSize={18}
+				/>
 
 				<button
 					type="button"
@@ -119,7 +120,7 @@ export function SectionRow({ section, locked, onMove, children }: SectionRowProp
 					onClick={() => setOpen(section.id, !open)}
 					onKeyDown={onTitleKeyDown}
 					className={cn(
-						"min-w-0 flex-1 truncate rounded-md py-1 text-start text-sm font-medium",
+						"min-w-0 flex-1 truncate rounded-md py-1 text-start type-label font-medium",
 						hidden && "text-ink-3 line-through",
 					)}
 				>

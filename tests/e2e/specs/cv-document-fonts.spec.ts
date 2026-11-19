@@ -23,7 +23,12 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			expect(data.metadata.typography.body.fontFamily).toBe("Carlito");
 			await page.goto(`/builder/${id}?locale=${locale}`);
 			const openType = async () => {
-				await page.getByRole(width < 1024 ? "button" : "tab", { name: ar ? "التصميم" : "Design", exact: true }).click();
+				const design = page.getByRole(width < 640 ? "button" : "tab", { name: ar ? "التصميم" : "Design", exact: true });
+				if (
+					(await design.getAttribute(width < 640 ? "aria-current" : "aria-selected")) !==
+					(width < 640 ? "page" : "true")
+				)
+					await design.click();
 				if (width < 1024) await page.getByRole("tab", { name: ar ? "النوع" : "Type", exact: true }).click();
 			};
 			await openType();

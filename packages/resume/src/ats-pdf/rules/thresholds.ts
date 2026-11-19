@@ -1,3 +1,5 @@
+import { MIN_READABLE_BODY_SIZE } from "@reactive-resume/schema/resume/font-policy";
+
 /**
  * Every number the checks fire on, in one place.
  *
@@ -12,8 +14,6 @@ export const THRESHOLDS = {
 	},
 
 	text: {
-		/** Below this many characters across the whole file, there is effectively no text layer. */
-		minCharacters: 40,
 		/** Below this many words, the document is too thin to have extracted properly. */
 		shortDocumentWords: 150,
 		lowDensityWordsPerPage: 90,
@@ -59,7 +59,7 @@ export const THRESHOLDS = {
 		marginPoints: 8,
 		marginZonePoints: 18,
 		outsidePageTolerance: 1,
-		minBodyFontSize: 9,
+		minBodyFontSize: MIN_READABLE_BODY_SIZE,
 		lineSpacingRatio: 1.05,
 		maxDistinctFonts: 6,
 		densePageTextRatio: 0.55,

@@ -72,10 +72,10 @@ describe("REST boundary", () => {
 	});
 });
 
-it("retains the Master CV discovery identity behind the HTTP release gate", async () => {
+it("retains the Sirawise discovery identity behind the HTTP release gate", async () => {
 	const response = await handleOpenApiDocument();
 	const spec = await response.json();
-	expect(spec.info.title).toBe("Master CV");
-	expect(spec.info.contact).toEqual({ name: "Master CV", url: "https://github.com/0-sayed/master-cv" });
+	expect(spec.info.title).toBe("Sirawise");
+	expect(spec.info.contact).toEqual({ name: "Sirawise", url: "https://github.com/0-sayed/master-cv" });
 	expect(spec.externalDocs.description).toBe("Upstream documentation");
 });

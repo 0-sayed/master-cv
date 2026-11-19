@@ -4,9 +4,12 @@ import type { ExtractedDocument, ResumeSemantics } from "@reactive-resume/resume
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
+import { Button } from "@reactive-resume/ui/components/button";
+import { Icon } from "@reactive-resume/ui/components/icon";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { cn } from "@reactive-resume/utils/style";
-import { useEditorStore } from "../store";
+import { sameEditorIdentity, useEditorStore } from "../store";
 import { useCheck } from "./use-check";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { extractPdf } from "@/features/ats-checker/extract-client";
@@ -62,16 +65,19 @@ function IssueChip({ issue }: { issue: CheckIssue }) {
  */
 export function ParserView() {
 	const resumeId = useCurrentBuilderResumeSelector((resume) => resume.id);
-	const { file, version } = useEditorStore((state) => state.rendered);
-	const issues = useCheck()?.issues ?? [];
-	const { data, isError } = useQuery({
-		queryKey: ["check-parser-view", resumeId, version],
+	const rendered = useEditorStore((state) => state.rendered);
+	const { file, version } = rendered;
+	const identity = useEditorStore((state) => state.identity);
+	const current = Boolean(identity && file && sameEditorIdentity(identity, rendered.identity));
+	const selected = useEditorStore((state) => state.checkIssue);
+	const issues = (useCheck()?.issues ?? []).filter((issue) => current && issue.key === selected);
+	const { data, isError, refetch } = useQuery({
+		queryKey: ["check-parser-view", identity?.ownerId, resumeId, version],
 		queryFn: () => {
 			if (!file) throw new Error("The page hasn't rendered yet.");
 			return parseRenderedPdf(file);
 		},
-		enabled: !!file,
-		placeholderData: (previous, query) => (query?.queryKey[1] === resumeId ? previous : undefined),
+		enabled: current,
 		staleTime: Number.POSITIVE_INFINITY,
 		gcTime: 60_000,
 		retry: false,
@@ -81,10 +87,15 @@ export function ParserView() {
 	return (
 		<div className="mx-auto grid min-h-[792px] w-[612px] max-w-full content-start gap-[18px] rounded-lg border border-line bg-surface px-8 py-7 font-mono text-[12px] leading-[19px] text-ink max-sm:px-4">
 			{isError ? (
-				<p className="font-sans text-sm text-danger-text">
-					<Trans>The page's PDF couldn't be read. Edit anything to render it again.</Trans>
-				</p>
-			) : skeletonWait1.pending || !data ? (
+				<Alert variant="error">
+					<Icon name="warning-circle" />
+					<AlertTitle>{t`The PDF could not be read`}</AlertTitle>
+					<AlertDescription>{t`Your CV is preserved. Retry reading the current PDF.`}</AlertDescription>
+					<AlertActions>
+						<Button variant="secondary" onClick={() => void refetch()}>{t`Retry`}</Button>
+					</AlertActions>
+				</Alert>
+			) : skeletonWait1.pending || !data || !current ? (
 				<QuerySkeleton shape="preview" label={<Trans>Reading the PDF…</Trans>} />
 			) : (
 				<ParsedText parsed={data} issues={issues} />
@@ -153,7 +164,9 @@ function ParsedText({ parsed, issues }: { parsed: Parsed; issues: readonly Check
 						<div key={field.id} className="contents">
 							<dt className="text-ink-3 uppercase">{field.label}</dt>
 							<dd className={cn("flex min-w-0 items-center gap-2", (issue || !field.value) && "text-warn-text")}>
-								<span className="min-w-0 break-words">{field.value || notFound}</span>
+								<span dir="auto" className="min-w-0 break-words">
+									{field.value || notFound}
+								</span>
 								{issue && <IssueChip issue={issue} />}
 							</dd>
 						</div>
@@ -174,7 +187,9 @@ function ParsedText({ parsed, issues }: { parsed: Parsed; issues: readonly Check
 									key={`${lineIndex}:${line}`}
 									className={cn("flex items-start gap-2 ps-3.5", issue ? "text-warn-text" : "text-ink-2")}
 								>
-									<span className="min-w-0 break-words">{line}</span>
+									<span dir="auto" className="min-w-0 break-words">
+										{line}
+									</span>
 									{issue && <IssueChip issue={issue} />}
 								</p>
 							);

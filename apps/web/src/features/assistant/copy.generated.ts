@@ -2,6 +2,49 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 const messages = {
+	"review.launch.budgetReached": msg({
+		message: "The daily AI budget is reached. Try again tomorrow. Your draft is kept.",
+		context: "review.launch.budgetReached",
+	}),
+	"review.launch.allowanceUsed": msg({
+		message:
+			"You used all available assistant operations. Your draft is kept. Review your allowance in account settings.",
+		context: "review.launch.allowanceUsed",
+	}),
+	"review.launch.consentRequired": msg({
+		message: "Review the processing notice and give consent before starting. Your draft is kept.",
+		context: "review.launch.consentRequired",
+	}),
+	"review.launch.translationStructure": msg({
+		message:
+			"The source and language copy have different sections or text blocks. Open the saved CV and align its structure with the source before requesting a translation.",
+		context: "review.launch.translationStructure",
+	}),
+	"review.launch.busy": msg({
+		message: "Another AI operation is in progress. Wait for it to finish. Your draft is kept.",
+		context: "review.launch.busy",
+	}),
+	"review.launch.providerError": msg({
+		message: "The AI provider is temporarily unavailable. Your draft is kept. Retry later.",
+		context: "review.launch.providerError",
+	}),
+	"review.launch.requestChanged": msg({
+		message: "This request needs changes before it can start. Cancel and review the selected text. Your draft is kept.",
+		context: "review.launch.requestChanged",
+	}),
+	"review.launch.reviewConsent": msg({ message: "Review consent", context: "review.launch.reviewConsent" }),
+	"review.launch.documentLimit": msg({
+		message: "Your document allowance is reached. Manage saved copies in My documents. Your draft is kept.",
+		context: "review.launch.documentLimit",
+	}),
+	"review.assistant.environmentUnavailable": msg({
+		message: "AI is not available in this environment.",
+		context: "review.assistant.environmentUnavailable",
+	}),
+	"billing.usage.remainingOperations": msg({
+		message: "Remaining assistant operations: {remaining}",
+		context: "billing.usage.remainingOperations",
+	}),
 	"review.suggestion.keepOriginal": msg({ message: "Keep original", context: "review.suggestion.keepOriginal" }),
 	"review.suggestion.accept": msg({ message: "Accept wording", context: "review.suggestion.accept" }),
 	"review.suggestion.inputLabel": msg({ message: "Your wording", context: "review.suggestion.inputLabel" }),

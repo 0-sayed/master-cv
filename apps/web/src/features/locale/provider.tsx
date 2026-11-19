@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import Cookies from "js-cookie";
 import { createContext, use, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { UiLabelsProvider } from "@reactive-resume/ui/components/ui-labels";
 import { createLocaleSwitchQueue } from "./switch-queue";
 import { authClient } from "@/libs/auth/client";
 import { getUiLocaleMessages } from "@/libs/locale";
@@ -108,7 +109,11 @@ export function LocaleProvider({ children, locale: initialLocale, session }: Loc
 	}
 	return (
 		<LocaleContext value={{ locale, pending: requests.count > 0, changeLocale }}>
-			<DirectionProvider direction={locale === "ar-SA" ? "rtl" : "ltr"}>{children}</DirectionProvider>
+			<DirectionProvider direction={locale === "ar-SA" ? "rtl" : "ltr"}>
+				<UiLabelsProvider value={{ close: i18n._("Close"), moreActions: i18n._("More actions") }}>
+					{children}
+				</UiLabelsProvider>
+			</DirectionProvider>
 		</LocaleContext>
 	);
 }

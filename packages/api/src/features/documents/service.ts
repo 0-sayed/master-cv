@@ -1,8 +1,11 @@
+import type { SeedOnlyResumeAdmission } from "../resume/service";
+export type { SeedOnlyResumeAdmission } from "../resume/service";
 import type { DocumentSummary } from "../../dto/documents";
 import { ORPCError } from "@orpc/client";
 import { and, count, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
+import { documentIdentitySchema } from "../../dto/documents";
 import { applicationService } from "../applications/service";
 import { coverLetterService } from "../cover-letters/service";
 import { resumeService } from "../resume/service";
@@ -121,12 +124,18 @@ export const documentsService = {
 					trashedAt: schema.resume.trashedAt,
 					createdAt: schema.resume.createdAt,
 					updatedAt: schema.resume.updatedAt,
+					metadata: sql<unknown>`jsonb_build_object('template', ${schema.resume.data}->'metadata'->>'template', 'locale', ${schema.resume.data}->'metadata'->'page'->>'locale', 'accent', ${schema.resume.data}->'metadata'->'design'->'colors'->>'primary')`,
+					letterStatus: sql<null>`null`,
 					applicationId: schema.application.id,
 					company: schema.application.company,
 					role: schema.application.role,
+					applicationStatus: schema.application.status,
 				})
 				.from(schema.resume)
-				.leftJoin(schema.application, eq(schema.resume.applicationId, schema.application.id))
+				.leftJoin(
+					schema.application,
+					and(eq(schema.resume.applicationId, schema.application.id), eq(schema.application.userId, input.userId)),
+				)
 				.where(
 					and(
 						eq(schema.resume.userId, input.userId),
@@ -144,12 +153,49 @@ export const documentsService = {
 					trashedAt: schema.coverLetter.trashedAt,
 					createdAt: schema.coverLetter.createdAt,
 					updatedAt: schema.coverLetter.updatedAt,
+					metadata: sql<unknown>`case when latest_sent.id is not null then latest_sent.identity else jsonb_build_object(
+                        'template', case when ${schema.coverLetter.designLinked} and ${schema.resume.id} is not null then ${schema.resume.data}->'metadata'->>'template' else ${schema.coverLetter.style}->'metadata'->>'template' end,
+                        'locale', ${schema.coverLetter.style}->'metadata'->'page'->>'locale',
+                        'accent', case when ${schema.coverLetter.designLinked} and ${schema.resume.id} is not null then ${schema.resume.data}->'metadata'->'design'->'colors'->>'primary' else ${schema.coverLetter.style}->'metadata'->'design'->'colors'->>'primary' end
+                    ) end`,
+					letterStatus: sql<"draft" | "sent">`case when latest_sent.id is null then 'draft' else 'sent' end`,
 					applicationId: schema.application.id,
 					company: schema.application.company,
 					role: schema.application.role,
+					applicationStatus: schema.application.status,
 				})
 				.from(schema.coverLetter)
-				.leftJoin(schema.application, eq(schema.coverLetter.sourceApplicationId, schema.application.id))
+				.leftJoin(
+					schema.application,
+					and(
+						eq(schema.coverLetter.sourceApplicationId, schema.application.id),
+						eq(schema.application.userId, input.userId),
+					),
+				)
+				.leftJoin(
+					schema.resume,
+					and(
+						eq(schema.coverLetter.sourceResumeId, schema.resume.id),
+						eq(schema.resume.userId, input.userId),
+						isNull(schema.resume.trashedAt),
+					),
+				)
+				.leftJoin(
+					sql`lateral (
+                    select ${schema.coverLetterVersion.id}, jsonb_build_object(
+                        'template', ${schema.coverLetterVersion.data}->'style'->'metadata'->>'template',
+                        'locale', ${schema.coverLetterVersion.data}->'style'->'metadata'->'page'->>'locale',
+                        'accent', ${schema.coverLetterVersion.data}->'style'->'metadata'->'design'->'colors'->>'primary'
+                    ) as identity
+                    from ${schema.coverLetterVersion}
+                    where ${schema.coverLetterVersion.coverLetterId} = ${schema.coverLetter.id}
+                      and ${schema.coverLetterVersion.userId} = ${input.userId}
+                      and ${schema.coverLetterVersion.kind} = 'sent'
+                    order by ${schema.coverLetterVersion.createdAt} desc, ${schema.coverLetterVersion.id} desc
+                    limit 1
+                ) latest_sent`,
+					sql`true`,
+				)
 				.where(
 					and(
 						eq(schema.coverLetter.userId, input.userId),
@@ -160,10 +206,21 @@ export const documentsService = {
 
 		const toSummary =
 			(type: DocumentType) =>
-			({ applicationId, company, role, ...row }: (typeof resumes | typeof letters)[number]): DocumentSummary => ({
+			({
+				applicationId,
+				company,
+				role,
+				applicationStatus,
+				metadata,
+				...row
+			}: (typeof resumes | typeof letters)[number]): DocumentSummary => ({
 				type,
 				...row,
-				application: applicationId ? { id: applicationId, company: company ?? "", role: role ?? "" } : null,
+				metadata: documentIdentitySchema.safeParse(metadata).success ? documentIdentitySchema.parse(metadata) : null,
+				application:
+					applicationId && applicationStatus
+						? { id: applicationId, company: company ?? "", role: role ?? "", status: applicationStatus }
+						: null,
 			});
 
 		return [
@@ -235,9 +292,8 @@ export const documentsService = {
 	},
 
 	/** Undoable: Trash hides the document and stops its public link; Restore brings it back intact. */
-	trash: async (input: DocumentRef) => {
+	trash: async (input: DocumentRef, trashedAt = new Date()) => {
 		await assertUnlocked(input);
-		const trashedAt = new Date();
 		await update(input, { trashedAt, isPublic: false }, { trashedAt });
 	},
 
@@ -255,23 +311,29 @@ export const documentsService = {
 	},
 
 	/** Duplicates a resume for a job, selecting the working copy while preserving submitted versions. */
-	copyForJob: async (input: {
-		userId: string;
-		resumeId: string;
-		applicationId?: string | undefined;
-		name?: string | undefined;
-	}) => {
+	copyForJob: async (
+		input: {
+			userId: string;
+			resumeId: string;
+			applicationId?: string | undefined;
+			name?: string | undefined;
+		},
+		options: { seedOnlyAdmission?: SeedOnlyResumeAdmission } = {},
+	) => {
 		const source = await resumeService.getById({ id: input.resumeId, userId: input.userId });
 		const application = input.applicationId ? await assertOwnedApplication(input.userId, input.applicationId) : null;
 
-		const id = await resumeService.create({
-			userId: input.userId,
-			name: input.name ?? suggestCopyName(source.name, application?.company),
-			creation: { variantKind: "job", baseResumeId: source.id },
-			tags: source.tags,
-			locale: source.data.metadata.page.locale as never,
-			data: source.data,
-		});
+		const id = await resumeService.create(
+			{
+				userId: input.userId,
+				name: input.name ?? suggestCopyName(source.name, application?.company),
+				creation: { variantKind: "job", baseResumeId: source.id },
+				tags: source.tags,
+				locale: source.data.metadata.page.locale as never,
+				data: source.data,
+			},
+			options,
+		);
 
 		if (application) {
 			await update({ userId: input.userId, type: "resume", id }, { applicationId: application.id });

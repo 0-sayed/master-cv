@@ -10,7 +10,7 @@ import { passkey } from "@better-auth/passkey";
 import { compare, hash } from "bcryptjs";
 import { APIError, betterAuth } from "better-auth";
 import { createAuthMiddleware } from "better-auth/api";
-import { admin, anonymous, jwt, openAPI } from "better-auth/plugins";
+import { anonymous, jwt, openAPI } from "better-auth/plugins";
 import { genericOAuth } from "better-auth/plugins/generic-oauth";
 import { twoFactor } from "better-auth/plugins/two-factor";
 import { username } from "better-auth/plugins/username";
@@ -29,6 +29,7 @@ import {
 } from "@reactive-resume/email/templates/auth";
 import { sendEmail } from "@reactive-resume/email/transport";
 import { env } from "@reactive-resume/env/server";
+import { productBrand } from "@reactive-resume/utils/brand";
 import { resolveUiLocale, uiLocaleSchema } from "@reactive-resume/utils/locale";
 import { rateLimitConfig } from "@reactive-resume/utils/rate-limit";
 import { generateId, toUsername } from "@reactive-resume/utils/string";
@@ -184,7 +185,7 @@ const getAuthConfig = () => {
 	}
 
 	return betterAuth({
-		appName: "Master CV",
+		appName: productBrand.name,
 		// Plugin verifier exceptions may contain challenges or credential payloads.
 		logger: {
 			log: (level) => {
@@ -480,10 +481,9 @@ const getAuthConfig = () => {
 		plugins: [
 			openAPI({ disableDefaultReference: true }),
 			jwt(),
-			admin(),
 			passkey({ authentication: { afterVerification: verifyProofPasskey } }),
 			genericOAuth({ config: authConfigs }),
-			twoFactor({ issuer: "Master CV" }),
+			twoFactor({ issuer: productBrand.name }),
 			apiKey({
 				enableSessionForAPIKeys: false,
 				rateLimit: {

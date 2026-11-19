@@ -46,7 +46,7 @@ const applicationSchema = createSelectSchema(schema.application, {
 	closedReason: applicationClosedReasonSchema
 		.nullable()
 		.describe("Why a closed application ended: accepted, not-selected, withdrew, accepted-other or no-response."),
-	resumeId: z.string().nullable().describe("The linked Master CV, if any."),
+	resumeId: z.string().nullable().describe("The linked CV, if any."),
 	selectedResumeVersionId: z.string().nullable().describe("The exact CV version selected by the owner."),
 	coverLetterId: z.string().nullable().describe("The linked saved cover letter, if any."),
 	sentResumeVersionId: z

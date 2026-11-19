@@ -1,6 +1,6 @@
 import z from "zod";
 import { normalizeNumericDigits } from "@reactive-resume/utils/string";
-import { careerSourceSchema } from "./career";
+import { careerProfileDataSchema, careerSourceSchema } from "./career";
 import { resumeDatesSchema, resumeDatesToPeriod, yearMonthSchema } from "./resume/dates";
 import { isReversedPeriod } from "./resume/period";
 const reviewedDatesSchema = resumeDatesSchema
@@ -108,6 +108,8 @@ export const masterSectionOrderSchema = z.object({
 });
 export type MasterSection = z.infer<typeof masterSectionOrderSchema>;
 export const careerMasterSchema = z.object({
+	contact: careerProfileDataSchema.shape.contact,
+	summary: careerProfileDataSchema.shape.summary,
 	profileRevision: z.number().int().nonnegative(),
 	sections: z.array(masterSectionOrderSchema),
 	facts: z.array(masterFactSchema),

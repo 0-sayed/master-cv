@@ -4,6 +4,7 @@ import { getUiLocaleMessages } from "./locale";
 import { formatPageTitle, getRouteTitle } from "./route-titles";
 
 const titles = [
+	["/dashboard/review-guide", "دليل المراجعة", "Review guide"],
 	["/auth/login", "تسجيل الدخول", "Sign in"],
 	["/auth/register", "إنشاء حساب", "Create an account"],
 	["/auth/forgot-password", "استعادة كلمة المرور", "Reset password"],
@@ -13,7 +14,7 @@ const titles = [
 	["/auth/verify-2fa-backup", "التحقق باستخدام رمز نسخ احتياطي", "Verify with a Backup Code"],
 	["/auth/error", "لم يكتمل تسجيل الدخول", "Sign-in didn't complete"],
 	["/auth/consent", "قم بتوصيل التطبيق", "Connect an application"],
-	["/auth/native-callback", "افتح تطبيق Master CV", "Open the Master CV app"],
+	["/auth/native-callback", "افتح تطبيق سيراوايز", "Open the Sirawise app"],
 	["/auth/resume-password", "هذه السيرة الذاتية محمية بكلمة مرور", "This resume is password protected"],
 	["/dashboard/", "مستنداتي", "My documents"],
 	["/dashboard/career/information", "المعلومات المهنية", "Career information"],
@@ -39,11 +40,13 @@ const titles = [
 describe.each(["ar-SA", "en-US"] as const)("%s route titles", (locale) => {
 	beforeEach(async () => i18n.loadAndActivate(await getUiLocaleMessages(locale)));
 	it.each(titles)("names %s with the matching surface copy", (route, ar, en) => {
-		expect(getRouteTitle(route)).toBe(`${locale === "ar-SA" ? ar : en} — Master CV`);
+		expect(getRouteTitle(route)).toBe(
+			`${locale === "ar-SA" ? ar : en} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
+		);
 	});
 	it("includes the welcome name without changing the saved user content", () => {
 		expect(getRouteTitle("/dashboard/welcome", { name: "سارة العتيبي" })).toBe(
-			`${locale === "ar-SA" ? "مرحبًا سارة العتيبي، لنبدأ بسيرتك" : "Welcome سارة العتيبي, let us start your CV"} — Master CV`,
+			`${locale === "ar-SA" ? "مرحبًا سارة العتيبي، لنبدأ بسيرتك" : "Welcome سارة العتيبي, let us start your CV"} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
 		);
 	});
 	it("lets public marketing routes retain their curated SEO metadata", () => {
@@ -53,5 +56,7 @@ describe.each(["ar-SA", "en-US"] as const)("%s route titles", (locale) => {
 });
 
 it("preserves Arabic, English and mixed-direction document names", () => {
-	expect(formatPageTitle("سارة — Senior Engineer")).toBe("سارة — Senior Engineer — Master CV");
+	expect(formatPageTitle("سارة — Senior Engineer")).toBe(
+		`سارة — Senior Engineer — ${i18n.locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
+	);
 });

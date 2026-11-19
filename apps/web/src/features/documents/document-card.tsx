@@ -1,24 +1,26 @@
 import type { DocumentSummary } from "./filter";
+import type { ComponentProps, CSSProperties } from "react";
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
+import { Badge } from "@reactive-resume/ui/components/badge";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { ContextMenu, ContextMenuTrigger } from "@reactive-resume/ui/components/context-menu";
 import { documentCardLayout } from "@reactive-resume/ui/components/document-card-layout";
 import { DropdownMenu, DropdownMenuTrigger } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@reactive-resume/ui/components/tooltip";
+import { parseColorString, rgbaStringToHex } from "@reactive-resume/utils/color";
 import { cn } from "@reactive-resume/utils/style";
-import { useDocumentsCopy } from "./copy.generated";
 import { DocumentMenuContent, useDocumentActions } from "./document-actions";
 import { DocumentType } from "./document-type";
 import { daysLeftInTrash } from "./filter";
-import { LetterCardDetails, LetterThumbnail } from "./letter-card-content";
+import { DocumentApplication, DocumentMetadata, LetterCardDetails } from "./letter-card-content";
 import { useNewDocumentsStore } from "./new-documents";
-import { ResumeThumbnail } from "./resume-thumbnail";
 import { TrashDocumentRow } from "./trash-row";
 import { isImeComposing } from "@/libs/keyboard";
 import { formatRelativeTime } from "@/libs/locale";
@@ -26,6 +28,7 @@ import { ENTER_CLASS, stagger } from "@/libs/motion";
 
 export type DocumentItemProps = {
 	library?: boolean;
+	showType?: boolean;
 	document: DocumentSummary;
 	onTags: (document: DocumentSummary) => void;
 	onLink: (document: DocumentSummary) => void;
@@ -56,28 +59,38 @@ function OpenLink({
 	children,
 	label,
 	onSelect,
+	target,
+	...anchorProps
 }: Pick<DocumentItemProps, "document"> & {
 	className?: string;
-	children: React.ReactNode;
+	children?: React.ReactNode;
 	label?: string;
 	/** While selecting, a click toggles the document instead of opening it. */
 	onSelect?: (() => void) | undefined;
-}) {
+} & Omit<ComponentProps<"a">, "children" | "href">) {
 	const markOpened = useNewDocumentsStore((state) => state.markOpened);
 	if (document.trashedAt) return <span className={className}>{children}</span>;
-	const onClick = (event: React.MouseEvent) => {
+	const onClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+		anchorProps.onClick?.(event);
+		if (event.defaultPrevented) return;
 		if (!onSelect) return markOpened(document.id);
 		event.preventDefault();
 		onSelect();
 	};
-	const common = { "aria-label": label, className, onClick };
+	const common = {
+		...anchorProps,
+		...(target !== undefined ? { target } : {}),
+		"aria-label": label,
+		className,
+		onClick,
+	};
 
 	return document.type === "resume" ? (
-		<Link to="/builder/$resumeId" params={{ resumeId: document.id }} {...common}>
+		<Link to="/builder/$resumeId" params={{ resumeId: document.id }} preload={false} {...common}>
 			{children}
 		</Link>
 	) : (
-		<Link to="/builder/letter/$coverLetterId" params={{ coverLetterId: document.id }} {...common}>
+		<Link to="/builder/letter/$coverLetterId" params={{ coverLetterId: document.id }} preload={false} {...common}>
 			{children}
 		</Link>
 	);
@@ -116,17 +129,7 @@ function RenameInput({ document, onDone }: { document: DocumentSummary; onDone: 
 	);
 }
 
-/** A status chip on the page thumbnail. The page is white in both themes, so the chip doesn't follow the theme. */
-function PaperBadge({ icon, label }: { icon: "globe" | "lock"; label: string }) {
-	return (
-		<span className="grid size-[22px] place-items-center rounded bg-black/75 text-white" title={label}>
-			<Icon name={icon} size={14} />
-			<span className="sr-only">{label}</span>
-		</span>
-	);
-}
-
-/** A 204px card: the real first page, title with ⋯, "Resume · Edited 2h ago" and the linked application. */
+/** Compact saved identity with a real editor link and independent sibling controls. */
 export function DocumentCard({
 	library = false,
 	document,
@@ -136,12 +139,18 @@ export function DocumentCard({
 	selected = false,
 	onSelectedChange,
 	selecting = false,
+	disabled = false,
 }: DocumentItemProps) {
-	const copy = useDocumentsCopy();
+	const { i18n } = useLingui();
 	const openDocument = useOpenDocument();
 	const [renaming, setRenaming] = useState(false);
 	const isNew = useNewDocumentsStore((state) => state.ids.includes(document.id)) && !document.trashedAt;
 	const meta = useDocumentMeta(document);
+	const exactTime = new Intl.DateTimeFormat(i18n.locale, { dateStyle: "full", timeStyle: "short" }).format(
+		document.updatedAt,
+	);
+	const accent = document.metadata?.accent;
+	const tint = accent && parseColorString(accent) ? rgbaStringToHex(accent) : undefined;
 	const menuProps = {
 		document,
 		onOpen: () => openDocument(document),
@@ -150,113 +159,121 @@ export function DocumentCard({
 		onLink: () => onLink(document),
 		onSelect: onSelectedChange && !selected ? () => onSelectedChange(true) : undefined,
 	};
-
 	return (
 		<ContextMenu>
 			<ContextMenuTrigger
 				render={
 					<article
 						style={introIndex === undefined ? undefined : stagger(introIndex)}
+						data-slot="document-card"
+						aria-label={document.name}
 						className={cn(
 							documentCardLayout.surface({ library }),
 							introIndex !== undefined && ENTER_CLASS,
 							isNew && "animate-arrive",
+							selected && "border-accent bg-accent-soft",
 							document.trashedAt && "opacity-70",
 						)}
 					/>
 				}
 			>
-				<div data-document-type={document.type} className={documentCardLayout.preview({ library })}>
-					<OpenLink
-						document={document}
-						label={document.name}
-						onSelect={selecting && onSelectedChange ? () => onSelectedChange(!selected) : undefined}
-						className={cn(
-							documentCardLayout.page({ library }),
-							"shadow-[0_0_0_1px_var(--line),var(--shadow-1)] transition-[translate,scale,box-shadow] duration-quick ease-enter hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--line),var(--shadow-2)] active:scale-[0.98]",
-							(isNew || selected) &&
-								"shadow-[0_0_0_2px_var(--accent),var(--shadow-1)] hover:shadow-[0_0_0_2px_var(--accent),var(--shadow-2)] starting:shadow-[0_0_0_2px_transparent,var(--shadow-1)]",
-							document.trashedAt && "pointer-events-none",
-						)}
+				<div className={documentCardLayout.cue}>
+					<span
+						aria-hidden="true"
+						className={documentCardLayout.iconTile}
+						style={tint ? ({ "--document-accent": tint } as CSSProperties) : undefined}
 					>
-						{document.type === "resume" ? (
-							<ResumeThumbnail resume={document} />
-						) : (
-							<LetterThumbnail document={document} />
-						)}
-						<span className={documentCardLayout.typeMarker}>
-							<DocumentType type={document.type} />
-						</span>
-						<span className="absolute start-2 bottom-2 flex gap-1">
-							{isNew && (
-								<span className="rounded bg-accent px-1.5 type-metadata font-semibold text-on-accent">
-									<Trans>New</Trans>
-								</span>
-							)}
-							{isFeatureAvailable("publicSharing") && document.isPublic && (
-								<PaperBadge icon="globe" label={t`Public`} />
-							)}
-							{document.isLocked && <PaperBadge icon="lock" label={t`Locked`} />}
-						</span>
-					</OpenLink>
-					{onSelectedChange && (
-						<Checkbox
-							checked={selected}
-							onCheckedChange={onSelectedChange}
-							aria-label={t`Select ${document.name}`}
-							className={cn(
-								"absolute end-2 top-2 shadow-e1 transition-[opacity,background-color,border-color] duration-quick",
-								!selecting && "opacity-0 group-hover/card:opacity-100 focus-visible:opacity-100",
-							)}
-						/>
-					)}
+						<Icon name={document.type === "resume" ? "file-text" : "envelope-simple"} />
+					</span>
 				</div>
-
-				<div className={documentCardLayout.details({ library })}>
-					<div className="grid min-w-0 flex-1 gap-0.5">
-						{renaming ? (
-							<RenameInput document={document} onDone={() => setRenaming(false)} />
-						) : (
-							<h2 dir="auto" className="truncate text-start type-label">
+				<h2 className={documentCardLayout.title}>
+					{renaming ? (
+						<RenameInput document={document} onDone={() => setRenaming(false)} />
+					) : (
+						<Tooltip>
+							<TooltipTrigger
+								render={
+									<OpenLink
+										document={document}
+										dir="auto"
+										className={documentCardLayout.titleLink}
+										onSelect={selecting && onSelectedChange ? () => onSelectedChange(!selected) : undefined}
+									/>
+								}
+							>
 								{document.name}
-							</h2>
-						)}
-						<span data-slot="document-meta" title={meta} className="type-metadata text-ink-3">
-							{meta}
-						</span>
-						{document.type === "letter" ? (
-							<LetterCardDetails document={document} />
-						) : (
-							document.application && (
-								<span className="flex min-w-0 items-center gap-1 type-metadata text-ink-2">
-									<Icon name="briefcase" size={14} />
-									<span className="truncate">{document.application.company}</span>
-								</span>
-							)
-						)}
-					</div>
+							</TooltipTrigger>
+							<TooltipContent dir="auto">{document.name}</TooltipContent>
+						</Tooltip>
+					)}
+				</h2>
+				<div className={documentCardLayout.controls}>
 					<DropdownMenu>
 						<DropdownMenuTrigger
 							render={
 								<IconButton
 									icon="dots-three"
-									size="icon-sm"
+									size="icon-lg"
 									label={t`Options for ${document.name}`}
-									className="text-ink-2"
+									disabled={disabled}
 								/>
 							}
 						/>
 						<DocumentMenuContent {...menuProps} />
 					</DropdownMenu>
 				</div>
-				{library && (
-					<OpenLink
-						document={document}
-						className={documentCardLayout.action}
-						onSelect={selecting && onSelectedChange ? () => onSelectedChange(!selected) : undefined}
+				{document.type === "letter" ? (
+					<LetterCardDetails document={document} />
+				) : (
+					<>
+						<DocumentMetadata document={document} />
+						<DocumentApplication document={document} />
+					</>
+				)}
+				{(isNew || document.isLocked || (isFeatureAvailable("publicSharing") && document.isPublic)) && (
+					<div className={documentCardLayout.indicators}>
+						{isNew && (
+							<Badge variant="neutral">
+								<Trans>New</Trans>
+							</Badge>
+						)}
+						{document.isLocked && (
+							<Badge variant="neutral">
+								<Icon name="lock" size={12} />
+								<Trans>Locked</Trans>
+							</Badge>
+						)}
+						{isFeatureAvailable("publicSharing") && document.isPublic && (
+							<Badge variant="neutral">
+								<Icon name="globe" size={12} />
+								<Trans>Public</Trans>
+							</Badge>
+						)}
+					</div>
+				)}
+				<Tooltip>
+					<TooltipTrigger
+						render={
+							<time
+								dateTime={document.updatedAt.toISOString()}
+								data-slot="document-meta"
+								className={documentCardLayout.date}
+								aria-label={exactTime}
+							/>
+						}
 					>
-						{copy("editor.document.open")}
-					</OpenLink>
+						{meta}
+					</TooltipTrigger>
+					<TooltipContent>{exactTime}</TooltipContent>
+				</Tooltip>
+				{onSelectedChange && (
+					<Checkbox
+						checked={selected}
+						onCheckedChange={onSelectedChange}
+						disabled={disabled}
+						aria-label={t`Select ${document.name}`}
+						className={documentCardLayout.selection}
+					/>
 				)}
 			</ContextMenuTrigger>
 			<DocumentMenuContent {...menuProps} variant="context" />
@@ -276,6 +293,9 @@ function ActiveDocumentRow({
 	introIndex,
 	selected = false,
 	onSelectedChange,
+	showType = true,
+	selecting = false,
+	disabled = false,
 }: DocumentItemProps) {
 	const { i18n } = useLingui();
 	const openDocument = useOpenDocument();
@@ -287,6 +307,7 @@ function ActiveDocumentRow({
 		onRename: () => setRenaming(true),
 		onTags: () => onTags(document),
 		onLink: () => onLink(document),
+		onSelect: onSelectedChange && !selected ? () => onSelectedChange(true) : undefined,
 	};
 
 	return (
@@ -307,7 +328,12 @@ function ActiveDocumentRow({
 			>
 				{onSelectedChange && (
 					<td className="w-10 ps-3">
-						<Checkbox checked={selected} onCheckedChange={onSelectedChange} aria-label={t`Select ${document.name}`} />
+						<Checkbox
+							checked={selected}
+							onCheckedChange={onSelectedChange}
+							disabled={disabled}
+							aria-label={t`Select ${document.name}`}
+						/>
 					</td>
 				)}
 				<td className={documentCardLayout.cell}>
@@ -318,7 +344,9 @@ function ActiveDocumentRow({
 						) : (
 							<OpenLink
 								document={document}
-								className="min-w-0 truncate text-start type-body font-semibold hover:underline"
+								dir="auto"
+								onSelect={selecting && onSelectedChange ? () => onSelectedChange(!selected) : undefined}
+								className={documentCardLayout.rowTitle}
 							>
 								{document.name}
 							</OpenLink>
@@ -338,30 +366,35 @@ function ActiveDocumentRow({
 						)}
 						{document.isLocked && <Icon name="lock" size={16} className="shrink-0 text-ink-3" />}
 					</span>
-					<span className={documentCardLayout.mobileType}>
+					<div className={documentCardLayout.rowMetadata}>
+						<DocumentMetadata document={document} />
+						<div className={documentCardLayout.mobileDetails}>
+							<DocumentApplication document={document} />
+							<time dateTime={document.updatedAt.toISOString()}>
+								{formatRelativeTime(document.updatedAt, i18n.locale)}
+							</time>
+						</div>
+					</div>
+				</td>
+				{showType && (
+					<td className={documentCardLayout.typeColumn}>
 						<DocumentType type={document.type} />
-					</span>
+					</td>
+				)}
+				<td className={documentCardLayout.applicationCell}>
+					<DocumentApplication document={document} />
 				</td>
-				<td className="px-2 type-body text-ink-2 max-sm:hidden">
-					<DocumentType type={document.type} />
-				</td>
-				<td className="truncate px-2 type-body text-ink-2 max-sm:hidden">{document.application?.company ?? "—"}</td>
-				<td className="px-2 type-body whitespace-nowrap text-ink-3">
-					{document.trashedAt ? (
-						<Trans>{daysLeftInTrash(document.trashedAt)} days left</Trans>
-					) : (
-						formatRelativeTime(document.updatedAt, i18n.locale)
-					)}
-				</td>
+				<td className={documentCardLayout.editedCell}>{formatRelativeTime(document.updatedAt, i18n.locale)}</td>
+
 				<td className="w-10 pe-2 text-end">
 					<DropdownMenu>
 						<DropdownMenuTrigger
 							render={
 								<IconButton
 									icon="dots-three"
-									size="icon-sm"
+									size="icon-lg"
 									label={t`Options for ${document.name}`}
-									className="text-ink-2"
+									disabled={disabled}
 								/>
 							}
 						/>

@@ -2,24 +2,73 @@ import { readFile } from "node:fs/promises";
 import { expect, it, vi } from "vite-plus/test";
 import { landingExample } from "./example";
 import { renderPage } from "./prerender";
-it("keeps the selected legal tab in both footer language destinations", async () => {
-	const { html } = await renderPage("legal-terms", "en-US");
-	for (const locale of ["ar-SA", "en-US"]) {
-		const tag = html.match(new RegExp(`<a\\b[^>]*lang="${locale}"[^>]*>`))?.[0];
-		const href = tag?.match(/href="([^"]*)"/)?.[1];
-		expect(href).toBeDefined();
-		const url = new URL(href?.replaceAll("&amp;", "&") ?? "", "https://resume.example/privacy-and-terms");
-		expect(url.searchParams.get("tab")).toBe("terms");
-		expect(url.searchParams.get("locale")).toBe(locale);
-	}
-});
-it("keeps the Arabic help locale in the sign-in return destination", async () => {
+it.each(["ar-SA", "en-US"] as const)(
+	"prerenders the balanced %s footer and shared language choices",
+	async (locale) => {
+		const { html } = await renderPage("home", locale);
+		const footer = html.slice(html.indexOf("<footer"));
+		expect(html.match(/<footer/g) ?? []).toHaveLength(1);
+		expect(footer).toMatch(/^<footer[^>]*bg-sunken/);
+		const product = locale === "ar-SA" ? "المنتج" : "Product";
+		const support = locale === "ar-SA" ? "الدعم" : "Support";
+		for (const label of [product, support]) {
+			const group = footer.match(new RegExp(`<nav aria-label="${label}"[^>]*>([\\s\\S]*?)</nav>`))?.[1] ?? "";
+			expect(group.match(/<a /g) ?? []).toHaveLength(2);
+			if (label === support && locale === "en-US") expect(group).toContain(">FAQ</a>");
+		}
+		const productMarkup = footer.slice(
+			footer.indexOf(`aria-label="${product}"`),
+			footer.indexOf(`aria-label="${support}"`),
+		);
+		expect(productMarkup).not.toContain("#faq");
+		for (const href of [
+			`/?locale=${locale}#how-it-works`,
+			`/?locale=${locale}#pricing`,
+			`/?locale=${locale}#faq`,
+			`/help?locale=${locale}`,
+			`/privacy-and-terms?locale=${locale}&amp;tab=privacy`,
+			`/privacy-and-terms?locale=${locale}&amp;tab=terms`,
+		])
+			expect(footer).toContain(`href="${href}"`);
+		expect(footer).toContain(`href="/?locale=${locale}"`);
+		expect(footer).toContain('role="group"');
+		expect(footer.match(/aria-pressed="true"/g) ?? []).toHaveLength(1);
+		expect(footer).not.toMatch(/Made in|صُنع|صنع في|github.com|rxresu.me/);
+		expect(footer).toContain("grid-cols-2");
+		const utilities = footer.slice(footer.indexOf("border-t"));
+		expect(utilities).toContain("tab=privacy");
+		expect(utilities).toContain("tab=terms");
+	},
+);
+it.each(["legal-privacy", "legal-terms", "help"] as const)(
+	"keeps compact content geometry without the landing invitation on %s",
+	async (page) => {
+		for (const locale of ["ar-SA", "en-US"] as const) {
+			const { html } = await renderPage(page, locale);
+			expect(html).not.toContain('id="cta-title"');
+			const footer = html.slice(html.indexOf("<footer"));
+			expect(footer).toMatch(/^<footer[^>]*bg-surface/);
+			expect(footer).toContain("py-6");
+			if (page !== "help") expect(footer).toContain('aria-pressed="true"');
+		}
+	},
+);
+it("prerenders known guest actions on Arabic help without a session request", async () => {
 	const { html } = await renderPage("help", "ar-SA");
-	const href = html.match(/href="([^"]*auth\/login[^"]*)"/)?.[1];
-	expect(href).toBeDefined();
-	const url = new URL(href?.replaceAll("&amp;", "&") ?? "", "https://resume.example");
-	expect(url.searchParams.get("callbackURL")).toBe("/help?locale=ar-SA");
+	expect(html).toContain('href="/auth/login');
+	expect(html).toContain('href="/auth/register');
 });
+it.each(["ar-SA", "en-US"] as const)(
+	"prerenders a single guest invitation after the complete FAQ in %s",
+	async (locale) => {
+		const { html } = await renderPage("home", locale);
+		const closing = html.slice(html.lastIndexOf('<section aria-labelledby="cta-title"'), html.indexOf("</main>"));
+		expect(closing.match(/<a /g) ?? []).toHaveLength(1);
+		expect(closing).toContain("/auth/register");
+		expect(html.indexOf('id="faq"')).toBeLessThan(html.indexOf('id="cta-title"'));
+		expect(closing).not.toContain("landing.cta.body");
+	},
+);
 it("renders the synthetic Arabic date range in chronological LTR order", async () => {
 	const { html } = await renderPage("home", "ar-SA");
 	expect(html).toMatch(/<bdi dir="ltr"[^>]*>2021 — 2024<\/bdi>/);
@@ -76,7 +125,7 @@ it("prerenders the same signed-out help title and navigation as the client", asy
 	const { html } = await renderPage("help", "en-US");
 	expect(html).toMatch(/<h1[^>]*>Help and contact<\/h1>/);
 	expect(html).toContain("Back to home");
-	expect(html).not.toContain("Master CV — Help and contact</h1>");
+	expect(html).not.toContain("Sirawise — Help and contact</h1>");
 });
 it.each([
 	["ar-SA", "الصياغة المقترحة", "النسخة الإنجليزية"],

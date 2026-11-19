@@ -5,8 +5,17 @@ function TooltipProvider({ delay = 400, ...props }: TooltipPrimitive.Provider.Pr
 	return <TooltipPrimitive.Provider data-slot="tooltip-provider" delay={delay} {...props} />;
 }
 
-function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
-	return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
+function Tooltip({ onOpenChange, ...props }: TooltipPrimitive.Root.Props) {
+	return (
+		<TooltipPrimitive.Root
+			data-slot="tooltip"
+			{...props}
+			onOpenChange={(open, details) => {
+				if (details.reason === "escape-key") details.allowPropagation();
+				onOpenChange?.(open, details);
+			}}
+		/>
+	);
 }
 
 function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
@@ -33,6 +42,7 @@ function TooltipContent({
 				className="isolate z-50"
 			>
 				<TooltipPrimitive.Popup
+					role="tooltip"
 					data-slot="tooltip-content"
 					className={cn(
 						"z-50 inline-flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-md bg-ink px-2.5 py-1.5 type-metadata font-medium text-bg shadow-e2 transition-[opacity,scale] duration-quick ease-enter has-data-[slot=kbd]:pe-1.5 data-ending-style:scale-[0.97] data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--d1)*0.7)] data-instant:transition-none data-starting-style:scale-[0.97] data-starting-style:opacity-0",

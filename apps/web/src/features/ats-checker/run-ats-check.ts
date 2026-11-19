@@ -1,6 +1,9 @@
 import type { ExtractProgress } from "./extract-client";
 import type { PdfAtsReport } from "@reactive-resume/resume/ats-pdf";
-import { extractPdf } from "./extract-client";
+import { extractPdf, preloadPdfExtraction } from "./extract-client";
+
+/** The editor starts these downloads alongside PDF generation, before the Review panel opens. */
+export const preloadAtsCheck = () => Promise.all([import("@reactive-resume/resume/ats-pdf"), preloadPdfExtraction()]);
 
 export type AtsCheckResult = {
 	report: PdfAtsReport;

@@ -43,6 +43,8 @@ function resumeVersionConflict(updatedAt: Date) {
 	});
 }
 
+export type SeedOnlyResumeAdmission = typeof admitResumeCreation;
+
 export type ResumeCreateInput = {
 	id?: string;
 	userId: string;
@@ -60,11 +62,21 @@ export type ResumeCreateInput = {
 export async function createResumeInTransaction(
 	tx: OwnerTransaction,
 	input: ResumeCreateInput,
-	options?: { reservationOperationId?: string },
+	options?: { reservationOperationId?: string; seedOnlyAdmission?: SeedOnlyResumeAdmission },
 ): Promise<string> {
 	await lockDocumentOwner(tx, input.userId);
 	const creation = await resolveResumeCreation(tx, input.userId, input.creation ?? { variantKind: "base" });
-	await admitResumeCreation(tx, input.userId, creation, options?.reservationOperationId);
+	try {
+		await admitResumeCreation(tx, input.userId, creation, options?.reservationOperationId);
+	} catch (error) {
+		if (
+			!options?.seedOnlyAdmission ||
+			!(error instanceof ORPCError) ||
+			(error.data as { reason?: string } | undefined)?.reason !== "JOB_COPY_LIMIT"
+		)
+			throw error;
+		await options.seedOnlyAdmission(tx, input.userId, creation, options.reservationOperationId);
+	}
 	const id = input.id ?? generateId();
 	const data = parseWritableResumeData(structuredClone(input.data ?? defaultResumeData));
 	data.metadata.page.locale = input.locale;
@@ -149,7 +161,9 @@ export async function updateResumeTx(tx: DbOrTx, input: ResumeUpdateInput) {
 		});
 	}
 
-	const normalizedData = input.data ? parseWritableResumeData(input.data) : undefined;
+	const normalizedData = input.data
+		? parseWritableResumeData(input.data, parseStoredResumeData(existing.data))
+		: undefined;
 	if (normalizedData)
 		await adoptEmbeddedLetters(tx, {
 			userId: input.userId,
@@ -274,7 +288,7 @@ async function applyResumePatchTx(
 		});
 	}
 
-	patchedData = parseWritableResumeData(patchedData);
+	patchedData = parseWritableResumeData(patchedData, storedData);
 	await adoptEmbeddedLetters(client, {
 		userId: input.userId,
 		resumeId: input.id,
@@ -610,12 +624,14 @@ export const resumeService = {
 				if (current.isLocked) throw new ORPCError("RESUME_LOCKED", { status: 403 });
 				assertResumeVersion(current.updatedAt, input.expectedUpdatedAt);
 				const version = await getVersion(input, tx);
-				await writeVersion(tx, {
+				const beforeRestore = await writeVersion(tx, {
 					resumeId: input.resumeId,
 					userId: input.userId,
 					data: parseStoredResumeData(current.data),
 					kind: "before-restore",
 				});
+				if (!beforeRestore)
+					throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Restore checkpoint was not saved." });
 				const restored = await updateResumeTx(tx, {
 					id: input.resumeId,
 					userId: input.userId,
@@ -667,7 +683,7 @@ export const resumeService = {
 					data: restored.data,
 					kind: "restored",
 				});
-				return restored;
+				return { ...restored, beforeRestoreVersionId: beforeRestore.id };
 			});
 			await notifyResumeUpdated({
 				type: "resume.updated",
@@ -800,9 +816,12 @@ export const resumeService = {
 		return toSharedResumeResponse(redactResumeForViewer(current, isOwner(current, viewer)), resume.hasPassword);
 	},
 
-	create: async (input: ResumeCreateInput, options: { atomicConfirmation?: boolean } = {}) => {
+	create: async (
+		input: ResumeCreateInput,
+		options: { atomicConfirmation?: boolean; seedOnlyAdmission?: SeedOnlyResumeAdmission } = {},
+	) => {
 		try {
-			const id = await withOwnerDatabase(input.userId, (tx) => createResumeInTransaction(tx, input));
+			const id = await withOwnerDatabase(input.userId, (tx) => createResumeInTransaction(tx, input, options));
 			if (!options.atomicConfirmation)
 				await notifyResumeUpdated({
 					type: "resume.updated",

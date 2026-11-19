@@ -1,8 +1,28 @@
-import { act, fireEvent, render } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, assert, expect, it, vi } from "vite-plus/test";
 import { BrandIcon } from "./brand-icon";
 
 afterEach(() => vi.unstubAllGlobals());
+it("shows one accessible localized name and a hidden English subtitle only in the Arabic lockup", () => {
+	const { container, rerender } = render(<BrandIcon locale="ar-SA" alt="Decorative mark" />);
+	const name = container.querySelector('[data-slot="brand-name"]');
+	expect(name).toHaveTextContent("سيراوايز");
+	const secondary = container.querySelector('[data-slot="brand-secondary"]');
+	expect(secondary).toHaveTextContent("Sirawise");
+	expect(secondary).toHaveAttribute("lang", "en");
+	expect(secondary).toHaveAttribute("dir", "ltr");
+	expect(secondary).toHaveAttribute("aria-hidden", "true");
+	expect(container.querySelector('[data-slot="brand-wordmark"]')).toHaveAttribute("dir", "rtl");
+	expect(container.querySelectorAll('img:not([alt=""])')).toHaveLength(0);
+	rerender(<BrandIcon locale="en-US" />);
+	expect(container.textContent).toBe("Sirawise");
+	expect(container.querySelector('[data-slot="brand-secondary"]')).toBeNull();
+	rerender(<BrandIcon variant="icon" locale="ar-SA" />);
+	expect(container.querySelector("img")?.alt).toBe("سيراوايز");
+	expect(container.querySelector('[data-slot="brand-wordmark"]')).toBeNull();
+	rerender(<BrandIcon variant="icon" locale="en-US" alt="" />);
+	expect(container.querySelector("img")?.alt).toBe("");
+});
 it("uses exactly the approved filled contours under reveal masks", async () => {
 	const { readFile } = await import("node:fs/promises");
 	const { container } = render(<BrandIcon />);
@@ -137,3 +157,15 @@ it.each(["1800ms", "1.8s"])(
 		vi.useRealTimers();
 	},
 );
+
+it.each([
+	["ar-SA", "سيراوايز"],
+	["en-US", "Sirawise"],
+])("names the %s brand link once", (locale, name) => {
+	render(
+		<a href="/">
+			<BrandIcon locale={locale} />
+		</a>,
+	);
+	expect(screen.getByRole("link", { name })).toHaveAccessibleName(name);
+});

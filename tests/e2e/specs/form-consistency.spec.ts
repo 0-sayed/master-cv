@@ -33,7 +33,9 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await page.context().addCookies([{ name: "locale", value: locale, url: baseURL ?? "http://localhost:3030" }]);
 		await page.reload();
 		await page.getByRole("button", { name: locale === "ar-SA" ? "سجل النسخ" : "History", exact: true }).click();
-		const sheet = page.getByRole("dialog");
+		const sheet = page.getByRole("complementary", {
+			name: locale === "ar-SA" ? "التصدير والسجل" : "Export and history",
+		});
 		const input = sheet.getByRole("textbox", { name: locale === "ar-SA" ? "اسم هذا الإصدار" : "Name this version" });
 		await expect(input).toBeVisible();
 		const button = input.locator("..").getByRole("button", { name: locale === "ar-SA" ? "حفظ" : "Save", exact: true });
@@ -74,7 +76,12 @@ test("Arabic job link placeholder follows the interface and typed links stay LTR
 });
 test("career keeps its subtitle without the duplicate ownership footer", async ({ authPage: page }) => {
 	await page.goto("/dashboard/career/information");
-	await expect(page.getByRole("heading", { name: "Career information", exact: true })).toBeVisible();
+	await expect(
+		page.getByRole("heading", {
+			name: "Career information Changes here update your CVs only with your approval.",
+			exact: true,
+		}),
+	).toBeVisible();
 	await expect(page.getByRole("button", { name: "Add experience", exact: true })).toBeVisible();
 	await expect(page.locator("main [role=status]")).toHaveCount(0);
 });

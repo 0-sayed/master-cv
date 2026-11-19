@@ -34,6 +34,14 @@ function fill() {
 	fireEvent.change(screen.getByLabelText("Your email"), { target: { value: "reader@example.test" } });
 	fireEvent.change(screen.getByLabelText("Your message"), { target: { value: "Synthetic support question" } });
 }
+it.each(["ar-SA", "en-US"])("links signed-in owners to the Review guide in %s", (locale) => {
+	context.session = { user: { email: "reader@example.test", emailVerified: true } };
+	show(locale);
+	expect(screen.getByRole("link", { name: locale === "ar-SA" ? "دليل المراجعة" : "Review guide" })).toHaveAttribute(
+		"href",
+		`/dashboard/review-guide?locale=${locale}`,
+	);
+});
 it.each(["ar-SA", "en-US"])("preserves %s in unverified-account recovery", (locale) => {
 	context.session = { user: { email: "reader@example.test", emailVerified: false } };
 	show(locale);

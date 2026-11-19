@@ -7,13 +7,20 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vite-plus/test";
 import { getDocument, OPS } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { createElement } from "react";
+import { lintResumeForAts } from "@reactive-resume/resume/ats";
 import { analyzePdfResume, harvestPdfDocument, PDF_OPS } from "@reactive-resume/resume/ats-pdf";
+import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { createSampleResumeData } from "@reactive-resume/schema/resume/sample";
 import { ResumeDocument } from "./document";
 import { renderToBuffer } from "./forme/testing";
 
 // English extraction/geometry fixtures must not inherit the product sample's Arabic default.
 const sampleResumeData = createSampleResumeData(undefined, "en-US");
+
+function required<T>(value: T | undefined): T {
+	if (value === undefined) throw new Error("Missing fixture value");
+	return value;
+}
 
 const NOW = new Date("2024-06-15T00:00:00Z");
 
@@ -73,6 +80,136 @@ describe("PDF operator numbers", () => {
 });
 
 describe("a resume rendered by this app", () => {
+	it.each([
+		["en-US", "candidate@example.test"],
+		["ar-SA", "candidate@example.test"],
+		["en-US", ""],
+		["ar-SA", ""],
+	] as const)("agrees on email in a rendered %s CV", async (locale, email) => {
+		const data = structuredClone(defaultResumeData);
+		data.metadata.page.locale = locale;
+		data.metadata.layout.pages = [{ fullWidth: true, main: [], sidebar: [] }];
+		data.basics.name = locale === "ar-SA" ? "محمد علي" : "Jane Doe";
+		data.basics.email = email;
+		const { report } = await analyze(await renderResume(data));
+		const pdfMissing = report.checks.find((check) => check.code === "NO_EMAIL")?.status === "fail";
+		const dataMissing = lintResumeForAts(data).findings.some((finding) => finding.code === "MISSING_EMAIL");
+		expect(pdfMissing).toBe(dataMissing);
+		expect(pdfMissing).toBe(!email);
+	});
+	it.each([
+		[
+			"NO_EMAIL",
+			(data: ResumeData) => {
+				data.basics.email = "";
+			},
+		],
+		[
+			"NO_PHONE",
+			(data: ResumeData) => {
+				data.basics.phone = "";
+			},
+		],
+		[
+			"NO_EDUCATION_SECTION",
+			(data: ResumeData) => {
+				required(data.metadata.layout.pages[0]).main = required(data.metadata.layout.pages[0]).main.filter(
+					(section) => section !== "education",
+				);
+			},
+		],
+		[
+			"NO_SKILLS_SECTION",
+			(data: ResumeData) => {
+				required(data.metadata.layout.pages[0]).main = required(data.metadata.layout.pages[0]).main.filter(
+					(section) => section !== "skills",
+				);
+			},
+		],
+		[
+			"NO_SUMMARY_SECTION",
+			(data: ResumeData) => {
+				required(data.metadata.layout.pages[0]).main = required(data.metadata.layout.pages[0]).main.filter(
+					(section) => section !== "summary",
+				);
+			},
+		],
+		[
+			"SMALL_BODY_TEXT",
+			(data: ResumeData) => {
+				data.metadata.typography.body.fontSize = 7;
+			},
+		],
+	] as const)("checks %s in rendered PDFs", { timeout: 60_000 }, async (code, mutate) => {
+		const data = structuredClone(sampleResumeData);
+		data.metadata.layout.pages = [
+			{
+				fullWidth: true,
+				main: data.metadata.layout.pages.flatMap((page) => [...page.main, ...page.sidebar]),
+				sidebar: [],
+			},
+		];
+		const original = structuredClone(data);
+		mutate(data);
+		const status = (report: ReturnType<typeof analyzePdfResume>) =>
+			report.checks.find((entry) => entry.code === code)?.status;
+		expect(status((await analyze(await renderResume(original))).report)).toBe("pass");
+		expect(status((await analyze(await renderResume(data))).report)).toBe("fail");
+	});
+	it.each([
+		["NO_EDUCATION_SECTION", "education"],
+		["NO_SKILLS_SECTION", "skills"],
+		["NO_SUMMARY_SECTION", "summary"],
+	] as const)("checks %s in rendered Arabic PDFs", { timeout: 60_000 }, async (code, section) => {
+		const data = createSampleResumeData(undefined, "ar-SA");
+		data.metadata.layout.pages = [
+			{
+				fullWidth: true,
+				main: data.metadata.layout.pages.flatMap((page) => [...page.main, ...page.sidebar]),
+				sidebar: [],
+			},
+		];
+		const original = structuredClone(data);
+		required(data.metadata.layout.pages[0]).main = required(data.metadata.layout.pages[0]).main.filter(
+			(entry) => entry !== section,
+		);
+		const status = (report: ReturnType<typeof analyzePdfResume>) =>
+			report.checks.find((entry) => entry.code === code)?.status;
+		expect(status((await analyze(await renderResume(original))).report)).toBe("pass");
+		expect(status((await analyze(await renderResume(data))).report)).toBe("fail");
+	});
+	it.each([
+		["en-US", "+44 20 7946 0100"],
+		["ar-SA", "+٩٦٦ ٥٥ ١٢٣ ٤٥٦٧"],
+		["ar-SA", ""],
+		["en-US", ""],
+	] as const)("agrees on the phone in a rendered %s CV", async (locale, phone) => {
+		const data = structuredClone(defaultResumeData);
+		data.metadata.page.locale = locale;
+		data.metadata.layout.pages = [{ fullWidth: true, main: [], sidebar: [] }];
+		data.basics.name = locale === "ar-SA" ? "محمد علي" : "Jane Doe";
+		data.basics.phone = phone;
+		const { report } = await analyze(await renderResume(data));
+		const pdfMissing = report.checks.find((check) => check.code === "NO_PHONE")?.status === "fail";
+		const dataMissing = lintResumeForAts(data).findings.some((finding) => finding.code === "MISSING_PHONE");
+		expect(pdfMissing).toBe(dataMissing);
+		expect(pdfMissing).toBe(!phone);
+	});
+	it.each([
+		["en-US", "Jane Doe"],
+		["ar-SA", "محمد علي"],
+	] as const)("checks short selectable text rendered in %s", async (locale, name) => {
+		const data = structuredClone(defaultResumeData);
+		data.metadata.page.locale = locale;
+		data.metadata.layout.pages = [{ fullWidth: true, main: [], sidebar: [] }];
+		data.basics.name = name;
+		const { report } = await analyze(await renderResume(data));
+		const status = (code: string) => report.checks.find((check) => check.code === code)?.status;
+		expect(status("NO_TEXT_LAYER")).toBe("pass");
+		expect(status("VERY_SHORT_DOCUMENT")).toBe("fail");
+		expect(status("NO_EMAIL")).toBe("fail");
+		expect(report.cappedBy).not.toContain("NO_TEXT_LAYER");
+	});
 	/**
 	 * The sample mixes year-only education/projects with month-year employment. Recognizing the
 	 * numeric ranges after entry names exposes that real inconsistency; export defects must not

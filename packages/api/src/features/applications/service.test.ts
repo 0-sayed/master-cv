@@ -122,6 +122,16 @@ beforeEach(() => {
 });
 
 describe("applicationService.create", () => {
+	it("preserves an internal historical instant before noon and across Riyadh midnight", async () => {
+		const values = vi.fn(() => ({ returning: async () => [] }));
+		dbMock.insert.mockReturnValue({ values });
+		await applicationService.create(
+			{ userId: "user-1", company: "Studio", role: "Lead", status: "saved" },
+			{ stageAt: new Date("2026-11-14T21:00:00Z") },
+		);
+		const [[inserted]] = values.mock.calls as unknown as [[{ activity: { at: Date }[] }]];
+		expect(inserted.activity[0]?.at.toISOString()).toBe("2026-11-14T21:00:00.000Z");
+	});
 	it("seeds an initial stage timeline entry with the chosen date", async () => {
 		const values = vi.fn(() => ({ returning: () => Promise.resolve([]) }));
 		dbMock.insert.mockReturnValue({ values });
@@ -166,6 +176,15 @@ describe("applicationService.update", () => {
 		).rejects.toMatchObject({ code: "CONFLICT" });
 	});
 
+	it("replays an internal historical stage without moving it into the future", async () => {
+		const set = captureSet();
+		await applicationService.update(
+			{ id: "app-1", userId: "user-1", status: "applied" },
+			{ stageAt: new Date("2026-11-19T09:00:00Z") },
+		);
+		const [[arg]] = set.mock.calls as unknown as [[{ activity: { values: unknown[] } }]];
+		expect(appendedEvent(arg.activity)).toMatchObject({ stage: "applied", at: "2026-11-19T09:00:00.000Z" });
+	});
 	it("appends a typed stage timeline entry when the status changes", async () => {
 		const set = captureSet();
 		await applicationService.update({ id: "app-1", userId: "user-1", status: "applied" });

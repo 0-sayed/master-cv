@@ -1,9 +1,7 @@
 import { createSampleResumeFromDashboard } from "../fixtures/resume";
 import { expect, test } from "../fixtures/test";
 
-test("Arabic back arrows point right and the tablet home link names Master CV", async ({
-	authPage: page,
-}, testInfo) => {
+test("Arabic back arrows point right and the tablet home link names Sirawise", async ({ authPage: page }, testInfo) => {
 	await page.setViewportSize({ width: 390, height: 844 });
 	await createSampleResumeFromDashboard(page, testInfo);
 	await page.goto(`${new URL(page.url()).pathname}?locale=ar-SA`);
@@ -19,7 +17,7 @@ test("Arabic back arrows point right and the tablet home link names Master CV", 
 	await expect(settingsBack).toBeVisible();
 	expect.soft(await settingsBack.evaluate(horizontalDirection)).toBeCloseTo(-1);
 	await page.setViewportSize({ width: 768, height: 900 });
-	await expect(page.getByRole("complementary").getByRole("link", { name: "Master CV", exact: true })).toBeVisible();
+	await expect(page.getByRole("complementary").getByRole("link", { name: "سيراوايز", exact: true })).toBeVisible();
 });
 
 test("the mobile application workspace starts with its own header", async ({ authPage: page }) => {

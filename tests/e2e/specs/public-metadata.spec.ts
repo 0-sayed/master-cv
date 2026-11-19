@@ -22,8 +22,8 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					);
 					await expect(page).toHaveTitle(
 						locale === "ar-SA"
-							? "Master CV — اكتب سيرتك وراجعها، ثم نزّلها بصيغة PDF."
-							: "Master CV — Write and review your CV, then download a PDF.",
+							? "سيراوايز — اكتب سيرتك وراجعها، ثم نزّلها بصيغة PDF."
+							: "Sirawise — Write and review your CV, then download a PDF.",
 					);
 					await expect(page.locator('meta[name="description"]')).toHaveAttribute(
 						"content",
@@ -46,7 +46,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 						);
 					await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute("content", locale.replace("-", "_"));
 					await expect(page.locator('meta[property="og:type"]')).toHaveAttribute("content", "website");
-					await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", "Master CV");
+					await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
+						"content",
+						locale === "ar-SA" ? "سيراوايز" : "Sirawise",
+					);
 					await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
 						"content",
 						`${baseURL}/${locale === "en-US" ? "?locale=en-US" : ""}`,
@@ -103,7 +106,7 @@ test("public metadata follows interface navigation and clears on account entry",
 	await settleScreen(page);
 	await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
 });
-test("public metadata belongs to the retained checker after same-document navigation", async ({ page, baseURL }) => {
+test("retired checker navigation returns to the homepage metadata", async ({ page, baseURL }) => {
 	await page.goto("/?locale=en-US");
 	await settleScreen(page);
 	await page.evaluate(async () => {
@@ -113,6 +116,10 @@ test("public metadata belongs to the retained checker after same-document naviga
 		await router.navigate({ href: "/ats-checker?locale=en-US" });
 	});
 	await settleScreen(page);
-	await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${baseURL}/ats-checker?locale=en-US`);
-	await expect(page.locator('meta[property="og:description"]')).toHaveAttribute("content", /account/);
+	await expect(page).toHaveURL(`${baseURL}/?locale=en-US`);
+	await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${baseURL}/?locale=en-US`);
+	await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
+		"content",
+		"Create and review your CV in a private account. Keep Arabic and English versions separate. Qualified PDF downloads are free within account limits.",
+	);
 });

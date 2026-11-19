@@ -37,14 +37,27 @@ export async function seedReviewBudget() {
 		await pool.end();
 	}
 }
-export async function openWriting(page: Page, width = 1440) {
-	if (width >= 768) await page.getByRole("tab", { name: /^(Check|فحص|مراجعة)/u }).click();
+export type ReviewTab = "ats" | "writing" | "ai";
+export async function openReview(page: Page, width = 1440, tab: ReviewTab = "ats") {
+	if (width >= 640) await page.getByRole("tab", { name: /^(Review|مراجعة)$/u }).click();
 	else
 		await page
 			.getByRole("navigation", { name: /Editor views|طرق عرض المحرر/u })
-			.getByRole("button", { name: /^(Check|فحص|مراجعة)$/u })
+			.getByRole("button", { name: /^(Review|مراجعة)$/u })
 			.click();
-	// Writing advice is part of the existing Check workspace.
+	const expand = page.getByRole("button", { name: /^(Open full review|فتح المراجعة الكاملة)$/u });
+	if (await expand.isVisible()) await expand.click();
+	const names = {
+		ats: /^(ATS check|فحص ATS)(?: \d+)?$/u,
+		writing: /^(Data check|فحص البيانات) \d+$/u,
+		ai: /^(AI|الذكاء الاصطناعي) (?:\d+|AI unavailable|الذكاء الاصطناعي غير متاح)$/u,
+	};
+	const reviewTab = page.getByRole("tab", { name: names[tab] });
+	if ((await reviewTab.getAttribute("aria-selected")) !== "true") await reviewTab.click();
+	await expect(page.getByRole("region", { name: /^(Review findings|ملاحظات المراجعة)$/u })).toBeVisible();
+}
+export async function openWriting(page: Page, width = 1440) {
+	await openReview(page, width, "ai");
 }
 export async function startReview(page: Page) {
 	await page.getByRole("button", { name: /^(Review wording|مراجعة الصياغة)$/u }).click();

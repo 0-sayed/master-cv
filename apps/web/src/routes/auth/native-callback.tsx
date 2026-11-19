@@ -25,7 +25,7 @@ function NativeCallbackPage() {
 	return (
 		<div className="space-y-4 text-center">
 			<AuthHeading>
-				<Trans>Open the Master CV app</Trans>
+				<Trans>Open the Sirawise app</Trans>
 			</AuthHeading>
 			<p className="text-muted-foreground type-body">
 				<Trans>If the app did not open, try again on a device where it is installed.</Trans>

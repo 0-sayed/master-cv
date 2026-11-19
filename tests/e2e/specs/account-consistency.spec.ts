@@ -652,12 +652,20 @@ for (const locale of ["ar-SA", "en-US"] as const)
 				await page
 					.getByRole("button", { name: /^(Sign out of all other devices|تسجيل الخروج من جميع الأجهزة الأخرى)$/u })
 					.click();
+				await page
+					.getByRole("alertdialog")
+					.getByRole("button", { name: /^(Confirm sign out|تأكيد تسجيل الخروج)$/u })
+					.click();
 				await expect(page.getByRole("alert")).toBeVisible();
 				await shot("device-signout-error");
 				await page.unroute("**/api/rpc/privacy/revokeSessions");
 				await page.getByRole("button", { name: /^(Try again|حاول مرة أخرى)$/u }).click();
 				await page
 					.getByRole("button", { name: /^(Sign out of all other devices|تسجيل الخروج من جميع الأجهزة الأخرى)$/u })
+					.click();
+				await page
+					.getByRole("alertdialog")
+					.getByRole("button", { name: /^(Confirm sign out|تأكيد تسجيل الخروج)$/u })
 					.click();
 				await expect(page.getByText(/^(Other device|جهاز آخر)$/u)).toHaveCount(0);
 				await shot("devices-signed-out");

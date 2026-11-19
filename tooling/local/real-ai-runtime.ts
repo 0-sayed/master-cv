@@ -1,12 +1,14 @@
 import type { AiRuntime } from "@reactive-resume/api/features/ai/route-policy";
 import { reviewHandlers } from "@reactive-resume/api/features/ai/review-handlers";
+import { variantReviewHandlers } from "@reactive-resume/api/features/ai/variant-handlers";
+import { letterReviewHandler } from "@reactive-resume/api/features/cover-letters/review-handler";
 import { realAiConfig } from "./real-ai-config";
 
 export function createRealAiRuntime(environment: Record<string, string | undefined>): AiRuntime {
 	const config = realAiConfig(environment);
 	const runtime: AiRuntime = {
 		routes: [config.route],
-		handlers: reviewHandlers,
+		handlers: { ...reviewHandlers, ...variantReviewHandlers, "review.cover-letter": letterReviewHandler },
 		workerAvailable: true,
 		localOwnerAllowance: config.allowance,
 	};

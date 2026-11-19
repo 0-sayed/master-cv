@@ -90,7 +90,7 @@ export function TypeGroup({ onCustomFonts }: TypeGroupProps) {
 	const { heading, body } = metadata.typography;
 
 	return (
-		<div className="grid gap-4">
+		<div className="editor-panel-controls grid gap-4">
 			<div className="grid gap-1">
 				<RadioGroup
 					aria-label={t`Font pairing`}
@@ -198,7 +198,7 @@ export function ColorGroup() {
 		);
 
 	return (
-		<div className="grid gap-3">
+		<div className="editor-panel-colors grid gap-3">
 			<RadioGroup
 				aria-label={t`Accent colour`}
 				value={ACCENTS.some((accent) => accent.hex === current) ? current : null}
@@ -279,7 +279,7 @@ export function PageGroup() {
 	const margins = matchMargins(metadata);
 
 	return (
-		<div className="grid gap-4">
+		<div className="editor-panel-controls grid gap-4">
 			<div className="grid gap-2">
 				<span className="text-[13px] font-medium">
 					<Trans>Paper</Trans>
@@ -298,12 +298,18 @@ export function PageGroup() {
 					}
 					className="w-full"
 				>
-					<SegmentedControlItem value="letter">
-						<Trans context="US Letter paper size (8.5 × 11 in), shown beside A4">Letter</Trans>
+					<SegmentedControlItem value="a4" title="A4 (210 × 297 mm)" aria-label="A4 (210 × 297 mm)">
+						A4
 					</SegmentedControlItem>
-					<SegmentedControlItem value="a4">A4</SegmentedControlItem>
-					<SegmentedControlItem value="free-form">
-						<Trans>Free-form</Trans>
+					<SegmentedControlItem
+						value="letter"
+						title={t({ message: "Letter", context: "US Letter paper size (8.5 × 11 in), shown beside A4" })}
+						aria-label={t({ message: "Letter", context: "US Letter paper size (8.5 × 11 in), shown beside A4" })}
+					>
+						Letter
+					</SegmentedControlItem>
+					<SegmentedControlItem value="free-form" title={t`Free-form`} aria-label={t`Free-form`}>
+						<Trans context="paper.shortFree">Free</Trans>
 					</SegmentedControlItem>
 				</SegmentedControl>
 			</div>

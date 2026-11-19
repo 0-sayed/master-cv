@@ -1,5 +1,5 @@
 import { createSampleResumeFromDashboard } from "../fixtures/resume";
-import { openWriting } from "../fixtures/reviewable-ai";
+import { openReview } from "../fixtures/reviewable-ai";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
@@ -26,21 +26,12 @@ for (const locale of ["en-US", "ar-SA"] as const)
 				}),
 			).toBeOK();
 			await page.reload();
-			await openWriting(page, width);
+			await openReview(page, width, "ats");
 			const pdf = page.locator("[data-pdf-bytes-hash]");
 			await expect(pdf).toBeVisible({ timeout: 75_000 });
-			const summary = page.getByRole("region", { name: ar ? "نتائج الفحص" : "Check summary", exact: true });
-			await expect(summary).toBeVisible();
-			const dismiss = page.getByRole("button", { name: ar ? "فهمت" : "Got it", exact: true });
-			const intro = dismiss.locator('xpath=ancestor::*[@data-slot="alert"]');
-			await settleScreen(page);
-			await page.screenshot({ path: testInfo.outputPath("intro.png") });
-			const action = intro.locator('[data-slot="alert-actions"]');
-			await expect(action).toContainText(ar ? "فهمت" : "Got it");
-			expect(await dismiss.evaluate((button) => getComputedStyle(button).borderTopStyle)).toBe("solid");
-			expect(await dismiss.evaluate((button) => getComputedStyle(button).borderTopColor)).not.toBe("rgba(0, 0, 0, 0)");
-			await dismiss.click();
-			await summary.scrollIntoViewIfNeeded();
+			await expect(
+				page.getByRole("region", { name: ar ? "ملاحظات المراجعة" : "Review findings", exact: true }),
+			).toBeVisible();
 			await settleScreen(page);
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 			expect(await page.locator("html").getAttribute("dir")).toBe(ar ? "rtl" : "ltr");
@@ -50,21 +41,9 @@ for (const locale of ["en-US", "ar-SA"] as const)
 					ar ? "Noto Sans Arabic" : "Noto Sans",
 				),
 			).toBe(true);
-			await page.screenshot({ path: testInfo.outputPath("summary.png") });
-			const warning = pdf.getByRole("button", { name: /(?:Warning|تحذير).*\(/u });
-			await expect(warning).toHaveAttribute("aria-expanded", "true");
-			const tips = pdf.getByRole("button", { name: /(?:Tip|نصيحة).*\(/u });
-			await expect(tips).toHaveAttribute("aria-expanded", "false");
 			const cards = pdf.locator("[data-issue-card]");
 			await expect(cards.locator('[data-slot="alert"]')).toHaveCount(0);
-			for (const severity of ["danger", "warn", "info"]) {
-				if (severity === "info") await tips.click();
-				const badge = cards.locator(`[data-slot="badge"][data-variant="${severity}"]`).first();
-				await badge.scrollIntoViewIfNeeded();
-				await settleScreen(page);
-				await page.screenshot({ path: testInfo.outputPath(`${severity}-finding.png`) });
-			}
-			await tips.click();
+			await page.screenshot({ path: testInfo.outputPath("findings.png") });
 			const keep = pdf.getByRole("button", { name: ar ? "إبقاء كما هو" : "Keep as is", exact: true }).first();
 			await keep.scrollIntoViewIfNeeded();
 			await settleScreen(page);
@@ -77,8 +56,8 @@ for (const locale of ["en-US", "ar-SA"] as const)
 				})
 				.toBe(true);
 			await page.reload();
-			await openWriting(page, width);
-			await expect(dismiss).toHaveCount(0);
+			await openReview(page, width, "ats");
+
 			const showAgain = page.getByRole("button", { name: /Show again|اعرض مرة أخرى/u });
 			await expect(showAgain).toBeVisible();
 			await showAgain.scrollIntoViewIfNeeded();
@@ -91,14 +70,20 @@ for (const locale of ["en-US", "ar-SA"] as const)
 					return saved.data.metadata.check?.ignored?.length ?? 0;
 				})
 				.toBe(0);
+			await openReview(page, width, "writing");
 			const fix = page.getByRole("button", { name: ar ? "إصلاح" : "Fix", exact: true }).first();
 			await fix.click();
 			const preview = page.getByRole("dialog");
-			await expect(preview.getByText(ar ? "قبل" : "Before", { exact: true }).first()).toBeVisible();
+			const comparison = preview.locator('[data-review-diff] [data-slot="rule-comparison"]').first();
+			await expect(comparison.locator('[data-layout="inline"]')).toBeVisible();
+			await expect(comparison.locator(".sr-only")).toContainText(ar ? "قبل:" : "Before:");
+			await expect(comparison.locator(".sr-only")).toContainText(ar ? "بعد:" : "After:");
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("fix-preview.png") });
 			await preview.getByRole("button", { name: ar ? "إلغاء" : "Cancel", exact: true }).click();
-			await expect(pdf).toBeVisible({ timeout: 75_000 });
+			await expect(
+				page.getByRole("region", { name: ar ? "ملاحظات المراجعة" : "Review findings", exact: true }),
+			).toBeVisible();
 			await page
 				.getByRole("button", {
 					name:
@@ -106,7 +91,9 @@ for (const locale of ["en-US", "ar-SA"] as const)
 					exact: true,
 				})
 				.click();
-			const sheet = page.getByRole("dialog");
+			const sheet = page
+				.getByRole("dialog", { name: ar ? "التصدير والسجل" : "Export and history" })
+				.or(page.getByRole("complementary", { name: ar ? "التصدير والسجل" : "Export and history" }));
 			await expect(
 				sheet.getByText(ar ? "توجد مشكلة قد تمنع قراءة الملف" : "There is an issue that may block reading", {
 					exact: true,
@@ -119,11 +106,12 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			const downloadEvent = page.waitForEvent("download");
 			await download.click();
 			expect(await (await downloadEvent).failure()).toBeNull();
-			await sheet.getByRole("button", { name: ar ? "عرض المشكلات" : "View issues", exact: true }).click();
+			await sheet.getByRole("button", { name: ar ? "مراجعة" : "Review", exact: true }).click();
 			await expect(sheet).toHaveCount(0);
 			await expect(
-				page.getByRole("heading", { name: ar ? "راجع سيرتك الذاتية" : "Review your CV", exact: true }),
+				page.getByRole("heading", { name: ar ? "راجع سيرتك الذاتية" : "Review your CV", exact: true, level: 2 }),
 			).toBeVisible();
+			await openReview(page, width, "writing");
 			await fix.click();
 			await page
 				.getByRole("dialog")

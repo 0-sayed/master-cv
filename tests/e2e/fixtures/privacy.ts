@@ -5,13 +5,19 @@ import { join } from "node:path";
 import { Pool } from "pg";
 import { expect } from "./test";
 /** Direct fixture setup is confined to the runner's disposable database and local storage. */
-export async function privacyDatabase<T>(work: (pool: Pool) => Promise<T>) {
+/** Local runner databases are named ci_browser_*; the GitHub service database listens on port 55432. */
+export function disposableDatabaseUrl() {
 	const value = process.env.DATABASE_MIGRATION_URL;
 	if (!value) throw new Error("Disposable runner database required");
 	const url = new URL(value);
-	if (!["localhost", "127.0.0.1"].includes(url.hostname) || url.port !== "55432")
+	const designated = /^\/ci_browser_\d+_[a-f0-9]+$/u.test(url.pathname) || url.port === "55432";
+	if (!["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) || !designated || url.searchParams.has("host"))
 		throw new Error("Designated disposable PostgreSQL required");
-	const pool = new Pool({ connectionString: value });
+	return value;
+}
+
+export async function privacyDatabase<T>(work: (pool: Pool) => Promise<T>) {
+	const pool = new Pool({ connectionString: disposableDatabaseUrl() });
 	try {
 		return await work(pool);
 	} finally {

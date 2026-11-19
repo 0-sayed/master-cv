@@ -10,6 +10,7 @@ import {
 	closestCenter,
 	pointerWithin,
 	useDraggable,
+	useDndContext,
 	useDroppable,
 	useSensor,
 	useSensors,
@@ -26,7 +27,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@reactive-resume/ui/components/dialog";
-import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { ScrollArea } from "@reactive-resume/ui/components/scroll-area";
 import { cn } from "@reactive-resume/utils/style";
 import { CLOSED_REASONS, getClosedReasonLabel, getStageColor, getStageLabel, PIPELINE } from "../stages";
@@ -174,6 +175,8 @@ type ColumnProps = {
 
 function Column({ stage, applications, onOpen }: ColumnProps) {
 	const { setNodeRef, isOver } = useDroppable({ id: stage });
+	const { active } = useDndContext();
+	const dropActive = active !== null && isOver;
 	const [visible, setVisible] = useState(COLUMN_PAGE_SIZE);
 	const shown = applications.slice(0, visible);
 	const remaining = applications.length - shown.length;
@@ -184,7 +187,7 @@ function Column({ stage, applications, onOpen }: ColumnProps) {
 			style={{ "--stage-color": getStageColor(stage) } as React.CSSProperties}
 			className={cn(
 				"flex application-column min-w-0 flex-col rounded-xl border bg-sunken transition-colors duration-quick",
-				isOver ? "stage-drop-target" : "border-transparent",
+				dropActive ? "stage-drop-target" : "border-transparent",
 			)}
 		>
 			<h2 className="flex items-center gap-2 px-3 py-2.5 text-sm font-semibold">
@@ -195,7 +198,7 @@ function Column({ stage, applications, onOpen }: ColumnProps) {
 			<div
 				ref={setNodeRef}
 				data-stage={stage}
-				data-drop-active={isOver}
+				data-drop-active={dropActive}
 				className="flex min-h-24 flex-1 flex-col gap-2 overflow-y-auto px-2 pb-2"
 			>
 				{shown.map((application) => (
@@ -231,16 +234,15 @@ function DraggableCard({ application, onOpen }: DraggableCardProps) {
 				onClick={onOpen}
 				withMenu
 				dragHandle={
-					<Button
+					<IconButton
 						size="icon-xs"
-						variant="ghost"
+
 						ref={setActivatorNodeRef}
 						{...attributes}
 						onKeyDown={(event) => listeners?.onKeyDown?.(event)}
-						aria-label={t`Move ${application.role} at ${application.company}`}
-					>
-						<Icon name="dots-six-vertical" />
-					</Button>
+						label={t`Move ${application.role} at ${application.company}`}
+						icon="dots-six-vertical"
+					/>
 				}
 			/>
 		</div>

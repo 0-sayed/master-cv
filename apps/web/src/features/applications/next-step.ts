@@ -37,7 +37,7 @@ function stageSince(application: Pick<Application, "status" | "activity" | "appl
 const daysBetween = (from: Date, to: Date) => Math.max(0, Math.floor((to.getTime() - from.getTime()) / DAY_MS));
 
 /** Whole days the application has spent in its current stage. */
-export const daysInStage = (application: Pick<Application, "status" | "activity" | "appliedAt">, now = new Date()) =>
+const daysInStage = (application: Pick<Application, "status" | "activity" | "appliedAt">, now = new Date()) =>
 	daysBetween(stageSince(application), now);
 
 export function getNextStep(application: NextStepSource, now = new Date()): NextStep {
@@ -48,7 +48,13 @@ export function getNextStep(application: NextStepSource, now = new Date()): Next
 		.map((interview) => ({ interview, at: new Date(interview.at) }))
 		.filter(({ interview, at }) => at.getTime() + interview.durationMinutes * 60_000 >= now.getTime())
 		.sort((a, b) => a.at.getTime() - b.at.getTime())[0];
-	if (upcoming) return { kind: "interview", ...upcoming };
+	if (
+		upcoming &&
+		(!application.followUpAt ||
+			upcoming.at.getTime() <= now.getTime() ||
+			upcoming.at.getTime() <= new Date(application.followUpAt).getTime())
+	)
+		return { kind: "interview", ...upcoming };
 
 	if (application.followUpAt) {
 		const at = new Date(application.followUpAt);
@@ -64,8 +70,9 @@ export function getNextStep(application: NextStepSource, now = new Date()): Next
 
 export type NextStepText = { icon: IconName; title: string; sub: string; tone: "normal" | "warn" | "muted" };
 
-const formatWhen = (date: Date, locale: string, withTime: boolean) =>
+const formatWhen = (date: Date, locale: string, withTime: boolean, timezone?: string) =>
 	formatInterfaceDate(date, locale, {
+		...(timezone ? { timeZone: timezone } : {}),
 		weekday: "short",
 		day: "numeric",
 		month: "short",
@@ -85,7 +92,7 @@ export function describeNextStep(
 			return {
 				icon: "calendar-dot",
 				title: t`${kind} interview`,
-				sub: `${formatWhen(step.at, locale, true)}${where}`,
+				sub: `${formatWhen(step.at, locale, true, step.interview.timezone)} · ${step.interview.timezone}${where}`,
 				tone: "normal",
 			};
 		}

@@ -63,7 +63,7 @@ const formatSize = (bytes: number) =>
 function requireImportKind(kind: ImportKind | null): ImportKind {
 	if (!kind) {
 		throw new ImportError(
-			t`This file type can't be imported. Use a PDF, Word, Master CV or JSON Resume file, or a LinkedIn export (.zip).`,
+			t`This file type can't be imported. Use a PDF, Word, Sirawise or JSON Resume file, or a LinkedIn export (.zip).`,
 		);
 	}
 	return kind;

@@ -22,6 +22,7 @@ import {
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { useKeyboardInset } from "@reactive-resume/ui/hooks/use-keyboard-inset";
 import { useIsMobile } from "@reactive-resume/ui/hooks/use-mobile";
 import { cn } from "@reactive-resume/utils/style";
@@ -252,34 +253,30 @@ export function RichTextEditor({
 		setImproving(lineAtCaret(editor));
 	};
 
-	const buttonSize = mobile ? "size-11" : "size-8";
 	const toolbarButtons = (
 		<>
 			{actions.map((action, index) => (
-				<button
+				<IconButton
 					key={action.icon}
+					size={mobile ? "icon-lg" : "icon-sm"}
 					type="button"
-					aria-label={action.label}
+					label={action.label}
 					aria-pressed={action.isActive ? (state?.active[index] ?? false) : undefined}
 					title={action.label}
 					// Keep the caret in the text while formatting.
 					onMouseDown={(event) => event.preventDefault()}
 					onClick={() => editor && void action.run(editor)}
 					className={cn(
-						toolbarButtonClassName,
-						buttonSize,
 						state?.active[index] && "bg-accent-soft text-accent-text",
 						index === LIST_GROUP_START && "ms-1.5",
 					)}
-				>
-					<Icon name={action.icon} />
-				</button>
+					icon={action.icon}
+				/>
 			))}
 			{editor && (
 				<FormattingMenus
 					editor={editor}
 					formatting={state?.formatting ?? DEFAULT_FORMATTING}
-					buttonClassName={cn(toolbarButtonClassName, buttonSize)}
 					side={mobile ? "top" : "bottom"}
 					menus={menus}
 				/>
@@ -342,7 +339,7 @@ export function RichTextEditor({
 								setFocused(false);
 								editor?.commands.blur();
 							}}
-							className="flex h-11 shrink-0 items-center rounded-md px-3 text-sm font-semibold text-accent-text"
+							className="flex h-11 shrink-0 items-center rounded-md px-3 type-label font-semibold text-accent-text"
 						>
 							<Trans>Done</Trans>
 						</button>
@@ -394,19 +391,15 @@ export function RichTextEditor({
 	);
 }
 
-const toolbarButtonClassName =
-	"flex shrink-0 items-center justify-center rounded-md text-ink-2 transition-colors duration-quick hover:bg-hover data-popup-open:bg-hover";
-
 type FormattingMenusProps = {
 	editor: Editor;
 	formatting: FormattingState;
-	buttonClassName: string;
 	side: "top" | "bottom";
 	menus: ReturnType<typeof useToolbarMenus>;
 };
 
 /** Alignment, then everything else the toolbar has no room for. */
-function FormattingMenus({ editor, formatting, buttonClassName, side, menus }: FormattingMenusProps) {
+function FormattingMenus({ editor, formatting, side, menus }: FormattingMenusProps) {
 	const chain = () => editor.chain().focus();
 	const alignLabels: Record<Alignment, string> = {
 		left: t`Align left`,
@@ -440,12 +433,15 @@ function FormattingMenus({ editor, formatting, buttonClassName, side, menus }: F
 		<>
 			<DropdownMenu {...menus.rootProps("align")}>
 				<DropdownMenuTrigger
-					aria-label={t`Text alignment`}
-					title={t`Text alignment`}
-					className={cn(buttonClassName, "ms-1.5", formatting.align !== "left" && "bg-accent-soft text-accent-text")}
-				>
-					<Icon name={ALIGNMENT_ICONS[formatting.align]} />
-				</DropdownMenuTrigger>
+					render={
+						<IconButton
+							icon={ALIGNMENT_ICONS[formatting.align]}
+							label={t`Text alignment`}
+							size="icon-sm"
+							className={cn("ms-1.5", formatting.align !== "left" && "bg-accent-soft text-accent-text")}
+						/>
+					}
+				/>
 				<DropdownMenuContent side={side} className="w-44" {...menus.contentProps}>
 					<DropdownMenuRadioGroup
 						value={formatting.align}
@@ -464,9 +460,7 @@ function FormattingMenus({ editor, formatting, buttonClassName, side, menus }: F
 			</DropdownMenu>
 
 			<DropdownMenu {...menus.rootProps("more")}>
-				<DropdownMenuTrigger aria-label={t`More formatting`} title={t`More formatting`} className={buttonClassName}>
-					<Icon name="dots-three" />
-				</DropdownMenuTrigger>
+				<DropdownMenuTrigger render={<IconButton icon="dots-three" label={t`More formatting`} />} />
 				<DropdownMenuContent side={side} className="w-56" {...menus.contentProps}>
 					<DropdownMenuCheckboxItem checked={formatting.strike} onCheckedChange={() => chain().toggleStrike().run()}>
 						<Icon name="text-strikethrough" />

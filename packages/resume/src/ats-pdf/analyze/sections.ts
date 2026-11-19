@@ -77,7 +77,20 @@ export function detectHeadings(document: ExtractedDocument): DetectedHeading[] {
 	document.lines.forEach((line, lineIndex) => {
 		// A heading set in its own narrow column shares a baseline with the first line of the
 		// section's content, so the line it lands on has to be read in column-separated pieces.
-		for (const segment of columnSegments(line)) {
+		const segments = columnSegments(line);
+		const closeColumnHeadings = segments.flatMap((segment) =>
+			segment.spans.length < 2
+				? []
+				: segment.spans
+						.filter(
+							(span) =>
+								NORMALIZED_HEADINGS.has(normalizeHeading(span.text)) &&
+								Boolean(document.modalFontSize && span.fontSize >= document.modalFontSize * HEADING_SIZE_RATIO) &&
+								segment.spans.some((other) => other !== span && other.fontSize < span.fontSize),
+						)
+						.map((span) => ({ ...segment, ...span, spans: [span] })),
+		);
+		for (const segment of [...segments, ...closeColumnHeadings]) {
 			const normalized = normalizeHeading(segment.text);
 			if (!looksLikeHeading(segment, normalized, document)) continue;
 

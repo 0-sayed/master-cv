@@ -4,384 +4,332 @@ import type { InterviewTimelineEntry } from "@reactive-resume/schema/application
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
-import { useState } from "react";
+import { useId, useRef, useState } from "react";
 import { INTERVIEW_KINDS } from "@reactive-resume/schema/applications/data";
 import { Button } from "@reactive-resume/ui/components/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@reactive-resume/ui/components/collapsible";
 import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { Popover, PopoverContent, PopoverTrigger } from "@reactive-resume/ui/components/popover";
-import { cn } from "@reactive-resume/utils/style";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
+import { Popover, PopoverContent, PopoverTitle, PopoverTrigger } from "@reactive-resume/ui/components/popover";
+import { Skeleton } from "@reactive-resume/ui/components/skeleton";
+import { SkeletonContent } from "@reactive-resume/ui/components/skeleton-content";
+import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
+import { calendarCopy } from "../calendar-copy";
 import {
+	calendarCounts,
+	calendarWeekStart,
 	collectInterviews,
 	dayKey,
-	formatDuration,
 	groupByDay,
-	interviewKindOf,
 	interviewTypeLabel,
 	monthGrid,
 	upcomingInterviews,
 } from "../interviews";
-import { isHttpLink } from "../links";
+import { CalendarEvent, calendarKindIcon } from "./calendar-event";
+import { CalendarGrid } from "./calendar-grid";
 import { InterviewDialog } from "./interview-dialog";
 import { useCareerTime, useNow } from "@/features/career/shared";
 import { getInterfaceDateLocale } from "@/libs/locale";
-
-const MAX_CHIPS_PER_DAY = 3;
-
 type DialogState =
 	| { open: false }
 	| { open: true; application: Application | null; interview: InterviewTimelineEntry | null; day: Date | null };
-
 type ApplicationCalendarProps = {
-	// Applications matching the page filters; their interviews are shown.
 	applications: Application[];
-	// Every application, offered by the "schedule interview" picker.
 	allApplications: Application[];
 	onOpen: (application: Application) => void;
 };
-
 export function ApplicationCalendar({ applications, allApplications, onOpen }: ApplicationCalendarProps) {
 	const { i18n } = useLingui();
 	const locale = getInterfaceDateLocale(i18n.locale);
-	const [month, setMonth] = useState(() => {
-		const now = new Date();
-		return new Date(now.getFullYear(), now.getMonth(), 1);
-	});
-	// Which way the last month change went: the new month's days slide in from that side. 0 = no change yet.
-	const [direction, setDirection] = useState<-1 | 0 | 1>(0);
+	const copy = (key: keyof typeof calendarCopy, values?: Record<string, string | number>) =>
+		i18n._({ ...calendarCopy[key], ...(values ? { values } : {}) });
+	const { timeZone } = useCareerTime();
+	const now = useNow();
+	const mobile = useBreakpoint() === "mobile";
+	const [monthOpen, setMonthOpen] = useState(false);
+	const [weekDayOpen, setWeekDayOpen] = useState<string | null>(null);
+	const todayKey = dayKey(now, timeZone);
+	const [year = 0, monthIndex = 1, date = 1] = todayKey.split("-").map(Number);
+	const [month, setMonth] = useState(() => new Date(year, monthIndex - 1, 1));
+	const [expanded, setExpanded] = useState(false);
 	const [dialog, setDialog] = useState<DialogState>({ open: false });
-
+	const returnFocus = useRef<HTMLElement | null>(null);
+	const agendaId = useId();
 	const interviews = collectInterviews(applications);
-	const byDay = groupByDay(interviews);
-	const upcoming = upcomingInterviews(interviews);
-	const upcomingByDay = [...groupByDay(upcoming).values()];
-	const days = monthGrid(month);
-
-	// oxlint-disable-next-line react/purity -- Read today on each render so an open calendar updates after midnight when navigated.
-	const today = new Date();
-	const todayKey = dayKey(today);
-	const tomorrowKey = dayKey(new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1));
-	const isCurrentMonth = month.getFullYear() === today.getFullYear() && month.getMonth() === today.getMonth();
-	const monthCount = interviews.filter(
-		(item) => item.start.getFullYear() === month.getFullYear() && item.start.getMonth() === month.getMonth(),
-	).length;
-
-	const weekdayFormat = new Intl.DateTimeFormat(locale, { weekday: "short" });
-	const monthFormat = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" });
-	const timeFormat = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" });
-	const dayHeadingFormat = new Intl.DateTimeFormat(locale, { weekday: "long", month: "long", day: "numeric" });
-
-	const goToMonth = (next: Date) => {
-		setDirection(next > month ? 1 : -1);
-		setMonth(next);
+	const byDay = groupByDay(interviews, timeZone);
+	const upcoming = upcomingInterviews(interviews, now);
+	const days = monthGrid(month, calendarWeekStart(i18n.locale));
+	const counts = calendarCounts(interviews, month, days, timeZone, now);
+	const groups = [...groupByDay(expanded ? upcoming : upcoming.slice(0, 5), timeZone)];
+	const monthLabel = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(month);
+	const tomorrowKey = dayKey(new Date(year, monthIndex - 1, date + 1));
+	const schedule = (day: Date | null = null) => {
+		setWeekDayOpen(null);
+		returnFocus.current =
+			(day ? document.querySelector<HTMLElement>(`[data-day="${dayKey(day)}"]`) : null) ??
+			(document.activeElement instanceof HTMLElement ? document.activeElement : null);
+		setDialog({ open: true, application: null, interview: null, day });
 	};
-	const shiftMonth = (delta: number) => goToMonth(new Date(month.getFullYear(), month.getMonth() + delta, 1));
-	const schedule = (day: Date | null = null) => setDialog({ open: true, application: null, interview: null, day });
-	const edit = (item: ScheduledInterview) =>
+	const edit = (item: ScheduledInterview) => {
+		setWeekDayOpen(null);
+		const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+		returnFocus.current = active?.matches('[data-calendar-event="agenda"]')
+			? active
+			: (active?.closest<HTMLElement>('[role="gridcell"]') ??
+				document.querySelector<HTMLElement>(`[data-day="${dayKey(item.start, timeZone)}"]`) ??
+				active);
 		setDialog({ open: true, application: item.application, interview: item.interview, day: null });
-
-	const dayHeading = (date: Date) => {
-		const key = dayKey(date);
-		if (key === todayKey) return t`Today`;
-		if (key === tomorrowKey) return t`Tomorrow`;
-		return dayHeadingFormat.format(date);
 	};
-
-	return (
-		<div className="flex min-h-0 flex-1 gap-6 max-lg:flex-col">
-			<section className="flex min-h-0 min-w-0 flex-1 flex-col gap-3" data-testid="interview-calendar">
-				<div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-					<div className="flex items-baseline gap-2">
-						<h2 className="text-lg font-semibold capitalize">{monthFormat.format(month)}</h2>
-						<span className="type-body text-ink-3">
-							{monthCount === 0 ? (
-								<Trans>No interviews</Trans>
-							) : monthCount === 1 ? (
-								<Trans>1 interview</Trans>
-							) : (
-								<Trans>{monthCount} interviews</Trans>
-							)}
-						</span>
-					</div>
-
-					<div className="ms-auto flex items-center gap-1">
-						<Button size="icon-sm" variant="ghost" title={t`Previous month`} onClick={() => shiftMonth(-1)}>
-							<Icon name="caret-left" size={16} />
-						</Button>
-						<Button
-							size="sm"
-							variant="secondary"
-							disabled={isCurrentMonth}
-							onClick={() => goToMonth(new Date(today.getFullYear(), today.getMonth(), 1))}
-						>
-							<Trans>This month</Trans>
-						</Button>
-						<Button size="icon-sm" variant="ghost" title={t`Next month`} onClick={() => shiftMonth(1)}>
-							<Icon name="caret-right" size={16} />
-						</Button>
-						<Button size="sm" className="ms-2" onClick={() => schedule()}>
-							<Icon name="calendar-plus" size={16} />
-							<Trans>Schedule interview</Trans>
-						</Button>
-					</div>
+	const shift = (delta: number) => setMonth(new Date(month.getFullYear(), month.getMonth() + delta, 1));
+	const heading = (key: string) =>
+		key === todayKey
+			? t`Today`
+			: key === tomorrowKey
+				? t`Tomorrow`
+				: new Intl.DateTimeFormat(locale, { weekday: "long", month: "short", day: "numeric" }).format(
+						new Date(`${key}T12:00:00`),
+					);
+	const monthPanel = (
+		<section className="calendar-month-panel" data-testid="interview-calendar" aria-label={monthLabel}>
+			<header className="calendar-panel-header">
+				<div className="min-w-0">
+					<h2 className="type-section capitalize">{monthLabel}</h2>
+					<p className="type-metadata text-ink-2">{copy("monthCount", { count: counts.month })}</p>
 				</div>
-
-				<div className="shrink-0 overflow-hidden rounded-xl border border-line bg-surface">
-					<div className="grid grid-cols-7">
-						{days.slice(0, 7).map((day) => (
-							<div
-								key={`weekday-${day.getDay()}`}
-								className="border-b border-line p-2 text-center text-[11px] font-medium tracking-wide text-ink-3 uppercase"
-							>
-								{weekdayFormat.format(day)}
-							</div>
-						))}
-					</div>
-					<div
-						key={`${month.getFullYear()}-${month.getMonth()}`}
-						className={cn(
-							"grid grid-cols-7",
-							direction !== 0 && "transition-[opacity,translate] duration-standard ease-enter starting:opacity-0",
-							direction === 1 && "starting:translate-x-2 rtl:starting:-translate-x-2",
-							direction === -1 && "starting:-translate-x-2 rtl:starting:translate-x-2",
-						)}
+				<div className="flex items-center gap-1">
+					<IconButton size="icon-sm" label={t`Previous month`} onClick={() => shift(-1)} icon="caret-left" />
+					<Button
+						size="sm"
+						variant="secondary"
+						disabled={dayKey(month).slice(0, 7) === todayKey.slice(0, 7)}
+						onClick={() => setMonth(new Date(year, monthIndex - 1, 1))}
 					>
-						{days.map((day, i) => {
+						<Trans>This month</Trans>
+					</Button>
+					<IconButton size="icon-sm" label={t`Next month`} onClick={() => shift(1)} icon="caret-right" />
+				</div>
+			</header>
+			<CalendarGrid
+				month={month}
+				days={days}
+				byDay={byDay}
+				todayKey={todayKey}
+				locale={locale.toString()}
+				timeZone={timeZone}
+				compact={mobile}
+				onMonthChange={setMonth}
+				onEdit={edit}
+				onSchedule={schedule}
+			/>
+			<footer className="calendar-legend" style={{ columnGap: "var(--space-24)", rowGap: "var(--space-12)" }}>
+				<span className="whitespace-nowrap">{copy("gridCount", { count: counts.grid })}</span>
+				{INTERVIEW_KINDS.map((kind) => (
+					<span
+						key={kind.value}
+						data-calendar-kind={kind.value}
+						className="calendar-kind-label shrink-0 whitespace-nowrap"
+					>
+						<Icon name={calendarKindIcon[kind.value]} />
+						{interviewTypeLabel(kind.value)}
+					</span>
+				))}
+			</footer>
+		</section>
+	);
+	return (
+		<div className="application-calendar">
+			{mobile && (
+				<nav data-calendar-week aria-label={copy("week")} className="calendar-week-strip">
+					{monthGrid(new Date(year, monthIndex - 1, date), calendarWeekStart(i18n.locale))
+						.filter((day) => {
+							const start = new Date(
+								year,
+								monthIndex - 1,
+								date - ((new Date(year, monthIndex - 1, date).getDay() - calendarWeekStart(i18n.locale) + 7) % 7),
+							);
+							return day >= start && day < new Date(start.getFullYear(), start.getMonth(), start.getDate() + 7);
+						})
+						.map((day) => {
 							const key = dayKey(day);
 							const items = byDay.get(key) ?? [];
-							const inMonth = day.getMonth() === month.getMonth();
-							const isToday = key === todayKey;
-							const extra = items.length - MAX_CHIPS_PER_DAY;
-							const date = dayHeadingFormat.format(day);
-							const scheduleLabel = t`Schedule an interview on ${date}`;
+							const label = new Intl.DateTimeFormat(locale, { dateStyle: "full" }).format(day);
 							return (
-								<div
+								<Popover
 									key={key}
-									data-day={key}
-									className={cn(
-										"group/day relative flex min-h-16 flex-col gap-1 border-line p-1 sm:min-h-24 sm:p-1.5",
-										i % 7 !== 6 && "border-e",
-										i < 35 && "border-b",
-										!inMonth && "bg-sunken/30",
-									)}
+									modal
+									open={weekDayOpen === key}
+									onOpenChange={(open) => setWeekDayOpen(open ? key : null)}
 								>
-									<div className="flex items-center justify-between">
-										<button
-											type="button"
-											title={scheduleLabel}
-											aria-label={scheduleLabel}
-											className="flex size-6 items-center justify-center rounded-md text-ink-3 opacity-0 transition-opacity group-hover/day:opacity-100 hover:bg-sunken hover:text-ink focus-visible:opacity-100 max-sm:hidden"
-											onClick={() => schedule(day)}
-										>
-											<Icon name="plus" size={14} />
-										</button>
-										<span
-											className={cn(
-												"flex size-6 items-center justify-center rounded-full type-metadata",
-												!inMonth && "text-ink-3",
-												isToday && "bg-accent font-semibold text-on-accent",
-											)}
-										>
-											{day.getDate()}
+									<PopoverTrigger
+										render={<Button variant="ghost" size="calendar-date" />}
+										data-day={key}
+										aria-current={key === todayKey ? "date" : undefined}
+										aria-label={label}
+										className="calendar-week-date"
+									>
+										<span className="type-metadata">
+											{new Intl.DateTimeFormat(locale, { weekday: "narrow" }).format(day)}
 										</span>
-									</div>
-									{items.slice(0, MAX_CHIPS_PER_DAY).map((item) => (
-										<InterviewChip
-											key={item.interview.id}
-											item={item}
-											time={timeFormat.format(item.start)}
-											onOpen={() => edit(item)}
-										/>
-									))}
-									{extra > 0 && (
-										<Popover>
-											<PopoverTrigger
-												render={
-													<button
-														type="button"
-														className="self-start rounded-md px-1.5 py-0.5 text-[11px] text-ink-3 transition-colors hover:bg-sunken hover:text-ink"
-													/>
-												}
-											>
-												<Trans>+{extra} more</Trans>
-											</PopoverTrigger>
-											<PopoverContent align="start" className="flex w-60 flex-col gap-1 p-2">
-												<p className="px-1 pb-1 type-metadata font-medium">{dayHeading(day)}</p>
-												{items.map((item) => (
-													<InterviewChip
-														key={item.interview.id}
-														item={item}
-														time={timeFormat.format(item.start)}
-														onOpen={() => edit(item)}
-													/>
-												))}
-											</PopoverContent>
-										</Popover>
-									)}
-								</div>
+										<span>{day.getDate()}</span>
+										<span className="type-metadata">{items.length || "·"}</span>
+									</PopoverTrigger>
+									<PopoverContent
+										aria-label={label}
+										className="calendar-day-popover"
+										finalFocus={() =>
+											dialog.open
+												? false
+												: document.querySelector<HTMLElement>(`[data-calendar-week] [data-day="${key}"]`)
+										}
+									>
+										<PopoverTitle>{label}</PopoverTitle>
+										{items.map((item) => (
+											<CalendarEvent
+												key={`${item.application.id}-${item.interview.id}`}
+												item={item}
+												timeZone={timeZone}
+												presentation="detail"
+												onOpen={() => edit(item)}
+											/>
+										))}
+										<Button variant="secondary" onClick={() => schedule(day)}>
+											<Trans>Schedule interview</Trans>
+										</Button>
+									</PopoverContent>
+								</Popover>
 							);
 						})}
+				</nav>
+			)}
+			{!mobile && monthPanel}
+			<aside className="calendar-agenda" aria-label={t`Upcoming interviews`}>
+				<header className="calendar-panel-header">
+					<div>
+						<h2 className="type-section">
+							<Trans>Upcoming interviews</Trans>
+						</h2>
+						<p className="type-metadata text-ink-2">{copy("upcomingCount", { count: counts.upcoming })}</p>
 					</div>
-				</div>
-
-				<div className="flex flex-wrap items-center gap-x-4 gap-y-1 type-metadata text-ink-3">
-					{INTERVIEW_KINDS.map((kind) => (
-						<span key={kind.value} className="flex items-center gap-1.5">
-							<span className="size-2 rounded-full" style={{ background: kind.color }} />
-							{interviewTypeLabel(kind.value)}
-						</span>
-					))}
-				</div>
-			</section>
-
-			<aside className="flex shrink-0 flex-col gap-4 lg:w-80">
-				<h3 className="type-body font-semibold">
-					<Trans>Upcoming interviews</Trans>
-				</h3>
-
-				{upcoming.length === 0 ? (
-					<EmptyState
-						density="compact"
-						icon="calendar-blank"
-						title={<Trans>Nothing scheduled yet</Trans>}
-						description={
-							<Trans>Add screening calls and technical interviews to see them here and on the calendar.</Trans>
-						}
-						actions={
-							<Button variant="secondary" onClick={() => schedule()}>
-								<Icon name="calendar-plus" />
-								<Trans>Schedule interview</Trans>
-							</Button>
-						}
-					/>
-				) : (
-					upcomingByDay.map((group) => {
-						const first = group[0];
-						if (!first) return null;
-						return (
-							<div key={dayKey(first.start)} className="flex flex-col gap-2">
-								<h4 className="type-metadata font-medium text-ink-3">{dayHeading(first.start)}</h4>
-								{group.map((item) => (
-									<UpcomingCard
-										key={item.interview.id}
+					<IconButton size="icon" label={t`Schedule interview`} onClick={() => schedule()} icon="calendar-plus" />
+				</header>
+				<div id={agendaId} className="calendar-agenda-body" data-expanded={expanded || undefined}>
+					{upcoming.length === 0 ? (
+						<EmptyState
+							density="compact"
+							icon="calendar-blank"
+							title={<Trans>Nothing scheduled yet</Trans>}
+							actions={
+								<Button variant="secondary" onClick={() => schedule()}>
+									<Trans>Schedule interview</Trans>
+								</Button>
+							}
+						/>
+					) : (
+						groups.map(([key, items]) => (
+							<section key={key} className="calendar-agenda-group">
+								<h3 className="type-metadata text-ink-2">{heading(key)}</h3>
+								{items.map((item) => (
+									<CalendarEvent
+										key={`${item.application.id}-${item.interview.id}`}
 										item={item}
-										timeRange={`${timeFormat.format(item.start)} – ${timeFormat.format(item.end)}`}
-										locale={i18n.locale}
-										onEdit={() => edit(item)}
-										onOpenApplication={() => onOpen(item.application)}
+										timeZone={timeZone}
+										presentation="agenda"
+										onOpen={() => edit(item)}
 									/>
 								))}
-							</div>
-						);
-					})
-				)}
+							</section>
+						))
+					)}
+				</div>
+				<footer className="calendar-agenda-footer">
+					{upcoming.length > 5 && (
+						<Button
+							variant="secondary"
+							size="sm"
+							aria-expanded={expanded}
+							aria-controls={agendaId}
+							onClick={() => setExpanded((value) => !value)}
+						>
+							{expanded ? copy("showNext") : copy("showAll", { count: counts.upcoming })}
+						</Button>
+					)}
+					<bdi dir="ltr" className="type-metadata text-ink-2">
+						{timeZone}
+					</bdi>
+				</footer>
 			</aside>
+			{mobile && (
+				<Collapsible open={monthOpen} onOpenChange={setMonthOpen} className="calendar-month-disclosure">
+					<CollapsibleTrigger variant="heading" className="w-full justify-between">
+						<span>{monthLabel}</span>
+						<span>{monthOpen ? copy("hideMonth") : copy("showMonth")}</span>
+						<Icon name="caret-down" className={monthOpen ? "rotate-180" : undefined} />
+					</CollapsibleTrigger>
+					<CollapsibleContent>{monthPanel}</CollapsibleContent>
+				</Collapsible>
+			)}
 
 			<InterviewDialog
 				open={dialog.open}
-				onOpenChange={(open) => !open && setDialog({ open: false })}
+				onOpenChange={(open) => {
+					if (!open) {
+						setDialog({ open: false });
+					}
+				}}
 				application={dialog.open ? dialog.application : null}
 				applications={allApplications}
 				interview={dialog.open ? dialog.interview : null}
 				day={dialog.open ? dialog.day : null}
+				onOpenApplication={onOpen}
+				finalFocus={returnFocus}
 			/>
 		</div>
 	);
 }
 
-type UpcomingCardProps = {
-	item: ScheduledInterview;
-	timeRange: string;
-	locale: string;
-	onEdit: () => void;
-	onOpenApplication: () => void;
-};
-
-function UpcomingCard({ item, timeRange, locale, onEdit, onOpenApplication }: UpcomingCardProps) {
-	const kind = interviewKindOf(item.interview.kind);
-	const { relative } = useCareerTime();
-	const now = useNow();
-	const location = item.interview.location;
-	const joinUrl = isHttpLink(location) ? location : null;
-	const phone = /^\+?[\d\s()-]{5,}$/.test(location);
+export function ApplicationCalendarSkeleton(): React.JSX.Element {
+	const mobile = useBreakpoint() === "mobile";
 	return (
-		<article
-			data-upcoming-interview={item.interview.id}
-			className="grid gap-3 rounded-xl border border-line bg-surface p-4 transition-colors focus-within:border-accent hover:border-line-2"
-		>
-			<button type="button" className="grid gap-3 text-start" onClick={onEdit}>
-				<span className="grid gap-1">
-					<span dir="auto" className="type-section tabular-nums">
-						{timeRange}
-					</span>
-					<span className="type-metadata text-ink-2">
-						{relative(item.start, now)} · {formatDuration(item.interview.durationMinutes, locale)}
-					</span>
-				</span>
-				<span className="grid min-w-0 gap-1">
-					<span dir="auto" className="type-body font-semibold wrap-anywhere">
-						{item.application.company}
-					</span>
-					<span dir="auto" className="type-body wrap-anywhere text-ink-2">
-						{item.application.role}
-					</span>
-				</span>
-				<span className="flex items-center gap-2 type-metadata text-ink-2">
-					<span aria-hidden="true" className="size-2 rounded-full" style={{ background: kind?.color }} />
-					{interviewTypeLabel(item.interview.kind)}
-				</span>
-			</button>
-			{location && (
-				<div className="flex min-w-0 items-center gap-2 type-metadata text-ink-2">
-					<Icon name={joinUrl ? "link-simple-horizontal" : phone ? "phone" : "map-pin"} className="shrink-0" />
-					<span dir="auto" className="min-w-0 flex-1 wrap-anywhere">
-						{location}
-					</span>
-					{joinUrl && (
-						<Button
-							size="sm"
-							variant="secondary"
-							nativeButton={false}
-							role="link"
-							render={<a href={joinUrl} target="_blank" rel="noopener noreferrer" />}
-						>
-							<Trans>Join</Trans>
-						</Button>
-					)}
+		<div className="application-calendar" aria-hidden="true">
+			{mobile ? (
+				<div className="calendar-week-strip">
+					{Array.from({ length: 7 }, (_, index) => (
+						<Skeleton key={index} className="h-16" />
+					))}
+				</div>
+			) : (
+				<div className="calendar-month-panel">
+					<div className="calendar-panel-header">
+						<Skeleton className="h-6 w-32" />
+					</div>
+					<div className="calendar-grid">
+						{Array.from({ length: 6 }, (_, week) => (
+							<div className="calendar-week" key={week}>
+								{Array.from({ length: 7 }, (_, day) => (
+									<div key={day} className="calendar-day">
+										<Skeleton className="h-6 w-6 self-end" />
+									</div>
+								))}
+							</div>
+						))}
+					</div>
+					<div className="calendar-legend">
+						<Skeleton className="h-6 w-48" />
+					</div>
 				</div>
 			)}
-			<button
-				type="button"
-				className="justify-self-start rounded-sm type-metadata text-accent-text underline-offset-4 hover:underline focus-visible:underline"
-				onClick={onOpenApplication}
-			>
-				<Trans>View application</Trans>
-			</button>
-		</article>
-	);
-}
-
-type InterviewChipProps = {
-	item: ScheduledInterview;
-	time: string;
-	onOpen: () => void;
-};
-
-function InterviewChip({ item, time, onOpen }: InterviewChipProps) {
-	const kind = interviewKindOf(item.interview.kind);
-	return (
-		<button
-			type="button"
-			title={`${time} · ${interviewTypeLabel(item.interview.kind)} · ${item.application.company} — ${item.application.role}`}
-			className="flex min-w-0 items-center gap-1.5 rounded-md bg-sunken/60 px-1.5 py-0.5 text-start text-[11px] leading-tight transition-colors hover:bg-sunken max-sm:justify-center max-sm:bg-transparent"
-
-			onClick={onOpen}
-		>
-			<span className="size-2 shrink-0 rounded-full sm:hidden" style={{ background: kind?.color }} />
-			<span className="flex min-w-0 items-baseline gap-1.5 max-sm:hidden">
-				<span className="shrink-0 text-ink-3 tabular-nums">{time}</span>
-				<span className="truncate font-medium">{item.application.company}</span>
-			</span>
-		</button>
+			<div className="calendar-agenda">
+				<div className="calendar-panel-header">
+					<Skeleton className="h-6 w-32" />
+				</div>
+				<div className="calendar-agenda-body">
+					<SkeletonContent shape="rows" count={5} />
+				</div>
+				<div className="calendar-agenda-footer">
+					<Skeleton className="h-6 w-24" />
+				</div>
+			</div>
+		</div>
 	);
 }

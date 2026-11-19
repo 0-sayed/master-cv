@@ -14,7 +14,7 @@ type ApplicationCardProps = {
 	dragHandle?: React.ReactNode;
 };
 
-/** A board card: the company's initial, role and company, and the next step (warn when it's overdue). */
+/** A board card: role, company, and the next step (warn when it is overdue). */
 export function ApplicationCard({
 	application,
 	onClick,
@@ -35,14 +35,7 @@ export function ApplicationCard({
 			)}
 		>
 			<div className="flex items-start gap-2.5">
-				{dragHandle ?? (
-					<span
-						aria-hidden="true"
-						className="grid size-7 shrink-0 place-items-center rounded-[7px] bg-sunken text-xs font-semibold text-ink-2"
-					>
-						{application.company.slice(0, 1).toUpperCase()}
-					</span>
-				)}
+				{dragHandle}
 				<button
 					type="button"
 					onClick={onClick}

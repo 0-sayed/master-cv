@@ -182,3 +182,80 @@ it("records an immutable copy of an autosave and allows unrelated updates after 
 	expect(edited.notes).toBe("Still editable");
 	expect(edited.sentResumeVersionId).toBe(applied.sentResumeVersionId);
 });
+
+it("preserves sent snapshots and old rows through restore, exact undo, and stale undo", async () => {
+	const resume = await cv("alice");
+	const id = await run("alice", () =>
+		applicationService.create({
+			userId: "alice",
+			company: "Synthetic undo",
+			role: "Engineer",
+			resumeId: resume.id,
+			selectedResumeVersionId: resume.version.id,
+		}),
+	);
+	const created = await run("alice", () => applicationService.getById({ userId: "alice", id }));
+	const applied = await run("alice", () =>
+		applicationService.update({
+			userId: "alice",
+			id,
+			expectedUpdatedAt: created.updatedAt.toISOString(),
+			status: "applied",
+		}),
+	);
+	const oldRows = await run("alice", () =>
+		db.select().from(schema.resumeVersion).where(eq(schema.resumeVersion.resumeId, resume.id)),
+	);
+	const original = await run("alice", () => resumeService.getById({ id: resume.id, userId: "alice" }));
+	const changed = structuredClone(original.data);
+	changed.basics.name = "Saved before restore";
+	const edited = await run("alice", () =>
+		resumeService.update({ id: resume.id, userId: "alice", data: changed, expectedUpdatedAt: original.updatedAt }),
+	);
+	const restored = await run("alice", () =>
+		resumeService.versions.restore({
+			resumeId: resume.id,
+			versionId: resume.version.id,
+			userId: "alice",
+			expectedUpdatedAt: edited.updatedAt,
+		}),
+	);
+	const checkpoint = await run("alice", () =>
+		resumeService.versions.get({ resumeId: resume.id, versionId: restored.beforeRestoreVersionId, userId: "alice" }),
+	);
+	expect(checkpoint).toMatchObject({ kind: "before-restore", data: changed });
+	const undone = await run("alice", () =>
+		resumeService.versions.restore({
+			resumeId: resume.id,
+			versionId: restored.beforeRestoreVersionId,
+			userId: "alice",
+			expectedUpdatedAt: restored.updatedAt,
+		}),
+	);
+	expect(undone.data).toEqual(changed);
+	const later = structuredClone(changed);
+	later.basics.name = "Later saved work";
+	const saved = await run("alice", () =>
+		resumeService.update({ id: resume.id, userId: "alice", data: later, expectedUpdatedAt: undone.updatedAt }),
+	);
+	await expect(
+		run("alice", () =>
+			resumeService.versions.restore({
+				resumeId: resume.id,
+				versionId: restored.beforeRestoreVersionId,
+				userId: "alice",
+				expectedUpdatedAt: restored.updatedAt,
+			}),
+		),
+	).rejects.toMatchObject({ code: "RESUME_VERSION_CONFLICT" });
+	expect((await run("alice", () => resumeService.getById({ id: resume.id, userId: "alice" }))).data).toEqual(
+		saved.data,
+	);
+	const application = await run("alice", () => applicationService.getById({ userId: "alice", id }));
+	expect(application.sentResumeVersionId).toBe(applied.sentResumeVersionId);
+	expect(application.selectedResumeVersionId).toBe(applied.selectedResumeVersionId);
+	const afterRows = await run("alice", () =>
+		db.select().from(schema.resumeVersion).where(eq(schema.resumeVersion.resumeId, resume.id)),
+	);
+	for (const old of oldRows) expect(afterRows.find((row) => row.id === old.id)).toEqual(old);
+});

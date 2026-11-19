@@ -166,7 +166,7 @@ function OutlineSection({ sectionId, locked, page, onMove }: OutlineSectionProps
 						<button
 							type="button"
 							onClick={() => addEntryTo(stableSection)}
-							className="flex h-9 items-center gap-1.5 rounded-lg px-2 text-sm text-accent-text hover:bg-hover"
+							className="flex h-9 items-center gap-1.5 rounded-lg px-2 type-label text-accent-text hover:bg-hover"
 						>
 							<Icon name="plus" size={18} />
 							{i18n._(ADD_LABELS[stableSection.type])}

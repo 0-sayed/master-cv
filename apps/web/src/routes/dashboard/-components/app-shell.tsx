@@ -5,12 +5,13 @@ import { useHotkey } from "@tanstack/react-hotkeys";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useMatchRoute, useRouteContext, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { careerCompleteness } from "@reactive-resume/schema/career-completeness";
 import { Avatar, AvatarFallback, AvatarImage } from "@reactive-resume/ui/components/avatar";
 import { SidebarCountBadge } from "@reactive-resume/ui/components/badge";
-import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
+import { ProgressRing } from "@reactive-resume/ui/components/progress-ring";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
@@ -20,13 +21,16 @@ import { dashboardWidth } from "@/components/layout/dashboard-width";
 import { MobileTabIndicator } from "@/components/layout/mobile-tab-indicator";
 import { DashboardHeader, DashboardPage } from "@/components/layout/page-header";
 import { QuerySkeleton } from "@/components/query-skeleton";
+import { BrandIcon } from "@/components/ui/brand-icon";
 import { useDialogStore } from "@/dialogs/store";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
 import { GuestBanner } from "@/features/auth/components/guest-banner";
 import { useCareerCopy } from "@/features/career/copy.generated";
+import { CareerApprovalPromise } from "@/features/career/information/approval-promise";
 import { CommandPaletteTrigger } from "@/features/command-palette/trigger";
 import { useDocumentsCopy } from "@/features/documents/copy.generated";
 import { LocaleSwitch } from "@/features/locale/switch";
+import { dashboardNavigation, trashNavigation } from "@/features/navigation";
 import { usePersonalToolAvailable } from "@/features/personal-tools/availability";
 import { isEditableElementFocused } from "@/features/resume/builder/draft";
 import { ThemeToggleButton } from "@/features/theme/toggle-button";
@@ -44,50 +48,43 @@ type NavItem = {
 	icon: IconName;
 	label: string;
 	count?: number;
+	completeness?: number;
 	countLoading?: boolean;
 };
 
 function useNavItems() {
-	const { t } = useLingui();
-	const copy = useDocumentsCopy();
+	const { i18n } = useLingui();
+	const { data: master } = useQuery({ ...orpc.career.master.read.queryOptions({ input: {} }), staleTime: 60_000 });
 	const { data: counts } = useQuery(orpc.documents.counts.queryOptions());
 	const applicationsEnabled = usePersonalToolAvailable("applications");
 	const { data: applications } = useQuery({ ...applicationsListQueryOptions(), enabled: applicationsEnabled });
-
-	const items: NavItem[] = [
-		{
-			to: "/dashboard",
-			icon: "files",
-			label: copy("editor.navigation.documentsTitle"),
-			...(counts ? { count: counts.resume + counts.letter } : { countLoading: true }),
-		},
-		{
-			to: "/dashboard/applications",
-			icon: "briefcase",
-			label: t({ message: "Applications", context: "editor.navigation.applications" }),
-			...(applications
+	const item = (destination: (typeof dashboardNavigation)[number]): NavItem => ({
+		to: destination.to,
+		icon: destination.icon,
+		label: i18n._(destination.label),
+		...(destination.key === "career" && master ? { completeness: careerCompleteness(master).percentage } : {}),
+		...(destination.key === "documents"
+			? counts
+				? { count: counts.resume + counts.letter }
+				: { countLoading: true }
+			: {}),
+		...(destination.key === "applications"
+			? applications
 				? { count: applications.filter((application) => application.status !== "closed").length }
-				: { countLoading: true }),
-		},
-	];
-
-	// Career counts what's waiting for the user (unread notifications), so nothing shows at zero.
-	items.splice(1, 0, {
-		to: "/dashboard/career/information",
-		icon: "user",
-		label: t({ message: "Career information", context: "editor.navigation.career" }),
+				: { countLoading: true }
+			: {}),
+		...(destination.key === "trash" && counts?.trash ? { count: counts.trash } : {}),
 	});
-	const trash: NavItem = {
-		to: "/dashboard/trash",
-		icon: "trash",
-		label: t`Trash`,
-		...(counts?.trash ? { count: counts.trash } : {}),
+	return {
+		items: dashboardNavigation
+			.filter(
+				(destination) => destination.key !== "trash" && (destination.key !== "applications" || applicationsEnabled),
+			)
+			.map(item),
+		trash: item(trashNavigation),
 	};
-
-	return { items: items.filter((item) => item.to !== "/dashboard/applications" || applicationsEnabled), trash };
 }
 
-/** Whether the item is the current page: Documents is exact, the others match their section. */
 function useIsCurrent() {
 	const matchRoute = useMatchRoute();
 	return (to: NavItem["to"]) => Boolean(matchRoute({ to, fuzzy: to !== "/dashboard" }));
@@ -183,7 +180,10 @@ export function AppShell({ children }: AppShellProps) {
 									<span className="mobile-brand-slot">
 										<BrandIcon variant="icon" alt="" />
 									</span>
-									<span className="type-section">{mobileTitle}</span>
+									<span className="flex items-center gap-1 type-section">
+										{mobileTitle}
+										{careerInformation && <CareerApprovalPromise />}
+									</span>
 								</div>
 							) : null
 						}
@@ -343,9 +343,11 @@ function NavLink({ item, current, rail = false }: { item: NavItem; current: bool
 	const label = item.label;
 	const total = String(count);
 	const accessibleName =
-		count > 0 && !item.countLoading
-			? t`${label}, ${plural(count, { one: `${total} item`, other: `${total} items` })}`
-			: label;
+		item.completeness !== undefined
+			? `${label} (${item.completeness}%)`
+			: count > 0 && !item.countLoading
+				? t`${label}, ${plural(count, { one: `${total} item`, other: `${total} items` })}`
+				: label;
 	const link = (
 		<Link
 			to={item.to}
@@ -357,12 +359,23 @@ function NavLink({ item, current, rail = false }: { item: NavItem; current: bool
 				current ? "bg-accent-soft font-semibold text-accent-text" : "text-ink-2 hover:bg-hover hover:text-ink",
 			)}
 		>
-			<Icon name={item.icon} className="size-(--app-nav-icon)" />
+			{item.completeness !== undefined ? (
+				<ProgressRing value={item.completeness} label={t`Career record completeness`} compact>
+					{rail ? <Icon name={item.icon} className="size-(--app-nav-icon)" /> : null}
+				</ProgressRing>
+			) : (
+				<Icon name={item.icon} className="size-(--app-nav-icon)" />
+			)}
 			{!rail && <span className="flex-1">{label}</span>}
 			{loading.pending || item.countLoading ? (
 				!rail && <QuerySkeleton shape="badge" label={<Trans>Loading the total</Trans>} />
 			) : (
-				<SidebarCountBadge count={count} current={current} rail={rail} />
+				<SidebarCountBadge
+					variant={item.to === "/dashboard/trash" ? "neutral" : "accent"}
+					count={count}
+					current={current}
+					rail={rail}
+				/>
 			)}
 		</Link>
 	);
@@ -384,7 +397,11 @@ function Rail({ toggle }: { toggle?: (() => void) | undefined }) {
 	return (
 		<SidebarFrame rail>
 			<div className="relative shell-brand-row w-full justify-center">
-				<Link to="/" aria-label="Master CV" className="grid size-11 place-items-center">
+				<Link
+					to="/"
+					aria-label={t({ message: "Sirawise", context: "common.brand.name" })}
+					className="grid size-11 place-items-center"
+				>
 					<BrandIcon variant="icon" alt="" className="size-6" />
 				</Link>
 				{toggle && (
@@ -412,8 +429,9 @@ function Rail({ toggle }: { toggle?: (() => void) | undefined }) {
 
 /** Phones keep the bottom-tab pattern, including Trash and the shared account menu. */
 function MobileTabs() {
+	const { data: master } = useQuery({ ...orpc.career.master.read.queryOptions({ input: {} }), staleTime: 60_000 });
 	const applicationsEnabled = usePersonalToolAvailable("applications");
-	const { t } = useLingui();
+	const { t, i18n } = useLingui();
 	const ref = useRef<HTMLElement>(null);
 	useEffect(() => {
 		const nav = ref.current;
@@ -430,11 +448,15 @@ function MobileTabs() {
 	}, []);
 	const isCurrent = useIsCurrent();
 
-	const tab = (icon: IconName, label: string, current: boolean) => (
+	const tab = (icon: IconName, label: string, current: boolean, career = false) => (
 		<>
 			<span className="relative flex h-7 w-14 items-center justify-center">
 				{current && <MobileTabIndicator pill />}
-				<Icon name={icon} size={24} className={cn("relative", current && "text-accent-text")} />
+				{career && master ? (
+					<ProgressRing value={careerCompleteness(master).percentage} label={t`Career record completeness`} compact />
+				) : (
+					<Icon name={icon} size={24} className={cn("relative", current && "text-accent-text")} />
+				)}
 			</span>
 			<span
 				className={cn("mobile-nav-label type-mobile-nav", current ? "font-semibold text-accent-text" : "text-ink-2")}
@@ -451,48 +473,22 @@ function MobileTabs() {
 			data-slot="app-bottom-nav"
 			className="sticky bottom-0 z-30 grid grid-cols-[repeat(var(--app-mobile-nav-columns),minmax(0,1fr))] border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] [view-transition-name:app-nav]"
 		>
-			<Link
-				to="/dashboard"
-				aria-current={isCurrent("/dashboard") ? "page" : undefined}
-				viewTransition={false}
-				className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
-			>
-				{tab("files", t({ message: "Documents", context: "editor.mobileNav.documents" }), isCurrent("/dashboard"))}
-			</Link>
-			<Link
-				to="/dashboard/career/information"
-				aria-current={isCurrent("/dashboard/career/information") ? "page" : undefined}
-				viewTransition={false}
-				className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
-			>
-				{tab(
-					"user",
-					t({ message: "Career", context: "editor.mobileNav.career" }),
-					isCurrent("/dashboard/career/information"),
-				)}
-			</Link>
-			{applicationsEnabled && (
-				<Link
-					to="/dashboard/applications"
-					aria-current={isCurrent("/dashboard/applications") ? "page" : undefined}
-					viewTransition={false}
-					className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2 transition-[scale] duration-quick ease-enter active:scale-[0.97]"
-				>
-					{tab(
-						"briefcase",
-						t({ message: "Applications", context: "editor.navigation.applications" }),
-						isCurrent("/dashboard/applications"),
-					)}
-				</Link>
-			)}
-			<Link
-				to="/dashboard/trash"
-				aria-current={isCurrent("/dashboard/trash") ? "page" : undefined}
-				viewTransition={false}
-				className="relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2"
-			>
-				{tab("trash", t`Trash`, isCurrent("/dashboard/trash"))}
-			</Link>
+			{dashboardNavigation
+				.filter((item) => item.key !== "applications" || applicationsEnabled)
+				.map((item) => (
+					<Link
+						key={item.key}
+						to={item.to}
+						aria-current={isCurrent(item.to) ? "page" : undefined}
+						viewTransition={false}
+						className={cn(
+							"relative flex min-h-16 flex-col items-center justify-start gap-0.5 py-2",
+							item.key !== "trash" && "transition-[scale] duration-quick ease-enter active:scale-[0.97]",
+						)}
+					>
+						{tab(item.icon, i18n._(item.mobileLabel), isCurrent(item.to), item.key === "career")}
+					</Link>
+				))}
 			<AccountButton mobile />
 		</nav>
 	);

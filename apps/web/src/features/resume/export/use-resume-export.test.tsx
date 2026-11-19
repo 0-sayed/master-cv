@@ -5,7 +5,7 @@ import { i18n } from "@lingui/core";
 import { sampleResumeData } from "@reactive-resume/schema/resume/sample";
 import { useResumeStore } from "../builder/draft";
 import { useEditorStore } from "../editor/store";
-import { useResumeExport, createExportFile } from "./use-resume-export";
+import { useResumeExport, createExportFile, normalizePdfFileNameStem } from "./use-resume-export";
 
 const mocks = vi.hoisted(() => ({
 	render: vi.fn(),
@@ -138,4 +138,15 @@ it("never reports ready after rendering or download handoff fails", async () => 
 	});
 	await act(async () => result.current.onDownloadPDF());
 	expect(result.current.downloadState).toBe("failed");
+});
+
+it.each([
+	[" سيرة.PDF.pdf ", "Fallback", "سيرة"],
+	["\u202eCV\u2069\u0000/", "Fallback", "CV"],
+	[" .pdf.pdf ", "Fallback", "Fallback"],
+	["Sara سارة\u200d-CV.pdf", "Fallback", "Sara سارة\u200d-CV"],
+	["", " /سيرة.PDF ", "سيرة"],
+	["..", "\u202e/", "Resume"],
+])("normalizes a PDF stem %s with the same safe fallback", (value, fallback, expected) => {
+	expect(normalizePdfFileNameStem(value, fallback)).toBe(expected);
 });

@@ -118,12 +118,18 @@ test("compact career controls retain 44px touch hit areas without inflating rows
 	await session.send("Emulation.setTouchEmulationEnabled", { enabled: true });
 	await page.goto("/dashboard/career/information?locale=ar-SA");
 	const skills = page.locator("section").filter({ has: page.getByRole("heading", { name: "المهارات", exact: true }) });
-	await expect(skills.getByRole("button", { name: "تحرير الإدخال", exact: true })).toHaveCount(5);
-	const chip = skills.getByRole("button", { name: "تحرير الإدخال", exact: true }).first();
-	expect.soft((await bounds(chip)).height).toBeLessThanOrEqual(32);
-	const language = page.locator('[data-slot="fact-chip"]').filter({ has: page.getByText("العربية", { exact: true }) });
+	await expect(skills.locator("[data-career-edit]")).toHaveCount(5);
+	const chip = skills.locator("[data-career-edit]").first();
+	expect.soft((await bounds(chip)).height).toBe(48);
+	const language = page
+		.locator('[id^="career-entry-languages-"]')
+		.filter({ has: page.getByText("العربية", { exact: true }) });
 	expect.soft((await bounds(language)).height).toBeLessThanOrEqual(60);
-	for (const control of [chip, skills.getByRole("button", { name: "إضافة مهارة", exact: true }), language]) {
+	for (const control of [
+		chip,
+		skills.getByRole("button", { name: "إضافة مهارة", exact: true }),
+		language.locator("[data-career-edit]"),
+	]) {
 		const hit = await control.evaluate((element) => {
 			const box = element.getBoundingClientRect();
 			const after = getComputedStyle(element, "::after");
@@ -151,12 +157,10 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			await page.getByRole("button", { name: ar ? "مراجعة التغييرات" : "Review changes", exact: true }).click();
 			await page.getByRole("button", { name: ar ? "تأكيد التغييرات" : "Confirm changes", exact: true }).click();
 			await expect(page.getByRole("dialog")).not.toBeVisible();
-			const chip = page
-				.getByRole("button", { name: ar ? "تحرير الإدخال" : "Edit entry", exact: true })
-				.filter({ hasText: value });
+			const chip = page.locator("[id^=career-entry-skills-]").filter({ hasText: value });
 			const geometry = await chip.evaluate((element) => {
 				const box = element.getBoundingClientRect();
-				const text = element.querySelector("bdi");
+				const text = element.querySelector("h3");
 				if (!text) throw new Error("Skill content missing");
 				// The bdi is a flex item: its box measures the actual wrapped line layout.
 				// Range includes Noto Arabic's font em overhang even when the lines fit.
@@ -198,17 +202,23 @@ test("existing editor icon controls keep separate touch targets", async ({ authP
 	await expect(entry.getByRole("button", { name: "Remove role", exact: true })).toHaveCount(2);
 });
 
-test("Arabic sample career exposes Certifications at 1440x900 and groups language values compactly", async ({
+test("Arabic sample career navigation exposes Certifications at 1440x900 and groups language values compactly", async ({
 	authPage: page,
 }) => {
 	await createSampleCareer(page);
 	await page.setViewportSize({ width: 1440, height: 900 });
 	await page.goto("/dashboard/career/information?locale=ar-SA");
+	const sectionIndex = page.locator('[data-slot="career-section-index"]');
+	await sectionIndex.locator('a[href="#career-section-certifications"]').click();
+	await expect(page.getByRole("heading", { name: "الشهادات", exact: true })).toBeInViewport();
+	await sectionIndex.locator('a[href="#career-section-languages"]').click();
 	await expect(page.getByRole("heading", { name: "اللغة الأم", exact: true })).toHaveCount(0);
-	const row = page.locator('[data-slot="fact-chip"]').filter({ has: page.getByText("العربية", { exact: true }) });
+	const row = page
+		.locator('[id^="career-entry-languages-"]')
+		.filter({ has: page.getByText("العربية", { exact: true }) });
 	await expect(row).toBeVisible();
 	await settleScreen(page);
-	await expect.soft(page.getByRole("heading", { name: "الشهادات", exact: true })).toBeInViewport();
+	await expect(page.getByRole("heading", { name: "اللغات", exact: true })).toBeInViewport();
 	const name = await bounds(row.getByText("العربية", { exact: true }));
 	const level = await bounds(row.getByText("اللغة الأم", { exact: true }));
 	if (evidence)
@@ -281,15 +291,17 @@ test("Arabic headings use the real loaded Noto Sans Arabic SemiBold face before 
 	const session = await page.context().newCDPSession(page);
 	await session.send("DOM.enable");
 	await session.send("CSS.enable");
+	await expect(page.locator("main h1")).toHaveText("المعلومات المهنية");
 	const documentNode = await session.send("DOM.getDocument");
 	const headingNode = await session.send("DOM.querySelector", {
 		nodeId: documentNode.root.nodeId,
-		selector: "main h1",
+		selector: "main h1 > span",
 	});
 	const rendered = await session.send("CSS.getPlatformFontsForNode", { nodeId: headingNode.nodeId });
 	expect(
 		rendered.fonts.some(
 			(font) => font.isCustomFont && font.postScriptName === "NotoSansArabic-SemiBold" && font.glyphCount > 0,
 		),
+		JSON.stringify(rendered.fonts),
 	).toBe(true);
 });

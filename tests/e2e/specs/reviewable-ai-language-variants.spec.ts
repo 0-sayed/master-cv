@@ -235,7 +235,10 @@ test("history restores an earlier language-copy revision after reload without ch
 	await page.getByRole("textbox", { name: "Name this version", exact: true }).fill("Reviewed language revision");
 	await page.getByRole("button", { name: "Save", exact: true }).click();
 	await expect(page.getByRole("button", { name: /^Reviewed language revision/u })).toBeVisible();
-	await page.keyboard.press("Escape");
+	await page
+		.getByRole("complementary", { name: "Export and history" })
+		.getByRole("button", { name: "Close", exact: true })
+		.click();
 	await page.getByLabel("Full name", { exact: true }).fill("Latest synthetic language name");
 	await expect
 		.poll(async () => (await api.resume.getById({ id: copy.resumeId })).data.basics.name)
@@ -245,10 +248,16 @@ test("history restores an earlier language-copy revision after reload without ch
 	await page.getByRole("button", { name: "History", exact: true }).click();
 	await page.getByRole("button", { name: /^Reviewed language revision/u }).click();
 	await page.getByRole("button", { name: "Restore this version", exact: true }).click();
+	const confirmation = page.getByRole("alertdialog");
+	await expect(confirmation).toContainText("Before restore");
+	await confirmation.getByRole("button", { name: "Restore", exact: true }).click();
 	await expect
 		.poll(async () => (await api.resume.getById({ id: copy.resumeId })).data.basics.name)
 		.toBe("Earlier synthetic language name");
-	await page.keyboard.press("Escape");
+	await page
+		.getByRole("complementary", { name: "Export and history" })
+		.getByRole("button", { name: "Close", exact: true })
+		.click();
 	await page.reload();
 	await expect(page.getByLabel("Full name", { exact: true })).toHaveValue("Earlier synthetic language name");
 	expect((await api.resume.getById({ id })).data).toEqual(source.data);

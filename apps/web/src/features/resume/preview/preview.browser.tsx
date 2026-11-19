@@ -75,7 +75,7 @@ const createPreviewPdf = (
 	pageMap,
 	numPages: 0,
 	pageSizes: {},
-	// Every render, the first one included, paints hidden and fades in once all its pages are drawn.
+	// The first drawn page reveals the layer; offscreen pages retain their reserved space.
 	phase: "staged",
 	renderedPages: [],
 	template,
@@ -108,7 +108,7 @@ const markPreviewPageRendered = (layers: PreviewPdf[], layerId: number, pageNumb
 		const renderedPages = [...layer.renderedPages, pageNumber];
 		const nextLayer = { ...layer, renderedPages };
 
-		if (layer.phase === "staged" && renderedPages.length >= layer.numPages) {
+		if (layer.phase === "staged" && pageNumber === 1) {
 			shouldPromoteLayer = true;
 			return { ...nextLayer, phase: "active" as const };
 		}
@@ -368,7 +368,7 @@ export function ResumePreviewClient({
 									{Array.from({ length: visiblePdf.numPages }, (_, index) => {
 										const pageNumber = index + 1;
 										const totalPages = visiblePdf.numPages;
-										const pageSize = visiblePdf.pageSizes[pageNumber];
+										const pageSize = visiblePdf.pageSizes[pageNumber] ?? visiblePdf.pageMap?.pages[index];
 
 										return (
 											<PdfCanvasPage
@@ -376,6 +376,7 @@ export function ResumePreviewClient({
 												document={document}
 												pageSize={pageSize}
 												pageNumber={pageNumber}
+												lazy={pageNumber > 1}
 												pageScale={pageScale}
 												totalPages={totalPages}
 												className={pageClassName}

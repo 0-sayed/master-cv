@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Html, Head, Body, Container, Text, Link } from "react-email";
+import { getProductName } from "@reactive-resume/utils/brand";
 import { authMessages } from "../auth-messages.generated";
 void React;
 export type PrivacyNoticeKind =
@@ -32,7 +33,7 @@ export function PrivacyEmail({
 			<Head />
 			<Body>
 				<Container>
-					<Text>Master CV</Text>
+					<Text>{getProductName(locale)}</Text>
 					<Text>{privacyMailText(kind, locale)}</Text>
 					{actionUrl && <Link href={actionUrl}>{authMessages["email.privacy.action"][locale]}</Link>}
 				</Container>

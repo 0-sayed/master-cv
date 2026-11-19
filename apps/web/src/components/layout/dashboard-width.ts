@@ -13,6 +13,7 @@ export function dashboardWidth(pathname: string): DashboardWidth {
 			"/dashboard/resumes",
 			"/dashboard/cover-letters",
 			"/dashboard/applications",
+			"/dashboard/review-guide",
 			"/dashboard/career/information",
 			"/dashboard/career/knowledge/facts",
 			"/dashboard/trash",

@@ -28,12 +28,12 @@ vi.mock("./pdf-canvas", () => ({
 		onLoadSuccess: (document: { numPages: number }) => void;
 	}) => (
 		<div>
-			<button onClick={() => onLoadSuccess({ numPages: 1 })}>Load document</button>
+			<button onClick={() => onLoadSuccess({ numPages: 12 })}>Load document</button>
 			{children({})}
 		</div>
 	),
-	PdfCanvasPage: ({ onRenderSuccess }: { onRenderSuccess: () => void }) => (
-		<button onClick={onRenderSuccess}>Paint page</button>
+	PdfCanvasPage: ({ onRenderSuccess, pageNumber }: { onRenderSuccess: () => void; pageNumber: number }) => (
+		<button onClick={onRenderSuccess}>Paint page {pageNumber}</button>
 	),
 }));
 vi.mock("@/features/resume/export/pdf-artifact", () => ({ getPdfArtifact: vi.fn() }));
@@ -56,7 +56,7 @@ it("publishes only the requested painted snapshot when leaving a temporary previ
 		await vi.runOnlyPendingTimersAsync();
 	});
 	fireEvent.click(screen.getByText("Load document"));
-	fireEvent.click(screen.getByText("Paint page"));
+	fireEvent.click(screen.getByText("Paint page 1"));
 	const onRender = vi.fn();
 	view.rerender(<ResumePreviewClient {...props} data={current} onRender={onRender} />);
 	expect(onRender).not.toHaveBeenCalled();
@@ -67,9 +67,10 @@ it("publishes only the requested painted snapshot when leaving a temporary previ
 	assert(document);
 	fireEvent.click(document);
 	expect(onRender).not.toHaveBeenCalled();
-	const page = screen.getAllByText("Paint page").at(-1);
+	const page = screen.getAllByText("Paint page 1").at(-1);
 	assert(page);
 	fireEvent.click(page);
 	expect(onRender).toHaveBeenCalledOnce();
+	expect(onRender.mock.calls[0]?.[0].pageCount).toBe(12);
 	expect(await onRender.mock.calls[0]?.[0].file.text()).toBe("Current document");
 });

@@ -1,75 +1,113 @@
 import type { ShareTab } from "@/features/resume/editor/store";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@reactive-resume/ui/components/sheet";
+import { useRef, useEffect } from "react";
+import { EditorPanel, EditorPanelHeader } from "@reactive-resume/ui/components/editor-panel";
+import { Icon } from "@reactive-resume/ui/components/icon";
+import { Sheet, SheetContent, SheetTitle } from "@reactive-resume/ui/components/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
-import { cn } from "@reactive-resume/utils/style";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { useEditorMode } from "@/features/resume/editor/use-editor-mode";
 import { DownloadTab } from "@/features/resume/share/download-tab";
 import { HistoryTab } from "@/features/resume/share/history-tab";
-import { useClosingValue } from "@/hooks/use-closing-value";
 
-/**
- * Share & export: one sheet with Link, Download and History. Share opens Link, the ▾ beside Download PDF
- * opens Download and the clock opens History. 440px from the right; a full-height bottom sheet on phones.
- */
-export function ShareSheet() {
+function ShareContent({ mobile = false }: { mobile?: boolean }) {
 	const tab = useEditorStore((state) => state.shareTab);
-	// Closing keeps the open tab on screen until the sheet has slid away.
-	const [shownTab, onOpenChangeComplete] = useClosingValue(tab);
 	const setTab = useEditorStore((state) => state.setShareTab);
-	const setHistoryVersion = useEditorStore((state) => state.setHistoryVersion);
 	const [, setMode] = useEditorMode();
-	const isPhone = useBreakpoint() === "mobile";
-
 	return (
-		<Sheet
-			open={tab !== null}
-			onOpenChange={(open) => !open && setTab(null)}
-			onOpenChangeComplete={onOpenChangeComplete}
-		>
-			<SheetContent
-				side={isPhone ? "bottom" : "right"}
+		<EditorPanel className="h-full">
+			<EditorPanelHeader
+				title={mobile ? undefined : t`Export and history`}
+				titleId="export-panel-title"
+				onClose={() => setTab(null)}
 				closeLabel={t`Close`}
-				className={cn("gap-0", isPhone && "h-[calc(100svh-1.5rem)]")}
 			>
-				<SheetHeader className="px-5 pt-3.5 pb-2.5">
+				{mobile && (
 					<SheetTitle>
 						<Trans>Export and history</Trans>
 					</SheetTitle>
-				</SheetHeader>
+				)}
+			</EditorPanelHeader>
+			<Tabs
+				value={tab === "history" ? "history" : "download"}
+				onValueChange={(value) => {
+					if (value !== "history") useEditorStore.getState().setHistoryVersion(null);
+					setTab(value as ShareTab);
+				}}
+				className="min-h-0 flex-1 gap-0"
+			>
+				<TabsList variant="line" layout="equal" size="panel" aria-label={t`Share sections`}>
+					<TabsTrigger value="download">
+						<Icon name="download-simple" />
+						<Trans>Download</Trans>
+					</TabsTrigger>
+					<TabsTrigger value="history">
+						<Icon name="clock-counter-clockwise" />
+						<Trans>History</Trans>
+					</TabsTrigger>
+				</TabsList>
+				<TabsContent value="download" className="flex min-h-0 flex-col">
+					<DownloadTab
+						onReview={() => {
+							useEditorStore.getState().setExportHistoryReview(true);
+							setMode("check");
+						}}
+					/>
+				</TabsContent>
+				<TabsContent value="history" className="flex min-h-0 flex-col">
+					<HistoryTab />
+				</TabsContent>
+			</Tabs>
+		</EditorPanel>
+	);
+}
 
-				<Tabs
-					value={shownTab === "history" ? "history" : "download"}
-					onValueChange={(value) => {
-						// The page shows a version only while History is open.
-						if (value !== "history") setHistoryVersion(null);
-						setTab(value as ShareTab);
-					}}
-					className="min-h-0 flex-1 gap-0"
-				>
-					<TabsList variant="line" aria-label={t`Share sections`} className="w-full justify-start gap-5 px-5">
-						<TabsTrigger value="download">
-							<Trans>Download</Trans>
-						</TabsTrigger>
-						<TabsTrigger value="history">
-							<Trans>History</Trans>
-						</TabsTrigger>
-					</TabsList>
-					<TabsContent value="download" className="overflow-y-auto p-5">
-						<DownloadTab
-							onReview={() => {
-								setTab(null);
-								setMode("check");
-							}}
-						/>
-					</TabsContent>
-					<TabsContent value="history" className="overflow-y-auto p-5">
-						<HistoryTab />
-					</TabsContent>
-				</Tabs>
+export function SharePanel() {
+	const tab = useEditorStore((state) => state.shareTab);
+	const breakpoint = useBreakpoint();
+	if (!tab || breakpoint === "mobile" || breakpoint === "tablet") return null;
+	return (
+		<aside aria-labelledby="export-panel-title" className="h-full min-h-0">
+			<ShareContent />
+		</aside>
+	);
+}
+
+export function ShareSheet() {
+	const tab = useEditorStore((state) => state.shareTab);
+	const breakpoint = useBreakpoint();
+	const phone = breakpoint === "mobile";
+	const previewing = useEditorStore((state) => state.exportHistorySession?.previewing ?? false);
+	const returnFocus = useRef(false);
+	useEffect(() => {
+		if (previewing) returnFocus.current = true;
+	}, [previewing]);
+	if (breakpoint !== "mobile" && breakpoint !== "tablet") return null;
+	return (
+		<Sheet
+			open={tab !== null && !previewing}
+			onOpenChangeComplete={(open) => {
+				if (open && returnFocus.current) {
+					returnFocus.current = false;
+					document
+						.getElementById(`export-preview-${useEditorStore.getState().exportHistorySession?.tab}`)
+						?.focus({ preventScroll: true });
+				}
+			}}
+			onOpenChange={(open) => {
+				if (!open && !useEditorStore.getState().exportHistorySession?.previewing)
+					useEditorStore.getState().setShareTab(null);
+			}}
+		>
+			<SheetContent
+				side={phone ? "bottom" : "right"}
+				size="editor"
+				presentation={phone ? "screen" : "default"}
+				closeLabel={t`Close`}
+			>
+				<ShareContent mobile />
 			</SheetContent>
 		</Sheet>
 	);

@@ -13,13 +13,22 @@ const mocks = vi.hoisted(() => ({
 	restore: vi.fn(),
 	replace: vi.fn(),
 	toast: vi.fn(),
+	confirm: vi.fn(),
 }));
 vi.mock("@/features/resume/builder/draft", () => ({
 	savePendingChanges: mocks.save,
 	useCurrentResume: () => ({ id: "resume", isLocked: false }),
-	useResumeStore: { getState: () => ({ replaceResumeFromServer: mocks.replace }) },
+	useResumeStore: {
+		getState: () => ({
+			replaceResumeFromServer: mocks.replace,
+			restoreVersion: async () => {
+				if (!(await mocks.save("resume"))) throw new Error("Couldn't save your changes. Try again before continuing.");
+				return mocks.restore();
+			},
+		}),
+	},
 }));
-vi.mock("@/hooks/use-confirm", () => ({ useConfirm: () => vi.fn(), usePrompt: () => vi.fn() }));
+vi.mock("@/hooks/use-confirm", () => ({ useConfirm: () => mocks.confirm, usePrompt: () => vi.fn() }));
 vi.mock("@/libs/error-message", () => ({ getResumeErrorMessage: (error: Error) => error.message }));
 vi.mock("@reactive-resume/ui/components/toast", () => ({ toast: { add: mocks.toast } }));
 vi.mock("@/libs/orpc/client", () => ({
@@ -42,6 +51,7 @@ vi.mock("@/libs/orpc/client", () => ({
 beforeEach(() => {
 	vi.clearAllMocks();
 	mocks.save.mockResolvedValue(false);
+	mocks.confirm.mockResolvedValue(true);
 	useEditorStore.getState().reset();
 	i18n.load("en", {});
 	i18n.activate("en");
@@ -96,6 +106,39 @@ const source = (overrides: Partial<HistorySource> = {}): HistorySource => ({
 	errorMessage: String,
 	...overrides,
 });
+
+it("keeps locked history read-only and limits named-version input without menus on automatic versions", () => {
+	const save = vi.fn();
+	const restore = vi.fn();
+	useEditorStore.getState().setHistoryVersion("named");
+	render(
+		<I18nProvider i18n={i18n}>
+			<HistoryTimeline
+				source={source({
+					loadError: false,
+					locked: true,
+					save,
+					restore,
+					versions: [
+						{ id: "named", kind: "named", name: "Mixed نسخة " + "x".repeat(60), createdAt: new Date() },
+						{ id: "automatic", kind: "auto", name: null, createdAt: new Date() },
+					],
+				})}
+			/>
+		</I18nProvider>,
+	);
+	const input = screen.getByRole("textbox", { name: "Name this version" });
+	expect(input).toHaveAttribute("maxlength", "80");
+	fireEvent.change(input, { target: { value: "New named version" } });
+	expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+	expect(screen.getByRole("button", { name: "Restore this version" })).toBeDisabled();
+	expect(screen.getAllByRole("button", { name: "More actions" })).toHaveLength(1);
+	fireEvent.click(screen.getByRole("button", { name: "Save" }));
+	fireEvent.click(screen.getByRole("button", { name: "Restore this version" }));
+	expect(save).not.toHaveBeenCalled();
+	expect(restore).not.toHaveBeenCalled();
+});
+
 it("distinguishes failed history from a successful empty list and retries", () => {
 	const retry = vi.fn();
 	const view = render(
@@ -114,7 +157,7 @@ it("distinguishes failed history from a successful empty list and retries", () =
 		</I18nProvider>,
 	);
 	expect(screen.queryByRole("alert")).toBeNull();
-	expect(screen.getByRole("list", { name: "Versions" })).toHaveTextContent("Now");
+	expect(screen.getByRole("list", { name: "Versions" })).toHaveTextContent("Current version");
 });
 it("keeps cached versions visible after a refresh failure and disables duplicate retries", () => {
 	render(
@@ -157,16 +200,92 @@ it("disables navigation to Now and other versions while saving before a preview"
 		</I18nProvider>,
 	);
 	fireEvent.click(screen.getByRole("button", { name: /^Second/ }));
-	expect(screen.getByRole("button", { name: /^Now/ })).toBeDisabled();
-	expect(screen.getByRole("button", { name: "Back to now" })).toBeDisabled();
+	expect(screen.getByRole("button", { name: /^Current version/ })).toBeDisabled();
+	expect(screen.getByRole("button", { name: "Back to current" })).toBeDisabled();
 	expect(screen.getByRole("button", { name: /^First/ })).toBeDisabled();
 	expect(screen.getByRole("button", { name: /^Second/ })).toBeDisabled();
-	expect(screen.getByRole("button", { name: "Options for First" })).toBeDisabled();
-	fireEvent.click(screen.getByRole("button", { name: /^Now/ }));
+	for (const menu of screen.getAllByRole("button", { name: "More actions" })) expect(menu).toBeDisabled();
+	fireEvent.click(screen.getByRole("button", { name: /^Current version/ }));
 	fireEvent.click(screen.getByRole("button", { name: /^First/ }));
 	expect(preparePreview).toHaveBeenCalledOnce();
 	expect(useEditorStore.getState().historyVersionId).toBe("first");
 	finish();
 	await waitFor(() => expect(useEditorStore.getState().historyVersionId).toBe("second"));
-	expect(screen.getByRole("button", { name: /^Now/ })).toBeEnabled();
+	expect(screen.getByRole("button", { name: /^Current version/ })).toBeEnabled();
+});
+
+it("cancels a restore without changing the selected version", async () => {
+	mocks.confirm.mockResolvedValue(false);
+	const restore = vi.fn();
+	useEditorStore.getState().setHistoryVersion("past");
+	render(
+		<I18nProvider i18n={i18n}>
+			<HistoryTimeline
+				source={source({
+					loadError: false,
+					versions: [
+						{ id: "past", kind: "named", name: "سارة Checkpoint", createdAt: new Date("2026-11-18T10:00:00Z") },
+					],
+					restore,
+				})}
+			/>
+		</I18nProvider>,
+	);
+	fireEvent.click(screen.getByRole("button", { name: "Restore this version" }));
+	await waitFor(() => expect(mocks.confirm).toHaveBeenCalled());
+	expect(mocks.confirm.mock.calls[0]?.[0]).toContain("سارة Checkpoint");
+	expect(mocks.confirm.mock.calls[0]?.[1]).toMatchObject({
+		variant: "primary",
+		confirmText: "Restore",
+		cancelText: "Cancel",
+	});
+	expect(restore).not.toHaveBeenCalled();
+	expect(useEditorStore.getState().historyVersionId).toBe("past");
+});
+it("uses the exact receipt for undo and keeps undo failures visible with recovery", async () => {
+	const receipt = {
+		ownerId: "alice",
+		resumeId: "resume",
+		versionId: "exact",
+		expectedUpdatedAt: new Date(),
+		editGeneration: 2,
+	};
+	const restoreWithUndo = vi.fn(async () => receipt);
+	const undoRestore = vi.fn().mockRejectedValueOnce(new Error("Current work changed"));
+	useEditorStore.getState().setHistoryVersion("past");
+	render(
+		<I18nProvider i18n={i18n}>
+			<HistoryTimeline
+				source={source({
+					loadError: false,
+					versions: [{ id: "past", kind: "auto", name: null, createdAt: new Date() }],
+					restoreWithUndo,
+					undoRestore,
+				})}
+			/>
+		</I18nProvider>,
+	);
+	fireEvent.click(screen.getByRole("button", { name: "Restore this version" }));
+	fireEvent.click(await screen.findByRole("button", { name: "Undo restore" }));
+	await waitFor(() => expect(undoRestore).toHaveBeenCalledWith(receipt));
+	expect(screen.getByRole("alert")).toHaveTextContent("Current work changed");
+	expect(screen.getByRole("button", { name: "Try again" })).toBeVisible();
+});
+it("retains letter restore compatibility without undo capabilities", async () => {
+	const restore = vi.fn();
+	useEditorStore.getState().setHistoryVersion("letter");
+	render(
+		<I18nProvider i18n={i18n}>
+			<HistoryTimeline
+				source={source({
+					loadError: false,
+					versions: [{ id: "letter", kind: "named", name: "Letter", createdAt: new Date() }],
+					restore,
+				})}
+			/>
+		</I18nProvider>,
+	);
+	fireEvent.click(screen.getByRole("button", { name: "Restore this version" }));
+	await waitFor(() => expect(restore).toHaveBeenCalledWith("letter"));
+	expect(screen.queryByRole("button", { name: "Undo restore" })).toBeNull();
 });

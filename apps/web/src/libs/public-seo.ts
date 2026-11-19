@@ -2,18 +2,18 @@ import type { PublicPageId } from "./seo";
 import type { UiLocale } from "@reactive-resume/utils/locale";
 import { useLingui } from "@lingui/react";
 import { useEffect } from "react";
+import { getProductName } from "@reactive-resume/utils/brand";
 import { getLocaleAlternates, localizedUrl, productLocalePolicy } from "@reactive-resume/utils/locale";
-import { getAtsCheckerMeta, getPublicPageMeta, serializeJsonLd } from "./seo";
+import { getPublicPageMeta, serializeJsonLd } from "./seo";
 import { useUiLocale } from "@/features/locale/provider";
 
 export function syncPublicSeo({
-	page = "home",
 	pageUrl,
 	locale,
 	title,
 	description,
 }: {
-	page?: PublicPageId | "ats-checker";
+	page?: PublicPageId;
 	pageUrl: string;
 	locale: UiLocale;
 	title: string;
@@ -23,7 +23,7 @@ export function syncPublicSeo({
 	base.search = "";
 	base.hash = "";
 	const canonical = localizedUrl(base.href, locale, productLocalePolicy);
-	const image = new URL(page === "ats-checker" ? "/opengraph/ats-checker.png" : "/opengraph/banner.jpg", base).href;
+	const image = new URL("/opengraph/banner.jpg", base).href;
 	const owned = new Set<Element>();
 	const put = (tag: "link" | "meta" | "script", selector: string, attributes: Record<string, string>) => {
 		const existing = [...document.head.querySelectorAll(`${selector}[data-public-seo]`)];
@@ -40,7 +40,7 @@ export function syncPublicSeo({
 		put("link", `link[rel="alternate"][hreflang="${hreflang}"]`, { rel: "alternate", hreflang, href });
 	for (const [property, content] of Object.entries({
 		"og:type": "website",
-		"og:site_name": "Master CV",
+		"og:site_name": getProductName(locale),
 		"og:locale": locale.replace("-", "_"),
 		"og:title": title,
 		"og:description": description,
@@ -58,22 +58,21 @@ export function syncPublicSeo({
 	const script = put("script", 'script[type="application/ld+json"]', { type: "application/ld+json" });
 	script.textContent = serializeJsonLd({
 		"@context": "https://schema.org",
-		"@type": page === "ats-checker" ? "WebApplication" : "WebPage",
+		"@type": "WebPage",
 		name: title,
 		description,
 		url: canonical,
 		inLanguage: locale,
-		...(page === "ats-checker" ? { applicationCategory: "BusinessApplication", operatingSystem: "Web" } : {}),
 	});
 	return () => {
 		for (const element of owned) element.remove();
 	};
 }
 let servedOrigin: string | undefined;
-export function usePublicSeo(page: PublicPageId | "ats-checker") {
+export function usePublicSeo(page: PublicPageId) {
 	const { locale } = useUiLocale();
 	useLingui();
-	const { title, description } = page === "ats-checker" ? getAtsCheckerMeta() : getPublicPageMeta(page);
+	const { title, description } = getPublicPageMeta(page);
 	useEffect(() => {
 		servedOrigin ??= new URL(
 			document.querySelector<HTMLLinkElement>('link[rel="canonical"][data-public-seo]')?.href ?? location.href,

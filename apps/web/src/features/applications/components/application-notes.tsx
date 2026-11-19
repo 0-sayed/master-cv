@@ -1,17 +1,23 @@
 import type { Application } from "../types";
 import type { DraftIdentity } from "@/libs/stored-draft";
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
-import { Button } from "@reactive-resume/ui/components/button";
-import { Textarea } from "@reactive-resume/ui/components/textarea";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useInvalidateApplications } from "../use-application-actions";
+import { useApplicationReadOnly } from "./application-write-boundary";
+import { NoteComposer } from "./detail/note-composer";
 import { useCurrentSession } from "@/hooks/use-current-session";
 import { personalStorageGeneration, storageKey } from "@/libs/browser-storage";
 import { orpc } from "@/libs/orpc/client";
 import { readStoredDraft, removeStoredDraft, writeStoredDraft } from "@/libs/stored-draft";
+
+/** The retained workspace uses the same composer and legacy storage contract. */
+export function ApplicationNotes({ application }: { application: Application }) {
+	const legacy = useApplicationNotes(application);
+	const [mode, setMode] = useState<"new" | "legacy">("legacy");
+	return <NoteComposer application={application} legacy={legacy} mode={mode} onModeChange={setMode} />;
+}
 
 type ApplicationNotesProps = { application: Pick<Application, "id" | "notes" | "updatedAt"> };
 type NotesState = {
@@ -22,9 +28,13 @@ type NotesState = {
 const parseNotes = (value: unknown) => (typeof value === "string" && value.length <= 5000 ? value : undefined);
 const revisionOf = (application: ApplicationNotesProps["application"]) => new Date(application.updatedAt).toISOString();
 
-export function ApplicationNotes({ application }: ApplicationNotesProps) {
-	const id = useId();
+export function useApplicationNotes(application: ApplicationNotesProps["application"]) {
 	const session = useCurrentSession();
+	const readOnly = useApplicationReadOnly();
+	const readOnlyRef = useRef(readOnly);
+	useLayoutEffect(() => {
+		readOnlyRef.current = readOnly;
+	}, [readOnly]);
 	const ownerId = session?.user.id ?? "";
 	const key = storageKey("notesDraft", `${ownerId}:${application.id}`);
 	const identity = { ownerId, documentId: application.id, baseRevision: revisionOf(application) };
@@ -85,7 +95,7 @@ export function ApplicationNotes({ application }: ApplicationNotesProps) {
 		}
 	}, [application, ownerId, publish]);
 	const save = useCallback(async () => {
-		if (generation.current !== personalStorageGeneration()) return;
+		if (readOnlyRef.current || generation.current !== personalStorageGeneration()) return;
 		const sent = current.current;
 		if (sent.status !== "dirty" && sent.status !== "failed") return;
 		publish({ ...sent, status: "saving" }, sent);
@@ -98,6 +108,8 @@ export function ApplicationNotes({ application }: ApplicationNotesProps) {
 			});
 			if (generation.current !== personalStorageGeneration()) return;
 			const latest = current.current;
+			if (latest.identity.ownerId !== sent.identity.ownerId || latest.identity.documentId !== sent.identity.documentId)
+				return;
 			const nextIdentity = { ...sent.identity, baseRevision: revisionOf(response) };
 			publish(
 				latest.value === sent.value
@@ -112,6 +124,11 @@ export function ApplicationNotes({ application }: ApplicationNotesProps) {
 			invalidateRef.current(application.id);
 		} catch (error) {
 			if (generation.current !== personalStorageGeneration()) return;
+			if (
+				current.current.identity.ownerId !== sent.identity.ownerId ||
+				current.current.identity.documentId !== sent.identity.documentId
+			)
+				return;
 			publish(
 				{
 					...current.current,
@@ -137,63 +154,20 @@ export function ApplicationNotes({ application }: ApplicationNotesProps) {
 		},
 		[save],
 	);
-	return (
-		<section className="grid gap-2">
-			<label htmlFor={id} className="text-xs font-semibold text-ink-3 uppercase">
-				<Trans>Notes</Trans>
-			</label>
-			<Textarea
-				dir="auto"
-				id={id}
-				rows={3}
-				maxLength={5000}
-				value={state.value}
-				placeholder={t`Anything to remember about this job`}
-				onChange={(event) =>
-					publish({
-						...current.current,
-						status:
-							current.current.status === "conflict"
-								? "conflict"
-								: current.current.status === "saving"
-									? "saving"
-									: "dirty",
-						value: event.target.value,
-					})
-				}
-			/>
-			{state.status === "failed" && (
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={() => {
-						void save();
-					}}
-				>
-					<Trans>Retry save</Trans>
-				</Button>
-			)}
-			{state.status === "conflict" && (
-				<div role="alert" className="grid gap-2">
-					<p className="type-body">
-						<Trans>The notes changed. Reload before saving your draft.</Trans>
-					</p>
-					<Button
-						variant="secondary"
-						size="sm"
-						onClick={() => publish({ status: "acknowledged", identity, value: application.notes ?? "" })}
-					>
-						<Trans>Discard draft</Trans>
-					</Button>
-					<Button
-						variant="secondary"
-						size="sm"
-						onClick={() => publish({ ...current.current, status: "dirty", identity })}
-					>
-						<Trans>Keep my changes</Trans>
-					</Button>
-				</div>
-			)}
-		</section>
-	);
+	return {
+		value: state.value,
+		status: state.status,
+		setValue: (value: string) => {
+			if (value.length > 5000) return;
+			publish({
+				...current.current,
+				value,
+				status:
+					current.current.status === "conflict" ? "conflict" : current.current.status === "saving" ? "saving" : "dirty",
+			});
+		},
+		save,
+		discardDraft: () => publish({ status: "acknowledged", identity, value: application.notes ?? "" }),
+		keepMyChanges: () => publish({ ...current.current, status: "dirty", identity }),
+	};
 }

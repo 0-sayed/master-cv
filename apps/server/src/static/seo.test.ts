@@ -1,6 +1,10 @@
 import { expect, it, vi } from "vite-plus/test";
 vi.mock("@reactive-resume/env/server", () => ({ env: { APP_URL: "https://resume.example" } }));
-import { handleLlms, handleSitemap } from "./seo";
+import { handleLlms, handleRobots, handleSitemap } from "./seo";
+it("advertises only this instance's sitemap", async () => {
+	const text = await handleRobots().text();
+	expect(text.match(/^Sitemap: .+$/gm)).toEqual(["Sitemap: https://resume.example/sitemap.xml"]);
+});
 it("describes available account capabilities without inherited offers or integration promises", async () => {
 	const text = await handleLlms().text();
 	expect(text).toContain("Qualified PDF");

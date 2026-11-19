@@ -21,7 +21,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await page
 				.getByRole(width === 390 ? "button" : "tab", { name: locale === "ar-SA" ? "التصميم" : "Design", exact: true })
 				.click();
-			const images = page.locator('[data-slot="template-thumbnail"] .template-current');
+			const images = page.locator('[data-slot="template-thumbnail"] .template-current:visible');
 			await expect(images).toHaveCount(18);
 			const expectedPrefix = `/templates/thumb/${locale === "ar-SA" ? "" : "en-US/"}`;
 			const sources = await images.evaluateAll(async (elements) => {
@@ -38,7 +38,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				expect(image.width).toBe(344);
 				expect(image.height).toBeGreaterThan(400);
 			}
-			const alternates = page.locator('[data-slot="template-thumbnail"] .template-alternate');
+			const alternates = page.locator('[data-slot="template-thumbnail"]:visible .template-alternate');
 			await expect(alternates).toHaveCount(18);
 			const otherPrefix = `/templates/thumb/${locale === "ar-SA" ? "en-US/" : ""}`;
 			for (let index = 0; index < 18; index++) {

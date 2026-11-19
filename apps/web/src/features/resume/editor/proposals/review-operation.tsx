@@ -23,10 +23,12 @@ export function ReviewNotice({
 	children,
 	retry,
 	title,
+	actions,
 }: {
 	children: ReactNode;
 	retry?: (() => void) | undefined;
 	title?: ReactNode;
+	actions?: ReactNode;
 }) {
 	return (
 		<Alert variant="warn">
@@ -35,6 +37,7 @@ export function ReviewNotice({
 			<AlertDescription>{children}</AlertDescription>
 
 			<AlertActions>
+				{actions}
 				{retry && (
 					<Button variant="secondary" onClick={retry}>
 						<Trans>Retry</Trans>
@@ -44,6 +47,42 @@ export function ReviewNotice({
 		</Alert>
 	);
 }
+function launchIssue(error: Error | null) {
+	if (!error) return null;
+	const code = error instanceof ORPCError ? error.code : undefined;
+	const reason = error instanceof ORPCError ? (error.data?.reason ?? code) : error.message;
+	if (
+		["AI_UNAVAILABLE", "AI_NOT_ENABLED", "NO_APPROVED_ROUTE", "WORKER_UNAVAILABLE", "FEATURE_UNAVAILABLE"].includes(
+			reason,
+		)
+	)
+		return { key: "review.assistant.environmentUnavailable", action: "none" } as const;
+	if (reason === "AI_BUDGET_LIMIT") return { key: "review.launch.budgetReached", action: "none" } as const;
+	if (reason === "AI_OPERATIONS_LIMIT") return { key: "review.launch.allowanceUsed", action: "none" } as const;
+	if (["BASE_CV_LIMIT", "LANGUAGE_COPY_LIMIT", "JOB_COPY_LIMIT"].includes(reason))
+		return { key: "review.launch.documentLimit", action: "none" } as const;
+	if (["AI_CONSENT_REQUIRED", "AI_PROVIDER_CHANGED"].includes(reason))
+		return { key: "review.launch.consentRequired", action: "consent" } as const;
+	if (reason === "TRANSLATION_STRUCTURE_CHANGED")
+		return { key: "review.launch.translationStructure", action: "none" } as const;
+	if (reason === "AI_CONCURRENCY_LIMIT") return { key: "review.launch.busy", action: "retry" } as const;
+	if (
+		[
+			"AI_PROVIDER_ERROR",
+			"PROVIDER_ERROR",
+			"TIMEOUT",
+			"INTERNAL_SERVER_ERROR",
+			"BAD_GATEWAY",
+			"SERVICE_UNAVAILABLE",
+			"TOO_MANY_REQUESTS",
+		].includes(reason) ||
+		(error instanceof ORPCError && error.status >= 500) ||
+		(error instanceof TypeError && /fetch|network|load failed/i.test(error.message))
+	)
+		return { key: "review.launch.providerError", action: "retry" } as const;
+	return { key: "review.launch.requestChanged", action: "none" } as const;
+}
+
 /** Consent is an explicit choice before preparation/staging; a decline makes no mutation request. */
 export function ReviewLaunch({
 	kind,
@@ -106,6 +145,7 @@ export function ReviewLaunch({
 			void usage.refetch();
 		},
 	});
+	const issue = launchIssue(start.error);
 	if (availability.error || usage.error)
 		return (
 			<ReviewNotice
@@ -129,7 +169,7 @@ export function ReviewLaunch({
 	if (state === "unavailable")
 		return (
 			<ReviewNotice
-				title={copy("review.assistant.error.unavailableTitle")}
+				title={copy("review.assistant.environmentUnavailable")}
 				retry={() => {
 					void availability.refetch();
 					void usage.refetch();
@@ -140,7 +180,9 @@ export function ReviewLaunch({
 		);
 	if (state === "exhausted")
 		return (
-			<ReviewNotice retry={() => void usage.refetch()}>{copy("billing.usage.startOperationsLimitHint")}</ReviewNotice>
+			<ReviewNotice retry={() => void usage.refetch()}>
+				{copy(kind === "review.wording" ? "review.launch.allowanceUsed" : "billing.usage.startOperationsLimitHint")}
+			</ReviewNotice>
 		);
 	if (state === "busy")
 		return (
@@ -178,19 +220,29 @@ export function ReviewLaunch({
 							details, to the approved processing provider. Suggestions are optional and require your review.
 						</Trans>
 					</DialogDescription>
-					<p className="type-metadata text-ink-2">{copy("billing.usage.startOperationsHint")}</p>
-					{start.error && (
-						<ReviewNotice retry={() => start.mutate()}>
-							{start.error instanceof ORPCError &&
-							start.error.code === "CONFLICT" &&
-							start.error.data?.reason === "TRANSLATION_STRUCTURE_CHANGED" ? (
-								<Trans>
-									The source and language copy have different sections or text blocks. Open the saved CV and align its
-									structure with the source before requesting a translation.
-								</Trans>
-							) : (
-								<Trans>Could not start this review. Your draft is kept. Retry this request or cancel.</Trans>
-							)}
+					{usage.data?.operations.remaining != null && (
+						<p className="type-metadata text-ink-2">
+							{copy("billing.usage.remainingOperations", { remaining: usage.data.operations.remaining })}
+						</p>
+					)}
+					{issue && (
+						<ReviewNotice
+							retry={issue.action === "retry" ? () => start.mutate() : undefined}
+							actions={
+								issue.action === "consent" && (
+									<Button
+										variant="secondary"
+										onClick={() => {
+											setRequest(null);
+											start.reset();
+										}}
+									>
+										{copy("review.launch.reviewConsent")}
+									</Button>
+								)
+							}
+						>
+							{copy(issue.key)}
 						</ReviewNotice>
 					)}
 					<DialogFooter>
@@ -204,7 +256,7 @@ export function ReviewLaunch({
 						>
 							{copy("common.actions.cancel")}
 						</Button>
-						<Button disabled={start.isPending} onClick={() => start.mutate()}>
+						<Button disabled={start.isPending} hidden={issue !== null} onClick={() => start.mutate()}>
 							<Trans>Start review</Trans>
 						</Button>
 					</DialogFooter>

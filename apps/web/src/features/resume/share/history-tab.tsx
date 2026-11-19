@@ -1,9 +1,10 @@
 import type { VersionSummary } from "./format";
+import type { RestoreUndoReceipt } from "@/features/resume/builder/draft";
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
@@ -13,14 +14,23 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
+import { EditorPanelBody, EditorPanelFooter } from "@reactive-resume/ui/components/editor-panel";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { cn } from "@reactive-resume/utils/style";
-import { formatVersionMoment, formatVersionTime, getVersionDetail, getVersionTitle } from "./format";
+import {
+	formatVersionMoment,
+	formatVersionTime,
+	getVersionDetail,
+	getVersionTitle,
+	groupVersionsByDay,
+} from "./format";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { savePendingChanges, useCurrentResume, useResumeStore } from "@/features/resume/builder/draft";
+import { useExportHistoryScroll } from "@/features/resume/editor/export-history-scroll";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { useConfirm, usePrompt } from "@/hooks/use-confirm";
 import { getResumeErrorMessage } from "@/libs/error-message";
@@ -44,6 +54,8 @@ export type HistorySource = {
 	save: (name: string) => Promise<void>;
 	/** Restores a version (the current state is kept as "Before restore" first). Throws what the request throws. */
 	restore: (versionId: string) => Promise<void>;
+	restoreWithUndo?: (versionId: string) => Promise<RestoreUndoReceipt>;
+	undoRestore?: (receipt: RestoreUndoReceipt) => Promise<void>;
 	rename: (versionId: string, name: string) => Promise<void>;
 	remove: (versionId: string) => Promise<void>;
 	/** How a failure reads. */
@@ -53,7 +65,7 @@ export type HistorySource = {
 
 /** History for the resume in the editor. */
 export function HistoryTab() {
-	return <HistoryTimeline source={useResumeHistory()} />;
+	return <HistoryTimeline source={useResumeHistory()} panel />;
 }
 
 function useResumeHistory(): HistorySource {
@@ -97,6 +109,23 @@ function useResumeHistory(): HistorySource {
 			void queryClient.invalidateQueries({ queryKey: orpc.resume.getById.queryKey({ input: { id: resume.id } }) });
 			void refresh();
 		},
+		restoreWithUndo: async (versionId) => {
+			const result = await useResumeStore.getState().restoreVersion(versionId);
+			const current = useResumeStore.getState();
+			if (!current.ownerId) throw new Error(t`The document changed. Try again.`);
+			void refresh();
+			return {
+				ownerId: current.ownerId,
+				resumeId: resume.id,
+				versionId: result.beforeRestoreVersionId,
+				expectedUpdatedAt: result.updatedAt,
+				editGeneration: current.editGeneration,
+			};
+		},
+		undoRestore: async (receipt) => {
+			await useResumeStore.getState().undoVersionRestore(receipt);
+			void refresh();
+		},
 		rename: async (versionId, name) => {
 			await orpc.resume.renameVersion.call({ resumeId: resume.id, versionId, name });
 			void refresh();
@@ -112,157 +141,253 @@ function useResumeHistory(): HistorySource {
  * History: name the current state, or pick any version to see it on the page, read-only, then restore it or
  * go back to now. Restoring saves the current state as "Before restore" first, so it can be undone.
  */
-export function HistoryTimeline({ source }: { source: HistorySource }) {
+export function HistoryTimeline({ source, panel = false }: { source: HistorySource; panel?: boolean }) {
 	const { i18n } = useLingui();
 	const selectedId = useEditorStore((state) => state.historyVersionId);
 	const setVersion = useEditorStore((state) => state.setHistoryVersion);
 	const [name, setName] = useState("");
 	const [busy, setBusy] = useState(false);
+	const pending = useRef(false);
+	const [error, setError] = useState<string | null>(null);
+	const [receipt, setReceipt] = useState<RestoreUndoReceipt | null>(null);
+	const [restoredMessage, setRestoredMessage] = useState<string | null>(null);
+	const retryAction = useRef<(() => Promise<void>) | null>(null);
+	const confirm = useConfirm();
 	const { versions, loading } = source;
-
 	const selected = versions?.find((version) => version.id === selectedId) ?? null;
 	const when = (version: HistoryVersion) => formatVersionTime(version.createdAt, i18n.locale);
-
+	const Body = panel ? EditorPanelBody : "div";
+	const scroll = useExportHistoryScroll("history");
+	const phone = useBreakpoint() === "mobile";
+	const Footer = panel ? EditorPanelFooter : "div";
 	const run = async (action: () => Promise<void>) => {
-		if (busy) return;
+		if (pending.current) return;
+		pending.current = true;
 		setBusy(true);
+		setError(null);
+		retryAction.current = action;
 		try {
 			await action();
 		} catch (error) {
-			toast.add({ type: "error", description: source.errorMessage(error) });
+			const message = source.errorMessage(error);
+			setError(message);
+			toast.add({ type: "error", description: message });
+		} finally {
+			pending.current = false;
+			setBusy(false);
 		}
-		setBusy(false);
 	};
-
 	const save = () => {
 		const trimmed = name.trim();
-		if (!trimmed) return;
+		if (!trimmed || trimmed.length > 80) return;
 		void run(async () => {
 			await source.save(trimmed);
 			setName("");
 			toast.add({ description: t`Saved “${trimmed}”` });
 		});
 	};
-
 	const restore = (version: HistoryVersion) =>
 		void run(async () => {
-			await source.restore(version.id);
+			const title = getVersionTitle(version);
+			const moment = formatVersionMoment(version.createdAt, i18n.locale);
+			if (
+				!(await confirm(t`Restore “${title}” from ${moment}?`, {
+					description: t`Your current work is kept as “Before restore”. Sent snapshots stay unchanged.`,
+					confirmText: t`Restore`,
+					cancelText: t`Cancel`,
+					variant: "primary",
+				}))
+			)
+				return;
+			if (source.restoreWithUndo && source.undoRestore) setReceipt(await source.restoreWithUndo(version.id));
+			else {
+				await source.restore(version.id);
+				setReceipt(null);
+			}
 			setVersion(null);
-			toast.add({
-				description: t`Restored the version from ${formatVersionMoment(version.createdAt, i18n.locale)}. Your previous state is saved as “Before restore”.`,
-			});
+			setRestoredMessage(t`Restored the version from ${moment}. Your previous state is saved as “Before restore”.`);
 		});
-
 	return (
-		<div className="grid gap-3.5">
-			<form
-				className="flex gap-1.5"
-				onSubmit={(event) => {
-					event.preventDefault();
-					save();
-				}}
-			>
-				<Input
-					value={name}
-					maxLength={80}
-					aria-label={t`Name this version`}
-					placeholder={t`Version name, e.g. Application draft`}
-					onChange={(event) => setName(event.target.value)}
-				/>
-				<Button type="submit" variant="secondary" disabled={!name.trim() || busy}>
-					<Trans>Save</Trans>
-				</Button>
-			</form>
-
-			{selected && (
-				<div role="status" className="grid gap-2.5 rounded-lg bg-sunken p-3 type-body text-ink">
-					<span className="flex items-center gap-2 font-medium">
-						<Icon name="clock-counter-clockwise" size={18} />
-						<Trans>
-							Viewing {when(selected)} · {getVersionTitle(selected)} · read-only
-						</Trans>
-					</span>
-					<span className="flex flex-wrap gap-2">
-						<Button size="sm" disabled={source.locked || busy} onClick={() => restore(selected)}>
-							<Trans>Restore this version</Trans>
-						</Button>
-						<BackNavigation disabled={busy} onClick={() => setVersion(null)}>
-							<Trans>Back to now</Trans>
-						</BackNavigation>
-					</span>
-				</div>
-			)}
-
-			{source.loadError && (
-				<Alert variant="error">
-					<Icon name="warning-circle" />
-					<AlertTitle>
-						<Trans>Couldn't load version history</Trans>
-					</AlertTitle>
-					<AlertDescription>
-						<p>
-							<Trans>Your CV is preserved. Check your connection and try again.</Trans>
-						</p>
-					</AlertDescription>
-					<AlertActions>
-						<Button variant="secondary" disabled={source.retrying} loading={source.retrying} onClick={source.retry}>
-							{source.retrying ? <Trans>Retrying…</Trans> : <Trans>Try again</Trans>}
-						</Button>
-					</AlertActions>
-				</Alert>
-			)}
-			{(!source.loadError || versions !== undefined) && (
-				<QuerySkeleton loading={loading && !versions} shape="rows">
-					<ol className="grid" aria-label={t`Versions`}>
-						<TimelineItem
-							title={t`Now`}
-							detail={source.nowDetail}
-							selected={!selected}
-							disabled={busy}
-							current
-							last={!versions?.length}
-							onSelect={() => setVersion(null)}
+		<>
+			<Body {...(panel ? scroll : {})}>
+				<div className="grid gap-6">
+					<form
+						className="flex gap-2"
+						onSubmit={(event) => {
+							event.preventDefault();
+							save();
+						}}
+					>
+						<Input
+							dir="auto"
+							value={name}
+							maxLength={80}
+							aria-label={t`Name this version`}
+							placeholder={t`Version name, e.g. Application draft`}
+							onChange={(event) => setName(event.target.value)}
 						/>
-						{versions?.map((version, index) => (
-							<TimelineItem
-								key={version.id}
-								title={getVersionTitle(version)}
-								detail={`${when(version)} · ${getVersionDetail(version)}`}
-								named={version.kind === "named"}
-								selected={version.id === selectedId}
-								disabled={busy}
-								last={index === versions.length - 1}
-								onSelect={() => {
-									if (!busy)
-										void run(async () => {
-											await source.preparePreview?.();
-											setVersion(version.id);
-										});
-								}}
-								menu={
-									version.kind === "named" ? (
-										<NamedVersionMenu version={version} source={source} disabled={busy} />
-									) : null
-								}
-							/>
-						))}
-					</ol>
-				</QuerySkeleton>
-			)}
-
-			{!loading && !source.loadError && versions !== undefined && versions.length <= 1 && (
-				<p className="text-[13px] leading-[19px] text-ink-2">
-					<Trans>Only one version so far. Every editing session adds one automatically.</Trans>
-				</p>
-			)}
-
-			<p className="text-xs leading-[17px] text-ink-3">
-				<Trans>
-					Autosaves are grouped by session and kept for 90 days. Named versions are kept until you delete them.
-					Restoring saves the current state first.
-				</Trans>
-			</p>
-		</div>
+						<Button type="submit" variant="secondary" disabled={!name.trim() || busy || source.locked}>
+							<Trans>Save</Trans>
+						</Button>
+					</form>
+					{source.loadError && (
+						<Alert variant="error">
+							<Icon name="warning-circle" />
+							<AlertTitle>
+								<Trans>Couldn't load version history</Trans>
+							</AlertTitle>
+							<AlertDescription>
+								<Trans>Your CV is preserved. Check your connection and try again.</Trans>
+							</AlertDescription>
+							<AlertActions>
+								<Button variant="secondary" disabled={source.retrying} loading={source.retrying} onClick={source.retry}>
+									{source.retrying ? <Trans>Retrying…</Trans> : <Trans>Try again</Trans>}
+								</Button>
+							</AlertActions>
+						</Alert>
+					)}
+					{(!source.loadError || versions !== undefined) && (
+						<QuerySkeleton loading={loading && !versions} shape="rows">
+							<ol className="grid gap-3" aria-label={t`Versions`}>
+								<TimelineItem
+									title={t({ message: "Current version", context: "editor.history.currentVersion" })}
+									detail={source.nowDetail}
+									selected={selectedId === null}
+									disabled={busy}
+									current
+									last
+									onSelect={() => setVersion(null)}
+								/>
+								{groupVersionsByDay(versions ?? [], i18n.locale).map((group) => (
+									<li key={group.key} className="grid gap-2">
+										<h3 className="type-label text-ink-2">
+											{group.label}
+											<span className="sr-only"> · {group.dateLabel}</span>
+										</h3>
+										<ol className="grid">
+											{group.versions.map((version, index) => (
+												<TimelineItem
+													key={version.id}
+													title={getVersionTitle(version)}
+													detail={`${when(version)} · ${getVersionDetail(version)}`}
+													named={version.kind === "named"}
+													selected={version.id === selectedId}
+													disabled={busy}
+													last={index === group.versions.length - 1}
+													onSelect={() =>
+														void run(async () => {
+															await source.preparePreview?.();
+															setVersion(version.id);
+														})
+													}
+													menu={
+														version.kind === "named" ? (
+															<NamedVersionMenu version={version} source={source} disabled={busy} />
+														) : null
+													}
+												/>
+											))}
+										</ol>
+									</li>
+								))}
+							</ol>
+						</QuerySkeleton>
+					)}
+					{!loading && !source.loadError && versions?.length === 0 && (
+						<p className="type-body text-ink-2">
+							<Trans>No saved versions yet. An editing session adds one automatically.</Trans>
+						</p>
+					)}
+					{!loading && !source.loadError && versions?.length === 1 && (
+						<p className="type-body text-ink-2">
+							<Trans>Only one version so far. Every editing session adds one automatically.</Trans>
+						</p>
+					)}
+					<p className="type-caption text-ink-2">
+						<Trans>
+							Autosaves are grouped by session and kept for 90 days. Named versions are kept until you delete them.
+							Restoring saves the current state first.
+						</Trans>
+					</p>
+				</div>
+			</Body>
+			<Footer>
+				<div className="grid gap-3">
+					{error && (
+						<Alert variant="error">
+							<Icon name="warning-circle" />
+							<AlertTitle>
+								<Trans>Could not update version history</Trans>
+							</AlertTitle>
+							<AlertDescription>{error}</AlertDescription>
+							<AlertActions>
+								<Button
+									variant="secondary"
+									disabled={busy}
+									onClick={() => {
+										if (retryAction.current) void run(retryAction.current);
+									}}
+								>
+									<Trans>Try again</Trans>
+								</Button>
+								<Button variant="secondary" onClick={() => setVersion(null)}>
+									<Trans>Back to current</Trans>
+								</Button>
+							</AlertActions>
+						</Alert>
+					)}
+					{restoredMessage && (
+						<p role="status" className="type-body text-ink-2">
+							{restoredMessage}
+						</p>
+					)}
+					{receipt && source.undoRestore && (
+						<Button
+							variant="secondary"
+							disabled={busy}
+							onClick={() =>
+								void run(async () => {
+									await source.undoRestore?.(receipt);
+									setReceipt(null);
+									setRestoredMessage(t`Your previous work is restored.`);
+								})
+							}
+						>
+							<Trans>Undo restore</Trans>
+						</Button>
+					)}
+					{selected && (
+						<>
+							<div role="status" className="grid gap-2 type-body">
+								<span dir="auto" className="type-label">
+									{getVersionTitle(selected)}
+								</span>
+								<span className="type-caption text-ink-2">
+									<Trans>Viewing {when(selected)} · read-only</Trans>
+								</span>
+							</div>
+							<Button disabled={source.locked || busy} onClick={() => restore(selected)}>
+								<Trans>Restore this version</Trans>
+							</Button>
+							{panel && phone && (
+								<Button
+									id="export-preview-history"
+									variant="secondary"
+									disabled={busy}
+									onClick={() => useEditorStore.getState().setExportHistoryPreview(true)}
+								>
+									<Icon name="eye" />
+									<Trans>Preview version</Trans>
+								</Button>
+							)}
+							<BackNavigation disabled={busy} onClick={() => setVersion(null)}>
+								<Trans>Back to current</Trans>
+							</BackNavigation>
+						</>
+					)}
+				</div>
+			</Footer>
+		</>
 	);
 }
 
@@ -280,35 +405,39 @@ type TimelineItemProps = {
 
 function TimelineItem({ title, detail, selected, last, onSelect, disabled, current, named, menu }: TimelineItemProps) {
 	return (
-		<li className="grid grid-cols-[20px_minmax(0,1fr)] gap-2.5">
-			<span aria-hidden="true" className="flex flex-col items-center">
+		<li className="grid grid-cols-[auto_minmax(0,1fr)] gap-3">
+			<span aria-hidden="true" className="flex w-5 flex-col items-center">
 				<span
 					className={cn(
-						"mt-[15px] size-2.5 shrink-0 rounded-full shadow-[0_0_0_3px_var(--raised)]",
+						"mt-4 size-2.5 shrink-0 rounded-full ring-3 ring-raised",
 						current ? "bg-accent" : selected ? "bg-ink" : "bg-line-2",
 					)}
 				/>
-				{!last && <span className="w-[1.5px] flex-1 bg-line" />}
+				{!last && <span className="w-px flex-1 bg-line" />}
 			</span>
 			<span
 				className={cn(
-					"group/version my-0.5 flex items-start rounded-[10px] border transition-colors duration-quick",
+					"group/version my-0.5 flex items-start rounded-md border transition-colors duration-quick",
 					selected ? "border-line-2 bg-sunken" : "border-transparent hover:bg-hover",
 				)}
 			>
-				<button
+				<Button
+					variant="secondary"
+					size="row"
 					type="button"
 					aria-pressed={selected}
 					disabled={disabled}
 					onClick={onSelect}
-					className="flex min-w-0 flex-1 flex-col items-start gap-0.5 px-2.5 py-[9px] text-start"
+					className="min-w-0 flex-1 flex-col items-start gap-1 text-start"
 				>
-					<span className="flex max-w-full items-center gap-2">
-						<span className="truncate text-[13px] font-semibold">{title}</span>
+					<span className="flex max-w-full min-w-0 items-center gap-2">
+						<span dir="auto" className="min-w-0 type-label break-words">
+							{title}
+						</span>
 						{named && <Icon name="bookmark-simple" size={14} className="text-accent-text" />}
 					</span>
-					<span className="text-xs text-ink-3">{detail}</span>
-				</button>
+					<span className="type-caption text-ink-2">{detail}</span>
+				</Button>
 				{menu && <span className="p-1">{menu}</span>}
 			</span>
 		</li>
@@ -352,14 +481,7 @@ function NamedVersionMenu({ version, source, disabled }: NamedVersionMenuProps) 
 		<DropdownMenu>
 			<DropdownMenuTrigger
 				disabled={disabled}
-				render={
-					<IconButton
-						icon="dots-three"
-						label={t`Options for ${title}`}
-						size="icon-sm"
-						className="text-ink-2 opacity-0 group-hover/version:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100"
-					/>
-				}
+				render={<IconButton icon="dots-three" label={t`Options for ${title}`} size="icon-sm" className="text-ink-2" />}
 			/>
 			<DropdownMenuContent align="end" className="w-44">
 				<DropdownMenuItem onClick={() => void rename()}>

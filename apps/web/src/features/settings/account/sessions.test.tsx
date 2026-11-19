@@ -58,12 +58,14 @@ it("failed revocation retains devices and offers retry without claiming success"
 	revoke.mockRejectedValue(new Error("offline"));
 	const refresh = show();
 	fireEvent.click(screen.getByRole("button", { name: "Sign out of all other devices" }));
+	fireEvent.click(screen.getByRole("button", { name: "Confirm sign out" }));
 	expect(await screen.findByRole("alert")).toBeDefined();
 	expect(screen.getAllByText("Unknown browser")).toHaveLength(2);
 	expect(refresh).not.toHaveBeenCalled();
 	revoke.mockResolvedValue(undefined);
 	fireEvent.click(screen.getByRole("button", { name: "Try again" }));
 	fireEvent.click(screen.getByRole("button", { name: "Sign out of all other devices" }));
+	fireEvent.click(screen.getByRole("button", { name: "Confirm sign out" }));
 	await waitFor(() => expect(refresh).toHaveBeenCalledOnce());
 	expect(revoke).toHaveBeenLastCalledWith({ others: true });
 });
@@ -90,9 +92,27 @@ it("lists the current session before recent and older sessions, with honest unkn
 	show(true, sessions);
 	const rows = [...document.querySelectorAll('[data-slot="settings-row"]')];
 	expect(rows[0]).toHaveTextContent("This device");
-	expect(rows[1]?.querySelectorAll("time")[1]).toHaveAttribute("dateTime", "2026-11-15T00:00:00Z");
-	expect(rows[2]?.querySelectorAll("time")[1]).toHaveAttribute("dateTime", "2026-11-13T00:00:00Z");
-	expect(screen.getAllByText("Signed in")).toHaveLength(3);
+	expect(rows[1]?.querySelector("time")).toHaveAttribute("dateTime", "2026-11-15T00:00:00Z");
+	expect(rows[2]?.querySelector("time")).toHaveAttribute("dateTime", "2026-11-13T00:00:00Z");
+	expect(screen.queryByText("Signed in")).toBeNull();
 	expect(screen.getAllByText("Unknown browser")).toHaveLength(2);
 	expect(sessions.map((item) => item.id)).toEqual(["old", "recent", "current"]);
+});
+
+it("limits the initial list and requires confirmation before revoking other devices", () => {
+	const supplied = Array.from({ length: 10 }, (_, i) => ({
+		id: String(i),
+		current: i === 7,
+		createdAt: "2026-11-14T00:00:00Z",
+		lastActiveAt: null,
+		expiresAt: "2026-12-14T00:00:00Z",
+		deviceLabel: `Chrome · Linux ${i}`,
+	}));
+	show(true, supplied);
+	expect(screen.getAllByText(/Chrome · Linux/)).toHaveLength(5);
+	fireEvent.click(screen.getByRole("button", { name: "Show all 10" }));
+	expect(screen.getAllByText(/Chrome · Linux/)).toHaveLength(10);
+	fireEvent.click(screen.getByRole("button", { name: "Sign out of all other devices" }));
+	expect(screen.getByRole("alertdialog")).toBeDefined();
+	expect(revoke).not.toHaveBeenCalled();
 });

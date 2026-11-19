@@ -16,6 +16,17 @@ const route = (method: "GET" | "POST" | "DELETE", path: `/${string}`, operationI
 	operationId,
 });
 export const masterRouter = {
+	saveDetails: protectedProcedure
+		.route(route("POST", "/career/master/details", "saveCareerDetails"))
+		.input(
+			z.object({
+				expectedProfileRevision: z.number().int().nonnegative(),
+				contact: careerMasterSchema.shape.contact.unwrap(),
+				summary: z.string().max(4000),
+			}),
+		)
+		.output(careerMasterSchema)
+		.handler(({ context, input }) => careerMasterService.saveDetails(context.user.id, input)),
 	read: protectedProcedure
 		.route(route("GET", "/career/master", "readCareerMaster"))
 		.input(z.object({}))

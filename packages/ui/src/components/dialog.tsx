@@ -1,7 +1,7 @@
 import type * as React from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { Button } from "@reactive-resume/ui/components/button";
-import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { useUiLabels } from "@reactive-resume/ui/components/ui-labels";
 import { cn } from "@reactive-resume/utils/style";
 
@@ -92,10 +92,10 @@ function DialogContent({
 					<DialogPrimitive.Close
 						data-slot="dialog-close"
 						aria-label={closeLabel ?? labels.close}
-						render={<Button variant="ghost" className="absolute inset-e-3 top-3 text-ink-2" size="icon" />}
-					>
-						<Icon name="x" />
-					</DialogPrimitive.Close>
+						render={
+							<IconButton icon="x" label={closeLabel ?? labels.close} className="absolute inset-e-3 top-3 text-ink-2" />
+						}
+					/>
 				)}
 			</DialogPrimitive.Popup>
 		</DialogPortal>

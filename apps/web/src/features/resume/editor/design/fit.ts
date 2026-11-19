@@ -49,37 +49,36 @@ function applyStep(metadata: WritableDraft<ResumeData["metadata"]>, step: FitSte
 const densityLabel = () => ({ compact: t`Compact`, normal: t`Normal`, roomy: t`Roomy` });
 const marginsLabel = () => ({ narrow: t`narrow margins`, normal: t`normal margins`, wide: t`wide margins` });
 
-/** How far the content runs past the authored pages, in lines of body text, from the page map on screen. */
+/** Offer one fewer physical page only when the last page contains a small tail. */
 export function measureOverflow(data: ResumeData, rendered: { pageCount: number; pageMap: PageMap | undefined }) {
 	const authored = Math.max(1, data.metadata.layout.pages.length);
-	if (rendered.pageCount <= authored) return null;
-
-	// The extent of the content on each spill page (positions are per page), summed.
-	const extents = new Map<number, { top: number; bottom: number }>();
-	for (const node of rendered.pageMap?.nodes ?? []) {
-		if (node.page < authored) continue;
-		const extent = extents.get(node.page);
-		extents.set(node.page, {
-			top: Math.min(extent?.top ?? node.y, node.y),
-			bottom: Math.max(extent?.bottom ?? 0, node.y + node.height),
-		});
-	}
-	const height = [...extents.values()].reduce((sum, extent) => sum + extent.bottom - extent.top, 0);
+	const { pageCount, pageMap } = rendered;
+	if (pageCount <= authored || data.metadata.page.format === "free-form") return null;
+	const lastPage = pageCount - 1;
+	const nodes = pageMap?.nodes.filter((node) => node.page === lastPage && node.height > 0) ?? [];
+	if (!nodes.length) return null;
+	const top = Math.min(...nodes.map((node) => node.y));
+	const bottom = Math.max(...nodes.map((node) => node.y + node.height));
+	const height = bottom - top;
 	const lineHeight = data.metadata.typography.body.fontSize * data.metadata.typography.body.lineHeight;
-	const lines = height > 0 && lineHeight > 0 ? Math.max(1, Math.round(height / lineHeight)) : null;
-	return { authored, pageCount: rendered.pageCount, lines };
+	const printableHeight = (pageMap?.pages[lastPage]?.height ?? 0) - data.metadata.page.marginY * 2 * (72 / 25.4);
+	if (height <= 0 || lineHeight <= 0 || printableHeight <= 0) return null;
+	const lines = Math.ceil(height / lineHeight);
+	// Require both <=8 body-line equivalents and <=15% of the printable PDF height to avoid full-page hints.
+	if (lines > 8 || height / printableHeight > 0.15) return null;
+	return { authored, pageCount, lines, targetPages: lastPage };
 }
 
 /**
- * Fit to the authored pages: tightens density, then margins, then size (never below 9 pt), waiting for the page
+ * Fit to the requested count (authored pages by default): tightens density, margins, then size (at least 9 pt), waiting for the page
  * to re-render after each step. The whole run is one undo step.
  */
-export async function runFit() {
+export async function runFit(targetPages?: number) {
 	const { resume, updateResumeData } = useResumeStore.getState();
 	let identity = useEditorStore.getState().identity;
 	if (!resume || !identity || identity.resumeId !== resume.id) return "cancelled" as const;
 	const { metadata } = resume.data;
-	const authored = Math.max(1, metadata.layout.pages.length);
+	const authored = Math.max(1, metadata.layout.pages.length, targetPages ?? 1);
 	const key = `design.fit:${Date.now()}`;
 	let interrupted: FitOutcome | undefined;
 	let applied = false;
@@ -142,8 +141,9 @@ export async function runFit() {
 	const details = [density ? densityLabel()[density] : null, margins ? marginsLabel()[margins] : null, t`${size} pt`]
 		.filter(Boolean)
 		.join(", ");
+	const fittedPages = useEditorStore.getState().rendered.pageCount;
 	toast.add({
-		description: authored === 1 ? t`Fits on one page: ${details}` : t`Fits on ${authored} pages: ${details}`,
+		description: fittedPages === 1 ? t`Fits on one page: ${details}` : t`Fits on ${fittedPages} pages: ${details}`,
 		actionProps: undoAction,
 	});
 	return "rendered" as const;

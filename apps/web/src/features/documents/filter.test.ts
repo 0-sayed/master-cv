@@ -14,6 +14,8 @@ function document(id: string, name: string): DocumentSummary {
 		createdAt: new Date(0),
 		updatedAt: new Date(0),
 		application: null,
+		metadata: null,
+		letterStatus: null,
 	};
 }
 const filters = { type: "all", q: "", tags: [], sort: "name" } as const;

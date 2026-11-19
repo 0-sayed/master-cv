@@ -80,7 +80,7 @@ test("an already open export sheet cannot download after a conflicting save", as
 	await page.getByLabel("Full name", { exact: true }).fill("Synthetic local export conflict");
 	await started;
 	await page.getByRole("button", { name: "More download formats", exact: true }).click();
-	const sheet = page.getByRole("dialog", { name: "Export and history" });
+	const sheet = page.getByRole("complementary", { name: "Export and history", includeHidden: true });
 	await expect(sheet).toBeVisible();
 	await second.getByLabel("Full name", { exact: true }).fill("Synthetic remote export conflict");
 	await expect
@@ -88,7 +88,9 @@ test("an already open export sheet cannot download after a conflicting save", as
 		.toBe("Synthetic remote export conflict");
 	release();
 	await expect(page.getByRole("button", { name: "Save my edits as a new copy", exact: true })).toBeVisible();
-	await expect(sheet.getByRole("button", { name: /download/i })).toBeDisabled();
+	await expect(sheet).toHaveCount(0);
+	await expect(page.getByRole("button", { name: "Download PDF", exact: true })).toBeDisabled();
+	await expect(page.getByRole("button", { name: "More download formats", exact: true })).toBeDisabled();
 	await second.close();
 });
 
@@ -99,8 +101,9 @@ test("Word is unavailable and mobile history saves and restores a version", asyn
 	const initial = (await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.basics.name;
 	await page.getByRole("button", { name: "Download PDF", exact: true }).click();
 	const sheet = page.getByRole("dialog", { name: "Export and history" });
-	await expect(sheet.getByRole("radio", { name: /Word/ })).toBeDisabled();
-	await expect(sheet.getByText(/Not available yet/)).toBeVisible();
+	await expect(sheet.getByRole("radio", { name: /Word/ })).toHaveCount(0);
+	await expect(sheet.getByText("Word export is not available.", { exact: true })).toBeVisible();
+	await expect(sheet.getByRole("button", { name: /Word/ })).toHaveCount(0);
 	await sheet.getByRole("tab", { name: "History", exact: true }).click();
 	await sheet.getByRole("textbox", { name: "Name this version", exact: true }).fill("Mobile original");
 	await sheet.getByRole("button", { name: "Save", exact: true }).click();
@@ -114,6 +117,7 @@ test("Word is unavailable and mobile history saves and restores a version", asyn
 	await sheet.getByRole("tab", { name: "History", exact: true }).click();
 	await sheet.getByRole("button", { name: /^Mobile original/ }).click();
 	await sheet.getByRole("button", { name: "Restore this version", exact: true }).click();
+	await page.getByRole("alertdialog").getByRole("button", { name: "Restore", exact: true }).click();
 	await expect
 		.poll(async () => (await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.basics.name)
 		.toBe(initial);

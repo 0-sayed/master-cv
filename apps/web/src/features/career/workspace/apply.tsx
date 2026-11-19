@@ -302,7 +302,7 @@ function AnswerCard({
 							<button
 								type="button"
 								onClick={onToggleUnit}
-								className="shrink-0 rounded-sm font-mono text-xs leading-[22px] font-medium tracking-[0.04em] text-ink-2 uppercase transition-colors duration-quick hover:text-ink"
+								className="shrink-0 rounded-sm type-metadata font-mono font-medium text-ink-2 uppercase transition-colors duration-quick hover:text-ink"
 							/>
 						}
 					>

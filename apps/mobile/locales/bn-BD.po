@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-17 06:47+0200\n"
+"POT-Creation-Date: 2026-11-18 09:46+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -676,8 +676,8 @@ msgid "24 hours before"
 msgstr "24 ঘণ্টা আগে"
 
 #: src/features/letters/share.tsx
-msgid "A backup of this letter. Imports back into Reactive Resume as a letter."
-msgstr "এই চিঠির একটি ব্যাকআপ. একটি চিঠি হিসাবে Reactive Resume এ আবার আমদানি করে।"
+msgid "A backup of this letter. Imports back into Sirawise as a letter."
+msgstr ""
 
 #: src/features/check/issues.ts
 msgid "A city and country let roles be matched to where you are."
@@ -1562,10 +1562,6 @@ msgstr "সহকারীকে এটিতে কাজ করতে বল�
 msgid "Ask the coach"
 msgstr "কোচকে জিজ্ঞাসা করুন"
 
-#: src/features/share/download.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "কমিউনিটিকে জিজ্ঞাসা করুন। পোস্ট করার আগে ব্যক্তিগত তথ্য সরিয়ে ফেলুন।"
-
 #: src/features/ai/error.ts
 msgid "Ask your server administrator to enable credential encryption or configure a shared connection."
 msgstr "আপনার সার্ভার প্রশাসককে শংসাপত্র এনক্রিপশন সক্ষম করতে বা একটি ভাগ করা সংযোগ কনফিগার করতে বলুন৷"
@@ -1600,7 +1596,6 @@ msgid "ATS checker"
 msgstr "ATS চেকার"
 
 #: src/features/ats-checker/checker.tsx
-#: src/features/search/search-screen.tsx
 msgid "ATS Checker"
 msgstr "ATS চেকার"
 
@@ -1864,10 +1859,6 @@ msgstr "বুলেটেড তালিকা"
 msgid "Burgundy"
 msgstr "বারগান্ডি"
 
-#: app/(tabs)/settings/index.tsx
-msgid "by <0>Amruth Pillai</0>"
-msgstr "তৈরি করেছেন <0>Amruth Pillai</0>"
-
 #: src/features/applications-board/views.tsx
 msgid "Calendar"
 msgstr "ক্যালেন্ডার"
@@ -1981,14 +1972,6 @@ msgstr "“{name}”-এ করা পরিবর্তন অন্য ডি�
 #: app/builder/[id]/_layout.tsx
 msgid "Check"
 msgstr "পরীক্ষা"
-
-#: src/features/search/search-screen.tsx
-msgid "Check a PDF"
-msgstr "একটি PDF চেক করুন"
-
-#: src/features/documents/new-document.tsx
-msgid "Check a PDF with the ATS checker"
-msgstr "ATS পরীক্ষক দিয়ে PDF পরীক্ষা করুন"
 
 #: src/features/ats-checker/checker.tsx
 msgid "Check a sample file"
@@ -2327,8 +2310,8 @@ msgid "Compares your resume with the posting"
 msgstr "চাকরির পোস্টিংয়ের সাথে আপনার জীবনবৃত্তান্তের তুলনা করুন"
 
 #: src/features/share/download.tsx
-msgid "Complete data backup. Imports back into Reactive Resume or JSON Resume tools."
-msgstr "সম্পূর্ণ ডাটা ব্যাকআপ। Reactive Resume বা JSON Resume সরঞ্জামগুলিতে আবার আমদানি করে৷"
+msgid "Complete data backup. Imports back into Sirawise or JSON Resume tools."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
@@ -3425,10 +3408,6 @@ msgstr "{0}-এর চাকরির বিজ্ঞপ্তি পাঠা�
 msgid "Don't share"
 msgstr "শেয়ার করবেন না"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Donate on Open Collective"
-msgstr "Open Collective-এ দান করুন"
-
 #: src/features/applications/list-screen.tsx
 #: src/features/career/today.tsx
 #: src/features/documents/library.tsx
@@ -3784,8 +3763,8 @@ msgid "Enter any model ID supported by your endpoint."
 msgstr "আপনার এন্ডপয়েন্ট দ্বারা সমর্থিত যেকোন মডেল আইডি লিখুন।"
 
 #: app/(auth)/server.tsx
-msgid "Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue."
-msgstr "ব্রাউজারে আপনি Reactive Resume যে ঠিকানাটি খুলছেন সেটি লিখুন৷ অ্যাপটি চেক করে যে এটি একটি Reactive Resume সার্ভার যা আপনি চালিয়ে যাওয়ার আগে অ্যাপ সাইন-ইন করার অনুমতি দেয়।"
+msgid "Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue."
+msgstr ""
 
 #: src/features/public/public-resume.tsx
 msgid "Enter the password the resume owner shared with you."
@@ -4186,10 +4165,6 @@ msgstr "“মতামত নিন” প্রশ্ন, আপনার উ�
 msgid "Get new roles here every morning"
 msgstr "প্রতিদিন সকালে এখানে নতুন পদ পান"
 
-#: src/features/share/download.tsx
-msgid "Get resume feedback on Discord"
-msgstr "Discord-এ জীবনবৃত্তান্তের মতামত নিন"
-
 #: src/features/letters/write.tsx
 msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "লম্বা হচ্ছে। \"ছোট\" চেষ্টা করুন, বা সর্বনিম্ন নির্দিষ্ট অনুচ্ছেদ কাটুন।"
@@ -4280,6 +4255,10 @@ msgstr "ফিরে শুনেছি"
 #: src/features/settings/locale-names.ts
 msgid "Hebrew"
 msgstr "হিব্রু"
+
+#: src/features/share/download.tsx
+msgid "Help"
+msgstr ""
 
 #: app/(tabs)/settings/index.tsx
 msgid "Help & docs"
@@ -4742,10 +4721,6 @@ msgstr "চাকরি খোঁজার পাইপলাইন"
 #: src/features/search/search-screen.tsx
 msgid "Jobs"
 msgstr "চাকরি"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Join the Discord"
-msgstr "Discord-এ যোগ দিন"
 
 #: src/features/letters/share.tsx
 #: src/features/share/download.tsx
@@ -5286,8 +5261,8 @@ msgid "Lower the design sheet"
 msgstr "নকশা শীট নিচে"
 
 #: src/features/public/public-resume.tsx
-msgid "Made with Reactive Resume, free and open source"
-msgstr "Reactive Resume দিয়ে তৈরি, বিনামূল্যে এবং ওপেন সোর্স"
+msgid "Made with Sirawise, free and open source"
+msgstr ""
 
 #. Layout editor column label for the primary content area
 #: src/features/design/layout-screen.tsx
@@ -5963,10 +5938,6 @@ msgstr "ছবি নেই। বেশিরভাগ ATS ফটোগুল�
 msgid "No postings found. Try different keywords."
 msgstr "কোন কাজের পোস্টিং পাওয়া যায়নি. বিভিন্ন কীওয়ার্ড চেষ্টা করুন।"
 
-#: src/auth/messages.ts
-msgid "No Reactive Resume server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
-msgstr "এই ঠিকানায় কোনো Reactive Resume সার্ভার উত্তর দেয়নি৷ বানান যাচাই করুন, অথবা সার্ভার অ্যাপ সাইন-ইন করার অনুমতি দেয় কিনা তা আপনার প্রশাসককে জিজ্ঞাসা করুন।"
-
 #: src/features/check/job-match.tsx
 msgid "No recognisable terms in this posting."
 msgstr "এই চাকরির বিজ্ঞাপনে কোন স্বীকৃত পদ নেই।"
@@ -5986,6 +5957,10 @@ msgstr "কোন ফলাফল নেই"
 #: src/features/letters/write.tsx
 msgid "No resume"
 msgstr "জীবনবৃত্তান্ত নেই"
+
+#: src/auth/messages.ts
+msgid "No Sirawise server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "No skills section was found."
@@ -6645,8 +6620,8 @@ msgid "PDF check cancelled. Retry when ready."
 msgstr "PDF চেক বাতিল করা হয়েছে। প্রস্তুত হলে আবার চেষ্টা করুন।"
 
 #: src/features/application-detail/sections.tsx
-msgid "PDF only · up to 10 MB each. Linking a Reactive Resume enables AI match scoring and tailoring."
-msgstr "শুধু PDF · প্রতিটি সর্বোচ্চ 10 MB। Reactive Resume লিংক করলে AI দিয়ে মিলের স্কোর ও চাকরি অনুযায়ী পরিবর্তন করা যায়।"
+msgid "PDF only · up to 10 MB each. Linking a Sirawise enables AI match scoring and tailoring."
+msgstr ""
 
 #: src/features/design/advanced.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
@@ -6654,11 +6629,11 @@ msgstr "PDF শৈলী CSS এর একটি উপসেট সমর্থ
 
 #: src/features/documents/new-document.tsx
 msgid "PDF uses your AI provider when one is ready. Turn off the AI switch to read its text layer on your server. Word (.docx) needs an AI provider. Current and v4 Reactive Resume JSON, cover letters, JSON Resume and LinkedIn exports (.zip) are supported. Up to 10 MB."
-msgstr "একটি প্রস্তুত হলে PDF আপনার AI প্রদানকারী ব্যবহার করে। আপনার সার্ভারে এর পাঠ্য স্তর পড়তে AI সুইচটি বন্ধ করুন৷ Word (.docx)-এর জন্য একজন AI প্রদানকারী প্রয়োজন৷ বর্তমান এবং v4 Reactive Resume JSON, কভার চিঠিপত্র, JSON Resume এবং LinkedIn এক্সপোর্ট (.zip) সমর্থিত। 10 এমবি পর্যন্ত।"
+msgstr "একটি প্রস্তুত হলে PDF আপনার AI প্রদানকারী ব্যবহার করে। আপনার সার্ভারে এর পাঠ্য স্তর পড়তে AI সুইচটি বন্ধ করুন৷ Word (.docx)-এর জন্য একজন AI প্রদানকারী প্রয়োজন৷ বর্তমান এবং v4 Sirawise JSON, কভার চিঠিপত্র, JSON Resume এবং LinkedIn এক্সপোর্ট (.zip) সমর্থিত। 10 এমবি পর্যন্ত।"
 
 #: src/features/documents/new-document.tsx
 msgid "PDF, Word, Reactive Resume, JSON Resume or LinkedIn export."
-msgstr "PDF, Word, Reactive Resume, JSON Resume বা LinkedIn এক্সপোর্ট।"
+msgstr "PDF, Word, Sirawise, JSON Resume বা LinkedIn এক্সপোর্ট।"
 
 #: src/features/career/offers.tsx
 #: src/features/career/preferences.tsx
@@ -7102,10 +7077,6 @@ msgstr "ফন্ট এমবেড করে পুনরায় এক্�
 msgid "Re-export with fonts embedded, then open the file and check that the text copies out cleanly."
 msgstr "ফন্ট এমবেড করে পুনরায় এক্সপোর্ট করুন, তারপর ফাইলটি খুলে যাচাই করুন যে টেক্সট পরিষ্কারভাবে কপি হয়।"
 
-#: src/auth/auth-header.tsx
-msgid "Reactive Resume"
-msgstr "Reactive Resume"
-
 #: src/features/workspace/tabs/prepare.tsx
 msgid "Read briefing"
 msgstr "ব্রিফিং পড়ুন"
@@ -7512,10 +7483,6 @@ msgstr "রিপোর্ট"
 msgid "Report AI content"
 msgstr "এআই কন্টেন্ট রিপোর্ট করুন"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Report an issue"
-msgstr "সমস্যা রিপোর্ট করুন"
-
 #: src/features/ai/report-content.tsx
 msgid "Report received by your server operator. Thank you."
 msgstr "আপনার সার্ভার অপারেটর দ্বারা প্রাপ্ত রিপোর্ট. ধন্যবাদ"
@@ -7607,10 +7574,6 @@ msgstr "জীবনবৃত্তান্ত লোড করা যায়
 #: src/features/document-menu/index.tsx
 msgid "Resume details"
 msgstr "সারসংকলন বিবরণ"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Resume feedback, product help, and community ideas."
-msgstr "জীবনবৃত্তান্তের মতামত, পণ্য সহায়তা ও কমিউনিটির আইডিয়া।"
 
 #: src/features/application-detail/sections.tsx
 msgid "Resume file"
@@ -8309,10 +8272,6 @@ msgstr "চাকরি খুঁজতে সেটিংস-এ ওয়ে�
 msgid "Settings"
 msgstr "সেটিংস"
 
-#: app/(tabs)/settings/ai-mcp.tsx
-msgid "Setup guide"
-msgstr "সেটআপ গাইড"
-
 #: src/features/ai/report-content.tsx
 msgid "Sexual content"
 msgstr "যৌন বিষয়বস্তু"
@@ -8615,6 +8574,11 @@ msgstr "সাইন আউট করেছেন, কিন্তু এই ড
 msgid "since last view"
 msgstr "শেষ দেখার পর থেকে"
 
+#: src/auth/auth-header.tsx
+#: src/shell/app-tabs.tsx
+msgid "Sirawise"
+msgstr "Sirawise"
+
 #: src/features/career/stories.tsx
 msgid "Situation (required)"
 msgstr "পরিস্থিতি (প্রয়োজনীয়)"
@@ -8756,10 +8720,6 @@ msgstr "উৎস"
 msgid "Source and correction history"
 msgstr "উত্স এবং সংশোধন ইতিহাস"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Source code on GitHub"
-msgstr "GitHub-এ সোর্স কোড"
-
 #: src/features/assistant/chat-view.tsx
 #: src/features/assistant/messages.tsx
 msgid "Sources"
@@ -8867,6 +8827,10 @@ msgstr "টাইপ করা শুরু করুন বা আমরা য
 #: src/features/letters/write.tsx
 msgid "Start typing, or draft from what we know: your resume."
 msgstr "টাইপ করা শুরু করুন, বা আমরা যা জানি তা থেকে খসড়া তৈরি করুন: আপনার জীবনবৃত্তান্ত।"
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr ""
 
 #: src/features/letters/write.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
@@ -10912,8 +10876,8 @@ msgid "your Knowledge"
 msgstr "আপনার জ্ঞানভান্ডার"
 
 #: app/(tabs)/settings/preferences.tsx
-msgid "Your language is saved. Restart Reactive Resume to apply the new left-to-right or right-to-left layout."
-msgstr "আপনার ভাষা সংরক্ষিত হয়. নতুন বাম-থেকে-ডান বা ডান-থেকে-বাম লেআউট প্রয়োগ করতে Reactive Resume পুনরায় চালু করুন৷"
+msgid "Your language is saved. Restart Sirawise to apply the new left-to-right or right-to-left layout."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Your lines are packed very tightly."

@@ -1,7 +1,6 @@
 import type * as React from "react";
 import { Drawer as SheetPrimitive } from "@base-ui/react/drawer";
-import { Button } from "@reactive-resume/ui/components/button";
-import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { useUiLabels } from "@reactive-resume/ui/components/ui-labels";
 import { cn } from "@reactive-resume/utils/style";
 
@@ -35,6 +34,8 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
 }
 
 type SheetContentProps = SheetPrimitive.Popup.Props & {
+	size?: "default" | "editor";
+	presentation?: "default" | "screen";
 	side?: "top" | "right" | "bottom" | "left";
 	showCloseButton?: boolean;
 	/** Accessible name of the close button; pass a translated string. */
@@ -50,6 +51,8 @@ function SheetContent({
 	className,
 	children,
 	side = "right",
+	size = "default",
+	presentation = "default",
 	showCloseButton = true,
 	closeLabel,
 	...props
@@ -59,6 +62,8 @@ function SheetContent({
 		<SheetPrimitive.Popup
 			data-slot="sheet-content"
 			data-side={side}
+			data-size={size}
+			data-presentation={presentation}
 			className={cn(
 				"pointer-events-auto fixed z-50 flex flex-col gap-4 bg-raised type-body text-ink shadow-e3 transition-[translate] duration-emphasized ease-enter outline-none data-ending-style:duration-[calc(var(--d3)*0.7)]",
 				"data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-full data-[side=left]:data-ending-style:-translate-x-full data-[side=left]:data-starting-style:-translate-x-full data-[side=left]:sm:max-w-[440px]",
@@ -68,11 +73,15 @@ function SheetContent({
 				// Swipe: Base UI moves the popup inline while dragging; on release it rests at the swipe offset and
 				// transitions back to 0, or leaves on the drawer curve, faster for a harder flick.
 				"data-swipe-dismiss:data-ending-style:duration-[calc(var(--d3)*0.7*var(--drawer-swipe-strength,1))] data-swipe-dismiss:data-ending-style:ease-drawer data-swiping:select-none data-[side=bottom]:[transform:translateY(var(--drawer-swipe-movement-y,0px))] data-[side=bottom]:transition-[translate,transform]",
+				presentation === "screen" &&
+					"inset-0 h-svh max-h-svh w-full max-w-none rounded-none pt-0 data-[side=bottom]:max-h-svh data-[side=bottom]:rounded-none data-[side=bottom]:pt-0 data-[side=left]:sm:max-w-none data-[side=right]:sm:max-w-none",
+				size === "editor" &&
+					"gap-0 pb-[env(safe-area-inset-bottom)] data-[side=bottom]:h-svh data-[side=bottom]:max-h-svh data-[side=bottom]:rounded-none data-[side=bottom]:pt-0 data-[side=left]:sm:max-w-(--editor-panel) data-[side=right]:sm:max-w-(--editor-panel)",
 				className,
 			)}
 			{...props}
 		>
-			{side === "bottom" && (
+			{side === "bottom" && size !== "editor" && presentation !== "screen" && (
 				<span aria-hidden="true" className="mx-auto block h-1 w-9 shrink-0 rounded-full bg-line-2" />
 			)}
 			{/* Content is where a mouse press clicks rather than starts a swipe; `contents` keeps it out of the layout. */}
@@ -81,10 +90,10 @@ function SheetContent({
 				<SheetPrimitive.Close
 					data-slot="sheet-close"
 					aria-label={closeLabel ?? labels.close}
-					render={<Button variant="ghost" className="absolute inset-e-3 top-3 text-ink-2" size="icon" />}
-				>
-					<Icon name="x" />
-				</SheetPrimitive.Close>
+					render={
+						<IconButton icon="x" label={closeLabel ?? labels.close} className="absolute inset-e-3 top-3 text-ink-2" />
+					}
+				/>
 			)}
 		</SheetPrimitive.Popup>
 	);

@@ -41,7 +41,8 @@ describe("transactional auth mail", () => {
 			);
 			expect(html).toContain(`lang="${locale}"`);
 			expect(html).toContain(`dir="${locale === "ar-SA" ? "rtl" : "ltr"}"`);
-			expect(html).toContain("Master CV");
+			expect(html).toContain(locale === "ar-SA" ? "سيراوايز" : "Sirawise");
+			expect(html).not.toContain("Master CV");
 			expect(html).not.toMatch(/fonts\.google|rxresu|<img|<script/);
 			expect(html).toContain("https://master.example.test/verify?token=synthetic");
 		}

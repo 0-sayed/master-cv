@@ -82,7 +82,7 @@ export function BasicsCard({ locked }: { locked: boolean }) {
 				<CollapsibleContent>
 					<fieldset
 						disabled={locked}
-						className="m-0 grid min-w-0 grid-cols-2 gap-x-3 gap-y-2.5 border-0 border-t border-line px-3 pt-3 pb-3.5"
+						className="editor-panel-fields m-0 grid min-w-0 grid-cols-2 gap-x-3 gap-y-2.5 border-0 border-t border-line px-3 pt-3 pb-3.5"
 					>
 						<PhotoRow locked={locked} />
 						<TextField
@@ -236,15 +236,17 @@ function CustomFields({ fields, locked }: CustomFieldsProps) {
 					/>
 				</div>
 			))}
-			<button
+			<Button
+				variant="ghost"
+				size="row"
 				type="button"
 				disabled={locked}
-				className="flex h-9 w-fit items-center gap-1.5 rounded-lg px-2 text-sm text-accent-text hover:bg-hover disabled:pointer-events-none disabled:opacity-50"
+				className="w-fit gap-1.5"
 				onClick={() => edit("add", (list) => list.push({ id: generateId(), icon: "acorn", text: "", link: "" }))}
 			>
 				<Icon name="plus" size={18} />
 				<Trans>Add field</Trans>
-			</button>
+			</Button>
 		</div>
 	);
 }

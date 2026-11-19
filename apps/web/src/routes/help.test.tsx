@@ -7,6 +7,7 @@ import { I18nProvider } from "@lingui/react";
 import { HelpRoute } from "./help";
 
 const state = vi.hoisted(() => ({ session: null as null | { user: { id: string } } }));
+vi.mock("@/features/public-session", () => ({ usePublicSession: () => ({ session: state.session, pending: false }) }));
 vi.mock("@tanstack/react-router", () => ({
 	createFileRoute: () => () => ({ useRouteContext: () => state }),
 	Link: ({ to, children }: { to: string; children: ReactNode }) => <a href={to}>{children}</a>,

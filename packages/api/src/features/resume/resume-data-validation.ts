@@ -1,5 +1,6 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { ORPCError } from "@orpc/client";
+import { hasBlankHeadingChange } from "@reactive-resume/resume/ats";
 import { SEMANTIC_CSS_LIMITS_V1 } from "@reactive-resume/resume/stylesheet";
 import { parseResumeData } from "@reactive-resume/schema/resume/data";
 import { syncResumeDates, upgradeResumeDates } from "@reactive-resume/schema/resume/dates";
@@ -23,8 +24,11 @@ function parseApiResumeData(data: unknown, code: "BAD_REQUEST" | "INTERNAL_SERVE
 }
 
 /** Validates data before it's saved, then writes each entry's date text from its structured dates. */
-export const parseWritableResumeData = (data: unknown) => {
+export const parseWritableResumeData = (data: unknown, previous?: ResumeData) => {
 	const parsed = parseApiResumeData(data, "BAD_REQUEST", "Resume data does not match the canonical schema.");
+	if (previous && hasBlankHeadingChange(previous, parsed)) {
+		throw new ORPCError("BAD_REQUEST", { message: "Choose a non-empty section heading." });
+	}
 	upgradeResumeDates(parsed);
 	syncResumeDates(parsed);
 	return parsed;

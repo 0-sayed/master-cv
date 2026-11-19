@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { expect, test } from "../fixtures/test";
 
-test("public API and MCP metadata identify this Master CV instance", async ({ request, baseURL }) => {
+test("public API and MCP metadata identify this Sirawise instance", async ({ request, baseURL }) => {
 	if (!baseURL) throw new Error("The browser test requires a configured baseURL");
 	const origin = new URL(baseURL).origin;
 	if (!isFeatureAvailable("userApi")) {
@@ -16,13 +16,13 @@ test("public API and MCP metadata identify this Master CV instance", async ({ re
 	const specResponse = await request.get("/openapi.json");
 	await expect(specResponse).toBeOK();
 	const spec = await specResponse.json();
-	expect(spec.info.title).toBe("Master CV");
-	expect(spec.info.contact).toEqual({ name: "Master CV", url: "https://github.com/0-sayed/master-cv" });
+	expect(spec.info.title).toBe("Sirawise");
+	expect(spec.info.contact).toEqual({ name: "Sirawise", url: "https://github.com/0-sayed/master-cv" });
 	expect(spec.externalDocs.description).toBe("Upstream documentation");
 	const cardResponse = await request.get("/.well-known/mcp/server-card.json");
 	await expect(cardResponse).toBeOK();
 	const { serverInfo } = await cardResponse.json();
-	expect(serverInfo.title).toBe("Master CV");
+	expect(serverInfo.title).toBe("Sirawise");
 	expect(serverInfo.name).toBe("reactive-resume"); // Retain the machine identifier for existing clients.
 	expect(serverInfo.websiteUrl).toBe(origin);
 	for (const theme of ["light", "dark"]) {
@@ -46,8 +46,8 @@ test("obsolete upstream funding identity and install previews are no longer publ
 	}
 });
 
-test("the downloaded application chart includes the Master CV mark", async ({ authPage: page }) => {
-	for (let index = 0; index < 3; index++) {
+test("the downloaded application chart includes the Sirawise mark", async ({ authPage: page }) => {
+	for (let index = 0; index < 5; index++) {
 		await expect(
 			await page.request.post("/api/openapi/applications", {
 				data: { company: `Synthetic brand check ${index}`, role: "Engineer", status: "applied" },
@@ -55,10 +55,29 @@ test("the downloaded application chart includes the Master CV mark", async ({ au
 		).toBeOK();
 	}
 	await page.goto("/dashboard/applications?view=insights");
-	await expect(page.getByRole("img", { name: "Pipeline flow", exact: true })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "How far applications get", exact: true })).toBeVisible();
+	await page.evaluate(() => {
+		const descriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
+		if (!descriptor?.set) throw new Error("Image source instrumentation is unavailable");
+		const nativeSetter = descriptor.set;
+		Object.defineProperty(HTMLImageElement.prototype, "src", {
+			...descriptor,
+			set(value: string) {
+				if (value.startsWith("data:image/svg+xml"))
+					document.documentElement.dataset.funnelSvg = decodeURIComponent(value.slice(value.indexOf(",") + 1));
+				nativeSetter.call(this, value);
+			},
+		});
+	});
 	const pending = page.waitForEvent("download");
 	await page.getByRole("button", { name: "Export PNG", exact: true }).click();
 	const download = await pending;
+	const svg = await page.locator("html").getAttribute("data-funnel-svg");
+	expect(svg).toContain("5 / 5");
+	expect(svg).toContain("Applications sent");
+	expect(svg).toContain(
+		new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Riyadh", year: "numeric" }).format(new Date()),
+	);
 	expect(await download.failure()).toBeNull();
 	const path = await download.path();
 	if (!path) throw new Error("The chart export did not produce a file");

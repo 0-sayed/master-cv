@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, stripSearchParams, useNavigate, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import z from "zod";
+import { Alert, AlertActions, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	DropdownMenu,
@@ -14,6 +15,7 @@ import {
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@reactive-resume/ui/components/input-group";
 import { Label } from "@reactive-resume/ui/components/label";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
@@ -26,10 +28,14 @@ import { PageHeader } from "@/components/layout/page-header";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { AddApplicationDialog } from "@/features/applications/components/add-application-dialog";
 import { ApplicationBoard } from "@/features/applications/components/board";
-import { ApplicationCalendar } from "@/features/applications/components/calendar-view";
+import { ApplicationCalendar, ApplicationCalendarSkeleton } from "@/features/applications/components/calendar-view";
 import { ExportApplicationsSheet } from "@/features/applications/components/export-applications-sheet";
 import { ImportApplicationsSheet } from "@/features/applications/components/import-applications-sheet";
 import { ApplicationInsights, InsightsSkeleton } from "@/features/applications/components/insights-view";
+import {
+	ApplicationGroupToggle,
+	useApplicationGroupCollapse,
+} from "@/features/applications/components/list-group-collapse";
 import { ApplicationList } from "@/features/applications/components/list-view";
 import { getNextStep } from "@/features/applications/next-step";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
@@ -84,6 +90,7 @@ function matches(application: Application, query: string) {
 }
 
 function RouteComponent() {
+	const groupCollapse = useApplicationGroupCollapse();
 	const { q, view, closed, create } = Route.useSearch();
 	const navigate = useNavigate({ from: Route.fullPath });
 	// Typing filters at once; the URL only seeds the search.
@@ -113,7 +120,7 @@ function RouteComponent() {
 	const shown: View = view;
 	const loading = useSkeletonLoading(isPending);
 	const empty = !loading.pending && !!applications && applications.length === 0;
-	const noMatches = !!applications && !empty && text && filtered.length === 0;
+	const noMatches = shown !== "insights" && !!applications && !empty && text && filtered.length === 0;
 
 	return (
 		<div className="contents">
@@ -124,7 +131,7 @@ function RouteComponent() {
 					<>
 						<DropdownMenu>
 							<DropdownMenuTrigger
-								render={<Button size="toolbar-icon" variant="secondary" aria-label={t`Import or export CSV`} />}
+								render={<Button size="toolbar-icon" variant="ghost" aria-label={t`Import or export CSV`} />}
 							>
 								<Icon name="arrows-down-up" />
 							</DropdownMenuTrigger>
@@ -192,6 +199,14 @@ function RouteComponent() {
 								<Trans>Show closed</Trans>
 							</Label>
 						)}
+						{shown === "list" && (
+							<ApplicationGroupToggle
+								state={groupCollapse}
+								statuses={filtered
+									.filter((application) => closed || application.status !== "closed")
+									.map((application) => application.status)}
+							/>
+						)}
 					</>
 				)}
 			</PageHeader>
@@ -199,20 +214,23 @@ function RouteComponent() {
 			{applications && <FollowUpNudge applications={applications} onOpen={openApplication} />}
 
 			{isError && (
-				<div
-					role="alert"
-					className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line p-4"
-				>
-					<p className="type-body text-danger-text">
+				<Alert role="alert" variant={applications ? "warn" : "error"}>
+					<Icon name="warning" />
+					<AlertTitle>
 						<Trans>Couldn't load applications. Try again.</Trans>
-					</p>
-					<Button variant="secondary" disabled={isFetching} onClick={() => void refetch()}>
-						<Trans>Retry</Trans>
-					</Button>
-				</div>
+					</AlertTitle>
+					<AlertDescription>
+						<Trans>Check your connection and try again.</Trans>
+					</AlertDescription>
+					<AlertActions>
+						<Button variant="secondary" disabled={isFetching} onClick={() => void refetch()}>
+							<Trans>Retry</Trans>
+						</Button>
+					</AlertActions>
+				</Alert>
 			)}
 
-			{isError && !applications ? null : empty ? (
+			{isError && !applications ? null : empty && shown !== "insights" ? (
 				<FirstApplication onAdd={() => setAdding(true)} onImport={() => setImporting(true)} />
 			) : (
 				<>
@@ -240,6 +258,7 @@ function RouteComponent() {
 						>
 							{shown === "list" && (
 								<ApplicationList
+									collapseState={groupCollapse}
 									applications={filtered}
 									showClosed={closed}
 									onOpen={(application) => openApplication(application.id)}
@@ -337,9 +356,14 @@ function FollowUpNudge({ applications, onOpen }: { applications: Application[]; 
 			<Button size="sm" variant="secondary" onClick={() => onOpen(waiting.application.id)}>
 				<Trans>Open</Trans>
 			</Button>
-			<Button size="icon-sm" variant="ghost" aria-label={t`Dismiss`} onClick={dismiss} className="text-warn-text">
-				<Icon name="x" size={18} />
-			</Button>
+			<IconButton
+				size="icon-sm"
+				label={t`Dismiss`}
+				onClick={dismiss}
+				className="text-warn-text"
+				icon="x"
+				iconSize={18}
+			/>
 		</div>
 	);
 }
@@ -371,6 +395,7 @@ function FirstApplication({ onAdd, onImport }: { onAdd: () => void; onImport: ()
 /** Each view's shape while applications load, so the first rows land where the placeholders were. */
 function ViewSkeleton({ view }: { view: View }) {
 	if (view === "insights") return <InsightsSkeleton />;
+	if (view === "calendar") return <ApplicationCalendarSkeleton />;
 	if (view === "list")
 		return (
 			<div className="grid gap-2 pt-10">

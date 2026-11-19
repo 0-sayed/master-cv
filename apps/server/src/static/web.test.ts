@@ -36,13 +36,46 @@ vi.mock("@reactive-resume/env/server", () => ({
 const { handleWebApp } = await import("./web");
 
 describe("web app fallback classification", () => {
+	it.each(["GET", "HEAD"])("permanently redirects legacy review links on %s", async (method) => {
+		const response = await handleWebApp(
+			new Request("https://rxresu.me/dashboard/ats-guide?rule=MISSING_EMAIL&locale=ar-SA#rule-MISSING_EMAIL", {
+				method,
+			}),
+		);
+		expect(response.status).toBe(308);
+		expect(response.headers.get("location")).toBe(
+			"/dashboard/review-guide?rule=MISSING_EMAIL&locale=ar-SA#rule-MISSING_EMAIL",
+		);
+		expect(await response.text()).toBe("");
+	});
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mocks.env.APP_URL = "https://rxresu.me";
 		mocks.env.ROOT_RESUME_ID = undefined;
 		vi.mocked(fs.readFile).mockResolvedValue("<html>app</html>");
 		mocks.getPublicResumeSocialMeta.mockResolvedValue(null);
 		mocks.getSession.mockResolvedValue(null);
 	});
+
+	it.each(["http://127.0.0.1:23100", "https://sirawise.io"])(
+		"keeps the configured origin and localized brand at %s",
+		async (origin) => {
+			mocks.env.APP_URL = origin;
+			vi.mocked(fs.readFile).mockResolvedValue(
+				"<html><head><title>Sirawise</title></head><body>Local fixture</body></html>",
+			);
+			for (const [locale, brand] of [
+				["ar-SA", "سيراوايز"],
+				["en-US", "Sirawise"],
+			]) {
+				const html = await (await handleWebApp(new Request(`${origin}/?locale=${locale}`))).text();
+				expect(html).toContain(`property="og:site_name" content="${brand}"`);
+				expect(html).toContain(`"name":"${brand}"`);
+				expect(html).toContain(`href="${origin}/`);
+				expect(html).not.toContain("Master CV");
+			}
+		},
+	);
 
 	it.each([
 		["en-US", "ar-SA"],
@@ -125,12 +158,12 @@ describe("web app fallback classification", () => {
 			<!doctype html>
 			<html>
 				<head>
-					<title>Master CV — A free and open-source resume builder</title>
-					<meta data-public-seo property="og:site_name" content="Master CV">
-					<meta name="twitter:title" content="Master CV">
+					<title>Sirawise — A free and open-source resume builder</title>
+					<meta data-public-seo property="og:site_name" content="Sirawise">
+					<meta name="twitter:title" content="Sirawise">
 					<meta
 						name="description"
-						content="Master CV is a free and open-source resume builder that makes it easy to create, update, and share your resume."
+						content="Sirawise is a free and open-source resume builder that makes it easy to create, update, and share your resume."
 					>
 				</head>
 				<body><div id="app"></div></body>
@@ -144,7 +177,7 @@ describe("web app fallback classification", () => {
 		expect(html).toContain('<meta data-public-seo property="og:url" content="https://rxresu.me/">');
 		expect(html).toContain('<script data-public-seo type="application/ld+json">');
 		expect(html).toContain(
-			'<meta data-public-seo property="og:description" content="Master CV is a free and open-source resume builder that makes it easy to create, update, and share your resume.">',
+			'<meta data-public-seo property="og:description" content="Sirawise is a free and open-source resume builder that makes it easy to create, update, and share your resume.">',
 		);
 		expect(html).not.toContain("amruth@rxresu.me");
 		expect(html.match(/property="og:site_name"/g)).toHaveLength(1);
@@ -179,41 +212,20 @@ describe("web app fallback classification", () => {
 		expect(await unknown.text()).toContain('<div id="app">ar-SA</div>');
 	});
 
-	describe("the ATS checker page", () => {
-		const shell = `<html><head><title>Master CV — A free and open-source resume builder</title><meta name="description" content="Marketing copy."></head><body></body></html>`;
-
-		it("serves an indexable shell rather than a 404", async () => {
-			vi.mocked(fs.readFile).mockResolvedValue(shell);
-
-			const response = await handleWebApp(new Request("https://example.com/ats-checker"));
-
-			expect(response.status).toBe(200);
-			expect(response.headers.get("Content-Type")).toBe("text/html; charset=UTF-8");
-			expect(response.headers.get("X-Robots-Tag")).toBeNull();
-		});
-
-		it("serves the prerendered page in the requested locale, with its own title on the social cards", async () => {
-			vi.mocked(fs.readFile).mockImplementation((path) => {
-				const match = String(path).match(/dist-prerender\/ats-checker\/(.+)\.html$/);
-				if (!match) return Promise.resolve(shell);
-				return Promise.resolve(
-					`<html><head><title>ATS-Prüfung &amp; mehr</title><meta name="description" content="Lesbar?"></head><body><div id="app">${match[1]}</div></body></html>`,
-				);
-			});
-
-			const html = await (await handleWebApp(new Request("https://example.com/ats-checker?locale=en-US"))).text();
-
-			expect(html).toContain('<div id="app">en-US</div>');
-			expect(html).toContain(
-				'<link data-public-seo rel="canonical" href="https://rxresu.me/ats-checker?locale=en-US">',
+	describe("retired public ATS route", () => {
+		it("serves the client redirect shell without indexing or public checker metadata", async () => {
+			vi.mocked(fs.readFile).mockResolvedValue(
+				'<html><head><title>Sirawise</title></head><body><div id="app"></div></body></html>',
 			);
-			expect(html).toContain('<meta data-public-seo property="og:title" content="ATS-Prüfung &amp; mehr">');
-			expect(html).toContain('<meta data-public-seo property="og:locale" content="en_US">');
+			const response = await handleWebApp(new Request("https://example.com/ats-checker"));
+			expect(response.status).toBe(200);
+			expect(response.headers.get("X-Robots-Tag")).toContain("noindex");
+			expect(await response.text()).not.toContain("opengraph/ats-checker.png");
 		});
 	});
 
 	describe("public resume social cards", () => {
-		const shell = `<html><head><title>Master CV — A free and open-source resume builder</title><meta name="description" content="Marketing copy."></head><body></body></html>`;
+		const shell = `<html><head><title>Sirawise — A free and open-source resume builder</title><meta name="description" content="Marketing copy."></head><body></body></html>`;
 
 		it("escapes user-authored values so resume content cannot break out of the attribute", async () => {
 			vi.mocked(fs.readFile).mockResolvedValue(shell);
@@ -243,7 +255,7 @@ describe("web app fallback classification", () => {
 
 			const html = await (await handleWebApp(new Request("https://example.com/jane/resume"))).text();
 
-			expect(html).toContain("<title>Jane $&amp; $&#39; Doe — Master CV</title>");
+			expect(html).toContain("<title>Jane $&amp; $&#39; Doe — Sirawise</title>");
 			expect(html).toContain('<meta name="description" content="Costs $$ and $` nothing">');
 		});
 	});

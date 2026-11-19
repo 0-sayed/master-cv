@@ -93,7 +93,7 @@ export function TextField({
 	const error = touched ? validate?.(value) : undefined;
 
 	return (
-		<FormItem hasError={Boolean(error)} className={cn(wide && "col-span-full")}>
+		<FormItem hasError={Boolean(error)} className={cn("editor-panel-short-field min-w-0", wide && "col-span-full")}>
 			<FormLabel>{label}</FormLabel>
 			<FormControl
 				render={
@@ -129,7 +129,7 @@ export function WebsiteField({ label, value, onChange, allowInlineLink = true }:
 	const inline = value.inlineLink ?? false;
 
 	return (
-		<div className="col-span-full grid gap-2">
+		<div className="editor-panel-short-field col-span-full grid min-w-0 gap-2">
 			<FormItem hasError={Boolean(error)}>
 				<FormLabel>{label ?? <Trans>Link</Trans>}</FormLabel>
 				<FormControl

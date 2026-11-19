@@ -9,14 +9,28 @@ import { useEffect, useId, useRef, useState } from "react";
 import { ActionFeedback } from "@reactive-resume/ui/components/action-feedback";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
+import { EditorPanelBody, EditorPanelFooter } from "@reactive-resume/ui/components/editor-panel";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import {
+	InputGroup,
+	InputGroupInput,
+	InputGroupAddon,
+	InputGroupText,
+} from "@reactive-resume/ui/components/input-group";
 import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
 import { useCurrentResume, useResumeStore } from "@/features/resume/builder/draft";
-import { useOpenIssueCount } from "@/features/resume/editor/check/use-check";
 import { useReadiness } from "@/features/resume/editor/check/use-readiness";
-import { createExportFile, getDefaultFileName, sanitizeFileName } from "@/features/resume/export/use-resume-export";
+import { useExportHistoryScroll } from "@/features/resume/editor/export-history-scroll";
+import { useEditorStore } from "@/features/resume/editor/store";
+import {
+	createExportFile,
+	getDefaultFileName,
+	sanitizeFileName,
+	normalizePdfFileNameStem,
+} from "@/features/resume/export/use-resume-export";
 import { getReadableErrorMessage } from "@/libs/error-message";
 
 export type DownloadFormat<Id extends string = ExportFormat> = {
@@ -95,30 +109,36 @@ export function FormatRadioGroup<Id extends string>({ formats, value, onChange }
 	);
 }
 
-type FileNameFieldProps = { value: string; extension: string; hint: ReactNode; onChange: (value: string) => void };
+type FileNameFieldProps = {
+	value: string;
+	extension: string;
+	hint: ReactNode;
+	onChange: (value: string) => void;
+	onBlur?: () => void;
+};
 
-/** The file name recruiters see, with the extension shown after it. Characters file systems reject are dropped. */
-export function FileNameField({ value, extension, hint, onChange }: FileNameFieldProps) {
+export function FileNameField({ value, extension, hint, onChange, onBlur }: FileNameFieldProps) {
 	const id = useId();
-
 	return (
-		<div className="grid gap-1.5">
-			<label htmlFor={id} className="text-xs font-medium text-ink-2">
+		<div className="grid gap-2">
+			<label htmlFor={id} className="type-label">
 				<Trans>File name</Trans>
 			</label>
-			<div className="flex h-[38px] items-center overflow-hidden rounded-lg border border-line-2 bg-raised focus-within:border-accent focus-within:ring-3 focus-within:ring-accent-soft">
-				<input
+			<InputGroup dir="ltr">
+				<InputGroupInput
 					dir="auto"
 					id={id}
 					value={value}
 					spellCheck={false}
 					aria-describedby={`${id}-hint`}
-					onChange={(event) => onChange(sanitizeFileName(event.target.value))}
-					className="h-full min-w-0 flex-1 bg-transparent ps-2.5 font-mono text-[13px] font-medium text-ink outline-none"
+					onChange={(event) => onChange(onBlur ? event.target.value : sanitizeFileName(event.target.value))}
+					onBlur={onBlur}
 				/>
-				<span className="px-2.5 font-mono text-[13px] font-medium text-ink-3">{extension}</span>
-			</div>
-			<span id={`${id}-hint`} className="text-xs text-ink-3">
+				<InputGroupAddon align="inline-end">
+					<InputGroupText dir="ltr">{extension}</InputGroupText>
+				</InputGroupAddon>
+			</InputGroup>
+			<span id={`${id}-hint`} className="type-caption text-ink-2">
 				{hint}
 			</span>
 		</div>
@@ -138,8 +158,7 @@ type DownloadActionsProps = {
 };
 
 /**
- * The failure alert (with PDF as the fallback) and the 44px button that shows its progress. After a download, a
- * one-line thank-you asks for a donation: the moment someone has what they came for is the one time it's fair to ask.
+ * The failure alert (with PDF as the fallback) and the 44px button that shows its progress.
  */
 export function DownloadActions({ state, label, onDownload, onDownloadPdf, disabled }: DownloadActionsProps) {
 	return (
@@ -152,11 +171,15 @@ export function DownloadActions({ state, label, onDownload, onDownloadPdf, disab
 					</AlertTitle>
 					<AlertDescription>
 						<p>
-							<Trans>The {label} file couldn't be generated. Try again, or download PDF instead.</Trans>
+							{onDownloadPdf ? (
+								<Trans>The {label} file couldn't be generated. Try again, or download PDF instead.</Trans>
+							) : (
+								<Trans>The {label} file could not be generated. Try again.</Trans>
+							)}
 						</p>
 					</AlertDescription>
 					<AlertActions>
-						<Button variant="secondary" disabled={disabled} onClick={onDownload}>
+						<Button disabled={disabled} onClick={onDownload}>
 							<Trans>Try again</Trans>
 						</Button>
 						{onDownloadPdf && (
@@ -180,7 +203,7 @@ export function DownloadActions({ state, label, onDownload, onDownloadPdf, disab
 						<ActionFeedback
 							state={state === "busy" ? "pending" : state === "done" ? "ready" : "idle"}
 							label={t`Download ${label}`}
-							pendingLabel={t`Preparing…`}
+							pendingLabel={t`Preparing PDF…`}
 							readyLabel={t`PDF ready`}
 						/>
 					) : state === "busy" ? (
@@ -209,14 +232,36 @@ export function DownloadActions({ state, label, onDownload, onDownloadPdf, disab
 export function DownloadTab({ onReview }: { onReview: () => void }) {
 	const resume = useCurrentResume();
 	const conflict = useResumeStore((state) => state.saveStatus === "conflict");
-	const formats = getExportFormats();
-	const [name, setName] = useState(() => getDefaultFileName(resume));
+	const [localName, setLocalName] = useState(() => getDefaultFileName(resume));
+	const savedName = useEditorStore((state) => state.exportHistorySession?.fileName);
+	const name = savedName ?? localName;
+	const setName = (value: string) => {
+		setLocalName(value);
+		useEditorStore.getState().setExportHistoryFileName(value);
+	};
+	const scroll = useExportHistoryScroll("download");
+	const phone = useBreakpoint() === "mobile";
 	const [state, setState] = useState<DownloadState>("idle");
-	const issues = useOpenIssueCount();
 	const { results } = useReadiness();
-	const pdfBlockers =
-		(results.pdf.state === "complete" || results.pdf.state === "partial") &&
-		results.pdf.issues.some((issue) => issue.severity === "blocker");
+	const current = results.pdf.state === "complete" || results.pdf.state === "partial";
+	const blockers = current && results.pdf.issues.some((issue) => issue.severity === "blocker");
+	const findings = current && results.pdf.issues.length > 0;
+	const advice = blockers
+		? t`There is an issue that may block reading`
+		: results.pdf.state === "complete"
+			? findings
+				? t`Review the findings before sending. PDF download is free.`
+				: t`Review is complete. PDF download is free.`
+			: results.pdf.state === "checking"
+				? t`Review is in progress. PDF download is free.`
+				: results.pdf.state === "failed"
+					? t`Review failed. Open Review to try again. PDF download is free.`
+					: results.pdf.state === "partial" || results.pdf.state === "skipped"
+						? t`Review is incomplete. PDF download is free.`
+						: results.pdf.state === "stale"
+							? t`Review is out of date. PDF download is free.`
+							: t`Review has not run. PDF download is free.`;
+	const stem = normalizePdfFileNameStem(name, getDefaultFileName(resume));
 	const active = useRef(true);
 	const inFlight = useRef(false);
 	useEffect(() => {
@@ -227,12 +272,18 @@ export function DownloadTab({ onReview }: { onReview: () => void }) {
 	}, []);
 	const download = async () => {
 		if (inFlight.current || useResumeStore.getState().saveStatus === "conflict") return;
+		const fileName = `${stem}.pdf`;
+		setName(stem);
 		inFlight.current = true;
 		setState("busy");
 		try {
 			const blob = await createExportFile(resume, "pdf");
-			if (!active.current || useResumeStore.getState().saveStatus === "conflict") return;
-			downloadWithAnchor(blob, `${sanitizeFileName(name) || getDefaultFileName(resume)}.pdf`);
+			if (!active.current) return;
+			if (useResumeStore.getState().saveStatus === "conflict") {
+				setState("idle");
+				return;
+			}
+			downloadWithAnchor(blob, fileName);
 			setState("done");
 		} catch (error) {
 			if (active.current) {
@@ -244,49 +295,72 @@ export function DownloadTab({ onReview }: { onReview: () => void }) {
 		}
 	};
 	return (
-		<div className="grid gap-4">
-			<FormatRadioGroup formats={formats} value="pdf" onChange={() => {}} />
-			<FileNameField
-				value={name}
-				onChange={setName}
-				extension=".pdf"
-				hint={<Trans>Choose the file name you want to send.</Trans>}
-			/>
-			{pdfBlockers && (
-				<Alert variant="warn">
-					<Icon name="warning" />
-					<AlertTitle>
-						<Trans>There is an issue that may block reading</Trans>
-					</AlertTitle>
-					<AlertDescription>
-						<p>
-							<Trans>PDF download remains available. Review the findings before sending it.</Trans>
-						</p>
-					</AlertDescription>
-					<AlertActions>
-						<Button variant="secondary" onClick={onReview}>
-							<Trans>View issues</Trans>
+		<>
+			<EditorPanelBody {...scroll}>
+				<div className="grid gap-6">
+					<div className="flex items-start gap-3">
+						<Icon name="file-pdf" />
+						<div className="grid gap-2">
+							<h3 className="type-section">PDF</h3>
+							<p className="type-body text-ink-2">
+								<Trans>For applications and printing, with selectable and searchable text.</Trans>
+							</p>
+						</div>
+					</div>
+					<p className="type-caption flex items-center gap-2 text-ink-2">
+						<Icon name="file-text" />
+						<Trans>Word export is not available.</Trans>
+					</p>
+					<FileNameField
+						value={name}
+						onChange={setName}
+						onBlur={() => setName(stem)}
+						extension=".pdf"
+						hint={<Trans>Choose the file name you want to send.</Trans>}
+					/>
+					<p className="type-body text-ink-2">
+						<Trans>File preview</Trans>:{" "}
+						<bdi dir="ltr" className="break-all">
+							{stem}.pdf
+						</bdi>
+					</p>
+				</div>
+			</EditorPanelBody>
+			<EditorPanelFooter>
+				<div className="grid gap-3">
+					<p className="flex items-start gap-2 type-body text-ink-2">
+						<Icon name={findings ? "warning-circle" : "info"} />
+						<span>{advice}</span>
+					</p>
+					<Button id="export-review-button" variant="secondary" onClick={onReview}>
+						<Trans>Review</Trans>
+					</Button>
+					{conflict && (
+						<Alert variant="warn">
+							<Icon name="warning" />
+							<AlertTitle>
+								<Trans>Resolve the save conflict before downloading.</Trans>
+							</AlertTitle>
+							<AlertActions>
+								<Button variant="secondary" onClick={() => useEditorStore.getState().setShareTab(null)}>
+									<Trans>Resolve save conflict</Trans>
+								</Button>
+							</AlertActions>
+						</Alert>
+					)}
+					{phone && (
+						<Button
+							id="export-preview-download"
+							variant="secondary"
+							onClick={() => useEditorStore.getState().setExportHistoryPreview(true)}
+						>
+							<Icon name="eye" />
+							<Trans>Preview PDF</Trans>
 						</Button>
-					</AlertActions>
-				</Alert>
-			)}
-			{issues > 0 && !pdfBlockers && (
-				<Alert variant="warn">
-					<Icon name="warning-circle" />
-					<AlertTitle>
-						<Trans>Review your CV</Trans>
-					</AlertTitle>
-					<AlertDescription>
-						<Trans>There is information to review. PDF download remains free and available.</Trans>
-					</AlertDescription>
-					<AlertActions>
-						<Button variant="secondary" onClick={onReview}>
-							<Trans>Review now</Trans>
-						</Button>
-					</AlertActions>
-				</Alert>
-			)}
-			<DownloadActions disabled={conflict} state={state} label="PDF" onDownload={() => void download()} />
-		</div>
+					)}
+					<DownloadActions disabled={conflict} state={state} label="PDF" onDownload={() => void download()} />
+				</div>
+			</EditorPanelFooter>
+		</>
 	);
 }

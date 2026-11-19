@@ -16,14 +16,15 @@ for (const locale of ["en-US", "ar-SA"])
 			await page.context().addCookies([{ name: "locale", value: locale, url: String(testInfo.project.use.baseURL) }]);
 			await page.setViewportSize({ width, height: 1000 });
 			await page.goto("/ats-checker");
+			await expect(page).toHaveURL(/\/$/u);
 			await expect(page.locator('input[type="file"]')).toHaveCount(0);
 			await expect(page.locator(".score-ring")).toHaveCount(0);
 			await expect(
-				page.getByRole("link", {
-					name: locale === "ar-SA" ? "فتح مساحة العمل الخاصة" : "Open private workspace",
+				page.locator('section[aria-labelledby="landing-title"]').getByRole("link", {
+					name: locale === "ar-SA" ? "يلا، ابدأ مجانًا" : "Start free",
 					exact: true,
 				}),
-			).toHaveAttribute("href", "/auth/login");
+			).toHaveAttribute("href", `/auth/register?locale=${locale}&callbackURL=%2Fdashboard`);
 			await page.screenshot({ path: testInfo.outputPath("private-checker.png"), fullPage: true });
 		});
 

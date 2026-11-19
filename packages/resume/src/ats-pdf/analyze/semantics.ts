@@ -1,4 +1,14 @@
 import type { ExtractedDocument, RawExtraction, ResumeSemantics, TextLine } from "../types";
+import {
+	arabicBulletBodies,
+	arabicBullets,
+	arabicFirstPersonCount,
+	hasArabicContent,
+	isArabicQuantified,
+	isLongArabicBullet,
+	startsWithArabicAction,
+	startsWithArabicText,
+} from "./arabic-content";
 import { analyzeContact } from "./contact";
 import { analyzeDates } from "./dates";
 import { detectHeadings, sectionTypesOf } from "./sections";
@@ -7,6 +17,9 @@ import { analyzeTextQuality } from "./text-quality";
 const BULLET_PREFIX = /^\s*(?:[•▪◦‣·∙●○■□▶▸*+]|[-–—]\s|[\u{E000}-\u{F8FF}])\s*/u;
 const LONG_BULLET_CHARS = 220;
 const FIRST_PERSON = /\b(?:I|I'm|I've|my|me|myself)\b/g;
+
+export const firstPersonCount = (text: string) =>
+	(text.match(FIRST_PERSON) ?? []).length + arabicFirstPersonCount(text);
 
 /** Share of a page's height that counts as the running-head zone at either end. */
 const RUNNING_HEAD_BAND = 0.08;
@@ -33,7 +46,17 @@ const isBullet = (line: TextLine) => BULLET_PREFIX.test(line.text);
 
 const bulletBody = (line: TextLine) => line.text.replace(BULLET_PREFIX, "").trim();
 
-function isQuantified(text: string): boolean {
+export function bulletLines(document: ExtractedDocument): { text: string; lines: TextLine[] }[] {
+	return hasArabicContent(document.fullText)
+		? arabicBullets(document)
+		: document.lines.filter(isBullet).map((line) => ({ text: bulletBody(line), lines: [line] }));
+}
+
+export const isLongBullet = (text: string) =>
+	startsWithArabicText(text) ? isLongArabicBullet(text) : text.length > LONG_BULLET_CHARS;
+
+export function isQuantified(text: string): boolean {
+	if (hasArabicContent(text)) return isArabicQuantified(text);
 	// A bare year is not an achievement metric; a percentage, a currency figure or a real
 	// magnitude is.
 	if (/\d+\s*%|[$€£¥]\s*\d|\d+\s*x\b/i.test(text)) return true;
@@ -43,13 +66,14 @@ function isQuantified(text: string): boolean {
 	});
 }
 
-function startsWithActionVerb(text: string): boolean {
+export function startsWithActionVerb(text: string): boolean {
+	if (startsWithArabicText(text)) return startsWithArabicAction(text);
 	const first = text.trim().split(/\s+/)[0];
 	if (!first) return false;
 	return ACTION_VERBS.has(first.toLowerCase().replace(/[^a-z]/g, ""));
 }
 
-function uppercaseHeavy(text: string): boolean {
+export function uppercaseHeavy(text: string): boolean {
 	const letters = text.match(/\p{L}/gu) ?? [];
 	if (letters.length < 12) return false;
 
@@ -149,8 +173,9 @@ export function buildResumeSemantics(
 	// The source document locale is explicit evidence, not an interface preference.
 	if (/^ar(?:-|$)/i.test(raw.metadata.language ?? "")) quality.isEnglish = false;
 
-	const bulletLines = document.lines.filter(isBullet);
-	const bullets = bulletLines.map(bulletBody);
+	const bullets = hasArabicContent(document.fullText)
+		? arabicBulletBodies(document)
+		: document.lines.filter(isBullet).map(bulletBody);
 
 	return {
 		locale,
@@ -159,13 +184,13 @@ export function buildResumeSemantics(
 		contact,
 		dates: dates.tokens,
 		quality,
-		bulletLineCount: bulletLines.length,
+		bulletLineCount: bullets.length,
 		roleLikeLineCount: document.lines.filter(isRoleLike).length,
 		allCapsLineCount: document.lines.filter((line) => uppercaseHeavy(line.text)).length,
 		quantifiedBulletCount: bullets.filter(isQuantified).length,
 		actionVerbBulletCount: bullets.filter(startsWithActionVerb).length,
-		firstPersonCount: (document.fullText.match(FIRST_PERSON) ?? []).length,
-		longBulletCount: bullets.filter((bullet) => bullet.length > LONG_BULLET_CHARS).length,
+		firstPersonCount: firstPersonCount(document.fullText),
+		longBulletCount: bullets.filter(isLongBullet).length,
 		unparseableRanges: dates.unparseableRanges,
 		ambiguousNumericDates: dates.ambiguousNumericDates,
 		employmentGapYears: dates.gaps,

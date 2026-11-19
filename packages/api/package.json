@@ -4,6 +4,9 @@
 	"type": "module",
 	"private": true,
 	"exports": {
+		"./features/applications/service": "./src/features/applications/service.ts",
+		"./features/documents/service": "./src/features/documents/service.ts",
+		"./features/ai/public-features": "./src/features/ai/public-features.ts",
 		"./features/ai/writer-policy": "./src/features/ai/writer-policy.ts",
 		"./features/ai/adapter": "./src/features/ai/adapter.ts",
 		"./features/ai/payload": "./src/features/ai/payload.ts",
@@ -12,6 +15,8 @@
 		"./features/ai/verifier-policy": "./src/features/ai/verifier-policy.ts",
 		"./features/ai/review-validation": "./src/features/ai/review-validation.ts",
 		"./features/ai/review-handlers": "./src/features/ai/review-handlers.ts",
+		"./features/ai/variant-handlers": "./src/features/ai/variant-handlers.ts",
+		"./features/cover-letters/review-handler": "./src/features/cover-letters/review-handler.ts",
 		"./features/ai/operation-worker": "./src/features/ai/operation-worker.ts",
 		"./features/ai/route-policy": "./src/features/ai/route-policy.ts",
 		"./context": "./src/context.ts",
@@ -38,7 +43,9 @@
 		"./features/ai/variant-verifier": "./src/features/ai/variant-verifier.ts",
 		"./features/ai/variant-guard": "./src/features/ai/variant-guard.ts",
 		"./features/privacy/work": "./src/features/privacy/work.ts",
-		"./features/privacy/delivery": "./src/features/privacy/delivery.ts"
+		"./features/privacy/delivery": "./src/features/privacy/delivery.ts",
+		"./features/career/plain-text": "./src/features/career/plain-text.ts",
+		"./features/career/service": "./src/features/career/service.ts"
 	},
 	"scripts": {
 		"typecheck": "tsrs --noEmit",

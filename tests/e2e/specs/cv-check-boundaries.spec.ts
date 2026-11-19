@@ -9,6 +9,7 @@ test("anonymous PDF checks are denied and the public checker has no upload", asy
 	});
 	expect(response.status()).toBe(401);
 	await page.goto("/ats-checker");
+	await expect(page).toHaveURL(/\/$/u);
 	await expect(page.locator("input[type=file]")).toHaveCount(0);
-	await expect(page.getByRole("heading", { name: "Check your CV in your private workspace" })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Your CV, as clear as your experience.", exact: true })).toBeVisible();
 });

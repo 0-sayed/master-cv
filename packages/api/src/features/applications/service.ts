@@ -50,8 +50,8 @@ function atFromDateString(date: string, existing?: Date | string): Date {
 	return parsed;
 }
 
-function stageEntry(stage: ApplicationStatus, date?: string): ApplicationTimelineEntry {
-	return { id: generateId(), type: "stage", stage, at: date ? atFromDateString(date) : new Date() };
+function stageEntry(stage: ApplicationStatus, date?: string, historicalAt?: Date): ApplicationTimelineEntry {
+	return { id: generateId(), type: "stage", stage, at: historicalAt ?? (date ? atFromDateString(date) : new Date()) };
 }
 
 function noteEntry(text: string, date?: string): ApplicationTimelineEntry {
@@ -515,11 +515,12 @@ export const applicationService = {
 				closedReason?: ApplicationClosedReason | null | undefined;
 				stageEnteredAt?: string | undefined;
 			},
+		options: { stageAt?: Date } = {},
 	) => {
 		const { userId, status, stageEnteredAt, closedReason, resumeFile, coverLetterFile, ...fields } = input;
 		const id = generateId();
 		const initialStatus = status ?? "saved";
-		const activity = [stageEntry(initialStatus, stageEnteredAt)];
+		const activity = [stageEntry(initialStatus, stageEnteredAt, options.stageAt)];
 
 		await assertOwnedResume(userId, fields.resumeId);
 		await assertOwnedCoverLetter(userId, fields.coverLetterId);
@@ -597,6 +598,7 @@ export const applicationService = {
 				expectedUpdatedAt?: string | undefined;
 				closedReason?: ApplicationClosedReason | null | undefined;
 			},
+		options: { stageAt?: Date } = {},
 	) => {
 		const existing = await requireOwned(input.id, input.userId);
 
@@ -628,7 +630,7 @@ export const applicationService = {
 		if (fields.resumeId !== existing.resumeId) await assertOwnedResume(userId, fields.resumeId);
 		await assertOwnedCoverLetter(userId, fields.coverLetterId);
 
-		const statusEntry = status !== undefined ? stageEntry(status, stageEnteredAt) : undefined;
+		const statusEntry = status !== undefined ? stageEntry(status, stageEnteredAt, options.stageAt) : undefined;
 		// Append in SQL so concurrent notes/stage events are not overwritten by a stale array.
 		const activityExpr =
 			statusEntry !== undefined

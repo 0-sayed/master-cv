@@ -6,6 +6,7 @@ import { ButtonGroup } from "@reactive-resume/ui/components/button-group";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { DocumentMenu } from "./document-menu";
 import { LocaleSwitch } from "@/features/locale/switch";
 import { useCurrentResume, useResumeStore } from "@/features/resume/builder/draft";
@@ -50,12 +51,18 @@ export function EditorBar({ layout, pinnable }: EditorBarProps) {
 const MODE_ICONS = { write: "pencil-simple", design: "palette", check: "list-checks" } as const;
 
 function ModeTabs() {
-	const labels: Record<EditorMode, string> = { write: t`Write`, design: t`Design`, check: t`Check` };
+	const labels: Record<EditorMode, string> = { write: t`Write`, design: t`Design`, check: t`Review` };
 
 	return (
-		<TabsList aria-label={t`Editor mode`} className="h-9" data-mode-switch="">
+		<TabsList aria-label={t`Editor mode`} size="toolbar" data-mode-switch="">
 			{(Object.keys(MODE_ICONS) as EditorMode[]).map((mode) => (
-				<TabsTrigger key={mode} value={mode} className="px-4">
+				<TabsTrigger
+					key={mode}
+					value={mode}
+					onClick={() => {
+						if (mode === "check") useEditorStore.getState().setReviewExpanded(true);
+					}}
+				>
 					<Icon name={MODE_ICONS[mode]} size={18} />
 					{labels[mode]}
 				</TabsTrigger>
@@ -93,52 +100,66 @@ function DownloadButtons({ compact, iconOnly, disabled }: ToolbarActionProps & {
 
 	if (compact) {
 		return (
-			<Button
-				size="icon"
-				variant="ghost"
-				aria-label={t`Download PDF`}
-				aria-busy={isExporting || undefined}
-				disabled={disabled || isExporting}
-				onClick={() => setShareTab("download")}
-			>
-				<ActionFeedback
-					state={downloadState}
-					label={t`Download PDF`}
-					pendingLabel={t`Preparing…`}
-					readyLabel={t`PDF ready`}
-					iconOnly
-				/>
-			</Button>
+			<Tooltip>
+				<TooltipTrigger
+					render={
+						<Button
+							size="icon"
+							variant="ghost"
+							aria-label={t`Download PDF`}
+							aria-busy={isExporting || undefined}
+							disabled={disabled || isExporting}
+							onClick={() => setShareTab("download")}
+						/>
+					}
+				>
+					<ActionFeedback
+						state={downloadState}
+						label={t`Download PDF`}
+						pendingLabel={t`Preparing…`}
+						readyLabel={t`PDF ready`}
+						iconOnly
+					/>
+				</TooltipTrigger>
+				<TooltipContent>{t`Download PDF`}</TooltipContent>
+			</Tooltip>
 		);
 	}
 
 	return (
 		<ButtonGroup variant="split" aria-label={t`Download`}>
 			{/* Tablets drop the label so the bar fits beside the mode switch; the button keeps its name. */}
-			<Button
-				aria-busy={isExporting || undefined}
-				disabled={disabled || isExporting}
-				size={iconOnly ? "icon" : "default"}
-				aria-label={t`Download PDF`}
-				className="gap-1.5"
-				onClick={() => void onDownloadPDF()}
-			>
-				<ActionFeedback
-					state={downloadState}
-					label={t`Download PDF`}
-					pendingLabel={t`Preparing…`}
-					readyLabel={t`PDF ready`}
-					iconOnly={iconOnly ?? false}
-				/>
-			</Button>
-			<Button
+			<Tooltip>
+				<TooltipTrigger
+					render={
+						<Button
+							variant={iconOnly ? "ghost" : "primary"}
+							aria-busy={isExporting || undefined}
+							disabled={disabled || isExporting}
+							size={iconOnly ? "icon" : "default"}
+							aria-label={t`Download PDF`}
+							className="gap-1.5"
+							onClick={() => void onDownloadPDF()}
+						/>
+					}
+				>
+					<ActionFeedback
+						state={downloadState}
+						label={t`Download PDF`}
+						pendingLabel={t`Preparing…`}
+						readyLabel={t`PDF ready`}
+						iconOnly={iconOnly ?? false}
+					/>
+				</TooltipTrigger>
+				<TooltipContent>{t`Download PDF`}</TooltipContent>
+			</Tooltip>
+			<IconButton
 				size={iconOnly ? "icon" : "toolbar-icon"}
 				disabled={disabled || isExporting}
-				aria-label={t`More download formats`}
+				label={t`More download formats`}
 				onClick={() => setShareTab("download")}
-			>
-				<Icon name="caret-down" />
-			</Button>
+				icon="caret-down"
+			/>
 		</ButtonGroup>
 	);
 }

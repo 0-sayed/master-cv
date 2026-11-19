@@ -439,7 +439,7 @@ function FactRow({ fact, onStatus, onCorrect, onShare, onForget }: FactRowProps)
 							type="button"
 							onClick={action.onClick}
 							aria-expanded={action.expanded}
-							className="touch-target relative flex h-7 items-center gap-1 rounded-sm px-2 text-xs font-medium text-ink-2 transition-colors duration-quick hover:bg-hover hover:text-ink"
+							className="touch-target relative flex h-7 items-center gap-1 rounded-sm px-2 type-metadata font-medium text-ink-2 transition-colors duration-quick hover:bg-hover hover:text-ink"
 						>
 							<Icon name={action.icon} size={16} />
 							{action.label}

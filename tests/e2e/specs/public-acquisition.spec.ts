@@ -88,7 +88,7 @@ test("landing logo runs once and stays static with reduced motion", async ({ pag
 	await settleScreen(page);
 	const logo = page.getByRole("banner").locator('[data-slot="brand-mark"]:visible');
 	const before = await logo.getAttribute("class");
-	await page.getByRole("link", { name: "Master CV", exact: true }).hover();
+	await page.getByRole("banner").getByRole("link", { name: "Sirawise", exact: true }).hover();
 	await page.getByRole("button", { name: "Switch interface to Arabic" }).click();
 	await settleScreen(page);
 	expect(await logo.getAttribute("class")).toBe(before);
@@ -147,7 +147,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await settleScreen(page);
 		await page
 			.getByRole("banner")
-			.getByRole("link", { name: locale === "ar-SA" ? "تسجيل الدخول" : "Sign in", exact: true })
+			.getByRole("link", { name: locale === "ar-SA" ? "افتح مساحة عملي" : "Open my workspace", exact: true })
 			.click();
 		await expect(page).toHaveURL(/dashboard/);
 		await settleScreen(page);

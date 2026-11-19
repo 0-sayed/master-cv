@@ -87,12 +87,12 @@ const healthResponseSchema = {
 export async function generateOpenApiSpec({ appUrl, version }: GenerateOpenApiSpecOptions) {
 	const spec = await openAPIGenerator.generate(openAPIRouter, {
 		info: {
-			title: "Master CV",
+			title: "Sirawise",
 			version,
 			description:
-				"Master CV API. Mutations do not support Idempotency-Key. Do not automatically retry POST, PUT, PATCH or DELETE requests after a timeout: first read the resource to determine whether the operation succeeded. Existing enum values and response shapes are retained for compatibility.",
+				"Sirawise API. Mutations do not support Idempotency-Key. Do not automatically retry POST, PUT, PATCH or DELETE requests after a timeout: first read the resource to determine whether the operation succeeded. Existing enum values and response shapes are retained for compatibility.",
 			license: { name: "MIT", url: "https://github.com/reactive-resume/reactive-resume/blob/main/LICENSE" },
-			contact: { name: "Master CV", url: "https://github.com/0-sayed/master-cv" },
+			contact: { name: "Sirawise", url: "https://github.com/0-sayed/master-cv" },
 		},
 		servers: [{ url: `${appUrl}/api/openapi` }],
 		paths: {

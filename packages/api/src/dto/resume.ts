@@ -231,6 +231,9 @@ export const resumeDto = {
 			versionId: z.string().describe("The ID of the version snapshot to restore."),
 			expectedUpdatedAt: z.coerce.date().optional(),
 		}),
-		output: resumeSchema.omit({ password: true, userId: true }).extend({ hasPassword: z.boolean() }),
+		output: resumeSchema.omit({ password: true, userId: true }).extend({
+			hasPassword: z.boolean(),
+			beforeRestoreVersionId: z.string().describe("The exact checkpoint retained immediately before this restore."),
+		}),
 	},
 };

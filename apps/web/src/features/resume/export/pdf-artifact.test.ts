@@ -2,6 +2,7 @@ import type { createResumePdfBlob } from "./pdf-document";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { clearPdfArtifacts, getPdfArtifact } from "./pdf-artifact";
+import { clearPersonalStorage } from "@/libs/browser-storage";
 const mocks = vi.hoisted(() => ({
 	render: vi.fn<typeof createResumePdfBlob>(async () => new Blob(["synthetic-pdf"])),
 }));
@@ -16,6 +17,46 @@ beforeEach(() => {
 	mocks.render.mockClear();
 });
 describe("selected PDF artifacts", () => {
+	it("never returns the old PDF after an edit even when revision counters match", async () => {
+		mocks.render.mockImplementationOnce(async (data) => new Blob([data.basics.name]));
+		const input = snapshot();
+		input.data.basics.name = "Before edit";
+		const before = await getPdfArtifact(input);
+		input.data.basics.name = "After edit";
+		mocks.render.mockImplementationOnce(async (data) => new Blob([data.basics.name]));
+		const after = await getPdfArtifact(input);
+		expect(await before.blob.text()).toBe("Before edit");
+		expect(await after.blob.text()).toBe("After edit");
+		expect(after.inputHash).not.toBe(before.inputHash);
+	});
+	it("releases private artifacts on sign-out", async () => {
+		await getPdfArtifact(snapshot());
+		clearPersonalStorage();
+		await getPdfArtifact(snapshot());
+		expect(mocks.render).toHaveBeenCalledTimes(2);
+	});
+	it("reuses unchanged bytes across reopening and save acknowledgements with the current identity", async () => {
+		const first = await getPdfArtifact(snapshot());
+		const reopened = snapshot();
+		reopened.identity.editGeneration = 0;
+		reopened.identity.baseRevision = "saved-v2";
+		const next = await getPdfArtifact(reopened);
+		expect(next.blob).toBe(first.blob);
+		expect(next.identity).toEqual(reopened.identity);
+		expect(mocks.render).toHaveBeenCalledTimes(1);
+	});
+	it.each(["content", "template", "locale", "fonts"])("regenerates changed %s after reopening", async (change) => {
+		const first = await getPdfArtifact(snapshot());
+		const edited = snapshot();
+		if (change === "content") edited.data.basics.name = "Edited name";
+		if (change === "template") edited.data.metadata.template = "rhyhorn";
+		if (change === "locale") edited.data.metadata.page.locale = "ar-SA";
+		if (change === "fonts")
+			vi.stubGlobal("__PDF_BUILD__", { renderer: "forme-test", template: "template-source-hash", fonts: "new-fonts" });
+		const next = await getPdfArtifact(edited);
+		expect(next.inputHash).not.toBe(first.inputHash);
+		expect(mocks.render).toHaveBeenCalledTimes(2);
+	});
 	it("preserves no character loss when the renderer does not report any", async () => {
 		const artifact = await getPdfArtifact(snapshot());
 		expect(artifact.lostCharacters).toBeNull();

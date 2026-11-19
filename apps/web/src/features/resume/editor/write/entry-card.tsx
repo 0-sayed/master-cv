@@ -137,7 +137,7 @@ export function EntryCard({ section, entryId, index, count, page, locked, onMove
 					onClick={toggle}
 					onKeyDown={onTitleKeyDown}
 					className={cn(
-						"flex min-w-0 flex-1 flex-col items-start gap-0.5 rounded-[9px] py-2.5 pe-2 text-start",
+						"flex min-w-0 flex-1 flex-col items-start gap-0.5 rounded-lg py-2.5 pe-2 text-start",
 						locked ? "ps-3" : "ps-0.5",
 					)}
 				>
@@ -176,7 +176,7 @@ export function EntryCard({ section, entryId, index, count, page, locked, onMove
 					<CollapsibleContent>
 						<fieldset
 							disabled={locked}
-							className="m-0 grid min-w-0 gap-y-2.5 border-0 border-t border-line px-3 pt-3 pb-3.5"
+							className="editor-panel-fields m-0 grid min-w-0 gap-y-2.5 border-0 border-t border-line px-3 pt-3 pb-3.5"
 						>
 							{fields}
 						</fieldset>

@@ -61,7 +61,8 @@ for (const locale of ["ar-SA", "en-US"] as const)
 				await page.screenshot({ path: join(folder, `${screen}-${locale}-${width}.png`), fullPage: true });
 			}
 			await page
-				.getByRole("button", { name: locale === "ar-SA" ? "خيارات طلب التقديم" : "Application options" })
+				.locator(".record-header")
+				.getByRole("button", { name: locale === "ar-SA" ? "المزيد من الإجراءات" : "More actions", exact: true })
 				.click();
 			await page.getByRole("menuitem").first().click();
 			await settleScreen(page);

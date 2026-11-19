@@ -1,10 +1,15 @@
 import type { ContactEntities, ExtractedDocument, RawExtraction, TextLine } from "../types";
+import { normalizeNumericDigits } from "@reactive-resume/utils/string";
+import { normalizeSectionHeading, PDF_SECTION_HEADING_LOOKUP } from "../../ats/section-aliases";
+import { columnSegments } from "../extract";
+import { THRESHOLDS } from "../rules/thresholds";
 
 const EMAIL_PATTERN = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
 /** Same shape without `g`: a stateful `lastIndex` would make `.test()` alternate between calls. */
 const EMAIL_TEST = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/;
 /** Seven to fifteen digits, the ITU range, with the separators people actually type. */
-const PHONE_PATTERN = /(?:\+\d{1,3}[\s.-]?)?(?:\(\d{1,4}\)[\s.-]?)?\d[\d\s.()-]{5,17}\d/g;
+const PHONE_PATTERN =
+	/(?:\+[0-9٠-٩۰-۹]{1,3}[\s.-]?)?(?:\([0-9٠-٩۰-۹]{1,4}\)[\s.-]?)?[0-9٠-٩۰-۹][0-9٠-٩۰-۹\s.()-]{5,17}[0-9٠-٩۰-۹]/g;
 const URL_PATTERN = /(?:https?:\/\/|www\.)[^\s<>"')\]]+/gi;
 const BARE_DOMAIN_PATTERN = /\b(?:[\w-]+\.)+(?:com|org|net|io|dev|me|co|ai|app|xyz|edu|gov)(?:\/[^\s<>"')\]]*)?/gi;
 
@@ -19,7 +24,7 @@ function uniqueStrings(values: readonly string[]): string[] {
 }
 
 function digitsIn(value: string): number {
-	return (value.match(/\d/g) ?? []).length;
+	return (value.match(/[0-9٠-٩۰-۹]/g) ?? []).length;
 }
 
 function extractPhones(text: string): string[] {
@@ -31,7 +36,7 @@ function extractPhones(text: string): string[] {
 			.filter((candidate) => {
 				const digits = digitsIn(candidate);
 				if (digits < 7 || digits > 15) return false;
-				if (/^(?:19|20)\d{2}\s*[-–—]?\s*(?:19|20)\d{2}$/.test(candidate)) return false;
+				if (/^(?:19|20)\d{2}\s*[-–—]?\s*(?:19|20)\d{2}$/.test(normalizeNumericDigits(candidate))) return false;
 				// A year range or a street number is digits too; a phone number is mostly digits.
 				return digits / candidate.replace(/\s/g, "").length > 0.55;
 			}),
@@ -122,17 +127,51 @@ function looksLikeName(line: TextLine): boolean {
 export function analyzeContact(raw: RawExtraction, document: ExtractedDocument): ContactEntities {
 	const text = document.fullText;
 
-	const emails = uniqueStrings(text.match(EMAIL_PATTERN) ?? []);
-	const phones = extractPhones(text);
+	// Reference contacts do not belong to the candidate. Track known sections independently
+	// in each column so a reference heading does not hide a contact in the other column.
+	const candidateLines: string[] = [];
+	const referencesByColumn = new Map<number, boolean>();
+	for (const page of document.pages) {
+		for (const line of page.lines) {
+			for (const segment of columnSegments(line)) {
+				const gutter = page.gutter;
+				const column =
+					gutter && gutter.splitRatio >= THRESHOLDS.layout.gutterSplitRatio && segment.x >= gutter.x + gutter.width / 2
+						? 1
+						: 0;
+				const section = PDF_SECTION_HEADING_LOOKUP.get(normalizeSectionHeading(segment.text));
+				if (section) referencesByColumn.set(column, section === "references");
+				if (!referencesByColumn.get(column)) candidateLines.push(segment.text);
+			}
+		}
+	}
+	const candidateText = candidateLines.join("\n");
+	const emails = uniqueStrings(candidateText.match(EMAIL_PATTERN) ?? []);
+	const contactLines: string[] = [];
+	for (const line of (document.pages[0]?.lines ?? []).slice(0, FIRST_PAGE_CONTACT_LINES)) {
+		const startsSection = columnSegments(line).some((segment) => {
+			const section = PDF_SECTION_HEADING_LOOKUP.get(normalizeSectionHeading(segment.text));
+			return section && section !== "profiles";
+		});
+		if (startsSection) break;
+		contactLines.push(line.text);
+	}
+	const personalEmails = [
+		...new Map(
+			(contactLines.join("\n").match(EMAIL_PATTERN) ?? []).map((email) => [email.toLowerCase(), email]),
+		).values(),
+	];
+	const phones = extractPhones(candidateText);
 
 	const fullUrls = uniqueStrings(text.match(URL_PATTERN) ?? []);
 	// A bare-domain hit is the same link twice when it sits inside a full URL, and not a link at
 	// all when it is the domain half of an email address.
+	const allEmails = uniqueStrings(text.match(EMAIL_PATTERN) ?? []);
 	const bareUrls = uniqueStrings(text.match(BARE_DOMAIN_PATTERN) ?? []).filter(
-		(url) => !fullUrls.some((full) => full.includes(url)) && !emails.some((email) => email.endsWith(`@${url}`)),
+		(url) => !fullUrls.some((full) => full.includes(url)) && !allEmails.some((email) => email.endsWith(`@${url}`)),
 	);
 
-	const textUrls = [...fullUrls, ...bareUrls].filter((url) => !emails.some((email) => url.includes(email)));
+	const textUrls = [...fullUrls, ...bareUrls].filter((url) => !allEmails.some((email) => url.includes(email)));
 
 	const annotationUrls = uniqueStrings(raw.links.map((link) => link.url).filter((url): url is string => !!url));
 
@@ -153,6 +192,7 @@ export function analyzeContact(raw: RawExtraction, document: ExtractedDocument):
 
 	return {
 		emails,
+		personalEmails,
 		phones,
 		textUrls,
 		annotationUrls,

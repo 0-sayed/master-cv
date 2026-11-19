@@ -100,7 +100,7 @@ export default function CustomServer() {
 					</Text>
 				) : null}
 				<Text variant="callout" color="ink3">
-					{t`Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue.`}
+					{t`Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue.`}
 				</Text>
 			</ScrollView>
 			<KeyboardStickyView offset={{ opened: insets.bottom - space.s2 }}>

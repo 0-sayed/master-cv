@@ -393,12 +393,12 @@ export function AppSidebar(props: BottomTabBarProps) {
 		>
 			<Text
 				variant="heading"
-				accessibilityLabel="Reactive Resume"
+				accessibilityLabel={t`Sirawise`}
 				align={compact ? "center" : undefined}
 				numberOfLines={1}
 				style={{ paddingHorizontal: compact ? 0 : space.s3, paddingBottom: space.s3 }}
 			>
-				{compact ? "Rx" : "Reactive Resume"}
+				{compact ? "S" : t`Sirawise`}
 			</Text>
 			{compact ? (
 				<View style={{ alignItems: "center" }}>

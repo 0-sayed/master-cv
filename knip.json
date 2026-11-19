@@ -33,11 +33,14 @@
 			]
 		},
 		"apps/web": {
+			"paths": {
+				"/@react-refresh": ["./src/react-refresh.d.ts"],
+				"/@vite/client": ["./src/react-refresh.d.ts"]
+			},
 			"entry": [
 				"lingui.config.ts",
 				"vitest.config.ts",
 				"src/features/homepage/prerender.tsx",
-				"src/features/ats-checker/checker.tsx",
 				"src/features/ats-checker/pending-import.ts",
 				"src/features/resume/builder/password-dialog.tsx",
 				"src/features/resume/editor/check/job-match.tsx",

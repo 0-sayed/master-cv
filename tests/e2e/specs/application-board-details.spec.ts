@@ -42,6 +42,10 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			await expect(page.locator("#application-activity")).toBeVisible();
 			await expect(page.locator("#application-activity").locator("..")).not.toContainText(/[٠-٩۰-۹]/u);
 			const columns = page.locator('[data-slot="application-detail-columns"]');
+			await expect(columns.locator(":scope > div")).toContainText("Manual activity");
+			await expect(columns.locator(":scope > aside")).toContainText(
+				locale === "ar-SA" ? "إدارة المستندات" : "Manage documents",
+			);
 			const count = await columns.evaluate(
 				(element) => getComputedStyle(element).gridTemplateColumns.split(" ").length,
 			);
@@ -49,7 +53,8 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
 			await page.screenshot({ path: join(folder, `details-${locale}-${width}.png`), fullPage: true });
 			await page
-				.getByRole("button", { name: locale === "ar-SA" ? "خيارات طلب التقديم" : "Application options" })
+				.locator(".record-header")
+				.getByRole("button", { name: locale === "ar-SA" ? "المزيد من الإجراءات" : "More actions", exact: true })
 				.click();
 			await page.getByRole("menuitem").first().click();
 			await expect(page.getByRole("dialog")).toBeVisible();

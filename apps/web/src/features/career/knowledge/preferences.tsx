@@ -8,6 +8,7 @@ import { Link } from "@tanstack/react-router";
 import { m } from "motion/react";
 import { useId, useRef, useState } from "react";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
 import { SuccessTick } from "@reactive-resume/ui/components/success-tick";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
@@ -134,7 +135,7 @@ function PreferencesForm({ initial }: PreferencesFormProps) {
 					<button
 						type="button"
 						onClick={() => flush(true)}
-						className="text-xs text-ink-3 underline underline-offset-2 hover:text-ink"
+						className="type-metadata text-ink-3 underline underline-offset-2 hover:text-ink"
 					>
 						<Trans>Retry</Trans>
 					</button>
@@ -301,14 +302,13 @@ function ChipField({ label, placeholder, value, onChange }: ChipFieldProps) {
 						className="flex h-7 items-center gap-0.5 rounded-sm bg-sunken ps-2.5 pe-1 text-[13px] font-medium"
 					>
 						{chip}
-						<button
+						<IconButton
 							type="button"
-							aria-label={t`Remove ${chip}`}
+							label={t`Remove ${chip}`}
 							onClick={() => onChange(value.filter((item) => item !== chip))}
-							className="touch-target relative flex size-[22px] items-center justify-center rounded-[5px] text-ink-3 transition-colors duration-quick hover:bg-hover hover:text-ink"
-						>
-							<Icon name="x" size={16} />
-						</button>
+							icon="x"
+							iconSize={16}
+						/>
 					</span>
 				))}
 				<input

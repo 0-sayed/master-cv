@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { useRef } from "react";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { toast } from "@reactive-resume/ui/components/toast";
 
 export type FileAttachment = { url: string; name: string };
@@ -48,15 +49,16 @@ export function FileAttachmentField({ value, onChange, attachLabel, disabled }: 
 							{value.name}
 						</a>
 					)}
-					<button
+					<IconButton
 						type="button"
 						title={t`Remove file`}
+						label={t`Remove file`}
 						disabled={disabled}
-						className="text-ink-3 hover:text-danger-text disabled:opacity-40"
+
 						onClick={() => onChange(null)}
-					>
-						<Icon name="x" size={16} />
-					</button>
+						icon="x"
+						iconSize={16}
+					/>
 				</div>
 			) : (
 				<button

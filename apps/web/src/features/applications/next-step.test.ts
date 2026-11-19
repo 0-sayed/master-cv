@@ -30,7 +30,7 @@ const interview = (at: Date, id = "i1"): Application["activity"][number] => ({
 });
 
 describe("getNextStep", () => {
-	it("puts the earliest interview still to come first", () => {
+	it("chooses the earliest dated next action", () => {
 		const step = getNextStep(
 			application({
 				status: "interview",
@@ -39,12 +39,23 @@ describe("getNextStep", () => {
 			}),
 			NOW,
 		);
-		expect(step).toMatchObject({ kind: "interview", interview: { id: "soon" } });
+		expect(step).toMatchObject({ kind: "follow-up", at: day(1) });
 	});
 
 	it("suggests a follow-up after ten days without a reply, and counts the wait before that", () => {
 		expect(getNextStep(application(), NOW)).toEqual({ kind: "waiting", days: 3 });
 		const quiet = application({ activity: [{ id: "s1", type: "stage", stage: "applied", at: day(-12) }] });
 		expect(getNextStep(quiet, NOW)).toEqual({ kind: "no-reply", days: 12 });
+	});
+});
+
+it("prioritizes an ongoing interview and suppresses dated steps when closed", () => {
+	const activity = [interview(new Date(NOW.getTime() - 30 * 60000), "ongoing")];
+	expect(getNextStep(application({ activity, followUpAt: day(-1) }), NOW)).toMatchObject({
+		kind: "interview",
+		interview: { id: "ongoing" },
+	});
+	expect(getNextStep(application({ activity, followUpAt: day(-1), status: "closed" }), NOW)).toEqual({
+		kind: "closed",
 	});
 });

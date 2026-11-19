@@ -97,8 +97,8 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 						await expect(page.getByRole("menuitem")).toHaveCount(5);
 						await expect(page.getByRole("menuitem")).toHaveText(
 							locale === "ar-SA"
-								? ["الإعدادات", "المساعدة", "اللغة", "المظهر", "تسجيل الخروج"]
-								: ["Settings", "Help", "Language", "Theme", "Sign out"],
+								? ["الإعدادات", "المساعدة", "دليل المراجعة", "اللغة", "تسجيل الخروج"]
+								: ["Settings", "Help", "Review guide", "Language", "Sign out"],
 						);
 						await page.keyboard.press("Escape");
 					}
@@ -126,7 +126,9 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					await expect(preferences).toHaveCount(1);
 					await preferences.click();
 					await expect(
-						page.getByRole("radio", { name: locale === "ar-SA" ? "فاتح" : "Light", exact: true }),
+						page
+							.getByRole("radiogroup", { name: locale === "ar-SA" ? "المظهر" : "Theme", exact: true })
+							.getByRole("radio", { name: locale === "ar-SA" ? "فاتح" : "Light", exact: true }),
 					).toBeVisible();
 					await expect(
 						page.getByRole("combobox", {

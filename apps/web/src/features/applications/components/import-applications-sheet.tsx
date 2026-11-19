@@ -270,7 +270,7 @@ export function ImportApplicationsSheet({ open, onOpenChange }: ImportSheetProps
 							<div className="flex flex-wrap items-center justify-between gap-3">
 								<Button
 									variant="link"
-									size="link-touch"
+									size="default"
 									onClick={() =>
 										downloadWithAnchor(new Blob([SAMPLE], { type: "text/csv" }), "sample-applications.csv")
 									}

@@ -1,9 +1,9 @@
 import { Trans } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
 import { Alert, AlertDescription, AlertTitle, AlertActions } from "@reactive-resume/ui/components/alert";
-import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { BrandIcon } from "@/components/ui/brand-icon";
 
 export function NotFoundScreen() {
 	return (

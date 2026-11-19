@@ -20,15 +20,13 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				const section = [...document.querySelectorAll("main section")].find((el) =>
 					/^(Sign-in & security|تسجيل الدخول والأمن)$/u.test(el.querySelector("h2")?.textContent ?? ""),
 				);
-				if (section) frames.push(!/You sign in without one|تسجل الدخول بدونها/u.test(section.textContent ?? ""));
+				if (section) frames.push(!/Not set|غير معيّنة/u.test(section.textContent ?? ""));
 				requestAnimationFrame(sample);
 			};
 			requestAnimationFrame(sample);
 		});
 		await page.goto(`/dashboard/settings/account?locale=${locale}`);
-		await expect(
-			page.getByText(locale === "en-US" ? "Password is set" : "كلمة المرور مفعّلة", { exact: true }),
-		).toBeVisible();
+		await expect(page.getByText(locale === "en-US" ? "Set" : "معيّنة", { exact: true })).toBeVisible();
 		const frames = await page.evaluate(
 			() => (globalThis as typeof globalThis & { credentialFrames: boolean[] }).credentialFrames,
 		);

@@ -35,6 +35,7 @@ type PdfCanvasPageProps = {
 	pageNumber: number;
 	pageScale: number;
 	pageSize?: PreviewPageSize | undefined;
+	lazy?: boolean;
 	showPageNumbers: boolean;
 	totalPages: number;
 };
@@ -105,10 +106,14 @@ export function PdfCanvasPage({
 	pageNumber,
 	pageScale,
 	pageSize = DEFAULT_PDF_PAGE_SIZE,
+	lazy = false,
 	showPageNumbers,
 	totalPages,
 }: PdfCanvasPageProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const figureRef = useRef<HTMLElement>(null);
+	const [intersecting, setIntersecting] = useState(false);
+	const nearViewport = !lazy || typeof IntersectionObserver === "undefined" || intersecting;
 	const onLoadSuccessRef = useRef(onLoadSuccess);
 	const onRenderSuccessRef = useRef(onRenderSuccess);
 	// The document and page whose bitmap the canvas holds.
@@ -117,11 +122,26 @@ export function PdfCanvasPage({
 	const devicePixelRatio = useDevicePixelRatio();
 
 	useEffect(() => {
+		if (!lazy || typeof IntersectionObserver === "undefined") return;
+		const element = figureRef.current;
+		if (!element) return;
+		const observer = new IntersectionObserver(
+			(entries) => {
+				setIntersecting(entries.some((entry) => entry.isIntersecting));
+			},
+			{ root: element.closest('[data-slot="preview-scroll-area"]'), rootMargin: "100%" },
+		);
+		observer.observe(element);
+		return () => observer.disconnect();
+	}, [lazy]);
+
+	useEffect(() => {
 		onLoadSuccessRef.current = onLoadSuccess;
 		onRenderSuccessRef.current = onRenderSuccess;
 	}, [onLoadSuccess, onRenderSuccess]);
 
 	useEffect(() => {
+		if (!nearViewport) return;
 		let isCancelled = false;
 		let renderTask: RenderTask | undefined;
 
@@ -203,10 +223,10 @@ export function PdfCanvasPage({
 			window.clearTimeout(timeoutId);
 			renderTask?.cancel();
 		};
-	}, [document, pageNumber, pageScale, devicePixelRatio]);
+	}, [document, pageNumber, pageScale, devicePixelRatio, nearViewport]);
 
 	return (
-		<figure className="shrink-0">
+		<figure ref={figureRef} className="shrink-0">
 			{caption ??
 				(showPageNumbers ? (
 					<figcaption className="mb-1 text-[0.625rem] font-medium text-ink-3">

@@ -1,17 +1,78 @@
 import { useLingui } from "@lingui/react/macro";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { Alert, AlertActions, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { useUiLocale } from "./provider";
+import { QuerySkeleton } from "@/components/query-skeleton";
 
-type LocaleSwitchProps = { compact?: boolean };
+type LocaleSwitchProps = { compact?: boolean; presentation?: "toggle" | "choices" };
 
 /** Target language is explicit; switching never changes document content. */
-export function LocaleSwitch({ compact = false }: LocaleSwitchProps) {
+export function LocaleSwitch({ compact = false, presentation = "toggle" }: LocaleSwitchProps) {
 	const { t } = useLingui();
 	const { locale, pending, changeLocale } = useUiLocale();
 	const [failed, setFailed] = useState(false);
 	const arabic = locale === "ar-SA";
+	const [retryLocale, setRetryLocale] = useState(locale);
+	const choices = useRef<Partial<Record<typeof locale, HTMLButtonElement | null>>>({});
+	function change(value: typeof locale) {
+		if (pending || value === locale) return;
+		setRetryLocale(value);
+		setFailed(false);
+		void changeLocale(value).catch(() => setFailed(true));
+	}
+	if (presentation === "choices")
+		return (
+			<div className="grid min-w-0 gap-3">
+				<div
+					role="group"
+					aria-label={t({ message: "Interface language", context: "language.interface.label" })}
+					className="flex flex-wrap items-center gap-1"
+				>
+					<Icon name="globe" size={18} className="text-ink-3" />
+					{(
+						[
+							{ value: "ar-SA", name: "العربية", dir: "rtl" },
+							{ value: "en-US", name: "English", dir: "ltr" },
+						] as const
+					).map((language) => (
+						<Button
+							key={language.value}
+							ref={(button) => {
+								choices.current[language.value] = button;
+							}}
+							lang={language.value}
+							dir={language.dir}
+							variant={language.value === locale ? "secondary" : "quiet"}
+							aria-pressed={language.value === locale}
+							disabled={pending}
+							onClick={() => change(language.value)}
+						>
+							{language.name}
+						</Button>
+					))}
+				</div>
+				{pending && <QuerySkeleton inline shape="badge" label={t`Loading`} />}
+				{failed && (
+					<Alert variant="error">
+						<Icon name="warning" />
+						<AlertTitle>{t({ message: "Interface language", context: "language.interface.label" })}</AlertTitle>
+						<AlertDescription>{t`Something went wrong. Please try again.`}</AlertDescription>
+						<AlertActions>
+							<Button
+								variant="secondary"
+								disabled={pending}
+								onClick={() => {
+									choices.current[retryLocale]?.focus();
+									change(retryLocale);
+								}}
+							>{t`Retry`}</Button>
+						</AlertActions>
+					</Alert>
+				)}
+			</div>
+		);
 	return (
 		<div className="relative">
 			<Button

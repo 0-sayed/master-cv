@@ -6,8 +6,10 @@ import { useHotkey } from "@tanstack/react-hotkeys";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
+import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { cn } from "@reactive-resume/utils/style";
 import { useEditorStore, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP } from "./store";
@@ -81,18 +83,26 @@ type DocumentMenuTriggerProps = ComponentProps<"button"> & { name: string; isLoc
 /** The document name in the editor bar, as the button that opens the document menu. */
 export function DocumentMenuTrigger({ name, isLocked, ...props }: DocumentMenuTriggerProps) {
 	return (
-		<button
-			type="button"
-			{...props}
-			aria-label={t`Document menu: ${name}`}
-			className="-mx-1.5 flex max-w-[calc(100%+0.75rem)] min-w-0 flex-col items-start rounded-md px-1.5 py-0.5 text-start transition-colors duration-quick hover:bg-hover"
-		>
-			<span className="flex max-w-full min-w-0 items-center gap-1.5">
-				<span className="truncate text-sm leading-[18px] font-semibold text-ink">{name}</span>
-				{isLocked && <Icon name="lock" size={16} className="text-ink-3" />}
-				<Icon name="caret-down" size={16} className="text-ink-3" />
-			</span>
-		</button>
+		<Tooltip>
+			<TooltipTrigger
+				render={
+					<Button
+						{...props}
+						variant="ghost"
+						size="document-switcher"
+						aria-label={t`Document menu: ${name}`}
+						className="max-w-full justify-start text-start"
+					/>
+				}
+			>
+				<span dir="auto" className="min-w-0 truncate font-semibold">
+					{name}
+				</span>
+				{isLocked && <Icon name="lock" className="text-ink-3" />}
+				<Icon name="caret-down" className="text-ink-3" />
+			</TooltipTrigger>
+			<TooltipContent>{name}</TooltipContent>
+		</Tooltip>
 	);
 }
 
@@ -155,38 +165,28 @@ export function ZoomBar({ fitScale, pageCount }: ZoomBarProps) {
 
 	useHotkey("Mod+0", () => setZoom("fit"));
 
-	const buttonClassName =
-		"flex size-8 items-center justify-center rounded-[7px] text-ink-2 transition-colors duration-quick hover:bg-hover disabled:text-ink-3 disabled:hover:bg-transparent";
-
 	return (
 		<div className="absolute bottom-[18px] left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-lg border border-line bg-raised p-1 shadow-e2">
-			<button
+			<IconButton
 				type="button"
-				aria-label={t`Zoom out`}
+				label={t`Zoom out`}
 				disabled={current <= ZOOM_MIN}
-				className={buttonClassName}
+				size="icon-sm"
 				onClick={() => setZoom(current - ZOOM_STEP)}
-			>
-				<Icon name="minus" />
-			</button>
-			<button
-				type="button"
-				aria-label={t`Fit page to width`}
-				className="h-8 min-w-[52px] rounded-[7px] px-1.5 font-mono text-xs font-medium text-ink transition-colors duration-quick hover:bg-hover"
-				onClick={() => setZoom("fit")}
-			>
+				icon="minus"
+			/>
+			<button type="button" aria-label={t`Fit page to width`} onClick={() => setZoom("fit")}>
 				{zoom === "fit" ? <Trans>Fit</Trans> : `${Math.round(current * 100)}%`}
 			</button>
-			<button
+			<IconButton
 				type="button"
-				aria-label={t`Zoom in`}
+				label={t`Zoom in`}
 				disabled={current >= ZOOM_MAX}
-				className={buttonClassName}
+				size="icon-sm"
 				onClick={() => setZoom(current + ZOOM_STEP)}
-			>
-				<Icon name="plus" />
-			</button>
-			<span className="px-2 font-mono text-xs whitespace-nowrap text-ink-3">
+				icon="plus"
+			/>
+			<span className="px-2 font-sans text-xs whitespace-nowrap text-ink-3">
 				<Plural value={pageCount} one="# page" other="# pages" />
 			</span>
 		</div>

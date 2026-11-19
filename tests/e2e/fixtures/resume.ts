@@ -17,6 +17,7 @@ export async function createSampleResumeFromDashboard(page: Page, testInfo: Test
 
 	await page.goto(`/builder/${resumeId}`);
 	await page.waitForURL(/\/builder\/.+/);
+	await expect(page.getByRole("button", { name: /^(Download PDF|تنزيل PDF)$/u })).toBeVisible();
 
 	return resumeName;
 }
@@ -36,10 +37,13 @@ export async function openSidebarSection(page: Page, title: string) {
 	await expect(row).toHaveAttribute("aria-expanded", "true");
 }
 
-/** Opens Export and history on its Download tab, from the ▾ next to Download PDF. */
+/** Opens the editor panel on desktop and the full-screen sheet on smaller screens. */
 export async function openDownloadDialog(page: Page) {
-	await page.getByRole("button", { name: "More download formats", exact: true }).click();
-	const sheet = page.getByRole("dialog", { name: "Export and history" });
+	const phone = await page.evaluate(() => window.matchMedia("(max-width: 639px)").matches);
+	await page.getByRole("button", { name: phone ? "Download PDF" : "More download formats", exact: true }).click();
+	const sheet = page
+		.getByRole("complementary", { name: "Export and history" })
+		.or(page.getByRole("dialog", { name: "Export and history" }));
 	await expect(sheet.getByRole("tab", { name: "Download", exact: true })).toHaveAttribute("aria-selected", "true");
 	return sheet;
 }

@@ -109,7 +109,8 @@ describe("UserDropdownMenu", () => {
 
 		expect(screen.getAllByRole("button").map((button) => button.textContent?.trim())).toEqual(["Sign out"]);
 
-		for (const label of ["Settings", "Help"]) expect(screen.getByRole("link", { name: label })).toBeVisible();
+		for (const label of ["Settings", "Help", "Review guide"])
+			expect(screen.getByRole("link", { name: label })).toBeVisible();
 
 		fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
 

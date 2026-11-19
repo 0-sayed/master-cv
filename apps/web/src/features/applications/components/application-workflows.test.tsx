@@ -152,7 +152,7 @@ it("offers one board-card open control and a separate options control without a 
 	const onOpen = vi.fn();
 	const view = mount(<ApplicationBoard applications={[row]} showClosed={false} onOpen={onOpen} />);
 	const open = screen.getByRole("button", { name: "Engineer Open Co" });
-	const options = screen.getByRole("button", { name: "Options for Engineer at Open Co" });
+	const options = screen.getByRole("button", { name: "More actions" });
 	expect(view.container.querySelector("button button, [role=button] button")).toBeNull();
 	for (let parent = open.parentElement; parent && parent !== view.container; parent = parent.parentElement) {
 		expect(parent.tabIndex).toBeLessThan(0);

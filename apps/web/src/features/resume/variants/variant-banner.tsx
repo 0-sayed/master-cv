@@ -4,8 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Badge } from "@reactive-resume/ui/components/badge";
-import { Button } from "@reactive-resume/ui/components/button";
-import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { browserStorage, storageKey } from "@/libs/browser-storage";
 import { orpc } from "@/libs/orpc/client";
 /** A copy's stored identity is independent from the interface language and review status. */
@@ -45,16 +44,15 @@ export function VariantBanner({ resumeId }: { resumeId: string }) {
 						current.documentLocale
 					)}
 				</span>
-				<Button
+				<IconButton
 					className="ms-auto"
 					size="icon-sm"
-					variant="ghost"
-					aria-label={collapsed ? t`Expand copy context` : t`Collapse copy context`}
+
+					label={collapsed ? t`Expand copy context` : t`Collapse copy context`}
 					aria-expanded={!collapsed}
 					onClick={toggle}
-				>
-					<Icon name="caret-down" className={collapsed ? undefined : "rotate-180"} />
-				</Button>
+					icon="caret-down"
+				/>
 			</div>
 			{!collapsed && (
 				<>

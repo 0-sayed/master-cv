@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 const envMock = vi.hoisted(() => ({
+	APP_URL: "http://localhost:23100",
 	SMTP_HOST: undefined as string | undefined,
 	SMTP_PORT: 587,
 	SMTP_USER: undefined as string | undefined,
@@ -22,7 +23,7 @@ vi.mock("react-email", () => ({
 		opts?.plainText ? "plain text body" : "<p>html body</p>",
 }));
 
-const { sendEmail, sendPrivacyEmail } = await import("./transport");
+const { sendEmail, sendPrivacyEmail, sendCareerNotification } = await import("./transport");
 
 const fakeReact = { $$typeof: Symbol.for("react.element") } as unknown as React.ReactElement;
 
@@ -34,6 +35,34 @@ const resetEnv = () => {
 	createTransport.mockClear();
 	sendMail.mockClear();
 };
+
+describe("career notification branding", () => {
+	it.each([
+		["You have a career update in Master CV.", "You have a career update in Sirawise."],
+		["My Master CV interview notes are ready.", "My Master CV interview notes are ready."],
+	])("renders %s without rewriting custom content", async (text, expected) => {
+		resetEnv();
+		envMock.SMTP_HOST = "127.0.0.1";
+		envMock.SMTP_USER = "synthetic";
+		envMock.SMTP_PASS = "synthetic";
+		envMock.SMTP_FROM = "Explicit override <mail@example.test>";
+		await expect(
+			sendCareerNotification({
+				to: "demo@sirawise.test",
+				subject: "Career update",
+				text,
+				url: "/dashboard/career",
+				key: "synthetic-brand-check",
+			}),
+		).resolves.toBe(true);
+		expect(sendMail).toHaveBeenLastCalledWith(
+			expect.objectContaining({
+				from: envMock.SMTP_FROM,
+				text: `${expected}\n\nhttp://localhost:23100/dashboard/career`,
+			}),
+		);
+	});
+});
 describe("sendEmail", () => {
 	const originalNodeEnv = process.env.NODE_ENV;
 

@@ -2,13 +2,13 @@ import type { DateFormat } from "@reactive-resume/schema/resume/dates";
 import type { ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@reactive-resume/ui/components/collapsible";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { NativeSelect } from "@reactive-resume/ui/components/native-select";
-import { Tabs, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@reactive-resume/ui/components/tabs";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { cn } from "@reactive-resume/utils/style";
 import { CustomStylesSectionBuilder } from "../-sidebar/right/sections/custom-styles";
@@ -55,7 +55,11 @@ function Group({ id, title, children }: { id: string; title: ReactNode; children
  * has grown (before that its contents aren't mounted and the panel may be too short to bring them to the top).
  * `focus` then moves focus to the target's first control.
  */
+let pendingJump: ReturnType<typeof setTimeout> | undefined;
+
 function jumpTo(id: string, advanced: { open: boolean; setOpen: (open: boolean) => void }, focus = false) {
+	// A second tab selection cancels the delayed scroll after Advanced expands.
+	clearTimeout(pendingJump);
 	const aim = () => {
 		const target = document.getElementById(id) ?? document.getElementById("design-advanced");
 		target?.scrollIntoView({ behavior: getScrollBehavior() });
@@ -63,7 +67,7 @@ function jumpTo(id: string, advanced: { open: boolean; setOpen: (open: boolean) 
 	};
 	if (id.startsWith("design-advanced") && !advanced.open) {
 		advanced.setOpen(true);
-		window.setTimeout(aim, D2 * 1000);
+		pendingJump = setTimeout(aim, D2 * 1000);
 	}
 	aim();
 }
@@ -76,26 +80,47 @@ const TYPOGRAPHY_ID = "design-advanced-typography";
  */
 export function DesignPanel() {
 	const locked = useIsResumeLocked();
+	const root = useRef<HTMLDivElement>(null);
+	const [active, setActive] = useState<string>("template");
+	useEffect(() => {
+		const element = root.current;
+		if (!element) return;
+		let scroller: HTMLElement | null = element.parentElement;
+		while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY)) scroller = scroller.parentElement;
+		const target = scroller ?? document.documentElement;
+		const update = () => {
+			const edge = target.getBoundingClientRect().top + 64;
+			const visible = GROUPS.filter((group) => {
+				const section = element.querySelector(`#design-${group.id}`);
+				return section && section.getBoundingClientRect().top <= edge;
+			});
+			setActive(visible.at(-1)?.id ?? "template");
+		};
+		target.addEventListener("scroll", update, { passive: true });
+		update();
+		return () => target.removeEventListener("scroll", update);
+	}, []);
 	const [advancedOpen, setAdvancedOpen] = useState(false);
 	const advanced = { open: advancedOpen, setOpen: setAdvancedOpen };
 
 	return (
-		<div>
-			<nav
-				aria-label={t`Design groups`}
-				className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-line bg-surface px-3 py-2"
+		<div ref={root}>
+			<Tabs
+				className="sticky top-0 z-10 gap-0 bg-surface"
+				value={active}
+				onValueChange={(value) => {
+					setActive(String(value));
+					jumpTo(`design-${value}`, advanced);
+				}}
 			>
-				{GROUPS.map((group) => (
-					<button
-						key={group.id}
-						type="button"
-						onClick={() => jumpTo(`design-${group.id}`, advanced)}
-						className="h-8 shrink-0 rounded-full px-3 text-[13px] text-ink-2 transition-colors duration-quick hover:bg-hover hover:text-ink"
-					>
-						{group.label()}
-					</button>
-				))}
-			</nav>
+				<TabsList variant="line" aria-label={t`Design groups`} className="w-full justify-between bg-surface px-3">
+					{GROUPS.map((group) => (
+						<TabsTrigger key={group.id} value={group.id} aria-controls={`design-${group.id}`}>
+							{group.label()}
+						</TabsTrigger>
+					))}
+				</TabsList>
+			</Tabs>
 
 			<fieldset disabled={locked} className="m-0 min-w-0 divide-y divide-line border-0 p-0">
 				<Group id="template" title={<Trans>Template</Trans>}>
@@ -117,12 +142,12 @@ export function DesignPanel() {
 	);
 }
 
-type SheetTab = "template" | "type" | "color" | "page";
+type SheetTab = "template" | "type" | "color" | "page" | "advanced";
 
 /**
  * Phones: Design is a sheet over the lower half of the page, so every change shows above it. The handle
  * raises it to full height. It keeps its full height and moves by `translate` (half out of view when lowered),
- * and rises into view when Design opens. Tabs replace the group nav; Advanced sits under Page.
+ * and rises into view when Design opens. Tabs replace the group nav.
  */
 export function DesignSheet() {
 	const locked = useIsResumeLocked();
@@ -148,9 +173,16 @@ export function DesignSheet() {
 				<span className="h-1 w-9 rounded-full bg-line-2" />
 			</button>
 
-			<Tabs value={tab} onValueChange={(value) => setTab(value as SheetTab)} className="min-h-0 flex-1 gap-0">
+			<Tabs
+				value={tab}
+				onValueChange={(value) => {
+					setTab(value as SheetTab);
+					if (value === "advanced") setAdvancedOpen(true);
+				}}
+				className="min-h-0 flex-1 gap-0"
+			>
 				<TabsList variant="line" className="w-full shrink-0 justify-around px-4">
-					{GROUPS.filter((group) => group.id !== "advanced").map((group) => (
+					{GROUPS.map((group) => (
 						<TabsTrigger key={group.id} value={group.id}>
 							{group.label()}
 						</TabsTrigger>
@@ -158,31 +190,33 @@ export function DesignSheet() {
 				</TabsList>
 
 				<fieldset disabled={locked} className="m-0 min-h-0 min-w-0 flex-1 overflow-y-auto border-0 p-4">
-					<OfflineBanner className="mb-4" />
-					<FontReplacement />
-					{tab === "template" && <TemplateGroup layout="strip" />}
-					{tab === "type" && (
-						<>
-							<TypeGroup
-								onCustomFonts={() => {
-									// Advanced lives under Page, so from here it isn't mounted yet: switching mounts it, then it opens.
-									setTab("page");
-									jumpTo(TYPOGRAPHY_ID, { open: false, setOpen: setAdvancedOpen }, true);
-								}}
-							/>
-						</>
-					)}
-					{tab === "color" && <ColorGroup />}
-					{tab === "page" && (
-						<div className="-mx-4 divide-y divide-line">
-							<div className="px-4 pb-5">
-								<PageGroup />
+					<TabsContent value={tab}>
+						<OfflineBanner className="mb-4" />
+						<FontReplacement />
+						{tab === "template" && <TemplateGroup layout="strip" />}
+						{tab === "type" && (
+							<>
+								<TypeGroup
+									onCustomFonts={() => {
+										// The new tab mounts these controls before the delayed focus runs.
+										setTab("advanced");
+										jumpTo(TYPOGRAPHY_ID, { open: false, setOpen: setAdvancedOpen }, true);
+									}}
+								/>
+							</>
+						)}
+						{tab === "color" && <ColorGroup />}
+						{tab === "page" && (
+							<div className="-mx-4 divide-y divide-line">
+								<div className="px-4 pb-5">
+									<PageGroup />
+								</div>
 							</div>
-							<AdvancedGroup open={advancedOpen} onOpenChange={setAdvancedOpen} />
-						</div>
-					)}
-					{/* Lowered, the sheet's lower half is out of view: this keeps the end of the list scrollable into sight. */}
-					{!expanded && <div aria-hidden="true" className="h-[calc(50cqh-0.5rem)]" />}
+						)}
+						{/* Lowered, the sheet's lower half is out of view: this keeps the end of the list scrollable into sight. */}
+						{!expanded && <div aria-hidden="true" className="h-[calc(50cqh-0.5rem)]" />}
+						{tab === "advanced" && <AdvancedGroup open={advancedOpen} onOpenChange={setAdvancedOpen} />}
+					</TabsContent>
 				</fieldset>
 			</Tabs>
 		</section>
@@ -241,7 +275,12 @@ function AdvancedGroup({ open, onOpenChange }: AdvancedGroupProps) {
 	};
 
 	return (
-		<Collapsible id="design-advanced" open={open} onOpenChange={onOpenChange} className="scroll-mt-14 px-4 py-5">
+		<Collapsible
+			id="design-advanced"
+			open={open}
+			onOpenChange={onOpenChange}
+			className="scroll-mt-14 px-4 py-5 lg:min-h-[calc(100svh-var(--editor-bar)-var(--space-64))]"
+		>
 			<CollapsibleTrigger className="group/advanced flex w-full cursor-pointer items-center justify-between text-start text-[15px] font-semibold">
 				<Trans>Advanced</Trans>
 				<Icon

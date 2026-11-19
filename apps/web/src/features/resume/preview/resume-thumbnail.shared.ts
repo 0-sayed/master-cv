@@ -22,10 +22,6 @@ const MAX_THUMBNAIL_PIXELS = 2048 * 3072;
 const MAX_THUMBNAIL_DIMENSION = 3072;
 const THUMBNAIL_SIZE_STEP = 64;
 
-export const getResumeThumbnailCacheKey = (resumeId: string, updatedAt: Date) => {
-	return `${resumeId}:${updatedAt.getTime()}`;
-};
-
 const limitThumbnailSize = ({ width, height }: ResumeThumbnailSize): ResumeThumbnailSize => {
 	const scale = Math.min(
 		1,

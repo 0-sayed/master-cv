@@ -1088,14 +1088,13 @@ function Composer(props: ComposerProps) {
 									<span className="truncate">
 										{attachment.filename} · {size(attachment.size)}
 									</span>
-									<button
+									<IconButton
 										type="button"
-										aria-label={t`Remove ${attachment.filename}`}
+										label={t`Remove ${attachment.filename}`}
 										onClick={() => setAttachments((current) => current.filter((item) => item.id !== attachment.id))}
-										className="grid size-6 place-items-center rounded-sm text-ink-3 transition-colors duration-quick hover:bg-hover hover:text-ink"
-									>
-										<Icon name="x" size={14} />
-									</button>
+										icon="x"
+										iconSize={14}
+									/>
 								</span>
 							))}
 						</div>

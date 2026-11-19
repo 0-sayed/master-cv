@@ -103,3 +103,35 @@ it("rerenders and rearms the resolution listener when DPR changes, retaining the
 	unmount();
 	expect(cancel).toHaveBeenCalledTimes(1);
 });
+
+it("reserves an offscreen page's size and draws it only near the viewport", async () => {
+	let intersect!: IntersectionObserverCallback;
+	const observe = vi.fn();
+	const disconnect = vi.fn();
+	vi.stubGlobal(
+		"IntersectionObserver",
+		class {
+			constructor(callback: IntersectionObserverCallback) {
+				intersect = callback;
+			}
+			observe = observe;
+			disconnect = disconnect;
+		},
+	);
+	const { container, unmount } = render(<PdfCanvasPage {...props} pageNumber={12} totalPages={12} lazy />);
+	await act(async () => {
+		await vi.runOnlyPendingTimersAsync();
+	});
+	expect(renderPage).not.toHaveBeenCalled();
+	const placeholder = container.querySelector("canvas")?.parentElement;
+	expect(placeholder?.style.height).toBe("631px");
+	act(() => intersect([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver));
+	await act(async () => {
+		await vi.runOnlyPendingTimersAsync();
+	});
+	expect(renderPage).toHaveBeenCalledOnce();
+	await act(async () => finish());
+	expect(placeholder?.style.height).toBe("631px");
+	unmount();
+	expect(disconnect).toHaveBeenCalled();
+});

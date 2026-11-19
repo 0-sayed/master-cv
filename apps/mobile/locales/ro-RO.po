@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-17 06:47+0200\n"
+"POT-Creation-Date: 2026-11-18 09:46+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -676,8 +676,8 @@ msgid "24 hours before"
 msgstr "Cu 24 de ore înainte"
 
 #: src/features/letters/share.tsx
-msgid "A backup of this letter. Imports back into Reactive Resume as a letter."
-msgstr "O copie de rezervă a acestei scrisori. Se importă înapoi în Reactive Resume sub formă de scrisoare."
+msgid "A backup of this letter. Imports back into Sirawise as a letter."
+msgstr ""
 
 #: src/features/check/issues.ts
 msgid "A city and country let roles be matched to where you are."
@@ -1562,10 +1562,6 @@ msgstr "Cereți asistentului să o lucreze"
 msgid "Ask the coach"
 msgstr "Întrebați coach-ul"
 
-#: src/features/share/download.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "Întrebați comunitatea. Eliminați datele personale înainte de a posta."
-
 #: src/features/ai/error.ts
 msgid "Ask your server administrator to enable credential encryption or configure a shared connection."
 msgstr "Solicitați administratorului serverului să activeze criptarea acreditărilor sau să configureze o conexiune partajată."
@@ -1600,7 +1596,6 @@ msgid "ATS checker"
 msgstr "Verificator ATS"
 
 #: src/features/ats-checker/checker.tsx
-#: src/features/search/search-screen.tsx
 msgid "ATS Checker"
 msgstr "Verificator ATS"
 
@@ -1864,10 +1859,6 @@ msgstr "Listă cu marcatori"
 msgid "Burgundy"
 msgstr "Burgundia"
 
-#: app/(tabs)/settings/index.tsx
-msgid "by <0>Amruth Pillai</0>"
-msgstr "de <0>Amruth Pillai</0>"
-
 #: src/features/applications-board/views.tsx
 msgid "Calendar"
 msgstr "Calendaristic"
@@ -1981,14 +1972,6 @@ msgstr "Modificările aduse „{name}” au fost salvate pe alt dispozitiv. Edit
 #: app/builder/[id]/_layout.tsx
 msgid "Check"
 msgstr "Verificare"
-
-#: src/features/search/search-screen.tsx
-msgid "Check a PDF"
-msgstr "Verificați un PDF"
-
-#: src/features/documents/new-document.tsx
-msgid "Check a PDF with the ATS checker"
-msgstr "Verificați un PDF cu verificatorul ATS"
 
 #: src/features/ats-checker/checker.tsx
 msgid "Check a sample file"
@@ -2327,8 +2310,8 @@ msgid "Compares your resume with the posting"
 msgstr "Compară CV-ul tău cu anunțul de locuri de muncă"
 
 #: src/features/share/download.tsx
-msgid "Complete data backup. Imports back into Reactive Resume or JSON Resume tools."
-msgstr "Backup complet de date. Importă înapoi în instrumentele Reactive Resume sau JSON Resume."
+msgid "Complete data backup. Imports back into Sirawise or JSON Resume tools."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
@@ -3425,10 +3408,6 @@ msgstr "Nu trimiteți {0} postare de locuri de muncă"
 msgid "Don't share"
 msgstr "Nu împărtăși"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Donate on Open Collective"
-msgstr "Donați pe Open Collective"
-
 #: src/features/applications/list-screen.tsx
 #: src/features/career/today.tsx
 #: src/features/documents/library.tsx
@@ -3784,8 +3763,8 @@ msgid "Enter any model ID supported by your endpoint."
 msgstr "Introduceți orice ID de model acceptat de punctul final."
 
 #: app/(auth)/server.tsx
-msgid "Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue."
-msgstr "Introduceți adresa la care deschideți Reactive Resume într-un browser. Aplicația verifică dacă este un server Reactive Resume care permite conectarea la aplicație înainte de a continua."
+msgid "Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue."
+msgstr ""
 
 #: src/features/public/public-resume.tsx
 msgid "Enter the password the resume owner shared with you."
@@ -4186,10 +4165,6 @@ msgstr "„Obțineți feedback” trimite întrebarea, răspunsul dvs., acest an
 msgid "Get new roles here every morning"
 msgstr "Primiți aici posturi noi în fiecare dimineață"
 
-#: src/features/share/download.tsx
-msgid "Get resume feedback on Discord"
-msgstr "Primiți feedback la CV pe Discord"
-
 #: src/features/letters/write.tsx
 msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "Devenind lung. Încercați „Mai scurt” sau tăiați cel mai puțin specific paragraf."
@@ -4280,6 +4255,10 @@ msgstr "auzit înapoi"
 #: src/features/settings/locale-names.ts
 msgid "Hebrew"
 msgstr "Ebraică"
+
+#: src/features/share/download.tsx
+msgid "Help"
+msgstr ""
 
 #: app/(tabs)/settings/index.tsx
 msgid "Help & docs"
@@ -4742,10 +4721,6 @@ msgstr "Fluxul căutării de joburi"
 #: src/features/search/search-screen.tsx
 msgid "Jobs"
 msgstr "Locuri de muncă"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Join the Discord"
-msgstr "Alăturați-vă pe Discord"
 
 #: src/features/letters/share.tsx
 #: src/features/share/download.tsx
@@ -5286,8 +5261,8 @@ msgid "Lower the design sheet"
 msgstr "Coborâți foaia de design"
 
 #: src/features/public/public-resume.tsx
-msgid "Made with Reactive Resume, free and open source"
-msgstr "Realizat cu Reactive Resume, gratuit și open source"
+msgid "Made with Sirawise, free and open source"
+msgstr ""
 
 #. Layout editor column label for the primary content area
 #: src/features/design/layout-screen.tsx
@@ -5963,10 +5938,6 @@ msgstr "Nicio fotografie. Majoritatea ATS ignoră fotografiile; unele regiuni se
 msgid "No postings found. Try different keywords."
 msgstr "Nu au fost găsite locuri de muncă. Încercați diferite cuvinte cheie."
 
-#: src/auth/messages.ts
-msgid "No Reactive Resume server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
-msgstr "Niciun server Reactive Resume nu a răspuns la această adresă. Verificați ortografia sau întrebați administratorul dacă serverul permite conectarea la aplicație."
-
 #: src/features/check/job-match.tsx
 msgid "No recognisable terms in this posting."
 msgstr "Nu există termeni recunoscuți în această postare de locuri de muncă."
@@ -5986,6 +5957,10 @@ msgstr "Niciun rezultat"
 #: src/features/letters/write.tsx
 msgid "No resume"
 msgstr "Fără CV"
+
+#: src/auth/messages.ts
+msgid "No Sirawise server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "No skills section was found."
@@ -6645,8 +6620,8 @@ msgid "PDF check cancelled. Retry when ready."
 msgstr "PDF cec anulat. Reîncercați când este gata."
 
 #: src/features/application-detail/sections.tsx
-msgid "PDF only · up to 10 MB each. Linking a Reactive Resume enables AI match scoring and tailoring."
-msgstr "Numai PDF · până la 10 MB fiecare. Conectarea unui Reactive Resume permite punctarea și personalizarea meciurilor AI."
+msgid "PDF only · up to 10 MB each. Linking a Sirawise enables AI match scoring and tailoring."
+msgstr ""
 
 #: src/features/design/advanced.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
@@ -6654,11 +6629,11 @@ msgstr "Stilurile PDF acceptă un subset de CSS. Rotația, marginile punctate ș
 
 #: src/features/documents/new-document.tsx
 msgid "PDF uses your AI provider when one is ready. Turn off the AI switch to read its text layer on your server. Word (.docx) needs an AI provider. Current and v4 Reactive Resume JSON, cover letters, JSON Resume and LinkedIn exports (.zip) are supported. Up to 10 MB."
-msgstr "PDF folosește furnizorul AI dacă este pregătit. Oprește AI pentru a citi stratul de text pe serverul tău. Word (.docx) necesită un furnizor AI. Sunt acceptate JSON Reactive Resume actual și v4, scrisori de intenție, JSON Resume și exporturi LinkedIn (.zip). Maximum 10 MB."
+msgstr "PDF folosește furnizorul AI dacă este pregătit. Oprește AI pentru a citi stratul de text pe serverul tău. Word (.docx) necesită un furnizor AI. Sunt acceptate JSON Sirawise actual și v4, scrisori de intenție, JSON Resume și exporturi LinkedIn (.zip). Maximum 10 MB."
 
 #: src/features/documents/new-document.tsx
 msgid "PDF, Word, Reactive Resume, JSON Resume or LinkedIn export."
-msgstr "Exportați PDF, Word, Reactive Resume, JSON Resume sau LinkedIn."
+msgstr "Exportați PDF, Word, Sirawise, JSON Resume sau LinkedIn."
 
 #: src/features/career/offers.tsx
 #: src/features/career/preferences.tsx
@@ -7102,10 +7077,6 @@ msgstr "Exportați din nou cu fonturile încorporate și verificați dacă textu
 msgid "Re-export with fonts embedded, then open the file and check that the text copies out cleanly."
 msgstr "Exportați din nou cu fonturile încorporate, apoi deschideți fișierul și verificați dacă textul se copiază corect."
 
-#: src/auth/auth-header.tsx
-msgid "Reactive Resume"
-msgstr "Reactive Resume"
-
 #: src/features/workspace/tabs/prepare.tsx
 msgid "Read briefing"
 msgstr "Citiți briefingul"
@@ -7512,10 +7483,6 @@ msgstr "Raport"
 msgid "Report AI content"
 msgstr "Raportați conținutul AI"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Report an issue"
-msgstr "Raportați o problemă"
-
 #: src/features/ai/report-content.tsx
 msgid "Report received by your server operator. Thank you."
 msgstr "Raport primit de operatorul serverului dvs. Multumesc."
@@ -7607,10 +7574,6 @@ msgstr "CV-ul nu a putut fi încărcat."
 #: src/features/document-menu/index.tsx
 msgid "Resume details"
 msgstr "detalii CV-ul"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Resume feedback, product help, and community ideas."
-msgstr "Feedback la CV, ajutor pentru produs și idei din comunitate."
 
 #: src/features/application-detail/sections.tsx
 msgid "Resume file"
@@ -8309,10 +8272,6 @@ msgstr "Configurați căutarea pe web în Setări pentru a găsi roluri."
 msgid "Settings"
 msgstr "Setări"
 
-#: app/(tabs)/settings/ai-mcp.tsx
-msgid "Setup guide"
-msgstr "Ghid de instalare"
-
 #: src/features/ai/report-content.tsx
 msgid "Sexual content"
 msgstr "Conținut sexual"
@@ -8615,6 +8574,11 @@ msgstr "S-a deconectat, dar unele date de pe acest dispozitiv nu au putut fi eli
 msgid "since last view"
 msgstr "de la ultima vizualizare"
 
+#: src/auth/auth-header.tsx
+#: src/shell/app-tabs.tsx
+msgid "Sirawise"
+msgstr "Sirawise"
+
 #: src/features/career/stories.tsx
 msgid "Situation (required)"
 msgstr "Situație (obligatoriu)"
@@ -8756,10 +8720,6 @@ msgstr "Sursă"
 msgid "Source and correction history"
 msgstr "Sursă și istoric de corecție"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Source code on GitHub"
-msgstr "Cod sursă pe GitHub"
-
 #: src/features/assistant/chat-view.tsx
 #: src/features/assistant/messages.tsx
 msgid "Sources"
@@ -8867,6 +8827,10 @@ msgstr "Începeți să tastați sau să scrieți din ceea ce știm: anunțul de 
 #: src/features/letters/write.tsx
 msgid "Start typing, or draft from what we know: your resume."
 msgstr "Începeți să scrieți sau să scrieți din ceea ce știm: CV-ul dvs."
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr ""
 
 #: src/features/letters/write.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
@@ -10912,8 +10876,8 @@ msgid "your Knowledge"
 msgstr "Cunoștințele dvs."
 
 #: app/(tabs)/settings/preferences.tsx
-msgid "Your language is saved. Restart Reactive Resume to apply the new left-to-right or right-to-left layout."
-msgstr "Limba dvs. este salvată. Reporniți Reactive Resume pentru a aplica noul aspect de la stânga la dreapta sau de la dreapta la stânga."
+msgid "Your language is saved. Restart Sirawise to apply the new left-to-right or right-to-left layout."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Your lines are packed very tightly."

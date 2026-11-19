@@ -98,6 +98,10 @@ Quotas and permitted use depend on your Vercel, Neon, and Upstash plans. Check [
 
 ## Scheduled career work
 
+Optional: set server variable `ADMIN_EMAILS` to a comma-separated list of verified account emails, then redeploy.
+Matching verified accounts receive unlimited operation and document allowances. OpenRouter key caps still limit money.
+See the [environment reference](/self-hosting/environment-variables#sign-in) for the access rules.
+
 Set a separate random `CRON_SECRET` (at least 16 characters) in the **Production** environment and redeploy. Generate it with `openssl rand -hex 32`. Vercel Cron sends `GET /api/career/run` with `Authorization: Bearer <CRON_SECRET>` automatically; no separate cron service is needed. Without this token, scheduling is unavailable and the HTTP runner is closed. Cron runs on production deployments.
 
 Users enable their own searches, preparation tasks, and reminders. Verify a due reminder after deployment; see [career scheduling](/contributing/career-platform#operate-scheduled-work) for delivery and retry limits.

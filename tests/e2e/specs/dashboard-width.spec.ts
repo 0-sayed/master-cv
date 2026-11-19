@@ -73,6 +73,11 @@ for (const locale of ["ar-SA", "en-US"]) {
 							columns: grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").map(Number.parseFloat) : [],
 							cards: [...document.querySelectorAll("main article")].map((card) => card.getBoundingClientRect().width),
 							forms: [...document.querySelectorAll(".form-content")].map((form) => form.getBoundingClientRect().width),
+							careerIndex: document.querySelector('[data-slot="career-section-index"]')?.getBoundingClientRect().width,
+							careerSections: [...document.querySelectorAll('[data-slot="section-card"]')].map((card) => ({
+								width: card.getBoundingClientRect().width,
+								left: card.getBoundingClientRect().left,
+							})),
 							headerHeight: rect(".shell-toolbar").height,
 							overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
 						};
@@ -100,8 +105,12 @@ for (const locale of ["ar-SA", "en-US"]) {
 						await expect(page.locator('[data-slot="empty-state"]')).toHaveCSS("border-style", "dashed");
 					}
 					if (route.endsWith("information")) {
-						expect(geometry.columns).toHaveLength(width >= 1600 ? 3 : 2);
-						expect(Math.max(...geometry.columns)).toBeLessThanOrEqual(552);
+						expect(geometry.careerIndex).toBe(176);
+						expect(geometry.careerSections).toHaveLength(6);
+						for (const section of geometry.careerSections) {
+							expect(section.width).toBe(canvasWidth - 176 - 24);
+							expect(section.left).toBe(geometry.careerSections[0].left);
+						}
 					}
 				}
 			}

@@ -7,6 +7,7 @@ import * as t from "@reactive-resume/db/schema";
 import { careerProfileDataSchema } from "@reactive-resume/schema/career";
 import { careerMasterSchema, masterFactInputSchema, masterFactSchema } from "@reactive-resume/schema/career-master";
 import { generateId } from "@reactive-resume/utils/string";
+import { careerPlainText, plainMasterFact } from "./plain-text";
 
 export async function ensureCareerProfile(userId: string) {
 	await db
@@ -53,6 +54,8 @@ function read(userId: string): Promise<CareerMaster> {
 			.where(and(eq(t.resumeFactLink.userId, userId), eq(t.resume.userId, userId), sql`${t.resume.trashedAt} IS NULL`));
 		return careerMasterSchema.parse({
 			profileRevision: profile?.profileRevision ?? 0,
+			contact: profile?.data.contact,
+			summary: profile?.data.summary,
 			sections: profile?.sectionOrder ?? [],
 			facts: facts.filter((fact) => fact.structured || fact.proposedStructured),
 			links,
@@ -61,12 +64,30 @@ function read(userId: string): Promise<CareerMaster> {
 }
 type Version = { id: string; expectedRevision: number; expectedDraftRevision: number };
 export const careerMasterService = {
+	async saveDetails(
+		userId: string,
+		input: { expectedProfileRevision: number; contact: NonNullable<CareerMaster["contact"]>; summary: string },
+	) {
+		await withOwnerDatabase(userId, async () => {
+			const profile = await lockProfile(userId, input.expectedProfileRevision);
+			const plain = (value: string) => careerPlainText(value).trim();
+			const contact = Object.fromEntries(Object.entries(input.contact).map(([key, value]) => [key, plain(value)]));
+			await db
+				.update(t.careerProfile)
+				.set({
+					data: careerProfileDataSchema.parse({ ...profile.data, contact, summary: plain(input.summary) }),
+					profileRevision: profile.profileRevision + 1,
+				})
+				.where(eq(t.careerProfile.userId, userId));
+		});
+		return read(userId);
+	},
 	read,
 	savePending: (userId: string, input: MasterFactInput & Partial<Version>, reviewedResumeId?: string) =>
 		withOwnerDatabase(userId, async () => {
 			await lockProfile(userId);
 			const { id, expectedRevision, expectedDraftRevision, ...value } = input;
-			const proposed = masterFactInputSchema.parse(value);
+			const proposed = plainMasterFact(masterFactInputSchema.parse(value));
 			// T003 manual forms cannot fabricate extracted provenance. T004 owns validated extraction.
 			if (
 				proposed.source.kind !== "manual" &&
@@ -171,7 +192,7 @@ export const careerMasterService = {
 					throw new ORPCError("BAD_REQUEST");
 			}
 			for (const row of rows) {
-				const structured = masterFactInputSchema.parse(row.proposedStructured);
+				const structured = plainMasterFact(masterFactInputSchema.parse(row.proposedStructured));
 				const revision = row.structured ? row.revision + 1 : row.revision;
 				await db.insert(t.careerFactRevision).values({ userId, factId: row.id, revision, structured });
 				await db

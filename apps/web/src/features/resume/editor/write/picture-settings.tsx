@@ -19,6 +19,7 @@ import {
 } from "@reactive-resume/ui/components/dialog";
 import { FormControl, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { InputGroup, InputGroupAddon, InputGroupText } from "@reactive-resume/ui/components/input-group";
 import { Slider } from "@reactive-resume/ui/components/slider";
@@ -105,17 +106,16 @@ function PicturePreviewControls({
 								}
 							/>
 
-							<Button
+							<IconButton
+								icon={picture.hidden ? "eye-slash" : "eye"}
 								size="toolbar-icon"
 								variant="ghost"
-								aria-label={picture.hidden ? t`Show picture` : t`Hide picture`}
+								label={picture.hidden ? t`Show picture` : t`Hide picture`}
 								onClick={() => {
 									form.setFieldValue("hidden", !picture.hidden);
 									onAutoSave();
 								}}
-							>
-								{picture.hidden ? <Icon name="eye-slash" size={16} /> : <Icon name="eye" size={16} />}
-							</Button>
+							/>
 						</div>
 					</FormItem>
 				)}
@@ -269,7 +269,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 							<ButtonGroup className="shrink-0">
 								<Button
 									size="toolbar-icon"
-									variant="secondary"
+									variant="ghost"
 									title={t({
 										comment: "Preset button for setting picture aspect ratio to square",
 										message: "Square",
@@ -283,7 +283,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 								</Button>
 								<Button
 									size="toolbar-icon"
-									variant="secondary"
+									variant="ghost"
 									title={t({
 										comment: "Preset button for setting picture aspect ratio to landscape orientation",
 										message: "Landscape",
@@ -297,7 +297,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 								</Button>
 								<Button
 									size="toolbar-icon"
-									variant="secondary"
+									variant="ghost"
 									title={t({
 										comment: "Preset button for setting picture aspect ratio to portrait orientation",
 										message: "Portrait",
@@ -345,7 +345,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 							<ButtonGroup className="shrink-0">
 								<Button
 									size="toolbar-icon"
-									variant="secondary"
+									variant="ghost"
 									title="0pt"
 									onClick={() => {
 										field.handleChange(0);
@@ -356,7 +356,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 								</Button>
 								<Button
 									size="toolbar-icon"
-									variant="secondary"
+									variant="ghost"
 									title="10pt"
 									onClick={() => {
 										field.handleChange(10);
@@ -367,7 +367,7 @@ function PictureGeometryFields({ form, onAutoSave }: PictureFieldProps) {
 								</Button>
 								<Button
 									size="toolbar-icon"
-									variant="secondary"
+									variant="ghost"
 									title="100pt"
 									onClick={() => {
 										field.handleChange(100);

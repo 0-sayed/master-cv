@@ -15,7 +15,7 @@ for (const locale of ["en-US", "ar-SA"]) {
 			message &&
 			!message.obsolete &&
 			message.origin?.some(([path]) =>
-				/src\/(?:(features\/(auth|assistant|applications|career|documents|resume|ats-checker|settings|help|user)|routes\/(auth|dashboard|builder))\/|routes\/(?:email-change|deletion-requested)\.tsx$|dialogs\/auth\/|libs\/error-message\.tsx?$)/.test(
+				/src\/(?:(features\/(auth|assistant|applications|career|documents|resume|ats-checker|ats-guide|settings|help|homepage|user)|routes\/(auth|dashboard|builder))\/|routes\/(?:email-change|deletion-requested)\.tsx$|dialogs\/auth\/|libs\/error-message\.tsx?$)/.test(
 					path,
 				),
 			)

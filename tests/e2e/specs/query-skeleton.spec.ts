@@ -75,7 +75,21 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 							: path === "/dashboard?view=list"
 								? "main table tbody tr:first-child"
 								: null;
+					if (path === "/dashboard") {
+						await expect(page.locator('main [data-slot="document-skeleton"]')).toHaveCount(6);
+						await expect(page.locator("main .aspect-page, main img[data-document-preview]")).toHaveCount(0);
+					}
 					const pendingCard = cardSelector ? await page.locator(cardSelector).boundingBox() : null;
+					const rowGeometry = async () =>
+						page.locator("main table tbody tr:first-child").evaluate((row) =>
+							[...row.querySelectorAll("td, td *")].map((element) => ({
+								tag: element.tagName,
+								slot: element.getAttribute("data-slot"),
+								className: element.getAttribute("class"),
+								height: element.getBoundingClientRect().height,
+							})),
+						);
+					const pendingRowGeometry = path === "/dashboard?view=list" ? await rowGeometry() : null;
 					release();
 					await expect(page.locator('main [data-slot="skeleton-region"]')).toHaveCount(0);
 					const after = await anchors();
@@ -129,14 +143,21 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 									);
 								}),
 							),
-						).toEqual([true, true, true, true, true]);
+						).toEqual([true, true, true, true, true, true]);
 					}
 					if (pendingCard && cardSelector) {
 						const readyCard = await page.locator(cardSelector).boundingBox();
 						if (!readyCard) throw new Error("Loaded document card is missing");
 						expect(Math.abs(readyCard.y - pendingCard.y)).toBeLessThanOrEqual(1);
 						expect(Math.abs(readyCard.width - pendingCard.width)).toBeLessThanOrEqual(1);
-						expect(Math.abs(readyCard.height - pendingCard.height)).toBeLessThanOrEqual(1);
+						if (path === "/dashboard") {
+							await expect(page.locator('main [data-slot="document-card"]')).toHaveCount(1);
+							await expect(page.locator("main article img, main article canvas, main .aspect-page")).toHaveCount(0);
+						}
+						expect(
+							Math.abs(readyCard.height - pendingCard.height),
+							JSON.stringify({ pending: pendingRowGeometry, ready: pendingRowGeometry ? await rowGeometry() : null }),
+						).toBeLessThanOrEqual(1);
 					}
 					expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 				} finally {

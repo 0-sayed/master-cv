@@ -23,7 +23,7 @@ function compiledTranslation(catalog: Awaited<ReturnType<typeof loadCatalog>>[1]
 it.each([
 	["Left", "يسار"],
 	["Saving...", "جارٍ الحفظ…"],
-	["heard back", "تلقّت ردًا"],
+	["Heard back", "تلقيت ردًا", "applications.insights.reply"],
 	["Leads with why you fit", "يبدأ بأسباب ملاءمتك للوظيفة"],
 	["Hide Link Underline", "إخفاء تسطير الروابط"],
 	["Basic information", "المعلومات الأساسية"],
@@ -31,15 +31,15 @@ it.each([
 	["Location", "المدينة والدولة"],
 	// T004 owner followups replaced generic loading text with brand motion; check progress remains localized.
 	["Checking…", "جارٍ الفحص…"],
-	// F03 retired the public score/verdict and import CTA in favor of the private workspace boundary.
-	["Check your CV in your private workspace", "افحص سيرتك الذاتية في مساحة عملك الخاصة"],
+	["A CV screening systems can read", "سيرة تقرأها أنظمة الفرز", "landing.ats.title"],
 	[
-		"Import and review your CV, then check the exact PDF from its editor. No public file upload is available.",
-		"استورد سيرتك وراجعها، ثم افحص ملف PDF نفسه من المحرر. رفع الملفات للعامة غير متاح.",
+		"We check your PDF file itself and show what to fix. No pass score: no tool can promise one.",
+		"نفحص ملف PDF نفسه ونوضّح ما يحتاج إلى إصلاح، بلا درجة نجاح، فلا توجد أداة تضمنها.",
+		"landing.ats.body",
 	],
-] as const)("renders the intended Arabic meaning for %s", async (message, expected) => {
+] as const)("renders the intended Arabic meaning for %s", async (message, expected, context?: string) => {
 	const [locale, catalog] = (await catalogs)[0];
-	const id = generateMessageId(message);
+	const id = generateMessageId(message, context);
 	const entry = catalog[id];
 	expect(entry, message).toBeDefined();
 	expect(entry?.translation, message).toBeTruthy();

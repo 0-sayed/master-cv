@@ -45,10 +45,7 @@ function CareerLayout() {
 
 	return (
 		<div className="contents">
-			<PageHeader
-				title={<Trans>Career</Trans>}
-				description={<Trans>Plan your search, keep your evidence in one place, and decide between offers.</Trans>}
-			>
+			<PageHeader title={<Trans>Career</Trans>}>
 				<Tabs
 					value={current?.to ?? null}
 					className="-mx-4 max-w-[100vw] [scrollbar-width:none] overflow-x-auto px-4 sm:mx-0 sm:px-0"

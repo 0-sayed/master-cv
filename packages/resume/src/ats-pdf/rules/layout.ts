@@ -227,10 +227,25 @@ export const layoutChecks: readonly PdfCheck[] = [
 		const modal = context.doc.modalFontSize;
 		if (!modal) return skip("insufficient-data");
 
-		return failIf(modal < THRESHOLDS.layout.minBodyFontSize, "SMALL_BODY_TEXT", {
-			fontSize: Math.round(modal * 10) / 10,
-			minimum: THRESHOLDS.layout.minBodyFontSize,
-		});
+		return failIf(
+			modal < THRESHOLDS.layout.minBodyFontSize,
+			"SMALL_BODY_TEXT",
+			{
+				fontSize: Math.round(modal * 10) / 10,
+				minimum: THRESHOLDS.layout.minBodyFontSize,
+			},
+			{
+				locations: context.doc.lines.flatMap((line) =>
+					line.spans
+						.filter((span) => span.fontSize < THRESHOLDS.layout.minBodyFontSize && span.text.trim())
+						.map((span) => ({
+							page: line.page,
+							box: { x: span.x, y: span.y, width: span.width, height: span.height },
+							snippet: span.text,
+						})),
+				),
+			},
+		);
 	}),
 
 	check("MANY_DISTINCT_FONTS", (context) =>

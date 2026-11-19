@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-17 06:47+0200\n"
+"POT-Creation-Date: 2026-11-18 09:46+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -676,8 +676,8 @@ msgid "24 hours before"
 msgstr "24 jam sebelumnya"
 
 #: src/features/letters/share.tsx
-msgid "A backup of this letter. Imports back into Reactive Resume as a letter."
-msgstr "Cadangan surat ini. Impor kembali ke Reactive Resume sebagai surat."
+msgid "A backup of this letter. Imports back into Sirawise as a letter."
+msgstr ""
 
 #: src/features/check/issues.ts
 msgid "A city and country let roles be matched to where you are."
@@ -1562,10 +1562,6 @@ msgstr "Minta asisten untuk mengerjakannya"
 msgid "Ask the coach"
 msgstr "Tanya coach"
 
-#: src/features/share/download.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "Tanyakan ke komunitas. Hapus detail pribadi sebelum memposting."
-
 #: src/features/ai/error.ts
 msgid "Ask your server administrator to enable credential encryption or configure a shared connection."
 msgstr "Minta administrator server Anda untuk mengaktifkan enkripsi kredensial atau mengonfigurasi koneksi bersama."
@@ -1600,7 +1596,6 @@ msgid "ATS checker"
 msgstr "Pemeriksa ATS"
 
 #: src/features/ats-checker/checker.tsx
-#: src/features/search/search-screen.tsx
 msgid "ATS Checker"
 msgstr "Pemeriksa ATS"
 
@@ -1864,10 +1859,6 @@ msgstr "Daftar berpoin"
 msgid "Burgundy"
 msgstr "merah anggur"
 
-#: app/(tabs)/settings/index.tsx
-msgid "by <0>Amruth Pillai</0>"
-msgstr "oleh <0>Amruth Pillai</0>"
-
 #: src/features/applications-board/views.tsx
 msgid "Calendar"
 msgstr "Kalender"
@@ -1981,14 +1972,6 @@ msgstr "Perubahan pada “{name}” disimpan di perangkat lain. Hasil edit Anda 
 #: app/builder/[id]/_layout.tsx
 msgid "Check"
 msgstr "Pemeriksaan"
-
-#: src/features/search/search-screen.tsx
-msgid "Check a PDF"
-msgstr "Periksa PDF"
-
-#: src/features/documents/new-document.tsx
-msgid "Check a PDF with the ATS checker"
-msgstr "Periksa PDF dengan pemeriksa ATS"
 
 #: src/features/ats-checker/checker.tsx
 msgid "Check a sample file"
@@ -2327,8 +2310,8 @@ msgid "Compares your resume with the posting"
 msgstr "Bandingkan resume Anda dengan lowongan pekerjaan"
 
 #: src/features/share/download.tsx
-msgid "Complete data backup. Imports back into Reactive Resume or JSON Resume tools."
-msgstr "Selesaikan pencadangan data. Impor kembali ke alat Reactive Resume atau JSON Resume."
+msgid "Complete data backup. Imports back into Sirawise or JSON Resume tools."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
@@ -3425,10 +3408,6 @@ msgstr "Jangan kirim lowongan {0}"
 msgid "Don't share"
 msgstr "Jangan berbagi"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Donate on Open Collective"
-msgstr "Berdonasi di Open Collective"
-
 #: src/features/applications/list-screen.tsx
 #: src/features/career/today.tsx
 #: src/features/documents/library.tsx
@@ -3784,8 +3763,8 @@ msgid "Enter any model ID supported by your endpoint."
 msgstr "Masukkan ID model apa pun yang didukung oleh titik akhir Anda."
 
 #: app/(auth)/server.tsx
-msgid "Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue."
-msgstr "Masukkan alamat tempat Anda membuka Reactive Resume di browser. Aplikasi memeriksa bahwa itu adalah server Reactive Resume yang mengizinkan masuk aplikasi sebelum Anda melanjutkan."
+msgid "Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue."
+msgstr ""
 
 #: src/features/public/public-resume.tsx
 msgid "Enter the password the resume owner shared with you."
@@ -4186,10 +4165,6 @@ msgstr "Dapatkan masukan mengirim pertanyaan, jawaban Anda, lowongan ini, dan ce
 msgid "Get new roles here every morning"
 msgstr "Dapatkan posisi baru di sini setiap pagi"
 
-#: src/features/share/download.tsx
-msgid "Get resume feedback on Discord"
-msgstr "Dapatkan masukan resume di Discord"
-
 #: src/features/letters/write.tsx
 msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "Semakin lama. Coba “Lebih Pendek”, atau potong paragraf yang paling tidak spesifik."
@@ -4280,6 +4255,10 @@ msgstr "terdengar kembali"
 #: src/features/settings/locale-names.ts
 msgid "Hebrew"
 msgstr "Ibrani"
+
+#: src/features/share/download.tsx
+msgid "Help"
+msgstr ""
 
 #: app/(tabs)/settings/index.tsx
 msgid "Help & docs"
@@ -4742,10 +4721,6 @@ msgstr "Alur pencarian kerja"
 #: src/features/search/search-screen.tsx
 msgid "Jobs"
 msgstr "Pekerjaan"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Join the Discord"
-msgstr "Bergabung ke Discord"
 
 #: src/features/letters/share.tsx
 #: src/features/share/download.tsx
@@ -5286,8 +5261,8 @@ msgid "Lower the design sheet"
 msgstr "Turunkan lembar desain"
 
 #: src/features/public/public-resume.tsx
-msgid "Made with Reactive Resume, free and open source"
-msgstr "Dibuat dengan Reactive Resume, gratis dan open source"
+msgid "Made with Sirawise, free and open source"
+msgstr ""
 
 #. Layout editor column label for the primary content area
 #: src/features/design/layout-screen.tsx
@@ -5963,10 +5938,6 @@ msgstr "Tidak ada foto. Kebanyakan ATS mengabaikan foto; beberapa daerah menghar
 msgid "No postings found. Try different keywords."
 msgstr "Tidak ada lowongan pekerjaan yang ditemukan. Coba kata kunci yang berbeda."
 
-#: src/auth/messages.ts
-msgid "No Reactive Resume server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
-msgstr "Tidak ada server Reactive Resume yang menjawab di alamat ini. Periksa ejaannya, atau tanyakan kepada administrator Anda apakah server mengizinkan masuk aplikasi."
-
 #: src/features/check/job-match.tsx
 msgid "No recognisable terms in this posting."
 msgstr "Tidak ada istilah yang dapat dikenali dalam lowongan ini."
@@ -5986,6 +5957,10 @@ msgstr "Tidak ada hasil"
 #: src/features/letters/write.tsx
 msgid "No resume"
 msgstr "Tidak ada resume"
+
+#: src/auth/messages.ts
+msgid "No Sirawise server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "No skills section was found."
@@ -6645,8 +6620,8 @@ msgid "PDF check cancelled. Retry when ready."
 msgstr "Cek PDF dibatalkan. Mencoba kembali jika sudah siap."
 
 #: src/features/application-detail/sections.tsx
-msgid "PDF only · up to 10 MB each. Linking a Reactive Resume enables AI match scoring and tailoring."
-msgstr "PDF saja · masing-masing hingga 10 MB. Menautkan Reactive Resume memungkinkan penilaian dan penyesuaian kecocokan AI."
+msgid "PDF only · up to 10 MB each. Linking a Sirawise enables AI match scoring and tailoring."
+msgstr ""
 
 #: src/features/design/advanced.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
@@ -6654,11 +6629,11 @@ msgstr "Gaya PDF mendukung subset CSS. Rotasi, batas putus-putus dan putus-putus
 
 #: src/features/documents/new-document.tsx
 msgid "PDF uses your AI provider when one is ready. Turn off the AI switch to read its text layer on your server. Word (.docx) needs an AI provider. Current and v4 Reactive Resume JSON, cover letters, JSON Resume and LinkedIn exports (.zip) are supported. Up to 10 MB."
-msgstr "PDF memakai penyedia AI jika siap. Matikan AI untuk membaca lapisan teks di server Anda. Word (.docx) memerlukan penyedia AI. Mendukung JSON Reactive Resume versi saat ini dan v4, surat lamaran, JSON Resume, serta ekspor LinkedIn (.zip). Maksimal 10 MB."
+msgstr "PDF memakai penyedia AI jika siap. Matikan AI untuk membaca lapisan teks di server Anda. Word (.docx) memerlukan penyedia AI. Mendukung JSON Sirawise versi saat ini dan v4, surat lamaran, JSON Resume, serta ekspor LinkedIn (.zip). Maksimal 10 MB."
 
 #: src/features/documents/new-document.tsx
 msgid "PDF, Word, Reactive Resume, JSON Resume or LinkedIn export."
-msgstr "Ekspor PDF, Word, Reactive Resume, JSON Resume, atau LinkedIn."
+msgstr "Ekspor PDF, Word, Sirawise, JSON Resume, atau LinkedIn."
 
 #: src/features/career/offers.tsx
 #: src/features/career/preferences.tsx
@@ -7102,10 +7077,6 @@ msgstr "Ekspor ulang dengan font tersemat, lalu periksa apakah teksnya tersalin 
 msgid "Re-export with fonts embedded, then open the file and check that the text copies out cleanly."
 msgstr "Ekspor ulang dengan font tersemat, lalu buka file dan periksa apakah teksnya tersalin dengan bersih."
 
-#: src/auth/auth-header.tsx
-msgid "Reactive Resume"
-msgstr "Reactive Resume"
-
 #: src/features/workspace/tabs/prepare.tsx
 msgid "Read briefing"
 msgstr "Baca briefing"
@@ -7512,10 +7483,6 @@ msgstr "Laporan"
 msgid "Report AI content"
 msgstr "Laporkan konten AI"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Report an issue"
-msgstr "Laporkan masalah"
-
 #: src/features/ai/report-content.tsx
 msgid "Report received by your server operator. Thank you."
 msgstr "Laporan diterima oleh operator server Anda. Terima kasih."
@@ -7607,10 +7574,6 @@ msgstr "CV tidak dapat dimuat."
 #: src/features/document-menu/index.tsx
 msgid "Resume details"
 msgstr "rincian resume"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Resume feedback, product help, and community ideas."
-msgstr "Masukan resume, bantuan produk, dan ide komunitas."
 
 #: src/features/application-detail/sections.tsx
 msgid "Resume file"
@@ -8309,10 +8272,6 @@ msgstr "Siapkan penelusuran web di Pengaturan untuk menemukan peran."
 msgid "Settings"
 msgstr "Pengaturan"
 
-#: app/(tabs)/settings/ai-mcp.tsx
-msgid "Setup guide"
-msgstr "Panduan pengaturan"
-
 #: src/features/ai/report-content.tsx
 msgid "Sexual content"
 msgstr "Konten seksual"
@@ -8615,6 +8574,11 @@ msgstr "Keluar, namun beberapa data di perangkat ini tidak dapat dihapus."
 msgid "since last view"
 msgstr "sejak tampilan terakhir"
 
+#: src/auth/auth-header.tsx
+#: src/shell/app-tabs.tsx
+msgid "Sirawise"
+msgstr "Sirawise"
+
 #: src/features/career/stories.tsx
 msgid "Situation (required)"
 msgstr "Situasi (wajib)"
@@ -8756,10 +8720,6 @@ msgstr "Sumber"
 msgid "Source and correction history"
 msgstr "Sumber dan riwayat koreksi"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Source code on GitHub"
-msgstr "Kode sumber di GitHub"
-
 #: src/features/assistant/chat-view.tsx
 #: src/features/assistant/messages.tsx
 msgid "Sources"
@@ -8867,6 +8827,10 @@ msgstr "Mulailah mengetik, atau membuat draf dari apa yang kami ketahui: posting
 #: src/features/letters/write.tsx
 msgid "Start typing, or draft from what we know: your resume."
 msgstr "Mulailah mengetik, atau membuat draf dari apa yang kami ketahui: resume Anda."
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr ""
 
 #: src/features/letters/write.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
@@ -10912,8 +10876,8 @@ msgid "your Knowledge"
 msgstr "Pengetahuan Anda"
 
 #: app/(tabs)/settings/preferences.tsx
-msgid "Your language is saved. Restart Reactive Resume to apply the new left-to-right or right-to-left layout."
-msgstr "Bahasa Anda disimpan. Mulai ulang Reactive Resume untuk menerapkan tata letak kiri-ke-kanan atau kanan-ke-kiri yang baru."
+msgid "Your language is saved. Restart Sirawise to apply the new left-to-right or right-to-left layout."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Your lines are packed very tightly."

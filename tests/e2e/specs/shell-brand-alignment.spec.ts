@@ -24,9 +24,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 						const sidebar = page.getByRole("complementary");
 						const header = page.locator('header:has(> [data-slot="dashboard-header-content"])');
 						const mark = (width === 1440 ? sidebar : header).locator('[data-slot="brand-mark"]');
-						const nav = (width === 1440 ? sidebar : page.locator('[data-slot="app-bottom-nav"]')).locator(
-							'a[href="/dashboard"] svg',
-						);
+						const nav =
+							width === 1440
+								? sidebar.locator('a[href="/dashboard"] svg')
+								: page.locator('[data-slot="app-bottom-nav"] a[href="/dashboard/career/information"] svg').first();
 						const markBox = await mark.boundingBox();
 						const navBox = await nav.boundingBox();
 						if (!markBox || !navBox) throw new Error("Missing shell brand or navigation icon");

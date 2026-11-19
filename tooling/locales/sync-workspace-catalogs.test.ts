@@ -23,6 +23,8 @@ it("synchronizes active auth, account and application copy without updating unre
 	const source = [
 		'#: src/routes/auth/native-callback.tsx\nmsgid "Native callback"\nmsgstr "Old callback"\n',
 		'#: src/features/user/dropdown-menu.tsx\nmsgid "Account menu"\nmsgstr "Old menu"\n',
+		'#: src/features/ats-guide/copy.ts\nmsgid "Review guide"\nmsgstr "Old guide"\n',
+		'#: src/features/homepage/header.tsx\nmsgid "Open my workspace"\nmsgstr "Old workspace action"\n',
 		'#: src/features/applications/components/import-applications-sheet.tsx\nmsgid "Choose file"\nmsgstr "Old file choice"\n',
 		'#: src/features/legacy/example.tsx\nmsgid "Legacy copy"\nmsgstr "Old legacy"\n',
 		'#: src/routes/auth/native-callback.tsx\n#~ msgid "Obsolete callback"\n#~ msgstr "Old obsolete"\n',
@@ -50,6 +52,10 @@ it("synchronizes active auth, account and application copy without updating unre
 		);
 		expect(messages["Native callback"]).toBe(locale === "en-US" ? "Updated Native callback" : "محدث Native callback");
 		expect(messages["Account menu"]).toBe(locale === "en-US" ? "Updated Account menu" : "محدث Account menu");
+		expect(messages["Review guide"]).toBe(locale === "en-US" ? "Updated Review guide" : "محدث Review guide");
+		expect(messages["Open my workspace"]).toBe(
+			locale === "en-US" ? "Updated Open my workspace" : "محدث Open my workspace",
+		);
 		expect(messages["Choose file"]).toBe(locale === "en-US" ? "Updated Choose file" : "محدث Choose file");
 		expect(messages["Legacy copy"]).toBe("Old legacy");
 		expect(messages["Obsolete callback"]).toBe("Old obsolete");

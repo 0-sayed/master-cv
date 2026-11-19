@@ -30,7 +30,11 @@ const tabsListVariants = cva(
 			},
 			size: {
 				touch: "group-data-horizontal/tabs:h-auto",
+				panel: "w-full gap-0 group-data-horizontal/tabs:h-(--space-56)",
+				review: "w-full gap-0.5 group-data-horizontal/tabs:h-11 group-data-horizontal/tabs:overflow-visible",
+				compact: "gap-1 group-data-horizontal/tabs:h-11 group-data-horizontal/tabs:overflow-visible",
 				toolbar: "group-data-horizontal/tabs:h-11 pointer-coarse:group-data-horizontal/tabs:h-12",
+				page: "w-full gap-1 group-data-horizontal/tabs:h-(--space-56) group-data-horizontal/tabs:overflow-visible sm:w-fit",
 			},
 		},
 		defaultVariants: {
@@ -42,16 +46,24 @@ const tabsListVariants = cva(
 function TabsList({
 	className,
 	variant = "default",
+	layout = "scroll",
 	size,
 	children,
 	...props
-}: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
+}: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants> & { layout?: "scroll" | "wrap" | "equal" }) {
 	return (
 		<TabsPrimitive.List
 			data-slot="tabs-list"
 			data-variant={variant}
 			data-size={size}
-			className={cn(tabsListVariants({ variant, size }), className)}
+			data-layout={layout}
+			className={cn(
+				tabsListVariants({ variant, size }),
+				layout === "equal" && "w-full",
+				layout === "wrap" &&
+					"h-auto flex-wrap group-data-horizontal/tabs:h-auto group-data-horizontal/tabs:overflow-visible",
+				className,
+			)}
 			{...props}
 		>
 			<TabsIndicator />
@@ -71,7 +83,7 @@ function TabsIndicator({ className, ...props }: TabsPrimitive.Indicator.Props) {
 			className={cn(
 				"absolute left-0 w-(--active-tab-width) translate-x-(--active-tab-left) transition-[translate,width,height] duration-standard ease-in-out-strong group-data-instant/tabs-list:transition-none",
 				"group-data-[variant=default]/tabs-list:top-0 group-data-[variant=default]/tabs-list:h-(--active-tab-height) group-data-[variant=default]/tabs-list:translate-y-(--active-tab-top) group-data-[variant=default]/tabs-list:rounded-sm group-data-[variant=default]/tabs-list:bg-raised group-data-[variant=default]/tabs-list:shadow-e1",
-				"group-data-[variant=line]/tabs-list:bottom-0 group-data-[variant=line]/tabs-list:h-0.5 group-data-[variant=line]/tabs-list:bg-ink",
+				"group-data-[size=panel]/tabs-list:bg-accent group-data-[variant=line]/tabs-list:bottom-0 group-data-[variant=line]/tabs-list:h-0.5 group-data-[variant=line]/tabs-list:bg-ink",
 				className,
 			)}
 			{...props}
@@ -84,9 +96,12 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
 		<TabsPrimitive.Tab
 			data-slot="tabs-trigger"
 			className={cn(
-				"touch-target relative inline-flex min-w-fit items-center justify-center gap-1.5 font-medium whitespace-nowrap transition-colors duration-quick group-data-[size=touch]/tabs-list:min-h-11 group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-ink disabled:pointer-events-none disabled:text-ink-3 aria-disabled:pointer-events-none aria-disabled:text-ink-3 data-active:text-ink [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+				"touch-target relative inline-flex min-w-fit items-center justify-center gap-1.5 font-medium whitespace-nowrap transition-colors duration-quick group-data-[layout=equal]/tabs-list:min-w-0 group-data-[layout=equal]/tabs-list:flex-1 group-data-[size=touch]/tabs-list:min-h-11 group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start hover:text-ink disabled:pointer-events-none disabled:text-ink-3 aria-disabled:pointer-events-none aria-disabled:text-ink-3 data-active:text-ink group-data-[size=panel]/tabs-list:data-active:text-accent-text [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 				"group-data-[variant=default]/tabs-list:h-full group-data-[variant=default]/tabs-list:flex-1 group-data-[variant=default]/tabs-list:rounded-sm group-data-[variant=default]/tabs-list:px-3 group-data-[variant=default]/tabs-list:type-label",
+				"group-data-[size=page]/tabs-list:min-w-0 group-data-[size=page]/tabs-list:gap-1 group-data-[size=page]/tabs-list:type-body group-data-[size=page]/tabs-list:font-medium! group-data-[variant=default]/tabs-list:group-data-[size=page]/tabs-list:px-2 sm:group-data-[size=page]/tabs-list:min-w-fit sm:group-data-[variant=default]/tabs-list:group-data-[size=page]/tabs-list:flex-none sm:group-data-[variant=default]/tabs-list:group-data-[size=page]/tabs-list:px-4 group-data-[size=page]/tabs-list:data-active:text-accent-text group-data-[size=page]/tabs-list:[&>[data-slot=tabs-count]]:px-1 sm:group-data-[size=page]/tabs-list:[&>[data-slot=tabs-count]]:px-2 group-data-[size=page]/tabs-list:[&>span]:shrink-0",
 				"group-data-[variant=line]/tabs-list:h-full group-data-[variant=line]/tabs-list:type-body",
+				"group-data-[size=compact]/tabs-list:flex-auto group-data-[size=compact]/tabs-list:shrink-0 group-data-[size=compact]/tabs-list:gap-1 group-data-[variant=line]/tabs-list:group-data-[size=compact]/tabs-list:type-metadata",
+				"group-data-[size=review]/tabs-list:flex-auto group-data-[size=review]/tabs-list:shrink-0 group-data-[size=review]/tabs-list:gap-0.5 group-data-[size=review]/tabs-list:type-control-compact! group-data-[size=review]/tabs-list:[&>[data-slot=icon]]:type-metadata! group-data-[size=review]/tabs-list:[&>[data-slot=tabs-count]]:px-0.5 group-data-[size=review]/tabs-list:[&>[data-slot=tabs-count]]:type-control-compact",
 				className,
 			)}
 			{...props}

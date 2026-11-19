@@ -1,3 +1,4 @@
+import type { RouterOutput } from "@/libs/orpc/client";
 import type { StoredDraft } from "@/libs/stored-draft";
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { ImportReviewInput } from "@reactive-resume/schema/resume/import-review";
@@ -33,6 +34,15 @@ export type Resume = {
 	showDownloadButtons?: boolean | undefined;
 	/** The job application this resume was made for; Check's Job match reads its posting. */
 	applicationId?: string | null;
+};
+
+export type ResumeRestoreResult = RouterOutput["resume"]["restoreVersion"];
+export type RestoreUndoReceipt = {
+	ownerId: string;
+	resumeId: string;
+	versionId: string;
+	expectedUpdatedAt: Date;
+	editGeneration: number;
 };
 
 // Mirrors the server-side ResumeUpdatedEvent discriminator (packages/api resume/events.ts).
@@ -84,7 +94,8 @@ type ResumeStoreActions = {
 	restoreLocalDraft: () => void;
 	discardLocalDraft: () => void;
 	resolveConflict: (choice: "save-copy" | "open-saved") => Promise<string | undefined>;
-	restoreVersion: (versionId: string) => Promise<Resume>;
+	restoreVersion: (versionId: string) => Promise<ResumeRestoreResult>;
+	undoVersionRestore: (receipt: RestoreUndoReceipt) => Promise<Resume>;
 	reset: () => void;
 	replaceResumeDraft: (resume: Resume) => void;
 	replaceResumeFromServer: (resume: Resume, expectedGeneration?: number) => boolean;
@@ -101,6 +112,7 @@ type ResumeStoreActions = {
 type ResumeStore = ResumeStoreState & ResumeStoreActions;
 
 type Runtime = {
+	restoreReceipt?: RestoreUndoReceipt;
 	conflictCopy?: ImportReviewInput | undefined;
 	abortController: AbortController;
 	baseline?: Date;
@@ -295,6 +307,46 @@ function setRuntimeBaseline(resume: Resume) {
 	runtime.pendingResume = undefined;
 	runtime.baseline = resume.updatedAt;
 	runtime.conflict = false;
+}
+
+async function applyVersionRestore(
+	versionId: string,
+	expectedUpdatedAt: Date,
+	runtime: Runtime,
+	generation: number,
+	ownerId: string,
+	resumeId: string,
+): Promise<ResumeRestoreResult> {
+	const signal = runtime.abortController.signal;
+	try {
+		const result = await orpc.resume.restoreVersion.call({ resumeId, versionId, expectedUpdatedAt }, { signal });
+		signal.throwIfAborted();
+		const { beforeRestoreVersionId: _checkpoint, ...resume } = result;
+		if (
+			runtimes.get(resumeId) !== runtime ||
+			useResumeStore.getState().ownerId !== ownerId ||
+			!useResumeStore.getState().replaceResumeFromServer(resume, generation)
+		)
+			throw new Error(t`The document changed. Try again.`);
+		runtime.queryClient?.setQueryData(getResumeQueryKey(resumeId), resume);
+		useResumeStore.getState().setSaveStatus("saved");
+		return result;
+	} catch (error) {
+		if (
+			!signal.aborted &&
+			runtimes.get(resumeId) === runtime &&
+			useResumeStore.getState().ownerId === ownerId &&
+			error instanceof ORPCError &&
+			(error.code === "RESUME_VERSION_CONFLICT" || error.status === 409)
+		) {
+			runtime.conflict = true;
+			runtime.syncResume.cancel();
+			const current = useResumeStore.getState().resume;
+			if (current) storeUnsavedResume(current);
+			useResumeStore.getState().setSaveStatus("conflict");
+		}
+		throw error;
+	}
 }
 
 async function flushResumeSave(id: string) {
@@ -524,25 +576,62 @@ export const useResumeStore = create<ResumeStore>()(
 		},
 		restoreVersion: async (versionId) => {
 			const { resume, ownerId } = get();
-			if (!resume || get().recoveryDraft || !(await savePendingChanges(resume.id)))
+			if (!resume || !ownerId || get().recoveryDraft || !(await savePendingChanges(resume.id)))
 				throw new Error(t`Couldn't save your changes. Try again before continuing.`);
 			if (get().ownerId !== ownerId || get().resumeId !== resume.id)
 				throw new Error(t`The document changed. Try again.`);
 			const runtime = getRuntime(resume.id);
-			const generation = get().editGeneration;
-			const signal = runtime.abortController.signal;
-			const restored = (await orpc.resume.restoreVersion.call(
-				{ resumeId: resume.id, versionId, expectedUpdatedAt: get().acknowledgedUpdatedAt ?? resume.updatedAt },
-				{ signal },
-			)) as Resume;
-			signal.throwIfAborted();
-			if (
-				runtimes.get(resume.id) !== runtime ||
-				get().ownerId !== ownerId ||
-				!get().replaceResumeFromServer(restored, generation)
-			)
-				throw new Error(t`The document changed. Try again.`);
+			const restored = await applyVersionRestore(
+				versionId,
+				get().acknowledgedUpdatedAt ?? resume.updatedAt,
+				runtime,
+				get().editGeneration,
+				ownerId,
+				resume.id,
+			);
+			runtime.restoreReceipt = {
+				ownerId,
+				resumeId: resume.id,
+				versionId: restored.beforeRestoreVersionId,
+				expectedUpdatedAt: restored.updatedAt,
+				editGeneration: get().editGeneration,
+			};
 			return restored;
+		},
+		undoVersionRestore: async (receipt) => {
+			const current = get();
+			const runtime = runtimes.get(receipt.resumeId);
+			const issued = runtime?.restoreReceipt;
+			if (
+				!runtime ||
+				!issued ||
+				current.ownerId !== receipt.ownerId ||
+				current.resumeId !== receipt.resumeId ||
+				current.editGeneration !== receipt.editGeneration ||
+				current.acknowledgedUpdatedAt?.getTime() !== receipt.expectedUpdatedAt.getTime() ||
+				current.recoveryDraft ||
+				current.localRecoveryAvailable ||
+				!["idle", "saved"].includes(current.saveStatus) ||
+				runtime.hasPendingLocalChanges ||
+				runtime.isSaving ||
+				runtime.pendingResume ||
+				runtime.conflict ||
+				issued.versionId !== receipt.versionId ||
+				issued.editGeneration !== receipt.editGeneration ||
+				issued.expectedUpdatedAt.getTime() !== receipt.expectedUpdatedAt.getTime()
+			)
+				throw new Error(t`The document changed. Review your current work before restoring again.`);
+			const result = await applyVersionRestore(
+				receipt.versionId,
+				receipt.expectedUpdatedAt,
+				runtime,
+				receipt.editGeneration,
+				receipt.ownerId,
+				receipt.resumeId,
+			);
+			delete runtime.restoreReceipt;
+			const { beforeRestoreVersionId: _checkpoint, ...resume } = result;
+			return resume;
 		},
 		resolveConflict: async (choice) => {
 			const { resume, ownerId } = get();

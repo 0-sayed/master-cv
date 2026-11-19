@@ -17,7 +17,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { Badge } from "@reactive-resume/ui/components/badge";
 import { useFormControl } from "@reactive-resume/ui/components/form";
-import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Kbd } from "@reactive-resume/ui/components/kbd";
 import { cn } from "@reactive-resume/utils/style";
@@ -103,11 +103,11 @@ function ChipItem({ id, chip, index, isEditing, onEdit, onRemove }: ChipItemProp
 						isEditing ? "opacity-100" : "opacity-65",
 					)}
 				>
-					<button
+					<IconButton
 						type="button"
 						tabIndex={-1}
-						className="rounded-sm p-0.5 text-ink/70 transition-colors hover:bg-sunken hover:text-ink focus:outline-none"
-						aria-label={t({
+
+						label={t({
 							comment:
 								"Screen reader label for button that edits a keyword chip. Variable is the current keyword text.",
 							message: `Edit ${chip}`,
@@ -116,14 +116,14 @@ function ChipItem({ id, chip, index, isEditing, onEdit, onRemove }: ChipItemProp
 							e.stopPropagation();
 							onEdit(index);
 						}}
-					>
-						<Icon name="pencil-simple" size={14} />
-					</button>
-					<button
+						icon="pencil-simple"
+						iconSize={14}
+					/>
+					<IconButton
 						type="button"
 						tabIndex={-1}
-						className="rounded-sm p-0.5 text-ink/70 transition-colors hover:bg-danger/10 hover:text-danger-text focus:outline-none"
-						aria-label={t({
+
+						label={t({
 							comment:
 								"Screen reader label for button that removes a keyword chip. Variable is the current keyword text.",
 							message: `Remove ${chip}`,
@@ -132,9 +132,9 @@ function ChipItem({ id, chip, index, isEditing, onEdit, onRemove }: ChipItemProp
 							e.stopPropagation();
 							onRemove(index);
 						}}
-					>
-						<Icon name="x" size={14} />
-					</button>
+						icon="x"
+						iconSize={14}
+					/>
 				</div>
 			</Badge>
 		</div>

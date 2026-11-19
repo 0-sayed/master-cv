@@ -82,6 +82,8 @@ it("keeps the selected job and copy name inline after a quota denial", async () 
 			trashedAt: null,
 			createdAt: new Date(),
 			updatedAt: new Date(),
+			metadata: null,
+			letterStatus: null,
 			application: null,
 		},
 	]);
@@ -129,6 +131,8 @@ it("continues to the exact-job workflow without creating a copy or opening an as
 			trashedAt: null,
 			createdAt: new Date(),
 			updatedAt: new Date(),
+			metadata: null,
+			letterStatus: null,
 			application: null,
 		},
 	]);

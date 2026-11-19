@@ -199,6 +199,7 @@ export type DetectedHeading = {
 };
 
 export type ContactEntities = {
+	personalEmails: readonly string[];
 	emails: readonly string[];
 	phones: readonly string[];
 	/** URLs found in the text itself. */
@@ -218,6 +219,7 @@ export type DateToken = {
 	raw: string;
 	page: number;
 	lineIndex: number;
+	segmentX?: number;
 	kind: "range" | "single";
 	/** False when the token looks like a date but no recognised format matched it. */
 	parsed: boolean;
@@ -271,7 +273,7 @@ export type ResumeSemantics = {
 	/** Numeric dates such as 03/04/2022, which read differently by region. */
 	ambiguousNumericDates: readonly string[];
 	/** Gaps of more than a year between the end of one dated role and the start of the next. */
-	employmentGapYears: readonly { from: number; to: number }[];
+	employmentGapYears: readonly { from: number; to: number; before: DateToken; after: DateToken }[];
 	/** Bullet openings that repeat verbatim across the document. */
 	repeatedBulletOpenings: readonly string[];
 	/** Lines repeated in the same margin zone on every page. */
@@ -289,6 +291,7 @@ export type PdfSeverity = "blocker" | "warning" | "tip";
 export type PdfFindingParams = Readonly<Record<string, string | number>>;
 
 export type PdfEvidence = {
+	locations?: readonly { page: number; box: BoundingBox; snippet?: string }[];
 	/** Verbatim text from the file that demonstrates the finding. */
 	snippet?: string;
 	page?: number;

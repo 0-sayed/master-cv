@@ -7,6 +7,9 @@ import {
 	ONGOING_TOKENS_BY_LANGUAGE,
 } from "@reactive-resume/schema/resume/period";
 import { normalizeNumericDigits } from "@reactive-resume/utils/string";
+import { normalizeSectionHeading, PDF_SECTION_HEADING_LOOKUP } from "../../ats/section-aliases";
+import { columnSegments } from "../extract";
+import { THRESHOLDS } from "../rules/thresholds";
 
 const MONTH_WORD = String.raw`[\p{L}\p{M}]{3,12}\.?`;
 const ENDPOINT = String.raw`(?:${MONTH_WORD}\s*'?\d{2,4}|\d{1,2}[/.\-]\d{2,4}|\d{4})`;
@@ -108,7 +111,7 @@ export type DateAnalysis = {
 	unparseableRanges: string[];
 	ambiguousNumericDates: string[];
 	/** Gaps of more than a year between one role ending and the next beginning. */
-	gaps: { from: number; to: number }[];
+	gaps: { from: number; to: number; before: DateToken; after: DateToken }[];
 };
 
 /**
@@ -119,43 +122,62 @@ export function analyzeDates(document: ExtractedDocument, locale: string, now: D
 	const tokens: DateToken[] = [];
 	const unparseableRanges: string[] = [];
 	const ambiguousNumericDates: string[] = [];
+	const experienceTokens: DateToken[] = [];
+	const sections = new Map<number, string>();
 
-	document.lines.forEach((line, lineIndex) => {
-		// Digit conversion is length preserving; candidate offsets still point into the raw evidence.
-		const numeric = normalizeNumericDigits(line.text);
-		const ranges: string[] = [];
-		let rangeEnd = 0;
-		// Overlapping candidates let a rejected non-month word expose the numeric range after it.
-		for (const match of numeric.matchAll(RANGE_PATTERN)) {
-			if (match.index < rangeEnd || !match[1]) continue;
-			const raw = line.text.slice(match.index, match.index + match[1].length);
-			if (!looksLikeDateWords(raw, locale)) continue;
-			ranges.push(raw);
-			rangeEnd = match.index + raw.length;
-		}
-		for (const raw of ranges) {
-			const token = toToken(raw.trim(), "range", line.page, lineIndex, locale, now);
-			tokens.push(token);
-			if (!token.parsed) unparseableRanges.push(token.raw);
-		}
+	document.lines.forEach((fullLine, lineIndex) => {
+		const page = document.pages.find((item) => item.pageNumber === fullLine.page);
+		for (const line of columnSegments(fullLine)) {
+			const gutter = page?.gutter;
+			const column =
+				gutter && gutter.splitRatio >= THRESHOLDS.layout.gutterSplitRatio && line.x >= gutter.x + gutter.width / 2
+					? 1
+					: 0;
+			const heading = normalizeSectionHeading(line.text);
+			const section =
+				PDF_SECTION_HEADING_LOOKUP.get(heading) ??
+				(/^(?:courses|training|الدورات|دورات|التدريب)$/u.test(heading) ? "certifications" : undefined);
+			if (section) sections.set(column, section);
+			// Digit conversion is length preserving; candidate offsets still point into the raw evidence.
+			const numeric = normalizeNumericDigits(line.text);
+			const ranges: string[] = [];
+			let rangeEnd = 0;
+			// Overlapping candidates let a rejected non-month word expose the numeric range after it.
+			for (const match of numeric.matchAll(RANGE_PATTERN)) {
+				if (match.index < rangeEnd || !match[1]) continue;
+				const raw = line.text.slice(match.index, match.index + match[1].length);
+				if (!looksLikeDateWords(raw, locale)) continue;
+				ranges.push(raw);
+				rangeEnd = match.index + raw.length;
+			}
+			for (const raw of ranges) {
+				const token = toToken(raw.trim(), "range", line.page, lineIndex, locale, now);
+				token.segmentX = line.x;
+				tokens.push(token);
+				if (sections.get(column) === "experience") experienceTokens.push(token);
+				if (!token.parsed) unparseableRanges.push(token.raw);
+			}
 
-		// A lone date inside a range we already captured would double-count it.
-		const withoutRanges = ranges.reduce((text, range) => text.replace(range, " "), line.text);
-		for (const match of normalizeNumericDigits(withoutRanges).matchAll(SINGLE_PATTERN)) {
-			const raw = withoutRanges.slice(match.index, match.index + match[0].length);
-			if (!looksLikeDateWords(raw, locale)) continue;
-			tokens.push(toToken(raw.trim(), "single", line.page, lineIndex, locale, now));
-		}
+			// A lone date inside a range we already captured would double-count it.
+			const withoutRanges = ranges.reduce((text, range) => text.replace(range, " "), line.text);
+			for (const match of normalizeNumericDigits(withoutRanges).matchAll(SINGLE_PATTERN)) {
+				const raw = withoutRanges.slice(match.index, match.index + match[0].length);
+				if (!looksLikeDateWords(raw, locale)) continue;
+				const token = toToken(raw.trim(), "single", line.page, lineIndex, locale, now);
+				token.segmentX = line.x;
+				tokens.push(token);
+			}
 
-		for (const match of numeric.matchAll(AMBIGUOUS_NUMERIC_PATTERN))
-			ambiguousNumericDates.push(line.text.slice(match.index, match.index + match[0].length));
+			for (const match of numeric.matchAll(AMBIGUOUS_NUMERIC_PATTERN))
+				ambiguousNumericDates.push(line.text.slice(match.index, match.index + match[0].length));
+		}
 	});
 
 	return {
 		tokens,
 		unparseableRanges: [...new Set(unparseableRanges)],
 		ambiguousNumericDates: [...new Set(ambiguousNumericDates)],
-		gaps: findGaps(tokens),
+		gaps: findGaps(experienceTokens),
 	};
 }
 
@@ -163,23 +185,28 @@ export function analyzeDates(document: ExtractedDocument, locale: string, now: D
  * A gap is reported, never scored. Time out of work is not a defect, and pretending a tool can
  * tell a sabbatical from a layoff from two numbers would be dishonest.
  */
-function findGaps(tokens: readonly DateToken[]): { from: number; to: number }[] {
+function findGaps(tokens: readonly DateToken[]): { from: number; to: number; before: DateToken; after: DateToken }[] {
 	const ranges = tokens
 		.filter((token) => token.kind === "range" && token.parsed && token.startYear !== null)
 		.map((token) => ({
+			token,
 			start: token.startYear as number,
 			end: token.ongoing ? Number.POSITIVE_INFINITY : (token.endYear ?? (token.startYear as number)),
 		}))
 		.sort((a, b) => a.start - b.start);
 
-	const gaps: { from: number; to: number }[] = [];
+	const gaps: { from: number; to: number; before: DateToken; after: DateToken }[] = [];
 	let covered = Number.NEGATIVE_INFINITY;
+	let last: DateToken | undefined;
 
 	for (const range of ranges) {
-		if (covered !== Number.NEGATIVE_INFINITY && range.start - covered > 1) {
-			gaps.push({ from: covered, to: range.start });
+		if (last && range.start - covered > 1) {
+			gaps.push({ from: covered, to: range.start, before: last, after: range.token });
 		}
-		covered = Math.max(covered, range.end);
+		if (range.end > covered) {
+			covered = range.end;
+			last = range.token;
+		}
 	}
 
 	return gaps.filter((gap) => Number.isFinite(gap.from) && Number.isFinite(gap.to));

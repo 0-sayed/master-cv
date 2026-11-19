@@ -24,8 +24,47 @@ import { submitReviewDecision } from "./review-client";
 import { ReviewLaunch, ReviewNotice, ReviewOperationPanel } from "./review-operation";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { useAssistantCopy } from "@/features/assistant/copy.generated";
+import { assistantAvailability } from "@/features/assistant/operation-state";
 import { savePendingChanges, useResumeStore } from "@/features/resume/builder/draft";
 import { client, orpc } from "@/libs/orpc/client";
+
+export function useResumeReviewSummary(): {
+	state: "loading" | "off" | "available" | "unavailable";
+	pendingCount: number | null;
+} {
+	const resumeId = useResumeStore((state) => state.resume?.id);
+	const availability = useQuery(orpc.ai.availability.queryOptions());
+	const usage = useQuery(orpc.ai.usage.get.queryOptions());
+	const status = assistantAvailability(
+		availability.data,
+		usage.data?.operations.remaining,
+		usage.data?.operations.reserved,
+	);
+	const enabled = Boolean(resumeId) && status !== "not_enabled" && status !== "loading";
+	const latest = useQuery({ ...orpc.ai.review.latest.queryOptions({ input: { resumeId: resumeId ?? "" } }), enabled });
+	const review = useQuery({
+		...orpc.ai.review.get.queryOptions({ input: { operationId: latest.data ?? "" } }),
+		enabled: enabled && Boolean(latest.data),
+	});
+	const state =
+		availability.error || usage.error
+			? "unavailable"
+			: status === "loading"
+				? "loading"
+				: status === "not_enabled"
+					? "off"
+					: status === "unavailable" || status === "exhausted"
+						? "unavailable"
+						: "available";
+	const bound = review.data?.result.sourceRevision.id === resumeId;
+	const pendingCount =
+		state === "off" || latest.error || review.error || !bound || review.data?.result.kind !== "wording"
+			? null
+			: review.data.result.proposals.filter(
+					(proposal) => (review.data?.statuses[proposal.id] ?? "pending") === "pending",
+				).length;
+	return { state, pendingCount: enabled && latest.isSuccess && latest.data === null ? 0 : pendingCount };
+}
 
 export function ReviewResultPanel({
 	operationId,

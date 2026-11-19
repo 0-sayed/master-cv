@@ -3,17 +3,24 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useId, useState } from "react";
 import { contactSchema } from "@reactive-resume/schema/applications/data";
+import { Avatar, AvatarFallback } from "@reactive-resume/ui/components/avatar";
 import { Button } from "@reactive-resume/ui/components/button";
 import { EmptyState } from "@reactive-resume/ui/components/empty-state";
 import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@reactive-resume/ui/components/popover";
 import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
+import { getInitials } from "@reactive-resume/utils/string";
 
 const EMPTY_CONTACT = { name: "", role: "", type: "", email: "", phone: "" };
 
-type ContactsProps = { contacts: Contact[]; disabled: boolean; onChange: (contacts: Contact[]) => void };
+type ContactsProps = {
+	contacts: Contact[];
+	disabled: boolean;
+	onChange: (contacts: Contact[]) => void | Promise<void>;
+};
 
 /** The Contact cell: the primary contact (the first), and the full list, with add and remove, in a popover. */
 export function Contacts({ contacts, disabled, onChange }: ContactsProps) {
@@ -21,12 +28,24 @@ export function Contacts({ contacts, disabled, onChange }: ContactsProps) {
 
 	return (
 		<Popover>
-			<PopoverTrigger className="grid min-w-0 rounded-md text-start hover:underline">
-				<span className="truncate text-sm font-medium">{primary ? primary.name : "—"}</span>
-				{others.length > 0 && <span className="text-xs text-ink-3">{t`and ${others.length} more`}</span>}
+			<PopoverTrigger
+				disabled={disabled}
+				aria-label={t`Contacts`}
+				render={<Button variant="secondary" size="row" />}
+				className="w-full justify-start text-start"
+			>
+				<Avatar size="sm" aria-hidden="true">
+					<AvatarFallback>{primary ? getInitials(primary.name) : <Icon name="user-circle" />}</AvatarFallback>
+				</Avatar>
+				<span className="grid min-w-0 gap-1">
+					<span dir="auto" className="type-label wrap-anywhere">
+						{primary ? primary.name : "—"}
+					</span>
+					{others.length > 0 && <span className="type-metadata text-ink-3">{t`and ${others.length} more`}</span>}
+				</span>
 			</PopoverTrigger>
 			<PopoverContent align="start" className="grid w-80 gap-3 p-3">
-				<h3 className="text-sm font-semibold">
+				<h3 className="type-body font-semibold">
 					<Trans>Contacts</Trans>
 				</h3>
 				<ContactList contacts={contacts} disabled={disabled} onChange={onChange} />
@@ -47,12 +66,16 @@ function ContactList({ contacts, disabled, onChange }: ContactsProps) {
 				: undefined,
 	});
 
-	const add = () => {
+	const add = async () => {
 		if (!validation.validate() || disabled) return;
 		// Checked with the API's schema here, so a mistyped email is caught before the draft is thrown away.
 		const parsed = contactSchema.safeParse(draft);
 		if (!parsed.success) return;
-		onChange([...contacts, parsed.data]);
+		try {
+			await onChange([...contacts, parsed.data]);
+		} catch {
+			return;
+		}
 		setDraft(EMPTY_CONTACT);
 		validation.reset();
 		setAdding(false);
@@ -83,33 +106,33 @@ function ContactList({ contacts, disabled, onChange }: ContactsProps) {
 				<EmptyState density="compact" icon="user-circle" title={<Trans>No contacts yet.</Trans>} />
 			)}
 			{contacts.map((contact, index) => (
-				<div key={`${contact.name}-${index}`} className="flex items-start gap-2.5 text-sm">
+				<div key={`${contact.name}-${index}`} className="flex items-start gap-2.5 type-body">
 					<div className="grid min-w-0 flex-1">
-						<span className="truncate font-medium">
+						<span dir="auto" className="type-label wrap-anywhere">
 							{contact.name}
 							{contact.type && <span className="font-normal text-ink-3"> · {contact.type}</span>}
 						</span>
-						{contact.role && <span className="truncate text-xs text-ink-3">{contact.role}</span>}
+						{contact.role && <span className="truncate type-metadata text-ink-3">{contact.role}</span>}
 						{contact.email && (
-							<a href={`mailto:${contact.email}`} className="truncate text-xs text-accent-text hover:underline">
+							<a href={`mailto:${contact.email}`} className="truncate type-metadata text-accent-text hover:underline">
 								{contact.email}
 							</a>
 						)}
 						{contact.phone && (
-							<a href={`tel:${contact.phone}`} className="truncate text-xs text-accent-text hover:underline">
+							<a href={`tel:${contact.phone}`} className="truncate type-metadata text-accent-text hover:underline">
 								{contact.phone}
 							</a>
 						)}
 					</div>
-					<Button
+					<IconButton
 						size="icon-xs"
-						variant="ghost"
+
 						disabled={disabled}
-						aria-label={t`Remove ${contact.name}`}
-						onClick={() => onChange(contacts.filter((_, i) => i !== index))}
-					>
-						<Icon name="x" size={16} />
-					</Button>
+						label={t`Remove ${contact.name}`}
+						onClick={() => void Promise.resolve(onChange(contacts.filter((_, i) => i !== index))).catch(() => {})}
+						icon="x"
+						iconSize={16}
+					/>
 				</div>
 			))}
 
@@ -119,7 +142,7 @@ function ContactList({ contacts, disabled, onChange }: ContactsProps) {
 					className="grid gap-2 rounded-lg border border-line p-2.5"
 					onSubmit={(event) => {
 						event.preventDefault();
-						add();
+						void add();
 					}}
 				>
 					{field("name", t`Name`)}

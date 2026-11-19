@@ -3,7 +3,8 @@ import type { ResumeCreationKind, StartUsageView } from "@reactive-resume/schema
 import { ORPCError } from "@orpc/client";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { withOwnerDatabase } from "@reactive-resume/db/owner-scope";
-import { aiOperation, aiUsageLedger, resume } from "@reactive-resume/db/schema";
+import { aiOperation, aiUsageLedger, resume, user } from "@reactive-resume/db/schema";
+import { env } from "@reactive-resume/env/server";
 import { lockDocumentOwner } from "../documents/ownership";
 import { getAiRuntime } from "./route-policy";
 
@@ -23,12 +24,17 @@ async function readUsage(tx: OwnerTransaction, ownerId: string): Promise<StartUs
 		.select({ used: sql<number>`count(*)::int` })
 		.from(resume)
 		.where(and(eq(resume.userId, ownerId), eq(resume.variantKind, "base")));
+	const [account] = await tx
+		.select({ email: user.email, emailVerified: user.emailVerified })
+		.from(user)
+		.where(eq(user.id, ownerId));
+	const unlimited = account?.emailVerified === true && env.ADMIN_EMAILS.includes(account.email.trim().toLowerCase());
 	const allowance = process.env.NODE_ENV !== "production" ? getAiRuntime().localOwnerAllowance : undefined;
-	const limit = allowance?.ownerId === ownerId ? allowance.limit : 5;
+	const limit = unlimited ? null : allowance?.ownerId === ownerId ? allowance.limit : 5;
 	return {
 		plan: "start",
-		operations: { limit, used, reserved, remaining: Math.max(0, limit - used - reserved) },
-		baseCvs: { limit: 1, used: bases?.used ?? 0 },
+		operations: { limit, used, reserved, remaining: limit === null ? null : Math.max(0, limit - used - reserved) },
+		baseCvs: { limit: unlimited ? null : 1, used: bases?.used ?? 0 },
 	};
 }
 
@@ -44,7 +50,8 @@ export async function reserveOperation(tx: OwnerTransaction, ownerId: string, op
 		.from(aiUsageLedger)
 		.where(and(eq(aiUsageLedger.userId, ownerId), eq(aiUsageLedger.operationId, operationId)));
 	if (existing.length) return;
-	if ((await readUsage(tx, ownerId)).operations.remaining <= 0) denyAllowance("AI_OPERATIONS_LIMIT");
+	const { remaining } = (await readUsage(tx, ownerId)).operations;
+	if (remaining !== null && remaining <= 0) denyAllowance("AI_OPERATIONS_LIMIT");
 	await tx.insert(aiUsageLedger).values({ userId: ownerId, operationId, kind: "reserve" });
 }
 
@@ -96,13 +103,14 @@ export async function admitResumeCreation(
 ): Promise<void> {
 	await lockDocumentOwner(tx, ownerId);
 	const { baseCvs } = await readUsage(tx, ownerId);
-	if (baseCvs.used > baseCvs.limit) denyAllowance("BASE_CV_LIMIT");
+	if (baseCvs.limit !== null && baseCvs.used > baseCvs.limit) denyAllowance("BASE_CV_LIMIT");
 	if (creation.variantKind === "base") {
-		if (baseCvs.used >= baseCvs.limit) denyAllowance("BASE_CV_LIMIT");
+		if (baseCvs.limit !== null && baseCvs.used >= baseCvs.limit) denyAllowance("BASE_CV_LIMIT");
 		return;
 	}
 	const normalized = await resolveResumeCreation(tx, ownerId, creation);
 	if (normalized.variantKind === "base") throw new ORPCError("BAD_REQUEST");
+	if (baseCvs.limit === null) return;
 	const copies = await tx
 		.select({ id: resume.id })
 		.from(resume)

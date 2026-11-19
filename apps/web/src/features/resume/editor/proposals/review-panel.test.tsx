@@ -5,7 +5,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { hashReviewTarget } from "@reactive-resume/resume/review-evidence";
 import { splitReviewClaims } from "@reactive-resume/schema/resume/ai-review";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
@@ -27,6 +27,8 @@ const mocks = vi.hoisted(() => ({
 	feedback: vi.fn(),
 	current: null as TestDraft | null,
 	state: "ready",
+	latest: vi.fn(),
+	remaining: 5,
 	notices: vi.fn(),
 	grant: vi.fn(),
 	preflight: vi.fn(),
@@ -37,7 +39,7 @@ vi.mock("@/features/resume/builder/draft", () => ({
 		getState: () => mocks.current,
 	}),
 	savePendingChanges: mocks.flush,
-	useIsResumeLocked: () => false,
+	useIsResumeLocked: () => mocks.current?.resume.isLocked ?? false,
 }));
 vi.mock("../store", () => ({
 	useEditorStore: Object.assign(() => null, {
@@ -56,6 +58,12 @@ vi.mock("@/libs/orpc/client", () => ({
 	orpc: {
 		ai: {
 			review: {
+				latest: {
+					queryOptions: ({ input }: { input: { resumeId: string } }) => ({
+						queryKey: ["latest", input.resumeId],
+						queryFn: mocks.latest,
+					}),
+				},
 				get: {
 					queryOptions: ({ input }: { input: { operationId: string } }) => ({
 						queryKey: ["review", input.operationId],
@@ -70,7 +78,7 @@ vi.mock("@/libs/orpc/client", () => ({
 				get: {
 					queryOptions: () => ({
 						queryKey: ["usage"],
-						queryFn: async () => ({ operations: { remaining: 5, reserved: 0 } }),
+						queryFn: async () => ({ operations: { remaining: mocks.remaining, reserved: 0 } }),
 					}),
 				},
 			},
@@ -78,7 +86,7 @@ vi.mock("@/libs/orpc/client", () => ({
 	},
 }));
 import { ReviewLaunch } from "./review-operation";
-import { ReviewResultPanel } from "./review-panel";
+import { ReviewResultPanel, useResumeReviewSummary } from "./review-panel";
 function mount(children = <ReviewResultPanel operationId="op" />) {
 	return render(
 		<I18nProvider i18n={i18n}>
@@ -94,6 +102,8 @@ beforeEach(() => {
 	vi.resetAllMocks();
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	mocks.state = "ready";
+	mocks.remaining = 5;
+	mocks.latest.mockResolvedValue("op");
 	const data = structuredClone(defaultResumeData);
 	data.summary.content = "<p>Built services.</p>";
 	const source = { kind: "resume", id: "cv", revision: "2026-11-12T00:00:00.000Z" } as const;
@@ -153,7 +163,7 @@ beforeEach(() => {
 });
 it.each([
 	["not_enabled", "The assistant is not enabled yet"],
-	["unavailable", "The assistant is unavailable now"],
+	["unavailable", "AI is not available in this environment."],
 ])("keeps platform %s recovery without personal-provider setup", async (state, message) => {
 	mocks.state = state;
 	const prepare = vi.fn();
@@ -163,6 +173,7 @@ it.each([
 		</ReviewLaunch>,
 	);
 	expect(await screen.findByText(message)).toBeDefined();
+	expect(Boolean(screen.queryByRole("button", { name: /^Retry$/ }))).toBe(state === "unavailable");
 	expect(screen.queryByRole("button", { name: "Review wording" })).toBeNull();
 	expect(prepare).not.toHaveBeenCalled();
 	expect(mocks.grant).not.toHaveBeenCalled();
@@ -279,7 +290,7 @@ it("declining processing consent makes no preparation or staging request", async
 	expect(prepare).not.toHaveBeenCalled();
 	expect(started).not.toHaveBeenCalled();
 });
-it("retries the same failed launch idempotently but prepares a new selection after Cancel", async () => {
+it("requires cancellation after a request issue and prepares a new selection for the next launch", async () => {
 	let selection = "first";
 	const prepare = vi.fn(async () => ({
 		sources: [{ kind: "import" as const, id: selection, revision: "v1" }],
@@ -302,20 +313,22 @@ it("retries the same failed launch idempotently but prepares a new selection aft
 	);
 	fireEvent.click(await screen.findByRole("button", { name: "Review selection" }));
 	fireEvent.click(screen.getByRole("button", { name: "Start review" }));
-	await screen.findByText("Could not start this review. Your draft is kept. Retry this request or cancel.");
+	await screen.findByText(
+		"This request needs changes before it can start. Cancel and review the selected text. Your draft is kept.",
+	);
 	const first = mocks.start.mock.calls[0]?.[0];
-	fireEvent.click(screen.getByRole("button", { name: "Start review" }));
-	await waitFor(() => expect(mocks.start).toHaveBeenCalledTimes(2));
-	expect(mocks.start.mock.calls[1]?.[0]).toEqual(first);
+	expect(screen.queryByRole("button", { name: "Retry" })).not.toBeInTheDocument();
+	expect(screen.queryByRole("button", { name: "Start review" })).not.toBeInTheDocument();
+	expect(mocks.start).toHaveBeenCalledTimes(1);
 	await waitFor(() => expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled());
 	fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
 	selection = "second";
 	fireEvent.click(screen.getByRole("button", { name: "Review selection" }));
 	fireEvent.click(screen.getByRole("button", { name: "Start review" }));
-	await waitFor(() => expect(mocks.start).toHaveBeenCalledTimes(3));
+	await waitFor(() => expect(mocks.start).toHaveBeenCalledTimes(2));
 	expect(prepare).toHaveBeenCalledTimes(2);
-	expect(mocks.start.mock.calls[2]?.[0]).toMatchObject({ parameters: { sourceId: "second" } });
-	expect(mocks.start.mock.calls[2]?.[0].requestKey).not.toBe(first.requestKey);
+	expect(mocks.start.mock.calls[1]?.[0]).toMatchObject({ parameters: { sourceId: "second" } });
+	expect(mocks.start.mock.calls[1]?.[0].requestKey).not.toBe(first.requestKey);
 });
 
 it("publishes feedback only after a real acceptance, without waiting for presentation timers", async () => {
@@ -343,4 +356,81 @@ it("publishes feedback only after a real acceptance, without waiting for present
 	);
 	expect(Date.now()).toBe(acknowledgedAt);
 	expect(screen.getByRole("button", { name: /^Accept$/u })).toBeEnabled();
+});
+
+function SummaryProjection() {
+	const summary = useResumeReviewSummary();
+	const client = useQueryClient();
+	return (
+		<>
+			<output>
+				{summary.state}:{summary.pendingCount ?? "unknown"}
+			</output>
+			<button onClick={() => void client.invalidateQueries({ queryKey: ["review", "op"] })}>Refresh summary</button>
+		</>
+	);
+}
+it("keeps the AI-off summary read-only and does not fetch a review", async () => {
+	mocks.state = "not_enabled";
+	mount(<SummaryProjection />);
+	expect(await screen.findByText("off:unknown")).toBeDefined();
+	expect(mocks.latest).not.toHaveBeenCalled();
+	expect(mocks.read).not.toHaveBeenCalled();
+	expect(mocks.preflight).not.toHaveBeenCalled();
+	expect(mocks.start).not.toHaveBeenCalled();
+	expect(mocks.decide).not.toHaveBeenCalled();
+});
+it("counts actual pending statuses and updates after an acknowledged refetch", async () => {
+	mount(<SummaryProjection />);
+	expect(await screen.findByText("available:1")).toBeDefined();
+	if (mocks.view) mocks.view.statuses.p = "accepted";
+	fireEvent.click(screen.getByRole("button", { name: "Refresh summary" }));
+	expect(await screen.findByText("available:0")).toBeDefined();
+	expect(mocks.start).not.toHaveBeenCalled();
+});
+it("keeps unknown and foreign-document counts hidden", async () => {
+	mocks.latest.mockImplementation(() => new Promise(() => {}));
+	const view = mount(<SummaryProjection />);
+	expect(await screen.findByText("available:unknown")).toBeDefined();
+	view.unmount();
+	mocks.latest.mockResolvedValue("op");
+	if (mocks.current) mocks.current.resume.id = "other-cv";
+	mount(<SummaryProjection />);
+	await waitFor(() => expect(mocks.read).toHaveBeenCalled());
+	expect(screen.getByText("available:unknown")).toBeDefined();
+});
+it("reports zero only after the latest query confirms no saved review", async () => {
+	mocks.latest.mockResolvedValue(null);
+	mount(<SummaryProjection />);
+	expect(await screen.findByText("available:0")).toBeDefined();
+	expect(mocks.read).not.toHaveBeenCalled();
+});
+it("shows exhausted allowance without starting an operation", async () => {
+	mocks.remaining = 0;
+	mount(<SummaryProjection />);
+	expect(await screen.findByText("unavailable:1")).toBeDefined();
+	expect(mocks.start).not.toHaveBeenCalled();
+});
+it("does not accept a locked proposal or change saved content", async () => {
+	if (mocks.current) mocks.current.resume.isLocked = true;
+	const before = structuredClone(mocks.current?.resume.data);
+	mount();
+	await screen.findByText("Clearer wording");
+	expect(screen.getByRole("button", { name: "Accept" })).toBeDisabled();
+	expect(mocks.current?.resume.data).toEqual(before);
+	expect(mocks.decide).not.toHaveBeenCalled();
+});
+
+it("keeps saved multilingual content on rejection and reuses the same failed decision key", async () => {
+	if (mocks.current) mocks.current.resume.data.basics.name = "سارة Sara";
+	const original = structuredClone(mocks.current?.resume.data);
+	mount();
+	const reject = await screen.findByRole("button", { name: "Keep original" });
+	fireEvent.click(reject);
+	await waitFor(() => expect(mocks.decide).toHaveBeenCalledTimes(1));
+	await waitFor(() => expect(reject).toBeEnabled());
+	fireEvent.click(reject);
+	await waitFor(() => expect(mocks.decide).toHaveBeenCalledTimes(2));
+	expect(mocks.decide.mock.calls[0]?.[0]).toEqual(mocks.decide.mock.calls[1]?.[0]);
+	expect(mocks.current?.resume.data).toEqual(original);
 });

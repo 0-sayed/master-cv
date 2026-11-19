@@ -8,6 +8,7 @@ import { withAiRuntime } from "../../packages/api/src/features/ai/route-policy";
 import { initializeAuth } from "../../packages/auth/src/config";
 import { getPool } from "../../packages/db/src/client";
 import { getRedis } from "../../packages/db/src/redis";
+import { ensureLocalAiBudget } from "../../tooling/local/real-ai-budget";
 import { realAiConfig } from "../../tooling/local/real-ai-config";
 
 const { serve } = createRequire(new URL("../../apps/server/package.json", import.meta.url))("@hono/node-server");
@@ -16,6 +17,7 @@ const config = realAiConfig(process.env);
 const runtime = createRealAiRuntime(process.env);
 async function start() {
 	await runStartupChecks();
+	await ensureLocalAiBudget(process.env, config.route);
 	await initializeAuth();
 	const app = createApp();
 	const server = serve({

@@ -257,4 +257,80 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("reviewed career ma
 				{ base_resume_id: null, variant_kind: "base" },
 			]);
 		}));
+	it("normalizes rich resume descriptions before draft and confirmation writes", async () =>
+		withDatabasePool(pool, async () => {
+			const company = await service.savePending("alice", { ...input("Operations Office"), entityId: "html-boundary" });
+			const description = await service.savePending("alice", {
+				...input("Operations Office"),
+				entityId: "html-boundary",
+				field: "description",
+				value: "<p>Led R&amp;D</p><ul><li>خفضت التكاليف</li><li>Trained 8 teams</li></ul>",
+			});
+			expect(description.proposedStructured?.value).toBe("Led R&D\nخفضت التكاليف\nTrained 8 teams");
+			await pool.query("UPDATE career_fact SET proposed_structured=$1 WHERE id=$2", [
+				JSON.stringify({
+					...description.proposedStructured,
+					value: "<p>Led R&amp;D</p><ul><li>خفضت التكاليف</li><li>Trained 8 teams</li></ul>",
+				}),
+				description.id,
+			]);
+			const master = await service.read("alice");
+			await service.confirm("alice", {
+				expectedProfileRevision: master.profileRevision,
+				facts: [company, description].map((fact) => ({
+					id: fact.id,
+					expectedRevision: fact.revision,
+					expectedDraftRevision: fact.draftRevision,
+				})),
+			});
+			const stored = await pool.query("SELECT text,structured FROM career_fact WHERE id=$1", [description.id]);
+			expect(stored.rows[0].text).toBe("Led R&D\nخفضت التكاليف\nTrained 8 teams");
+			expect(stored.rows[0].structured.value).toBe(stored.rows[0].text);
+		}));
+	it("invalidates stale detail edits when the profile service changes contact details", async () =>
+		withDatabasePool(pool, async () => {
+			const master = await service.read("alice");
+			await legacy.saveProfile(
+				"alice",
+				careerProfileDataSchema.parse({
+					contact: { name: "Updated name", email: "alice@example.test", phone: "000", location: "Riyadh" },
+					summary: "Updated summary",
+				}),
+			);
+			const updated = await service.read("alice");
+			expect(updated.profileRevision).toBe(master.profileRevision + 1);
+			await expect(
+				service.saveDetails("alice", {
+					expectedProfileRevision: master.profileRevision,
+					contact: { name: "Stale", email: "alice@example.test", phone: "000", location: "Riyadh" },
+					summary: "Stale",
+				}),
+			).rejects.toMatchObject({ code: "CONFLICT" });
+		}));
+
+	it("saves plain master details with revision checks and leaves other accounts and CVs intact", async () =>
+		withDatabasePool(pool, async () => {
+			const before = (await pool.query("SELECT id,data FROM resume ORDER BY id")).rows;
+			const other = await service.read("bob");
+			const master = await service.read("alice");
+			const contact = {
+				name: "<p>New name</p>",
+				email: "person@example.test",
+				phone: "+966 50 000 0000",
+				location: "Riyadh",
+			};
+			const saved = await service.saveDetails("alice", {
+				expectedProfileRevision: master.profileRevision,
+				contact,
+				summary: "<p>Saved summary</p><ul><li>Second point</li></ul>",
+			});
+			expect(saved.contact?.name).toBe("New name");
+			expect(saved.summary).toBe("Saved summary\nSecond point");
+			expect(saved.profileRevision).toBe(master.profileRevision + 1);
+			await expect(
+				service.saveDetails("alice", { expectedProfileRevision: master.profileRevision, contact, summary: "Stale" }),
+			).rejects.toMatchObject({ code: "CONFLICT" });
+			expect(await service.read("bob")).toEqual(other);
+			expect((await pool.query("SELECT id,data FROM resume ORDER BY id")).rows).toEqual(before);
+		}));
 });

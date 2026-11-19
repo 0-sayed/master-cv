@@ -10,10 +10,12 @@ const mocks = vi.hoisted(() => ({
 	verify: vi.fn(),
 	close: vi.fn(),
 	invalidate: vi.fn(async () => {}),
+	download: vi.fn(),
 }));
 vi.mock("@/libs/auth/client", () => ({
 	authClient: { twoFactor: { enable: mocks.enable, verifyTotp: mocks.verify } },
 }));
+vi.mock("@reactive-resume/utils/file", () => ({ downloadWithAnchor: mocks.download }));
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => ({ invalidateQueries: mocks.invalidate }) }));
 vi.mock("@tanstack/react-router", () => ({ useRouter: () => ({ invalidate: vi.fn() }) }));
 vi.mock("@/hooks/use-form-blocker", () => ({ useFormBlocker: () => ({ requestClose: mocks.close }) }));
@@ -78,6 +80,8 @@ it("shows numbered setup, an inline grouped key and one OTP before recoverable b
 	expect(mocks.close).not.toHaveBeenCalled();
 	fireEvent.click(screen.getByRole("button", { name: "Verify" }));
 	await screen.findByDisplayValue("82cNK-qaOiN");
+	fireEvent.click(screen.getByRole("button", { name: "Download" }));
+	expect(mocks.download).toHaveBeenCalledWith(expect.any(Blob), "sirawise_backup-codes.txt");
 	expect(mocks.close).not.toHaveBeenCalled();
 	expect(mocks.verify).toHaveBeenLastCalledWith({ code: "012345" });
 	fireEvent.click(screen.getByRole("button", { name: "Continue" }));

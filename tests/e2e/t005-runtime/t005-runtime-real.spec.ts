@@ -4,6 +4,7 @@ import { createAuthenticatedContext } from "../fixtures/auth";
 import { createAccount } from "../fixtures/data";
 import { deleteE2EUser } from "../fixtures/db";
 import { createSampleResumeFromDashboard } from "../fixtures/resume";
+import { openReview } from "../fixtures/reviewable-ai";
 import { expect, test } from "../fixtures/test";
 
 test("browser HTTP delivers five retried tasks once each and blocks the sixth", async ({
@@ -148,13 +149,14 @@ test("browser HTTP delivers five retried tasks once each and blocks the sixth", 
 		await expect
 			.poll(async () => (await (await page.request.get(`/api/openapi/resumes/${resumeId}`)).json()).data.basics.name)
 			.toBe("Editing remains available");
-		await page.getByRole("tab", { name: /^Check/ }).click();
+		await openReview(page, 1440, "ai");
 		await expect(
 			page.getByText(
-				"You have used all your free assistant operations. They do not renew. You can continue editing manually and download a PDF.",
+				"You used all available assistant operations. Your draft is kept. Review your allowance in account settings.",
 				{ exact: true },
 			),
 		).toBeVisible();
+		await expect(page.getByRole("button", { name: "Review wording", exact: true })).toHaveCount(0);
 		const download = page.waitForEvent("download");
 		await page.getByRole("button", { name: "Download PDF", exact: true }).click();
 		expect((await download).suggestedFilename()).toMatch(/\.pdf$/);

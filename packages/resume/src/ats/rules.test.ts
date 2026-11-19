@@ -2,7 +2,13 @@ import type { ExperienceItem, ResumeData } from "@reactive-resume/schema/resume/
 import { describe, expect, it } from "vite-plus/test";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { sampleResumeData } from "@reactive-resume/schema/resume/sample";
+import { ATS_RULE_CODES } from "./catalog";
 import { lintResumeForAts } from "./index";
+
+function required<T>(value: T | undefined): T {
+	if (value === undefined) throw new Error("Missing fixture value");
+	return value;
+}
 
 const NOW = new Date("2024-06-15T00:00:00Z");
 
@@ -46,6 +52,208 @@ const skillItem = () => ({
 
 const lint = (data: ResumeData) => lintResumeForAts(data, { now: NOW });
 const codesOf = (data: ResumeData) => lint(data).findings.map((item) => item.code);
+
+const ruleCases: readonly [string, string, (data: ResumeData, locale: string) => void][] = [
+	[
+		"MISSING_NAME",
+		"/basics/name",
+		(data) => {
+			data.basics.name = "";
+		},
+	],
+	[
+		"MISSING_EMAIL",
+		"/basics/email",
+		(data) => {
+			data.basics.email = "";
+		},
+	],
+	[
+		"MALFORMED_EMAIL",
+		"/basics/email",
+		(data) => {
+			data.basics.email = "wrong";
+		},
+	],
+	[
+		"MISSING_PHONE",
+		"/basics/phone",
+		(data) => {
+			data.basics.phone = "";
+		},
+	],
+	[
+		"MISSING_LOCATION",
+		"/basics/location",
+		(data) => {
+			data.basics.location = "";
+		},
+	],
+	[
+		"MALFORMED_URL",
+		"/basics/website/url",
+		(data) => {
+			data.basics.website.url = "example.com";
+		},
+	],
+	[
+		"PICTURE_PRESENT",
+		"/picture",
+		(data) => {
+			data.picture.hidden = false;
+			data.picture.url = "https://example.com/photo.png";
+		},
+	],
+	[
+		"EMPTY_PERIOD",
+		"/sections/experience/items/0/period",
+		(data) => {
+			required(data.sections.experience.items[0]).period = "";
+		},
+	],
+	[
+		"UNPARSEABLE_PERIOD",
+		"/sections/experience/items/0/period",
+		(data) => {
+			required(data.sections.experience.items[0]).period = "unknown";
+		},
+	],
+	[
+		"UNPARSEABLE_DATE",
+		"/sections/awards/items/0/date",
+		(data) => {
+			data.sections.awards.items = [
+				{
+					id: "a1",
+					hidden: false,
+					title: "Award",
+					awarder: "Org",
+					date: "unknown",
+					website: { url: "", label: "", inlineLink: false },
+					description: "",
+				},
+			];
+			required(data.metadata.layout.pages[0]).main.push("awards");
+		},
+	],
+	[
+		"REVERSED_PERIOD",
+		"/sections/experience/items/0/period",
+		(data) => {
+			required(data.sections.experience.items[0]).period = "2022 - 2020";
+		},
+	],
+	[
+		"FUTURE_DATED_PERIOD",
+		"/sections/experience/items/0/period",
+		(data) => {
+			required(data.sections.experience.items[0]).period = "2030 - 2031";
+		},
+	],
+	[
+		"SECTION_MISSING_FROM_LAYOUT",
+		"/sections/experience",
+		(data) => {
+			required(data.metadata.layout.pages[0]).main = [];
+		},
+	],
+	[
+		"NO_VISIBLE_EXPERIENCE",
+		"/sections/experience",
+		(data) => {
+			data.sections.experience.items = [];
+		},
+	],
+	[
+		"MISSING_EXPERIENCE_DESCRIPTION",
+		"/sections/experience/items/0/description",
+		(data) => {
+			required(data.sections.experience.items[0]).description = "";
+		},
+	],
+	[
+		"NON_STANDARD_SECTION_TITLE",
+		"/sections/experience/title",
+		(data, locale) => {
+			data.sections.experience.title = locale === "ar-SA" ? "حكايات العمل" : "My story";
+		},
+	],
+	[
+		"MULTI_COLUMN_PROSE_SECTION",
+		"/sections/experience/columns",
+		(data) => {
+			data.sections.experience.columns = 2;
+		},
+	],
+	[
+		"PROSE_SECTION_IN_SIDEBAR",
+		"/sections/experience",
+		(data) => {
+			required(data.metadata.layout.pages[0]).main = [];
+			required(data.metadata.layout.pages[0]).sidebar = ["experience"];
+		},
+	],
+	[
+		"TWO_COLUMN_LAYOUT",
+		"/metadata/layout/pages",
+		(data) => {
+			data.metadata.template = "azurill";
+			data.sections.skills.items = [skillItem()];
+			required(data.metadata.layout.pages[0]).sidebar = ["skills"];
+		},
+	],
+	[
+		"SMALL_BODY_FONT",
+		"/metadata/typography/body/fontSize",
+		(data) => {
+			data.metadata.typography.body.fontSize = 8;
+		},
+	],
+	[
+		"TIGHT_LINE_HEIGHT",
+		"/metadata/typography/body/lineHeight",
+		(data) => {
+			data.metadata.typography.body.lineHeight = 1;
+		},
+	],
+	[
+		"TIGHT_PAGE_MARGINS",
+		"/metadata/page/marginX",
+		(data) => {
+			data.metadata.page.marginX = 4;
+		},
+	],
+];
+
+it("keeps a passing and failing example for each data rule", () => {
+	expect(ruleCases.map(([code]) => code).sort()).toEqual([...ATS_RULE_CODES].sort());
+});
+
+it.each(
+	ruleCases.flatMap(([code, pointer, mutate]) =>
+		["en-US", "ar-SA"].map((locale) => ({ code, pointer, mutate, locale })),
+	),
+)("accepts valid data and reports $code at its source in $locale", ({ code, pointer, mutate, locale }) => {
+	const good = makeResume((data) => {
+		data.metadata.page.locale = locale;
+		if (locale === "ar-SA") {
+			data.sections.experience.title = "الخبرة";
+			data.basics.name = "محمد علي";
+			data.basics.location = "الرياض";
+			required(data.sections.experience.items[0]).company = "شركة التقنية";
+			required(data.sections.experience.items[0]).position = "مهندس برمجيات";
+			required(data.sections.experience.items[0]).description = "<p>طور الخدمات للعملاء.</p>";
+		}
+	});
+	const bad = structuredClone(good);
+	mutate(bad, locale);
+	const before = lint(good);
+	const after = lint(bad);
+	expect(before.findings.find((finding) => finding.code === code)).toBeUndefined();
+	expect(after.findings.find((finding) => finding.code === code)).toMatchObject({ code, pointer });
+	expect(after.score).toBeLessThan(before.score);
+	expect(after.score).toBe(Math.round((after.passedRules / after.totalRules) * 100));
+});
 
 it("accepts conventional Arabic headings and warns on unknown ones", () => {
 	const data = makeResume((data) => {

@@ -3,20 +3,10 @@ import { t } from "@lingui/core/macro";
 import { useQuery } from "@tanstack/react-query";
 import { useSearch } from "@tanstack/react-router";
 import { useMemo } from "react";
-import {
-	applyTo,
-	collectLetterPassages,
-	collectPassages,
-	getProposalState,
-	getStateIn,
-} from "@reactive-resume/resume/proposals";
+import { applyTo, collectLetterPassages, getStateIn } from "@reactive-resume/resume/proposals";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
 import { useLetterEditorStore } from "@/features/letters/store";
-import { useCurrentResume } from "@/features/resume/builder/draft";
-import { getSectionName } from "@/features/resume/editor/check/issues";
-import { acceptResumeProposals } from "@/features/resume/editor/proposals/proposals";
-import { describeEntry } from "@/features/resume/editor/write/model";
 
 /** The document the assistant works on, as the panel needs it. Resumes and letters each provide one. */
 export type AssistantDocument = {
@@ -49,38 +39,6 @@ function locate(passages: readonly Passage[], { before, target }: Pick<Proposal,
 			(before === passage.html || before.startsWith(passage.html)),
 	);
 	return matches.length === 1 ? matches[0]?.location : undefined;
-}
-
-export function useResumeAssistantDocument(): AssistantDocument {
-	const resume = useCurrentResume();
-	const { applicationId } = useSearch({ strict: false });
-	const { data: applications } = useQuery(applicationsListQueryOptions());
-	// The application it was made for, otherwise the latest one it's linked to (as the server reads it).
-	const application = applicationId
-		? applications?.find((item) => item.id === applicationId)
-		: (applications?.find((item) => item.id === resume.applicationId) ??
-			applications?.find((item) => item.resumeId === resume.id));
-
-	return useMemo(() => {
-		const passages = collectPassages(resume.data, {
-			summary: getSectionName(resume.data, "summary"),
-			sectionTitle: (sectionId) => getSectionName(resume.data, sectionId),
-			entryTitle: (type, entry) => describeEntry(type as never, entry as never).title,
-			bullet,
-			paragraph,
-		});
-
-		return {
-			kind: "resume",
-			id: resume.id,
-			name: resume.name,
-			locked: resume.isLocked,
-			posting: application ? { id: application.id, company: application.company, role: application.role } : null,
-			stateOf: (proposal) => getProposalState(resume.data, proposal),
-			accept: acceptResumeProposals,
-			locationOf: (proposal) => locate(passages, proposal),
-		};
-	}, [resume.id, resume.name, resume.isLocked, resume.data, application]);
 }
 
 export function useLetterAssistantDocument(): AssistantDocument | null {

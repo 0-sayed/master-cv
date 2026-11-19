@@ -169,3 +169,5 @@ export { summarizePdfCoverage } from "./coverage";
 export { surfaceFormsOf } from "./jd/aliases";
 export { matchJobDescription } from "./jd/match";
 export { PDF_OPS } from "./pdf-ops";
+
+export { pdfRuleSeverity, pdfRuleCategory, pdfRuleCap, pdfRuleDeduction } from "./catalog";

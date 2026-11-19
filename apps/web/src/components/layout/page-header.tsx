@@ -70,6 +70,8 @@ export function DashboardPage({ centered, children, fullScreenOnMobile, width = 
 }
 
 type PageHeaderProps = {
+	layout?: "default" | "record";
+	titleVariant?: "display" | "functional";
 	/** Empty collections put their actions in the empty state, without an idle toolbar. */
 	collectionState?: "empty" | "populated";
 	title: ReactNode;
@@ -89,6 +91,8 @@ type PageHeaderProps = {
 
 /** The one header every dashboard page uses. Renders as siblings, so the page's own gap spaces the rows. */
 export function PageHeader({
+	layout = "default",
+	titleVariant = "display",
 	collectionState,
 	title,
 	description,
@@ -100,10 +104,26 @@ export function PageHeader({
 }: PageHeaderProps) {
 	return (
 		<>
-			<header className="flex flex-wrap items-center justify-between gap-3">
+			<header
+				className={
+					layout === "record"
+						? "record-header grid items-start gap-3"
+						: "flex flex-wrap items-center justify-between gap-3"
+				}
+			>
+				{layout === "record" && back && (
+					<div className={cn("col-span-full", backOnlyOnMobile && "sm:hidden")}>{back}</div>
+				)}
 				<div className={mobileTitleInShell ? "grid min-w-0 gap-1 max-sm:sr-only" : "grid min-w-0 gap-1"}>
-					{back && <div className={cn("mb-2", backOnlyOnMobile && "sm:hidden")}>{back}</div>}
-					<h1 className="type-title wrap-anywhere">{title}</h1>
+					{layout !== "record" && back && <div className={cn("mb-2", backOnlyOnMobile && "sm:hidden")}>{back}</div>}
+					<h1
+						className={cn(
+							titleVariant === "functional" ? "type-title-functional max-sm:type-title-functional-s" : "type-title",
+							"wrap-anywhere",
+						)}
+					>
+						{title}
+					</h1>
 					{description && <p className="type-body text-ink-2">{description}</p>}
 				</div>
 				{collectionState !== "empty" && actions && (

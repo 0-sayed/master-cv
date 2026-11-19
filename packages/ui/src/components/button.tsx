@@ -5,7 +5,7 @@ import { Spinner } from "@reactive-resume/ui/components/spinner";
 import { cn } from "@reactive-resume/utils/style";
 import { controlHeights } from "./control-size";
 
-const buttonVariants = cva(
+const buttonStyles = cva(
 	"group/button touch-target relative inline-flex max-w-full shrink-0 items-center justify-center gap-2 border border-transparent type-label whitespace-normal transition-[background-color,border-color,color,filter,scale] duration-quick ease-enter select-none disabled:pointer-events-none aria-busy:cursor-progress pointer-coarse:min-h-12 pointer-coarse:min-w-12 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 	{
 		variants: {
@@ -27,6 +27,8 @@ const buttonVariants = cva(
 				link: "h-auto! border-0 px-0! text-accent-text underline-offset-4 hover:underline",
 			},
 			size: {
+				"document-switcher": "h-auto min-h-0 min-w-0 rounded-md px-2 py-0 pointer-coarse:min-h-0",
+				compact: `${controlHeights.default} rounded-md px-2 py-0`,
 				"mobile-nav": "h-auto min-h-16 flex-col justify-start gap-0.5 rounded-md px-0 py-2",
 				"sidebar-account": "h-auto min-h-18 rounded-lg px-3 py-2",
 				"sidebar-account-icon": "h-18 w-11 rounded-lg p-0",
@@ -34,10 +36,15 @@ const buttonVariants = cva(
 				default: `${controlHeights.default} rounded-md px-3 py-0`,
 				sm: `${controlHeights.sm} gap-1.5 rounded-sm px-3`,
 				lg: `${controlHeights.lg} rounded-lg px-4 py-0`,
-				"link-touch": "min-h-12 rounded-md px-0 py-0",
+				"link-touch": "min-h-12 min-w-11 rounded-md px-0 py-0",
 				"link-compact": "rounded-md px-0 py-0 type-metadata",
+				"calendar-chip":
+					"h-auto min-h-5 min-w-0 gap-1 rounded-sm px-1.5 py-0 text-start type-metadata leading-(--space-20)",
+				"calendar-date":
+					"min-h-11 min-w-0 flex-col gap-0 rounded-md px-1 py-1 pointer-coarse:min-h-11 pointer-coarse:min-w-0",
 				chip: "h-auto min-h-7 rounded-full px-3 py-0 wrap-anywhere",
 				row: "h-auto min-h-11 rounded-md px-3 py-2",
+				"diagram-node": "h-auto min-h-24 justify-start rounded-xl p-3 text-start",
 				icon: "size-9 rounded-md",
 				"icon-sm": "size-8 rounded-md",
 				"icon-compact": "size-8 rounded-md",
@@ -66,6 +73,11 @@ const buttonVariants = cva(
 		},
 	},
 );
+
+/** Merge conflicting utilities for anchors and other consumers as well as Button itself. */
+function buttonVariants(props?: Parameters<typeof buttonStyles>[0]) {
+	return cn(buttonStyles(props));
+}
 
 type ButtonProps = ButtonPrimitive.Props &
 	VariantProps<typeof buttonVariants> & {

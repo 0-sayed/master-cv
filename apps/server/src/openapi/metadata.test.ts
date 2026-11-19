@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vite-plus/test";
 const mocks = vi.hoisted(() => ({
 	auth: {},
 	env: {
-		APP_URL: "https://rxresu.me",
+		APP_URL: "https://sirawise.io",
 	},
 }));
 
@@ -35,8 +35,8 @@ describe("handleOAuthProtectedResource", () => {
 		const response = await handleOAuthProtectedResource();
 
 		await expect(response.json()).resolves.toMatchObject({
-			resource: "https://rxresu.me",
-			authorization_servers: ["https://rxresu.me/api/auth"],
+			resource: "https://sirawise.io",
+			authorization_servers: ["https://sirawise.io/api/auth"],
 		});
 	});
 });
@@ -48,8 +48,8 @@ describe("handleMcpServerCard", () => {
 		const response = handleMcpServerCard();
 
 		await expect(response.json()).resolves.toMatchObject({
-			url: "https://rxresu.me/mcp",
-			authentication: { type: "oauth2", authorization_server: "https://rxresu.me/api/auth" },
+			url: "https://sirawise.io/mcp",
+			authentication: { type: "oauth2", authorization_server: "https://sirawise.io/api/auth" },
 		});
 	});
 });
@@ -65,12 +65,13 @@ describe("handleIntegrations", () => {
 		expect(response.headers.get("Cache-Control")).toBe("public, max-age=3600");
 		expect(document).toMatchObject({ version: 3 });
 		expect(document.surfaces.map((surface: { type: string; url: string }) => [surface.type, surface.url])).toEqual([
-			["http", "https://rxresu.me/api/openapi"],
-			["mcp", "https://rxresu.me/mcp"],
+			["http", "https://sirawise.io/api/openapi"],
+			["mcp", "https://sirawise.io/mcp"],
 		]);
 
-		const source = "https://rxresu.me/.well-known/integrations.json";
+		const source = "https://sirawise.io/.well-known/integrations.json";
 		for (const surface of document.surfaces) {
+			expect(surface).not.toHaveProperty("docs");
 			expect(surface.basis).toEqual({ via: "declared", source });
 			for (const entry of surface.auth.entries) {
 				expect(entry.basis).toEqual({ via: "declared", source });
@@ -89,10 +90,11 @@ describe("handleApiCatalog", () => {
 
 		expect(response.headers.get("Content-Type")).toContain("application/linkset+json");
 		expect(catalog.linkset.map((link: { anchor: string }) => link.anchor)).toEqual([
-			"https://rxresu.me/api/openapi",
-			"https://rxresu.me/mcp",
+			"https://sirawise.io/api/openapi",
+			"https://sirawise.io/mcp",
 		]);
-		expect(catalog.linkset[0]["service-desc"][0].href).toBe("https://rxresu.me/openapi.json");
+		expect(catalog.linkset[0]["service-desc"][0].href).toBe("https://sirawise.io/openapi.json");
+		for (const service of catalog.linkset) expect(service).not.toHaveProperty("service-doc");
 		expect(await handleApiCatalog({ head: true }).text()).toBe("");
 	});
 });

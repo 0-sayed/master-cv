@@ -1,3 +1,4 @@
+import { openReview } from "../fixtures/reviewable-ai";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 for (const locale of ["en-US", "ar-SA"] as const)
@@ -68,19 +69,19 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("write.png") });
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-			if (width === 1440) await page.getByRole("tab", { name: /^(Check|فحص|مراجعة)/u }).click();
-			else await page.getByRole("button", { name: /^(Check|فحص|مراجعة)/u }).click();
+			if (width === 1440) await page.getByRole("tab", { name: /^(Review|مراجعة)/u }).click();
+			else await page.getByRole("button", { name: /^(Review|مراجعة)/u }).click();
 			const pdfLabel = ar ? "قابلية قراءة PDF" : "PDF readability";
 			const pdfReadiness = page.getByRole("region", { name: pdfLabel, exact: true });
-			const pdfSummary = page
-				.getByRole("region", { name: ar ? "نتائج الفحص" : "Check summary", exact: true })
-				.getByRole("article")
-				.filter({ has: page.getByText(pdfLabel, { exact: true }) });
-			await expect(pdfSummary.getByRole("status")).toHaveText(ar ? "لم يُفحص" : "Not checked");
+			await expect(page.getByRole("tab", { name: ar ? "فحص ATS" : "ATS check", exact: true })).toHaveAttribute(
+				"aria-selected",
+				"true",
+			);
 			await expect(pdfReadiness.getByText(ar ? "لم يُفحص" : "Not checked", { exact: true })).toBeVisible();
 			await expect(page.locator("[data-pdf-bytes-hash]")).toHaveCount(0);
 			await settleScreen(page);
 			await page.screenshot({ path: testInfo.outputPath("check.png") });
+			await openReview(page, width, "writing");
 			const ignoredNote = page.locator('[data-issue-card="MISSING_EMAIL:/basics/email"]');
 			await ignoredNote.getByRole("button", { name: ar ? "إبقاء كما هو" : "Keep as is", exact: true }).click();
 			await expect(ignoredNote).not.toBeVisible();

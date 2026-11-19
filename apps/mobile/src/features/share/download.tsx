@@ -51,7 +51,7 @@ export function DownloadTab({ resume, offline }: DownloadProps) {
 		{
 			id: "json",
 			label: t`JSON`,
-			description: t`Complete data backup. Imports back into Reactive Resume or JSON Resume tools.`,
+			description: t`Complete data backup. Imports back into Sirawise or JSON Resume tools.`,
 		},
 	];
 	const download = async (chosen: ExportFormat, print = false, includeLetter = withLetter) => {
@@ -132,12 +132,11 @@ export function DownloadTab({ resume, offline }: DownloadProps) {
 			/>
 			{exportReady && (
 				<ListRow
-					title={t`Get resume feedback on Discord`}
-					subtitle={t`Ask the community. Remove personal details before posting.`}
-					leading="discord-logo"
+					title={t`Help`}
+					leading="question"
 					external
 					onPress={() => {
-						void openBrowserAsync("https://discord.gg/9kAqrGcwn5").catch(() =>
+						void openBrowserAsync("https://sirawise.io/help").catch(() =>
 							showToast({ message: t`Couldn't open the browser. Try again.` }),
 						);
 					}}

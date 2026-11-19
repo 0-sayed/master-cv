@@ -10,6 +10,7 @@ import { ORPCError } from "@orpc/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@reactive-resume/ui/components/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -334,12 +335,14 @@ function ModelMenu({ open, onOpenChange, providers, current, label, onChoose, pe
 		<DropdownMenu open={open} onOpenChange={onOpenChange}>
 			<DropdownMenuTrigger
 				render={
-					<button
+					<Button
+						variant="secondary"
+						size="row"
 						type="button"
 						disabled={pending}
 						aria-busy={pending}
 						aria-label={t`Model: ${label}`}
-						className="flex h-7 max-w-[140px] items-center gap-0.5 rounded-md px-2 text-xs text-ink-2 transition-colors hover:bg-hover"
+						className="max-w-40 gap-0.5"
 					/>
 				}
 			>

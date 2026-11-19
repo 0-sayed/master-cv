@@ -58,6 +58,8 @@ function isPasswordException(error: unknown): boolean {
 	return typeof error === "object" && error !== null && "name" in error && error.name === "PasswordException";
 }
 
+export const preloadPdfExtraction = () => import("pdfjs-dist/legacy/build/pdf.mjs");
+
 export async function extractPdf(file: File, options: ExtractOptions = {}): Promise<RawExtraction> {
 	options.signal?.throwIfAborted();
 	if (file.size > MAX_UPLOAD_BYTES) throw new PdfTooLargeError(file.size);
@@ -69,7 +71,7 @@ export async function extractPdf(file: File, options: ExtractOptions = {}): Prom
 
 	// Loaded lazily, and from the legacy build: the same entry point and worker configuration the
 	// builder's preview uses, because GlobalWorkerOptions is module-global and shared with it.
-	const { GlobalWorkerOptions, getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
+	const { GlobalWorkerOptions, getDocument } = await preloadPdfExtraction();
 	GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/legacy/build/pdf.worker.min.mjs", import.meta.url).toString();
 
 	const data = new Uint8Array(await file.arrayBuffer());

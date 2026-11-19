@@ -79,7 +79,9 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			});
 
 			test("header contains the visible wordmark", async ({ page }) => {
-				await expect(page.locator("header").getByText("Master CV", { exact: true })).toBeVisible();
+				await expect(
+					page.locator("header").getByText(locale === "ar-SA" ? "سيراوايز" : "Sirawise", { exact: true }),
+				).toBeVisible();
 			});
 
 			test("embedded password eye stays on the left and preserves its value", async ({ page }) => {
@@ -169,7 +171,7 @@ test("workspace icon-only marks stay square without duplicate wordmarks", async 
 				expect(Math.abs(box.width - box.height)).toBeLessThanOrEqual(1);
 			}
 			if (width === 1440)
-				await expect(authPage.getByRole("complementary").getByText("Master CV", { exact: true })).toBeVisible();
+				await expect(authPage.getByRole("complementary").getByText("Sirawise", { exact: true })).toBeVisible();
 		}
 	}
 });

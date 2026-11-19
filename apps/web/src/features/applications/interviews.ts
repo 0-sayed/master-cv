@@ -38,7 +38,12 @@ export function collectInterviews(applications: Application[]): ScheduledIntervi
 				};
 			}),
 		)
-		.sort((a, b) => a.start.getTime() - b.start.getTime());
+		.sort(
+			(a, b) =>
+				a.start.getTime() - b.start.getTime() ||
+				a.application.id.localeCompare(b.application.id) ||
+				a.interview.id.localeCompare(b.interview.id),
+		);
 }
 
 // Interviews that haven't finished yet, soonest first.
@@ -64,7 +69,19 @@ export function formatDuration(minutes: number, locale?: string) {
 const pad = (value: number) => String(value).padStart(2, "0");
 
 // Local calendar day key (YYYY-MM-DD); interviews are bucketed by the viewer's timezone.
-export const dayKey = (date: Date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+export function dayKey(date: Date, timeZone?: string): string {
+	if (!timeZone) return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+	const parts = new Intl.DateTimeFormat("en-US", {
+		timeZone,
+		calendar: "gregory",
+		numberingSystem: "latn",
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	}).formatToParts(date);
+	const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((value) => value.type === type)?.value;
+	return `${part("year")}-${part("month")}-${part("day")}`;
+}
 
 // Value for <input type="datetime-local"> in the viewer's timezone.
 export function toDateTimeLocal(value: Date | string) {
@@ -90,11 +107,67 @@ export function monthGrid(month: Date, weekStartsOn = 0): Date[] {
 	);
 }
 
-export function groupByDay(interviews: ScheduledInterview[]) {
+export function groupByDay(interviews: ScheduledInterview[], timeZone?: string) {
 	const map = new Map<string, ScheduledInterview[]>();
 	for (const item of interviews) {
-		const key = dayKey(item.start);
+		const key = dayKey(item.start, timeZone);
 		map.set(key, [...(map.get(key) ?? []), item]);
 	}
 	return map;
+}
+
+export function calendarWeekStart(locale: string): number {
+	const value = new Intl.Locale(locale) as Intl.Locale & {
+		getWeekInfo?: () => { firstDay: number };
+		weekInfo?: { firstDay: number };
+	};
+	return (value.getWeekInfo?.() ?? value.weekInfo ?? { firstDay: 1 }).firstDay % 7;
+}
+export type CalendarNavigationKey =
+	| "ArrowLeft"
+	| "ArrowRight"
+	| "ArrowUp"
+	| "ArrowDown"
+	| "Home"
+	| "End"
+	| "PageUp"
+	| "PageDown";
+export function moveCalendarFocus(
+	day: Date,
+	key: CalendarNavigationKey,
+	direction: "ltr" | "rtl",
+	weekStartsOn: number,
+): Date {
+	const next = new Date(day);
+	if (key === "PageUp" || key === "PageDown") {
+		const delta = key === "PageUp" ? -1 : 1;
+		const last = new Date(day.getFullYear(), day.getMonth() + delta + 1, 0).getDate();
+		return new Date(day.getFullYear(), day.getMonth() + delta, Math.min(day.getDate(), last));
+	}
+	const offset = (day.getDay() - weekStartsOn + 7) % 7;
+	const amount = {
+		ArrowLeft: direction === "rtl" ? 1 : -1,
+		ArrowRight: direction === "rtl" ? -1 : 1,
+		ArrowUp: -7,
+		ArrowDown: 7,
+		Home: -offset,
+		End: 6 - offset,
+	}[key];
+	next.setDate(next.getDate() + amount);
+	return next;
+}
+export function calendarCounts(
+	interviews: ScheduledInterview[],
+	month: Date,
+	days: Date[],
+	timeZone: string,
+	now: Date,
+): { month: number; grid: number; upcoming: number } {
+	const prefix = dayKey(month).slice(0, 7);
+	const visible = new Set(days.map((day) => dayKey(day)));
+	return {
+		month: interviews.filter((item) => dayKey(item.start, timeZone).startsWith(prefix)).length,
+		grid: interviews.filter((item) => visible.has(dayKey(item.start, timeZone))).length,
+		upcoming: upcomingInterviews(interviews, now).length,
+	};
 }

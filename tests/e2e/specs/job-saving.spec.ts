@@ -33,7 +33,7 @@ test("fresh account prepares a linked blank resume and selects only submitted at
 	await expect(attachment).toBeOK();
 	await page.goto("/dashboard/applications");
 	await page.getByText("Engineer", { exact: true }).first().click();
-	await page.getByRole("button", { name: "Mark as applied", exact: true }).click();
+	await page.getByRole("combobox", { name: "Application stage", exact: true }).selectOption("applied");
 	const confirm = page.getByRole("dialog", { name: "Mark as applied", exact: true });
 	await confirm.getByRole("checkbox", { name: "Submitted attached resume: Draft.pdf", exact: true }).uncheck();
 	await confirm.getByRole("button", { name: "Confirm applied" }).click();
@@ -83,7 +83,7 @@ test("save, manually prepare a copy, and confirm submitted documents without ser
 
 	await page.goto("/dashboard/applications");
 	await page.getByText("Engineer", { exact: true }).first().click();
-	await page.getByRole("button", { name: "Mark as applied", exact: true }).click();
+	await page.getByRole("combobox", { name: "Application stage", exact: true }).selectOption("applied");
 	const confirm = page.getByRole("dialog", { name: "Mark as applied", exact: true });
 	await confirm.getByLabel("Application date").fill("2026-09-25");
 	await confirm.getByLabel("Resume submitted (optional)").selectOption(copyId);
@@ -139,7 +139,8 @@ test("unreadable link preserves fields and source while offering immediate paste
 	const jobs = await (await page.request.get("/api/openapi/applications")).json();
 	expect(jobs[0]).toMatchObject({ sourceUrl: source, jobDescription: "Complete manual description", status: "saved" });
 	await page.goto(`/dashboard/applications/${jobs[0].id}`);
-	await page.getByRole("button", { name: "Posting", exact: true }).click();
+	await page.locator("main header").getByRole("button", { name: "More actions", exact: true }).click();
+	await page.getByRole("menuitem", { name: "Posting", exact: true }).click();
 	const external = page.getByRole("dialog").getByRole("link", { name: source, exact: true });
 	await expect(external).toHaveAttribute("href", source);
 	const popup = page.waitForEvent("popup");

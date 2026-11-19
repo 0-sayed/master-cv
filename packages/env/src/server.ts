@@ -3,6 +3,7 @@ import { isAbsolute, join } from "node:path";
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 import { aiProviderSchema } from "@reactive-resume/ai/types";
+import { productBrand } from "@reactive-resume/utils/brand";
 import { findWorkspaceRoot } from "@reactive-resume/utils/monorepo.node";
 import { deploymentEnvironment } from "./deployment";
 
@@ -101,6 +102,18 @@ export const env = createEnv({
 
 		// Authentication
 		AUTH_SECRET: z.string().min(1),
+		ADMIN_EMAILS: z
+			.string()
+			.transform((value) => [
+				...new Set(
+					value
+						.split(",")
+						.map((email) => email.trim().toLowerCase())
+						.filter(Boolean),
+				),
+			])
+			.pipe(z.array(z.email()))
+			.default([]),
 		BETTER_AUTH_API_KEY: z.string().min(1).optional(),
 		// Domain verification token from the OpenAI plugin portal, served at /.well-known/openai-apps-challenge.
 		OPENAI_APPS_CHALLENGE_TOKEN: z.string().trim().min(1).optional(),
@@ -171,7 +184,7 @@ export const env = createEnv({
 		SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),
 		SMTP_USER: z.string().min(1).optional(),
 		SMTP_PASS: z.string().min(1).optional(),
-		SMTP_FROM: z.string().min(1).optional(),
+		SMTP_FROM: z.string().min(1).default(productBrand.defaultEmailSender),
 		SMTP_SECURE: z.stringbool().default(false),
 
 		// Storage (Optional)

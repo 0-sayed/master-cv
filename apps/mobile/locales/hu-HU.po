@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-17 06:47+0200\n"
+"POT-Creation-Date: 2026-11-18 09:46+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -676,8 +676,8 @@ msgid "24 hours before"
 msgstr "24 órával előtte"
 
 #: src/features/letters/share.tsx
-msgid "A backup of this letter. Imports back into Reactive Resume as a letter."
-msgstr "A levél biztonsági másolata. Levélként importálja vissza a Reactive Resume-ba."
+msgid "A backup of this letter. Imports back into Sirawise as a letter."
+msgstr ""
 
 #: src/features/check/issues.ts
 msgid "A city and country let roles be matched to where you are."
@@ -1562,10 +1562,6 @@ msgstr "Kérje meg az asszisztenst, hogy dolgozza fel"
 msgid "Ask the coach"
 msgstr "Kérdezd a coachot"
 
-#: src/features/share/download.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "Kérdezd a közösséget. Közzététel előtt távolítsd el a személyes adatokat."
-
 #: src/features/ai/error.ts
 msgid "Ask your server administrator to enable credential encryption or configure a shared connection."
 msgstr "Kérje meg a kiszolgáló rendszergazdáját, hogy engedélyezze a hitelesítő adatok titkosítását vagy konfiguráljon egy megosztott kapcsolatot."
@@ -1600,7 +1596,6 @@ msgid "ATS checker"
 msgstr "ATS ellenőrző"
 
 #: src/features/ats-checker/checker.tsx
-#: src/features/search/search-screen.tsx
 msgid "ATS Checker"
 msgstr "ATS-ellenőrző"
 
@@ -1864,10 +1859,6 @@ msgstr "Felsorolásos lista"
 msgid "Burgundy"
 msgstr "Bordó"
 
-#: app/(tabs)/settings/index.tsx
-msgid "by <0>Amruth Pillai</0>"
-msgstr "készítette: <0>Amruth Pillai</0>"
-
 #: src/features/applications-board/views.tsx
 msgid "Calendar"
 msgstr "Naptár"
@@ -1981,14 +1972,6 @@ msgstr "A „{name}” módosításait egy másik eszközön mentették. Szerkes
 #: app/builder/[id]/_layout.tsx
 msgid "Check"
 msgstr "Ellenőrzés"
-
-#: src/features/search/search-screen.tsx
-msgid "Check a PDF"
-msgstr "Ellenőrizze a PDF-t"
-
-#: src/features/documents/new-document.tsx
-msgid "Check a PDF with the ATS checker"
-msgstr "PDF ellenőrzése az ATS-ellenőrzővel"
 
 #: src/features/ats-checker/checker.tsx
 msgid "Check a sample file"
@@ -2327,8 +2310,8 @@ msgid "Compares your resume with the posting"
 msgstr "Hasonlítsa össze önéletrajzát az álláshirdetéssel"
 
 #: src/features/share/download.tsx
-msgid "Complete data backup. Imports back into Reactive Resume or JSON Resume tools."
-msgstr "Teljes adatmentés. Visszaimportálható a Reactive Resume vagy JSON Resume szerszámokba."
+msgid "Complete data backup. Imports back into Sirawise or JSON Resume tools."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
@@ -3425,10 +3408,6 @@ msgstr "Ne küldjön {0} álláshirdetést"
 msgid "Don't share"
 msgstr "Ne oszd meg"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Donate on Open Collective"
-msgstr "Adományozás az Open Collective-en"
-
 #: src/features/applications/list-screen.tsx
 #: src/features/career/today.tsx
 #: src/features/documents/library.tsx
@@ -3784,8 +3763,8 @@ msgid "Enter any model ID supported by your endpoint."
 msgstr "Adja meg a végpontja által támogatott bármely modellazonosítót."
 
 #: app/(auth)/server.tsx
-msgid "Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue."
-msgstr "Adja meg a címet, ahol a Reactive Resume-ot böngészőben megnyitja. Folytatás előtt az alkalmazás ellenőrzi, hogy ez egy Reactive Resume-szerver, amely engedi az alkalmazásból történő bejelentkezést."
+msgid "Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue."
+msgstr ""
 
 #: src/features/public/public-resume.tsx
 msgid "Enter the password the resume owner shared with you."
@@ -4186,10 +4165,6 @@ msgstr "A Visszajelzés kérése elküldi a kérdést, a válaszodat, ezt a hird
 msgid "Get new roles here every morning"
 msgstr "Kapj új pozíciókat itt minden reggel"
 
-#: src/features/share/download.tsx
-msgid "Get resume feedback on Discord"
-msgstr "Visszajelzés kérése az önéletrajzodra a Discordon"
-
 #: src/features/letters/write.tsx
 msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "Egyre hosszabb. Próbálkozzon a „rövidebb” lehetőséggel, vagy vágja ki a legkevésbé konkrét bekezdést."
@@ -4280,6 +4255,10 @@ msgstr "hallotta vissza"
 #: src/features/settings/locale-names.ts
 msgid "Hebrew"
 msgstr "héber"
+
+#: src/features/share/download.tsx
+msgid "Help"
+msgstr ""
 
 #: app/(tabs)/settings/index.tsx
 msgid "Help & docs"
@@ -4742,10 +4721,6 @@ msgstr "Álláskeresési folyamat"
 #: src/features/search/search-screen.tsx
 msgid "Jobs"
 msgstr "Állások"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Join the Discord"
-msgstr "Csatlakozz a Discordhoz"
 
 #: src/features/letters/share.tsx
 #: src/features/share/download.tsx
@@ -5286,8 +5261,8 @@ msgid "Lower the design sheet"
 msgstr "Engedje le a tervezőlapot"
 
 #: src/features/public/public-resume.tsx
-msgid "Made with Reactive Resume, free and open source"
-msgstr "Reactive Resume-val készült, ingyenes és nyílt forráskódú"
+msgid "Made with Sirawise, free and open source"
+msgstr ""
 
 #. Layout editor column label for the primary content area
 #: src/features/design/layout-screen.tsx
@@ -5963,10 +5938,6 @@ msgstr "Nincs fénykép. A legtöbb ATS figyelmen kívül hagyja a fényképeket
 msgid "No postings found. Try different keywords."
 msgstr "Nem található álláshirdetés. Próbáljon ki különböző kulcsszavakat."
 
-#: src/auth/messages.ts
-msgid "No Reactive Resume server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
-msgstr "Ezen a címen nem válaszolt a Reactive Resume szerver. Ellenőrizze a helyesírást, vagy kérdezze meg rendszergazdáját, hogy a szerver engedélyezi-e az alkalmazásbejelentkezést."
-
 #: src/features/check/job-match.tsx
 msgid "No recognisable terms in this posting."
 msgstr "Ebben az álláshirdetésben nincsenek felismerhető kifejezések."
@@ -5986,6 +5957,10 @@ msgstr "Nincs eredmény"
 #: src/features/letters/write.tsx
 msgid "No resume"
 msgstr "Nincs önéletrajz"
+
+#: src/auth/messages.ts
+msgid "No Sirawise server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "No skills section was found."
@@ -6645,8 +6620,8 @@ msgid "PDF check cancelled. Retry when ready."
 msgstr "PDF-ellenőrzés megszakítva. Próbálja újra, ha készen áll."
 
 #: src/features/application-detail/sections.tsx
-msgid "PDF only · up to 10 MB each. Linking a Reactive Resume enables AI match scoring and tailoring."
-msgstr "Csak PDF · egyenként legfeljebb 10 MB. Egy Reactive Resume-önéletrajz csatolásával elérhető az MI-alapú egyezéspontozás és testreszabás."
+msgid "PDF only · up to 10 MB each. Linking a Sirawise enables AI match scoring and tailoring."
+msgstr ""
 
 #: src/features/design/advanced.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
@@ -6654,11 +6629,11 @@ msgstr "A PDF stílusok támogatják a CSS egy részhalmazát. A rendszer figyel
 
 #: src/features/documents/new-document.tsx
 msgid "PDF uses your AI provider when one is ready. Turn off the AI switch to read its text layer on your server. Word (.docx) needs an AI provider. Current and v4 Reactive Resume JSON, cover letters, JSON Resume and LinkedIn exports (.zip) are supported. Up to 10 MB."
-msgstr "A PDF az Ön mesterséges intelligencia-szolgáltatóját használja, amikor az készen áll. Kapcsolja ki az AI kapcsolót, hogy beolvassa a szövegrétegét a szerveren. Word (.docx) AI-szolgáltatóra van szüksége. A jelenlegi és v4 Reactive Resume JSON, motivációs levelek, JSON Resume és LinkedIn exportok (.zip) támogatottak. Akár 10 MB."
+msgstr "A PDF az Ön mesterséges intelligencia-szolgáltatóját használja, amikor az készen áll. Kapcsolja ki az AI kapcsolót, hogy beolvassa a szövegrétegét a szerveren. Word (.docx) AI-szolgáltatóra van szüksége. A jelenlegi és v4 Sirawise JSON, motivációs levelek, JSON Resume és LinkedIn exportok (.zip) támogatottak. Akár 10 MB."
 
 #: src/features/documents/new-document.tsx
 msgid "PDF, Word, Reactive Resume, JSON Resume or LinkedIn export."
-msgstr "PDF, Word, Reactive Resume, JSON Resume vagy LinkedIn-export."
+msgstr "PDF, Word, Sirawise, JSON Resume vagy LinkedIn-export."
 
 #: src/features/career/offers.tsx
 #: src/features/career/preferences.tsx
@@ -7102,10 +7077,6 @@ msgstr "Exportáld újra beágyazott betűtípusokkal, és ellenőrizd, hogy a s
 msgid "Re-export with fonts embedded, then open the file and check that the text copies out cleanly."
 msgstr "Exportáld újra beágyazott betűtípusokkal, majd nyisd meg a fájlt, és ellenőrizd, hogy a szöveg tisztán másolható-e."
 
-#: src/auth/auth-header.tsx
-msgid "Reactive Resume"
-msgstr "Reactive Resume"
-
 #: src/features/workspace/tabs/prepare.tsx
 msgid "Read briefing"
 msgstr "Eligazítás elolvasása"
@@ -7512,10 +7483,6 @@ msgstr "Jelentés"
 msgid "Report AI content"
 msgstr "Az AI-tartalom bejelentése"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Report an issue"
-msgstr "Hiba jelentése"
-
 #: src/features/ai/report-content.tsx
 msgid "Report received by your server operator. Thank you."
 msgstr "A szerver üzemeltetője kapott jelentést. Köszönöm."
@@ -7607,10 +7574,6 @@ msgstr "az önéletrajzot nem sikerült betölteni."
 #: src/features/document-menu/index.tsx
 msgid "Resume details"
 msgstr "önéletrajz részletei"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Resume feedback, product help, and community ideas."
-msgstr "Önéletrajz-visszajelzés, segítség a termékhez és közösségi ötletek."
 
 #: src/features/application-detail/sections.tsx
 msgid "Resume file"
@@ -8309,10 +8272,6 @@ msgstr "Állítsa be az internetes keresést a(z) Beállítások alkalmazásban 
 msgid "Settings"
 msgstr "Beállítások"
 
-#: app/(tabs)/settings/ai-mcp.tsx
-msgid "Setup guide"
-msgstr "Beállítási útmutató"
-
 #: src/features/ai/report-content.tsx
 msgid "Sexual content"
 msgstr "Szexuális tartalom"
@@ -8615,6 +8574,11 @@ msgstr "Kijelentkezve, de néhány adatot nem sikerült eltávolítani ezen az e
 msgid "since last view"
 msgstr "az utolsó megtekintés óta"
 
+#: src/auth/auth-header.tsx
+#: src/shell/app-tabs.tsx
+msgid "Sirawise"
+msgstr "Sirawise"
+
 #: src/features/career/stories.tsx
 msgid "Situation (required)"
 msgstr "Helyzet (kötelező)"
@@ -8756,10 +8720,6 @@ msgstr "Forrás"
 msgid "Source and correction history"
 msgstr "Forrás és javítástörténet"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Source code on GitHub"
-msgstr "Forráskód a GitHubon"
-
 #: src/features/assistant/chat-view.tsx
 #: src/features/assistant/messages.tsx
 msgid "Sources"
@@ -8867,6 +8827,10 @@ msgstr "Kezdjen el gépelni, vagy készítsen vázlatot abból, amit tudunk: a {
 #: src/features/letters/write.tsx
 msgid "Start typing, or draft from what we know: your resume."
 msgstr "Kezdjen el gépelni, vagy készítsen piszkozatot abból, amit tudunk: önéletrajzából."
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr ""
 
 #: src/features/letters/write.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
@@ -10912,8 +10876,8 @@ msgid "your Knowledge"
 msgstr "a Tudástárad"
 
 #: app/(tabs)/settings/preferences.tsx
-msgid "Your language is saved. Restart Reactive Resume to apply the new left-to-right or right-to-left layout."
-msgstr "Nyelve elmentve. Indítsa újra a(z) Reactive Resume programot az új balról jobbra vagy jobbról balra elrendezés alkalmazásához."
+msgid "Your language is saved. Restart Sirawise to apply the new left-to-right or right-to-left layout."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Your lines are packed very tightly."

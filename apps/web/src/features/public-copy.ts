@@ -19,6 +19,7 @@ const publicMessages = {
 		context: "landing.hero.reassurance",
 	}),
 	"landing.navigation.label": msg({ message: "On this page", context: "landing.navigation.label" }),
+	"landing.navigation.workspace": msg({ message: "Open my workspace", context: "landing.navigation.workspace" }),
 	"landing.navigation.howItWorks": msg({ message: "How it works", context: "landing.navigation.howItWorks" }),
 	"landing.navigation.menu": msg({ message: "Menu", context: "landing.navigation.menu" }),
 	"landing.navigation.pricing": msg({ message: "Pricing", context: "landing.navigation.pricing" }),
@@ -90,7 +91,7 @@ const publicMessages = {
 		context: "landing.faq.ats.answer",
 	}),
 	"landing.navigation.privacy": msg({ message: "Privacy", context: "landing.navigation.privacy" }),
-	"landing.navigation.faq": msg({ message: "Questions", context: "landing.navigation.faq" }),
+	"landing.navigation.faq": msg({ message: "FAQ", context: "landing.navigation.faq" }),
 	"landing.example.disclosure": msg({
 		message: "Illustrative example with synthetic facts, not a user result or a live analysis.",
 		context: "landing.example.disclosure",
@@ -296,7 +297,7 @@ const publicMessages = {
 	"public.meta.help.title": msg({ message: "Help and contact", context: "public.meta.help.title" }),
 	"public.meta.help.description": msg({
 		message:
-			"Contact Master CV support and find answers about PDF downloads, interface languages and account data controls.",
+			"Contact Sirawise support and find answers about PDF downloads, interface languages and account data controls.",
 		context: "public.meta.help.description",
 	}),
 } as const;

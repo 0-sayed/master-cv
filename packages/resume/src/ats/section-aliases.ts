@@ -71,6 +71,28 @@ for (const [type, aliases] of Object.entries(arabicAliases)) {
 	);
 }
 
+/** Choices use the document language, independently of the interface language. */
+export function standardSectionHeadings(locale: string, type?: CustomSectionType): string[] {
+	const arabic = locale.startsWith("ar");
+	const entries = type ? [SECTION_TITLE_ALIASES[type] ?? new Set<string>()] : Object.values(SECTION_TITLE_ALIASES);
+	return [...new Set(entries.flatMap((aliases) => [...aliases]))]
+		.filter((heading) => /\p{Script=Arabic}/u.test(heading) === arabic)
+		.map((heading) => (arabic ? heading : heading.charAt(0).toUpperCase() + heading.slice(1)));
+}
+
+export function suggestSectionHeading(locale: string, type: CustomSectionType, content: string): string {
+	const normalized = normalizeSectionHeading(content);
+	let suggestedType = type;
+	if (/professional development|development plan|التطوير المهني|تطوير مهني|خطة التطوير|خطة تطوير/u.test(normalized))
+		suggestedType = "certifications";
+	else if (/training|courses|دورات|تدريب/u.test(normalized)) suggestedType = "certifications";
+	else if (/projects|مشاريع/u.test(normalized)) suggestedType = "projects";
+	const choices = standardSectionHeadings(locale, suggestedType);
+	if (suggestedType === "certifications" && locale.startsWith("ar"))
+		return choices.find((heading) => heading.includes("الدورات")) ?? choices[0] ?? "";
+	return choices[0] ?? standardSectionHeadings(locale, "summary")[0] ?? "";
+}
+
 /**
  * Additional headings seen in the wild that the PDF checker must still recognise as a section.
  * These are recall-oriented: a resume that writes "Career Summary" has a summary section, even

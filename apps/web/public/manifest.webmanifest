@@ -1,6 +1,6 @@
 {
-	"name": "Master CV",
-	"short_name": "Master CV",
+	"name": "Sirawise",
+	"short_name": "Sirawise",
 	"description": "Upload your CV or start from scratch. Review every detail and suggestion yourself.",
 	"id": "/?source=pwa",
 	"start_url": "/dashboard",
