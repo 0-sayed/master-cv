@@ -1,6 +1,4 @@
-import type { ExtractedDocument, TextLine } from "../types";
 import { normalizeNumericDigits } from "@reactive-resume/utils/string";
-import { normalizeSectionHeading, PDF_SECTION_HEADING_LOOKUP } from "../../ats/section-aliases";
 
 export const hasArabicContent = (text: string) => /\p{Script=Arabic}/u.test(text.replace(/[^\p{L}]/gu, ""));
 export const startsWithArabicText = (text: string) => hasArabicContent(text.match(/[\p{L}\p{M}]+/u)?.[0] ?? "");
@@ -57,46 +55,3 @@ export function isArabicQuantified(text: string): boolean {
 }
 
 export const isLongArabicBullet = (text: string) => words(text).length > 40;
-
-const PREFIX = /^\s*(?:[•▪◦‣·∙●○■□▶▸*+\uE000-\uF8FF]|[-–—]\s)\s*/u;
-const SUFFIX = /\s*[•▪◦‣·∙●○■□▶▸\uE000-\uF8FF]\s*$/u;
-
-/** Join only adjacent, aligned Arabic continuation lines, never whole roles or columns. */
-export function arabicBullets(document: ExtractedDocument): { text: string; lines: TextLine[] }[] {
-	const bullets: { text: string; lines: TextLine[] }[] = [];
-	let previous: TextLine | undefined;
-	for (const line of document.lines) {
-		const text = line.text.replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069]/gu, "").trim();
-		if (PREFIX.test(text) || (hasArabicContent(text) && SUFFIX.test(text))) {
-			bullets.push({ text: text.replace(PREFIX, "").replace(SUFFIX, "").trim(), lines: [line] });
-			previous = line;
-			continue;
-		}
-		const gap = previous ? line.y - previous.y - previous.height : Infinity;
-		const sameColumn =
-			previous &&
-			(Math.abs(line.x - previous.x) < line.fontSize * 2 ||
-				Math.abs(line.x + line.width - previous.x - previous.width) < line.fontSize * 2);
-		if (
-			previous &&
-			line.page === previous.page &&
-			hasArabicContent(text) &&
-			!PDF_SECTION_HEADING_LOOKUP.has(normalizeSectionHeading(text)) &&
-			line.fontSize === previous.fontSize &&
-			gap >= -1 &&
-			gap <= line.fontSize * 0.6 &&
-			sameColumn
-		) {
-			const bullet = bullets[bullets.length - 1];
-			if (bullet) {
-				bullet.text += ` ${text}`;
-				bullet.lines.push(line);
-			}
-			previous = line;
-		} else previous = undefined;
-	}
-	return bullets.filter((bullet) => Boolean(bullet.text));
-}
-
-export const arabicBulletBodies = (document: ExtractedDocument): string[] =>
-	arabicBullets(document).map((bullet) => bullet.text);

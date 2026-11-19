@@ -42,10 +42,10 @@ export const THRESHOLDS = {
 
 	layout: {
 		/** A gutter has to stay clear down almost the whole text column to count as one. */
-		gutterCoverage: 0.85,
+		gutterCoverage: 0.8,
 		gutterSevereCoverage: 0.9,
 		/** Both sides must carry real content: a wide margin with a stub in it is not a column. */
-		gutterSplitRatio: 0.25,
+		gutterSplitRatio: 0.1,
 		gutterPageShare: 0.5,
 		inversionRatio: 0.25,
 		inversionSevereRatio: 0.45,

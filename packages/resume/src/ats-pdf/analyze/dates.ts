@@ -7,19 +7,22 @@ import {
 	ONGOING_TOKENS_BY_LANGUAGE,
 } from "@reactive-resume/schema/resume/period";
 import { normalizeNumericDigits } from "@reactive-resume/utils/string";
-import { normalizeSectionHeading, PDF_SECTION_HEADING_LOOKUP } from "../../ats/section-aliases";
-import { columnSegments } from "../extract";
+import { columnSegments, hasIndependentColumns } from "../extract";
 import { THRESHOLDS } from "../rules/thresholds";
+import { detectHeadings, normalizeHeading } from "./sections";
 
 const MONTH_WORD = String.raw`[\p{L}\p{M}]{3,12}\.?`;
-const ENDPOINT = String.raw`(?:${MONTH_WORD}\s*'?\d{2,4}|\d{1,2}[/.\-]\d{2,4}|\d{4})`;
+const ENDPOINT = String.raw`(?:${MONTH_WORD}\s*'?\d{2,4}|\d{4}-\d{2}(?:-\d{2})?|\d{1,2}[/.\-]\d{2,4}|\d{4})`;
 const ARABIC_ONGOING = (ONGOING_TOKENS_BY_LANGUAGE.ar ?? [])
 	.map((token) => token.split(/\s+/u).join(String.raw`\s+`))
 	.join("|");
 const ONGOING = String.raw`(?:present|current|currently|now|ongoing|to\s?date|today|${ARABIC_ONGOING})`;
 const SEPARATOR = String.raw`\s*(?:[-–—~]|to|through|until)\s*`;
 
-const RANGE_PATTERN = new RegExp(`(?=(${ENDPOINT}${SEPARATOR}(?:${ENDPOINT}|${ONGOING})))`, "giu");
+const RANGE_PATTERN = new RegExp(
+	`(?<![\\p{L}\\p{N}])(?=(${ENDPOINT}${SEPARATOR}(?:${ENDPOINT}|${ONGOING}))(?!\\d))`,
+	"giu",
+);
 const SINGLE_PATTERN = new RegExp(String.raw`(?:${MONTH_WORD}\s+\d{4}|\d{1,2}/\d{4})\b`, "giu");
 
 /** A numeric date whose first two components could each be a month or a day. */
@@ -58,8 +61,9 @@ const ONGOING_WORDS = new Set([
 ]);
 
 function shapeOf(raw: string): DateToken["shape"] {
-	if (/\p{L}/u.test(raw)) return "mon-year";
-	if (/\d{1,2}[/.-]\d/.test(normalizeNumericDigits(raw))) return "numeric";
+	const dated = raw.replace(new RegExp(ONGOING, "giu"), "");
+	if (/\p{L}/u.test(dated)) return "mon-year";
+	if (/\d{4}-\d{2}(?!\d)|(?<!\d)\d{1,2}[/.-]\d{2,4}/u.test(normalizeNumericDigits(dated))) return "numeric";
 	return "year";
 }
 
@@ -124,19 +128,39 @@ export function analyzeDates(document: ExtractedDocument, locale: string, now: D
 	const ambiguousNumericDates: string[] = [];
 	const experienceTokens: DateToken[] = [];
 	const sections = new Map<number, string>();
+	const headings = detectHeadings(document);
+	// A section grid shares one heading across both columns. Sidebars have headings on both sides.
+	const independentSections = document.pages.some((page) => {
+		const gutter = page.gutter;
+		if (!gutter || !hasIndependentColumns(page) || gutter.splitRatio < THRESHOLDS.layout.gutterSplitRatio) return false;
+		const columns = new Set(
+			headings
+				.filter((heading) => heading.page === page.pageNumber && heading.sectionType)
+				.map((heading) => (heading.x >= gutter.x + gutter.width / 2 ? 1 : 0)),
+		);
+		return columns.size === 2;
+	});
 
 	document.lines.forEach((fullLine, lineIndex) => {
 		const page = document.pages.find((item) => item.pageNumber === fullLine.page);
+		const columnOf = (x: number) =>
+			independentSections &&
+			page?.gutter &&
+			hasIndependentColumns(page) &&
+			page.gutter.splitRatio >= THRESHOLDS.layout.gutterSplitRatio &&
+			x >= page.gutter.x + page.gutter.width / 2
+				? 1
+				: 0;
+		for (const heading of headings.filter((item) => item.lineIndex === lineIndex && item.sectionType)) {
+			if (heading.sectionType) sections.set(columnOf(heading.x), heading.sectionType);
+		}
 		for (const line of columnSegments(fullLine)) {
-			const gutter = page?.gutter;
-			const column =
-				gutter && gutter.splitRatio >= THRESHOLDS.layout.gutterSplitRatio && line.x >= gutter.x + gutter.width / 2
-					? 1
-					: 0;
-			const heading = normalizeSectionHeading(line.text);
+			const column = columnOf(line.x);
+			const heading = normalizeHeading(line.text);
 			const section =
-				PDF_SECTION_HEADING_LOOKUP.get(heading) ??
-				(/^(?:courses|training|الدورات|دورات|التدريب)$/u.test(heading) ? "certifications" : undefined);
+				/^(?:courses|training|الدورات|دورات|التدريب)$/u.test(heading) && !/[.!?;,]$/.test(line.text.trim())
+					? "certifications"
+					: undefined;
 			if (section) sections.set(column, section);
 			// Digit conversion is length preserving; candidate offsets still point into the raw evidence.
 			const numeric = normalizeNumericDigits(line.text);

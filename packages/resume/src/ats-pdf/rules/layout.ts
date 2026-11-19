@@ -1,5 +1,5 @@
 import type { PageGeometry, PdfCheck, PdfCheckContext, TextLine } from "../types";
-import { columnSegments } from "../extract";
+import { columnSegments, hasIndependentColumns } from "../extract";
 import { check, fail, failIf, hasNoText, pass, roundRatio, skip, snippet } from "./helpers";
 import { THRESHOLDS } from "./thresholds";
 
@@ -29,6 +29,7 @@ function layoutSignals(context: PdfCheckContext): LayoutSignals {
 	const gutterPages = pages.filter(
 		(page) =>
 			page.gutter !== null &&
+			hasIndependentColumns(page) &&
 			page.gutter.coverage >= THRESHOLDS.layout.gutterCoverage &&
 			page.gutter.splitRatio >= THRESHOLDS.layout.gutterSplitRatio,
 	);
@@ -122,12 +123,53 @@ function regionLineGaps(page: PageGeometry): number[] {
 	return regions.map(medianLineGap).filter((gap): gap is number => gap !== null);
 }
 
+/** Repeated list markers reveal section grids even with staggered rows and a narrow gap. */
+function hasProseGrid(page: PageGeometry): boolean {
+	const groups = new Map<number, { x: number; ys: number[] }>();
+	for (const line of page.lines) {
+		for (const span of line.spans) {
+			if (!/^[•▪◦‣●]$/u.test(span.text.trim())) continue;
+			if (
+				!line.spans.some(
+					(body) =>
+						/\p{L}/u.test(body.text) &&
+						body.text.length >= 30 &&
+						Math.min(Math.abs(body.x - span.x - span.width), Math.abs(span.x - body.x - body.width)) <
+							span.fontSize * 2,
+				)
+			)
+				continue;
+			const key = Math.round(span.x / 12);
+			const group = groups.get(key) ?? { x: span.x, ys: [] };
+			group.ys.push(span.y);
+			groups.set(key, group);
+		}
+	}
+	const columns = [...groups.values()].filter((group) => group.ys.length >= 2);
+	return columns.some((left) =>
+		columns.some(
+			(right) =>
+				Math.abs(left.x - right.x) > page.width * 0.2 &&
+				Math.max(Math.min(...left.ys), Math.min(...right.ys)) < Math.min(Math.max(...left.ys), Math.max(...right.ys)),
+		),
+	);
+}
+
+function hasSectionGrid(context: PdfCheckContext): boolean {
+	const gridRows = context.doc.lines.filter(
+		(line) =>
+			columnSegments(line).filter((segment) => /[•▪◦‣●]/u.test(segment.text) && /\p{L}/u.test(segment.text)).length >=
+			2,
+	).length;
+	return gridRows >= 2 || context.doc.pages.some(hasProseGrid);
+}
+
 export const layoutChecks: readonly PdfCheck[] = [
 	check("MULTI_COLUMN_LAYOUT", (context) => {
 		if (hasNoText(context)) return skip("no-text");
 
 		const signals = layoutSignals(context);
-		if (!(signals.gutterStrong && signals.inversionStrong)) return pass;
+		if (!(signals.gutterStrong && signals.inversionStrong) && !hasSectionGrid(context)) return pass;
 
 		return fail("MULTI_COLUMN_LAYOUT", {
 			inversion: roundRatio(signals.meanInversion),
@@ -149,7 +191,7 @@ export const layoutChecks: readonly PdfCheck[] = [
 
 		const signals = layoutSignals(context);
 		// The blocker already owns this case; reporting both would double-count one problem.
-		if (signals.gutterStrong && signals.inversionStrong) return skip("not-applicable");
+		if ((signals.gutterStrong && signals.inversionStrong) || hasSectionGrid(context)) return skip("not-applicable");
 
 		return failIf(signals.gutterStrong, "COLUMN_GUTTER", {
 			gutterWidth: Math.round(signals.worstGutter?.width ?? 0),

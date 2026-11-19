@@ -188,6 +188,7 @@ export type ExtractedDocument = {
 
 export type DetectedHeading = {
 	text: string;
+	x: number;
 	normalized: string;
 	sectionType: CustomSectionType | null;
 	page: number;

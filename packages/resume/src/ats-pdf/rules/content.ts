@@ -30,14 +30,6 @@ import { THRESHOLDS } from "./thresholds";
  * read it — and folding them into a score would be inventing precision that does not exist.
  */
 
-function bulletBodies(context: PdfCheckContext): string[] {
-	return context.doc.lines
-		.map((line) => line.text.trim())
-		.filter((text) => /^\s*(?:[•▪◦‣·∙●○■□▶▸*+]|[-–—]\s)/.test(text))
-		.map((text) => text.replace(/^\s*(?:[•▪◦‣·∙●○■□▶▸*+]|[-–—])\s*/, "").trim())
-		.filter(Boolean);
-}
-
 function guardBullets(context: PdfCheckContext, arabicSupported = true) {
 	if (hasNoText(context)) return skip("no-text");
 	if (!context.semantics.quality.isEnglish && !(arabicSupported && hasArabicContent(context.doc.fullText)))
@@ -53,9 +45,7 @@ export const contentChecks: readonly PdfCheck[] = [
 		const blocked = guardBullets(context);
 		if (blocked) return blocked;
 
-		const count = hasArabicContent(context.doc.fullText)
-			? context.semantics.bulletLineCount
-			: bulletBodies(context).length;
+		const count = context.semantics.bulletLineCount;
 		if (count === 0) return skip("insufficient-data");
 
 		const share = context.semantics.quantifiedBulletCount / count;
@@ -73,9 +63,7 @@ export const contentChecks: readonly PdfCheck[] = [
 		const blocked = guardBullets(context);
 		if (blocked) return blocked;
 
-		const count = hasArabicContent(context.doc.fullText)
-			? context.semantics.bulletLineCount
-			: bulletBodies(context).length;
+		const count = context.semantics.bulletLineCount;
 		if (count === 0) return skip("insufficient-data");
 
 		const share = context.semantics.actionVerbBulletCount / count;
