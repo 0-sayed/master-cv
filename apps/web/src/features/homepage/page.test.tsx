@@ -79,6 +79,8 @@ it("prerenders the product story, demos and honest pricing without JavaScript", 
 	expect(html).toMatch(/<h1[^>]*>Your CV, as <span[^>]*>clear/);
 	expect(html).toContain("Import your PDF, approve every suggestion");
 	expect(html).toContain('id="how-it-works"');
+	expect(html).toContain('href="/dashboard/review-guide?locale=en-US"');
+	expect(html).not.toContain('href="/ats-checker');
 	expect(html).toContain("Abdullah Alqahtani");
 	expect(html).toContain("Prepare monthly financial reports.");
 	for (const text of [

@@ -297,10 +297,14 @@ export async function handleWebApp(request: Request, readFile: ReadWebFile = (pa
 	const respond = (body: BodyInit | null, init?: ResponseInit) => new Response(isHead ? null : body, init);
 	if (pathname === "/ats-checker") {
 		const source = new URL(request.url);
-		const search = new URLSearchParams({ callbackURL: "/dashboard" });
+		const search = new URLSearchParams();
 		const locale = source.searchParams.get("locale");
 		if (locale === "ar-SA" || locale === "en-US") search.set("locale", locale);
-		return respond(null, { status: 308, headers: { ...BASE_SECURITY_HEADERS, Location: `/auth/login?${search}` } });
+		const suffix = search.size ? `?${search}` : "";
+		return respond(null, {
+			status: 308,
+			headers: { ...BASE_SECURITY_HEADERS, Location: `/dashboard/review-guide${suffix}` },
+		});
 	}
 	if (pathname === "/dashboard/ats-guide") {
 		const target = new URL(request.url);

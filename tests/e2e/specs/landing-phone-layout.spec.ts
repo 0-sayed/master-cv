@@ -48,11 +48,23 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			}
 		});
 
-test("help header stays on one row on a 320px phone", async ({ page }) => {
-	await page.setViewportSize({ width: 320, height: 844 });
-	await page.goto("/help?locale=ar-SA");
-	await settleScreen(page);
-	expect(
-		await page.locator("header > div").evaluate((element) => element.getBoundingClientRect().height),
-	).toBeLessThanOrEqual(80);
-});
+for (const locale of ["ar-SA", "en-US"] as const)
+	for (const width of [320, 390])
+		test(`help header stays on one row with reachable sign-in ${locale} ${width}`, async ({ page, baseURL }) => {
+			await page.setViewportSize({ width, height: 844 });
+			await page.goto(`/help?locale=${locale}`);
+			await settleScreen(page);
+			expect(
+				await page.locator("header > div").evaluate((element) => element.getBoundingClientRect().height),
+			).toBeLessThanOrEqual(80);
+			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+			const signIn = page.getByRole("banner").getByRole("link", {
+				name: locale === "ar-SA" ? "تسجيل الدخول" : "Sign in",
+				exact: true,
+			});
+			await expect(signIn).toBeVisible();
+			await signIn.focus();
+			await expect(signIn).toBeFocused();
+			await page.keyboard.press("Enter");
+			await expect(page).toHaveURL(`${baseURL}/auth/login?locale=${locale}&callbackURL=%2Fhelp%3Flocale%3D${locale}`);
+		});

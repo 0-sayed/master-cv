@@ -12,19 +12,24 @@ import { expect, test } from "../fixtures/test";
 
 for (const locale of ["en-US", "ar-SA"])
 	for (const width of [1440, 390])
-		test(`T001 ${locale} ${width}px public checker keeps file processing private`, async ({ page }, testInfo) => {
+		test(`T001 ${locale} ${width}px public checker keeps file processing private`, async ({
+			page,
+			baseURL,
+		}, testInfo) => {
 			await page.context().addCookies([{ name: "locale", value: locale, url: String(testInfo.project.use.baseURL) }]);
 			await page.setViewportSize({ width, height: 1000 });
 			await page.goto("/ats-checker");
-			await expect(page).toHaveURL(/\/$/u);
+			await expect(page).toHaveURL(
+				`${baseURL}/auth/login?locale=${locale}&callbackURL=%2Fdashboard%2Freview-guide%3Ftab%3Dats`,
+			);
 			await expect(page.locator('input[type="file"]')).toHaveCount(0);
 			await expect(page.locator(".score-ring")).toHaveCount(0);
 			await expect(
-				page.locator('section[aria-labelledby="landing-title"]').getByRole("link", {
-					name: locale === "ar-SA" ? "يلا، ابدأ مجانًا" : "Start free",
+				page.getByRole("link", {
+					name: locale === "ar-SA" ? "إنشاء حساب" : "Create an account",
 					exact: true,
 				}),
-			).toHaveAttribute("href", `/auth/register?locale=${locale}&callbackURL=%2Fdashboard`);
+			).toHaveAttribute("href", "/auth/register?callbackURL=%2Fdashboard%2Freview-guide%3Ftab%3Dats");
 			await page.screenshot({ path: testInfo.outputPath("private-checker.png"), fullPage: true });
 		});
 

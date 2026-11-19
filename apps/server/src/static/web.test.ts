@@ -48,10 +48,10 @@ describe("web app fallback classification", () => {
 		);
 		expect(await response.text()).toBe("");
 	});
-	it.each(["GET", "HEAD"])("redirects the retired checker to an account entry point (%s)", async (method) => {
+	it.each(["GET", "HEAD"])("redirects the retired checker to the protected Review guide (%s)", async (method) => {
 		const response = await handleWebApp(new Request("https://sirawise.io/ats-checker?locale=ar-SA", { method }));
 		expect(response.status).toBe(308);
-		expect(response.headers.get("location")).toBe("/auth/login?callbackURL=%2Fdashboard&locale=ar-SA");
+		expect(response.headers.get("location")).toBe("/dashboard/review-guide?locale=ar-SA");
 		expect(await response.text()).toBe("");
 	});
 
@@ -220,13 +220,13 @@ describe("web app fallback classification", () => {
 	});
 
 	describe("retired public ATS route", () => {
-		it("redirects crawlers to the authenticated workspace entry", async () => {
+		it("redirects crawlers to the protected Review guide", async () => {
 			vi.mocked(fs.readFile).mockResolvedValue(
 				'<html><head><title>Sirawise</title></head><body><div id="app"></div></body></html>',
 			);
 			const response = await handleWebApp(new Request("https://example.com/ats-checker"));
 			expect(response.status).toBe(308);
-			expect(response.headers.get("Location")).toBe("/auth/login?callbackURL=%2Fdashboard");
+			expect(response.headers.get("Location")).toBe("/dashboard/review-guide");
 			expect(await response.text()).toBe("");
 		});
 	});

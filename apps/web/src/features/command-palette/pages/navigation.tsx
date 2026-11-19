@@ -56,9 +56,13 @@ export function NavigationCommandGroup() {
 						</CommandItem>
 					))}
 				<CommandItem
-					disabled={!session}
 					value="navigation.review-guide"
-					keywords={[i18n._(guideCopy.title), ...reviewTabs.map((tab) => i18n._(tab.label))]}
+					keywords={[
+						i18n._(guideCopy.title),
+						t`ATS Checker`,
+						t`Check a PDF`,
+						...reviewTabs.map((tab) => i18n._(tab.label)),
+					]}
 					onSelect={() => onNavigate(ATS_GUIDE_ROUTE)}
 				>
 					<Icon name="book-open" size={16} />
@@ -76,15 +80,6 @@ export function NavigationCommandGroup() {
 				>
 					<Icon name="plus" size={16} />
 					<Trans>New document</Trans>
-				</CommandItem>
-
-				<CommandItem
-					keywords={[t`ATS Checker`, t`Check a PDF`]}
-					value="navigation.ats-checker"
-					onSelect={() => onNavigate("/ats-checker")}
-				>
-					<Icon name="seal-check" size={16} />
-					<Trans>ATS Checker</Trans>
 				</CommandItem>
 
 				<CommandItem

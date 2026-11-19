@@ -14,16 +14,21 @@ import {
 	SheetTrigger,
 } from "@reactive-resume/ui/components/sheet";
 import { getInitials } from "@reactive-resume/utils/string";
+import { cn } from "@reactive-resume/utils/style";
 import { useUiLocale } from "@/features/locale/provider";
 import { LocaleSwitch } from "@/features/locale/switch";
 import { usePublicCopy } from "@/features/public-copy";
 import { usePublicSession } from "@/features/public-session";
 import { UserDropdownMenu } from "@/features/user/dropdown-menu";
 
-type LandingPrimaryActionProps = { placement: "header" | "closing"; callbackURL?: string };
+type LandingPrimaryActionProps = { placement: "header" | "closing"; callbackURL?: string; compact?: boolean };
 
 /** Both placements consume the resolved header identity from the existing session cache. */
-export function LandingPrimaryAction({ placement, callbackURL = "/dashboard" }: LandingPrimaryActionProps) {
+export function LandingPrimaryAction({
+	placement,
+	callbackURL = "/dashboard",
+	compact = false,
+}: LandingPrimaryActionProps) {
 	const { locale } = useUiLocale();
 	const copy = usePublicCopy();
 	const { session, pending } = usePublicSession();
@@ -33,7 +38,7 @@ export function LandingPrimaryAction({ placement, callbackURL = "/dashboard" }: 
 		<Link
 			to={session ? "/dashboard" : "/auth/register"}
 			search={session ? { locale } : { locale, callbackURL }}
-			className={buttonVariants({ size: closing ? "lg" : "default" })}
+			className={buttonVariants({ size: closing ? "lg" : compact ? "compact" : "default" })}
 		>
 			{session ? (
 				copy("landing.navigation.workspace")
@@ -49,9 +54,11 @@ export function LandingPrimaryAction({ placement, callbackURL = "/dashboard" }: 
 
 export function LandingHeader({
 	compact = false,
+	presentation = "default",
 	callbackURL = "/dashboard",
 }: {
 	compact?: boolean;
+	presentation?: "default" | "compact";
 	callbackURL?: string;
 }) {
 	const { locale } = useUiLocale();
@@ -80,12 +87,29 @@ export function LandingHeader({
 		);
 	return (
 		<>
+			{!compact && presentation === "compact" && (
+				<IconButton
+					icon="user-circle"
+					label={t({ message: "Sign in", context: "common.navigation.signIn" })}
+					variant="secondary"
+					size="header-icon"
+					className="sm:hidden"
+					render={<Link to="/auth/login" search={{ locale, callbackURL }} />}
+				/>
+			)}
 			{!compact && (
-				<Link to="/auth/login" search={{ locale, callbackURL }} className={buttonVariants({ variant: "secondary" })}>
+				<Link
+					to="/auth/login"
+					search={{ locale, callbackURL }}
+					className={cn(
+						buttonVariants({ variant: "secondary" }),
+						presentation === "compact" && "hidden sm:inline-flex",
+					)}
+				>
 					<Trans context="common.navigation.signIn">Sign in</Trans>
 				</Link>
 			)}
-			<LandingPrimaryAction placement="header" callbackURL={callbackURL} />
+			<LandingPrimaryAction placement="header" callbackURL={callbackURL} compact={presentation === "compact"} />
 		</>
 	);
 }

@@ -19,7 +19,7 @@ export function PublicHelp() {
 					<BackNavigation className="max-sm:hidden" render={<Link to="/" search={{ locale }} />}>
 						<Trans context="privacy.navigation.home">Back to home</Trans>
 					</BackNavigation>
-					<LandingHeader callbackURL={`/help?locale=${locale}`} />
+					<LandingHeader presentation="compact" callbackURL={`/help?locale=${locale}`} />
 				</>
 			}
 		>

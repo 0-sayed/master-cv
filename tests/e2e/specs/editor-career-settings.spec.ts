@@ -210,12 +210,14 @@ test("dense career, design, and device controls remain usable in both directions
 	await expect(page.getByRole("link", { name: "Open my workspace", exact: true }).first()).toBeVisible();
 	await expect(page.getByRole("banner").getByRole("link", { name: "Sign in", exact: true })).toHaveCount(0);
 	await page.goto("/ats-checker");
-	await expect(page).toHaveURL(/\/dashboard(?:\?|$)/);
+	await expect(page).toHaveURL(/\/dashboard\/review-guide(?:\?|$)/);
 	await writeFile(info.outputPath("editor-career-metrics.json"), JSON.stringify(metrics, null, 2));
 
 	await page.request.post("/api/auth/sign-out", { headers: { origin: baseURL }, data: {} });
 	await page.goto("/ats-checker");
-	await expect(page).toHaveURL(new RegExp(`${baseURL}/?(?:\\?|$)`));
+	await expect(page).toHaveURL(
+		`${baseURL}/auth/login?locale=en-US&callbackURL=%2Fdashboard%2Freview-guide%3Ftab%3Dats`,
+	);
 });
 
 test("career rings and navigation totals fit expanded, collapsed, and mobile layouts", async ({ page }, info) => {

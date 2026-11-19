@@ -5,10 +5,10 @@ import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { getUiLocaleMessages } from "@/libs/locale";
 
-const mocks = vi.hoisted(() => ({ navigate: vi.fn(), reset: vi.fn(), enabled: true }));
+const mocks = vi.hoisted(() => ({ navigate: vi.fn(), reset: vi.fn(), enabled: true, signedIn: true }));
 vi.mock("@tanstack/react-router", () => ({
 	useNavigate: () => mocks.navigate,
-	useRouteContext: () => ({ session: { user: { id: "owner" } } }),
+	useRouteContext: () => ({ session: mocks.signedIn ? { user: { id: "owner" } } : null }),
 }));
 vi.mock("../store", () => ({
 	useCommandPaletteStore: (select: (state: unknown) => unknown) => select({ reset: mocks.reset, pushPage: vi.fn() }),
@@ -41,9 +41,23 @@ import { NavigationCommandGroup } from "./navigation";
 
 beforeEach(() => {
 	vi.clearAllMocks();
+	mocks.signedIn = true;
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 });
 afterEach(cleanup);
+
+it("lets guests open the protected Review guide through the shared sign-in guard", () => {
+	mocks.signedIn = false;
+	render(
+		<I18nProvider i18n={i18n}>
+			<NavigationCommandGroup />
+		</I18nProvider>,
+	);
+	const guide = screen.getByRole("button", { name: "Review guide" });
+	expect(guide).toBeEnabled();
+	fireEvent.click(guide);
+	expect(mocks.navigate).toHaveBeenCalledWith({ to: "/dashboard/review-guide" });
+});
 
 it.each([true, false])(
 	"uses the shared product order and availability in the command palette (%s)",
@@ -68,6 +82,11 @@ it.each([true, false])(
 		if (!enabled) expect(screen.getByRole("button", { name: "New Application" })).toBeDisabled();
 		fireEvent.click(screen.getByRole("button", { name: "Review guide" }));
 		expect(mocks.navigate).toHaveBeenCalledWith({ to: "/dashboard/review-guide" });
+		expect(screen.queryByRole("button", { name: "ATS Checker" })).toBeNull();
+		expect(screen.getByRole("button", { name: "Review guide" })).toHaveAttribute(
+			"data-keywords",
+			expect.stringContaining("Check a PDF"),
+		);
 		fireEvent.click(screen.getByRole("button", { name: "Career information" }));
 		expect(mocks.navigate).toHaveBeenCalledWith({ to: "/dashboard/career/information" });
 	},

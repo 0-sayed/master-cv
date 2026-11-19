@@ -1,5 +1,5 @@
 import { expect, test } from "../fixtures/test";
-test("anonymous PDF checks are denied and the public checker has no upload", async ({ page }) => {
+test("anonymous PDF checks are denied and the public checker has no upload", async ({ page, baseURL }) => {
 	const response = await page.request.post("/api/openapi/pdf-checks", {
 		multipart: {
 			resumeId: "foreign",
@@ -9,7 +9,9 @@ test("anonymous PDF checks are denied and the public checker has no upload", asy
 	});
 	expect(response.status()).toBe(401);
 	await page.goto("/ats-checker");
-	await expect(page).toHaveURL(/\/$/u);
+	await expect(page).toHaveURL(
+		`${baseURL}/auth/login?locale=en-US&callbackURL=%2Fdashboard%2Freview-guide%3Ftab%3Dats`,
+	);
 	await expect(page.locator("input[type=file]")).toHaveCount(0);
-	await expect(page.getByRole("heading", { name: "Your CV, as clear as your experience.", exact: true })).toBeVisible();
+	await expect(page.getByRole("heading", { name: "Sign in", exact: true })).toBeVisible();
 });

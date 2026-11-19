@@ -3,6 +3,7 @@ import { buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { reveal } from "./reveal";
 import { SectionIntro } from "./section";
+import { ATS_GUIDE_ROUTE } from "@/features/ats-guide/links";
 import { useUiLocale } from "@/features/locale/provider";
 import { usePublicCopy } from "@/features/public-copy";
 
@@ -33,7 +34,7 @@ export function AtsShowcase() {
 						{copy("landing.ats.order")}
 					</p>
 					<Link
-						to="/ats-checker"
+						to={ATS_GUIDE_ROUTE}
 						search={{ locale }}
 						className={buttonVariants({ variant: "secondary", size: "lg", className: "justify-self-start" })}
 					>

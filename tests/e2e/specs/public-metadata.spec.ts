@@ -106,7 +106,10 @@ test("public metadata follows interface navigation and clears on account entry",
 	await settleScreen(page);
 	await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
 });
-test("retired checker navigation returns to the homepage metadata", async ({ page, baseURL }) => {
+test("retired checker navigation requires sign-in for the Review guide and clears public metadata", async ({
+	page,
+	baseURL,
+}) => {
 	await page.goto("/?locale=en-US");
 	await settleScreen(page);
 	await page.evaluate(async () => {
@@ -116,10 +119,10 @@ test("retired checker navigation returns to the homepage metadata", async ({ pag
 		await router.navigate({ href: "/ats-checker?locale=en-US" });
 	});
 	await settleScreen(page);
-	await expect(page).toHaveURL(`${baseURL}/?locale=en-US`);
-	await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${baseURL}/?locale=en-US`);
-	await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
-		"content",
-		"Create and review your CV in a private account. Keep Arabic and English versions separate. Qualified PDF downloads are free within account limits.",
+	await expect(page).toHaveURL(
+		`${baseURL}/auth/login?locale=en-US&callbackURL=%2Fdashboard%2Freview-guide%3Flocale%3Den-US%26tab%3Dats`,
 	);
+	await expect(page).toHaveTitle("Sign in — Sirawise");
+	await expect(page.locator("[data-public-seo]")).toHaveCount(0);
+	await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "");
 });

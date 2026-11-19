@@ -60,7 +60,7 @@ export function PublicShell({
 						to="/"
 						search={{ locale }}
 						aria-label={getProductName(locale)}
-						className={buttonVariants({ variant: "ghost" })}
+						className={buttonVariants({ variant: "ghost", size: landing ? "default" : "compact" })}
 					>
 						{/* On narrow screens only the mark fits beside the header actions (below 360px on the landing, which
 						    moves its actions into a menu; below sm on content pages); the link keeps the full name. */}

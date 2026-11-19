@@ -143,6 +143,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 	test(`${locale} welcome, editor and public pages use their actual names`, async ({
 		authPage: page,
 		account,
+		baseURL,
 	}, testInfo) => {
 		test.setTimeout(90_000);
 		await page.goto(`/dashboard/welcome?locale=${locale}`);
@@ -168,9 +169,9 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			`${locale === "ar-SA" ? "سيراوايز" : "Sirawise"} — ${locale === "ar-SA" ? "اكتب سيرتك وراجعها، ثم نزّلها بصيغة PDF." : "Write and review your CV, then download a PDF."}`,
 		);
 		await page.goto(`/ats-checker?locale=${locale}`);
-		await expect(page).toHaveURL(new RegExp(`/dashboard(?:\\?locale=${locale})?$`));
+		await expect(page).toHaveURL(`${baseURL}/dashboard/review-guide?locale=${locale}&tab=ats`);
 		await expect(page).toHaveTitle(
-			`${locale === "ar-SA" ? "مستنداتي" : "My documents"} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
+			`${locale === "ar-SA" ? "دليل المراجعة" : "Review guide"} — ${locale === "ar-SA" ? "سيراوايز" : "Sirawise"}`,
 		);
 		await page.goto(`/templates/azurill.pdf?locale=${locale}`);
 		await expect(page).toHaveTitle(

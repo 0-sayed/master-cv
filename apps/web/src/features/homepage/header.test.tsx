@@ -36,11 +36,11 @@ afterEach(() => {
 	state.session = null;
 	state.pending = false;
 });
-function show(callbackURL = "/dashboard") {
+function show(callbackURL = "/dashboard", presentation: "default" | "compact" = "default") {
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	return render(
 		<I18nProvider i18n={i18n}>
-			<LandingHeader callbackURL={callbackURL} />
+			<LandingHeader callbackURL={callbackURL} presentation={presentation} />
 		</I18nProvider>,
 	);
 }
@@ -67,4 +67,14 @@ it("preserves the localized Help return destination after the session resolves",
 	show("/help?locale=ar-SA");
 	const href = screen.getByRole("link", { name: "Sign in" }).getAttribute("href");
 	expect(new URL(href ?? "", "https://sirawise.test").searchParams.get("callbackURL")).toBe("/help?locale=ar-SA");
+});
+it("keeps a named compact sign-in link and registration in the shared header", () => {
+	show("/help?locale=en-US", "compact");
+	const signIn = screen.getAllByRole("link", { name: "Sign in" });
+	expect(signIn).toHaveLength(2);
+	expect(signIn[0]).toHaveAttribute("data-size", "header-icon");
+	expect(signIn[0]).toHaveAttribute("href", "/auth/login?locale=en-US&callbackURL=%2Fhelp%3Flocale%3Den-US");
+	expect(signIn[0]).toHaveClass("sm:hidden");
+	expect(signIn[1]).toHaveClass("hidden", "sm:inline-flex");
+	expect(screen.getByRole("link", { name: "Start free" })).toHaveClass("px-2");
 });

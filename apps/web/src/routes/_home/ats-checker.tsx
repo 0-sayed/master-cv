@@ -1,15 +1,12 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { ATS_WORKSPACE_DESTINATION } from "@/features/ats-checker/destination";
+import { ATS_GUIDE_ROUTE } from "@/features/ats-guide/links";
 export const Route = createFileRoute("/_home/ats-checker")({
-	beforeLoad: ({ context, search }) => {
+	beforeLoad: ({ search }) => {
 		throw redirect({
-			to: context.session ? ATS_WORKSPACE_DESTINATION : "/auth/login",
-			search: {
-				...(search.locale ? { locale: search.locale } : {}),
-				...(!context.session ? { callbackURL: ATS_WORKSPACE_DESTINATION } : {}),
-			},
+			to: ATS_GUIDE_ROUTE,
+			search: search.locale ? { locale: search.locale } : {},
 			replace: true,
-			statusCode: 301,
+			statusCode: 308,
 		});
 	},
 });
