@@ -7,6 +7,18 @@ Each section on this page solves one common self-hosting task and builds on the 
 [Self-hosting with Docker](/self-hosting/docker). Replace `resume.example.com` with your own domain, and keep the
 `.env` file from that guide unless a section says otherwise.
 
+## Administrator allowance example
+
+Pass this optional variable to the server process or its container:
+
+```sh
+ADMIN_EMAILS="owner@example.com, second@example.com"
+```
+
+Restart the server after changing the list. Only listed accounts with verified email addresses receive unlimited plan allowances.
+The server still records usage and provider costs. The OpenRouter key cap remains the money limit.
+See [Environment variables](/self-hosting/environment-variables#sign-in) for the full contract.
+
 ## What every reverse proxy needs
 
 Whatever proxy you use, configure it so that:

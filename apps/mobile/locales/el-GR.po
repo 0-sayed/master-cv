@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-17 06:47+0200\n"
+"POT-Creation-Date: 2026-11-18 09:46+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -676,8 +676,8 @@ msgid "24 hours before"
 msgstr "24 ώρες πριν"
 
 #: src/features/letters/share.tsx
-msgid "A backup of this letter. Imports back into Reactive Resume as a letter."
-msgstr "Ένα αντίγραφο ασφαλείας αυτής της επιστολής. Εισάγει ξανά στο Reactive Resume ως γράμμα."
+msgid "A backup of this letter. Imports back into Sirawise as a letter."
+msgstr ""
 
 #: src/features/check/issues.ts
 msgid "A city and country let roles be matched to where you are."
@@ -1562,10 +1562,6 @@ msgstr "Ζητήστε από τον βοηθό να το δουλέψει"
 msgid "Ask the coach"
 msgstr "Ρωτήστε τον σύμβουλο"
 
-#: src/features/share/download.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "Ρωτήστε την κοινότητα. Αφαιρέστε τα προσωπικά στοιχεία πριν από τη δημοσίευση."
-
 #: src/features/ai/error.ts
 msgid "Ask your server administrator to enable credential encryption or configure a shared connection."
 msgstr "Ζητήστε από τον διαχειριστή του διακομιστή σας να ενεργοποιήσει την κρυπτογράφηση διαπιστευτηρίων ή να διαμορφώσει μια κοινόχρηστη σύνδεση."
@@ -1600,7 +1596,6 @@ msgid "ATS checker"
 msgstr "ATS πούλι"
 
 #: src/features/ats-checker/checker.tsx
-#: src/features/search/search-screen.tsx
 msgid "ATS Checker"
 msgstr "Ελεγκτής ATS"
 
@@ -1864,10 +1859,6 @@ msgstr "Λίστα με κουκκίδες"
 msgid "Burgundy"
 msgstr "Μπορντό"
 
-#: app/(tabs)/settings/index.tsx
-msgid "by <0>Amruth Pillai</0>"
-msgstr "από τον <0>Amruth Pillai</0>"
-
 #: src/features/applications-board/views.tsx
 msgid "Calendar"
 msgstr "Ημερολόγιο"
@@ -1981,14 +1972,6 @@ msgstr "Οι αλλαγές στο \"{name}\" αποθηκεύτηκαν σε ά
 #: app/builder/[id]/_layout.tsx
 msgid "Check"
 msgstr "Έλεγχος"
-
-#: src/features/search/search-screen.tsx
-msgid "Check a PDF"
-msgstr "Ελέγξτε ένα PDF"
-
-#: src/features/documents/new-document.tsx
-msgid "Check a PDF with the ATS checker"
-msgstr "Ελέγξτε ένα PDF με τον έλεγχο ATS"
 
 #: src/features/ats-checker/checker.tsx
 msgid "Check a sample file"
@@ -2327,8 +2310,8 @@ msgid "Compares your resume with the posting"
 msgstr "Συγκρίνει το βιογραφικό σας με την αγγελία εργασίας"
 
 #: src/features/share/download.tsx
-msgid "Complete data backup. Imports back into Reactive Resume or JSON Resume tools."
-msgstr "Πλήρης δημιουργία αντιγράφων ασφαλείας δεδομένων. Εισάγει ξανά στα εργαλεία Reactive Resume ή JSON Resume."
+msgid "Complete data backup. Imports back into Sirawise or JSON Resume tools."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
@@ -3425,10 +3408,6 @@ msgstr "Μην στέλνετε αγγελία εργασίας {0}"
 msgid "Don't share"
 msgstr "Μην μοιράζεσαι"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Donate on Open Collective"
-msgstr "Κάντε δωρεά στο Open Collective"
-
 #: src/features/applications/list-screen.tsx
 #: src/features/career/today.tsx
 #: src/features/documents/library.tsx
@@ -3784,8 +3763,8 @@ msgid "Enter any model ID supported by your endpoint."
 msgstr "Εισαγάγετε οποιοδήποτε αναγνωριστικό μοντέλου που υποστηρίζεται από το τελικό σημείο σας."
 
 #: app/(auth)/server.tsx
-msgid "Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue."
-msgstr "Εισαγάγετε τη διεύθυνση στην οποία ανοίγετε το Reactive Resume σε ένα πρόγραμμα περιήγησης. Η εφαρμογή ελέγχει ότι είναι διακομιστής Reactive Resume που επιτρέπει τη σύνδεση στην εφαρμογή προτού συνεχίσετε."
+msgid "Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue."
+msgstr ""
 
 #: src/features/public/public-resume.tsx
 msgid "Enter the password the resume owner shared with you."
@@ -4186,10 +4165,6 @@ msgstr "Η \"Λήψη ανατροφοδότησης\" στέλνει την ε�
 msgid "Get new roles here every morning"
 msgstr "Λαμβάνετε νέες θέσεις εδώ κάθε πρωί"
 
-#: src/features/share/download.tsx
-msgid "Get resume feedback on Discord"
-msgstr "Λάβετε σχόλια για το βιογραφικό σας στο Discord"
-
 #: src/features/letters/write.tsx
 msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "Αργότερα. Δοκιμάστε το \"Sorter\" ή κόψτε τη λιγότερο συγκεκριμένη παράγραφο."
@@ -4280,6 +4255,10 @@ msgstr "ακούστηκε πίσω"
 #: src/features/settings/locale-names.ts
 msgid "Hebrew"
 msgstr "Εβραϊκά"
+
+#: src/features/share/download.tsx
+msgid "Help"
+msgstr ""
 
 #: app/(tabs)/settings/index.tsx
 msgid "Help & docs"
@@ -4742,10 +4721,6 @@ msgstr "Ροή αναζήτησης εργασίας"
 #: src/features/search/search-screen.tsx
 msgid "Jobs"
 msgstr "Θέσεις εργασίας"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Join the Discord"
-msgstr "Γίνετε μέλος του Discord"
 
 #: src/features/letters/share.tsx
 #: src/features/share/download.tsx
@@ -5286,8 +5261,8 @@ msgid "Lower the design sheet"
 msgstr "Χαμηλώστε το φύλλο σχεδίασης"
 
 #: src/features/public/public-resume.tsx
-msgid "Made with Reactive Resume, free and open source"
-msgstr "Κατασκευασμένο με Reactive Resume, δωρεάν και ανοιχτού κώδικα"
+msgid "Made with Sirawise, free and open source"
+msgstr ""
 
 #. Layout editor column label for the primary content area
 #: src/features/design/layout-screen.tsx
@@ -5963,10 +5938,6 @@ msgstr "Καμία φωτογραφία. Οι περισσότεροι ATS αγ�
 msgid "No postings found. Try different keywords."
 msgstr "Δεν βρέθηκαν αγγελίες εργασίας. Δοκιμάστε διαφορετικές λέξεις-κλειδιά."
 
-#: src/auth/messages.ts
-msgid "No Reactive Resume server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
-msgstr "Δεν απαντήθηκε διακομιστής Reactive Resume σε αυτή τη διεύθυνση. Ελέγξτε την ορθογραφία ή ρωτήστε τον διαχειριστή σας εάν ο διακομιστής επιτρέπει τη σύνδεση στην εφαρμογή."
-
 #: src/features/check/job-match.tsx
 msgid "No recognisable terms in this posting."
 msgstr "Δεν υπάρχουν αναγνωρίσιμοι όροι σε αυτήν την αγγελία εργασίας."
@@ -5986,6 +5957,10 @@ msgstr "Κανένα αποτέλεσμα"
 #: src/features/letters/write.tsx
 msgid "No resume"
 msgstr "Χωρίς βιογραφικό"
+
+#: src/auth/messages.ts
+msgid "No Sirawise server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "No skills section was found."
@@ -6645,8 +6620,8 @@ msgid "PDF check cancelled. Retry when ready."
 msgstr "Ο έλεγχος PDF ακυρώθηκε. Δοκιμάστε ξανά όταν είστε έτοιμοι."
 
 #: src/features/application-detail/sections.tsx
-msgid "PDF only · up to 10 MB each. Linking a Reactive Resume enables AI match scoring and tailoring."
-msgstr "Μόνο PDF · έως 10 MB το καθένα. Η σύνδεση βιογραφικού Reactive Resume επιτρέπει βαθμολόγηση αντιστοίχισης και προσαρμογή με AI."
+msgid "PDF only · up to 10 MB each. Linking a Sirawise enables AI match scoring and tailoring."
+msgstr ""
 
 #: src/features/design/advanced.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
@@ -6654,11 +6629,11 @@ msgstr "Τα στυλ PDF υποστηρίζουν ένα υποσύνολο τ�
 
 #: src/features/documents/new-document.tsx
 msgid "PDF uses your AI provider when one is ready. Turn off the AI switch to read its text layer on your server. Word (.docx) needs an AI provider. Current and v4 Reactive Resume JSON, cover letters, JSON Resume and LinkedIn exports (.zip) are supported. Up to 10 MB."
-msgstr "Τα PDF χρησιμοποιούν τον πάροχο AI όταν είναι διαθέσιμος. Απενεργοποιήστε το AI για ανάγνωση του επιπέδου κειμένου στον διακομιστή. Το Word (.docx) απαιτεί πάροχο AI. Υποστηρίζονται οι τρέχουσες και v4 μορφές Reactive Resume JSON, συνοδευτικές επιστολές, JSON Resume και εξαγωγές LinkedIn (.zip). Έως 10 MB."
+msgstr "Τα PDF χρησιμοποιούν τον πάροχο AI όταν είναι διαθέσιμος. Απενεργοποιήστε το AI για ανάγνωση του επιπέδου κειμένου στον διακομιστή. Το Word (.docx) απαιτεί πάροχο AI. Υποστηρίζονται οι τρέχουσες και v4 μορφές Sirawise JSON, συνοδευτικές επιστολές, JSON Resume και εξαγωγές LinkedIn (.zip). Έως 10 MB."
 
 #: src/features/documents/new-document.tsx
 msgid "PDF, Word, Reactive Resume, JSON Resume or LinkedIn export."
-msgstr "Εξαγωγή PDF, Word, Reactive Resume, JSON Resume ή LinkedIn."
+msgstr "Εξαγωγή PDF, Word, Sirawise, JSON Resume ή LinkedIn."
 
 #: src/features/career/offers.tsx
 #: src/features/career/preferences.tsx
@@ -7102,10 +7077,6 @@ msgstr "Επανεξαγάγετε με ενσωματωμένες γραμμα�
 msgid "Re-export with fonts embedded, then open the file and check that the text copies out cleanly."
 msgstr "Επανεξαγάγετε με ενσωματωμένες γραμματοσειρές, έπειτα ανοίξτε το αρχείο και ελέγξτε ότι το κείμενο αντιγράφεται καθαρά."
 
-#: src/auth/auth-header.tsx
-msgid "Reactive Resume"
-msgstr "Reactive Resume"
-
 #: src/features/workspace/tabs/prepare.tsx
 msgid "Read briefing"
 msgstr "Ανάγνωση ενημερωτικού"
@@ -7512,10 +7483,6 @@ msgstr "Έκθεση"
 msgid "Report AI content"
 msgstr "Αναφορά περιεχομένου AI"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Report an issue"
-msgstr "Αναφορά προβλήματος"
-
 #: src/features/ai/report-content.tsx
 msgid "Report received by your server operator. Thank you."
 msgstr "Η αναφορά ελήφθη από τον χειριστή του διακομιστή σας. Σας ευχαριστώ."
@@ -7607,10 +7574,6 @@ msgstr "Δεν ήταν δυνατή η φόρτωση του βιογραφικ
 #: src/features/document-menu/index.tsx
 msgid "Resume details"
 msgstr "λεπτομέρειες βιογραφικού"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Resume feedback, product help, and community ideas."
-msgstr "Σχόλια για βιογραφικά, βοήθεια για το προϊόν και ιδέες της κοινότητας."
 
 #: src/features/application-detail/sections.tsx
 msgid "Resume file"
@@ -8309,10 +8272,6 @@ msgstr "Ρυθμίστε την αναζήτηση ιστού στις Ρυθμ�
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
-#: app/(tabs)/settings/ai-mcp.tsx
-msgid "Setup guide"
-msgstr "Οδηγός εγκατάστασης"
-
 #: src/features/ai/report-content.tsx
 msgid "Sexual content"
 msgstr "Σεξουαλικό περιεχόμενο"
@@ -8615,6 +8574,11 @@ msgstr "Έγινε αποσύνδεση, αλλά δεν ήταν δυνατή �
 msgid "since last view"
 msgstr "από την τελευταία προβολή"
 
+#: src/auth/auth-header.tsx
+#: src/shell/app-tabs.tsx
+msgid "Sirawise"
+msgstr "Sirawise"
+
 #: src/features/career/stories.tsx
 msgid "Situation (required)"
 msgstr "Κατάσταση (απαιτείται)"
@@ -8756,10 +8720,6 @@ msgstr "Πηγή"
 msgid "Source and correction history"
 msgstr "Πηγή και ιστορικό διόρθωσης"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Source code on GitHub"
-msgstr "Πηγαίος κώδικας στο GitHub"
-
 #: src/features/assistant/chat-view.tsx
 #: src/features/assistant/messages.tsx
 msgid "Sources"
@@ -8867,6 +8827,10 @@ msgstr "Ξεκινήστε να πληκτρολογείτε ή να σχεδι�
 #: src/features/letters/write.tsx
 msgid "Start typing, or draft from what we know: your resume."
 msgstr "Ξεκινήστε να πληκτρολογείτε ή να σχεδιάζετε από αυτό που γνωρίζουμε: το βιογραφικό σας."
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr ""
 
 #: src/features/letters/write.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
@@ -10912,8 +10876,8 @@ msgid "your Knowledge"
 msgstr "τη Γνώση σας"
 
 #: app/(tabs)/settings/preferences.tsx
-msgid "Your language is saved. Restart Reactive Resume to apply the new left-to-right or right-to-left layout."
-msgstr "Η γλώσσα σας έχει αποθηκευτεί. Επανεκκινήστε το Reactive Resume για να εφαρμόσετε τη νέα διάταξη από αριστερά προς τα δεξιά ή από δεξιά προς τα αριστερά."
+msgid "Your language is saved. Restart Sirawise to apply the new left-to-right or right-to-left layout."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Your lines are packed very tightly."

@@ -8,7 +8,7 @@ import { androidCallbackIntent } from "./native-callback";
 import { Route } from "@/routes/auth/native-callback";
 
 const response = "?code=one%2Btwo%26three&state=state%2Fvalue&iss=https%3A%2F%2Fresume.example%2Fapi%2Fauth";
-const intent = `intent://rxresu.me/auth/native-callback${response}#Intent;scheme=https;package=me.rxresu;end`;
+const intent = `intent://sirawise.io/auth/native-callback${response}#Intent;scheme=https;package=me.rxresu;end`;
 
 beforeEach(() => {
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
@@ -51,7 +51,7 @@ describe("native sign-in browser fallback", () => {
 		window.history.replaceState(null, "", "/auth/native-callback?error=access_denied&state=cancelled");
 		renderCallback();
 		expect(window.location.assign).toHaveBeenCalledExactlyOnceWith(
-			"intent://rxresu.me/auth/native-callback?error=access_denied&state=cancelled#Intent;scheme=https;package=me.rxresu;end",
+			"intent://sirawise.io/auth/native-callback?error=access_denied&state=cancelled#Intent;scheme=https;package=me.rxresu;end",
 		);
 	});
 
@@ -71,7 +71,7 @@ describe("native sign-in browser fallback", () => {
 
 	it("keeps untrusted query values inside the fixed callback and package", () => {
 		expect(androidCallbackIntent("?code=x#Intent;scheme=evil;package=other;end")).toBe(
-			"intent://rxresu.me/auth/native-callback?code=x%23Intent;scheme=evil;package=other;end#Intent;scheme=https;package=me.rxresu;end",
+			"intent://sirawise.io/auth/native-callback?code=x%23Intent;scheme=evil;package=other;end#Intent;scheme=https;package=me.rxresu;end",
 		);
 	});
 });

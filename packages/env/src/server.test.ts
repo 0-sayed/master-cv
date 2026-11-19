@@ -6,6 +6,7 @@ beforeEach(() => {
 	vi.resetModules();
 	for (const name of [
 		"APP_REVISION",
+		"ADMIN_EMAILS",
 		"WEB_ACCESS_PROVIDER",
 		"WEB_ACCESS_API_KEY",
 		"WEB_ACCESS_API_URL",
@@ -35,6 +36,20 @@ describe("application revision", () => {
 afterEach(() => {
 	vi.unstubAllEnvs();
 	vi.restoreAllMocks();
+});
+
+describe("administrator email configuration", () => {
+	it("normalizes the allowlist once when server configuration loads", async () => {
+		vi.stubEnv("ADMIN_EMAILS", " Owner@Example.TEST , , second@example.test,owner@example.test ");
+		const { env } = await import("./server");
+		expect(env.ADMIN_EMAILS).toEqual(["owner@example.test", "second@example.test"]);
+		vi.stubEnv("ADMIN_EMAILS", "changed@example.test");
+		expect(env.ADMIN_EMAILS).toEqual(["owner@example.test", "second@example.test"]);
+	});
+	it.each([undefined, "", " , "])("defaults to no administrators for %j", async (value) => {
+		vi.stubEnv("ADMIN_EMAILS", value);
+		expect((await import("./server")).env.ADMIN_EMAILS).toEqual([]);
+	});
 });
 
 describe("web font mirror configuration", () => {

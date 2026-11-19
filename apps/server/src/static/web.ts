@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { env } from "@reactive-resume/env/server";
+import { getProductName, productBrand } from "@reactive-resume/utils/brand";
 import {
 	defaultUiLocale,
 	getLocaleAlternates,
@@ -38,7 +39,7 @@ const accountShellPaths = new Set(["/help", "/deletion-requested", "/email-chang
  * Without an entry here the fallback below returns 404 for the path in production — the dev Vite
  * server serves the shell for anything, so this failure only ever shows up once deployed.
  */
-const indexableAppPaths = new Set(["/ats-checker"]);
+const indexableAppPaths = new Set<string>();
 const reservedPublicResumeSegments = new Set([
 	"api",
 	"mcp",
@@ -62,6 +63,7 @@ function getPathSegments(pathname: string) {
 
 function isNoindexShellPath(pathname: string): boolean {
 	return (
+		pathname === "/ats-checker" ||
 		accountShellPaths.has(pathname) ||
 		noindexShellPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
 	);
@@ -86,62 +88,26 @@ const BASE_SECURITY_HEADERS = {
 const githubUrl = "https://github.com/0-sayed/master-cv";
 // The English copy, for a build without prerendered pages; a prerendered page carries its own locale's title and
 // description, and the social cards reuse them.
-const ROOT_TITLE = "Master CV — Write and review your CV";
+const ROOT_TITLE = `${productBrand.name} — Write and review your CV`;
 const ROOT_DESCRIPTION =
 	"Write and review your CV in a private account. Qualified PDF downloads follow account limits.";
-const ATS_CHECKER_TITLE = "Free ATS resume checker — Master CV";
-const ATS_CHECKER_DESCRIPTION =
-	"Checking requires an account. Review PDF readability and writing notes separately in your private workspace.";
 
 type StructuredData = Record<string, unknown>;
 
-/** Who makes Master CV, referenced by id from every page's structured data. */
-function organization(origin: string): StructuredData {
-	return {
-		"@type": "Organization",
-		"@id": `${origin}/#organization`,
-		name: "Master CV",
-		url: `${origin}/`,
-		logo: { "@type": "ImageObject", url: `${origin}/pwa-512x512.png`, width: 512, height: 512 },
-		sameAs: [githubUrl],
-	};
-}
-
-function homepageStructuredData(origin: string): StructuredData {
+function homepageStructuredData(origin: string, locale: Locale): StructuredData {
 	return {
 		"@context": "https://schema.org",
 		"@type": "WebSite",
-		name: "Master CV",
+		name: getProductName(locale),
 		url: `${origin}/`,
 		codeRepository: githubUrl,
 		license: `${githubUrl}/blob/main/LICENSE`,
 	};
 }
 
-function atsCheckerStructuredData(origin: string): StructuredData {
-	return {
-		"@context": "https://schema.org",
-		"@graph": [
-			organization(origin),
-			{
-				"@type": "WebApplication",
-				name: "ATS Checker",
-				url: `${origin}/ats-checker`,
-				description: ATS_CHECKER_DESCRIPTION,
-				applicationCategory: "BusinessApplication",
-				operatingSystem: "Web",
-				isPartOf: { "@type": "WebSite", "@id": `${origin}/#website`, name: "Master CV", url: `${origin}/` },
-				provider: { "@id": `${origin}/#organization` },
-			},
-		],
-	};
-}
-
 type PageSeoOptions = {
-	/** The page's plain address: the canonical for the default locale, and the base of its hreflang alternates. */
 	canonicalUrl: string;
 	locale: Locale;
-	/** Already HTML-escaped, as the page's own <title> and description are. */
 	title: string;
 	description: string;
 	imageUrl: string;
@@ -158,7 +124,7 @@ function createPageSeoMarkup(options: PageSeoOptions) {
 		<link rel="canonical" href="${escapeAttribute(pageUrl)}">
 		${alternates}
 		<meta property="og:type" content="website">
-		<meta property="og:site_name" content="Master CV">
+		<meta property="og:site_name" content="${getProductName(options.locale)}">
 		<meta property="og:locale" content="${options.locale.replace("-", "_")}">
 		<meta property="og:title" content="${options.title}">
 		<meta property="og:description" content="${options.description}">
@@ -202,7 +168,7 @@ async function createPublicResumeSeoMarkup(pathname: string, origin: string) {
 
 	const canonicalUrl = `${origin}/${username}/${slug}`;
 	const imageUrl = `${origin}/opengraph/banner.jpg`;
-	const pageTitle = escapeAttribute(`${meta.name} — Master CV`);
+	const pageTitle = escapeAttribute(`${meta.name} — Sirawise`);
 	const title = escapeAttribute(meta.title);
 	const description = escapeAttribute(meta.description);
 
@@ -212,7 +178,7 @@ async function createPublicResumeSeoMarkup(pathname: string, origin: string) {
 		markup: `
 		<link rel="canonical" href="${canonicalUrl}">
 		<meta property="og:type" content="profile">
-		<meta property="og:site_name" content="Master CV">
+		<meta property="og:site_name" content="${productBrand.name}">
 		<meta property="og:title" content="${title}">
 		<meta property="og:description" content="${description}">
 		<meta property="og:url" content="${canonicalUrl}">
@@ -299,7 +265,7 @@ const prerenderedPages: Record<
 		name: string;
 		meta: { title: string; description: string };
 		image: string;
-		structuredData: (origin: string) => StructuredData;
+		structuredData: (origin: string, locale: Locale) => StructuredData;
 	}
 > = {
 	"/": {
@@ -310,21 +276,15 @@ const prerenderedPages: Record<
 	},
 	"/privacy-and-terms": {
 		name: "legal-privacy",
-		meta: { title: "Master CV", description: "Review draft" },
+		meta: { title: "Sirawise", description: "Review draft" },
 		image: "/opengraph/banner.jpg",
 		structuredData: homepageStructuredData,
 	},
 	"/help": {
 		name: "help",
-		meta: { title: "Master CV", description: "Help and contact" },
+		meta: { title: "Sirawise", description: "Help and contact" },
 		image: "/opengraph/banner.jpg",
 		structuredData: homepageStructuredData,
-	},
-	"/ats-checker": {
-		name: "ats-checker",
-		meta: { title: ATS_CHECKER_TITLE, description: ATS_CHECKER_DESCRIPTION },
-		image: "/opengraph/ats-checker.png",
-		structuredData: atsCheckerStructuredData,
 	},
 };
 
@@ -335,6 +295,25 @@ export async function handleWebApp(request: Request, readFile: ReadWebFile = (pa
 	const isHead = request.method === "HEAD";
 	const pathname = new URL(request.url).pathname;
 	const respond = (body: BodyInit | null, init?: ResponseInit) => new Response(isHead ? null : body, init);
+	if (pathname === "/ats-checker") {
+		const source = new URL(request.url);
+		const search = new URLSearchParams();
+		const locale = source.searchParams.get("locale");
+		if (locale === "ar-SA" || locale === "en-US") search.set("locale", locale);
+		const suffix = search.size ? `?${search}` : "";
+		return respond(null, {
+			status: 308,
+			headers: { ...BASE_SECURITY_HEADERS, Location: `/dashboard/review-guide${suffix}` },
+		});
+	}
+	if (pathname === "/dashboard/ats-guide") {
+		const target = new URL(request.url);
+		target.pathname = "/dashboard/review-guide";
+		return respond(null, {
+			status: 308,
+			headers: { ...BASE_SECURITY_HEADERS, Location: `${target.pathname}${target.search}${target.hash}` },
+		});
+	}
 
 	if (!isNoindexShellPath(pathname) && isAssetPath(pathname)) {
 		return new Response(isHead ? null : "Not Found", { status: 404 });
@@ -353,7 +332,7 @@ export async function handleWebApp(request: Request, readFile: ReadWebFile = (pa
 		// Root configuration never discloses a target in the HTML shell. The public API
 		// gates data and browser metadata; shell requests must not count extra views.
 		const shell = html
-			.replace(/<title>[^<]*<\/title>/, "<title>Master CV</title>")
+			.replace(/<title>[^<]*<\/title>/, "<title>Sirawise</title>")
 			.replace(/<meta\s+name="description"[^>]*>/, '<meta name="description" content="">');
 		const markup = `<link rel="canonical" href="${escapeAttribute(canonicalUrl)}" data-root-resume-shell><meta name="robots" content="noindex, follow" data-root-resume-shell>`;
 		return respond(
@@ -393,7 +372,7 @@ export async function handleWebApp(request: Request, readFile: ReadWebFile = (pa
 			locale,
 			...readPageMeta(page, prerendered.meta),
 			imageUrl: `${origin}${prerendered.image}`,
-			structuredData: prerendered.structuredData(origin),
+			structuredData: prerendered.structuredData(origin, locale),
 		});
 
 		// The saved locale changes what this address shows, so caches have to key on the cookie.

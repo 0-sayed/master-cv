@@ -1,4 +1,4 @@
-import type { Resume } from "./draft";
+import type { Resume, RestoreUndoReceipt } from "./draft";
 // @vitest-environment happy-dom
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import { act, renderHook } from "@testing-library/react";
@@ -153,6 +153,68 @@ async function flushMicrotasks() {
 }
 
 describe("builder resume autosave", () => {
+	const restoreForUndo = async () => {
+		const initial = makeResume(`receipt-${crypto.randomUUID()}`);
+		useResumeStore.getState().initialize(initial, "alice");
+		const restored = {
+			...withBasicsName(initial, "Restored"),
+			updatedAt: new Date(initial.updatedAt.getTime() + 1),
+			beforeRestoreVersionId: "exact-before",
+		};
+		orpcMocks.restoreVersion.mockResolvedValueOnce(restored);
+		const result = await useResumeStore.getState().restoreVersion("old");
+		const receipt: RestoreUndoReceipt = {
+			ownerId: "alice",
+			resumeId: initial.id,
+			versionId: result.beforeRestoreVersionId,
+			expectedUpdatedAt: result.updatedAt,
+			editGeneration: useResumeStore.getState().editGeneration,
+		};
+		return { initial, restored, receipt };
+	};
+	it("strips restore metadata from resume state and undoes through its original revision", async () => {
+		const { initial, restored, receipt } = await restoreForUndo();
+		expect(useResumeStore.getState().resume).not.toHaveProperty("beforeRestoreVersionId");
+		orpcMocks.restoreVersion.mockResolvedValueOnce({
+			...initial,
+			updatedAt: new Date(restored.updatedAt.getTime() + 1),
+			beforeRestoreVersionId: "unused",
+		});
+		await useResumeStore.getState().undoVersionRestore(receipt);
+		expect(orpcMocks.restoreVersion).toHaveBeenLastCalledWith(
+			{ resumeId: initial.id, versionId: "exact-before", expectedUpdatedAt: restored.updatedAt },
+			expect.anything(),
+		);
+		expect(useResumeStore.getState().resume?.data).toEqual(initial.data);
+	});
+	it.each(["edit", "acknowledged save", "owner", "document", "visit", "recovery", "pending save"])(
+		"refuses restore undo after %s without calling the server",
+		async (change) => {
+			const { initial, restored, receipt } = await restoreForUndo();
+			if (change === "edit")
+				useResumeStore.getState().updateResumeData((draft) => {
+					draft.basics.name = "Keep newer typing";
+				});
+			if (change === "acknowledged save")
+				useResumeStore.setState({ acknowledgedUpdatedAt: new Date(restored.updatedAt.getTime() + 1) });
+			if (change === "owner") useResumeStore.getState().initialize(initial, "bob");
+			if (change === "document") useResumeStore.getState().initialize(makeResume("other"), "alice");
+			if (change === "visit") useResumeStore.getState().initialize(restored, "alice");
+			if (change === "recovery") useResumeStore.setState({ localRecoveryAvailable: true });
+			if (change === "pending save") useResumeStore.getState().setSaveStatus("saving");
+			await expect(useResumeStore.getState().undoVersionRestore(receipt)).rejects.toThrow();
+			expect(orpcMocks.restoreVersion).toHaveBeenCalledTimes(1);
+			expect(orpcMocks.updateResume).not.toHaveBeenCalled();
+		},
+	);
+	it("keeps current work and enters conflict recovery for a remote stale undo", async () => {
+		const { restored, receipt } = await restoreForUndo();
+		orpcMocks.restoreVersion.mockRejectedValueOnce(new ORPCError("RESUME_VERSION_CONFLICT", { status: 409 }));
+		await expect(useResumeStore.getState().undoVersionRestore(receipt)).rejects.toMatchObject({ status: 409 });
+		expect(useResumeStore.getState().saveStatus).toBe("conflict");
+		expect(useResumeStore.getState().resume?.data).toEqual(restored.data);
+		expect(orpcMocks.restoreVersion.mock.calls[1]?.[0].expectedUpdatedAt).toEqual(receipt.expectedUpdatedAt);
+	});
 	it("removes an already-saved recovery backup before a later server revision", () => {
 		const initial = makeResume("equal-backup");
 		const key = storageKey("resumeBackup", initial.id);
@@ -384,6 +446,7 @@ describe("builder resume autosave", () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		orpcMocks.getResumeById.mockReset();
+		orpcMocks.restoreVersion.mockReset();
 		useBlockerMock.mockReset();
 		orpcMocks.patchResume.mockReset();
 		orpcMocks.streamSubscribe.mockReset();

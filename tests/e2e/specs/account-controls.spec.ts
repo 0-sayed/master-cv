@@ -111,7 +111,12 @@ for (const locale of ["ar-SA", "en-US"]) {
 			expect(divider.color).not.toMatch(/rgba\([^)]*, 0\)$/);
 			expect(divider.color).not.toBe(divider.background);
 			await trigger.click();
-			await expect(page.getByRole("dialog")).toBeVisible();
+			await expect(
+				page.getByRole("complementary", {
+					name: locale === "ar-SA" ? "التصدير والسجل" : "Export and history",
+					exact: true,
+				}),
+			).toBeVisible();
 		});
 	}
 }

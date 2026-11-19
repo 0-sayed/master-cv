@@ -8,7 +8,7 @@
  *   `invalid_client`.
  * - Send `resource=<server origin>` (RFC 8707) on authorize, token and refresh requests. Without it the server issues
  *   an opaque access token that `/api/rpc` rejects.
- * - The redirect is `https://rxresu.me/auth/native-callback` for every server (the app's associated domain, through
+ * - The redirect is `https://sirawise.io/auth/native-callback` for every server (the app's associated domain, through
  *   Universal Links / App Links); see `redirectUri` in oauth.ts. On iOS pass `preferUniversalLinks: true` to
  *   `promptAsync`.
  * - Mix-up defence: discovery must name the chosen origin as issuer and endpoint host (oauth.ts `discover`); the
@@ -38,7 +38,7 @@ import {
 	storeKey,
 } from "./oauth";
 
-export const DEFAULT_SERVER = "https://rxresu.me";
+export const DEFAULT_SERVER = "https://sirawise.io";
 
 /**
  * - `loading`: tokens are being read from SecureStore at launch.
@@ -50,7 +50,7 @@ export type SessionStatus = "loading" | "signed-out" | "signed-in" | "expired";
 
 export type Session = {
 	status: SessionStatus;
-	/** The server origin, for example `https://rxresu.me`. */
+	/** The server origin, for example `https://sirawise.io`. */
 	server: string;
 };
 

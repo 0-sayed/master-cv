@@ -1,14 +1,21 @@
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { CommandItem } from "@reactive-resume/ui/components/command";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { useCommandPaletteStore } from "../store";
 import { BaseCommandGroup } from "./base";
 import { useDialogStore } from "@/dialogs/store";
+import { guideCopy } from "@/features/ats-guide/copy";
+import { ATS_GUIDE_ROUTE } from "@/features/ats-guide/links";
+import { dashboardNavigation } from "@/features/navigation";
+import { usePersonalToolAvailable } from "@/features/personal-tools/availability";
+import { reviewTabs } from "@/features/resume/editor/check/review-tabs";
 
 export function NavigationCommandGroup() {
 	const navigate = useNavigate();
+	const { i18n } = useLingui();
+	const applicationsEnabled = usePersonalToolAvailable("applications");
 	const { session } = useRouteContext({ strict: false });
 	const reset = useCommandPaletteStore((state) => state.reset);
 	const pushPage = useCommandPaletteStore((state) => state.pushPage);
@@ -26,18 +33,40 @@ export function NavigationCommandGroup() {
 					<Trans>Home</Trans>
 				</CommandItem>
 
+				{dashboardNavigation
+					.filter((item) => item.key !== "applications" || applicationsEnabled)
+					.map((item) => (
+						<CommandItem
+							key={item.key}
+							disabled={!session}
+							value={`navigation.${item.key}`}
+							onSelect={() => onNavigate(item.to)}
+							keywords={
+								item.key === "documents"
+									? [t`Resumes`, t({ message: "Cover letters", context: "editor.navigation.letters" })]
+									: item.key === "applications"
+										? [t`Jobs`]
+										: item.key === "trash"
+											? [t`Deleted`]
+											: []
+							}
+						>
+							<Icon name={item.icon} size={16} />
+							{i18n._(item.label)}
+						</CommandItem>
+					))}
 				<CommandItem
-					disabled={!session}
+					value="navigation.review-guide"
 					keywords={[
-						t({ message: "Documents", context: "editor.mobileNav.documents" }),
-						t`Resumes`,
-						t({ message: "Cover letters", context: "editor.navigation.letters" }),
+						i18n._(guideCopy.title),
+						t`ATS Checker`,
+						t`Check a PDF`,
+						...reviewTabs.map((tab) => i18n._(tab.label)),
 					]}
-					value="navigation.documents"
-					onSelect={() => onNavigate("/dashboard")}
+					onSelect={() => onNavigate(ATS_GUIDE_ROUTE)}
 				>
-					<Icon name="file-text" size={16} />
-					<Trans context="editor.mobileNav.documents">Documents</Trans>
+					<Icon name="book-open" size={16} />
+					{i18n._(guideCopy.title)}
 				</CommandItem>
 
 				<CommandItem
@@ -54,36 +83,7 @@ export function NavigationCommandGroup() {
 				</CommandItem>
 
 				<CommandItem
-					disabled={!session}
-					keywords={[t`Trash`, t`Deleted`]}
-					value="navigation.trash"
-					onSelect={() => onNavigate("/dashboard/trash")}
-				>
-					<Icon name="trash" size={16} />
-					<Trans>Trash</Trans>
-				</CommandItem>
-
-				<CommandItem
-					keywords={[t`ATS Checker`, t`Check a PDF`]}
-					value="navigation.ats-checker"
-					onSelect={() => onNavigate("/ats-checker")}
-				>
-					<Icon name="seal-check" size={16} />
-					<Trans>ATS Checker</Trans>
-				</CommandItem>
-
-				<CommandItem
-					disabled={!session}
-					keywords={[t({ message: "Applications", context: "editor.navigation.applications" }), t`Jobs`]}
-					value="navigation.applications"
-					onSelect={() => onNavigate("/dashboard/applications")}
-				>
-					<Icon name="briefcase" size={16} />
-					<Trans context="editor.navigation.applications">Applications</Trans>
-				</CommandItem>
-
-				<CommandItem
-					disabled={!session}
+					disabled={!session || !applicationsEnabled}
 					keywords={[t`New Application`, t`Add application`, t`Job`]}
 					value="navigation.applications.new"
 					onSelect={async () => {

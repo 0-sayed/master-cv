@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
+import { MIN_READABLE_BODY_SIZE } from "@reactive-resume/schema/resume/font-policy";
 import { fitToPages, nextFitStep } from "./presets";
 
 describe("Fit to one page", () => {
@@ -23,4 +24,18 @@ describe("Fit to one page", () => {
 		expect(applied).toEqual([{ density: "compact" }, { margins: "narrow" }]);
 		expect(result.state).toEqual({ density: "compact", margins: "narrow", size: 10 });
 	});
+});
+
+it("never fits below the shared ATS minimum body size", async () => {
+	const sizes: number[] = [];
+	const result = await fitToPages(
+		{ density: "compact", margins: "narrow", size: 12 },
+		(step) => {
+			if ("size" in step) sizes.push(step.size);
+		},
+		async () => false,
+	);
+	expect(Math.min(...sizes)).toBe(MIN_READABLE_BODY_SIZE);
+	expect(result.state.size).toBe(MIN_READABLE_BODY_SIZE);
+	expect(nextFitStep({ density: "compact", margins: "narrow", size: MIN_READABLE_BODY_SIZE })).toBeNull();
 });

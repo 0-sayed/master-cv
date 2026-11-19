@@ -15,9 +15,9 @@ import { Trans } from "@lingui/react/macro";
 import { useReducedMotion } from "motion/react";
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { Badge } from "@reactive-resume/ui/components/badge";
+import { Chip } from "@reactive-resume/ui/components/chip";
 import { useFormControl } from "@reactive-resume/ui/components/form";
-import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Kbd } from "@reactive-resume/ui/components/kbd";
 import { cn } from "@reactive-resume/utils/style";
@@ -44,12 +44,9 @@ type ChipDragPreviewProps = {
 
 function ChipDragPreview({ chip }: ChipDragPreviewProps) {
 	return (
-		<Badge
-			variant="outline"
-			className="h-6 max-w-44 cursor-grabbing justify-start rounded-md border-accent bg-sunken px-2 text-xs font-medium text-ink shadow-lg ring-2 ring-accent/25 select-none sm:max-w-52"
-		>
+		<Chip className="max-w-44 cursor-grabbing justify-start border border-accent shadow-lg ring-2 ring-accent/25 select-none sm:max-w-52">
 			<span className="truncate">{chip}</span>
-		</Badge>
+		</Chip>
 	);
 }
 
@@ -88,10 +85,9 @@ function ChipItem({ id, chip, index, isEditing, onEdit, onRemove }: ChipItemProp
 			{...attributes}
 			{...listeners}
 		>
-			<Badge
-				variant="outline"
+			<Chip
 				className={cn(
-					"h-6 max-w-full cursor-grab justify-start gap-0 rounded-md border-line bg-sunken/55 px-2 text-xs font-medium text-ink transition-colors select-none hover:border-ink/20 hover:bg-sunken active:cursor-grabbing",
+					"cursor-grab justify-start border-line bg-sunken/55 text-ink transition-colors select-none hover:border-ink/20 hover:bg-sunken active:cursor-grabbing",
 					isEditing && "border-accent bg-accent/10 ring-1 ring-accent/40",
 					isDragging && "border-accent bg-sunken shadow-sm",
 				)}
@@ -103,11 +99,13 @@ function ChipItem({ id, chip, index, isEditing, onEdit, onRemove }: ChipItemProp
 						isEditing ? "opacity-100" : "opacity-65",
 					)}
 				>
-					<button
+					<IconButton
 						type="button"
 						tabIndex={-1}
-						className="rounded-sm p-0.5 text-ink/70 transition-colors hover:bg-sunken hover:text-ink focus:outline-none"
-						aria-label={t({
+						size="icon-chip"
+						variant="quiet"
+
+						label={t({
 							comment:
 								"Screen reader label for button that edits a keyword chip. Variable is the current keyword text.",
 							message: `Edit ${chip}`,
@@ -116,14 +114,16 @@ function ChipItem({ id, chip, index, isEditing, onEdit, onRemove }: ChipItemProp
 							e.stopPropagation();
 							onEdit(index);
 						}}
-					>
-						<Icon name="pencil-simple" size={14} />
-					</button>
-					<button
+						icon="pencil-simple"
+						iconSize={14}
+					/>
+					<IconButton
 						type="button"
 						tabIndex={-1}
-						className="rounded-sm p-0.5 text-ink/70 transition-colors hover:bg-danger/10 hover:text-danger-text focus:outline-none"
-						aria-label={t({
+						size="icon-chip"
+						variant="quiet"
+
+						label={t({
 							comment:
 								"Screen reader label for button that removes a keyword chip. Variable is the current keyword text.",
 							message: `Remove ${chip}`,
@@ -132,11 +132,11 @@ function ChipItem({ id, chip, index, isEditing, onEdit, onRemove }: ChipItemProp
 							e.stopPropagation();
 							onRemove(index);
 						}}
-					>
-						<Icon name="x" size={14} />
-					</button>
+						icon="x"
+						iconSize={14}
+					/>
 				</div>
-			</Badge>
+			</Chip>
 		</div>
 	);
 }

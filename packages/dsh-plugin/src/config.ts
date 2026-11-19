@@ -7,7 +7,7 @@ const SERVER_NAME_PATTERN = /^[A-Za-z0-9_-]{1,32}$/;
 export interface Config {
 	/** API key minted at `<url>/dashboard/settings/api-keys`. */
 	apiKey: string;
-	/** Reactive Resume origin, no trailing slash. */
+	/** Sirawise origin, no trailing slash. */
 	url: string;
 	/** Tool namespace: tools reach the model as `mcp__<serverName>__<rawName>`. */
 	serverName: string;
@@ -21,10 +21,7 @@ export const Config = z.object({
 	// than a validation error that takes the whole profile down at boot.
 	// `apply` warns and mounts nothing instead.
 	apiKey: z.string().default("").description("API key from <url>/dashboard/settings/api-keys."),
-	url: z
-		.string()
-		.default("https://rxresu.me")
-		.description("Reactive Resume origin. Set this for a self-hosted instance."),
+	url: z.string().default("https://sirawise.io").description("Sirawise origin. Set this for a self-hosted instance."),
 	serverName: z
 		.string()
 		.pattern(SERVER_NAME_PATTERN)

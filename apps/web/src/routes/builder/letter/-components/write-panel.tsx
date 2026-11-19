@@ -8,8 +8,9 @@ import { ORPCError } from "@orpc/client";
 import { useQuery } from "@tanstack/react-query";
 import { useReducedMotion } from "motion/react";
 import { useId, useRef, useState } from "react";
+import { getFont } from "@reactive-resume/fonts";
 import { coverLetterTextToHtml, defaultCoverLetterSignOff, greetingName } from "@reactive-resume/resume/cover-letter";
-import { DOCUMENT_FONT_PAIRINGS } from "@reactive-resume/schema/resume/font-policy";
+import { Badge } from "@reactive-resume/ui/components/badge";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
@@ -18,7 +19,9 @@ import { NativeSelect } from "@reactive-resume/ui/components/native-select";
 import { SwitchRow } from "@reactive-resume/ui/components/switch";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { cn } from "@reactive-resume/utils/style";
+import { FontDisplay } from "@/components/typography/font-display";
 import { templates } from "@/dialogs/resume/template/data";
 import { ApplicationPicker } from "@/features/applications/components/application-picker";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
@@ -27,7 +30,6 @@ import { countWords, LETTER_LENGTH, letterLength } from "@/features/letters/leng
 import { LetterReviewComposer } from "@/features/letters/review";
 import { discardLetterDraft, startLetterDraft, useLetterEditorStore } from "@/features/letters/store";
 import { useLetterMode } from "@/features/letters/use-letter-mode";
-import { ACCENTS, matchFontPairing, rgbaToHex } from "@/features/resume/editor/design/presets";
 import { RichTextEditor } from "@/features/resume/editor/write/rich-text-editor";
 import { ENTER_CLASS } from "@/libs/motion";
 import { client, orpc } from "@/libs/orpc/client";
@@ -183,8 +185,8 @@ function ToSection({ letter, application, disabled }: LetterSectionProps) {
 
 	return (
 		<Section id="letter-to" title={<Trans>Recipient</Trans>}>
-			<div className="grid grid-cols-2 gap-3">
-				<div className="col-span-2 grid gap-1.5">
+			<div className="editor-panel-fields grid grid-cols-2 gap-3">
+				<div className="editor-panel-short-field col-span-2 grid gap-1.5">
 					<Label htmlFor={`${id}-name`}>
 						<Trans>Name or team</Trans>
 					</Label>
@@ -499,13 +501,15 @@ function DraftBox({ draft, letter, application, onKeep }: DraftBoxProps) {
 						<Icon name="sparkle" size={16} />
 						{sources}
 					</span>
-					<button
+					<Button
+						variant="primary"
+						size="row"
 						type="button"
 						onClick={() => onKeep(draft.text)}
-						className="h-8 rounded-lg bg-accent px-3 text-[13px] font-semibold text-on-accent hover:bg-accent-hover"
+						className="justify-self-start"
 					>
 						<Trans>Keep</Trans>
-					</button>
+					</Button>
 					{(
 						[
 							["shorter", t`Shorter`],
@@ -516,7 +520,7 @@ function DraftBox({ draft, letter, application, onKeep }: DraftBoxProps) {
 							key={variant}
 							type="button"
 							onClick={() => run(variant, draft.text)}
-							className="h-8 rounded-lg px-2.5 text-[13px] hover:bg-[oklch(1_0_0/0.12)]"
+							className="h-8 rounded-lg px-2.5 type-metadata hover:bg-accent-hover"
 						>
 							{label}
 						</button>
@@ -524,7 +528,7 @@ function DraftBox({ draft, letter, application, onKeep }: DraftBoxProps) {
 					<button
 						type="button"
 						onClick={discardLetterDraft}
-						className="h-8 rounded-lg px-2.5 text-[13px] hover:bg-[oklch(1_0_0/0.12)]"
+						className="h-8 rounded-lg px-2.5 type-metadata hover:bg-accent-hover"
 					>
 						<Trans>Discard</Trans>
 					</button>
@@ -590,27 +594,54 @@ function LengthSection({ content }: { content: string }) {
 /** DESIGN: what the letter looks like, and where to change it. */
 function DesignNote({ letter }: { letter: CoverLetter }) {
 	const [, setMode] = useLetterMode();
+	const descriptionId = useId();
 	const { metadata } = letter.style;
-	const pairing = DOCUMENT_FONT_PAIRINGS.find((option) => option.id === matchFontPairing(metadata))?.label;
-	const accent = ACCENTS.find((option) => option.hex === rgbaToHex(metadata.design.colors.primary))?.label;
-	const summary = [templates[metadata.template].name, pairing && t`${pairing} type`, accent].filter(Boolean).join(", ");
+	const template = templates[metadata.template].name;
+	const font = metadata.typography.body.fontFamily;
+	const fontData = getFont(font);
+	const description = (
+		<Trans>
+			Template: <bdi>{template}</bdi>. Font: <bdi>{font}</bdi>.
+		</Trans>
+	);
 
 	return (
-		<Section id="letter-design" title={<Trans>Design</Trans>}>
-			<p className="text-sm text-ink-2">
-				{letter.designLinked ? (
-					<Trans>Matches the resume ({summary}).</Trans>
-				) : (
-					<Trans>Its own design ({summary}).</Trans>
-				)}{" "}
-				<button
-					type="button"
-					onClick={() => setMode("design")}
-					className="font-medium text-accent-text underline underline-offset-2"
-				>
-					<Trans>Change it in Design.</Trans>
-				</button>
-			</p>
-		</Section>
+		<section
+			aria-labelledby="letter-design"
+			className="editor-panel-design-row flex flex-wrap items-center gap-2 px-4 py-5"
+		>
+			<h2 id="letter-design" className="type-label text-ink-2">
+				<Trans>Design</Trans>
+			</h2>
+			<Tooltip>
+				<TooltipTrigger render={<Badge tabIndex={0} />} aria-describedby={descriptionId}>
+					<Badge
+						shape="dot"
+						data-shape="dot"
+						aria-hidden="true"
+						style={{ backgroundColor: metadata.design.colors.primary }}
+					/>
+					<bdi dir="ltr" aria-hidden="true">
+						<FontDisplay
+							family={font}
+							label="Aa"
+							type={fontData?.type ?? "standard"}
+							url={fontData && "preview" in fontData ? fontData.preview : undefined}
+							showFamily={false}
+						/>
+					</bdi>
+					{letter.designLinked ? <Trans>Matches the CV</Trans> : <Trans>Custom design</Trans>}
+				</TooltipTrigger>
+				<TooltipContent>
+					<span>{description}</span>
+				</TooltipContent>
+			</Tooltip>
+			<span id={descriptionId} className="sr-only">
+				{description}
+			</span>
+			<Button variant="secondary" size="sm" className="ms-auto shrink-0" onClick={() => setMode("design")}>
+				<Trans>Change</Trans>
+			</Button>
+		</section>
 	);
 }

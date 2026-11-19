@@ -259,9 +259,15 @@ function ProposalItem(props: ProposalItemProps) {
 					<>
 						<Trans>Out of date: the text has changed since.</Trans>
 						{props.onSuggestAgain && (
-							<button type="button" className="text-ink-2 underline underline-offset-2" onClick={props.onSuggestAgain}>
+							<Button
+								variant="link"
+								size="link-touch"
+								type="button"
+								className="justify-self-start"
+								onClick={props.onSuggestAgain}
+							>
 								<Trans>Suggest again</Trans>
-							</button>
+							</Button>
 						)}
 					</>
 				)}

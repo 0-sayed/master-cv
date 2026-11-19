@@ -11,7 +11,7 @@ import { getUiLocaleMessages } from "@/libs/locale";
 vi.mock("./interview-dialog", () => ({ InterviewDialog: () => null }));
 vi.mock("@/features/career/shared", () => ({
 	useNow: () => new Date(),
-	useCareerTime: () => ({ relative: () => "خلال 1 ساعة" }),
+	useCareerTime: () => ({ relative: () => "خلال 1 ساعة", timeZone: "Asia/Riyadh" }),
 }));
 vi.mock("@reactive-resume/ui/components/skeleton", () => ({ useSkeletonLoading: () => ({ pending: false }) }));
 vi.mock("@/libs/orpc/client", () => ({
@@ -60,21 +60,14 @@ it("translates source enum labels in the Arabic calendar, agenda and legend", ()
 	);
 	expect(container.textContent).not.toMatch(/Screening|Technical|Behavioral|Onsite|Other|[٠-٩۰-۹]/u);
 	expect(screen.getAllByText("الفحص").length).toBeGreaterThan(0);
-	expect(screen.getByRole("link", { name: "انضمام" })).toHaveAttribute("href", "https://meet.example.test/interview");
+	expect(screen.getAllByRole("button", { name: /شركة تجريبية/ })[0]).toHaveAttribute("dir", "auto");
 });
-it("translates chart labels and reverses the Arabic pipeline", () => {
-	const { container } = show(<ApplicationInsights applications={[app(1), app(2), app(3)]} />);
-	expect(container.textContent).not.toMatch(/Saved|Applied|Screening|Interview|Offer|[٠-٩۰-۹]/u);
-	const chart = container.querySelector("svg");
-	expect(chart).not.toBeNull();
-	const flow =
-		container.querySelector('svg[aria-label="مسار طلبات الوظائف"]') ?? container.querySelector('svg[direction="rtl"]');
-	expect(flow).not.toBeNull();
-	if (!flow) throw new Error("Pipeline chart was not rendered");
-	const labels = [...flow.querySelectorAll("text")];
-	const saved = labels.find((label) => label.textContent === "محفوظ");
-	const offer = labels.find((label) => label.textContent === "عرض وظيفي");
-	expect(Number(saved?.getAttribute("x"))).toBeGreaterThan(Number(offer?.getAttribute("x")));
+it("translates complete chart labels and keeps weeks chronological in Arabic", () => {
+	const { container } = show(<ApplicationInsights applications={[app(1), app(2), app(3), app(4), app(5)]} />);
+	expect(container.textContent).not.toMatch(/Saved|Applied|Screening|Interview|Offer|[\u0660-\u0669\u06f0-\u06f9]/u);
+	expect(container.querySelectorAll('[data-slot="insight-week"]')).toHaveLength(8);
+	expect(container.querySelector('[data-slot="insight-week"]')?.parentElement).toHaveAttribute("dir", "ltr");
+	expect(container.querySelector('svg[role="img"]')).toBeNull();
 });
 
 it("does not show an invalid response percentage when saved jobs have no submissions", () => {

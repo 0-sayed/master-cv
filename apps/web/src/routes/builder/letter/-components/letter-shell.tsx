@@ -6,6 +6,7 @@ import { Trans } from "@lingui/react/macro";
 import { useHotkey } from "@tanstack/react-hotkeys";
 import { getRouteApi } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { EditorPanelLayout } from "@reactive-resume/ui/components/editor-panel";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Tabs, TabsContent } from "@reactive-resume/ui/components/tabs";
 import { toast } from "@reactive-resume/ui/components/toast";
@@ -23,7 +24,6 @@ import {
 	AssistantReplace,
 	assistantGridTransition,
 	assistantPlaceFor,
-	columnsWithAssistant,
 	LetterAssistant,
 } from "@/features/assistant/dock";
 import { useLetterEditorStore } from "@/features/letters/store";
@@ -46,6 +46,7 @@ const routeApi = getRouteApi("/builder/letter/$coverLetterId");
  * for, to and from, and its body; the page shows the letter as it prints.
  */
 export function LetterShell() {
+	const { session } = routeApi.useRouteContext();
 	const [mode, setMode] = useLetterMode();
 	const breakpoint = useBreakpoint();
 	const layout = breakpoint === "mobile" ? "mobile" : breakpoint === "tablet" ? "tablet" : "desktop";
@@ -80,42 +81,49 @@ export function LetterShell() {
 				<LetterBar layout={layout} pinnable={pinnable} />
 
 				{(layout === "desktop" || pinned) && (
-					<div
-						className={cn("relative grid min-h-0", assistantGridTransition(assistantOpen, assistantInstant))}
-						style={{
-							gridTemplateColumns: assistantColumn
-								? columnsWithAssistant(assistantOpen)
-								: pinned
-									? "380px minmax(0,1fr)"
-									: "var(--editor-panel) minmax(0,1fr)",
-						}}
+					<EditorPanelLayout
+						resizeHint={t`Drag to resize · double-click to reset`}
+						ownerId={session.user.id}
+						enabled={layout === "desktop"}
+						label={panelLabel(mode)}
 					>
-						<AssistantReplace
-							replaced={assistantReplaces}
-							assistant={
-								<div className="min-h-0 border-e border-line">
-									<LetterAssistant />
-								</div>
-							}
+						<div
+							className={cn("relative grid min-h-0", assistantGridTransition(assistantOpen, assistantInstant))}
+							style={{
+								gridTemplateColumns: assistantColumn
+									? `var(--editor-panel) minmax(0,1fr) ${assistantOpen ? "400px" : "0px"}`
+									: pinned
+										? "380px minmax(0,1fr)"
+										: "var(--editor-panel) minmax(0,1fr)",
+							}}
 						>
-							<TabsContent
-								key={mode}
-								value={mode}
-								aria-label={panelLabel(mode)}
-								className="relative min-h-0 overflow-y-auto border-e border-line bg-surface [overflow-anchor:none]"
+							<AssistantReplace
+								replaced={assistantReplaces}
+								assistant={
+									<div className="min-h-0 border-e border-line">
+										<LetterAssistant />
+									</div>
+								}
 							>
-								<ModePanel mode={mode} />
-							</TabsContent>
-						</AssistantReplace>
-						<main id="main-content" className="min-h-0 min-w-0">
-							<LetterPage />
-						</main>
-						{assistantColumn && (
-							<AssistantColumn>
-								<LetterAssistant />
-							</AssistantColumn>
-						)}
-					</div>
+								<TabsContent
+									key={mode}
+									value={mode}
+									aria-label={panelLabel(mode)}
+									className="editor-panel-container relative min-h-0 overflow-y-auto border-e border-line bg-surface [overflow-anchor:none]"
+								>
+									<ModePanel mode={mode} />
+								</TabsContent>
+							</AssistantReplace>
+							<main id="main-content" className="min-h-0 min-w-0">
+								<LetterPage />
+							</main>
+							{assistantColumn && (
+								<AssistantColumn>
+									<LetterAssistant />
+								</AssistantColumn>
+							)}
+						</div>
+					</EditorPanelLayout>
 				)}
 				{layout === "tablet" && !pinned && <TabletBody mode={mode} />}
 				{layout === "mobile" && <MobileBody mode={mode} onModeChange={setMode} />}
@@ -153,7 +161,7 @@ function TabletBody({ mode }: { mode: LetterMode }) {
 				aria-label={panelLabel(mode)}
 				inert={!drawerOpen}
 				className={cn(
-					"absolute inset-y-0 start-0 z-20 w-[380px] max-w-[calc(100%-3rem)] overflow-y-auto border-e border-line bg-surface shadow-e3 transition-transform duration-emphasized ease-enter [overflow-anchor:none]",
+					"editor-panel-container absolute inset-y-0 start-0 z-20 w-[380px] max-w-[calc(100%-3rem)] overflow-y-auto border-e border-line bg-surface shadow-e3 transition-transform duration-emphasized ease-enter [overflow-anchor:none]",
 					!drawerOpen && "-translate-x-full rtl:translate-x-full",
 				)}
 			>
@@ -197,7 +205,7 @@ function MobileBody({ mode, onModeChange }: MobileBodyProps) {
 					<TabsContent
 						key={mode}
 						value={mode}
-						className="absolute inset-0 overflow-y-auto bg-surface [overflow-anchor:none]"
+						className="editor-panel-container absolute inset-0 overflow-y-auto bg-surface [overflow-anchor:none]"
 					>
 						<ModePanel mode={mode} />
 					</TabsContent>
@@ -221,7 +229,7 @@ function MobileBody({ mode, onModeChange }: MobileBodyProps) {
 								if (tab !== "page") onModeChange(tab);
 							}}
 							className={cn(
-								"relative flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 type-mobile-nav transition-[color,scale] duration-quick ease-enter active:scale-[0.97]",
+								"relative flex min-h-13 flex-1 flex-col items-center justify-center gap-0.5 type-mobile-nav transition-[color,scale] duration-quick ease-enter active:scale-[0.97]",
 								active ? "font-semibold text-ink" : "text-ink-2",
 							)}
 						>

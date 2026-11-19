@@ -102,7 +102,12 @@ vi.mock("./slugs", () => ({
 	recordSlugChange: recordSlugChangeMock,
 }));
 
-const { resumeService } = await import("./service");
+const admissionMock = vi.hoisted(() => vi.fn());
+vi.mock("../ai/usage", () => ({
+	admitResumeCreation: admissionMock,
+	resolveResumeCreation: async (_tx: unknown, _owner: string, creation: unknown) => creation,
+}));
+const { resumeService, createResumeInTransaction } = await import("./service");
 const { parseStoredResumeData } = await import("./resume-data-validation");
 
 // A lookup by username and slug: `select().from().innerJoin().where().orderBy().limit()` resolving to `rows`.
@@ -186,6 +191,7 @@ const createRestoreHarness = (currentData: ResumeData, restoredData: ResumeData)
 };
 
 beforeEach(() => {
+	admissionMock.mockReset();
 	dbMock.select.mockReset();
 	dbMock.transaction.mockReset();
 	dbMock.update.mockReset();
@@ -200,6 +206,38 @@ beforeEach(() => {
 });
 
 describe("versions.restore", () => {
+	it("restores saved default headings after a section was renamed", async () => {
+		const current = createSemanticResumeData();
+		const saved = createSemanticResumeData();
+		current.sections.experience.title = "My experience";
+		saved.sections.experience.title = "";
+		createRestoreHarness(current, saved);
+		const result = await resumeService.versions.restore({ resumeId: "r1", versionId: "v1", userId: "u1" });
+		expect(result.data.sections.experience.title).toBe("");
+	});
+	it("returns the exact before-restore checkpoint and restored revision", async () => {
+		const before = createSemanticResumeData();
+		const after = createSemanticResumeData();
+		after.basics.name = "Restored";
+		createRestoreHarness(before, after);
+		versionHistoryMock.writeVersion
+			.mockResolvedValueOnce({ id: "checkpoint-exact" })
+			.mockResolvedValueOnce({ id: "restored-other" });
+		const result = await resumeService.versions.restore({ resumeId: "r1", versionId: "v1", userId: "u1" });
+		expect(result).toMatchObject({
+			beforeRestoreVersionId: "checkpoint-exact",
+			data: after,
+			updatedAt: new Date("2026-01-02T00:00:00Z"),
+		});
+	});
+	it("fails without a retained checkpoint instead of reporting success", async () => {
+		createRestoreHarness(createSemanticResumeData(), createSemanticResumeData());
+		versionHistoryMock.writeVersion.mockResolvedValueOnce(undefined);
+		await expect(
+			resumeService.versions.restore({ resumeId: "r1", versionId: "v1", userId: "u1" }),
+		).rejects.toMatchObject({ code: "INTERNAL_SERVER_ERROR" });
+		expect(publishResumeUpdatedMock).not.toHaveBeenCalled();
+	});
 	it("saves the current state as Before restore first, then marks the restore", async () => {
 		const currentData = createSemanticResumeData();
 		const restoredData = createSemanticResumeData();
@@ -531,5 +569,41 @@ describe("statistics.recordDownload", () => {
 			resumeService.statistics.recordDownload({ username: "owner", slug: "resume", requestHeaders: new Headers() }),
 		).rejects.toMatchObject({ code: "NOT_FOUND" });
 		expect(where.mock.calls[0]?.[0]).toContainEqual(["trashed_at"]);
+	});
+});
+
+describe("internal seed admission", () => {
+	const input = { userId: "u1", name: "Copy", tags: [], locale: "en-US" as const };
+	const transaction = () => ({
+		select: () => createLockedSelectChain([{ id: "u1", dataDeletionRequestedAt: null }]).chain,
+		insert: () => ({ values: async () => undefined }),
+	});
+	it.each(["BASE_CV_LIMIT", "LANGUAGE_COPY_LIMIT"])("never bypasses %s through the seed option", async (reason) => {
+		const { ORPCError } = await import("@orpc/client");
+		admissionMock.mockRejectedValueOnce(new ORPCError("PRECONDITION_FAILED", { data: { reason } }));
+		await expect(
+			createResumeInTransaction(transaction() as never, input, { seedOnlyAdmission: async () => undefined }),
+		).rejects.toMatchObject({ data: { reason } });
+	});
+	it("keeps job-copy admission enforced without an explicit seed option", async () => {
+		const { ORPCError } = await import("@orpc/client");
+		admissionMock.mockRejectedValueOnce(new ORPCError("PRECONDITION_FAILED", { data: { reason: "JOB_COPY_LIMIT" } }));
+		await expect(
+			createResumeInTransaction(transaction() as never, {
+				...input,
+				creation: { variantKind: "job", baseResumeId: "base" },
+			}),
+		).rejects.toMatchObject({ data: { reason: "JOB_COPY_LIMIT" } });
+	});
+	it("creates a job copy only after explicit seed admission accepts it", async () => {
+		const { ORPCError } = await import("@orpc/client");
+		admissionMock.mockRejectedValueOnce(new ORPCError("PRECONDITION_FAILED", { data: { reason: "JOB_COPY_LIMIT" } }));
+		expect(
+			await createResumeInTransaction(
+				transaction() as never,
+				{ ...input, id: "seed-job", creation: { variantKind: "job", baseResumeId: "base" } },
+				{ seedOnlyAdmission: async () => undefined },
+			),
+		).toBe("seed-job");
 	});
 });

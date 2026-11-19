@@ -4,7 +4,9 @@ import { resolve } from "node:path";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
-type LabWindow = typeof globalThis & { publicLab: { lcp: number; cls: number; logoPlays: number } };
+type LabWindow = typeof globalThis & {
+	publicLab: { lcp: number; cls: number; logoPlays: number; interactionLatency: number | null };
+};
 async function evidencePath(info: TestInfo, name: string) {
 	const directory = process.env.E2E_PUBLIC_EVIDENCE_DIR ?? info.outputDir;
 	await mkdir(directory, { recursive: true });
@@ -27,7 +29,7 @@ for (const locale of ["ar-SA", "en-US"] as const)
 				await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
 				await page.emulateMedia({ colorScheme: "light" });
 				await page.addInitScript(() => {
-					const lab = { lcp: 0, cls: 0, logoPlays: 0 };
+					const lab = { lcp: 0, cls: 0, logoPlays: 0, interactionLatency: null as number | null };
 					(globalThis as LabWindow).publicLab = lab;
 					new PerformanceObserver((list) => {
 						for (const entry of list.getEntries()) lab.lcp = entry.startTime;
@@ -144,20 +146,42 @@ for (const locale of ["ar-SA", "en-US"] as const)
 						exact: true,
 					});
 					await question.scrollIntoViewIfNeeded();
+					await question.evaluate((element) => {
+						element.addEventListener(
+							"click",
+							() => {
+								const start = performance.now();
+								requestAnimationFrame(() => {
+									(globalThis as LabWindow).publicLab.interactionLatency = performance.now() - start;
+								});
+							},
+							{ once: true },
+						);
+					});
 					const start = await page.evaluate(() => performance.now());
 					await question.click();
-					const latency = await page.evaluate(
+					const afterClick = await page.evaluate(
 						() => new Promise<number>((resolveFrame) => requestAnimationFrame(() => resolveFrame(performance.now()))),
 					);
+					expect(afterClick - start).toBeLessThanOrEqual(200);
+					await expect
+						.poll(() => page.evaluate(() => (globalThis as LabWindow).publicLab.interactionLatency))
+						.not.toBeNull();
+					const latency = await page.evaluate(
+						() => (globalThis as LabWindow).publicLab.interactionLatency ?? Number.POSITIVE_INFINITY,
+					);
 					await expect(question).toHaveAttribute("aria-expanded", "true");
-					expect(latency - start).toBeLessThanOrEqual(200);
+					expect(latency).toBeLessThanOrEqual(200);
 					await writeFile(
 						await evidencePath(info, `${prefix}-interaction.json`),
-						JSON.stringify({ scriptedClickToFrameMs: latency - start, fieldINP: false }),
+						JSON.stringify({ scriptedClickToFrameMs: latency, fieldINP: false }),
 					);
 					await settleScreen(page);
 					await page.screenshot({ path: await evidencePath(info, `${prefix}-faq-open.png`), fullPage: true });
-					await page.getByRole("link", { name: "Master CV", exact: true }).hover();
+					await page
+						.locator("header")
+						.getByRole("link", { name: locale === "ar-SA" ? "سيراوايز" : "Sirawise", exact: true })
+						.hover();
 					expect(await page.evaluate(() => (globalThis as LabWindow).publicLab.logoPlays)).toBe(1);
 					await page.context().addCookies([{ name: "theme", value: "dark", url: baseURL ?? "http://localhost:3000" }]);
 					await page.reload();

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Body, Button, Container, Head, Heading, Html, Link, Preview, Text } from "react-email";
+import { getProductName } from "@reactive-resume/utils/brand";
 import { authMessages } from "../auth-messages.generated";
 void React;
 export type AuthMailLocale = "ar-SA" | "en-US";
@@ -23,7 +24,7 @@ function Layout({
 			<Preview>{preview}</Preview>
 			<Body style={{ margin: 0, backgroundColor: "#faf8f4", color: "#172e29", fontFamily: "Arial, sans-serif" }}>
 				<Container style={{ maxWidth: 560, padding: 32 }}>
-					<Text>Master CV</Text>
+					<Text>{getProductName(locale)}</Text>
 					<Heading>{text("heading")}</Heading>
 					<Text>{text("intro")}</Text>
 					<Text>{text("details")}</Text>

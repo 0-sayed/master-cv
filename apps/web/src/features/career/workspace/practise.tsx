@@ -13,6 +13,7 @@ import { AI_VOICE_MODELS } from "@reactive-resume/ai/types";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Label } from "@reactive-resume/ui/components/label";
 import { NativeSelect } from "@reactive-resume/ui/components/native-select";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
@@ -527,14 +528,15 @@ function Session({ applicationId, interviewId, questions, voice, initialMode, st
 							)}
 						>
 							{/* One button for both, so focus stays on it and Space stops what Space started. */}
-							<button
+							<IconButton
 								type="button"
-								aria-label={recordingNow ? t`Stop recording` : t`Record your answer`}
+								label={recordingNow ? t`Stop recording` : t`Record your answer`}
 								onClick={toggleRecording}
-								className="touch-target relative grid size-[52px] shrink-0 place-items-center rounded-full bg-danger text-white transition-[filter,scale] duration-quick ease-enter hover:brightness-95 active:scale-[0.97]"
-							>
-								<Icon name={recordingNow ? "stop" : "microphone"} filled={recordingNow} size={24} />
-							</button>
+								size="icon-lg"
+								className="text-danger-text"
+								icon={recordingNow ? "stop" : "microphone"}
+								iconSize={24}
+							/>
 							<div className="grid min-w-0 flex-1 basis-48 gap-0.5">
 								{recordingNow ? (
 									<>
@@ -893,7 +895,7 @@ function VoiceSettingsPanel({ voice, audio, disabled }: VoiceSettingsPanelProps)
 				type="button"
 				aria-expanded={open}
 				onClick={() => setOpen(!open)}
-				className="touch-target relative flex w-fit items-center gap-1 rounded-sm py-1 text-xs font-medium text-ink-2 transition-colors duration-quick hover:text-ink"
+				className="touch-target relative flex w-fit items-center gap-1 rounded-sm py-1 type-metadata font-medium text-ink-2 transition-colors duration-quick hover:text-ink"
 			>
 				<Icon
 					name="caret-right"

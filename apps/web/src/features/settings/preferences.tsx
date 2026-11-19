@@ -1,4 +1,3 @@
-import type { Theme } from "@/libs/theme";
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
@@ -6,19 +5,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouteContext, useRouter } from "@tanstack/react-router";
 import { useId, useState, useEffect } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
-import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { SettingsSection, SettingsRow } from "./section";
 import { Combobox } from "@/components/ui/combobox";
 import { LocaleCombobox } from "@/features/locale/combobox";
-import { useTheme } from "@/features/theme/provider";
+import { ThemeChoices } from "@/features/theme/choices";
 import { authClient } from "@/libs/auth/client";
 import { getReadableErrorMessage } from "@/libs/error-message";
 import { getInterfaceDateLocale } from "@/libs/locale";
 import { sessionQueryKey } from "@/libs/root-context";
-import { themeMap } from "@/libs/theme";
-
-const THEMES: Theme[] = ["light", "dark", "system"];
 
 export function PreferencesSettings() {
 	const languageId = useId();
@@ -142,28 +137,5 @@ function TimezoneSetting({ id }: { id: string }) {
 				</Button>
 			</div>
 		</>
-	);
-}
-
-/** Compact shared theme choices apply at once. */
-function ThemeChoices() {
-	const { i18n } = useLingui();
-	const { theme, setTheme } = useTheme();
-
-	return (
-		<SegmentedControl
-			aria-label={t`Theme`}
-			value={theme}
-			onValueChange={(value) => {
-				setTheme(value as Theme);
-				toast.add({ type: "success", description: t({ message: "Saved", context: "editor.save.status.saved" }) });
-			}}
-		>
-			{THEMES.map((option) => (
-				<SegmentedControlItem key={option} value={option}>
-					{option === "system" ? t`System` : i18n.t(themeMap[option])}
-				</SegmentedControlItem>
-			))}
-		</SegmentedControl>
 	);
 }

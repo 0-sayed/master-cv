@@ -1,20 +1,39 @@
+import type { Application } from "../types";
 // @vitest-environment happy-dom
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ApplicationNotes } from "./application-notes";
-const api = vi.hoisted(() => ({ save: vi.fn() }));
+import { ApplicationNotes as WorkspaceNotes, useApplicationNotes } from "./application-notes";
+import { ApplicationWriteBoundary } from "./application-write-boundary";
+function ApplicationNotes({ application }: { application: { id: string; notes: string | null; updatedAt: Date } }) {
+	const legacy = useApplicationNotes(application);
+	return (
+		<section>
+			<label htmlFor="notes">Notes</label>
+			<textarea id="notes" value={legacy.value} onChange={(e) => legacy.setValue(e.target.value)} />
+			{legacy.status === "failed" && <button onClick={() => void legacy.save()}>Retry save</button>}
+			{legacy.status === "conflict" && (
+				<>
+					<button onClick={legacy.discardDraft}>Discard draft</button>
+					<button onClick={legacy.keepMyChanges}>Keep my changes</button>
+				</>
+			)}
+		</section>
+	);
+}
+const api = vi.hoisted(() => ({ save: vi.fn(), owner: "notes-owner" }));
 vi.mock("@/libs/orpc/client", () => ({
 	orpc: {
 		applications: {
+			addNote: { mutationOptions: () => ({ mutationFn: vi.fn() }) },
 			update: { mutationOptions: () => ({ mutationFn: api.save }) },
 			getById: { queryKey: ({ input }: { input: { id: string } }) => ["application", input.id] },
 		},
 	},
 }));
-vi.mock("@/hooks/use-current-session", () => ({ useCurrentSession: () => ({ user: { id: "notes-owner" } }) }));
+vi.mock("@/hooks/use-current-session", () => ({ useCurrentSession: () => ({ user: { id: api.owner } }) }));
 vi.mock("../use-application-actions", () => ({ useInvalidateApplications: () => () => {} }));
 vi.mock("@reactive-resume/ui/components/toast", () => ({ toast: { add: vi.fn() } }));
 const application = { id: "notes-app", notes: "Server original", updatedAt: new Date("2026-11-01") };
@@ -34,7 +53,46 @@ beforeEach(() => {
 	localStorage.clear();
 	sessionStorage.clear();
 	api.save.mockReset();
+	api.owner = "notes-owner";
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
+});
+it("retains the workspace component export with the shared legacy composer", () => {
+	render(
+		<I18nProvider i18n={i18n}>
+			<QueryClientProvider client={new QueryClient()}>
+				<WorkspaceNotes application={application as unknown as Application} />
+			</QueryClientProvider>
+		</I18nProvider>,
+	);
+	expect(screen.getByRole("textbox", { name: "Application note" })).toHaveValue("Server original");
+});
+it("does not autosave or flush a draft while the cached record is read-only", async () => {
+	const client = new QueryClient();
+	const view = render(
+		<ApplicationWriteBoundary readOnly={false}>
+			<ApplicationNotes application={application} />
+		</ApplicationWriteBoundary>,
+		{
+			wrapper: ({ children }) => (
+				<I18nProvider i18n={i18n}>
+					<QueryClientProvider client={client}>{children}</QueryClientProvider>
+				</I18nProvider>
+			),
+		},
+	);
+	fireEvent.change(screen.getByRole("textbox", { name: "Notes" }), { target: { value: "Keep my unsaved draft" } });
+	view.rerender(
+		<ApplicationWriteBoundary readOnly>
+			<ApplicationNotes application={application} />
+		</ApplicationWriteBoundary>,
+	);
+	await act(async () => {
+		await vi.advanceTimersByTimeAsync(1000);
+	});
+	expect(api.save).not.toHaveBeenCalled();
+	expect(screen.getByRole("textbox", { name: "Notes" })).toHaveValue("Keep my unsaved draft");
+	view.unmount();
+	expect(api.save).not.toHaveBeenCalled();
 });
 afterEach(() => {
 	cleanup();
@@ -146,4 +204,28 @@ it("does not replace a newer query revision with a delayed save response", async
 		resolve({ ...application, notes: "Earlier submitted note", updatedAt: new Date("2026-11-03") });
 	});
 	expect(view.client.getQueryData(["application", application.id])).toEqual(fresh);
+});
+
+it("ignores a previous owner response after identity changes", async () => {
+	let resolve!: (value: typeof application) => void;
+	api.save.mockReturnValue(
+		new Promise<typeof application>((accept) => {
+			resolve = accept;
+		}),
+	);
+	const view = mount();
+	fireEvent.change(screen.getByRole("textbox"), { target: { value: "Private old draft" } });
+	await act(async () => {
+		await vi.advanceTimersByTimeAsync(900);
+	});
+	api.owner = "new-owner";
+	view.rerender(
+		<ApplicationNotes application={{ ...application, notes: "New owner note", updatedAt: new Date("2026-11-04") }} />,
+	);
+	await act(async () => {
+		resolve({ ...application, notes: "Private old draft", updatedAt: new Date("2026-11-03") });
+	});
+	expect(screen.getByRole("textbox")).toHaveValue("New owner note");
+	expect(localStorage.getItem("application-notes:new-owner:notes-app")).toBeNull();
+	expect(view.client.getQueryData(["application", application.id])).toBeUndefined();
 });

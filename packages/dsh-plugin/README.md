@@ -1,6 +1,6 @@
 # dsh-plugin-reactive-resume
 
-Connect [Reactive Resume](https://rxresu.me) to [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). Read, create, and edit your resumes and job applications from a Harness session.
+Connect [Sirawise](https://sirawise.io) to [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). Read, create, and edit your resumes and job applications from a Harness session.
 
 ## Install
 
@@ -12,7 +12,7 @@ This package declares `dsh.bundle`, so the profile picks it up as a layer and mo
 
 ## Configure
 
-Mint an API key at `https://rxresu.me/dashboard/settings/api-keys` and export it as `RXRESUME_API_KEY` — the bundle patch reads that variable. To set it explicitly, or to change any other option, patch the row by id from your profile's `cordis.patch.yml`:
+Mint an API key at `https://sirawise.io/dashboard/settings/api-keys` and export it as `RXRESUME_API_KEY` — the bundle patch reads that variable. To set it explicitly, or to change any other option, patch the row by id from your profile's `cordis.patch.yml`:
 
 ```yaml
 - id: reactive-resume
@@ -22,14 +22,14 @@ Mint an API key at `https://rxresu.me/dashboard/settings/api-keys` and export it
 
 ### Options
 
-| Key                 | Default             | Description                                                              |
-| ------------------- | ------------------- | ------------------------------------------------------------------------ |
-| `apiKey`            | `''`                | API key from `<url>/dashboard/settings/api-keys`. Empty mounts nothing.  |
-| `url`               | `https://rxresu.me` | Origin of your instance. Set this if you self-host.                      |
-| `serverName`        | `resume`            | Tool namespace. Tools reach the model as `mcp__<serverName>__<rawName>`. |
-| `toolCallTimeoutMs` | `60000`             | Per-tool-call timeout.                                                   |
+| Key                 | Default               | Description                                                              |
+| ------------------- | --------------------- | ------------------------------------------------------------------------ |
+| `apiKey`            | `''`                  | API key from `<url>/dashboard/settings/api-keys`. Empty mounts nothing.  |
+| `url`               | `https://sirawise.io` | Origin of your instance. Set this if you self-host.                      |
+| `serverName`        | `resume`              | Tool namespace. Tools reach the model as `mcp__<serverName>__<rawName>`. |
+| `toolCallTimeoutMs` | `60000`               | Per-tool-call timeout.                                                   |
 
-Every tool Reactive Resume publishes is exposed. Narrowing that set is not currently possible from a plugin: Harness's `ctx.tools.restrict()` requires an agent-scoped context, which a plugin context is not.
+Every tool Sirawise publishes is exposed. Narrowing that set is not currently possible from a plugin: Harness's `ctx.tools.restrict()` requires an agent-scoped context, which a plugin context is not.
 
 ### Self-hosted
 
@@ -42,7 +42,7 @@ Every tool Reactive Resume publishes is exposed. Narrowing that set is not curre
 
 ## What it does
 
-Bridges Reactive Resume's MCP server into `ctx.tools`, and contributes a system-prompt section covering the things models get wrong about resume editing: reading before patching, RFC 6902 path construction against the published schema, UUID-keyed section entries, and locked resumes.
+Bridges Sirawise's MCP server into `ctx.tools`, and contributes a system-prompt section covering the things models get wrong about resume editing: reading before patching, RFC 6902 path construction against the published schema, UUID-keyed section entries, and locked resumes.
 
 You could wire the bridge yourself with a raw `@deepseek-ai/dsh-mcp-client` row. What you cannot do that way is contribute the prompt section — that is what this package adds.
 
@@ -61,7 +61,7 @@ Against `0.2.0-rc.2` this package needed no source change: `dsh-mcp-client@0.2.0
 
 ## Development
 
-This package lives in the [Reactive Resume monorepo](https://github.com/reactive-resume/reactive-resume) at `packages/dsh-plugin`, next to `packages/mcp` — the server it bridges. `src/tool-names.test.ts` checks every tool the prompt guide names against `@reactive-resume/mcp/tool-names`, so renaming a tool breaks this package in the same pull request.
+This package lives in the [Sirawise monorepo](https://github.com/reactive-resume/reactive-resume) at `packages/dsh-plugin`, next to `packages/mcp` — the server it bridges. `src/tool-names.test.ts` checks every tool the prompt guide names against `@reactive-resume/mcp/tool-names`, so renaming a tool breaks this package in the same pull request.
 
 ```bash
 pnpm --filter dsh-plugin-reactive-resume test

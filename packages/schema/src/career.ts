@@ -35,6 +35,15 @@ const payPeriodSchema = z.enum(["hour", "month", "year"]);
 
 /** Preferences: what the user is looking for, used by discovery, Fit, Offers and the coach. */
 export const careerProfileDataSchema = z.object({
+	contact: z
+		.object({
+			name: z.string().max(200),
+			email: z.string().max(254),
+			phone: z.string().max(100),
+			location: z.string().max(300),
+		})
+		.optional(),
+	summary: z.string().max(4000).optional(),
 	targetRoles: z.array(z.string().trim().min(1).max(200)).max(20).default([]),
 	locations: z.array(z.string().trim().min(1).max(200)).max(20).default([]),
 	/** "What matters to you", in the user's own words. */

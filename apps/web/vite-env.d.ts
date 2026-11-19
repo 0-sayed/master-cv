@@ -7,3 +7,7 @@ declare module "*?url" {
 }
 declare module "@fontsource/*" {}
 declare module "@fontsource-variable/*" {}
+
+declare module "*.po" {
+	export const messages: import("@lingui/core").Messages;
+}

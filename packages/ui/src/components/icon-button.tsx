@@ -4,6 +4,7 @@ import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Kbd } from "@reactive-resume/ui/components/kbd";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
+import { useUiLabels } from "./ui-labels";
 
 type IconButtonProps = Omit<ButtonProps, "children" | "aria-label"> & {
 	icon: IconName;
@@ -18,7 +19,7 @@ type IconButtonProps = Omit<ButtonProps, "children" | "aria-label"> & {
 /** Icon-only buttons (back, close, more, undo, history, assistant, zoom) always carry a name and a tooltip. */
 function IconButton({
 	icon,
-	label,
+	label: providedLabel,
 	shortcut,
 	iconSize,
 	tooltipSide = "bottom",
@@ -26,9 +27,16 @@ function IconButton({
 	size = "icon",
 	...props
 }: IconButtonProps) {
+	const labels = useUiLabels();
+	const more = icon === "dots-three" || icon === "dots-three-vertical";
+	const label = more ? (labels.moreActions ?? "More actions") : providedLabel;
 	return (
 		<Tooltip>
-			<TooltipTrigger render={<Button variant={variant} size={size} aria-label={label} {...props} />}>
+			<TooltipTrigger
+				render={
+					<Button {...props} variant={more ? "ghost" : variant} size={more ? "icon-sm" : size} aria-label={label} />
+				}
+			>
 				<Icon name={icon} size={iconSize} />
 			</TooltipTrigger>
 			<TooltipContent side={tooltipSide}>

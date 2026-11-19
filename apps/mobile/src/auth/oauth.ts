@@ -8,11 +8,11 @@ import { Platform } from "react-native";
 export const scopes = ["openid", "profile", "email", "offline_access", "api:read", "api:write", "api:delete"];
 
 /** The host the app is associated with (Universal Links, App Links). The OAuth callback lands there for every server. */
-const appHost = "rxresu.me";
+const appHost = "sirawise.io";
 
 /**
  * The OAuth redirect URI, the same for every server (coordinator decision, M3-T1):
- * `https://rxresu.me/auth/native-callback` is the only https URL the app can receive (its associated domain, through
+ * `https://sirawise.io/auth/native-callback` is the only https URL the app can receive (its associated domain, through
  * Universal Links and App Links); a self-hosted host can never be one. DCR on any server accepts a public https
  * redirect. If the hand-off fails and the browser loads that page instead, the code is useless without the PKCE
  * verifier, and the fallback page (SV1) never logs it.
@@ -74,7 +74,7 @@ const discoveries = new Map<string, Discovery>();
 const requestTimeout = 10_000;
 
 /**
- * Why a server cannot be used: `unreachable` (no Reactive Resume answered), `outdated` (no app sign-in yet) or
+ * Why a server cannot be used: `unreachable` (no Sirawise answered), `outdated` (no app sign-in yet) or
  * `mismatch` (its metadata names another origin as issuer or endpoint).
  */
 export class ServerError extends Error {
@@ -102,7 +102,7 @@ export async function discover(origin: string): Promise<Discovery> {
 	if (cached) return cached;
 
 	const metadata = (await getJson(`${origin}/.well-known/oauth-authorization-server`).catch(async () => {
-		// A Reactive Resume server that predates app sign-in still answers its flags.
+		// A Sirawise server that predates app sign-in still answers its flags.
 		const isReactiveResume = await getJson(`${origin}/api/openapi/flags`).then(
 			() => true,
 			() => false,
@@ -195,12 +195,14 @@ export function parseAuthorizationResponse(url: string): Record<string, string> 
 
 /** The app's `client_id` on this server, if it registered there before. */
 export function getClientId(origin: string): Promise<string | null> {
-	return SecureStore.getItemAsync(storeKey("client", origin));
+	return SecureStore.getItemAsync(clientKey(origin));
 }
+
+const clientKey = (origin: string) => storeKey("client", `${origin}|${redirectUri(origin)}`);
 
 /** Forgets the client after the server answered `invalid_client`, so the next sign-in registers again. */
 export function forgetClient(origin: string): Promise<void> {
-	return SecureStore.deleteItemAsync(storeKey("client", origin));
+	return SecureStore.deleteItemAsync(clientKey(origin));
 }
 
 /** The cached `client_id`, or a new one from dynamic client registration (body: reports/S3.md §1). */
@@ -213,7 +215,7 @@ export async function registerClient(origin: string, discovery: Discovery): Prom
 		headers: { "content-type": "application/json", accept: "application/json" },
 		signal: AbortSignal.timeout(requestTimeout),
 		body: JSON.stringify({
-			client_name: Platform.OS === "ios" ? "Reactive Resume for iOS" : "Reactive Resume for Android",
+			client_name: Platform.OS === "ios" ? "Sirawise for iOS" : "Sirawise for Android",
 			redirect_uris: [redirectUri(origin)],
 			token_endpoint_auth_method: "none",
 			grant_types: ["authorization_code", "refresh_token"],
@@ -225,7 +227,7 @@ export async function registerClient(origin: string, discovery: Discovery): Prom
 	const body = (await response.json().catch(() => null)) as { client_id?: unknown } | null;
 	if (!response.ok || typeof body?.client_id !== "string")
 		throw new Error(`Client registration failed (${response.status})`);
-	await SecureStore.setItemAsync(storeKey("client", origin), body.client_id);
+	await SecureStore.setItemAsync(clientKey(origin), body.client_id);
 	return body.client_id;
 }
 

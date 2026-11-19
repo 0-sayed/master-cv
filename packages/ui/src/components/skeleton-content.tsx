@@ -94,18 +94,26 @@ export function SkeletonContent({
 		return (
 			<CollectionGrid>
 				{Array.from({ length: count }, (_, index) => (
-					<div key={index} className={documentCardLayout.surface({ library: true })}>
-						<div className={documentCardLayout.preview({ library: true })}>
-							<Skeleton className={documentCardLayout.page({ library: true })} />
+					<div key={index} data-slot="document-skeleton" className={documentCardLayout.surface({ library: true })}>
+						<div data-slot="document-skeleton-identity" className={documentCardLayout.cue}>
+							<Skeleton className={documentCardLayout.iconTile} />
+							<Skeleton className="h-lh w-1/2 type-metadata" />
 						</div>
-						<div className={documentCardLayout.details({ library: true })}>
-							<div className="grid min-w-0 flex-1 gap-0.5">
-								<Skeleton className="h-lh w-3/4 type-label" />
-								<Skeleton className="h-lh w-2/3 type-metadata" />
-							</div>
-							<Skeleton className={buttonVariants({ size: "icon-sm", variant: "ghost" })} />
+						<div data-slot="document-skeleton-title" className={documentCardLayout.title}>
+							<Skeleton className="h-lh w-full" />
 						</div>
-						<Skeleton className={documentCardLayout.action} />
+						<div className={documentCardLayout.controls}>
+							<Skeleton className={buttonVariants({ size: "icon-lg", variant: "ghost" })} />
+						</div>
+						<div data-slot="document-skeleton-metadata" className={documentCardLayout.metadata}>
+							<Skeleton className={badgeVariants()} />
+						</div>
+						<div className={documentCardLayout.application}>
+							<Skeleton className="h-lh w-3/4" />
+						</div>
+						<div data-slot="document-skeleton-date" className={documentCardLayout.date}>
+							<Skeleton className="h-lh w-24" />
+						</div>
 					</div>
 				))}
 			</CollectionGrid>
@@ -115,19 +123,38 @@ export function SkeletonContent({
 			<DataTable className="table-fixed">
 				<thead>
 					<tr className={documentCardLayout.headerRow}>
+						<th className="w-10 ps-3" />
 						<th className="h-10" />
+						<th className={documentCardLayout.typeColumn} />
+						<th className="w-1/4 px-2 max-sm:hidden" />
+						<th className="w-28 px-2 max-sm:hidden" />
+						<th className="w-12" />
 					</tr>
 				</thead>
 				<tbody>
 					{Array.from({ length: count }, (_, index) => (
 						<tr key={index} className={documentCardLayout.row}>
+							<td className="w-10 ps-3" />
 							<td className={documentCardLayout.cell}>
 								<span className={documentCardLayout.identity}>
-									<Skeleton className="h-lh w-1/3 type-body" />
+									<Skeleton className="size-4 shrink-0" />
+									<Skeleton className="h-lh w-1/3 type-body max-sm:h-[2lh]" />
 								</span>
-								<span className={documentCardLayout.mobileType}>
-									<Skeleton as="span" className={badgeVariants()} />
-								</span>
+								<div className={documentCardLayout.rowMetadata}>
+									<div className={documentCardLayout.metadata}>
+										<Skeleton className={badgeVariants({ variant: "neutral" })} />
+									</div>
+									<div className={documentCardLayout.mobileDetails}>
+										<Skeleton className="h-lh w-1/2" />
+										<Skeleton className="h-lh w-1/3" />
+									</div>
+								</div>
+							</td>
+							<td className={documentCardLayout.typeColumn} />
+							<td className={documentCardLayout.applicationCell} />
+							<td className={documentCardLayout.editedCell} />
+							<td className="w-10 pe-2 text-end">
+								<Skeleton className={buttonVariants({ size: "icon-sm", variant: "ghost" })} />
 							</td>
 						</tr>
 					))}
@@ -222,13 +249,22 @@ export function SkeletonContent({
 		);
 	if (shape === "insights")
 		return (
-			<div className="flex max-w-4xl flex-col gap-4">
-				<Skeleton className="h-56 rounded-xl" />
-				<div className="grid gap-4 sm:grid-cols-2">
-					<Skeleton className="h-26 rounded-xl" />
-					<Skeleton className="h-26 rounded-xl" />
+			<div className="grid gap-4">
+				<div className="insights-summary">
+					{Array.from({ length: 3 }, (_, index) => (
+						<div key={index}>
+							<SkeletonText lines={3} />
+						</div>
+					))}
 				</div>
-				<Skeleton className="h-80 rounded-xl" />
+				<div className="insights-grid">
+					{Array.from({ length: 4 }, (_, index) => (
+						<SectionCard key={index}>
+							<Skeleton className="h-lh w-2/3 type-section" />
+							<Skeleton className="h-56" />
+						</SectionCard>
+					))}
+				</div>
 			</div>
 		);
 	if (shape === "card")

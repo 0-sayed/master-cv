@@ -82,7 +82,7 @@ export const parseabilityChecks: readonly PdfCheck[] = [
 	check("ACROFORM_FIELDS", (context) => failIf(context.raw.metadata.hasAcroForm, "ACROFORM_FIELDS")),
 
 	check("NO_TEXT_LAYER", (context) =>
-		failIf(context.doc.charCount < THRESHOLDS.text.minCharacters, "NO_TEXT_LAYER", {
+		failIf(hasNoText(context), "NO_TEXT_LAYER", {
 			characters: context.doc.charCount,
 		}),
 	),
@@ -110,8 +110,6 @@ export const parseabilityChecks: readonly PdfCheck[] = [
 	}),
 
 	check("GARBLED_TEXT", (context) => {
-		if (hasNoText(context)) return skip("no-text");
-
 		const { quality } = context.semantics;
 
 		// The replacement character and the private-use area mean the same thing in every language.
@@ -121,6 +119,7 @@ export const parseabilityChecks: readonly PdfCheck[] = [
 		if (quality.puaRatio >= THRESHOLDS.quality.privateUseRatio) {
 			return fail("GARBLED_TEXT", { reason: "private-use", ratio: roundRatio(quality.puaRatio) });
 		}
+		if (hasNoText(context)) return skip("no-text");
 
 		// Everything below reads English word shapes, so it is only trustworthy on English text.
 		if (!quality.isEnglish) return skip("not-english");

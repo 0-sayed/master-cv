@@ -1,3 +1,5 @@
+import { MIN_READABLE_BODY_SIZE } from "@reactive-resume/schema/resume/font-policy";
+
 /**
  * Every number the checks fire on, in one place.
  *
@@ -12,8 +14,6 @@ export const THRESHOLDS = {
 	},
 
 	text: {
-		/** Below this many characters across the whole file, there is effectively no text layer. */
-		minCharacters: 40,
 		/** Below this many words, the document is too thin to have extracted properly. */
 		shortDocumentWords: 150,
 		lowDensityWordsPerPage: 90,
@@ -42,10 +42,10 @@ export const THRESHOLDS = {
 
 	layout: {
 		/** A gutter has to stay clear down almost the whole text column to count as one. */
-		gutterCoverage: 0.85,
+		gutterCoverage: 0.8,
 		gutterSevereCoverage: 0.9,
 		/** Both sides must carry real content: a wide margin with a stub in it is not a column. */
-		gutterSplitRatio: 0.25,
+		gutterSplitRatio: 0.1,
 		gutterPageShare: 0.5,
 		inversionRatio: 0.25,
 		inversionSevereRatio: 0.45,
@@ -59,7 +59,7 @@ export const THRESHOLDS = {
 		marginPoints: 8,
 		marginZonePoints: 18,
 		outsidePageTolerance: 1,
-		minBodyFontSize: 9,
+		minBodyFontSize: MIN_READABLE_BODY_SIZE,
 		lineSpacingRatio: 1.05,
 		maxDistinctFonts: 6,
 		densePageTextRatio: 0.55,

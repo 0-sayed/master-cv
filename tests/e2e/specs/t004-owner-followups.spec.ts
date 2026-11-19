@@ -91,8 +91,8 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await expect(
 				page.getByRole("dialog").and(page.locator('[data-slot="dialog-content"], [data-slot="sheet-content"]')),
 			).not.toBeVisible();
-			if (width === 1440) await page.getByRole("tab", { name: /^(Check|فحص|مراجعة)/u }).click();
-			else await page.getByRole("button", { name: /^(Check|فحص|مراجعة)/u }).click();
+			if (width === 1440) await page.getByRole("tab", { name: /^(Review|مراجعة)/u }).click();
+			else await page.getByRole("button", { name: /^(Review|مراجعة)/u }).click();
 			const check = page.getByRole("region", { name: ar ? "قابلية قراءة PDF" : "PDF readability" });
 			await expect(check.getByText(ar ? "لم يُفحص" : "Not checked", { exact: true })).toBeVisible();
 			await expect(check).not.toHaveAttribute("data-pdf-bytes-hash");

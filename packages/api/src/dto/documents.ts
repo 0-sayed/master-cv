@@ -1,10 +1,18 @@
 import z from "zod";
+import { applicationStatusSchema } from "@reactive-resume/schema/applications/data";
+import { templateSchema } from "@reactive-resume/schema/templates";
 import { paginationShape } from "../pagination";
 
 const documentTypeSchema = z.enum(["resume", "letter"]).describe("resume, or letter (a saved cover letter).");
 const documentRefSchema = z.object({
 	type: documentTypeSchema,
 	id: z.string().min(1).describe("The ID of the resume or cover letter."),
+});
+
+export const documentIdentitySchema = z.object({
+	template: templateSchema,
+	locale: z.string().min(1),
+	accent: z.string(),
 });
 
 const documentSchema = z.object({
@@ -18,8 +26,10 @@ const documentSchema = z.object({
 	trashedAt: z.date().nullable().describe("When the document moved to Trash; null while it's live."),
 	createdAt: z.date(),
 	updatedAt: z.date(),
+	metadata: documentIdentitySchema.nullable(),
+	letterStatus: z.enum(["draft", "sent"]).nullable(),
 	application: z
-		.object({ id: z.string(), company: z.string(), role: z.string() })
+		.object({ id: z.string(), company: z.string(), role: z.string(), status: applicationStatusSchema })
 		.nullable()
 		.describe("The job application this document was made for, if any."),
 });

@@ -1,12 +1,15 @@
-import { emptyReadiness, pdfReadiness, lintResumeForAts, type ReadinessResults } from "@reactive-resume/resume/ats";
+import { emptyReadiness, pdfReadiness, type ReadinessResults } from "@reactive-resume/resume/ats";
 import { getPdfArtifact, hashPdfInput, type PdfSnapshot } from "../../export/pdf-artifact";
 import { hasResumePreviewContent } from "../../preview/resume-thumbnail.shared";
-import { blobToPdfFile, runAtsCheck } from "@/features/ats-checker/run-ats-check";
+import { getCachedReport } from "./check-cache";
+import { blobToPdfFile, preloadAtsCheck, runAtsCheck } from "@/features/ats-checker/run-ats-check";
 /** Each dimension can finish even when another dimension fails. Raw text never leaves this call. */
 export async function evaluateReadiness(snapshot: PdfSnapshot, signal: AbortSignal, artifactFactory = getPdfArtifact) {
+	signal.throwIfAborted();
+	if (hasResumePreviewContent(snapshot.data)) void preloadAtsCheck().catch(() => {});
 	const source = { ...snapshot.identity, contentHash: await hashPdfInput(snapshot.data) };
 	signal.throwIfAborted();
-	const writingReport = lintResumeForAts(snapshot.data);
+	const writingReport = getCachedReport(snapshot.data);
 	const results: ReadinessResults = {
 		pdf: emptyReadiness("pdf"),
 		job: emptyReadiness("job"),

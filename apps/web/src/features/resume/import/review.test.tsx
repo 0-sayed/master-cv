@@ -325,10 +325,10 @@ it.each(["en-US", "ar-SA"])("places information before the source in DOM and tab
 	expect(panels.map((panel) => panel.id.endsWith("-information"))).toEqual([true, false]);
 	expect(screen.getAllByRole("tab")[0]).toHaveTextContent("Extracted information");
 });
-it("keeps muted source metadata actionable", () => {
+it("keeps source navigation quiet and opens the original page", () => {
 	importedReview(vi.fn(), { file: new File(["pdf"], "fixture.pdf"), pages: [{ page: 1, text: "Sara Example" }] });
 	const source = screen.getByRole("button", { name: "PDF page 1" });
-	expect(source).toHaveClass("type-metadata", "text-ink-3");
+	expect(source).toHaveAttribute("data-variant", "metadata-link");
 	fireEvent.click(source);
 	expect(screen.getByRole("tab", { name: "Original PDF" })).toHaveAttribute("aria-selected", "true");
 });

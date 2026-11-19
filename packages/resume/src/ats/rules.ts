@@ -12,6 +12,7 @@ import {
 import { templateLayouts } from "@reactive-resume/schema/templates";
 import { atsRuleSeverity } from "./catalog";
 import { normalizeSectionHeading, SECTION_TITLE_ALIASES } from "./section-aliases";
+import { ATS_TYPOGRAPHY_THRESHOLDS } from "./thresholds";
 import { isRenderedSection } from "./walk";
 
 export type RuleContext = {
@@ -34,9 +35,9 @@ const PERIOD_REQUIRED_TYPES = new Set<CustomSectionType>(["experience", "educati
 
 const PROSE_SECTION_TYPES = new Set<CustomSectionType>(["summary", "experience", "education", "projects", "volunteer"]);
 
-const MIN_BODY_FONT_SIZE = 9;
-const MIN_LINE_HEIGHT = 1.15;
-const MIN_PAGE_MARGIN = 8;
+const MIN_BODY_FONT_SIZE = ATS_TYPOGRAPHY_THRESHOLDS.bodyFontSize;
+const MIN_LINE_HEIGHT = ATS_TYPOGRAPHY_THRESHOLDS.lineHeight;
+const MIN_PAGE_MARGIN = ATS_TYPOGRAPHY_THRESHOLDS.pageMargin;
 
 function finding(code: AtsRuleCode, pointer: string, params?: AtsFindingParams): AtsRuleFinding {
 	return { code, severity: atsRuleSeverity(code), pointer, ...(params ? { params } : {}) };

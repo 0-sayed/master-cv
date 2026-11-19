@@ -36,7 +36,9 @@ test("language editing remains discoverable on a touch screen", async ({ authPag
 			}),
 		).toBeOK();
 		await page.goto("/dashboard/career/information?locale=ar-SA");
-		const edit = page.getByRole("button", { name: "تحرير الإدخال", exact: true }).filter({ hasText: "العربية" });
+		const edit = page
+			.getByRole("button", { name: "تعديل العربية", exact: true })
+			.and(page.locator("[data-career-edit]"));
 		await expect(edit).toBeEnabled();
 		await expect(edit).toHaveCSS("opacity", "1");
 		await edit.scrollIntoViewIfNeeded();

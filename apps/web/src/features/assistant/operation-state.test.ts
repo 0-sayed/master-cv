@@ -52,3 +52,9 @@ it("distinguishes disabled processing, outage, reservations and nonrenewing exha
 	expect(confirmedCancellation({ state: "waiting_review" })).toBe(false);
 	expect(confirmedCancellation({ state: "cancelled" })).toBe(true);
 });
+
+it("keeps unlimited accounts ready without confusing them with loading or exhaustion", () => {
+	expect(assistantAvailability({ state: "ready", reason: null }, null, 0)).toBe("ready");
+	expect(assistantAvailability({ state: "ready", reason: null }, undefined, 0)).toBe("loading");
+	expect(assistantAvailability({ state: "unavailable", reason: "WORKER_UNAVAILABLE" }, null)).toBe("unavailable");
+});

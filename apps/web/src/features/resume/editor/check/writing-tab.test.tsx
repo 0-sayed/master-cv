@@ -45,7 +45,7 @@ it("announces availability loading", () => {
 	const status = screen.getByRole("status");
 	expect(status.textContent).toBe("Loading assistant availability…");
 });
-it("renders the nonrenewing Start limit without a plans action", () => {
+it("renders the current allowance guidance without a plans action", () => {
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	render(
 		<I18nProvider i18n={i18n}>
@@ -54,7 +54,7 @@ it("renders the nonrenewing Start limit without a plans action", () => {
 	);
 	expect(
 		screen.getByText(
-			"You have used all your free assistant operations. They do not renew. You can continue editing manually and download a PDF.",
+			"You used all available assistant operations. Your draft is kept. Review your allowance in account settings.",
 		),
 	).toBeDefined();
 	expect(screen.queryByRole("button", { name: /plans/i })).toBeNull();

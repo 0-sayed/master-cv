@@ -2,6 +2,7 @@ import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { loginViaUi } from "../fixtures/auth";
 import { seedExistingResume } from "../fixtures/existing-inventory";
 import { createSampleResumeFromDashboard, openSidebarSection } from "../fixtures/resume";
+import { openReview } from "../fixtures/reviewable-ai";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
@@ -31,7 +32,10 @@ test("history restore survives sign-out and fresh sign-in without changing the o
 	await page.getByRole("textbox", { name: "Name this version", exact: true }).fill("Before local change");
 	await page.getByRole("button", { name: "Save", exact: true }).click();
 	await expect(page.getByRole("button", { name: /^Before local change/u })).toBeVisible();
-	await page.keyboard.press("Escape");
+	await page
+		.getByRole("complementary", { name: "Export and history" })
+		.getByRole("button", { name: "Close", exact: true })
+		.click();
 	await page.getByLabel("Full name", { exact: true }).fill("Latest CV-only name");
 	await expect
 		.poll(async () => (await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.basics.name)
@@ -39,10 +43,14 @@ test("history restore survives sign-out and fresh sign-in without changing the o
 	await page.getByRole("button", { name: "History", exact: true }).click();
 	await page.getByRole("button", { name: /^Before local change/u }).click();
 	await page.getByRole("button", { name: "Restore this version", exact: true }).click();
+	await page.getByRole("alertdialog").getByRole("button", { name: "Restore", exact: true }).click();
 	await expect
 		.poll(async () => (await (await page.request.get(`/api/openapi/resumes/${id}`)).json()).data.basics.name)
 		.toBe("Original reviewed name");
-	await page.keyboard.press("Escape");
+	await page
+		.getByRole("complementary", { name: "Export and history" })
+		.getByRole("button", { name: "Close", exact: true })
+		.click();
 	expect((await (await page.request.get(`/api/openapi/resumes/${otherId}`)).json()).data).toEqual(otherData);
 	expect(await (await page.request.get("/api/openapi/career/master")).json()).toEqual(master);
 	const logout = await page.request.post("/api/auth/sign-out", {
@@ -115,10 +123,7 @@ test("ignored writing notes can be restored after reloading on mobile", async ({
 	await page.getByRole("button", { name: /^Write from scratch/u }).click();
 	await expect(page).toHaveURL(/\/builder\//);
 	const id = new URL(page.url()).pathname.split("/").at(-1);
-	await page
-		.getByRole("navigation", { name: "Editor views" })
-		.getByRole("button", { name: "Check", exact: true })
-		.click();
+	await openReview(page, 390, "writing");
 	const key = "MISSING_EMAIL:/basics/email";
 	const note = page.locator(`[data-issue-card="${key}"]`);
 	await note.getByRole("button", { name: "Keep as is", exact: true }).click();
@@ -129,10 +134,7 @@ test("ignored writing notes can be restored after reloading on mobile", async ({
 		)
 		.toContain(key);
 	await page.reload();
-	await page
-		.getByRole("navigation", { name: "Editor views" })
-		.getByRole("button", { name: "Check", exact: true })
-		.click();
+	await openReview(page, 390, "writing");
 	await expect(note).not.toBeVisible();
 	await page.getByRole("button", { name: "Show again (1)", exact: true }).click();
 	await expect(note).toBeVisible();
@@ -160,24 +162,19 @@ for (const locale of ["en-US", "ar-SA"] as const) {
 		data.basics.website.url = "example.com";
 		expect((await page.request.put(`/api/openapi/resumes/${id}`, { data: { data } })).ok()).toBe(true);
 		await page.goto(`/builder/${id}?locale=${locale}`);
-		await page
-			.getByRole("navigation", { name: ar ? "طرق عرض المحرر" : "Editor views" })
-			.getByRole("button", { name: ar ? "فحص" : "Check", exact: true })
-			.click();
+		await openReview(page, 390, "writing");
 		const issue = page.locator('[data-issue-card="MALFORMED_URL:/basics/website/url"]');
-		await issue.getByRole("button", { name: ar ? "عرض على الصفحة" : "Show on page", exact: true }).click();
-		await page.getByRole("button", { name: /https:\/\/example.com/ }).click();
+		await issue.getByRole("button", { name: ar ? "إصلاح" : "Fix", exact: true }).click();
 		const dialog = page.getByRole("dialog", { name: ar ? "راجع هذا التغيير" : "Review this change", exact: true });
-		await expect(dialog.getByText("example.com", { exact: true })).toBeVisible();
-		await expect(dialog.getByText("https://example.com", { exact: true })).toBeVisible();
+		await expect(dialog.locator("[data-review-diff] del")).toHaveText("example.com");
+		await expect(dialog.locator("[data-review-diff] ins")).toHaveText("https://example.com");
 		expect((await read()).basics.website.url).toBe("example.com");
 		await settleScreen(page);
 		await page.screenshot({ path: testInfo.outputPath("mobile-fix-review.png") });
 		await dialog.getByRole("button", { name: ar ? "إلغاء" : "Cancel", exact: true }).click();
 		await expect(dialog).not.toBeVisible();
 		expect((await read()).basics.website.url).toBe("example.com");
-		await issue.getByRole("button", { name: ar ? "عرض على الصفحة" : "Show on page", exact: true }).click();
-		await page.getByRole("button", { name: /https:\/\/example.com/ }).click();
+		await issue.getByRole("button", { name: ar ? "إصلاح" : "Fix", exact: true }).click();
 		await dialog.getByRole("button", { name: ar ? "قبول التغيير" : "Accept change", exact: true }).click();
 		await expect(dialog).not.toBeVisible();
 		await expect.poll(async () => (await read()).basics.website.url).toBe("https://example.com");

@@ -4,7 +4,7 @@ import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useMutation } from "@tanstack/react-query";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	Dialog,
@@ -21,14 +21,19 @@ import {
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { FieldError } from "@reactive-resume/ui/components/field-error";
-import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
+import { NativeSelect } from "@reactive-resume/ui/components/native-select";
+import { SectionCard, SectionCardTitle } from "@reactive-resume/ui/components/section-card";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
+import { presentActivity } from "../../activity-presentation";
 import { interviewKindOf, interviewTypeLabel } from "../../interviews";
 import { getStageColor, getStageLabel } from "../../stages";
 import { useInvalidateApplications } from "../../use-application-actions";
+import { useApplicationNotes } from "../application-notes";
+import { NoteComposer } from "./note-composer";
 import { useClosingValue } from "@/hooks/use-closing-value";
 import { useConfirm } from "@/hooks/use-confirm";
 import { formatInterfaceDate } from "@/libs/locale";
@@ -56,8 +61,9 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 	const invalidate = useInvalidateApplications();
 	const confirm = useConfirm();
 	const id = useId();
-	const [note, setNote] = useState("");
-	const noteValidation = useSubmitValidation({ [`${id}-note`]: !note.trim() ? t`Enter a note.` : undefined });
+	const legacy = useApplicationNotes(application);
+	const [filter, setFilter] = useState<"all" | "note" | "interview" | "stage">("all");
+	const [mode, setMode] = useState<"new" | "legacy">(() => (legacy.status === "acknowledged" ? "new" : "legacy"));
 	const [editing, setEditing] = useState<{ entry: ApplicationTimelineEntry; date: string; text: string } | null>(null);
 	const editValidation = useSubmitValidation({
 		[`${id}-date`]: editing && !editing.date ? t`Choose a date.` : undefined,
@@ -67,11 +73,6 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 	const [shownEdit, onEditOpenChangeComplete] = useClosingValue(editing);
 
 	const onError = () => toast.add({ type: "error", description: t`Couldn't update the timeline. Try again.` });
-	const addNote = useMutation({
-		...orpc.applications.addNote.mutationOptions(),
-		onSuccess: () => invalidate(application.id),
-		onError,
-	});
 	const updateEntry = useMutation({
 		...orpc.applications.updateTimelineEntry.mutationOptions(),
 		onSuccess: () => {
@@ -88,12 +89,20 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 
 	const sorted = [...application.activity].sort(byNewest);
 	const anchorId = sorted.find((entry) => entry.type === "stage" && entry.stage === application.status)?.id;
-	const formatDate = (value: Date | string, withTime: boolean) =>
+	const [now, setNow] = useState(() => new Date());
+	useEffect(() => {
+		const timer = setInterval(() => setNow(new Date()), 60000);
+		return () => clearInterval(timer);
+	}, []);
+	const presentation = presentActivity(application.activity, now).filter(
+		({ entry }) => filter === "all" || entry.type === filter,
+	);
+	const formatDate = (value: Date | string, withTime: boolean, timezone?: string) =>
 		formatInterfaceDate(value, i18n.locale, {
 			month: "short",
 			day: "numeric",
 			// Stage and note entries are whole days, stored at noon UTC.
-			...(withTime ? { hour: "2-digit", minute: "2-digit" } : { timeZone: "UTC" }),
+			...(withTime ? { hour: "2-digit", minute: "2-digit", timeZone: timezone } : { timeZone: "UTC" }),
 		});
 
 	const describe = (entry: ApplicationTimelineEntry) => {
@@ -104,86 +113,127 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 		return { dot: kind?.color ?? "var(--ink-3)", text: t`${interviewTypeLabel(entry.kind)} interview` };
 	};
 
-	const submit = () => {
-		const text = note.trim();
-		if (!noteValidation.validate() || addNote.isPending) return;
-		addNote.mutate(
-			{ id: application.id, text },
-			{
-				onSuccess: () => {
-					setNote("");
-					noteValidation.reset();
-				},
-			},
-		);
-	};
-
 	return (
-		<section aria-labelledby="application-activity" className="grid gap-2">
-			<h3 id="application-activity" className="text-xs font-semibold text-ink-3 uppercase">
+		<SectionCard aria-labelledby="application-activity">
+			<SectionCardTitle as="h2" id="application-activity" tabIndex={-1} className="scroll-mt-(--app-toolbar-height)">
 				<Trans>Activity</Trans>
-			</h3>
-			<form
-				noValidate
-				className="grid grid-cols-[1fr_auto] gap-1.5"
-				onSubmit={(event) => {
-					event.preventDefault();
-					submit();
-				}}
+			</SectionCardTitle>
+			<NativeSelect
+				fit="content"
+				aria-label={t`Activity type`}
+				value={filter}
+				onChange={(event) => setFilter(event.target.value as typeof filter)}
 			>
-				<Input
-					id={`${id}-note`}
-					aria-required
-					aria-invalid={!!noteValidation.errors[`${id}-note`]}
-					aria-describedby={`${id}-note-error`}
-					aria-label={t`Add a note`}
-					placeholder={t`Add a note…`}
-					value={note}
-					disabled={addNote.isPending}
-					onChange={(event) => setNote(event.target.value)}
-				/>
-				<Button type="submit" variant="secondary" disabled={addNote.isPending} loading={addNote.isPending}>
-					<Trans>Add</Trans>
-				</Button>
-				<FieldError id={`${id}-note-error`} className="col-span-full">
-					{noteValidation.errors[`${id}-note`]}
-				</FieldError>
-			</form>
+				<option value="all">{t`All activity`}</option>
+				<option value="note">{t`Notes`}</option>
+				<option value="interview">{t`Interviews`}</option>
+				<option value="stage">{t`Stages`}</option>
+			</NativeSelect>
 
-			<ol className="grid">
-				{sorted.map((entry) => {
+			<NoteComposer application={application} legacy={legacy} mode={mode} onModeChange={setMode} />
+			{(filter === "all" || filter === "note") && (application.notes || legacy.value) && (
+				<article className="grid gap-2 border-b border-line-1 py-3">
+					<div className="flex items-center justify-between gap-2">
+						<h3 className="type-label">
+							<Trans>Application note</Trans>
+						</h3>
+						<Button variant="secondary" size="sm" onClick={() => setMode("legacy")}>
+							<Trans>Edit application note</Trans>
+						</Button>
+					</div>
+					<p dir="auto" className="type-body wrap-anywhere whitespace-pre-wrap">
+						{application.notes}
+					</p>
+				</article>
+			)}
+
+			{presentation.length === 0 && (
+				<div className="grid gap-2 py-3">
+					<p className="type-body text-ink-2">
+						{filter !== "all" ? <Trans>No activity matches this filter</Trans> : <Trans>No activity yet</Trans>}
+					</p>
+					{filter !== "all" && (
+						<Button variant="secondary" onClick={() => setFilter("all")}>
+							<Trans>Clear filter</Trans>
+						</Button>
+					)}
+				</div>
+			)}
+			<ol className="grid divide-y divide-line-1">
+				{presentation.map(({ entry, upcoming, fromStage }) => {
 					const { dot, text } = describe(entry);
 					return (
-						<li key={entry.id} className="group flex items-start gap-2.5 py-1.5 text-sm">
-							<span aria-hidden="true" className="mt-1.5 size-2 shrink-0 rounded-full" style={{ background: dot }} />
-							{entry.type === "interview" ? (
-								<button
-									type="button"
-									onClick={() => onOpenInterview(entry)}
-									className="min-w-0 flex-1 text-start hover:underline"
-								>
-									{text}
-									{entry.location ? <span className="text-ink-3"> · {entry.location}</span> : null}
-								</button>
-							) : (
-								<span className="min-w-0 flex-1 break-words whitespace-pre-wrap">{text}</span>
-							)}
-							<span className="shrink-0 text-xs leading-5 text-ink-3">
-								{formatDate(entry.at, entry.type === "interview")}
-							</span>
+						<li key={entry.id} data-entry-id={entry.id} className="flex items-start gap-3 py-4 type-body">
+							<span aria-hidden="true" className="mt-2 size-2 shrink-0 rounded-full" style={{ background: dot }} />
+							<div className="grid min-w-0 flex-1 gap-1">
+								{entry.type === "note" ? (
+									<>
+										<h3 className="type-label">
+											<Trans>Note</Trans>
+										</h3>
+										<p dir="auto" className="wrap-anywhere whitespace-pre-wrap">
+											{entry.text}
+										</p>
+									</>
+								) : entry.type === "stage" ? (
+									<h3 className="type-label">
+										{fromStage ? (
+											<>
+												{getStageLabel(fromStage)} <span aria-hidden="true">→</span> {getStageLabel(entry.stage)}
+											</>
+										) : (
+											text
+										)}
+									</h3>
+								) : (
+									<>
+										<Button variant="secondary" className="justify-start" onClick={() => onOpenInterview(entry)}>
+											{text}
+										</Button>
+										{upcoming && (
+											<span className="type-metadata text-accent-text">
+												<Trans>Upcoming interview</Trans>
+											</span>
+										)}
+									</>
+								)}
+								<time dateTime={new Date(entry.at).toISOString()} className="type-metadata text-ink-3">
+									{formatDate(
+										entry.at,
+										entry.type === "interview",
+										entry.type === "interview" ? entry.timezone : undefined,
+									)}
+									{entry.type === "interview" && (
+										<>
+											{" "}
+											· {entry.timezone} · {entry.durationMinutes} <Trans>minutes</Trans>
+										</>
+									)}
+								</time>
+								{entry.type === "interview" && (
+									<>
+										<p dir="auto" className="type-metadata text-ink-2">
+											{entry.location}
+										</p>
+										{entry.participants.length > 0 && (
+											<p dir="auto" className="type-metadata text-ink-2">
+												{entry.participants
+													.map((participant) => [participant.name, participant.role].filter(Boolean).join(" · "))
+													.join(" / ")}
+											</p>
+										)}
+										{entry.notes && (
+											<p dir="auto" className="type-body wrap-anywhere whitespace-pre-wrap">
+												{entry.notes}
+											</p>
+										)}
+									</>
+								)}
+							</div>
 							<DropdownMenu>
 								<DropdownMenuTrigger
-									render={
-										<Button
-											size="icon-xs"
-											variant="ghost"
-											aria-label={t`Options for this entry`}
-											className="-my-1 text-ink-3 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 data-[popup-open]:opacity-100"
-										/>
-									}
-								>
-									<Icon name="dots-three" size={16} />
-								</DropdownMenuTrigger>
+									render={<IconButton icon="dots-three" label={t`Options for this entry`} className="text-ink-3" />}
+								/>
 								<DropdownMenuContent align="end">
 									{entry.type === "interview" ? (
 										<DropdownMenuItem onClick={() => onOpenInterview(entry)}>
@@ -204,7 +254,7 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 									)}
 									<DropdownMenuItem
 										variant="destructive"
-										disabled={entry.id === anchorId}
+										disabled={entry.id === anchorId || deleteEntry.isPending}
 										onClick={async () => {
 											const confirmed = await confirm(t`Delete this entry?`, {
 												description: t`It's removed from the timeline for good.`,
@@ -254,6 +304,7 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 						>
 							{shownEdit.entry.type === "note" && (
 								<Textarea
+									dir="auto"
 									id={`${id}-text`}
 									aria-required
 									aria-invalid={!!editValidation.errors[`${id}-text`]}
@@ -299,6 +350,6 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-		</section>
+		</SectionCard>
 	);
 }

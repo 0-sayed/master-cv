@@ -1,7 +1,6 @@
 import type { Application } from "../types";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Button } from "@reactive-resume/ui/components/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -13,6 +12,7 @@ import {
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { cn } from "@reactive-resume/utils/style";
 import { CLOSED_REASONS, getClosedReasonLabel, getStageColor, getStageLabel, PIPELINE } from "../stages";
 import { useApplicationActions } from "../use-application-actions";
@@ -42,18 +42,15 @@ export function ApplicationActionsMenu({ application, className }: ApplicationAc
 			<DropdownMenu>
 				<DropdownMenuTrigger
 					render={
-						<Button
-							size="icon-xs"
-							variant="ghost"
-							aria-label={t`Options for ${application.role} at ${application.company}`}
+						<IconButton
+							icon="dots-three"
+							label={t`Options for ${application.role} at ${application.company}`}
 							onClick={stop}
 							onPointerDown={stop}
 							className="text-ink-3"
 						/>
 					}
-				>
-					<Icon name="dots-three" size={18} />
-				</DropdownMenuTrigger>
+				/>
 				<DropdownMenuContent align="end" className="w-48" onClick={stop}>
 					<DropdownMenuSub>
 						<DropdownMenuSubTrigger>

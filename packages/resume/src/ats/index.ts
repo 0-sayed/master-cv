@@ -96,7 +96,7 @@ export type { AtsRuleCode } from "./catalog";
 export type { AtsCategory, AtsCategoryScore, AtsFinding, AtsFindingParams, AtsReport, AtsSeverity } from "./types";
 export type { SectionPlacement, WalkedItem, WalkedSection } from "./walk";
 export { ATS_CATEGORIES, ATS_RULE_CODES, atsRuleCategory } from "./catalog";
-export { normalizeSectionHeading } from "./section-aliases";
+export { normalizeSectionHeading, standardSectionHeadings, suggestSectionHeading } from "./section-aliases";
 export { analyzeJobTerms, buildJobPassages, JOB_NORMALIZATION_VERSION, JOB_RUBRIC_VERSION } from "./job-evidence";
 
 export { emptyReadiness, pdfReadiness, jobReadiness, invalidateReadiness } from "./readiness";
@@ -110,3 +110,7 @@ export type {
 	ReadinessResult,
 	ReadinessResults,
 } from "./readiness";
+
+export { atsRuleSeverity } from "./catalog";
+export { ATS_TYPOGRAPHY_THRESHOLDS } from "./thresholds";
+export { hasBlankHeadingChange } from "./fix-validation";

@@ -51,3 +51,14 @@ describe("strict write bounds", () => {
 		});
 	});
 });
+
+it("rejects clearing an explicit heading while preserving legacy renderer defaults", () => {
+	const before = structuredClone(defaultResumeData);
+	before.sections.experience.title = "قسم إضافي 1";
+	const after = structuredClone(before);
+	after.sections.experience.title = "  ";
+	expect(() => parseWritableResumeData(after, before)).toThrowError(expect.objectContaining({ code: "BAD_REQUEST" }));
+	expect(() => parseWritableResumeData(defaultResumeData, defaultResumeData)).not.toThrow();
+	after.sections.experience.title = "الخبرة";
+	expect(parseWritableResumeData(after, before).sections.experience.title).toBe("الخبرة");
+});

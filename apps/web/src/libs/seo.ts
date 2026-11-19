@@ -1,4 +1,5 @@
-import { t } from "@lingui/core/macro";
+import { i18n } from "@lingui/core";
+import { getProductName } from "@reactive-resume/utils/brand";
 import { getPublicCopy } from "@/features/public-copy";
 
 /**
@@ -7,7 +8,7 @@ import { getPublicCopy } from "@/features/public-copy";
  * what changes as the visitor navigates: the title, the description and, where needed, `noindex`.
  */
 
-const appName = "Master CV";
+const appName = () => getProductName(i18n.locale);
 
 export const createNoindexFollowMeta = () => ({ name: "robots", content: "noindex, follow" });
 
@@ -33,7 +34,7 @@ export const serializeJsonLd = (data: Record<string, unknown>) =>
 /** The homepage's title and description in the active locale. The prerendered page and the route share them. */
 export type PublicPageId = "home" | "privacy-and-terms" | "help";
 export const getPublicPageMeta = (page: PublicPageId) => ({
-	title: `${appName} — ${getPublicCopy(page === "home" ? "landing.hero.title" : page === "help" ? "public.meta.help.title" : "legal.page.title")}`,
+	title: `${appName()} — ${getPublicCopy(page === "home" ? "landing.hero.title" : page === "help" ? "public.meta.help.title" : "legal.page.title")}`,
 	description: getPublicCopy(
 		page === "home"
 			? "public.meta.home.description"
@@ -43,10 +44,3 @@ export const getPublicPageMeta = (page: PublicPageId) => ({
 	),
 });
 export const getHomepageMeta = () => getPublicPageMeta("home");
-
-/** The ATS checker's title and description in the active locale. The prerendered page and the route share them. */
-export const getAtsCheckerMeta = () => ({
-	title: `${t`Free ATS resume checker`} — ${appName}`,
-	// Keep under ~120 characters so Google's mobile SERP snippet is not truncated at 3 lines.
-	description: t`Checking requires an account. Review PDF readability and writing notes separately in your private workspace.`,
-});

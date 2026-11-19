@@ -173,14 +173,13 @@ function DownloadButtons({ compact, iconOnly }: { compact: boolean; iconOnly: bo
 					iconOnly={iconOnly}
 				/>
 			</Button>
-			<Button
+			<IconButton
 				size={iconOnly ? "icon" : "toolbar-icon"}
 				disabled={download.busy}
-				aria-label={t`More download formats`}
+				label={t`More download formats`}
 				onClick={() => setShareTab("download")}
-			>
-				<Icon name="caret-down" />
-			</Button>
+				icon="caret-down"
+			/>
 		</ButtonGroup>
 	);
 }

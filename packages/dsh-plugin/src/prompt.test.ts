@@ -2,6 +2,11 @@ import type { PromptSection } from "@deepseek-ai/dsh-system-prompt";
 import { expect, it, vi } from "vite-plus/test";
 import { Config } from "./config";
 import { apply } from "./index";
+import { buildPatchGuide } from "./prompt";
+
+it("identifies the product in the assistant guide", () => {
+	expect(buildPatchGuide("rr")).toMatch(/^## Sirawise\n/);
+});
 
 function fakeContext() {
 	return {

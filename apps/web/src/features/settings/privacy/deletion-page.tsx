@@ -97,7 +97,7 @@ export function DeletionPage() {
 				}
 			>
 				<Trans context="privacy.deletion.appleHint">
-					If you used Sign in with Apple, Master CV may remain listed in your Apple Account. You can remove it there.
+					If you used Sign in with Apple, Sirawise may remain listed in your Apple Account. You can remove it there.
 				</Trans>
 			</PrivacyNotice>
 			<SettingsSection title={<Trans context="privacy.deletion.retentionTitle">What may remain</Trans>}>

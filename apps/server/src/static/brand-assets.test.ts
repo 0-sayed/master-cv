@@ -4,6 +4,10 @@ import sharp from "sharp";
 
 const publicRoot = new URL("../../../web/public/", import.meta.url);
 
+test("favicon title uses the product name", async () => {
+	expect(await readFile(new URL("favicon.svg", publicRoot), "utf8")).toContain("<title>Sirawise</title>");
+});
+
 test("install icons preserve the approved mark and maskable ink stays inside its safe circle", async () => {
 	for (const [name, size, scale] of [
 		["pwa-64x64.png", 64, 0.8],
@@ -54,7 +58,7 @@ test("every ICO size renders the approved square mark", async () => {
 	}
 });
 
-test("legacy logo URLs also resolve to the approved Master CV mark", async () => {
+test("legacy logo URLs also resolve to the approved Sirawise mark", async () => {
 	for (const theme of ["light", "dark"]) {
 		const approved = await readFile(new URL(`master-cv/${theme}.svg`, publicRoot), "utf8");
 		for (const family of ["icon", "logo"]) {

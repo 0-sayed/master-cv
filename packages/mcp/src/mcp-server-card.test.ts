@@ -16,9 +16,9 @@ describe("buildMcpServerCard", () => {
 	});
 });
 
-it("uses the installation's Master CV identity and icons", () => {
+it("uses the installation's Sirawise identity and icons", () => {
 	const info = buildMcpServerInfo("1.0.0", "https://cv.example.test/");
-	expect(info.title).toBe("Master CV");
+	expect(info.title).toBe("Sirawise");
 	expect(info.websiteUrl).toBe("https://cv.example.test");
 	expect(info.icons.map((icon) => icon.src)).toEqual([
 		"https://cv.example.test/master-cv/light.svg",

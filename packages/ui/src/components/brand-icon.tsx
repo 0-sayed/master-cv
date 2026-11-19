@@ -1,7 +1,9 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { getProductName } from "@reactive-resume/utils/brand";
 import { cn } from "@reactive-resume/utils/style";
 
 type Props = React.ComponentProps<"img"> & {
+	locale?: string;
 	variant?: "logo" | "icon";
 	approveOnMount?: boolean;
 	/** A single checkmark entrance; never replay it on hover or focus. */
@@ -13,6 +15,7 @@ type Props = React.ComponentProps<"img"> & {
 };
 
 export function BrandIcon({
+	locale = "en-US",
 	variant = "logo",
 	className,
 	alt,
@@ -87,13 +90,13 @@ export function BrandIcon({
 		>
 			<img
 				src={"/master-cv/dark.svg"}
-				alt={alt ?? (variant === "icon" ? "Master CV" : "")}
+				alt={variant === "icon" ? (alt ?? getProductName(locale)) : ""}
 				className={cn("brand-dark size-8 max-w-none shrink-0 object-contain", className)}
 				{...props}
 			/>
 			<img
 				src={"/master-cv/light.svg"}
-				alt={alt ?? (variant === "icon" ? "Master CV" : "")}
+				alt={variant === "icon" ? (alt ?? getProductName(locale)) : ""}
 				className={cn("brand-light size-8 max-w-none shrink-0 object-contain", className)}
 				{...props}
 			/>
@@ -131,10 +134,28 @@ export function BrandIcon({
 	);
 	if (variant === "icon") return mark;
 	return (
-		<span dir="ltr" className="inline-flex shrink-0 items-center gap-2 py-1.5">
+		<span dir="ltr" className="inline-flex shrink-0 items-center gap-2">
 			{mark}
-			<span lang="en" className="type-section whitespace-nowrap" style={{ fontFamily: '"Noto Sans", sans-serif' }}>
-				Master CV
+			<span data-slot="brand-wordmark" dir={locale.startsWith("ar") ? "rtl" : "ltr"} className="grid whitespace-nowrap">
+				<span
+					data-slot="brand-name"
+					lang={locale}
+					className="type-section"
+					style={{ fontFamily: '"Noto Sans", sans-serif' }}
+				>
+					{getProductName(locale)}
+				</span>
+				{locale.startsWith("ar") && (
+					<span
+						data-slot="brand-secondary"
+						lang="en"
+						dir="ltr"
+						aria-hidden="true"
+						className="text-right type-metadata text-ink-2"
+					>
+						Sirawise
+					</span>
+				)}
 			</span>
 		</span>
 	);

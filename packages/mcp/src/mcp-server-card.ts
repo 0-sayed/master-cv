@@ -10,10 +10,10 @@ export function buildMcpServerInfo(version: string, appUrl: string) {
 	return {
 		name: "reactive-resume",
 		version,
-		title: "Master CV",
+		title: "Sirawise",
 		websiteUrl: origin,
 		description:
-			"Master CV is a free and open-source resume builder. Use this MCP server to interact with your resume using an LLM of your choice.",
+			"Sirawise is a free and open-source resume builder. Use this MCP server to interact with your resume using an LLM of your choice.",
 		icons: [
 			{ src: `${origin}/master-cv/light.svg`, mimeType: "image/svg+xml", theme: "light" as const },
 			{ src: `${origin}/master-cv/dark.svg`, mimeType: "image/svg+xml", theme: "dark" as const },

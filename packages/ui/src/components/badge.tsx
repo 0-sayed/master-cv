@@ -11,7 +11,9 @@ const badgeVariants = cva(
 		variants: {
 			shape: {
 				pill: "type-metadata",
+				tag: "h-auto min-h-5 max-w-full shrink type-metadata wrap-anywhere whitespace-normal",
 				circle: "grid size-6 place-items-center gap-0 border-2 p-0 type-count tabular-nums",
+				dot: "size-1.5 min-w-0 border-0 p-0",
 			},
 			variant: {
 				neutral: "bg-sunken text-ink-2",
@@ -36,23 +38,25 @@ function CountBadge(props: React.ComponentProps<typeof Badge>) {
 	return <Badge variant="accent" {...props} className={cn("h-6 font-semibold tabular-nums", props.className)} />;
 }
 
-type SidebarCountBadgeProps = { count: number; current?: boolean; rail?: boolean };
+type SidebarCountBadgeProps = { variant?: "accent" | "neutral"; count: number; current?: boolean; rail?: boolean };
 
 /** Sidebar totals share one compact size; the full count lives in the navigation link's name. */
-function SidebarCountBadge({ count, current = false, rail = false }: SidebarCountBadgeProps) {
+function SidebarCountBadge({ count, current = false, rail = false, variant = "accent" }: SidebarCountBadgeProps) {
 	if (count <= 0) return null;
 	return (
-		<span
+		<Badge
+			variant={variant}
+			shape={rail ? "dot" : "pill"}
 			data-slot="sidebar-count-badge"
 			aria-hidden="true"
 			className={cn(
-				"sidebar-count-badge",
-				current ? "bg-accent text-on-accent" : "bg-accent-soft text-accent-text",
-				rail && "sidebar-count-corner",
+				rail ? "sidebar-count-corner" : "sidebar-count-badge",
+				variant !== "neutral" && (current ? "bg-accent text-on-accent" : "bg-accent-soft text-accent-text"),
+				rail && (variant === "neutral" ? "bg-ink-3" : "bg-accent"),
 			)}
 		>
-			<bdi dir="ltr">{count > 99 ? "99+" : String(count)}</bdi>
-		</span>
+			{!rail && <bdi dir="ltr">{count > 99 ? "99+" : String(count)}</bdi>}
+		</Badge>
 	);
 }
 

@@ -1,20 +1,20 @@
 // @vitest-environment happy-dom
 import { expect, it } from "vite-plus/test";
 import { syncPublicSeo } from "./public-seo";
-it("preserves the checker image and application metadata after client navigation", () => {
+it("uses the Sirawise image and page metadata after client navigation", () => {
 	const dispose = syncPublicSeo({
-		page: "ats-checker",
-		pageUrl: "https://resume.example/ats-checker",
+		page: "help",
+		pageUrl: "https://resume.example/help",
 		locale: "en-US",
-		title: "ATS Checker",
-		description: "Check PDF readability",
+		title: "Help",
+		description: "Help and contact",
 	});
 	expect(document.querySelector('meta[property="og:image"]')).toHaveAttribute(
 		"content",
-		"https://resume.example/opengraph/ats-checker.png",
+		"https://resume.example/opengraph/banner.jpg",
 	);
 	const data = JSON.parse(document.querySelector('script[type="application/ld+json"]')?.textContent ?? "{}");
-	expect(data).toMatchObject({ "@type": "WebApplication", url: "https://resume.example/ats-checker?locale=en-US" });
+	expect(data).toMatchObject({ "@type": "WebPage", url: "https://resume.example/help?locale=en-US" });
 	dispose();
 });
 it("updates owned public metadata once and removes it on exit", () => {
@@ -31,7 +31,7 @@ it("updates owned public metadata once and removes it on exit", () => {
 	const dispose = syncPublicSeo({
 		pageUrl: "https://resume.example/privacy-and-terms?tab=terms",
 		locale: "en-US",
-		title: "Master CV",
+		title: "Sirawise",
 		description: "Write and review your CV.",
 	});
 	expect(document.querySelector('link[rel="canonical"]')?.getAttribute("href")).toBe(

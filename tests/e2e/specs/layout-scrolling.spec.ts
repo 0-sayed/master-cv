@@ -27,7 +27,7 @@ for (const locale of ["ar-SA", "en-US"] as const)
 			await page.screenshot({ path: info.outputPath("welcome.png"), fullPage: true });
 
 			await page.goto("/dashboard/career/information");
-			await expect(page.locator('[data-slot="section-card"]')).toHaveCount(5);
+			await expect(page.locator('[data-slot="section-card"]')).toHaveCount(6);
 			await expect(page.locator('[data-slot="skeleton-region"]')).toHaveCount(0);
 			await settleScreen(page);
 			await page.screenshot({ path: info.outputPath("career-empty.png"), fullPage: true });
@@ -195,7 +195,7 @@ for (const locale of ["ar-SA", "en-US"] as const)
 				await page.screenshot({ path: info.outputPath(collapsed ? "corner-rail.png" : "corner-expanded.png") });
 				const savedScroll = await page.locator("#main-content").evaluate((main) => main.scrollTop);
 				await page.locator('aside a[href="/dashboard/career/information"]').click();
-				await expect(page.locator('[data-slot="section-card"]')).toHaveCount(5);
+				await expect(page.locator('[data-slot="section-card"]')).toHaveCount(6);
 				await expect.poll(() => page.locator("#main-content").evaluate((main) => main.scrollTop)).toBe(0);
 				await page.goBack();
 				await expect

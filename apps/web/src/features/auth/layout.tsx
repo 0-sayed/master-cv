@@ -1,7 +1,7 @@
 import { Outlet, useMatchRoute } from "@tanstack/react-router";
-import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { useAuthCopy } from "./copy.generated";
+import { BrandIcon } from "@/components/ui/brand-icon";
 import { LocaleSwitch } from "@/features/locale/switch";
 
 export function AuthLayout() {

@@ -21,7 +21,11 @@ export function privacyTestDatabase(options: { restrictedMigrationOwner?: boolea
 		const connectionString = process.env.INTEGRATIONS_TEST_DATABASE_URL;
 		if (!connectionString) throw new Error("Disposable database admin connection required");
 		const url = new URL(connectionString);
-		if (!["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) || url.port !== "55432" || url.search)
+		if (
+			!["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) ||
+			url.port !== new URL(process.env.DATABASE_URL ?? "invalid:").port ||
+			url.search
+		)
 			throw new Error("Designated local synthetic database required");
 		admin = new Pool({ connectionString });
 		await admin.query(`CREATE DATABASE "${name}"`);

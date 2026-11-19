@@ -318,8 +318,8 @@ jobs:
           docker buildx imagetools create \
             "${args[@]}" \
             --annotation "index:org.opencontainers.image.licenses=MIT" \
-            --annotation "index:org.opencontainers.image.title=Master CV" \
-            --annotation "index:org.opencontainers.image.description=Master CV, based on Reactive Resume." \
+            --annotation "index:org.opencontainers.image.title=Sirawise" \
+            --annotation "index:org.opencontainers.image.description=Sirawise, based on Reactive Resume." \
             --annotation "index:org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
             --annotation "index:org.opencontainers.image.version=${{ steps.version.outputs.version }}"
 

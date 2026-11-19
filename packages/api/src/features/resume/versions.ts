@@ -97,7 +97,8 @@ export const versionsRouter = {
 			summary: "Restore a resume version",
 			description:
 				"Non-destructively restores a resume to a previous version snapshot by writing that snapshot's data back through the normal update path. Prior versions are preserved and the restore itself becomes a new snapshot. Only the resume owner can restore versions. Requires authentication.",
-			successDescription: "The restored resume with its full data.",
+			successDescription:
+				"The restored resume with its full data and beforeRestoreVersionId, the exact retained checkpoint for guarded undo.",
 		})
 		.input(resumeDto.restoreVersion.input)
 		.use(resumeMutationRateLimit)

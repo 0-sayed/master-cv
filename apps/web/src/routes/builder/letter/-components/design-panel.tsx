@@ -130,7 +130,7 @@ export function LetterDesignPanel() {
 					</h2>
 					<fieldset
 						disabled={disabled}
-						className="m-0 grid min-w-0 grid-cols-2 gap-3 border-0 p-0"
+						className="editor-panel-templates m-0 grid min-w-0 grid-cols-2 gap-3 border-0 p-0"
 						onMouseLeave={() => setPreview(null)}
 						onBlur={(event) => {
 							if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPreview(null);

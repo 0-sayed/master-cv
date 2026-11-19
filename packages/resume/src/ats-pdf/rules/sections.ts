@@ -1,5 +1,6 @@
 import type { PdfCheck, PdfCheckContext } from "../types";
 import type { CustomSectionType } from "@reactive-resume/schema/resume/data";
+import { columnSegments } from "../extract";
 import { check, failIf, hasNoText, skip } from "./helpers";
 import { THRESHOLDS } from "./thresholds";
 
@@ -19,6 +20,25 @@ function guard(context: PdfCheckContext, englishOnly = false) {
 	if (!requiresEnglish(context) && (englishOnly || !/^ar(?:-|$)/i.test(context.semantics.locale ?? "")))
 		return skip("not-english");
 	return null;
+}
+
+/** A substantial introduction can be a summary without a printed section title. */
+function hasIntroductorySummary(context: PdfCheckContext): boolean {
+	const firstSection = context.semantics.headings.find(
+		(heading) => heading.sectionType && heading.sectionType !== "profiles",
+	);
+	if (!firstSection) return false;
+	const prose = context.doc.lines
+		.slice(0, firstSection.lineIndex)
+		.flatMap(columnSegments)
+		.filter((line) => {
+			const text = line.text.trim();
+			return line.page === 1 && text.split(/\s+/u).length >= 5 && !/@|https?:\/\/|^[•▪◦‣]/u.test(text);
+		});
+	return (
+		prose.some((line) => /[.!?؟](?:\s|$)/u.test(line.text)) &&
+		prose.reduce((count, line) => count + line.text.trim().split(/\s+/u).length, 0) >= 20
+	);
 }
 
 export const sectionChecks: readonly PdfCheck[] = [
@@ -104,6 +124,6 @@ export const sectionChecks: readonly PdfCheck[] = [
 		const blocked = guard(context);
 		if (blocked) return blocked;
 
-		return failIf(!hasSection(context, "summary"), "NO_SUMMARY_SECTION");
+		return failIf(!hasSection(context, "summary") && !hasIntroductorySummary(context), "NO_SUMMARY_SECTION");
 	}),
 ];

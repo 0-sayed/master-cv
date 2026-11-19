@@ -9,13 +9,23 @@ it("preserves once-only Start limits and consistent available operations", () =>
 	};
 	expect(startUsageViewSchema.parse(usage)).toEqual(usage);
 	expect(
-		startUsageViewSchema.safeParse({ ...usage, operations: { limit: 5, used: 5, reserved: 1, remaining: 0 } }).success,
+		startUsageViewSchema.safeParse({ ...usage, operations: { limit: 5, used: 3, reserved: 1, remaining: 0 } }).success,
 	).toBe(false);
 	expect(resumeCreationKindSchema.safeParse({ variantKind: "language" }).success).toBe(false);
 	expect(resumeCreationKindSchema.parse({ variantKind: "job", baseResumeId: "root" })).toEqual({
 		variantKind: "job",
 		baseResumeId: "root",
 	});
+});
+
+it("returns an exhausted balance after administrator privileges are removed", () => {
+	expect(
+		startUsageViewSchema.parse({
+			plan: "start",
+			operations: { limit: 5, used: 6, reserved: 0, remaining: 0 },
+			baseCvs: { limit: 1, used: 2 },
+		}).operations.remaining,
+	).toBe(0);
 });
 
 it("validates the scoped local allowance without accepting inconsistent balances", () => {

@@ -29,7 +29,7 @@ for (const width of [1280, 1440]) {
 			await expect(page.locator('aside a[href="/dashboard/applications"]')).toHaveAccessibleName("طلبات التقديم");
 			if (route === "/dashboard/applications") {
 				await expect(page.locator("main h1")).toHaveText("طلبات التقديم");
-				await expect(page).toHaveTitle("طلبات التقديم — Master CV");
+				await expect(page).toHaveTitle("طلبات التقديم — سيراوايز");
 			}
 			await expect(
 				page.getByRole("button", { name: /^(?:يشارك|يتجاهل|يحسن|يرفض|يستبدل|يعرض|يتغير|يمسح|يصدر|يحفظ|يضيف)$/u }),

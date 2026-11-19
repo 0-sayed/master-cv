@@ -16,12 +16,21 @@ const HEADING_UPPERCASE_RATIO = 0.8;
  * Folds a heading and an alias onto the same key: case, punctuation, and ampersands all vary
  * between resumes and none of them change which section a heading names.
  */
-function normalizeHeading(value: string): string {
+export function isLetterSpaced(text: string): boolean {
+	const words = text.trim().split(/\s+/u);
+	return words.length >= 4 && words.filter((word) => /^[A-Z]$/.test(word)).length / words.length >= 0.6;
+}
+
+export function normalizeHeading(value: string): string {
 	const collapsed = normalizeSectionHeading(value);
 
 	// "E D U C A T I O N" is one word set in letter-spaced capitals, not nine words.
 	const parts = collapsed.split(" ");
-	if (parts.length >= 4 && parts.every((part) => part.length === 1)) return parts.join("");
+	if (isLetterSpaced(value)) {
+		const compact = parts.join("");
+		const alias = [...PDF_SECTION_HEADING_LOOKUP.keys()].find((key) => key.replaceAll(" ", "") === compact);
+		return alias ?? compact;
+	}
 
 	return collapsed;
 }
@@ -39,7 +48,7 @@ function uppercaseRatio(text: string): number {
 }
 
 function looksLikeHeading(line: TextLine, normalized: string, document: ExtractedDocument): boolean {
-	if (normalized.length === 0 || line.text.length > MAX_HEADING_CHARS) return false;
+	if (normalized.length === 0 || normalized.length > MAX_HEADING_CHARS) return false;
 	if (normalized.split(" ").length > MAX_HEADING_WORDS) return false;
 	// A heading does not end a sentence, and it is not a bullet.
 	if (/[.!?;,]$/.test(line.text.trim())) return false;
@@ -77,12 +86,26 @@ export function detectHeadings(document: ExtractedDocument): DetectedHeading[] {
 	document.lines.forEach((line, lineIndex) => {
 		// A heading set in its own narrow column shares a baseline with the first line of the
 		// section's content, so the line it lands on has to be read in column-separated pieces.
-		for (const segment of columnSegments(line)) {
+		const segments = columnSegments(line);
+		const closeColumnHeadings = segments.flatMap((segment) =>
+			segment.spans.length < 2
+				? []
+				: segment.spans
+						.filter(
+							(span) =>
+								NORMALIZED_HEADINGS.has(normalizeHeading(span.text)) &&
+								Boolean(document.modalFontSize && span.fontSize >= document.modalFontSize * HEADING_SIZE_RATIO) &&
+								segment.spans.some((other) => other !== span && other.fontSize < span.fontSize),
+						)
+						.map((span) => ({ ...segment, ...span, spans: [span] })),
+		);
+		for (const segment of [...segments, ...closeColumnHeadings]) {
 			const normalized = normalizeHeading(segment.text);
 			if (!looksLikeHeading(segment, normalized, document)) continue;
 
 			headings.push({
 				text: segment.text.trim(),
+				x: segment.x,
 				normalized,
 				sectionType: NORMALIZED_HEADINGS.get(normalized) ?? null,
 				page: segment.page,

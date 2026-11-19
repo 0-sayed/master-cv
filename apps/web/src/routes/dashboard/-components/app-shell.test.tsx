@@ -34,9 +34,11 @@ vi.mock("@tanstack/react-query", () => ({
 		const { kind } = options;
 		return {
 			data:
-				kind === "counts"
-					? { resume: state.count, letter: 0, trash: state.trash }
-					: Array.from({ length: state.count }, () => ({ status: "active" })),
+				kind === "master"
+					? { profileRevision: 0, sections: [], facts: [], links: [] }
+					: kind === "counts"
+						? { resume: state.count, letter: 0, trash: state.trash }
+						: Array.from({ length: state.count }, () => ({ status: "active" })),
 		};
 	},
 	useQueryClient: () => ({ clear: vi.fn() }),
@@ -80,7 +82,10 @@ vi.mock("@/dialogs/store", () => ({
 	useDialogStore: (select: (value: unknown) => unknown) => select({ openDialog: state.open }),
 }));
 vi.mock("@/libs/orpc/client", () => ({
-	orpc: { documents: { counts: { queryOptions: () => ({ kind: "counts" }) } } },
+	orpc: {
+		career: { master: { read: { queryOptions: () => ({ kind: "master" }) } } },
+		documents: { counts: { queryOptions: () => ({ kind: "counts" }) } },
+	},
 }));
 vi.mock("@/features/applications/queries", () => ({ applicationsListQueryOptions: () => ({ kind: "applications" }) }));
 vi.mock("@/features/documents/copy.generated", () => ({ useDocumentsCopy: () => () => "Documents" }));
@@ -127,8 +132,14 @@ it("opens the existing new-document flow and groups Trash with the main destinat
 	fireEvent.click(within(sidebar).getByRole("button", { name: "New CV" }));
 	expect(state.open).toHaveBeenCalledExactlyOnceWith("document.new", undefined);
 	const nav = within(sidebar).getByRole("navigation");
+	expect(
+		within(nav)
+			.getAllByRole("link")
+			.map((link) => link.getAttribute("href")),
+	).toEqual(["/dashboard/career/information", "/dashboard", "/dashboard/applications", "/dashboard/trash"]);
 	expect(within(nav).getByRole("link", { name: "Trash" }).getAttribute("href")).toBe("/dashboard/trash");
 	expect(within(nav).queryByRole("link", { name: "Settings" })).toBeNull();
+	expect(within(nav).queryByRole("link", { name: "Review guide" })).toBeNull();
 	expect(within(nav).getByRole("link", { name: "Trash" }).textContent).toBe("Trash");
 });
 it("keeps the account active on the Help deep link outside dashboard routing", () => {
@@ -138,7 +149,7 @@ it("keeps the account active on the Help deep link outside dashboard routing", (
 	expect(screen.getByRole("complementary")).toBeDefined();
 });
 
-it("keeps the account active for nested settings and exposes the five account actions", async () => {
+it("keeps the account active for nested settings and exposes account actions and inline theme choices", async () => {
 	state.path = "/dashboard/settings/privacy";
 	show();
 	const trigger = screen.getByRole("button", { name: /Sidebar Owner/ });
@@ -150,16 +161,23 @@ it("keeps the account active for nested settings and exposes the five account ac
 		within(menu)
 			.getAllByRole("menuitem")
 			.map((item) => item.textContent),
-	).toEqual(["Settings", "Help", "Language", "Theme", "Sign out"]);
+	).toEqual(["Settings", "Help", "Review guide", "Language", "Sign out"]);
+	const themes = within(menu).getByRole("radiogroup", { name: "Theme" });
+	expect(
+		within(themes)
+			.getAllByRole("radio")
+			.map((choice) => choice.getAttribute("aria-label")),
+	).toEqual(["Light", "Dark", "System"]);
 });
-it("retains creation and account access in the rail, with a positive Trash badge", () => {
+it("retains creation and account access in the rail, with an accessible Trash total", () => {
 	state.collapsed = true;
 	state.trash = 2;
 	show();
 	expect(screen.getByRole("button", { name: "New CV" })).toBeDefined();
 	expect(screen.getByRole("button", { name: "Expand sidebar" })).toBeDefined();
 	const trash = screen.getByRole("link", { name: "Trash, 2 items" });
-	expect(trash.textContent).toContain("2");
+	expect(trash.textContent).toBe("");
+	expect(trash.querySelector('[data-slot="sidebar-count-badge"]')).toHaveAttribute("data-variant", "neutral");
 	expect(screen.getByRole("button", { name: /Account/ })).toBeDefined();
 });
 it("keeps bottom navigation on phones with Trash and the same account menu", async () => {
@@ -172,11 +190,11 @@ it("keeps bottom navigation on phones with Trash and the same account menu", asy
 	expect(await screen.findByRole("menuitem", { name: "Settings" })).toBeDefined();
 });
 
-it("applies a theme from the account submenu through the shared provider", async () => {
+it("applies an inline account theme choice through the shared provider", async () => {
 	show();
 	fireEvent.click(screen.getByRole("button", { name: /Sidebar Owner/ }));
-	fireEvent.click(await screen.findByRole("menuitem", { name: "Theme" }));
-	fireEvent.click(await screen.findByRole("menuitemradio", { name: "Dark" }));
+	const menu = await screen.findByRole("menu");
+	fireEvent.click(within(menu).getByRole("radio", { name: "Dark" }));
 	expect(state.theme).toHaveBeenCalledExactlyOnceWith("dark");
 });
 it("switches only the interface locale through the account submenu", async () => {
@@ -209,19 +227,19 @@ it("updates mounted sidebar labels after switching from Arabic to English", asyn
 
 for (const collapsed of [false, true]) {
 	it.each([1, 12, 120])(
-		"exposes full totals and caps compact badges at %i in " + (collapsed ? "rail" : "expanded") + " navigation",
+		"exposes full totals and " + (collapsed ? "uses dots" : "caps visible badges") + " at %i in navigation",
 		(count) => {
 			state.collapsed = collapsed;
 			state.count = count;
 			state.trash = count;
 			show();
-			for (const label of ["Documents", "Applications", "Trash"]) {
+			for (const label of ["My documents", "Applications", "Trash"]) {
 				const link = screen.getByRole("link", { name: `${label}, ${count} ${count === 1 ? "item" : "items"}` });
 				const badge = link.querySelector('[data-slot="sidebar-count-badge"]');
-				expect(badge?.textContent).toBe(count > 99 ? "99+" : String(count));
+				expect(badge?.textContent).toBe(collapsed ? "" : count > 99 ? "99+" : String(count));
 				expect(badge?.getAttribute("aria-hidden")).toBe("true");
 				expect(badge?.getAttribute("dir")).toBeNull();
-				expect(badge?.querySelector("bdi")?.getAttribute("dir")).toBe("ltr");
+				expect(badge?.querySelector("bdi")?.getAttribute("dir")).toBe(collapsed ? undefined : "ltr");
 			}
 		},
 	);
@@ -250,7 +268,8 @@ it.each([1, 12, 120])("keeps Arabic accessible counts in Latin digits at %i", as
 		</I18nProvider>,
 	);
 	const link = screen.getByRole("link", { name: new RegExp(`سلة المهملات، ${count} `) });
-	expect(link.textContent).toBe(count > 99 ? "99+" : String(count));
+	expect(link.textContent).toBe("");
+	expect(link).toHaveAttribute("aria-label", expect.stringContaining(String(count)));
 });
 
 it("hides unavailable applications and disables their query", () => {
@@ -273,6 +292,19 @@ it.each([true, false])("matches mobile columns to available destinations (%s)", 
 		`--app-mobile-nav-columns: ${enabled ? 5 : 4}`,
 	);
 	expect(screen.queryByRole("link", { name: "Applications" }) !== null).toBe(enabled);
+});
+
+it("uses the product order in mobile navigation", () => {
+	state.breakpoint = "mobile";
+	show();
+	const nav = document.querySelector('[data-slot="app-bottom-nav"]');
+	if (!nav) throw new Error("Missing mobile navigation");
+	expect(Array.from(nav.querySelectorAll("a"), (link) => link.getAttribute("href"))).toEqual([
+		"/dashboard/career/information",
+		"/dashboard",
+		"/dashboard/applications",
+		"/dashboard/trash",
+	]);
 });
 it("retains the header on the application detail page", () => {
 	state.path = "/dashboard/applications/application-id";

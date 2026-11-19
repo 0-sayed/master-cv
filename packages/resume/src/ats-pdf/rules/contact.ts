@@ -3,7 +3,7 @@ import { contactIsOnFirstPage, hasProfessionalLink } from "../analyze/contact";
 import { check, fail, failIf, hasNoText, pass, skip, snippet } from "./helpers";
 
 /** A phone number a parser will recognise without heroics: digits, spaces, and at most one +. */
-const PLAIN_PHONE = /^\+?[\d\s().-]{7,20}$/;
+const PLAIN_PHONE = /^\+?[0-9٠-٩۰-۹\s().-]{7,20}$/;
 const BARE_URL = /(?:^|\s)(?:www\.|[\w-]+\.(?:com|org|net|io|dev|me|co|ai|app|edu|gov)\b)/i;
 
 export const contactChecks: readonly PdfCheck[] = [
@@ -48,7 +48,7 @@ export const contactChecks: readonly PdfCheck[] = [
 	}),
 
 	check("MULTIPLE_EMAILS", (context) => {
-		const { emails } = context.semantics.contact;
+		const emails = context.semantics.contact.personalEmails;
 		if (emails.length === 0) return skip("not-applicable");
 
 		return failIf(emails.length > 1, "MULTIPLE_EMAILS", { count: emails.length });

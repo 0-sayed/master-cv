@@ -329,10 +329,7 @@ function OfferHeader({ offer, offers, otherId, onChoose }: OfferHeaderProps) {
 			<DropdownMenuTrigger
 				render={
 					offer ? (
-						<button
-							type="button"
-							className="flex w-full items-center gap-3 px-[18px] py-4 text-start transition-colors duration-quick hover:bg-hover aria-expanded:bg-hover"
-						/>
+						<Button variant="secondary" size="row" type="button" className="w-full gap-3 text-start" />
 					) : (
 						<Button variant="secondary" size="sm" className="mt-2 w-fit" />
 					)

@@ -6,10 +6,10 @@ export function formatUiNumber(value: number, locale: UiLocale, options: Intl.Nu
 /** Application instants only. CV dates can be partial, Hijri or free text and must never enter this API. */
 export function formatUiTimestamp(value: Date, locale: UiLocale, options: Intl.DateTimeFormatOptions): string {
 	return new Intl.DateTimeFormat(locale, {
+		timeZone: "Asia/Riyadh",
 		...options,
 		calendar: "gregory",
 		numberingSystem: "latn",
-		timeZone: "Asia/Riyadh",
 	}).format(value);
 }
 export function normalizeSearchText(value: string): string {

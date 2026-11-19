@@ -14,6 +14,7 @@ import {
 } from "@reactive-resume/ui/components/dialog";
 import { FormControl, FormDescription, FormItem, FormLabel, FormMessage } from "@reactive-resume/ui/components/form";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { generateRandomName } from "@reactive-resume/utils/string";
@@ -212,14 +213,12 @@ const ResumeForm = withForm({
 									}
 								/>
 
-								<Button
+								<IconButton
 									size="toolbar-icon"
-									variant="secondary"
-									title={t`Generate a random name`}
+									icon="magic-wand"
+									label={t`Generate a random name`}
 									onClick={onGenerateName}
-								>
-									<Icon name="magic-wand" size={16} />
-								</Button>
+								/>
 							</div>
 							<FormMessage errors={field.state.meta.errors} />
 							<FormDescription>

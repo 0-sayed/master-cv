@@ -85,6 +85,7 @@ describe("copyForJob", () => {
 		expect(id).toBe("copy");
 		expect(resumeServiceMock.create).toHaveBeenCalledWith(
 			expect.objectContaining({ name: "Product Designer — Orbital", tags: ["design"] }),
+			{},
 		);
 		expect(set).toHaveBeenCalledWith({ applicationId: "a1" });
 		expect(applicationServiceMock.update).toHaveBeenCalledWith({ userId: "u1", id: "a1", resumeId: "copy" });
@@ -100,12 +101,12 @@ describe("copyForJob", () => {
 
 			await documentsService.copyForJob({ userId: "u1", resumeId: "r1", applicationId: "a1", name: "Mine" });
 
-			expect(resumeServiceMock.create).toHaveBeenCalledWith(expect.objectContaining({ name: "Mine" }));
+			expect(resumeServiceMock.create).toHaveBeenCalledWith(expect.objectContaining({ name: "Mine" }), {});
 			expect(set).toHaveBeenCalledTimes(1);
 			if (status === "saved")
 				expect(applicationServiceMock.update).toHaveBeenCalledWith({ userId: "u1", id: "a1", resumeId: "copy" });
 			else expect(applicationServiceMock.update).not.toHaveBeenCalled();
-			expect(resumeServiceMock.create).toHaveBeenCalledWith(expect.objectContaining({ data: source.data }));
+			expect(resumeServiceMock.create).toHaveBeenCalledWith(expect.objectContaining({ data: source.data }), {});
 		},
 	);
 });
@@ -126,5 +127,66 @@ describe("linkApplication", () => {
 		if (selected)
 			expect(applicationServiceMock.update).toHaveBeenCalledWith({ userId: "u1", id: "a1", resumeId: "new" });
 		else expect(applicationServiceMock.update).not.toHaveBeenCalled();
+	});
+});
+
+describe("compact documents list", () => {
+	it.each([1, 25])("uses two bounded projections for %s cards with an exact response allowlist", async (size) => {
+		const identity = { template: "onyx", locale: "en-US", accent: "rgba(20, 80, 120, 1)" };
+		const row = {
+			id: "cv",
+			name: "Saved",
+			tags: [],
+			isLocked: false,
+			isPublic: false,
+			slug: "saved",
+			trashedAt: null,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			metadata: identity,
+			letterStatus: null,
+			applicationId: "job",
+			company: "Synthetic",
+			role: "Engineer",
+			applicationStatus: "interview",
+		};
+		const projection = (result: unknown[]) => {
+			const chain = { leftJoin: () => chain, where: async () => result };
+			return { from: () => chain };
+		};
+		dbMock.select
+			.mockReturnValueOnce(projection(Array.from({ length: size }, (_, index) => ({ ...row, id: `cv-${index}` }))))
+			.mockReturnValueOnce(projection([]));
+		const list = await documentsService.list({ userId: "u1", trashed: false });
+		expect(list).toHaveLength(size);
+		expect(list[0]).toMatchObject({
+			metadata: identity,
+			letterStatus: null,
+			application: { id: "job", company: "Synthetic", role: "Engineer", status: "interview" },
+		});
+		expect(dbMock.select).toHaveBeenCalledTimes(2);
+		for (const [fields] of dbMock.select.mock.calls) {
+			expect(fields).toHaveProperty("metadata");
+			expect(fields).not.toHaveProperty("data");
+			expect(fields).not.toHaveProperty("content");
+			expect(fields).not.toHaveProperty("style");
+		}
+		expect(Object.keys(list[0] ?? {}).sort()).toEqual(
+			[
+				"type",
+				"id",
+				"name",
+				"tags",
+				"isLocked",
+				"isPublic",
+				"slug",
+				"trashedAt",
+				"createdAt",
+				"updatedAt",
+				"metadata",
+				"letterStatus",
+				"application",
+			].sort(),
+		);
 	});
 });

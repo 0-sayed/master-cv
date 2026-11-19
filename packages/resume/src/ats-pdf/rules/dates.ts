@@ -1,5 +1,5 @@
 import type { DateToken, PdfCheck, PdfCheckContext } from "../types";
-import { check, fail, failIf, hasNoText, pass, skip, snippet } from "./helpers";
+import { check, dateEvidence, fail, failIf, hasNoText, pass, skip, snippet } from "./helpers";
 import { THRESHOLDS } from "./thresholds";
 
 const parsedRanges = (context: PdfCheckContext): DateToken[] =>
@@ -41,7 +41,14 @@ export const dateChecks: readonly PdfCheck[] = [
 		const offender = context.semantics.dates.find((token) => token.reversed);
 		if (!offender) return pass;
 
-		return fail("REVERSED_DATE_RANGE", undefined, { snippet: snippet(offender.raw), page: offender.page });
+		return fail(
+			"REVERSED_DATE_RANGE",
+			undefined,
+			dateEvidence(
+				context.semantics.dates.filter((token) => token.reversed),
+				context.doc.lines,
+			),
+		);
 	}),
 
 	check("FUTURE_DATED_ENTRY", (context) => {
@@ -50,7 +57,14 @@ export const dateChecks: readonly PdfCheck[] = [
 		const offender = context.semantics.dates.find((token) => token.future);
 		if (!offender) return pass;
 
-		return fail("FUTURE_DATED_ENTRY", undefined, { snippet: snippet(offender.raw), page: offender.page });
+		return fail(
+			"FUTURE_DATED_ENTRY",
+			undefined,
+			dateEvidence(
+				context.semantics.dates.filter((token) => token.future),
+				context.doc.lines,
+			),
+		);
 	}),
 
 	check("MIXED_DATE_FORMATS", (context) => {
@@ -61,17 +75,33 @@ export const dateChecks: readonly PdfCheck[] = [
 		for (const token of ranges) counts.set(token.shape, (counts.get(token.shape) ?? 0) + 1);
 
 		const established = [...counts.entries()].filter(([, count]) => count >= THRESHOLDS.dates.minShapeOccurrences);
+		const highestCount = Math.max(...established.map(([, count]) => count));
+		const tied = established.filter(([, count]) => count === highestCount).length > 1;
 
-		return failIf(established.length >= THRESHOLDS.dates.minMixedShapes, "MIXED_DATE_FORMATS", {
-			formats: established.length,
-		});
+		return failIf(
+			established.length >= THRESHOLDS.dates.minMixedShapes,
+			"MIXED_DATE_FORMATS",
+			{
+				formats: established.length,
+			},
+			dateEvidence(
+				ranges.filter((token) => tied || (counts.get(token.shape) ?? 0) < highestCount),
+				context.doc.lines,
+			),
+		);
 	}),
 
 	check("NO_CURRENT_ROLE_MARKER", (context) => {
 		const ranges = parsedRanges(context);
 		if (ranges.length === 0) return skip("not-applicable");
 
-		return failIf(!ranges.some((token) => token.ongoing), "NO_CURRENT_ROLE_MARKER");
+		const latest = [...ranges].sort((a, b) => (b.endYear ?? b.startYear ?? 0) - (a.endYear ?? a.startYear ?? 0))[0];
+		return failIf(
+			!ranges.some((token) => token.ongoing),
+			"NO_CURRENT_ROLE_MARKER",
+			undefined,
+			dateEvidence(latest ? [latest] : [], context.doc.lines),
+		);
 	}),
 
 	check("AMBIGUOUS_NUMERIC_DATE", (context) => {

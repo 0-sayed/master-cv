@@ -85,21 +85,19 @@ test("notes survive a failed save and reload, then save only with server acknowl
 	authPage: page,
 }) => {
 	const response = await page.request.post("/api/openapi/applications", {
-		data: { company: "Synthetic Notes", role: "Engineer", status: "saved" },
+		data: { company: "Synthetic Notes", role: "Engineer", status: "saved", notes: "Original synthetic note" },
 	});
 	await expect(response).toBeOK();
 	const id = (await response.json()) as string;
 	await page.goto(`/dashboard/applications/${id}`);
-	if (await page.getByText("Details", { exact: true }).isVisible())
-		await page.getByText("Details", { exact: true }).click();
-	const field = page.getByRole("textbox", { name: "Notes", exact: true });
+	await page.getByRole("button", { name: "Edit application note", exact: true }).click();
+	const field = page.getByRole("textbox", { name: "Application note", exact: true });
 	await expect(field).toBeVisible();
 	await page.route("**/api/rpc/applications/update**", (route) => route.abort("failed"));
 	await field.fill("Durable synthetic notes");
 	await expect(page.getByRole("button", { name: "Retry save", exact: true })).toBeVisible();
 	await page.reload();
-	if (await page.getByText("Details", { exact: true }).isVisible())
-		await page.getByText("Details", { exact: true }).click();
+	await page.getByRole("button", { name: "Edit application note", exact: true }).click();
 	await expect(field).toHaveValue("Durable synthetic notes");
 	await page.unroute("**/api/rpc/applications/update**");
 	if (await page.getByRole("button", { name: "Retry save", exact: true }).isVisible())

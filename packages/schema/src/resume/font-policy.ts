@@ -51,3 +51,5 @@ export function getRecommendedFontPairing(data: ResumeData) {
 		return null;
 	return pairings.find((p) => p.id === getDefaultFontPairing(data.metadata.page.locale).id) ?? pairings[0] ?? null;
 }
+
+export const MIN_READABLE_BODY_SIZE = 9;

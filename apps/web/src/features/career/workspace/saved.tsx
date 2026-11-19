@@ -149,7 +149,7 @@ function SavedRow({ item, applicationId, expanded, onToggle, onOpen, onDelete }:
 					aria-expanded={expanded}
 					aria-controls={summaryId}
 					onClick={onToggle}
-					className="w-fit text-start text-sm font-semibold hover:underline hover:underline-offset-3"
+					className="w-fit text-start type-label font-semibold hover:underline hover:underline-offset-3"
 				>
 					{item.title}
 				</button>

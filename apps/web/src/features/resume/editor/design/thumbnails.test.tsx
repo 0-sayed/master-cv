@@ -55,10 +55,15 @@ it("renders the user's own content, then drops the previous thumbnail when the r
 		{ wrapper, initialProps: { data: sampleResumeData } },
 	);
 	await waitFor(() => expect(result.current.data).toBe("blob:personal-preview"));
-	expect(mocks.pdf).toHaveBeenCalledWith({
-		...sampleResumeData,
-		metadata: { ...sampleResumeData.metadata, template: "rhyhorn" },
-	});
+	expect(mocks.pdf).toHaveBeenCalledWith(
+		{
+			...sampleResumeData,
+			metadata: { ...sampleResumeData.metadata, template: "rhyhorn" },
+		},
+		undefined,
+		undefined,
+		{ signal: expect.any(AbortSignal), priority: "thumbnail" },
+	);
 	expect(sampleResumeData).toEqual(original);
 	rerender({ data: defaultResumeData });
 	await waitFor(() => expect(result.current.fetchStatus).toBe("idle"));
@@ -80,4 +85,35 @@ it("renders a visible picture without text, but keeps the sample for hidden cont
 	await waitFor(() => expect(result.current.fetchStatus).toBe("idle"));
 	expect(result.current.data).toBeUndefined();
 	expect(mocks.pdf).toHaveBeenCalledTimes(1);
+});
+
+it("cancels an in-flight thumbnail when the Design panel becomes hidden", async () => {
+	let signal: AbortSignal | undefined;
+	mocks.pdf.mockImplementation((_data, _template, _options, extras) => {
+		signal = extras?.signal;
+		return new Promise((_resolve, reject) =>
+			signal?.addEventListener("abort", () => reject(signal?.reason), { once: true }),
+		);
+	});
+	const { rerender } = renderHook(({ visible }) => useTemplateThumbnail("onyx", sampleResumeData, visible), {
+		wrapper,
+		initialProps: { visible: true },
+	});
+	await waitFor(() => expect(mocks.pdf).toHaveBeenCalledOnce());
+	expect(signal?.aborted).toBe(false);
+	rerender({ visible: false });
+	await waitFor(() => expect(signal?.aborted).toBe(true));
+	expect(mocks.image).not.toHaveBeenCalled();
+});
+
+it("does not queue hidden Design thumbnails, then renders when the panel opens", async () => {
+	const { result, rerender } = renderHook(({ visible }) => useTemplateThumbnail("onyx", sampleResumeData, visible), {
+		wrapper,
+		initialProps: { visible: false },
+	});
+	expect(result.current.fetchStatus).toBe("idle");
+	expect(mocks.pdf).not.toHaveBeenCalled();
+	rerender({ visible: true });
+	await waitFor(() => expect(result.current.data).toBe("blob:personal-preview"));
+	expect(mocks.pdf).toHaveBeenCalledOnce();
 });

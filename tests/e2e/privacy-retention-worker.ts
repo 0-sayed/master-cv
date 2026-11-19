@@ -7,7 +7,7 @@ const database = new URL(process.env.DATABASE_MIGRATION_URL ?? "invalid:");
 if (
 	process.env.TEST_INFERENCE_ISOLATION !== "true" ||
 	!["localhost", "127.0.0.1"].includes(database.hostname) ||
-	database.port !== "55432" ||
+	database.port !== new URL(process.env.DATABASE_URL ?? "invalid:").port ||
 	!(
 		database.pathname.startsWith("/ci_browser_") ||
 		(process.env.GITHUB_ACTIONS === "true" && database.pathname === "/postgres")

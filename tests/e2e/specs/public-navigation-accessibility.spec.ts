@@ -3,17 +3,17 @@ import { expect, test } from "../fixtures/test";
 
 for (const locale of ["ar-SA", "en-US"] as const) {
 	for (const width of [1440, 390]) {
-		for (const path of ["/", "/privacy-and-terms?tab=privacy", "/privacy-and-terms?tab=terms"]) {
+		for (const path of ["/", "/help", "/privacy-and-terms?tab=privacy", "/privacy-and-terms?tab=terms"]) {
 			test(`public keyboard order and panel focus follow the visible layout ${locale} ${width} ${path}`, async ({
 				page,
-			}, testInfo) => {
+			}) => {
 				await page.setViewportSize({ width, height: 900 });
 				await page.goto(`${path}${path.includes("?") ? "&" : "?"}locale=${locale}`);
 				await settleScreen(page);
 				await page.keyboard.press("Tab");
 				await expect(page.locator('a[href="#main-content"]')).toBeFocused();
 				const positions: { x: number; y: number }[] = [];
-				const controlCount = path === "/" ? (width < 1024 ? 3 : 8) : 4;
+				const controlCount = width < 1024 ? (path === "/" ? 3 : 4) : path === "/" ? 8 : path === "/help" ? 5 : 4;
 				await expect(page.getByRole("banner").locator("a:visible, button:visible")).toHaveCount(controlCount);
 				for (let index = 0; index < controlCount; index++) {
 					await page.keyboard.press("Tab");
@@ -32,7 +32,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					if (Math.abs(current.y - previous.y) < 2)
 						expect(locale === "ar-SA" ? current.x < previous.x : current.x > previous.x).toBe(true);
 				}
-				if (path !== "/") {
+				if (path.startsWith("/privacy-and-terms")) {
 					await page.getByRole("tab", { selected: true }).focus();
 					await page.keyboard.press("Tab");
 					const panel = page.getByRole("tabpanel");
@@ -49,7 +49,6 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					await page.keyboard.press("Tab");
 					expect(await page.locator(":focus").evaluate((element) => !!element.closest("main"))).toBe(true);
 				}
-				await page.screenshot({ path: testInfo.outputPath("focused-panel.png"), fullPage: true });
 				// Owner decision 2026-11-15: no visible upstream credit; the MIT LICENSE file stays in the repository.
 				await expect(page.locator("[data-upstream-credit]")).toHaveCount(0);
 				await expect(page.getByRole("contentinfo")).not.toContainText("Amruth Pillai");

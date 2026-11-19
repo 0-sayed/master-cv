@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-17 06:47+0200\n"
+"POT-Creation-Date: 2026-11-18 09:46+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -676,8 +676,8 @@ msgid "24 hours before"
 msgstr "24 Stunden vorher"
 
 #: src/features/letters/share.tsx
-msgid "A backup of this letter. Imports back into Reactive Resume as a letter."
-msgstr "Eine Sicherungskopie dieses Briefes. Wird als Brief zurück in Reactive Resume importiert."
+msgid "A backup of this letter. Imports back into Sirawise as a letter."
+msgstr ""
 
 #: src/features/check/issues.ts
 msgid "A city and country let roles be matched to where you are."
@@ -1562,10 +1562,6 @@ msgstr "Bitten Sie den Assistenten, es einzuarbeiten"
 msgid "Ask the coach"
 msgstr "Coach fragen"
 
-#: src/features/share/download.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "Fragen Sie die Community. Entfernen Sie persönliche Angaben vor dem Posten."
-
 #: src/features/ai/error.ts
 msgid "Ask your server administrator to enable credential encryption or configure a shared connection."
 msgstr "Bitten Sie Ihren Serveradministrator, die Verschlüsselung der Anmeldeinformationen zu aktivieren oder eine gemeinsame Verbindung zu konfigurieren."
@@ -1600,7 +1596,6 @@ msgid "ATS checker"
 msgstr "ATS-Prüfer"
 
 #: src/features/ats-checker/checker.tsx
-#: src/features/search/search-screen.tsx
 msgid "ATS Checker"
 msgstr "ATS-Checker"
 
@@ -1864,10 +1859,6 @@ msgstr "Aufzählungsliste"
 msgid "Burgundy"
 msgstr "Burgunderrot"
 
-#: app/(tabs)/settings/index.tsx
-msgid "by <0>Amruth Pillai</0>"
-msgstr "von <0>Amruth Pillai</0>"
-
 #: src/features/applications-board/views.tsx
 msgid "Calendar"
 msgstr "Kalender"
@@ -1981,14 +1972,6 @@ msgstr "Änderungen an „{name}“ wurden auf einem anderen Gerät gespeichert.
 #: app/builder/[id]/_layout.tsx
 msgid "Check"
 msgstr "Prüfung"
-
-#: src/features/search/search-screen.tsx
-msgid "Check a PDF"
-msgstr "Überprüfen Sie einen PDF"
-
-#: src/features/documents/new-document.tsx
-msgid "Check a PDF with the ATS checker"
-msgstr "Eine PDF mit dem ATS-Prüfer prüfen"
 
 #: src/features/ats-checker/checker.tsx
 msgid "Check a sample file"
@@ -2327,8 +2310,8 @@ msgid "Compares your resume with the posting"
 msgstr "Gleicht Ihren Lebenslauf mit der Stellenausschreibung ab"
 
 #: src/features/share/download.tsx
-msgid "Complete data backup. Imports back into Reactive Resume or JSON Resume tools."
-msgstr "Vollständige Datensicherung. Importiert zurück in die Tools Reactive Resume oder JSON Resume."
+msgid "Complete data backup. Imports back into Sirawise or JSON Resume tools."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
@@ -3425,10 +3408,6 @@ msgstr "Stellenausschreibung von {0} nicht senden"
 msgid "Don't share"
 msgstr "Nicht teilen"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Donate on Open Collective"
-msgstr "Über Open Collective spenden"
-
 #: src/features/applications/list-screen.tsx
 #: src/features/career/today.tsx
 #: src/features/documents/library.tsx
@@ -3784,8 +3763,8 @@ msgid "Enter any model ID supported by your endpoint."
 msgstr "Geben Sie eine beliebige Modell-ID ein, die von Ihrem Endpunkt unterstützt wird."
 
 #: app/(auth)/server.tsx
-msgid "Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue."
-msgstr "Geben Sie die Adresse, unter der Sie Reactive Resume öffnen, in einen Browser ein. Die App prüft, ob es sich um einen Reactive Resume-Server handelt, der die App-Anmeldung zulässt, bevor Sie fortfahren."
+msgid "Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue."
+msgstr ""
 
 #: src/features/public/public-resume.tsx
 msgid "Enter the password the resume owner shared with you."
@@ -4186,10 +4165,6 @@ msgstr "„Feedback erhalten“ sendet die Frage, Ihre Antwort, diese Stellenanz
 msgid "Get new roles here every morning"
 msgstr "Jeden Morgen neue Stellen hier erhalten"
 
-#: src/features/share/download.tsx
-msgid "Get resume feedback on Discord"
-msgstr "Feedback zum Lebenslauf auf Discord erhalten"
-
 #: src/features/letters/write.tsx
 msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "Wird lang. Versuchen Sie es mit „Kürzer“ oder schneiden Sie den am wenigsten spezifischen Absatz ab."
@@ -4280,6 +4255,10 @@ msgstr "zurück gehört"
 #: src/features/settings/locale-names.ts
 msgid "Hebrew"
 msgstr "Hebräisch"
+
+#: src/features/share/download.tsx
+msgid "Help"
+msgstr ""
 
 #: app/(tabs)/settings/index.tsx
 msgid "Help & docs"
@@ -4742,10 +4721,6 @@ msgstr "Bewerbungspipeline"
 #: src/features/search/search-screen.tsx
 msgid "Jobs"
 msgstr "Jobs"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Join the Discord"
-msgstr "Discord beitreten"
 
 #: src/features/letters/share.tsx
 #: src/features/share/download.tsx
@@ -5286,8 +5261,8 @@ msgid "Lower the design sheet"
 msgstr "Senken Sie das Designblatt ab"
 
 #: src/features/public/public-resume.tsx
-msgid "Made with Reactive Resume, free and open source"
-msgstr "Hergestellt mit Reactive Resume, kostenlos und Open Source"
+msgid "Made with Sirawise, free and open source"
+msgstr ""
 
 #. Layout editor column label for the primary content area
 #: src/features/design/layout-screen.tsx
@@ -5963,10 +5938,6 @@ msgstr "Kein Foto. Die meisten ATS ignorieren Fotos; Einige Regionen erwarten ei
 msgid "No postings found. Try different keywords."
 msgstr "Keine Stellenausschreibungen gefunden. Probieren Sie verschiedene Schlüsselwörter aus."
 
-#: src/auth/messages.ts
-msgid "No Reactive Resume server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
-msgstr "Unter dieser Adresse hat kein Reactive Resume-Server geantwortet. Überprüfen Sie die Schreibweise oder fragen Sie Ihren Administrator, ob der Server die App-Anmeldung zulässt."
-
 #: src/features/check/job-match.tsx
 msgid "No recognisable terms in this posting."
 msgstr "In dieser Stellenausschreibung sind keine Begriffe erkennbar."
@@ -5986,6 +5957,10 @@ msgstr "Keine Ergebnisse"
 #: src/features/letters/write.tsx
 msgid "No resume"
 msgstr "Kein Lebenslauf"
+
+#: src/auth/messages.ts
+msgid "No Sirawise server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "No skills section was found."
@@ -6645,8 +6620,8 @@ msgid "PDF check cancelled. Retry when ready."
 msgstr "PDF-Prüfung abgebrochen. Versuchen Sie es erneut, wenn Sie bereit sind."
 
 #: src/features/application-detail/sections.tsx
-msgid "PDF only · up to 10 MB each. Linking a Reactive Resume enables AI match scoring and tailoring."
-msgstr "Nur PDF · jeweils bis zu 10 MB. Die Verknüpfung eines Reactive Resume ermöglicht KI-Match-Scoring und -Anpassung."
+msgid "PDF only · up to 10 MB each. Linking a Sirawise enables AI match scoring and tailoring."
+msgstr ""
 
 #: src/features/design/advanced.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
@@ -6654,11 +6629,11 @@ msgstr "PDF-Stile unterstützen eine Teilmenge von CSS. Drehung, gestrichelte un
 
 #: src/features/documents/new-document.tsx
 msgid "PDF uses your AI provider when one is ready. Turn off the AI switch to read its text layer on your server. Word (.docx) needs an AI provider. Current and v4 Reactive Resume JSON, cover letters, JSON Resume and LinkedIn exports (.zip) are supported. Up to 10 MB."
-msgstr "PDF nutzt Ihren KI-Anbieter, wenn einer bereit ist. Schalten Sie den KI-Schalter aus, um die Textebene auf Ihrem Server zu lesen. Word (.docx) benötigt einen KI-Anbieter. Aktuelle und v4 Reactive Resume JSON, Anschreiben, JSON Resume und LinkedIn-Exporte (.zip) werden unterstützt. Bis zu 10 MB."
+msgstr "PDF nutzt Ihren KI-Anbieter, wenn einer bereit ist. Schalten Sie den KI-Schalter aus, um die Textebene auf Ihrem Server zu lesen. Word (.docx) benötigt einen KI-Anbieter. Aktuelle und v4 Sirawise JSON, Anschreiben, JSON Resume und LinkedIn-Exporte (.zip) werden unterstützt. Bis zu 10 MB."
 
 #: src/features/documents/new-document.tsx
 msgid "PDF, Word, Reactive Resume, JSON Resume or LinkedIn export."
-msgstr "PDF, Word, Reactive Resume, JSON Resume oder LinkedIn exportieren."
+msgstr "PDF, Word, Sirawise, JSON Resume oder LinkedIn exportieren."
 
 #: src/features/career/offers.tsx
 #: src/features/career/preferences.tsx
@@ -7102,10 +7077,6 @@ msgstr "Exportieren Sie erneut mit eingebetteten Schriftarten und prüfen Sie, o
 msgid "Re-export with fonts embedded, then open the file and check that the text copies out cleanly."
 msgstr "Exportieren Sie erneut mit eingebetteten Schriftarten, öffnen Sie dann die Datei und prüfen Sie, ob sich der Text sauber kopieren lässt."
 
-#: src/auth/auth-header.tsx
-msgid "Reactive Resume"
-msgstr "Reactive Resume"
-
 #: src/features/workspace/tabs/prepare.tsx
 msgid "Read briefing"
 msgstr "Briefing lesen"
@@ -7512,10 +7483,6 @@ msgstr "Bericht"
 msgid "Report AI content"
 msgstr "KI-Inhalte melden"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Report an issue"
-msgstr "Problem melden"
-
 #: src/features/ai/report-content.tsx
 msgid "Report received by your server operator. Thank you."
 msgstr "Bericht, den Ihr Serverbetreiber erhalten hat. Danke schön."
@@ -7607,10 +7574,6 @@ msgstr "Lebenslauf konnte nicht geladen werden."
 #: src/features/document-menu/index.tsx
 msgid "Resume details"
 msgstr "Details zum Lebenslauf"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Resume feedback, product help, and community ideas."
-msgstr "Feedback zum Lebenslauf, Hilfe zum Produkt und Ideen aus der Community."
 
 #: src/features/application-detail/sections.tsx
 msgid "Resume file"
@@ -8309,10 +8272,6 @@ msgstr "Richten Sie in Einstellungen die Websuche ein, um Stellen zu finden."
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: app/(tabs)/settings/ai-mcp.tsx
-msgid "Setup guide"
-msgstr "Einrichtungsanleitung"
-
 #: src/features/ai/report-content.tsx
 msgid "Sexual content"
 msgstr "Sexuelle Inhalte"
@@ -8615,6 +8574,11 @@ msgstr "Abgemeldet, aber einige Daten auf diesem Gerät konnten nicht entfernt w
 msgid "since last view"
 msgstr "seit dem letzten Aufruf"
 
+#: src/auth/auth-header.tsx
+#: src/shell/app-tabs.tsx
+msgid "Sirawise"
+msgstr "Sirawise"
+
 #: src/features/career/stories.tsx
 msgid "Situation (required)"
 msgstr "Situation (erforderlich)"
@@ -8756,10 +8720,6 @@ msgstr "Quelle"
 msgid "Source and correction history"
 msgstr "Quellen- und Korrekturhistorie"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Source code on GitHub"
-msgstr "Quellcode auf GitHub"
-
 #: src/features/assistant/chat-view.tsx
 #: src/features/assistant/messages.tsx
 msgid "Sources"
@@ -8867,6 +8827,10 @@ msgstr "Beginnen Sie mit der Eingabe oder entwerfen Sie das, was wir wissen: die
 #: src/features/letters/write.tsx
 msgid "Start typing, or draft from what we know: your resume."
 msgstr "Beginnen Sie mit der Eingabe oder entwerfen Sie anhand dessen, was wir kennen: Ihren Lebenslauf."
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr ""
 
 #: src/features/letters/write.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
@@ -10912,8 +10876,8 @@ msgid "your Knowledge"
 msgstr "Ihr Wissen"
 
 #: app/(tabs)/settings/preferences.tsx
-msgid "Your language is saved. Restart Reactive Resume to apply the new left-to-right or right-to-left layout."
-msgstr "Ihre Sprache ist gespeichert. Starten Sie Reactive Resume neu, um das neue Layout von links nach rechts oder von rechts nach links anzuwenden."
+msgid "Your language is saved. Restart Sirawise to apply the new left-to-right or right-to-left layout."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Your lines are packed very tightly."

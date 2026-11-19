@@ -85,8 +85,8 @@ jobs:
 
     services:
       postgres:
-        # An empty image skips this service for web and tooling units.
-        image: ${{ (matrix.part == 'browser' || matrix.group == 'api' || matrix.group == 'remaining') && 'postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193' || '' }}
+        # Tooling includes the restricted demo seed integration suite. Web units do not need PostgreSQL.
+        image: ${{ (matrix.part == 'browser' || matrix.group == 'tooling' || matrix.group == 'api' || matrix.group == 'remaining') && 'postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193' || '' }}
         env:
           POSTGRES_DB: postgres
           POSTGRES_USER: postgres

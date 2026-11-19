@@ -3,6 +3,118 @@
 	"policy": "Exact file, AST/property or CSS selector, literal, kind and maximum count. No source is exempt. Remove stale entries after approved edits.",
 	"entries": [
 		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.test.ts",
+			"context": "module",
+			"literal": "rgba(0, 0, 0, 1)",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff regression: CV color fixture and human color label, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.test.ts",
+			"context": "property:text",
+			"literal": "Black",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff regression: CV color fixture and human color label, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.test.ts",
+			"context": "property:color",
+			"literal": "rgba(0, 0, 0, 1)",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff regression: CV color fixture and human color label, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.ts",
+			"context": "function:colorName",
+			"literal": "Black",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff: translated color names describe CV color data, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.ts",
+			"context": "function:colorName",
+			"literal": "White",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff: translated color names describe CV color data, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.ts",
+			"context": "function:colorName",
+			"literal": "Gray",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff: translated color names describe CV color data, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.ts",
+			"context": "function:colorName",
+			"literal": "Red",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff: translated color names describe CV color data, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.ts",
+			"context": "function:colorName",
+			"literal": "Green",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff: translated color names describe CV color data, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.ts",
+			"context": "function:colorName",
+			"literal": "Blue",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff: translated color names describe CV color data, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.ts",
+			"context": "function:colorName",
+			"literal": "Yellow",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff: translated color names describe CV color data, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.ts",
+			"context": "function:colorName",
+			"literal": "Purple",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff: translated color names describe CV color data, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-values.ts",
+			"context": "function:colorName",
+			"literal": "Teal",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff: translated color names describe CV color data, not interface styling."
+		},
+		{
+			"file": "packages/ui/src/components/suggestion-diff.test.tsx",
+			"context": "const:{ container }/jsx:SuggestionDiff@before",
+			"literal": "Blue",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff regression: CV color fixture and human color label, not interface styling."
+		},
+		{
+			"file": "packages/ui/src/components/suggestion-diff.test.tsx",
+			"context": "const:{ container }/jsx:SuggestionDiff@after",
+			"literal": "Green",
+			"kind": "color",
+			"count": 1,
+			"reason": "Owner-requested review diff regression: CV color fixture and human color label, not interface styling."
+		},
+		{
 			"file": "packages/ui/src/components/dialog.tsx",
 			"context": "function:DialogContent/property:top/jsx:DialogPrimitive.Popup@style",
 			"literal": "calc(${anchor.bottom}px + var(--space-8))",
@@ -17,14 +129,6 @@
 			"kind": "geometry",
 			"count": 1,
 			"reason": "Measured search-trigger position in the shared dialog; runtime coordinates plus shared spacing tokens, not a fixed per-screen size (owner search brief 2026-11-10)."
-		},
-		{
-			"file": "apps/web/src/components/input/chip-input.tsx",
-			"context": "function:ChipDragPreview/jsx:Badge@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
 			"file": "apps/web/src/components/input/chip-input.tsx",
@@ -46,14 +150,6 @@
 			"file": "apps/web/src/components/input/chip-input.tsx",
 			"context": "function:ChipInput/jsx:span@className",
 			"literal": "text-[0.7rem]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/components/input/chip-input.tsx",
-			"context": "function:ChipItem/jsx:Badge@className",
-			"literal": "text-xs",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
@@ -315,62 +411,6 @@
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
-			"file": "apps/web/src/components/ui/donation-toast.tsx",
-			"context": "function:DonationToast/jsx:Button@className",
-			"literal": "text-white",
-			"kind": "color",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/components/ui/donation-toast.tsx",
-			"context": "function:DonationToast/jsx:m.aside@className",
-			"literal": "[--oc:#1869f5]",
-			"kind": "color",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/components/ui/donation-toast.tsx",
-			"context": "function:DonationToast/jsx:m.aside@className",
-			"literal": "max-sm:bottom-[calc(64px+env(safe-area-inset-bottom))]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/components/ui/donation-toast.tsx",
-			"context": "function:DonationToast/jsx:m.aside@className",
-			"literal": "sm:w-[344px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/components/ui/donation-toast.tsx",
-			"context": "function:DonationToast/jsx:p@className",
-			"literal": "leading-relaxed",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/components/ui/donation-toast.tsx",
-			"context": "function:DonationToast/jsx:p@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/components/ui/donation-toast.tsx",
-			"context": "function:DonationToast/jsx:p@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
 			"file": "apps/web/src/features/applications/components/add-application-dialog.tsx",
 			"context": "function:AddApplicationForm/jsx:a@className",
 			"literal": "text-xs",
@@ -413,17 +453,9 @@
 		{
 			"file": "apps/web/src/features/applications/components/application-card.tsx",
 			"context": "function:ApplicationCard/jsx:span@className",
-			"literal": "rounded-[7px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/application-card.tsx",
-			"context": "function:ApplicationCard/jsx:span@className",
 			"literal": "text-xs",
 			"kind": "typography",
-			"count": 2,
+			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
@@ -431,14 +463,6 @@
 			"context": "function:JobDescriptionAutofill/jsx:Textarea@className",
 			"literal": "h-40",
 			"kind": "control-override",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/application-notes.tsx",
-			"context": "function:ApplicationNotes/jsx:label@className",
-			"literal": "text-xs",
-			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
@@ -467,201 +491,9 @@
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
-			"file": "apps/web/src/features/applications/components/calendar-view.tsx",
-			"context": "function:ApplicationCalendar/jsx:button@className/jsx:PopoverTrigger@render",
-			"literal": "text-[11px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/calendar-view.tsx",
-			"context": "function:ApplicationCalendar/jsx:div@className",
-			"literal": "text-[11px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/calendar-view.tsx",
-			"context": "function:ApplicationCalendar/jsx:div@className",
-			"literal": "tracking-wide",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/calendar-view.tsx",
-			"context": "function:ApplicationCalendar/jsx:h2@className",
-			"literal": "text-lg",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/calendar-view.tsx",
-			"context": "function:InterviewChip/jsx:button@className",
-			"literal": "leading-tight",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/calendar-view.tsx",
-			"context": "function:InterviewChip/jsx:button@className",
-			"literal": "text-[11px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/activity.tsx",
-			"context": "function:Activity/jsx:h3@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/activity.tsx",
-			"context": "function:Activity/jsx:li@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/activity.tsx",
-			"context": "function:Activity/jsx:span@className",
-			"literal": "leading-5",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/activity.tsx",
-			"context": "function:Activity/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
 			"file": "apps/web/src/features/applications/components/detail/close-dialog.tsx",
 			"context": "function:CloseDialog/jsx:label@className",
 			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/contacts.tsx",
-			"context": "function:ContactList/jsx:a@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 2,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/contacts.tsx",
-			"context": "function:ContactList/jsx:div@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/contacts.tsx",
-			"context": "function:ContactList/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/contacts.tsx",
-			"context": "function:Contacts/jsx:h3@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/contacts.tsx",
-			"context": "function:Contacts/jsx:span@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/contacts.tsx",
-			"context": "function:Contacts/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/next-step-card.tsx",
-			"context": "function:NextStepCard/jsx:h3@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/next-step-card.tsx",
-			"context": "function:NextStepCard/jsx:span@className",
-			"literal": "leading-[17px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/next-step-card.tsx",
-			"context": "function:NextStepCard/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/next-step-card.tsx",
-			"context": "function:NextStepCard/jsx:strong@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/sent-documents.tsx",
-			"context": "function:SentDocumentRow/jsx:span@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/sent-documents.tsx",
-			"context": "function:SentDocumentRow/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/sent-documents.tsx",
-			"context": "function:SentDocuments/jsx:button@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/detail/sent-documents.tsx",
-			"context": "function:SentDocuments/jsx:h3@className",
-			"literal": "text-xs",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
@@ -689,22 +521,6 @@
 			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/insights-view.tsx",
-			"context": "function:ApplicationInsights/jsx:p@className",
-			"literal": "leading-6",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Fixed inherited chart/PNG export palette or geometry from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/applications/components/insights-view.tsx",
-			"context": "function:ApplicationInsights/jsx:span@className",
-			"literal": "text-base",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Fixed inherited chart/PNG export palette or geometry from b617646fa."
 		},
 		{
 			"file": "apps/web/src/features/applications/components/interview-dialog.tsx",
@@ -812,22 +628,6 @@
 		},
 		{
 			"file": "apps/web/src/features/assistant/assistant-panel.tsx",
-			"context": "function:ModelMenu/jsx:button@className/jsx:DropdownMenuTrigger@render",
-			"literal": "max-w-[140px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/assistant/assistant-panel.tsx",
-			"context": "function:ModelMenu/jsx:button@className/jsx:DropdownMenuTrigger@render",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/assistant/assistant-panel.tsx",
 			"context": "function:ModelMenu/jsx:span@className",
 			"literal": "text-xs",
 			"kind": "typography",
@@ -855,14 +655,6 @@
 			"context": "function:PastConversations/jsx:p@className",
 			"literal": "text-sm",
 			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/assistant/conversation.tsx",
-			"context": "function:Composer/jsx:button@className",
-			"literal": "size-[34px]",
-			"kind": "geometry",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
@@ -982,22 +774,6 @@
 			"file": "apps/web/src/features/assistant/conversation.tsx",
 			"context": "function:QuestionCard/jsx:p@className",
 			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/assistant/conversation.tsx",
-			"context": "function:RemovableChip/jsx:span@className",
-			"literal": "h-[26px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/assistant/conversation.tsx",
-			"context": "function:RemovableChip/jsx:span@className",
-			"literal": "text-xs",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
@@ -1151,14 +927,6 @@
 			"context": "function:Composer/jsx:div@className",
 			"literal": "max-w-[720px]",
 			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/coach-thread.tsx",
-			"context": "function:Composer/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
@@ -1636,14 +1404,6 @@
 		},
 		{
 			"file": "apps/web/src/features/career/knowledge/facts.tsx",
-			"context": "function:FactRow/jsx:button@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/knowledge/facts.tsx",
 			"context": "function:FactRow/jsx:div@className",
 			"literal": "leading-[17px]",
 			"kind": "typography",
@@ -1796,22 +1556,6 @@
 		},
 		{
 			"file": "apps/web/src/features/career/knowledge/preferences.tsx",
-			"context": "function:ChipField/jsx:button@className",
-			"literal": "rounded-[5px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/knowledge/preferences.tsx",
-			"context": "function:ChipField/jsx:button@className",
-			"literal": "size-[22px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/knowledge/preferences.tsx",
 			"context": "function:ChipField/jsx:div@className",
 			"literal": "gap-[5px]",
 			"kind": "geometry",
@@ -1837,22 +1581,6 @@
 		{
 			"file": "apps/web/src/features/career/knowledge/preferences.tsx",
 			"context": "function:ChipField/jsx:label@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/knowledge/preferences.tsx",
-			"context": "function:ChipField/jsx:span@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/knowledge/preferences.tsx",
-			"context": "function:PreferencesForm/jsx:button@className",
 			"literal": "text-xs",
 			"kind": "typography",
 			"count": 1,
@@ -2533,14 +2261,6 @@
 		{
 			"file": "apps/web/src/features/career/offers.tsx",
 			"context": "function:ComparisonTable/jsx:ul@className",
-			"literal": "px-[18px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/offers.tsx",
-			"context": "function:OfferHeader/jsx:button@className/jsx:DropdownMenuTrigger@render",
 			"literal": "px-[18px]",
 			"kind": "geometry",
 			"count": 1,
@@ -3319,30 +3039,6 @@
 			"context": "function:TodayPage/jsx:div@className",
 			"literal": "xl:grid-cols-[minmax(0,1fr)_380px]",
 			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/workspace/apply.tsx",
-			"context": "function:AnswerCard/jsx:button@className/jsx:TooltipTrigger@render",
-			"literal": "leading-[22px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/workspace/apply.tsx",
-			"context": "function:AnswerCard/jsx:button@className/jsx:TooltipTrigger@render",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/workspace/apply.tsx",
-			"context": "function:AnswerCard/jsx:button@className/jsx:TooltipTrigger@render",
-			"literal": "tracking-[0.04em]",
-			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
@@ -4572,22 +4268,6 @@
 		},
 		{
 			"file": "apps/web/src/features/career/workspace/practise.tsx",
-			"context": "function:Session/jsx:button@className",
-			"literal": "size-[52px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/workspace/practise.tsx",
-			"context": "function:Session/jsx:button@className",
-			"literal": "text-white",
-			"kind": "color",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/workspace/practise.tsx",
 			"context": "function:Session/jsx:div@className",
 			"literal": "w-[180px]",
 			"kind": "geometry",
@@ -4670,14 +4350,6 @@
 			"file": "apps/web/src/features/career/workspace/practise.tsx",
 			"context": "function:VoiceSettingsPanel/jsx:a@className",
 			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/workspace/practise.tsx",
-			"context": "function:VoiceSettingsPanel/jsx:button@className",
-			"literal": "text-xs",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
@@ -5156,14 +4828,6 @@
 		},
 		{
 			"file": "apps/web/src/features/career/workspace/saved.tsx",
-			"context": "function:SavedRow/jsx:button@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/workspace/saved.tsx",
 			"context": "function:SavedRow/jsx:CollapseRow@className",
 			"literal": "sm:ps-[46px]",
 			"kind": "geometry",
@@ -5339,46 +5003,6 @@
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
-			"file": "apps/web/src/features/documents/document-card.tsx",
-			"context": "function:PaperBadge/jsx:span@className",
-			"literal": "bg-black/75",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected original document preview geometry, paper colors or thumbnail loading margin from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/documents/document-card.tsx",
-			"context": "function:PaperBadge/jsx:span@className",
-			"literal": "size-[22px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected original document preview geometry, paper colors or thumbnail loading margin from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/documents/document-card.tsx",
-			"context": "function:PaperBadge/jsx:span@className",
-			"literal": "text-white",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected original document preview geometry, paper colors or thumbnail loading margin from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/documents/resume-thumbnail.tsx",
-			"context": "function:DocumentThumbnail/const:isInView/property:margin",
-			"literal": "240px",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected original document preview geometry, paper colors or thumbnail loading margin from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/documents/resume-thumbnail.tsx",
-			"context": "function:DocumentThumbnail/jsx:div@className",
-			"literal": "bg-white",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected original document preview geometry, paper colors or thumbnail loading margin from b617646fa."
-		},
-		{
 			"file": "apps/web/src/features/letters/store.test.ts",
 			"context": "property:fontSize/property:body/property:typography/property:metadata",
 			"literal": "12",
@@ -5432,142 +5056,6 @@
 			"literal": "text-sm",
 			"kind": "typography",
 			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "const:marginStyle/property:left",
-			"literal": "max(4px, calc(${(node.x / page.width) * 100}% - 30px))",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "const:marginStyle/property:top",
-			"literal": "calc(${(node.y / page.height) * 100}% - 3px + ${stack * 26}px)",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:div@className",
-			"literal": "-inset-y-[3px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:div@className",
-			"literal": "-m-[3px]",
-			"kind": "geometry",
-			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:div@className",
-			"literal": "bg-[#F2DE8C]/45",
-			"kind": "color",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:div@className",
-			"literal": "border-[1.5px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:div@className",
-			"literal": "outline-[1.5px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:div@className",
-			"literal": "p-[3px]",
-			"kind": "geometry",
-			"count": 2,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:div@className",
-			"literal": "rounded-[3px]",
-			"kind": "geometry",
-			"count": 3,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:CheckPageLayer/jsx:span@className",
-			"literal": "text-[11px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:IssueStepper/jsx:Button@className",
-			"literal": "h-10",
-			"kind": "control-override",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:IssueStepper/jsx:Button@className",
-			"literal": "px-3.5",
-			"kind": "control-override",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:IssueStepper/jsx:Button@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:IssueStepper/jsx:p@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:IssueStepper/jsx:p@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:IssueStepper/jsx:span@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/check/page-layer.tsx",
-			"context": "function:IssueStepper/jsx:strong@className",
-			"literal": "text-[15px]",
-			"kind": "typography",
-			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
 		},
 		{
@@ -5651,73 +5139,9 @@
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
 		},
 		{
-			"file": "apps/web/src/features/resume/editor/check/parser-view.tsx",
-			"context": "function:ParserView/jsx:p@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
 			"file": "apps/web/src/features/resume/editor/chrome.tsx",
 			"context": "function:CanvasStatusPill/jsx:span@className",
 			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/chrome.tsx",
-			"context": "function:DocumentMenuTrigger/jsx:button@className",
-			"literal": "max-w-[calc(100%+0.75rem)]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/chrome.tsx",
-			"context": "function:DocumentMenuTrigger/jsx:span@className",
-			"literal": "leading-[18px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/chrome.tsx",
-			"context": "function:DocumentMenuTrigger/jsx:span@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/chrome.tsx",
-			"context": "function:ZoomBar/const:buttonClassName",
-			"literal": "rounded-[7px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/chrome.tsx",
-			"context": "function:ZoomBar/jsx:button@className",
-			"literal": "min-w-[52px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/chrome.tsx",
-			"context": "function:ZoomBar/jsx:button@className",
-			"literal": "rounded-[7px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/chrome.tsx",
-			"context": "function:ZoomBar/jsx:button@className",
-			"literal": "text-xs",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
@@ -6100,14 +5524,6 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/editor/design/template-group.tsx",
-			"context": "function:TemplateGroup/jsx:Radio.Root@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/design/template-group.tsx",
 			"context": "function:TemplateGroup/jsx:span@className",
 			"literal": "text-xs",
 			"kind": "typography",
@@ -6348,14 +5764,6 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/editor/write/basics-card.tsx",
-			"context": "function:CustomFields/jsx:button@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/basics-card.tsx",
 			"context": "function:PhotoRow/jsx:p@className",
 			"literal": "leading-4",
 			"kind": "typography",
@@ -6468,14 +5876,6 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/editor/write/entry-card.tsx",
-			"context": "function:EntryCard/jsx:button@className",
-			"literal": "rounded-[9px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/entry-card.tsx",
 			"context": "function:EntryCard/jsx:div@className",
 			"literal": "rounded-[10px]",
 			"kind": "geometry",
@@ -6550,14 +5950,6 @@
 			"file": "apps/web/src/features/resume/editor/write/outline.tsx",
 			"context": "function:Divider/jsx:span@className",
 			"literal": "tracking-[0.08em]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/outline.tsx",
-			"context": "function:OutlineSection/jsx:button@className",
-			"literal": "text-sm",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
@@ -6764,14 +6156,6 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/editor/write/rich-text-editor.tsx",
-			"context": "function:RichTextEditor/jsx:button@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/rich-text-editor.tsx",
 			"context": "function:RichTextEditor/jsx:div@className",
 			"literal": "text-xs",
 			"kind": "typography",
@@ -6782,14 +6166,6 @@
 			"file": "apps/web/src/features/resume/editor/write/rich-text-editor.tsx",
 			"context": "function:RichTextEditor/jsx:p@className",
 			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/editor/write/section-row.tsx",
-			"context": "function:SectionRow/jsx:button@className",
-			"literal": "text-sm",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
@@ -7340,46 +6716,6 @@
 		},
 		{
 			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:FileNameField/jsx:div@className",
-			"literal": "h-[38px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:FileNameField/jsx:input@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:FileNameField/jsx:label@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:FileNameField/jsx:span@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
-			"context": "function:FileNameField/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/download-tab.tsx",
 			"context": "function:FormatRadioGroup/jsx:Radio.Root@className",
 			"literal": "rounded-[10px]",
 			"kind": "geometry",
@@ -7431,86 +6767,6 @@
 			"context": "function:FormatRadioGroup/jsx:span@className",
 			"literal": "text-sm",
 			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/history-tab.tsx",
-			"context": "function:HistoryTimeline/jsx:p@className",
-			"literal": "leading-[17px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/history-tab.tsx",
-			"context": "function:HistoryTimeline/jsx:p@className",
-			"literal": "leading-[19px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/history-tab.tsx",
-			"context": "function:HistoryTimeline/jsx:p@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/history-tab.tsx",
-			"context": "function:HistoryTimeline/jsx:p@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/history-tab.tsx",
-			"context": "function:TimelineItem/jsx:button@className",
-			"literal": "py-[9px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/history-tab.tsx",
-			"context": "function:TimelineItem/jsx:span@className",
-			"literal": "mt-[15px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/history-tab.tsx",
-			"context": "function:TimelineItem/jsx:span@className",
-			"literal": "rounded-[10px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/history-tab.tsx",
-			"context": "function:TimelineItem/jsx:span@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/history-tab.tsx",
-			"context": "function:TimelineItem/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
-		},
-		{
-			"file": "apps/web/src/features/resume/share/history-tab.tsx",
-			"context": "function:TimelineItem/jsx:span@className",
-			"literal": "w-[1.5px]",
-			"kind": "geometry",
 			"count": 1,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
 		},
@@ -8023,7 +7279,7 @@
 			"context": "function:StylesheetEditorShell/const:editorChrome/jsx:p@className",
 			"literal": "text-xs",
 			"kind": "typography",
-			"count": 3,
+			"count": 2,
 			"reason": "Protected inherited document rendering, editor data or color-picker occurrence from b617646fa."
 		},
 		{
@@ -8053,14 +7309,6 @@
 		{
 			"file": "apps/web/src/routes/builder/$resumeId/-components/design-panel.tsx",
 			"context": "function:AdvancedGroup/jsx:label@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/design-panel.tsx",
-			"context": "function:DesignPanel/jsx:button@className",
 			"literal": "text-[13px]",
 			"kind": "typography",
 			"count": 1,
@@ -8132,64 +7380,8 @@
 		},
 		{
 			"file": "apps/web/src/routes/builder/$resumeId/-components/editor-shell.tsx",
-			"context": "function:MobileBody/jsx:button@className",
-			"literal": "min-h-[52px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/editor-shell.tsx",
 			"context": "function:SelectionBar/jsx:div@className",
 			"literal": "bottom-[76px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/editor-shell.tsx",
-			"context": "function:TabletBody/jsx:TabsContent@className",
-			"literal": "max-w-[calc(100%-3rem)]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/editor-shell.tsx",
-			"context": "function:TabletBody/jsx:TabsContent@className",
-			"literal": "w-[380px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/page-canvas.tsx",
-			"context": "function:OverflowChip/jsx:button@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/page-canvas.tsx",
-			"context": "function:OverflowChip/jsx:span@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/page-canvas.tsx",
-			"context": "function:PageCanvas/jsx:ResumePreview@className",
-			"literal": "-translate-x-[120px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/page-canvas.tsx",
-			"context": "function:PageCanvas/jsx:ResumePreview@className",
-			"literal": "rtl:translate-x-[120px]",
 			"kind": "geometry",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
@@ -8215,14 +7407,6 @@
 			"context": "function:ResumePageCaption/jsx:span@className",
 			"literal": "text-[11px]",
 			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/$resumeId/-components/share-sheet.tsx",
-			"context": "function:ShareSheet/jsx:SheetContent@className",
-			"literal": "h-[calc(100svh-1.5rem)]",
-			"kind": "geometry",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
@@ -8668,14 +7852,6 @@
 		},
 		{
 			"file": "apps/web/src/routes/builder/letter/-components/letter-shell.tsx",
-			"context": "function:MobileBody/jsx:button@className",
-			"literal": "min-h-[52px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/letter/-components/letter-shell.tsx",
 			"context": "function:TabletBody/jsx:TabsContent@className",
 			"literal": "max-w-[calc(100%-3rem)]",
 			"kind": "geometry",
@@ -8712,30 +7888,6 @@
 			"literal": "min-h-[240px]",
 			"kind": "geometry",
 			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/letter/-components/write-panel.tsx",
-			"context": "function:DesignNote/jsx:p@className",
-			"literal": "text-sm",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/letter/-components/write-panel.tsx",
-			"context": "function:DraftBox/jsx:button@className",
-			"literal": "hover:bg-[oklch(1_0_0/0.12)]",
-			"kind": "color",
-			"count": 2,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/routes/builder/letter/-components/write-panel.tsx",
-			"context": "function:DraftBox/jsx:button@className",
-			"literal": "text-[13px]",
-			"kind": "typography",
-			"count": 3,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
@@ -9115,14 +8267,6 @@
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{
-			"file": "packages/ui/src/components/sar-amount.tsx",
-			"context": "function:SarAmount/jsx:svg@className",
-			"literal": "h-[0.8em]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Approved Saudi riyal vector scales with the surrounding amount; preserve accessible currency glyph geometry."
-		},
-		{
 			"file": "packages/ui/src/components/sheet.tsx",
 			"context": "function:SheetContent/const:popup/jsx:SheetPrimitive.Popup@className",
 			"literal": "data-[side=bottom]:[transform:translateY(var(--drawer-swipe-movement-y,0px))]",
@@ -9342,14 +8486,6 @@
 			"file": "packages/ui/src/styles/globals.css",
 			"context": ":root/--editor-bar",
 			"literal": "56px",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Reviewed shared brand, type, spacing and layout token definition (D35 / audit A)."
-		},
-		{
-			"file": "packages/ui/src/styles/globals.css",
-			"context": ":root/--editor-panel",
-			"literal": "400px",
 			"kind": "geometry",
 			"count": 1,
 			"reason": "Reviewed shared brand, type, spacing and layout token definition (D35 / audit A)."
@@ -10467,20 +9603,532 @@
 			"reason": "Authored CV stylesheet fixture for localized color editing; the literal preserves document content and does not style the interface."
 		},
 		{
-			"file": "apps/web/src/features/documents/letter-card-content.tsx",
-			"context": "function:LetterThumbnail/const:visible/property:margin",
-			"literal": "240px",
+			"file": "apps/web/src/features/career/information/section-index.test.tsx",
+			"context": "property:height",
+			"literal": "48",
 			"kind": "geometry",
 			"count": 1,
-			"reason": "The inherited document prefetch window schedules thumbnail loading before visibility. It does not set rendered layout geometry."
+			"reason": "Synthetic DOMRect in the section-index regression test. This measurement tests scroll alignment and does not set product geometry."
 		},
 		{
-			"file": "apps/web/src/features/documents/resume-thumbnail.tsx",
-			"context": "function:ResumeThumbnail/const:visible/property:margin",
-			"literal": "240px",
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--career-teal-soft",
+			"literal": "#d9eeeb",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic career token, owner-approved light/dark scan accents, 2026-11-18. AA contrast is recorded in T016 evidence."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--career-teal",
+			"literal": "#155c57",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic career token, owner-approved light/dark scan accents, 2026-11-18. AA contrast is recorded in T016 evidence."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ".dark/--career-teal-soft",
+			"literal": "#183b37",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic career token, owner-approved light/dark scan accents, 2026-11-18. AA contrast is recorded in T016 evidence."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ".dark/--career-teal",
+			"literal": "#99d6cc",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic career token, owner-approved light/dark scan accents, 2026-11-18. AA contrast is recorded in T016 evidence."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:map/property:width/property:pages",
+			"literal": "595",
+			"kind": "geometry",
+			"count": 2,
+			"reason": "PDF-point fixtures for page overflow tests. These measurements are document content, not UI geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:map/property:height/property:pages",
+			"literal": "842",
+			"kind": "geometry",
+			"count": 2,
+			"reason": "PDF-point fixtures for page overflow tests. These measurements are document content, not UI geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:map/property:width/property:nodes",
+			"literal": "500",
 			"kind": "geometry",
 			"count": 1,
-			"reason": "The inherited document prefetch window schedules thumbnail loading before visibility. It does not set rendered layout geometry."
+			"reason": "PDF-point fixtures for page overflow tests. These measurements are document content, not UI geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:map/property:height/property:nodes",
+			"literal": "90",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "PDF-point fixtures for page overflow tests. These measurements are document content, not UI geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/page-layer.test.tsx",
+			"context": "const:map/property:width/property:pages",
+			"literal": "300",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/page-layer.test.tsx",
+			"context": "const:map/property:height/property:pages",
+			"literal": "400",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/page-layer.test.tsx",
+			"context": "const:map/property:width/property:pages",
+			"literal": "600",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/page-layer.test.tsx",
+			"context": "const:map/property:height/property:pages",
+			"literal": "800",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/page-layer.test.tsx",
+			"context": "property:width/property:box/property:evidence/property:findings/property:pdfReport/property:useReadiness",
+			"literal": "120",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/page-layer.test.tsx",
+			"context": "property:height/property:box/property:evidence/property:findings/property:pdfReport/property:useReadiness",
+			"literal": "40",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "property:width/property:box",
+			"literal": "3",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "property:height/property:box",
+			"literal": "4",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:box/property:width",
+			"literal": "120",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:box/property:height",
+			"literal": "40",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "property:width",
+			"literal": "600",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "property:height",
+			"literal": "800",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "property:width",
+			"literal": "300",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "property:height",
+			"literal": "400",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF page and evidence-box dimensions for coordinate tests; these values never define interface geometry."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--calendar-technical-ink",
+			"literal": "#5c3aac",
+			"kind": "color",
+			"count": 1,
+			"reason": "Central technical-interview palette from the owner-approved applications-calendar mock, 2026-11-18. Paired contrast is 6.57:1 light and 9.04:1 dark. Consumers use semantic variables and distinct icons."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--calendar-technical-surface",
+			"literal": "#eee7fb",
+			"kind": "color",
+			"count": 1,
+			"reason": "Central technical-interview palette from the owner-approved applications-calendar mock, 2026-11-18. Paired contrast is 6.57:1 light and 9.04:1 dark. Consumers use semantic variables and distinct icons."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ".dark/--calendar-technical-ink",
+			"literal": "#dac8ff",
+			"kind": "color",
+			"count": 1,
+			"reason": "Central technical-interview palette from the owner-approved applications-calendar mock, 2026-11-18. Paired contrast is 6.57:1 light and 9.04:1 dark. Consumers use semantic variables and distinct icons."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ".dark/--calendar-technical-surface",
+			"literal": "#342647",
+			"kind": "color",
+			"count": 1,
+			"reason": "Central technical-interview palette from the owner-approved applications-calendar mock, 2026-11-18. Paired contrast is 6.57:1 light and 9.04:1 dark. Consumers use semantic variables and distinct icons."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--diagram-paper-blue",
+			"literal": "#e0f1ff",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic diagram role from the owner-approved ATS CV map. White document paper keeps this light palette in both interface themes (2026-11-19). No call-site color allowance."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--diagram-paper-teal",
+			"literal": "#d9eeeb",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic diagram role from the owner-approved ATS CV map. White document paper keeps this light palette in both interface themes (2026-11-19). No call-site color allowance."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--diagram-paper-green",
+			"literal": "#dcf2df",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic diagram role from the owner-approved ATS CV map. White document paper keeps this light palette in both interface themes (2026-11-19). No call-site color allowance."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--diagram-paper-gold",
+			"literal": "#fcedcd",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic diagram role from the owner-approved ATS CV map. White document paper keeps this light palette in both interface themes (2026-11-19). No call-site color allowance."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--diagram-paper-muted",
+			"literal": "#4f4d47",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic diagram role from the owner-approved ATS CV map. White document paper keeps this light palette in both interface themes (2026-11-19). No call-site color allowance."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--diagram-paper-blue-ink",
+			"literal": "#1d5b92",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic diagram role from the owner-approved ATS CV map. White document paper keeps this light palette in both interface themes (2026-11-19). No call-site color allowance."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--diagram-paper-teal-ink",
+			"literal": "#155c57",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic diagram role from the owner-approved ATS CV map. White document paper keeps this light palette in both interface themes (2026-11-19). No call-site color allowance."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--diagram-paper-green-ink",
+			"literal": "#195c2e",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic diagram role from the owner-approved ATS CV map. White document paper keeps this light palette in both interface themes (2026-11-19). No call-site color allowance."
+		},
+		{
+			"file": "packages/ui/src/styles/globals.css",
+			"context": ":root/--diagram-paper-gold-ink",
+			"literal": "#81520a",
+			"kind": "color",
+			"count": 1,
+			"reason": "Shared semantic diagram role from the owner-approved ATS CV map. White document paper keeps this light palette in both interface themes (2026-11-19). No call-site color allowance."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/actions.navigation.test.tsx",
+			"context": "property:width/property:box/property:evidence/property:findings/property:pdfReport/property:useReadiness",
+			"literal": "120",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF evidence-box dimensions for marker navigation tests. These values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/actions.navigation.test.tsx",
+			"context": "property:height/property:box/property:evidence/property:findings/property:pdfReport/property:useReadiness",
+			"literal": "40",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF evidence-box dimensions for marker navigation tests. These values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/actions.navigation.test.tsx",
+			"context": "property:width/property:box/property:evidence",
+			"literal": "120",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF evidence-box dimensions for marker navigation tests. These values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/actions.navigation.test.tsx",
+			"context": "property:height/property:box/property:evidence",
+			"literal": "40",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Intrinsic synthetic PDF evidence-box dimensions for marker navigation tests. These values never define interface geometry."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "const:bands/property:width/property:parseability",
+			"literal": "200",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Normalized SVG illustration dimensions in the single CV band geometry definition. Bands and highlights share these bounds (owner geometry fix, 2026-11-19). These are diagram coordinates, not CSS spacing or control sizes."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "const:bands/property:height/property:parseability",
+			"literal": "52",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Normalized SVG illustration dimensions in the single CV band geometry definition. Bands and highlights share these bounds (owner geometry fix, 2026-11-19). These are diagram coordinates, not CSS spacing or control sizes."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "const:bands/property:width/property:layout",
+			"literal": "218",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Normalized SVG illustration dimensions in the single CV band geometry definition. Bands and highlights share these bounds (owner geometry fix, 2026-11-19). These are diagram coordinates, not CSS spacing or control sizes."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "const:bands/property:height/property:layout",
+			"literal": "318",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Normalized SVG illustration dimensions in the single CV band geometry definition. Bands and highlights share these bounds (owner geometry fix, 2026-11-19). These are diagram coordinates, not CSS spacing or control sizes."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "const:bands/property:width/property:sections",
+			"literal": "200",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Normalized SVG illustration dimensions in the single CV band geometry definition. Bands and highlights share these bounds (owner geometry fix, 2026-11-19). These are diagram coordinates, not CSS spacing or control sizes."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "const:bands/property:width/property:contact",
+			"literal": "200",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Normalized SVG illustration dimensions in the single CV band geometry definition. Bands and highlights share these bounds (owner geometry fix, 2026-11-19). These are diagram coordinates, not CSS spacing or control sizes."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "const:bands/property:height/property:contact",
+			"literal": "22",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Normalized SVG illustration dimensions in the single CV band geometry definition. Bands and highlights share these bounds (owner geometry fix, 2026-11-19). These are diagram coordinates, not CSS spacing or control sizes."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "const:bands/property:width/property:dates",
+			"literal": "38",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Normalized SVG illustration dimensions in the single CV band geometry definition. Bands and highlights share these bounds (owner geometry fix, 2026-11-19). These are diagram coordinates, not CSS spacing or control sizes."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "const:bands/property:height/property:dates",
+			"literal": "14",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Normalized SVG illustration dimensions in the single CV band geometry definition. Bands and highlights share these bounds (owner geometry fix, 2026-11-19). These are diagram coordinates, not CSS spacing or control sizes."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "const:bands/property:width/property:content",
+			"literal": "200",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Normalized SVG illustration dimensions in the single CV band geometry definition. Bands and highlights share these bounds (owner geometry fix, 2026-11-19). These are diagram coordinates, not CSS spacing or control sizes."
+		},
+		{
+			"file": "apps/web/src/features/ats-guide/area-map.tsx",
+			"context": "function:CvFeatureMap/function:measure",
+			"literal": "${widths[bank]}px",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Owner-approved intrinsic guide-card measurement. Each bank uses its widest measured card, constrained by shared CSS tokens, before branch anchors are calculated (2026-11-19)."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:spans/property:width",
+			"literal": "80",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:spans/property:height",
+			"literal": "15",
+			"kind": "geometry",
+			"count": 2,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:spans/property:fontSize",
+			"literal": "12",
+			"kind": "typography",
+			"count": 2,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:spans/property:width",
+			"literal": "10",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:line/property:width",
+			"literal": "165",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:line/property:height",
+			"literal": "15",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:line/property:fontSize",
+			"literal": "12",
+			"kind": "typography",
+			"count": 1,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:area/property:width",
+			"literal": "200",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "const:area/property:height",
+			"literal": "300",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "property:width/property:box",
+			"literal": "165",
+			"kind": "geometry",
+			"count": 2,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/check/review-location.test.ts",
+			"context": "property:height/property:box",
+			"literal": "15",
+			"kind": "geometry",
+			"count": 2,
+			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:pageMap/property:width/property:pages",
+			"literal": "595",
+			"kind": "geometry",
+			"count": 2,
+			"reason": "PDF point geometry fixture for printable-height regression, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:pageMap/property:height/property:pages",
+			"literal": "842",
+			"kind": "geometry",
+			"count": 2,
+			"reason": "PDF point geometry fixture for printable-height regression, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:pageMap/property:width/property:nodes",
+			"literal": "500",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "PDF point geometry fixture for printable-height regression, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:pageMap/property:height/property:nodes",
+			"literal": "110",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "PDF point geometry fixture for printable-height regression, not interface styling."
 		}
 	]
 }

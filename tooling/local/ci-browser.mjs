@@ -52,6 +52,7 @@ export function ciBrowserEnvironment({ parent, databaseUrl, migrationUrl, direct
 		...(parent.IMPECCABLE_BIN ? { IMPECCABLE_BIN: parent.IMPECCABLE_BIN } : {}),
 		NODE_OPTIONS: `--import=${new URL("./test-isolation.mjs", import.meta.url).href}`,
 		TEST_INFERENCE_ISOLATION: "true",
+		npm_config_verify_deps_before_run: "false",
 		// Match GitHub Ubuntu: Chromium must encode Arabic download filenames as UTF-8.
 		LANG: "C.UTF-8",
 		LC_ALL: "C.UTF-8",

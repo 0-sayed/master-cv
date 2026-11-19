@@ -690,15 +690,13 @@ function RailItem({
 					<DropdownMenu>
 						<DropdownMenuTrigger
 							render={
-								<button
-									type="button"
-									aria-label={t`More for ${title}`}
-									className="absolute inset-e-1 top-1.5 grid size-7 place-items-center rounded-sm text-ink-3 opacity-0 transition-[opacity,background-color,color] duration-quick group-hover/row:opacity-100 hover:bg-hover hover:text-ink focus-visible:opacity-100 aria-expanded:opacity-100 pointer-coarse:opacity-100"
+								<IconButton
+									icon="dots-three"
+									label={t`More for ${title}`}
+									className="absolute inset-e-1 top-1.5 text-ink-3"
 								/>
 							}
-						>
-							<Icon name="dots-three" size={18} />
-						</DropdownMenuTrigger>
+						/>
 						<DropdownMenuContent align="end" finalFocus={false}>
 							<DropdownMenuItem onClick={onRenameStart}>
 								<Icon name="pencil-simple" size={18} />

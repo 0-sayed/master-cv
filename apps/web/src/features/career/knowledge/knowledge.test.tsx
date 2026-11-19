@@ -1,10 +1,12 @@
 // @vitest-environment happy-dom
 import type { ReactNode } from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@reactive-resume/ui/components/tooltip";
 
 const api = vi.hoisted(() => ({
 	data: {} as Record<string, unknown>,
@@ -14,6 +16,7 @@ const api = vi.hoisted(() => ({
 	saveStory: vi.fn(),
 	saveFact: vi.fn(),
 	navigate: vi.fn(),
+	upload: vi.fn(),
 }));
 vi.mock("@/libs/orpc/client", () => {
 	const endpoint = (name: string) => ({
@@ -40,7 +43,7 @@ vi.mock("@/libs/orpc/client", () => {
 				),
 			),
 		},
-		client: { career: { saveProfile: api.saveProfile } },
+		client: { career: { saveProfile: api.saveProfile }, agent: { attachments: { create: api.upload } } },
 	};
 });
 vi.mock("@tanstack/react-router", () => ({
@@ -75,6 +78,7 @@ vi.mock("@/features/applications/queries", () => ({
 }));
 vi.mock("@reactive-resume/ui/components/toast", () => ({ toast: { add: vi.fn() } }));
 
+import { CoachThread } from "../coach-thread";
 import { OffersPage } from "../offers";
 import { FactsPage } from "./facts";
 import { PreferencesPage } from "./preferences";
@@ -200,6 +204,47 @@ it("rejects salary shorthand without autosaving a different number, and accepts 
 		),
 	);
 	expect(input.getAttribute("aria-invalid")).toBeNull();
+});
+
+it("keeps preference chip actions in the shared chip size and removes the selected value", async () => {
+	api.data.profile = { ...profile(), targetRoles: ["Engineer", "Designer"] };
+	mount(<PreferencesPage />);
+	const remove = await screen.findByRole("button", { name: "Remove Engineer" });
+	expect(remove).toHaveAttribute("data-size", "icon-chip");
+	expect(remove.closest('[data-slot="chip"]')).toHaveClass("min-h-7", "pointer-coarse:min-h-11");
+	fireEvent.click(remove);
+	expect(screen.queryByRole("button", { name: "Remove Engineer" })).toBeNull();
+	expect(screen.getByRole("button", { name: "Remove Designer" })).toBeVisible();
+});
+
+it("keeps uploaded coach attachments removable through the shared chip action", async () => {
+	api.upload.mockResolvedValue({ id: "file", filename: "notes.txt", mediaType: "text/plain" });
+	const view = mount(
+		<TooltipProvider>
+			<CoachThread
+				threadId={null}
+				createThread={async () => "thread"}
+				onThreadCreated={() => {}}
+				applicationId={null}
+				context={{ document: false, posting: false }}
+				connection="Synthetic connection"
+				onChangeConnection={() => {}}
+				header={() => null}
+				empty={() => null}
+				privacy={null}
+				placeholder="Message"
+				variant="page"
+			/>
+		</TooltipProvider>,
+	);
+	const input = view.container.querySelector<HTMLInputElement>('input[type="file"]');
+	if (!input) throw new Error("Expected a file input");
+	await userEvent.upload(input, new File(["Synthetic notes"], "notes.txt", { type: "text/plain" }));
+	const remove = await screen.findByRole("button", { name: "Remove notes.txt" });
+	expect(remove).toHaveAttribute("data-size", "icon-chip");
+	expect(remove.closest('[data-slot="chip"]')).toHaveClass("min-h-7", "pointer-coarse:min-h-11");
+	fireEvent.click(remove);
+	expect(screen.queryByRole("button", { name: "Remove notes.txt" })).toBeNull();
 });
 
 it("lets an existing office-day requirement return to unspecified", async () => {

@@ -1,240 +1,175 @@
 import type { Application } from "../../types";
-import type { IconName } from "@reactive-resume/ui/components/icon";
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
+import { Badge } from "@reactive-resume/ui/components/badge";
 import { Button, buttonVariants } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { toast } from "@reactive-resume/ui/components/toast";
-import { PIPELINE } from "../../stages";
-import { useInvalidateApplications } from "../../use-application-actions";
-import { FileAttachmentField } from "../file-attachment-field";
-import { ResumeVersionSelect } from "../resume-version-select";
-import { useDialogStore } from "@/dialogs/store";
-import { getOrpcErrorMessage } from "@/libs/error-message";
+import { SectionCard, SectionCardTitle } from "@reactive-resume/ui/components/section-card";
+import { DocumentManager } from "./document-manager";
+import { QuerySkeleton } from "@/components/query-skeleton";
 import { formatInterfaceDate } from "@/libs/locale";
-import { orpc } from "@/libs/orpc/client";
+import { client, orpc } from "@/libs/orpc/client";
 
-/** When the application was sent: its first stage at Applied or beyond. */
-function sentOn(application: Application) {
-	const applied = PIPELINE.indexOf("applied");
-	const entry = [...application.activity]
-		.sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime())
-		.find((item) => item.type === "stage" && PIPELINE.indexOf(item.stage) >= applied);
-	return new Date(entry?.at ?? application.appliedAt);
-}
-
-type SentDocumentRowProps = {
-	icon: IconName;
-	name: string;
-	status: React.ReactNode;
-	children: React.ReactNode;
-};
-
-function SentDocumentRow({ icon, name, status, children }: SentDocumentRowProps) {
+export function SentDocuments({ application, disabled }: { application: Application; disabled: boolean }) {
+	const [open, setOpen] = useState(false);
 	return (
-		<div className="flex items-center gap-2.5 rounded-xl border border-line p-3">
-			<Icon name={icon} className="shrink-0 text-ink-2" />
-			<div className="grid min-w-0 flex-1">
-				<span className="truncate text-sm font-medium">{name}</span>
-				<span className="text-xs text-ink-3">{status}</span>
-			</div>
-			{children}
-		</div>
+		<SectionCard aria-labelledby="application-sent">
+			<SectionCardTitle as="h2" id="application-sent" tabIndex={-1} className="scroll-mt-(--app-toolbar-height)">
+				<Trans>Documents</Trans>
+			</SectionCardTitle>
+			<DocumentRow application={application} kind="resume" />
+			<DocumentRow application={application} kind="letter" />
+			{[
+				{ url: application.resumeFileUrl, name: application.resumeFileName },
+				{ url: application.coverLetterUrl, name: application.coverLetterName },
+			]
+				.filter((file) => file.url)
+				.map((file) => (
+					<div key={file.url} className="grid gap-1 border-t border-line-1 pt-3">
+						<span className="type-label">
+							<Trans>Attachment</Trans>
+						</span>
+						<a
+							href={file.url ?? undefined}
+							target="_blank"
+							rel="noreferrer"
+							dir="auto"
+							className="type-body wrap-anywhere text-accent-text underline"
+						>
+							{file.name || t`PDF attachment`}
+						</a>
+						<span className="type-metadata text-ink-2">
+							<Trans>Linked, not recorded as sent</Trans>
+						</span>
+					</div>
+				))}
+			<Button variant="secondary" disabled={disabled} onClick={() => setOpen(true)}>
+				<Trans>Manage documents</Trans>
+			</Button>
+			<DocumentManager application={application} disabled={disabled} open={open} onOpenChange={setOpen} />
+		</SectionCard>
 	);
 }
 
-type SentDocumentsProps = { application: Application; disabled: boolean };
-
-/**
- * WHAT YOU SENT: the linked resume (opening the version that was sent, read-only, with a way back to the latest) and
- * the linked letter. Without them: Tailor a resume and Write a letter. Uploaded PDFs stay under "Attach a file".
- */
-export function SentDocuments({ application, disabled }: SentDocumentsProps) {
+function DocumentRow({ application, kind }: { application: Application; kind: "resume" | "letter" }) {
 	const { i18n } = useLingui();
-	const navigate = useNavigate();
-	const invalidate = useInvalidateApplications();
-	const openDialog = useDialogStore((state) => state.openDialog);
-	const { data: documents } = useQuery(orpc.documents.list.queryOptions({ input: { trashed: false } }));
-	const [attaching, setAttaching] = useState(Boolean(application.resumeFileUrl || application.coverLetterUrl));
-
-	const update = useMutation({
-		...orpc.applications.update.mutationOptions(),
-		onSuccess: () => invalidate(application.id),
-		onError: (error) =>
-			toast.add({ type: "error", description: getOrpcErrorMessage(error, { fallback: t`Couldn't save.` }) }),
+	const resume = kind === "resume";
+	const id = resume ? application.resumeId : application.coverLetterId;
+	const versionId = resume ? application.sentResumeVersionId : application.sentCoverLetterVersionId;
+	const documents = useQuery(orpc.documents.list.queryOptions({ input: { trashed: false } }));
+	const document = documents.data?.find((entry) => entry.id === id && entry.type === kind);
+	const snapshot = useQuery({
+		queryKey: ["application-sent-version", kind, id, versionId],
+		enabled: Boolean(id && versionId),
+		queryFn: async () => {
+			if (!id || !versionId) throw new Error("Missing sent version reference");
+			if (resume) {
+				const value = await client.resume.getVersion({ resumeId: id, versionId });
+				return { name: value.name, createdAt: value.createdAt };
+			}
+			const value = await client.coverLetters.getVersion({ id, versionId });
+			return { name: value.data.name || value.name, createdAt: value.createdAt };
+		},
 	});
-	const createLetter = useMutation(orpc.coverLetters.create.mutationOptions());
-
-	const resume = documents?.find((document) => document.type === "resume" && document.id === application.resumeId);
-	const letter = documents?.find((document) => document.type === "letter" && document.id === application.coverLetterId);
-	const date = formatInterfaceDate(sentOn(application), i18n.locale, { month: "short", day: "numeric" });
-
-	// A structured letter: the server fills the recipient from the application and makes it the application's letter.
-	const writeLetter = async () => {
-		const letterInput = {
-			name: t`Cover letter — ${application.company}`.slice(0, 100),
-			applicationId: application.id,
-			documentLocale: "ar-SA" as const,
-			...(application.resumeId ? { resumeId: application.resumeId } : {}),
-		};
-		try {
-			const created = await createLetter.mutateAsync(letterInput);
-			invalidate(application.id);
-			void navigate({ to: "/builder/letter/$coverLetterId", params: { coverLetterId: created.id } });
-		} catch (error) {
-			toast.add({
-				type: "error",
-				description: getOrpcErrorMessage(error, { fallback: t`Couldn't create the letter.` }),
-			});
-		}
-	};
-
+	const failed =
+		documents.isError || Boolean(versionId && snapshot.isError) || Boolean(id && documents.isSuccess && !document);
+	const loading = Boolean(id && (documents.isPending || (versionId && snapshot.isPending)));
+	const sentAt = snapshot.data?.createdAt ?? (resume ? application.sentResumeRecordedAt : null);
 	return (
-		<section aria-labelledby="application-sent" className="grid gap-2">
-			<h3 id="application-sent" className="text-xs font-semibold text-ink-3 uppercase">
-				{application.status === "saved" ? <Trans>Documents for this job</Trans> : <Trans>What you sent</Trans>}
-			</h3>
-			<ResumeVersionSelect
-				resumeId={application.resumeId}
-				value={application.selectedResumeVersionId}
-				disabled={
-					disabled || Boolean(application.sentResumeVersionId || application.sentResumeRecordedAt) || update.isPending
+		<article className="flex min-w-0 items-start gap-3 border-b border-line-1 pb-4">
+			<span
+				aria-hidden="true"
+				className={
+					resume
+						? "document-icon-tile bg-accent-soft text-accent-text"
+						: "document-icon-tile bg-info-soft text-info-text"
 				}
-				onChange={(value) =>
-					update.mutate({
-						id: application.id,
-						expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
-						selectedResumeVersionId: value,
-					})
-				}
-			/>
-
-			{application.resumeId && (
-				<SentDocumentRow
-					icon="file-text"
-					name={resume?.name ?? t`Linked resume`}
-					status={
-						application.sentResumeVersionId ? (
-							application.sentCheckScore !== null ? (
-								<Trans>
-									Version sent {date} · Check {application.sentCheckScore}
-								</Trans>
-							) : (
-								<Trans>Version sent {date}</Trans>
-							)
+			>
+				<Icon name={resume ? "file-text" : "envelope-simple"} />
+			</span>
+			<div className="grid min-w-0 flex-1 gap-2">
+				<h3 className="type-metadata text-ink-3">{resume ? <Trans>CV</Trans> : <Trans>Cover letter</Trans>}</h3>
+				{!id ? (
+					<p className="type-body text-ink-2">
+						{resume ? <Trans>No CV linked</Trans> : <Trans>No cover letter linked</Trans>}
+					</p>
+				) : loading ? (
+					<QuerySkeleton count={1} label={<Trans>Loading document…</Trans>} />
+				) : failed ? (
+					<Alert variant="error">
+						<Icon name="warning" />
+						<AlertTitle>
+							<Trans>Document unavailable</Trans>
+						</AlertTitle>
+						<AlertDescription>
+							<Trans>The document or its recorded version could not load. Your reference remains unchanged.</Trans>
+						</AlertDescription>
+						<AlertActions>
+							<Button
+								variant="secondary"
+								onClick={() => {
+									void documents.refetch();
+									if (versionId) void snapshot.refetch();
+								}}
+							>
+								<Trans>Retry</Trans>
+							</Button>
+						</AlertActions>
+					</Alert>
+				) : (
+					<>
+						<p dir="auto" className="type-label wrap-anywhere">
+							{snapshot.data?.name || document?.name}
+						</p>
+						{versionId ? (
+							<>
+								<div className="flex flex-wrap items-center gap-2">
+									<Badge variant="accent">
+										<Trans>Sent</Trans>
+									</Badge>
+									<span className="type-metadata text-ink-2">
+										{sentAt ? (
+											formatInterfaceDate(sentAt, i18n.locale, { year: "numeric", month: "short", day: "numeric" })
+										) : (
+											<Trans>Sent date not recorded</Trans>
+										)}
+									</span>
+								</div>
+							</>
 						) : (
-							<Trans>Linked · not sent yet</Trans>
-						)
-					}
-				>
-					<Link
-						to="/builder/$resumeId"
-						params={{ resumeId: application.resumeId }}
-						search={application.sentResumeVersionId ? { version: application.sentResumeVersionId } : {}}
-						className={buttonVariants({ size: "sm", variant: "secondary" })}
-					>
-						<Trans>Open</Trans>
-					</Link>
-				</SentDocumentRow>
-			)}
-
-			{application.coverLetterId && (
-				<SentDocumentRow
-					icon="envelope-simple"
-					name={letter?.name ?? t`Cover letter`}
-					status={
-						application.sentCoverLetterVersionId ? (
-							<Trans>Version sent {date}</Trans>
+							<span className="type-metadata text-ink-2">
+								<Trans>Linked, not recorded as sent</Trans>
+							</span>
+						)}
+						{resume ? (
+							<Link
+								to="/builder/$resumeId"
+								params={{ resumeId: id }}
+								search={versionId ? { version: versionId } : {}}
+								className={buttonVariants({ variant: "secondary", size: "row", className: "justify-self-start" })}
+							>
+								<Icon name="arrow-square-out" />
+								{versionId ? <Trans>Open sent version</Trans> : <Trans>Open current CV</Trans>}
+							</Link>
 						) : (
-							<Trans>Linked · not sent yet</Trans>
-						)
-					}
-				>
-					<Link
-						to="/builder/letter/$coverLetterId"
-						params={{ coverLetterId: application.coverLetterId }}
-						search={application.sentCoverLetterVersionId ? { version: application.sentCoverLetterVersionId } : {}}
-						className={buttonVariants({ size: "sm", variant: "secondary" })}
-					>
-						<Trans>Open</Trans>
-					</Link>
-				</SentDocumentRow>
-			)}
-
-			{(!application.resumeId || !application.coverLetterId) && (
-				<div className="flex flex-wrap gap-1.5">
-					{!application.resumeId && (
-						<Button
-							size="sm"
-							disabled={disabled}
-							onClick={() => openDialog("document.new", { step: "copy", applicationId: application.id })}
-						>
-							<Icon name="copy" size={16} />
-							<Trans>Prepare a resume</Trans>
-						</Button>
-					)}
-					{!application.coverLetterId && (
-						<Button
-							size="sm"
-							variant="secondary"
-							disabled={disabled || createLetter.isPending}
-							onClick={() => void writeLetter()}
-						>
-							<Icon name="envelope-simple" size={16} />
-							<Trans>Write a letter</Trans>
-						</Button>
-					)}
-				</div>
-			)}
-
-			{attaching ? (
-				<div className="grid gap-1.5">
-					<FileAttachmentField
-						value={
-							application.resumeFileUrl
-								? { url: application.resumeFileUrl, name: application.resumeFileName || t`Resume file` }
-								: null
-						}
-						attachLabel={t`Attach a resume file (PDF)`}
-						disabled={disabled || update.isPending}
-						onChange={(value) =>
-							update.mutate({
-								expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
-								id: application.id,
-								...(value ? { resumeFile: value } : { resumeFileUrl: null, resumeFileName: null }),
-							})
-						}
-					/>
-					<FileAttachmentField
-						value={
-							application.coverLetterUrl
-								? { url: application.coverLetterUrl, name: application.coverLetterName || t`Cover letter file` }
-								: null
-						}
-						attachLabel={t`Attach a cover letter file (PDF)`}
-						disabled={disabled || update.isPending}
-						onChange={(value) =>
-							update.mutate({
-								expectedUpdatedAt: new Date(application.updatedAt).toISOString(),
-								id: application.id,
-								...(value ? { coverLetterFile: value } : { coverLetterUrl: null, coverLetterName: null }),
-							})
-						}
-					/>
-				</div>
-			) : (
-				<button
-					type="button"
-					onClick={() => setAttaching(true)}
-					className="w-fit text-xs text-ink-3 underline underline-offset-2 hover:text-ink-2"
-				>
-					<Trans>Attach a file instead</Trans>
-				</button>
-			)}
-		</section>
+							<Link
+								to="/builder/letter/$coverLetterId"
+								params={{ coverLetterId: id }}
+								search={versionId ? { version: versionId } : {}}
+								className={buttonVariants({ variant: "secondary", size: "row", className: "justify-self-start" })}
+							>
+								<Icon name="arrow-square-out" />
+								{versionId ? <Trans>Open sent version</Trans> : <Trans>Open current letter</Trans>}
+							</Link>
+						)}
+					</>
+				)}
+			</div>
+		</article>
 	);
 }

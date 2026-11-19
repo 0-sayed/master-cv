@@ -23,7 +23,7 @@ import { draftSchema, entryInputs, formatFactValue, initialDraft, mergeLatestDra
 import { AuthErrorSummary } from "@/features/auth/components/auth-error-summary";
 import { client, orpc } from "@/libs/orpc/client";
 
-export function fieldLabel(field: string): string {
+function fieldLabel(field: string): string {
 	const labels: Record<string, string> = {
 		company: t`Company`,
 		position: t`Position`,

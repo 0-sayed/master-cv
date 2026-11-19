@@ -56,6 +56,28 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("verified email acc
 			),
 		);
 
+	it("keeps legacy admin columns private and ignores attempts to change them", async () => {
+		const email = "privacy@example.test";
+		await request("sign-up/email", { name: "Private", email, username: "privacy", password: fixturePassword });
+		await pool.query(
+			`UPDATE "user" SET email_verified=true,role='admin',banned=true,ban_reason='private reason' WHERE email=$1`,
+			[email],
+		);
+		const login = await request("sign-in/email", { email, password: fixturePassword });
+		expect(login.status).toBe(200);
+		const cookie = cookieOf(login);
+		await request("update-user", { role: "user", banned: false, banReason: "client input" }, cookie);
+		const session = await (await request("get-session", undefined, cookie)).json();
+		for (const field of ["role", "banned", "banReason", "banExpires"]) expect(session.user).not.toHaveProperty(field);
+		expect(session.session).not.toHaveProperty("impersonatedBy");
+		expect((await pool.query(`SELECT role,banned,ban_reason FROM "user" WHERE email=$1`, [email])).rows).toEqual([
+			{ role: "admin", banned: true, ban_reason: "private reason" },
+		]);
+		for (const path of ["impersonate-user", "ban-user", "set-role"])
+			expect([404, 405]).toContain((await request(`admin/${path}`, {}, cookie)).status);
+		expect([404, 405]).toContain((await request("admin/list-users", undefined, cookie)).status);
+	});
+
 	it("issues no signup session and requires email proof before password login", async () => {
 		mail.send.mockClear();
 		const signup = await request("sign-up/email", {
@@ -82,6 +104,46 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("verified email acc
 		expect(await (await request("get-session", undefined, cookieOf(login))).json()).toMatchObject({
 			user: { emailVerified: true, uiLocale: "ar-SA" },
 		});
+	});
+	it("keeps legacy administration columns private and rejects client changes to them", async () => {
+		const login = await request("sign-in/email", { email: "alice@example.test", password: fixturePassword });
+		expect(login.status).toBe(200);
+		const cookie = cookieOf(login);
+		const accountId = (await login.json()).user.id;
+		await pool.query(
+			"UPDATE \"user\" SET role='retained-role', banned=false, ban_reason='private legacy reason', ban_expires=now()+interval '1 day' WHERE id=$1",
+			[accountId],
+		);
+		await pool.query("UPDATE session SET impersonated_by='private-legacy-id' WHERE user_id=$1", [accountId]);
+		const freshLogin = await request("sign-in/email", { email: "alice@example.test", password: fixturePassword });
+		expect(freshLogin.status).toBe(200);
+		const signedInUser = (await freshLogin.json()).user;
+		const session = await (await request("get-session", undefined, cookie)).json();
+		for (const field of ["role", "banned", "banReason", "banExpires"]) {
+			expect(session.user).not.toHaveProperty(field);
+			expect(signedInUser).not.toHaveProperty(field);
+		}
+		expect(session.session).not.toHaveProperty("impersonatedBy");
+		const update = await request(
+			"update-user",
+			{
+				name: "Synthetic Account",
+				role: "admin",
+				banned: true,
+				banReason: "forged",
+				banExpires: null,
+			},
+			cookie,
+		);
+		expect(update.status).toBe(200);
+		expect(
+			(
+				await pool.query(
+					'SELECT role,banned,ban_reason,ban_expires IS NOT NULL AS expiry_retained FROM "user" WHERE id=$1',
+					[accountId],
+				)
+			).rows,
+		).toEqual([{ role: "retained-role", banned: false, ban_reason: "private legacy reason", expiry_retained: true }]);
 	});
 	it.each(["SMTP not configured", "SMTP rejected delivery"])(
 		"keeps reset responses indistinguishable: %s",
@@ -111,7 +173,7 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("verified email acc
 		const enroll = await request("two-factor/enable", { password: fixturePassword }, cookie);
 		expect(enroll.status, await enroll.clone().text()).toBe(200);
 		const { totpURI } = await enroll.json();
-		expect(new URL(totpURI).searchParams.get("issuer")).toBe("Master CV");
+		expect(new URL(totpURI).searchParams.get("issuer")).toBe("Sirawise");
 		const encoded = new URL(totpURI).searchParams.get("secret");
 		const bits = [...(encoded ?? "")]
 			.map((char) => "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567".indexOf(char).toString(2).padStart(5, "0"))

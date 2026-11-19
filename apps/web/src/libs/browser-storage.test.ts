@@ -17,6 +17,7 @@ it("clears every registered personal namespace from both storage areas, preservi
 		"offersPair",
 		"newDocuments",
 		"followUpDismissed",
+		"fitHintDismissed",
 	] as const) {
 		for (const storage of [browserStorage.local, browserStorage.session])
 			storage.setItem(storageKey(name, "alice:document"), "private");

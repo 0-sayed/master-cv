@@ -1,9 +1,11 @@
 import type { MessageDescriptor } from "@lingui/core";
 import { i18n } from "@lingui/core";
 import { msg } from "@lingui/core/macro";
+import { getProductName } from "@reactive-resume/utils/brand";
 
 // Reuse the visible surface's Lingui identity, including its copy-deck context.
 const pageNames: Record<string, MessageDescriptor> = {
+	"/dashboard/review-guide": msg({ message: "Review guide", context: "atsGuide.title" }),
 	"/help": msg({ message: "Help and contact", context: "help.page.title" }),
 	"/dashboard/settings/privacy": msg({ message: "Privacy & data", context: "privacy.navigation.data" }),
 	"/dashboard/settings/delete-account": msg({ message: "Privacy & data", context: "privacy.navigation.data" }),
@@ -16,7 +18,7 @@ const pageNames: Record<string, MessageDescriptor> = {
 	"/auth/verify-2fa-backup": msg`Verify with a Backup Code`,
 	"/auth/error": msg`Sign-in didn't complete`,
 	"/auth/consent": msg`Connect an application`,
-	"/auth/native-callback": msg`Open the Master CV app`,
+	"/auth/native-callback": msg`Open the Sirawise app`,
 	"/auth/resume-password": msg`This resume is password protected`,
 	"/dashboard": msg({ message: "My documents", context: "editor.navigation.documentsTitle" }),
 	"/dashboard/welcome": msg({ message: "Welcome {name}, let us start your CV", context: "auth.welcome.title" }),
@@ -40,7 +42,7 @@ const pageNames: Record<string, MessageDescriptor> = {
 	"/$username/$slug": msg`This resume isn't shared right now.`,
 };
 
-export const formatPageTitle = (pageName: string) => `${pageName} — Master CV`;
+export const formatPageTitle = (pageName: string) => `${pageName} — ${getProductName(i18n.locale)}`;
 
 /** Static destinations share one title policy; document routes supply their real name from their loader. */
 export function getRouteTitle(routeId: string, values: { name?: string } = {}) {

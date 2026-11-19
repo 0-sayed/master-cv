@@ -3,9 +3,10 @@ import { Trans } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
-import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { buttonVariants } from "@reactive-resume/ui/components/button";
+import { getProductName } from "@reactive-resume/utils/brand";
 import { cn } from "@reactive-resume/utils/style";
+import { BrandIcon } from "@/components/ui/brand-icon";
 import { useUiLocale } from "@/features/locale/provider";
 import { LocaleSwitch } from "@/features/locale/switch";
 
@@ -55,7 +56,12 @@ export function PublicShell({
 				className={cn(landing ? "top-0 z-40 landing-header lg:sticky" : "border-b border-line bg-surface")}
 			>
 				<div className={cn(container, "flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-4 sm:gap-x-4")}>
-					<Link to="/" search={{ locale }} aria-label="Master CV" className={buttonVariants({ variant: "ghost" })}>
+					<Link
+						to="/"
+						search={{ locale }}
+						aria-label={getProductName(locale)}
+						className={buttonVariants({ variant: "ghost", size: landing ? "default" : "compact" })}
+					>
 						{/* On narrow screens only the mark fits beside the header actions (below 360px on the landing, which
 						    moves its actions into a menu; below sm on content pages); the link keeps the full name. */}
 						<span className={landing ? "inline-flex narrow:hidden" : "inline-flex max-sm:hidden"}>
@@ -89,8 +95,14 @@ export function PublicShell({
 				{title && <h1 className="type-title">{title}</h1>}
 				{children}
 			</main>
-			<footer className="border-t border-line bg-surface">
-				<div className={cn(container, "flex flex-wrap items-center justify-between gap-4", landing ? "py-10" : "py-6")}>
+			<footer className={cn("border-t border-line", landing ? "bg-sunken" : "bg-surface")}>
+				<div
+					className={cn(
+						container,
+						"flex flex-wrap items-center justify-between gap-4",
+						landing ? "pt-10 pb-6" : "py-6",
+					)}
+				>
 					{footer ?? (
 						<>
 							<BackNavigation render={<Link to="/" search={{ locale }} />}>

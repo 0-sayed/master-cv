@@ -8,6 +8,8 @@ type ResumePdfRenderOptions = {
 };
 
 type CreateResumePdfBlobExtras = {
+	signal?: AbortSignal;
+	priority?: "preview" | "thumbnail";
 	/** Receives the page map (header, section and item boxes) of this render; used by the editor canvas. */
 	onPageMap?: (pageMap: PageMap) => void;
 	/** Receives the characters no font could draw (they print as "?"); not called when every character rendered. */
@@ -47,13 +49,50 @@ async function renderHere({ data, template, renderOptions }: RenderInput): Promi
 	return { blob, pageMap, lostCharacters };
 }
 
-type Pending = { input: RenderInput; resolve(value: Rendered): void; reject(error: Error): void };
+type Pending = {
+	id: number;
+	input: RenderInput;
+	priority: "preview" | "thumbnail";
+	resolve(value: Rendered): void;
+	reject(error: Error): void;
+};
 
-// ponytail: one worker renders in order, so a preview can wait behind one thumbnail (~0.25 s); a second worker
-// for thumbnails costs another engine and font set in memory.
+// One engine and font set. Visible previews preempt thumbnail work instead of waiting behind it.
 let worker: Worker | null | undefined;
 let nextId = 0;
-const pending = new Map<number, Pending>();
+let active: Pending | undefined;
+const queued: Pending[] = [];
+
+function drain() {
+	if (active || !queued.length) return;
+	const index = queued.findIndex((request) => request.priority === "preview");
+	const request = queued.splice(index < 0 ? 0 : index, 1)[0];
+	if (!request) return;
+	active = request;
+	const target = getWorker();
+	if (target) target.postMessage({ ...request.input, id: request.id } satisfies PdfWorkerRequest);
+	else
+		void renderHere(request.input)
+			.then(request.resolve, request.reject)
+			.finally(() => {
+				if (active === request) active = undefined;
+				drain();
+			});
+}
+
+function cancel(request: Pending) {
+	if (active === request) {
+		worker?.terminate();
+		worker = undefined;
+		active = undefined;
+	} else {
+		const index = queued.indexOf(request);
+		if (index < 0) return;
+		queued.splice(index, 1);
+	}
+	request.reject(new DOMException("PDF render cancelled", "AbortError"));
+	drain();
+}
 
 function getWorker(): Worker | null {
 	if (worker !== undefined) return worker;
@@ -64,30 +103,49 @@ function getWorker(): Worker | null {
 	} catch {
 		return worker;
 	}
+	const instance = worker;
 	worker.addEventListener("message", ({ data: response }: MessageEvent<PdfWorkerResponse>) => {
-		const request = pending.get(response.id);
-		if (!request) return;
-		pending.delete(response.id);
+		const request = active;
+		if (worker !== instance || !request || request.id !== response.id) return;
+		active = undefined;
 		if ("error" in response) request.reject(new Error(response.error, { cause: response.cause }));
 		else request.resolve({ blob: response.blob, pageMap: response.pageMap, lostCharacters: response.lostCharacters });
+		drain();
 	});
 	// Every render is caught inside the worker, so an error here means it couldn't start: render here instead.
 	worker.addEventListener("error", () => {
+		if (worker !== instance) return;
 		worker?.terminate();
 		worker = null;
-		for (const request of pending.values()) renderHere(request.input).then(request.resolve, request.reject);
-		pending.clear();
+		if (active) queued.unshift(active);
+		active = undefined;
+		drain();
 	});
 	return worker;
 }
 
-function render(input: RenderInput): Promise<Rendered> {
-	const target = getWorker();
-	if (!target) return renderHere(input);
-	const id = ++nextId;
+function render(input: RenderInput, priority: "preview" | "thumbnail", signal?: AbortSignal): Promise<Rendered> {
+	signal?.throwIfAborted();
 	return new Promise((resolve, reject) => {
-		pending.set(id, { input, resolve, reject });
-		target.postMessage({ ...input, id } satisfies PdfWorkerRequest);
+		const cleanup = () => signal?.removeEventListener("abort", abort);
+		const request: Pending = {
+			id: ++nextId,
+			input,
+			priority,
+			resolve: (value) => {
+				cleanup();
+				resolve(value);
+			},
+			reject: (error) => {
+				cleanup();
+				reject(error);
+			},
+		};
+		const abort = () => cancel(request);
+		signal?.addEventListener("abort", abort, { once: true });
+		queued.push(request);
+		if (priority === "preview" && active?.priority === "thumbnail") cancel(active);
+		drain();
 	});
 }
 
@@ -95,13 +153,18 @@ export const createResumePdfBlob = async (
 	data: ResumeData,
 	template?: Template,
 	renderOptions?: ResumePdfRenderOptions,
-	{ onPageMap, onLostCharacters }: CreateResumePdfBlobExtras = {},
+	{ onPageMap, onLostCharacters, signal, priority = "preview" }: CreateResumePdfBlobExtras = {},
 ) => {
-	const { blob, pageMap, lostCharacters } = await render({
-		data,
-		template,
-		...(renderOptions ? { renderOptions } : {}),
-	});
+	const { blob, pageMap, lostCharacters } = await render(
+		{
+			data,
+			template,
+			...(renderOptions ? { renderOptions } : {}),
+		},
+		priority,
+		signal,
+	);
+	signal?.throwIfAborted();
 	if (pageMap) onPageMap?.(pageMap);
 	if (lostCharacters) onLostCharacters?.(lostCharacters);
 	return blob;

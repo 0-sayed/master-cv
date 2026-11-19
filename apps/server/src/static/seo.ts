@@ -1,8 +1,6 @@
 import { env } from "@reactive-resume/env/server";
 import { getLocaleAlternates, productLocalePolicy } from "@reactive-resume/utils/locale";
 
-const DOCS_URL = "https://docs.rxresu.me";
-
 type StaticSeoOptions = {
 	head?: boolean;
 };
@@ -33,7 +31,6 @@ export function handleRobots(options?: StaticSeoOptions) {
 		"Allow: /.well-known/agent-skills/",
 		"",
 		`Sitemap: ${baseUrl}/sitemap.xml`,
-		`Sitemap: ${DOCS_URL}/sitemap.xml`,
 		"",
 	].join("\n");
 
@@ -41,7 +38,7 @@ export function handleRobots(options?: StaticSeoOptions) {
 }
 
 // The indexable pages; everything else is the signed-in app or a public resume, both served noindex.
-const sitemapPaths = ["/", "/ats-checker"];
+const sitemapPaths = ["/"];
 
 export function handleSitemap(options?: StaticSeoOptions) {
 	const baseUrl = appUrl();
@@ -71,7 +68,7 @@ export function handleLlms(options?: StaticSeoOptions) {
 	const baseUrl = appUrl();
 	return textResponse(
 		[
-			"# Master CV",
+			"# Sirawise",
 			"",
 			"Write and review your CV in a private account.",
 			"Qualified PDF downloads are free within account limits. Word downloads are unavailable. Public sharing remains subject to release approval.",
@@ -80,7 +77,6 @@ export function handleLlms(options?: StaticSeoOptions) {
 			"",
 			`- [Homepage](${baseUrl}/)`,
 			`- [Account entry](${baseUrl}/auth/register)`,
-			`- [PDF readability information](${baseUrl}/ats-checker)`,
 			"- [Source code](https://github.com/0-sayed/master-cv)",
 			"",
 		].join("\n"),

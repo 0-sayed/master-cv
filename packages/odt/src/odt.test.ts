@@ -18,6 +18,16 @@ const contentText = (data: typeof sampleResumeData) =>
 		.trim();
 
 describe("buildOdt", () => {
+	it("brands archive metadata while preserving authored content", async () => {
+		const data = structuredClone(sampleResumeData);
+		data.basics.name = "Master CV fictional author";
+		const snapshot = structuredClone(data);
+		const bytes = new Uint8Array(await (await buildOdt(data, resolveTitle)).arrayBuffer());
+		const files = unzipSync(bytes);
+		expect(strFromU8(files["meta.xml"] ?? new Uint8Array())).toContain("<meta:generator>Sirawise</meta:generator>");
+		expect(strFromU8(files["content.xml"] ?? new Uint8Array())).toContain(data.basics.name);
+		expect(data).toEqual(snapshot);
+	});
 	it("writes an OpenDocument archive with an uncompressed mimetype first", async () => {
 		const bytes = new Uint8Array(await (await buildOdt(sampleResumeData, resolveTitle)).arrayBuffer());
 

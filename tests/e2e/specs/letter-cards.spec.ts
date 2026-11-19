@@ -19,6 +19,7 @@ test("letter cards preserve content languages, sent snapshots and keyboard actio
 			content: "<p>Dear hiring team, I built TypeScript services.</p>",
 		});
 		await api.coverLetters.create({ name: `${prefix} blank`, documentLocale: "ar-SA", content: "" });
+		await api.coverLetters.update({ id: arabic.id, expectedRevision: arabic.revision, template: "onyx" });
 		const job = await api.applications.getById({ id: applicationId });
 		await api.applications.update({
 			id: applicationId,
@@ -28,6 +29,15 @@ test("letter cards preserve content languages, sent snapshots and keyboard actio
 		const sent = await api.applications.getById({ id: applicationId });
 		if (!sent.sentCoverLetterVersionId) throw new Error("Sent snapshot missing");
 		const frozen = await api.coverLetters.getVersion({ id: arabic.id, versionId: sent.sentCoverLetterVersionId });
+		// A later draft change must not change the saved sent identity in the library.
+		const draft = await api.coverLetters.getById({ id: arabic.id });
+		await api.coverLetters.update({
+			id: arabic.id,
+			expectedRevision: draft.revision,
+			content: "<p>Changed draft body</p>",
+			template: "azurill",
+			metadata: { page: { ...draft.style.metadata.page, locale: "en-US" } },
+		});
 		for (const locale of ["ar-SA", "en-US"])
 			for (const width of [1440, 390])
 				for (const theme of ["light", "dark"]) {
@@ -37,27 +47,35 @@ test("letter cards preserve content languages, sent snapshots and keyboard actio
 					]);
 					await page.setViewportSize({ width, height: 1000 });
 					await page.goto(`/dashboard?type=letter&locale=${locale}`);
-					const cards = page.locator("article").filter({ has: page.locator('[data-slot="letter-thumbnail"]') });
+					const cards = page.locator('main [data-slot="document-card"]');
 					const sentCard = cards.filter({ has: page.getByRole("heading", { name: arabic.name, exact: true }) });
 					const draftCard = cards.filter({ has: page.getByRole("heading", { name: english.name, exact: true }) });
-					await expect(sentCard.locator('[data-slot="letter-badges"]')).toContainText("العربية");
-					await expect(sentCard.locator('[data-slot="letter-badges"]')).toContainText(
+					await expect(sentCard.locator('[data-slot="document-badges"]')).toContainText("العربية");
+					await expect(sentCard.locator('[data-slot="document-badges"]')).toContainText(
 						locale === "ar-SA" ? "مُرسَل" : "Sent",
 					);
-					await expect(sentCard.locator('[data-slot="letter-job"]')).toContainText("Engineer · Synthetic Company");
+					await expect(sentCard.locator('[data-slot="document-application"]')).toContainText(
+						"Engineer · Synthetic Company",
+					);
 					await expect(sentCard.locator('[data-slot="stage-dot"]')).toBeVisible();
-					await expect(sentCard.locator('[data-slot="letter-thumbnail"]')).toHaveAttribute("data-state", "ready", {
-						timeout: 60000,
-					});
-					await expect(sentCard.locator('[data-slot="letter-thumbnail"]')).toHaveAttribute("lang", "ar-SA");
-					await expect(draftCard.locator('[data-slot="letter-badges"]')).toContainText("English");
-					await expect(draftCard.locator('[data-slot="letter-job"]')).toContainText(
+					await expect(sentCard.locator("img, canvas")).toHaveCount(0);
+					await expect(sentCard.locator('[data-slot="document-template"]')).toHaveCount(0);
+					await expect(sentCard.locator('time[data-slot="document-meta"]')).toHaveAttribute(
+						"datetime",
+						/^\d{4}-\d{2}-\d{2}T/u,
+					);
+					expect(frozen.data.style.metadata.template).toBe("onyx");
+					await expect(draftCard.locator('[data-slot="document-badges"]')).toContainText("English");
+					await expect(draftCard.locator('[data-slot="document-application"]')).toContainText(
 						locale === "ar-SA" ? "غير مرتبط بوظيفة" : "Not linked",
 					);
 					const blank = cards.filter({ has: page.getByRole("heading", { name: `${prefix} blank`, exact: true }) });
 					await blank.scrollIntoViewIfNeeded();
-					await expect(blank.locator('[data-slot="letter-thumbnail"]')).toHaveAttribute("data-state", "empty");
-					const menu = draftCard.getByRole("button", { name: /Options for|خيارات/ });
+					await expect(blank.locator("img, canvas")).toHaveCount(0);
+					await expect(blank.locator('[data-slot="document-badges"]')).toContainText(
+						locale === "ar-SA" ? "مسودة" : "Draft",
+					);
+					const menu = draftCard.getByRole("button", { name: /^(More actions|المزيد من الإجراءات)$/u });
 					await menu.focus();
 					await page.keyboard.press("Enter");
 					await expect(page.getByRole("menu")).toBeVisible();

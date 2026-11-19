@@ -7,6 +7,7 @@ import type {
 	TextLine,
 	TextSpan,
 } from "./types";
+import { normalizeSectionHeading, PDF_SECTION_HEADING_LOOKUP } from "../ats/section-aliases";
 
 /** Vertical slack when deciding two spans share a line, as a share of the modal font size. */
 const LINE_TOLERANCE_RATIO = 0.35;
@@ -16,8 +17,8 @@ const MIN_LINE_TOLERANCE_PT = 2;
 const SPACE_GAP_RATIO = 0.25;
 
 /** Horizontal gap, as a share of font size, above which two spans sit in different columns. */
-const COLUMN_GAP_RATIO = 2.5;
-const MIN_COLUMN_GAP_PT = 20;
+const COLUMN_GAP_RATIO = 1.5;
+const MIN_COLUMN_GAP_PT = 12;
 
 const HISTOGRAM_BIN_PT = 2;
 const ROW_BIN_PT = 6;
@@ -239,13 +240,21 @@ function findGutter(spans: readonly TextSpan[], page: RawPage): ColumnGutter | n
 	if (spans.length < 12 || page.width <= 0 || page.height <= 0) return null;
 
 	const binCount = Math.max(1, Math.ceil(page.width / HISTOGRAM_BIN_PT));
-	const occupied = new Array<boolean>(binCount).fill(false);
+	const rowsByBin = Array.from({ length: binCount }, () => new Set<number>());
+	const textRows = new Set<number>();
 
 	for (const span of spans) {
 		const from = Math.max(0, Math.floor(span.x / HISTOGRAM_BIN_PT));
 		const to = Math.min(binCount - 1, Math.floor((span.x + span.width) / HISTOGRAM_BIN_PT));
-		for (let bin = from; bin <= to; bin += 1) occupied[bin] = true;
+		const firstRow = Math.max(0, Math.floor(span.y / ROW_BIN_PT));
+		const lastRow = Math.floor((span.y + span.height) / ROW_BIN_PT);
+		for (let row = firstRow; row <= lastRow; row += 1) {
+			textRows.add(row);
+			for (let bin = from; bin <= to; bin += 1) rowsByBin[bin]?.add(row);
+		}
 	}
+	// A full-width contact row or heading can cross a genuine two-column body.
+	const strictOccupied = rowsByBin.map((rows) => rows.size > 0);
 
 	const textLeft = Math.min(...spans.map((span) => span.x));
 	const textRight = Math.max(...spans.map((span) => span.x + span.width));
@@ -255,24 +264,24 @@ function findGutter(spans: readonly TextSpan[], page: RawPage): ColumnGutter | n
 	const searchFrom = Math.floor((textLeft + textWidth * GUTTER_SEARCH_MIN) / HISTOGRAM_BIN_PT);
 	const searchTo = Math.ceil((textLeft + textWidth * GUTTER_SEARCH_MAX) / HISTOGRAM_BIN_PT);
 
-	let best: { start: number; end: number } | null = null;
-	let runStart: number | null = null;
-
-	for (let bin = Math.max(0, searchFrom); bin <= Math.min(binCount - 1, searchTo); bin += 1) {
-		if (!occupied[bin]) {
-			runStart ??= bin;
-			continue;
+	const emptyBand = (occupied: readonly boolean[]) => {
+		let best: { start: number; end: number } | null = null;
+		let runStart: number | null = null;
+		for (let bin = Math.max(0, searchFrom); bin <= Math.min(binCount - 1, searchTo) + 1; bin += 1) {
+			if (bin <= searchTo && !occupied[bin]) {
+				runStart ??= bin;
+				continue;
+			}
+			if (runStart !== null) {
+				if (!best || bin - runStart > best.end - best.start) best = { start: runStart, end: bin };
+				runStart = null;
+			}
 		}
-
-		if (runStart !== null) {
-			if (!best || bin - runStart > best.end - best.start) best = { start: runStart, end: bin };
-			runStart = null;
-		}
-	}
-
-	if (runStart !== null) {
-		const end = Math.min(binCount, searchTo + 1);
-		if (!best || end - runStart > best.end - best.start) best = { start: runStart, end };
+		return best;
+	};
+	let best = emptyBand(strictOccupied);
+	if (!best || (best.end - best.start) * HISTOGRAM_BIN_PT < MIN_GUTTER_WIDTH_PT) {
+		best = emptyBand(rowsByBin.map((rows) => rows.size / Math.max(1, textRows.size) > 0.15));
 	}
 
 	if (!best) return null;
@@ -305,16 +314,33 @@ function findGutter(spans: readonly TextSpan[], page: RawPage): ColumnGutter | n
 		else if (span.x >= bandRight) rightSpans += 1;
 	}
 
-	const textRows = rowHasText.filter(Boolean).length;
-	if (textRows === 0) return null;
+	const textRowCount = rowHasText.filter(Boolean).length;
+	if (textRowCount === 0) return null;
 
 	const crossedRows = rowCrossesBand.filter(Boolean).length;
-	const coverage = 1 - crossedRows / textRows;
+	const coverage = 1 - crossedRows / textRowCount;
 
 	const sided = leftSpans + rightSpans;
 	const splitRatio = sided === 0 ? 0 : Math.min(leftSpans, rightSpans) / sided;
 
 	return { x, width, coverage, splitRatio };
+}
+
+/** Distinguish independent columns from right-aligned dates within one section. */
+export function hasIndependentColumns(page: PageGeometry): boolean {
+	const gutter = page.gutter;
+	if (!gutter) return false;
+	const spans = page.lines.flatMap((line) => line.spans);
+	const left = spans.filter((span) => span.x + span.width <= gutter.x);
+	const right = spans.filter((span) => span.x >= gutter.x + gutter.width);
+	const minority = left.length <= right.length ? left : right;
+	if (minority.some((span) => PDF_SECTION_HEADING_LOOKUP.has(normalizeSectionHeading(span.text)))) return true;
+	return (
+		minority.length > 0 &&
+		minority.filter((span) => /\p{L}/u.test(span.text) && !/\b(?:19|20)\d{2}\b/u.test(span.text)).length /
+			minority.length >=
+			0.6
+	);
 }
 
 /**

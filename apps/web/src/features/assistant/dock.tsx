@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useDirection } from "@base-ui/react/direction-provider";
 import { AnimatePresence, m } from "motion/react";
 import { AssistantPanel } from "./assistant-panel";
-import { useLetterAssistantDocument, useResumeAssistantDocument } from "./document";
+import { useLetterAssistantDocument } from "./document";
 import { useEditorStore } from "@/features/resume/editor/store";
 import { D2, D3, EASE, EXIT } from "@/libs/motion";
 
@@ -22,10 +22,6 @@ export const assistantPlaceFor = (breakpoint: Breakpoint): AssistantPlace =>
 			: breakpoint === "tablet"
 				? "drawer"
 				: "screen";
-
-/** The editor grid's columns at ≥1280: the panel narrows and the assistant's column opens, animated. */
-export const columnsWithAssistant = (open: boolean) =>
-	open ? "300px minmax(0,1fr) 400px" : "var(--editor-panel) minmax(0,1fr) 0px";
 
 /** The editor grid's transition: the assistant's column opens over 320ms and closes in 70% of that; ⌘J is instant. */
 export const assistantGridTransition = (open: boolean, instant: boolean) =>
@@ -173,11 +169,6 @@ export function AssistantOverlay({ place, children }: AssistantOverlayProps) {
 function closeAssistant() {
 	useEditorStore.getState().setAssistantOpen(false);
 	requestAnimationFrame(() => globalThis.document.querySelector<HTMLElement>("[data-assistant-toggle]")?.focus());
-}
-
-export function ResumeAssistant() {
-	const document = useResumeAssistantDocument();
-	return <AssistantPanel document={document} onClose={closeAssistant} />;
 }
 
 export function LetterAssistant() {

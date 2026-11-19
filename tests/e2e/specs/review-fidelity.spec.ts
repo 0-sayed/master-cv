@@ -3,9 +3,9 @@ import phosphor from "../fixtures/phosphor-regular.json";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
-async function expectMarkBeforeWordmark(container: Locator) {
+async function expectMarkBeforeWordmark(container: Locator, locale: string) {
 	const mark = container.locator('img[src^="/master-cv/"]:visible');
-	const wordmark = container.getByText("Master CV", { exact: true });
+	const wordmark = container.getByText(locale === "ar-SA" ? "سيراوايز" : "Sirawise", { exact: true });
 	await expect(mark).toBeVisible();
 	await expect(wordmark).toBeVisible();
 	const markBox = await mark.boundingBox();
@@ -50,8 +50,13 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				["/dashboard/career/information", "user"],
 				["/dashboard/applications", "briefcase"],
 				["/dashboard/trash", "trash"],
-			] as const)
-				await expectGlyph(sidebar.locator(`a[href="${href}"] svg`), name);
+			] as const) {
+				if (href === "/dashboard/career/information") {
+					const ring = sidebar.locator(`a[href="${href}"]`).getByRole("progressbar");
+					await expect(ring).toHaveAttribute("aria-valuenow", "0");
+					await expect(ring.locator("svg circle")).toHaveCount(2);
+				} else await expectGlyph(sidebar.locator(`a[href="${href}"] svg`), name);
+			}
 			await sidebar.locator('[data-slot="sidebar-account"]').click();
 			await expectGlyph(
 				page.getByRole("menuitem", { name: locale === "ar-SA" ? "الإعدادات" : "Settings", exact: true }).locator("svg"),
@@ -66,8 +71,13 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			["/dashboard/career/information", "user"],
 			["/dashboard/applications", "briefcase"],
 			["/dashboard/trash", "trash"],
-		] as const)
-			await expectGlyph(page.getByRole("navigation").locator(`a[href="${href}"] svg`), name);
+		] as const) {
+			const item = page.getByRole("navigation").locator(`a[href="${href}"]`);
+			if (href === "/dashboard/career/information") {
+				await expect(item.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "0");
+				await expect(item.locator("svg circle")).toHaveCount(2);
+			} else await expectGlyph(item.locator("svg"), name);
+		}
 		await page
 			.getByRole("navigation")
 			.getByRole("button", { name: locale === "ar-SA" ? "الحساب" : "Account", exact: true })
@@ -88,19 +98,21 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await page.setViewportSize({ width, height: 1024 });
 			await page.goto("/auth/login");
 			await settleScreen(page);
-			await expectMarkBeforeWordmark(page.locator("header"));
+			await expectMarkBeforeWordmark(page.locator("header"), locale);
 		}
 		await authPage.setViewportSize({ width: 1440, height: 1024 });
 		await authPage.goto("/dashboard");
 		await settleScreen(authPage);
-		await expectMarkBeforeWordmark(authPage.getByRole("complementary").getByRole("link").first());
+		await expectMarkBeforeWordmark(authPage.getByRole("complementary").getByRole("link").first(), locale);
 	});
 
 	test(`document titles truncate in their own direction in ${locale}`, async ({ authPage: page, baseURL }) => {
 		const ar = locale === "ar-SA";
-		const title = ar
-			? "Software engineer — Example 3 — long synthetic document title for independent content direction"
-			: "مهندسة برمجيات — مثال تجريبي طويل لاختبار اتجاه عنوان المستند بصورة مستقلة عن لغة الواجهة";
+		const title = (
+			ar
+				? "Software engineer — Example 3 — long synthetic document title for independent content direction"
+				: "مهندسة برمجيات — مثال تجريبي طويل لاختبار اتجاه عنوان المستند بصورة مستقلة عن لغة الواجهة"
+		).padEnd(100, ar ? "x" : "م");
 		const created = await page.request.post("/api/openapi/resumes", {
 			data: { name: title, tags: [], withSampleData: false },
 		});
@@ -109,10 +121,11 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		for (const width of [1440, 390]) {
 			await page.setViewportSize({ width, height: 1024 });
 			await page.goto("/dashboard");
-			const heading = page.getByRole("heading", { name: title, exact: true });
-			await expect(heading).toBeVisible();
+			const titleHeading = page.getByRole("heading", { name: title, exact: true });
+			await expect(titleHeading).toBeVisible();
+			const heading = titleHeading.getByRole("link", { name: title, exact: true });
 			await expect(heading).toHaveCSS("direction", ar ? "ltr" : "rtl");
-			await expect(heading).toHaveCSS("text-overflow", "ellipsis");
+			await expect(heading).toHaveCSS("-webkit-line-clamp", "2");
 			const geometry = await heading.evaluate((element) => {
 				const text = element.firstChild;
 				if (!text) throw new Error("Document title has no text");
@@ -122,7 +135,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				const first = range.getBoundingClientRect();
 				const box = element.getBoundingClientRect();
 				return {
-					overflow: element.scrollWidth > element.clientWidth,
+					overflow: element.scrollHeight > element.clientHeight,
 					firstLeft: first.left,
 					firstRight: first.right,
 					left: box.left,

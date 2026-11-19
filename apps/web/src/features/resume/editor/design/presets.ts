@@ -1,6 +1,6 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { WritableDraft } from "immer";
-import { DOCUMENT_FONT_PAIRINGS } from "@reactive-resume/schema/resume/font-policy";
+import { DOCUMENT_FONT_PAIRINGS, MIN_READABLE_BODY_SIZE } from "@reactive-resume/schema/resume/font-policy";
 import { contrastOnWhite } from "@reactive-resume/utils/color";
 
 type Data = ResumeData | WritableDraft<ResumeData>;
@@ -75,7 +75,7 @@ export function applyMargins(metadata: WritableDraft<Metadata>, id: MarginId) {
 	metadata.page.marginY = MARGINS[id].marginY;
 }
 
-export const TEXT_SIZE = { min: 9, max: 12.5, step: 0.5 } as const;
+export const TEXT_SIZE = { min: MIN_READABLE_BODY_SIZE, max: 12.5, step: 0.5 } as const;
 
 /** Sets the body size and scales the heading with it, keeping their ratio. */
 export function applyTextSize(metadata: WritableDraft<Metadata>, size: number) {

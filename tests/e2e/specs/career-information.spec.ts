@@ -6,17 +6,18 @@ import { test, expect } from "../fixtures/test";
 for (const locale of ["en-US", "ar-SA"] as const)
 	for (const width of [1440, 390])
 		test(`review, edit and conflict recovery ${locale} at ${width}`, async ({ authPage: page, baseURL }, testInfo) => {
+			if (!baseURL) throw new Error("MISSING_BROWSER_BASE_URL");
 			const ar = locale === "ar-SA";
 			const labels = {
 				add: ar ? "إضافة خبرة" : "Add experience",
 				review: ar ? "مراجعة التغييرات" : "Review changes",
 				confirm: ar ? "تأكيد التغييرات" : "Confirm changes",
-				edit: ar ? "تحرير الإدخال" : "Edit entry",
+				edit: ar ? /^تعديل / : /^Edit /,
 				latest: ar ? "عرض أحدث نسخة" : "View latest copy",
 				cancel: ar ? "إلغاء" : "Cancel",
 			};
 			await page.setViewportSize({ width, height: 950 });
-			await page.context().addCookies([{ name: "locale", value: locale, url: baseURL ?? "http://localhost:3000" }]);
+			await page.context().addCookies([{ name: "locale", value: locale, url: baseURL }]);
 			await page.goto("/dashboard/career/information");
 			await expect(page.locator("html")).toHaveAttribute("dir", ar ? "rtl" : "ltr");
 			await page.getByRole("button", { name: labels.add, exact: true }).click();
@@ -37,8 +38,14 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await second.setViewportSize({ width, height: 950 });
 			try {
 				await second.goto("/dashboard/career/information");
-				await page.getByRole("button", { name: labels.edit, exact: true }).click();
-				await second.getByRole("button", { name: labels.edit, exact: true }).click();
+				await page
+					.getByRole("button", { name: labels.edit, exact: true })
+					.and(page.locator("[data-career-edit]"))
+					.click();
+				await second
+					.getByRole("button", { name: labels.edit, exact: true })
+					.and(second.locator("[data-career-edit]"))
+					.click();
 				await page.locator('input[name="company"]').fill("Accepted first tab");
 				await second.locator('input[name="company"]').fill("مسودة Second tab");
 				await page.getByRole("button", { name: labels.review, exact: true }).click();
@@ -58,7 +65,10 @@ for (const locale of ["en-US", "ar-SA"] as const)
 				await second.reload();
 				await expect(second.getByRole("heading", { name: "مسودة Second tab", exact: true })).toBeVisible();
 				const before = await (await second.request.get("/api/openapi/career/master")).json();
-				await second.getByRole("button", { name: labels.edit, exact: true }).click();
+				await second
+					.getByRole("button", { name: labels.edit, exact: true })
+					.and(second.locator("[data-career-edit]"))
+					.click();
 				await second.locator('input[name="company"]').fill("Discarded change");
 				await second.getByRole("button", { name: labels.cancel, exact: true }).click();
 				expect(await (await second.request.get("/api/openapi/career/master")).json()).toEqual(before);
@@ -89,13 +99,14 @@ test("accepted facts show only real owned document links", async ({ authPage: pa
 		).ok(),
 	).toBe(true);
 	await page.reload();
+	await page.getByRole("button", { name: "In 1 CV", exact: true }).click();
 	await expect(page.getByRole("link", { name: "Open CV Linked synthetic CV", exact: true })).toHaveAttribute(
 		"href",
 		`/builder/${resumeId}`,
 	);
 });
 
-test("review locks pending fields and preserves the submitted draft", async ({ authPage: page }) => {
+test("review locks pending fields and preserves the submitted draft", async ({ authPage: page }, testInfo) => {
 	await page.goto("/dashboard/career/information");
 	await page.getByRole("button", { name: "Add experience", exact: true }).click();
 	await page.locator('input[name="company"]').fill("Delayed company");
@@ -119,6 +130,7 @@ test("review locks pending fields and preserves the submitted draft", async ({ a
 		await expect(page.locator('input[name="company"]')).toBeDisabled();
 		await expect(page.locator('input[name="position"]')).toBeDisabled();
 		await expect(page.locator('input[name="start"]')).toBeDisabled();
+		await page.screenshot({ path: testInfo.outputPath("career-info-en-US-1440-save-pending.png") });
 	} finally {
 		release();
 	}
@@ -171,22 +183,26 @@ test("five groups review facts explicitly, survive reload and keep language chan
 		).toBe(true);
 		await page.getByRole("button", { name: "Confirm changes", exact: true }).click();
 		await expect(page.getByRole("dialog")).not.toBeVisible();
-		if (field === "name" || field === "language")
-			await expect(
-				page.getByRole("button", { name: "Edit entry", exact: true }).filter({ hasText: value }),
-			).toBeVisible();
-		else await expect(page.getByRole("heading", { name: value, exact: true })).toBeVisible();
+		await expect(page.getByRole("heading", { name: value, exact: true })).toBeVisible();
 	}
 	await page.reload();
 	await expect(page.getByRole("heading", { name: "شركة مِثال", exact: true })).toBeVisible();
 	await settleScreen(page);
 	await page.screenshot({ path: testInfo.outputPath("information-en-desktop.png"), fullPage: true });
-	await page.getByRole("button", { name: "Edit entry" }).first().click();
+	await page
+		.getByRole("button", { name: /^Edit / })
+		.and(page.locator("[data-career-edit]"))
+		.first()
+		.click();
 	await page.locator('input[name="company"]').fill("سارة مثال");
 	await page.getByRole("dialog").getByRole("button", { name: "Cancel", exact: true }).click();
 	await page.getByRole("button", { name: "Switch interface to Arabic" }).click();
 	await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
-	await page.getByRole("button", { name: "تحرير الإدخال", exact: true }).first().click();
+	await page
+		.getByRole("button", { name: /^تعديل / })
+		.and(page.locator("[data-career-edit]"))
+		.first()
+		.click();
 	await expect(page.locator('input[name="company"]')).toHaveValue("سارة مثال");
 	await page.getByRole("dialog").getByRole("button", { name: "إلغاء", exact: true }).click();
 	for (const width of [1440, 390, 320, 768]) {
@@ -210,8 +226,14 @@ test("two tabs retain the losing draft and require review of the latest informat
 	await expect(page.getByRole("dialog")).not.toBeVisible();
 	const second = await page.context().newPage();
 	await second.goto("/dashboard/career/information");
-	await page.getByRole("button", { name: "Edit entry" }).click();
-	await second.getByRole("button", { name: "Edit entry" }).click();
+	await page
+		.getByRole("button", { name: /^Edit / })
+		.and(page.locator("[data-career-edit]"))
+		.click();
+	await second
+		.getByRole("button", { name: /^Edit / })
+		.and(second.locator("[data-career-edit]"))
+		.click();
 	await page.locator('input[name="company"]').fill("First tab change");
 	await second.locator('input[name="company"]').fill("Second tab draft");
 	await page.getByRole("button", { name: "Review changes", exact: true }).click();
@@ -240,12 +262,12 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			baseURL,
 		}, testInfo) => {
 			await page.setViewportSize({ width, height: 950 });
-			await page.context().addCookies([{ name: "locale", value: locale, url: baseURL ?? "http://localhost:3000" }]);
+			await page.context().addCookies([{ name: "locale", value: locale, url: baseURL }]);
 			await page.goto("/dashboard/career/information");
 			await page.getByRole("button", { name: locale === "en-US" ? "Add skill" : "إضافة مهارة", exact: true }).click();
 			await page.locator('input[name="name"]').fill("Owned draft العربية");
 			const signedOut = await page.request.post("/api/auth/sign-out", {
-				headers: { origin: baseURL ?? "http://localhost:3000" },
+				headers: { origin: baseURL },
 				data: {},
 			});
 			expect(signedOut.status(), await signedOut.text()).toBe(200);
@@ -265,7 +287,7 @@ for (const locale of ["en-US", "ar-SA"] as const)
 
 for (const locale of ["ar-SA", "en-US"] as const)
 	for (const width of [1440, 390])
-		test(`${locale} ${width} used-in CV chips separate names and expand`, async ({ authPage: page }, info) => {
+		test(`${locale} ${width} CV count reveals full names and exact targets`, async ({ authPage: page }, info) => {
 			test.setTimeout(60_000);
 			await page.setViewportSize({ width, height: 900 });
 			if (width === 390) {
@@ -315,42 +337,41 @@ for (const locale of ["ar-SA", "en-US"] as const)
 				).toBeOK();
 			}
 			await page.goto(`/dashboard/career/information?locale=${locale}`);
-			const label = locale === "ar-SA" ? "مستخدمة في" : "Used in";
-			const moreLabel = locale === "ar-SA" ? "+2 أخرى" : "+2 more";
+			const countLabel = locale === "ar-SA" ? "في 5 سير" : "In 5 CVs";
 			const openLabel = (name: string) => (locale === "ar-SA" ? `فتح السيرة الذاتية ${name}` : `Open CV ${name}`);
-			await expect(page.getByText(label, { exact: true })).toBeVisible();
-			const chips = page.locator('a[data-slot="fact-chip"]');
-			await expect(chips).toHaveCount(3);
-			const first = page.getByRole("link", { name: openLabel(names[0]), exact: true });
+			const trigger = page.getByRole("button", { name: countLabel, exact: true });
+			await expect(trigger).toBeVisible();
 			if (width === 390) {
-				for (const control of [...(await chips.all()), page.getByRole("button", { name: moreLabel, exact: true })]) {
-					const hit = await control.evaluate((element) => {
-						const box = element.getBoundingClientRect();
-						const after = getComputedStyle(element, "::after");
-						return {
-							width: Math.max(box.width, Number.parseFloat(after.width) || 0),
-							height: Math.max(box.height, Number.parseFloat(after.height) || 0),
-						};
-					});
-					expect(hit.width).toBeGreaterThanOrEqual(44);
-					expect(hit.height).toBeGreaterThanOrEqual(44);
-				}
+				const hit = await trigger.evaluate((element) => {
+					const box = element.getBoundingClientRect();
+					const after = getComputedStyle(element, "::after");
+					return {
+						width: Math.max(box.width, Number.parseFloat(after.width) || 0),
+						height: Math.max(box.height, Number.parseFloat(after.height) || 0),
+					};
+				});
+				expect(hit.width).toBeGreaterThanOrEqual(44);
+				expect(hit.height).toBeGreaterThanOrEqual(44);
 			}
-			await expect(first).toHaveAttribute("title", names[0]);
-			await expect(first).toHaveAttribute("href", `/builder/${ids[0]}`);
-			await expect(first.locator('bdi[dir="auto"]')).toHaveCSS("text-overflow", "ellipsis");
-			expect(await first.locator("bdi").evaluate((name) => name.scrollWidth > name.clientWidth)).toBe(true);
-			await first.focus();
-			// Entering via keyboard must retain the shared visible focus treatment.
-			await page.keyboard.press("Tab");
-			await page.keyboard.press("Shift+Tab");
-			await expect(first).toBeFocused();
-			expect(
-				await first.evaluate(
-					(element) => element.matches(":focus-visible") && getComputedStyle(element).outlineStyle !== "none",
-				),
-			).toBe(true);
-			const boxes = await chips.evaluateAll((elements) =>
+			await expect(page.getByRole("link", { name: openLabel(names[0]), exact: true })).toHaveCount(0);
+			await trigger.focus();
+			await page.keyboard.press("Enter");
+			const dialog = page.getByRole("dialog", { name: locale === "ar-SA" ? "السير المرتبطة" : "Linked CVs" });
+			await expect(dialog).toBeVisible();
+			const links = dialog.getByRole("link");
+			await expect(links).toHaveCount(5);
+			for (const [index, name] of names.entries()) {
+				const link = dialog.locator(`a[href="/builder/${ids[index]}"]`);
+				await expect(link).toHaveAccessibleName(openLabel(name));
+				await expect(link).toHaveText(name);
+				const dimensions = await link.boundingBox();
+				expect(dimensions?.width).toBeGreaterThanOrEqual(44);
+				expect(dimensions?.height).toBeGreaterThanOrEqual(44);
+				expect(
+					await link.locator('[dir="auto"]').evaluate((element) => element.scrollWidth <= element.clientWidth),
+				).toBe(true);
+			}
+			const boxes = await links.evaluateAll((elements) =>
 				elements.map((element) => {
 					const { left, right, top, bottom } = element.getBoundingClientRect();
 					return { left, right, top, bottom };
@@ -360,18 +381,25 @@ for (const locale of ["ar-SA", "en-US"] as const)
 				for (let j = i + 1; j < boxes.length; j++) {
 					const a = boxes[i];
 					const b = boxes[j];
-					expect(a.right < b.left || b.right < a.left || a.bottom < b.top || b.bottom < a.top).toBe(true);
+					expect(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top).toBe(true);
 				}
+			const first = links.first();
+			await first.focus();
+			await page.keyboard.press("Tab");
+			await page.keyboard.press("Shift+Tab");
+			await expect(first).toBeFocused();
+			expect(
+				await first.evaluate(
+					(element) => element.matches(":focus-visible") && getComputedStyle(element).outlineStyle !== "none",
+				),
+			).toBe(true);
 			expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 			await settleScreen(page);
-			await page.screenshot({ path: info.outputPath("used-in-collapsed.png") });
-			await page.getByRole("button", { name: moreLabel, exact: true }).click();
-			await expect(chips).toHaveCount(5);
-			await expect(page.getByRole("button", { name: moreLabel, exact: true })).toHaveCount(0);
-			for (const name of names)
-				await expect(page.getByRole("link", { name: openLabel(name), exact: true })).toBeVisible();
-			await settleScreen(page);
-			await page.screenshot({ path: info.outputPath("used-in-expanded.png") });
-			await page.getByRole("link", { name: openLabel(names[1]), exact: true }).click();
+			await page.screenshot({ path: info.outputPath("usage-disclosure.png") });
+			await page.keyboard.press("Escape");
+			await expect(dialog).not.toBeVisible();
+			await expect(trigger).toBeFocused();
+			await trigger.click();
+			await dialog.locator(`a[href="/builder/${ids[1]}"]`).click();
 			await expect(page).toHaveURL(new RegExp(`/builder/${ids[1]}$`));
 		});

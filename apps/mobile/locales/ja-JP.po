@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-17 06:47+0200\n"
+"POT-Creation-Date: 2026-11-18 09:46+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -676,8 +676,8 @@ msgid "24 hours before"
 msgstr "24時間前"
 
 #: src/features/letters/share.tsx
-msgid "A backup of this letter. Imports back into Reactive Resume as a letter."
-msgstr "この手紙のバックアップ。 Reactive Resume にレターとしてインポートし直します。"
+msgid "A backup of this letter. Imports back into Sirawise as a letter."
+msgstr ""
 
 #: src/features/check/issues.ts
 msgid "A city and country let roles be matched to where you are."
@@ -1562,10 +1562,6 @@ msgstr "アシスタントに作業を依頼してください"
 msgid "Ask the coach"
 msgstr "コーチに聞く"
 
-#: src/features/share/download.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "コミュニティに質問しましょう。投稿前に個人情報を削除してください。"
-
 #: src/features/ai/error.ts
 msgid "Ask your server administrator to enable credential encryption or configure a shared connection."
 msgstr "サーバー管理者に、資格情報の暗号化を有効にするか、共有接続を構成するように依頼してください。"
@@ -1600,7 +1596,6 @@ msgid "ATS checker"
 msgstr "ATSチェッカー"
 
 #: src/features/ats-checker/checker.tsx
-#: src/features/search/search-screen.tsx
 msgid "ATS Checker"
 msgstr "ATSチェッカー"
 
@@ -1864,10 +1859,6 @@ msgstr "箇条書きリスト"
 msgid "Burgundy"
 msgstr "バーガンディー"
 
-#: app/(tabs)/settings/index.tsx
-msgid "by <0>Amruth Pillai</0>"
-msgstr "開発者：<0>Amruth Pillai</0>"
-
 #: src/features/applications-board/views.tsx
 msgid "Calendar"
 msgstr "カレンダー"
@@ -1981,14 +1972,6 @@ msgstr "「{name}」への変更は別のデバイスに保存されました。
 #: app/builder/[id]/_layout.tsx
 msgid "Check"
 msgstr "チェック"
-
-#: src/features/search/search-screen.tsx
-msgid "Check a PDF"
-msgstr "PDFを確認してください"
-
-#: src/features/documents/new-document.tsx
-msgid "Check a PDF with the ATS checker"
-msgstr "ATSチェッカーでPDFをチェック"
 
 #: src/features/ats-checker/checker.tsx
 msgid "Check a sample file"
@@ -2327,8 +2310,8 @@ msgid "Compares your resume with the posting"
 msgstr "あなたの履歴書と求人情報を比較します"
 
 #: src/features/share/download.tsx
-msgid "Complete data backup. Imports back into Reactive Resume or JSON Resume tools."
-msgstr "データのバックアップを完了します。 Reactive Resume または JSON Resume ツールにインポートし直します。"
+msgid "Complete data backup. Imports back into Sirawise or JSON Resume tools."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
@@ -3425,10 +3408,6 @@ msgstr "{0}の求人情報を送信しない"
 msgid "Don't share"
 msgstr "共有しない"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Donate on Open Collective"
-msgstr "Open Collectiveで寄付する"
-
 #: src/features/applications/list-screen.tsx
 #: src/features/career/today.tsx
 #: src/features/documents/library.tsx
@@ -3784,8 +3763,8 @@ msgid "Enter any model ID supported by your endpoint."
 msgstr "エンドポイントでサポートされているモデル ID を入力します。"
 
 #: app/(auth)/server.tsx
-msgid "Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue."
-msgstr "ブラウザで Reactive Resume を開くアドレスを入力します。アプリは、続行する前に、アプリのサインインを許可する Reactive Resume サーバーであることを確認します。"
+msgid "Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue."
+msgstr ""
 
 #: src/features/public/public-resume.tsx
 msgid "Enter the password the resume owner shared with you."
@@ -4186,10 +4165,6 @@ msgstr "「フィードバックをもらう」を押すと、質問、あなた
 msgid "Get new roles here every morning"
 msgstr "毎朝ここで新しい求人を受け取る"
 
-#: src/features/share/download.tsx
-msgid "Get resume feedback on Discord"
-msgstr "Discordで履歴書のフィードバックをもらう"
-
 #: src/features/letters/write.tsx
 msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "長くなりました。 「短く」するか、具体性の低い段落を削除してください。"
@@ -4280,6 +4255,10 @@ msgstr "聞き返された"
 #: src/features/settings/locale-names.ts
 msgid "Hebrew"
 msgstr "ヘブライ語"
+
+#: src/features/share/download.tsx
+msgid "Help"
+msgstr ""
 
 #: app/(tabs)/settings/index.tsx
 msgid "Help & docs"
@@ -4742,10 +4721,6 @@ msgstr "求人応募パイプライン"
 #: src/features/search/search-screen.tsx
 msgid "Jobs"
 msgstr "求人情報"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Join the Discord"
-msgstr "Discordに参加"
 
 #: src/features/letters/share.tsx
 #: src/features/share/download.tsx
@@ -5286,8 +5261,8 @@ msgid "Lower the design sheet"
 msgstr "デザインシートを下げます"
 
 #: src/features/public/public-resume.tsx
-msgid "Made with Reactive Resume, free and open source"
-msgstr "Reactive Resume で作成、無料かつオープンソース"
+msgid "Made with Sirawise, free and open source"
+msgstr ""
 
 #. Layout editor column label for the primary content area
 #: src/features/design/layout-screen.tsx
@@ -5963,10 +5938,6 @@ msgstr "写真はありません。ほとんどの ATS は写真を無視しま�
 msgid "No postings found. Try different keywords."
 msgstr "求人情報は見つかりませんでした。別のキーワードを試してください。"
 
-#: src/auth/messages.ts
-msgid "No Reactive Resume server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
-msgstr "このアドレスでは Reactive Resume サーバーが応答しませんでした。スペルを確認するか、サーバーがアプリのサインインを許可しているかどうか管理者に問い合わせてください。"
-
 #: src/features/check/job-match.tsx
 msgid "No recognisable terms in this posting."
 msgstr "この求人情報には認識可能な用語はありません。"
@@ -5986,6 +5957,10 @@ msgstr "結果はありません"
 #: src/features/letters/write.tsx
 msgid "No resume"
 msgstr "履歴書なし"
+
+#: src/auth/messages.ts
+msgid "No Sirawise server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "No skills section was found."
@@ -6645,8 +6620,8 @@ msgid "PDF check cancelled. Retry when ready."
 msgstr "PDF の検証がキャンセルされました。準備ができたらもう一度試してください。"
 
 #: src/features/application-detail/sections.tsx
-msgid "PDF only · up to 10 MB each. Linking a Reactive Resume enables AI match scoring and tailoring."
-msgstr "PDF のみ、それぞれ最大 10 MB。 Reactive Resume 書類をリンクすると、ジョブの適合性と調整の AI スコアリングが可能になります。"
+msgid "PDF only · up to 10 MB each. Linking a Sirawise enables AI match scoring and tailoring."
+msgstr ""
 
 #: src/features/design/advanced.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
@@ -6654,11 +6629,11 @@ msgstr "PDF スタイルは、CSS のサブセットをサポートします。�
 
 #: src/features/documents/new-document.tsx
 msgid "PDF uses your AI provider when one is ready. Turn off the AI switch to read its text layer on your server. Word (.docx) needs an AI provider. Current and v4 Reactive Resume JSON, cover letters, JSON Resume and LinkedIn exports (.zip) are supported. Up to 10 MB."
-msgstr "PDF インポートは、準備ができたら AI プロバイダーを使用します。 AI をオフにして、サーバー上のテキスト レイヤーを読み取ります。 Word (.docx) には AI プロバイダーが必要です。サポートされている形式: 現在および v4 Reactive Resume JSON、カバーレター、JSON Resume および LinkedIn エクスポート (.zip)。最大10MB。"
+msgstr "PDF インポートは、準備ができたら AI プロバイダーを使用します。 AI をオフにして、サーバー上のテキスト レイヤーを読み取ります。 Word (.docx) には AI プロバイダーが必要です。サポートされている形式: 現在および v4 Sirawise JSON、カバーレター、JSON Resume および LinkedIn エクスポート (.zip)。最大10MB。"
 
 #: src/features/documents/new-document.tsx
 msgid "PDF, Word, Reactive Resume, JSON Resume or LinkedIn export."
-msgstr "PDF、Word、Reactive Resume、JSON Resume または LinkedIn エクスポート。"
+msgstr "PDF、Word、Sirawise、JSON Resume または LinkedIn エクスポート。"
 
 #: src/features/career/offers.tsx
 #: src/features/career/preferences.tsx
@@ -7102,10 +7077,6 @@ msgstr "フォントを埋め込んで再エクスポートし、テキストが
 msgid "Re-export with fonts embedded, then open the file and check that the text copies out cleanly."
 msgstr "フォントを埋め込んで再エクスポートしてからファイルを開き、テキストが正しくコピーできるか確認してください。"
 
-#: src/auth/auth-header.tsx
-msgid "Reactive Resume"
-msgstr "Reactive Resume"
-
 #: src/features/workspace/tabs/prepare.tsx
 msgid "Read briefing"
 msgstr "ブリーフィングを読む"
@@ -7512,10 +7483,6 @@ msgstr "レポート"
 msgid "Report AI content"
 msgstr "AIコンテンツを報告"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Report an issue"
-msgstr "問題を報告"
-
 #: src/features/ai/report-content.tsx
 msgid "Report received by your server operator. Thank you."
 msgstr "サーバーオペレーターが受け取ったレポート。ありがとう。"
@@ -7607,10 +7574,6 @@ msgstr "レジュメを読み込めませんでした。"
 #: src/features/document-menu/index.tsx
 msgid "Resume details"
 msgstr "履歴書の詳細"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Resume feedback, product help, and community ideas."
-msgstr "履歴書へのフィードバック、製品のヘルプ、コミュニティのアイデア。"
 
 #: src/features/application-detail/sections.tsx
 msgid "Resume file"
@@ -8309,10 +8272,6 @@ msgstr "求人を探すには、設定でウェブ検索を設定してくださ
 msgid "Settings"
 msgstr "設定"
 
-#: app/(tabs)/settings/ai-mcp.tsx
-msgid "Setup guide"
-msgstr "セットアップガイド"
-
 #: src/features/ai/report-content.tsx
 msgid "Sexual content"
 msgstr "性的なコンテンツ"
@@ -8615,6 +8574,11 @@ msgstr "サインアウトしましたが、このデバイス上の一部のデ
 msgid "since last view"
 msgstr "最後に見たときから"
 
+#: src/auth/auth-header.tsx
+#: src/shell/app-tabs.tsx
+msgid "Sirawise"
+msgstr "Sirawise"
+
 #: src/features/career/stories.tsx
 msgid "Situation (required)"
 msgstr "状況 (必須)"
@@ -8756,10 +8720,6 @@ msgstr "ソース"
 msgid "Source and correction history"
 msgstr "出典と修正履歴"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Source code on GitHub"
-msgstr "GitHubのソースコード"
-
 #: src/features/assistant/chat-view.tsx
 #: src/features/assistant/messages.tsx
 msgid "Sources"
@@ -8867,6 +8827,10 @@ msgstr "{company} 求人情報を入力するか、既知のものから下書�
 #: src/features/letters/write.tsx
 msgid "Start typing, or draft from what we know: your resume."
 msgstr "入力を開始するか、既知の内容、つまり履歴書を下書きします。"
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr ""
 
 #: src/features/letters/write.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
@@ -10912,8 +10876,8 @@ msgid "your Knowledge"
 msgstr "あなたのナレッジ"
 
 #: app/(tabs)/settings/preferences.tsx
-msgid "Your language is saved. Restart Reactive Resume to apply the new left-to-right or right-to-left layout."
-msgstr "あなたの言語は保存されます。 Reactive Resume を再起動して、新しい左から右または右から左のレイアウトを適用します。"
+msgid "Your language is saved. Restart Sirawise to apply the new left-to-right or right-to-left layout."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Your lines are packed very tightly."

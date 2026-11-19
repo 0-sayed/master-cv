@@ -13,7 +13,14 @@ type Fixtures = {
 export const test = base.extend<Fixtures>({
 	context: async ({ context, baseURL }, use) => {
 		await context.addCookies([{ name: "locale", value: "en-US", url: baseURL ?? "http://localhost:3000" }]);
-		await use(context);
+		try {
+			await use(context);
+		} finally {
+			await context.request.post("/api/auth/sign-out", {
+				headers: { origin: baseURL ?? "http://localhost:3000" },
+				data: {},
+			});
+		}
 	},
 	account: async ({ baseURL: _baseURL }, use, testInfo) => {
 		const account = createAccount(testInfo);
@@ -31,7 +38,11 @@ export const test = base.extend<Fixtures>({
 		try {
 			await use(await context.newPage());
 		} finally {
-			await context.close();
+			try {
+				await context.request.post("/api/auth/sign-out", { headers: { origin: baseURL }, data: {} });
+			} finally {
+				await context.close();
+			}
 		}
 	},
 });

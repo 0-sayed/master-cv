@@ -20,8 +20,13 @@ const whenIdle = () =>
 	});
 
 /** Renders one thumbnail at a time, when the browser is idle, so they never compete with the page. */
-function enqueue<T>(task: () => Promise<T>): Promise<T> {
-	const run = queue.then(whenIdle).then(task);
+function enqueue<T>(signal: AbortSignal, task: () => Promise<T>): Promise<T> {
+	const run = queue
+		.then(() => {
+			signal.throwIfAborted();
+			return whenIdle();
+		})
+		.then(task);
 	queue = run.catch(() => undefined);
 	return run;
 }
@@ -52,13 +57,25 @@ export function useTemplateThumbnail(template: Template, data: ResumeData, enabl
 	useEffect(() => {
 		releaseThumbnailUrls(queryClient, QUERY_KEY);
 	}, [queryClient]);
+	useEffect(() => {
+		if (!enabled || !hasContent) return;
+		return () => {
+			void queryClient.cancelQueries({ queryKey: [QUERY_KEY, template, hash], exact: true });
+		};
+	}, [enabled, hasContent, queryClient, template, hash]);
 
 	return useQuery({
 		queryKey: [QUERY_KEY, template, hash],
 		queryFn: ({ signal }) =>
-			enqueue(async () => {
+			enqueue(signal, async () => {
 				signal.throwIfAborted();
-				const pdf = await createResumePdfBlob({ ...data, metadata: { ...data.metadata, template } });
+				const pdf = await createResumePdfBlob(
+					{ ...data, metadata: { ...data.metadata, template } },
+					undefined,
+					undefined,
+					{ signal, priority: "thumbnail" },
+				);
+				signal.throwIfAborted();
 				return createPdfFirstPageImageUrl(pdf, SIZE, signal);
 			}),
 		enabled: enabled && hasContent,

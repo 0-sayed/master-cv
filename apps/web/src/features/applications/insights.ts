@@ -1,176 +1,200 @@
 import type { Application } from "./types";
 import type { ApplicationStatus } from "@reactive-resume/schema/applications/data";
-import { STAGES } from "@reactive-resume/schema/applications/data";
-import { PIPELINE } from "./stages";
+import { fromZonedDateTime } from "@reactive-resume/utils/timezone";
+import { formatUiTimestamp } from "@reactive-resume/utils/ui-format";
 
-export type StageCount = { status: ApplicationStatus; count: number };
-
-// The forward pipeline (closed is a terminal outcome, handled separately).
-const FORWARD: ApplicationStatus[] = ["saved", "applied", "screening", "interview", "offer"];
-
-export type Insights = {
-	total: number;
-	funnel: {
-		status: ApplicationStatus;
-		label: string;
-		color: string;
-		count: number;
-		reached: number;
-		pct: number;
-		conv: string;
-	}[];
-	closed: number;
+export type InsightApplication = Pick<
+	Application,
+	"id" | "status" | "closedReason" | "source" | "appliedAt" | "createdAt" | "activity" | "resumeId"
+>;
+export type InsightDocument = { id: string; type: string; application: { id: string } | null };
+type InsightCount = { count: number; denominator: number; percentage: number | null };
+type SourceRow = InsightCount & { kind: "source" | "other" | "missing"; label: string };
+export type ApplicationInsightsData = {
+	tracked: number;
+	sent: number;
+	replied: number;
+	datedReplies: number;
+	omittedDurations: number;
+	medianDays: number | null;
+	funnel: (InsightCount & { status: ApplicationStatus })[];
+	weeks: (InsightCount & { start: Date; end: Date; current: boolean })[];
+	sources: { rows: SourceRow[]; other: SourceRow[]; missing: SourceRow | null; all: SourceRow[] };
+	interviewed: number;
+	interviewOutcomes: (InsightCount & { outcome: string })[];
+	comparison: {
+		tailored: { sent: number; replied: number };
+		base: { sent: number; replied: number };
+		excluded: number;
+	} | null;
 };
 
-// Pure function of the raw per-stage counts, so it's trivially testable and shared by every
-// chart in the Insights view. "reached[i]" assumes the pipeline is monotonic for currently
-// active applications (an app at Interview has passed through Screening).
-export function computeInsights(byStage: StageCount[]): Insights {
-	const counts = new Map<ApplicationStatus, number>(byStage.map((row) => [row.status, row.count]));
-	const at = (status: ApplicationStatus) => counts.get(status) ?? 0;
-	const closed = at("closed");
-	const total = byStage.reduce((sum, row) => sum + row.count, 0) - closed;
+const FORWARD_HISTORY = ["saved", "applied", "screening", "interview", "offer"] as const;
+const countRow = (count: number, denominator: number): InsightCount => ({
+	count,
+	denominator,
+	percentage: denominator ? (count / denominator) * 100 : null,
+});
 
-	// reached[i] = active apps that got at least as far as FORWARD[i].
-	const reached = FORWARD.map((_, i) => FORWARD.slice(i).reduce((sum, s) => sum + at(s), 0));
-
-	const funnel = FORWARD.map((status, i) => {
-		const stage = STAGES.find((s) => s.value === status);
-		const reachedCount = reached[i] ?? 0;
-		const prev = i === 0 ? reachedCount : (reached[i - 1] ?? reachedCount);
+/** One application contributes once to each historical population. The injected clock excludes future activity. */
+export function computeApplicationInsights(
+	applications: readonly InsightApplication[],
+	documents: readonly InsightDocument[] | undefined,
+	now: Date,
+): ApplicationInsightsData {
+	const validTime = (value: Date) => {
+		const time = new Date(value).getTime();
+		return Number.isFinite(time) && time <= now.getTime() ? time : null;
+	};
+	const records = [...new Map(applications.map((application) => [application.id, application])).values()].map(
+		(application) => {
+			const stages = application.activity
+				.flatMap((entry) =>
+					entry.type === "stage" && validTime(entry.at) !== null
+						? [{ stage: entry.stage, at: new Date(entry.at).getTime() }]
+						: [],
+				)
+				.sort((a, b) => a.at - b.at);
+			const rank = Math.max(
+				FORWARD_HISTORY.indexOf(application.status as (typeof FORWARD_HISTORY)[number]),
+				...stages.map((entry) => FORWARD_HISTORY.indexOf(entry.stage as (typeof FORWARD_HISTORY)[number])),
+			);
+			const sent = rank >= 1;
+			const sentAt = sent
+				? (stages.find((entry) => entry.stage === "applied")?.at ?? validTime(application.appliedAt))
+				: null;
+			const reply = sent
+				? stages.find(
+						(entry) =>
+							(sentAt === null || entry.at >= sentAt) &&
+							(REPLY_STAGES.has(entry.stage) ||
+								(entry.stage === "closed" && application.closedReason === "not-selected")),
+					)
+				: undefined;
+			return { application, rank, sent, sentAt, reply };
+		},
+	);
+	const sentRecords = records.filter((row) => row.sent);
+	const sent = sentRecords.length;
+	const replied = sentRecords.filter((row) => row.reply).length;
+	const durations = sentRecords.flatMap((row) =>
+		row.reply && row.sentAt !== null ? [(row.reply.at - row.sentAt) / DAY_MS] : [],
+	);
+	const localDay = formatUiTimestamp(now, "en-US", { year: "numeric", month: "2-digit", day: "2-digit" });
+	const [month, day, year] = localDay.split("/");
+	const midnight = fromZonedDateTime(`${year}-${month}-${day}`, "00:00", "Asia/Riyadh");
+	if (!midnight) throw new Error("Invalid insight clock");
+	const sunday = midnight.getTime() - new Date(midnight.getTime() + 3 * 3600000).getUTCDay() * DAY_MS;
+	const firstWeek = sunday - 7 * 7 * DAY_MS;
+	const periodSent = sentRecords.filter((row) => row.sentAt !== null && row.sentAt >= firstWeek).length;
+	const weeks = Array.from({ length: 8 }, (_, index) => {
+		const start = firstWeek + index * 7 * DAY_MS;
+		const end = start + 7 * DAY_MS;
 		return {
-			status,
-			label: status,
-			color: stage?.color ?? "var(--stage-saved)",
-			count: at(status),
-			reached: reachedCount,
-			pct: total > 0 ? Math.round((reachedCount / total) * 100) : 0,
-			conv: prev > 0 ? `${Math.round((reachedCount / prev) * 100)}%` : "—",
+			...countRow(
+				sentRecords.filter((row) => row.sentAt !== null && row.sentAt >= start && row.sentAt < end).length,
+				periodSent,
+			),
+			start: new Date(start),
+			end: new Date(end),
+			current: index === 7,
 		};
 	});
-
-	return { total, funnel, closed };
-}
-
-export type TimelineBucket = { label: string; count: number };
-
-// Bucket application dates into the last `weeks` calendar weeks (Sunday-started) so the Insights
-// view can show application velocity over time — a dimension the funnel/tiles don't capture.
-export function computeTimeline(applications: readonly OutcomeSource[], weeks = 8, locale = "en-US"): TimelineBucket[] {
-	const msWeek = 7 * 86_400_000;
-	const startOfWeek = new Date();
-	startOfWeek.setHours(0, 0, 0, 0);
-	startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-
-	const buckets = Array.from({ length: weeks }, (_, i) => {
-		const start = new Date(startOfWeek.getTime() - (weeks - 1 - i) * msWeek);
-		return {
-			start: start.getTime(),
-			label: new Intl.DateTimeFormat(new Intl.Locale(locale, { calendar: "gregory", numberingSystem: "latn" }), {
-				month: "numeric",
-				day: "numeric",
-			}).format(start),
-			count: 0,
-		};
-	});
-
-	const first = buckets[0]?.start ?? 0;
-	for (const application of applications) {
-		if (furthestStage(application) < PIPELINE.indexOf("applied")) continue;
-		const time = sentAt(application).getTime();
-		if (time < first) continue;
-		const index = Math.min(weeks - 1, Math.floor((time - first) / msWeek));
-		const bucket = buckets[index];
-		if (bucket) bucket.count++;
+	const sourceCounts = new Map<string, number>();
+	let missingCount = 0;
+	for (const { application } of records) {
+		const label = application.source;
+		if (!label?.trim()) missingCount++;
+		else sourceCounts.set(label, (sourceCounts.get(label) ?? 0) + 1);
 	}
-
-	return buckets.map(({ label, count }) => ({ label, count }));
+	const named: SourceRow[] = [...sourceCounts]
+		.sort(([a, ac], [b, bc]) => bc - ac || (a < b ? -1 : a > b ? 1 : 0))
+		.map(([label, count]) => ({ ...countRow(count, records.length), kind: "source", label }));
+	const other = named.length > 6 ? named.slice(5) : [];
+	const rows: SourceRow[] = other.length
+		? [
+				...named.slice(0, 5),
+				{
+					...countRow(
+						other.reduce((sum, row) => sum + row.count, 0),
+						records.length,
+					),
+					kind: "other",
+					label: "",
+				},
+			]
+		: named;
+	const missing: SourceRow | null = missingCount
+		? { ...countRow(missingCount, records.length), kind: "missing", label: "" }
+		: null;
+	const interviewed = sentRecords.filter((row) => row.rank >= 3);
+	const outcomes = [
+		"interview",
+		"offer",
+		"accepted",
+		"not-selected",
+		"withdrew",
+		"accepted-other",
+		"no-response",
+		"unknown",
+	];
+	const interviewOutcomes = outcomes.map((outcome) => ({
+		outcome,
+		...countRow(
+			interviewed.filter(
+				({ application }) =>
+					(application.status === "closed"
+						? (application.closedReason ?? "unknown")
+						: ["interview", "offer"].includes(application.status)
+							? application.status
+							: "unknown") === outcome,
+			).length,
+			interviewed.length,
+		),
+	}));
+	let comparison: ApplicationInsightsData["comparison"] = null;
+	if (documents !== undefined) {
+		comparison = { tailored: { sent: 0, replied: 0 }, base: { sent: 0, replied: 0 }, excluded: 0 };
+		const madeFor = new Map(
+			documents
+				.filter((document) => document.type === "resume")
+				.map((document) => [document.id, document.application?.id]),
+		);
+		for (const { application, reply } of sentRecords) {
+			if (!application.resumeId) {
+				comparison.excluded++;
+				continue;
+			}
+			const group = madeFor.get(application.resumeId) === application.id ? comparison.tailored : comparison.base;
+			group.sent++;
+			if (reply) group.replied++;
+		}
+	}
+	return {
+		tracked: records.length,
+		sent,
+		replied,
+		datedReplies: durations.length,
+		omittedDurations: replied - durations.length,
+		medianDays: median(durations),
+		funnel: FORWARD_HISTORY.slice(1).map((status, index) => ({
+			status,
+			...countRow(sentRecords.filter((row) => row.rank >= index + 1).length, sent),
+		})),
+		weeks,
+		sources: { rows, other, missing, all: missing ? [...named, missing] : named },
+		interviewed: interviewed.length,
+		interviewOutcomes,
+		comparison,
+	};
 }
-
-type OutcomeSource = Pick<Application, "status" | "closedReason" | "activity" | "appliedAt" | "resumeId">;
 
 const DAY_MS = 86_400_000;
 const REPLY_STAGES = new Set<ApplicationStatus>(["screening", "interview", "offer"]);
-
-const stageEntries = (application: OutcomeSource) =>
-	application.activity
-		.flatMap((entry) => (entry.type === "stage" ? [{ stage: entry.stage, at: new Date(entry.at) }] : []))
-		.sort((a, b) => a.at.getTime() - b.at.getTime());
-
-/** How far along the pipeline an application ever got, from its stage history; closed ones keep their furthest stage. */
-function furthestStage(application: OutcomeSource) {
-	const stages = [...stageEntries(application).map((entry) => entry.stage), application.status];
-	return Math.max(...stages.map((stage) => PIPELINE.indexOf(stage)));
-}
-
-/** When the application was sent: its first stage at Applied or beyond, else the applied date on record. */
-function sentAt(application: OutcomeSource) {
-	const applied = PIPELINE.indexOf("applied");
-	return (
-		stageEntries(application).find((entry) => PIPELINE.indexOf(entry.stage) >= applied)?.at ??
-		new Date(application.appliedAt)
-	);
-}
-
-/** The first reply after sending: moving on to screening or beyond, or being turned down. */
-function firstReply(application: OutcomeSource) {
-	const since = sentAt(application).getTime();
-	return stageEntries(application).find(
-		(entry) =>
-			entry.at.getTime() >= since &&
-			(REPLY_STAGES.has(entry.stage) || (entry.stage === "closed" && application.closedReason === "not-selected")),
-	)?.at;
-}
 
 function median(values: number[]) {
 	if (values.length === 0) return null;
 	const sorted = [...values].sort((a, b) => a - b);
 	const middle = Math.floor(sorted.length / 2);
 	return sorted.length % 2 ? (sorted[middle] ?? null) : ((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2;
-}
-
-export type Outcomes = {
-	/** Applications that ever reached each stage from Applied on, closed ones included. */
-	funnel: { status: ApplicationStatus; reached: number }[];
-	sent: number;
-	heardBack: number;
-	medianDaysToReply: number | null;
-	/** Sent applications whose linked resume was made for them, against those sent with another resume. */
-	tailored: { sent: number; replied: number };
-	base: { sent: number; replied: number };
-};
-
-/**
- * How applications turned out: the funnel of stages reached, how many heard back and how fast, and whether
- * resumes made for the job got more replies than the base resume. `isTailored` says whether an application's
- * linked resume was made for it.
- */
-export function computeOutcomes(
-	applications: readonly OutcomeSource[],
-	isTailored: (application: OutcomeSource) => boolean,
-): Outcomes {
-	const sent = applications.filter((application) => furthestStage(application) >= PIPELINE.indexOf("applied"));
-	const replies = sent.map((application) => ({ application, reply: firstReply(application) }));
-	const withReplies = replies.filter((entry) => entry.reply !== undefined);
-
-	const compare = (tailored: boolean) => {
-		const group = replies.filter(({ application }) => application.resumeId && isTailored(application) === tailored);
-		return { sent: group.length, replied: group.filter((entry) => entry.reply !== undefined).length };
-	};
-
-	return {
-		funnel: (["applied", "screening", "interview", "offer"] as const).map((status) => ({
-			status,
-			reached: sent.filter((application) => furthestStage(application) >= PIPELINE.indexOf(status)).length,
-		})),
-		sent: sent.length,
-		heardBack: withReplies.length,
-		medianDaysToReply: median(
-			withReplies.map(({ application, reply }) =>
-				Math.round(((reply?.getTime() ?? 0) - sentAt(application).getTime()) / DAY_MS),
-			),
-		),
-		tailored: compare(true),
-		base: compare(false),
-	};
 }

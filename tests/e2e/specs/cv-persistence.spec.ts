@@ -19,7 +19,7 @@ test("reload keeps unsaved changes for explicit recovery and persists only after
 	await page.reload();
 	await page.setViewportSize({ width: 390, height: 844 });
 	await expect(page.getByText("Unsaved changes on this device", { exact: true })).toBeVisible();
-	for (const name of ["Write", "Page", "Design", "Check"]) {
+	for (const name of ["Write", "Page", "Design", "Review"]) {
 		await expect(
 			page.getByRole("navigation", { name: "Editor views" }).getByRole("button", { name, exact: true }),
 		).toBeDisabled();
@@ -69,7 +69,7 @@ test("two tabs resolve a stale save without overwriting either draft", async ({ 
 	release();
 	await page.setViewportSize({ width: 390, height: 844 });
 	await expect(page.getByRole("button", { name: "Save my edits as a new copy", exact: true })).toBeVisible();
-	for (const name of ["Write", "Page", "Design", "Check"]) {
+	for (const name of ["Write", "Page", "Design", "Review"]) {
 		await expect(
 			page.getByRole("navigation", { name: "Editor views" }).getByRole("button", { name, exact: true }),
 		).toBeDisabled();

@@ -52,11 +52,6 @@ function RouteComponent() {
 			<PageHeader
 				backOnlyOnMobile
 				title={current?.label() ?? t({ message: "Settings", context: "account.navigation.settings" })}
-				description={
-					pathname.endsWith("/ai") ? (
-						<Trans>Connect the tools you use for writing, job search and working with your resumes.</Trans>
-					) : undefined
-				}
 				back={
 					!isRoot ? (
 						<BackNavigation render={<Link to="/dashboard/settings" />}>

@@ -40,7 +40,7 @@ export function selectConversationProvider<T extends { id: string }>(
 
 export function assistantAvailability(
 	availability: AiAvailability | undefined,
-	remaining: number | undefined,
+	remaining: number | null | undefined,
 	reserved = 0,
 ) {
 	if (!availability) return "loading";

@@ -1,38 +1,26 @@
-import type { UiLocale } from "@reactive-resume/utils/locale";
 import type { ReactNode } from "react";
 import { Trans } from "@lingui/react/macro";
 import { Link } from "@tanstack/react-router";
-import { BrandIcon } from "@reactive-resume/ui/components/brand-icon";
 import { buttonVariants } from "@reactive-resume/ui/components/button";
-import { Icon } from "@reactive-resume/ui/components/icon";
-import { cn } from "@reactive-resume/utils/style";
+import { BrandIcon } from "@/components/ui/brand-icon";
 import { useUiLocale } from "@/features/locale/provider";
+import { LocaleSwitch } from "@/features/locale/switch";
 import { usePublicCopy } from "@/features/public-copy";
 
 const year = new Date().getFullYear();
-// Each language is named in itself, so a visitor can find theirs whatever the current interface language is.
-const languages: readonly { locale: UiLocale; name: string }[] = [
-	{ locale: "ar-SA", name: "العربية" },
-	{ locale: "en-US", name: "English" },
-];
 
-/**
- * Brand and tagline, then product, support and legal columns, a language choice and the copyright line.
- * Owner decision 2026-11-15: no visible upstream credit; the MIT LICENSE file stays in the repository.
- */
+/** PublicShell owns the landmark, surface and outer container. */
 export function LandingFooter() {
 	const { locale } = useUiLocale();
 	const copy = usePublicCopy();
-	const link = buttonVariants({
-		variant: "quiet",
-		size: "link-touch",
-		className: "-mx-3 justify-start px-3 text-ink-2",
-	});
+	const link = buttonVariants({ variant: "link", size: "link-touch", className: "justify-start text-ink-2" });
 	return (
-		<div className="grid w-full gap-10">
-			<div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr_1fr]">
-				<div className="grid content-start justify-items-start gap-3">
-					<BrandIcon variant="logo" />
+		<div className="grid w-full gap-8">
+			<div className="grid grid-cols-2 gap-8 md:grid-cols-[2fr_1fr_1fr]">
+				<div className="col-span-2 grid content-start justify-items-start gap-3 md:col-span-1">
+					<Link to="/" search={{ locale }} className={buttonVariants({ variant: "ghost", size: "link-touch" })}>
+						<BrandIcon variant="logo" />
+					</Link>
 					<p className="max-w-xs type-body text-ink-2">{copy("landing.footer.tagline")}</p>
 				</div>
 				<FooterColumn title={copy("landing.footer.product")}>
@@ -42,55 +30,43 @@ export function LandingFooter() {
 					<Link to="/" hash="pricing" search={{ locale }} className={link}>
 						{copy("landing.navigation.pricing")}
 					</Link>
+				</FooterColumn>
+				<FooterColumn title={copy("landing.footer.support")}>
 					<Link to="/" hash="faq" search={{ locale }} className={link}>
 						{copy("landing.navigation.faq")}
 					</Link>
-				</FooterColumn>
-				<FooterColumn title={copy("landing.footer.support")}>
 					<Link to="/help" search={{ locale }} className={link}>
 						<Trans context="help.page.title">Help and contact</Trans>
 					</Link>
 				</FooterColumn>
-				<FooterColumn title={copy("landing.footer.legal")}>
+			</div>
+			<div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-4 border-t border-line pt-4 md:grid-cols-[1fr_auto_1fr]">
+				<nav
+					aria-label={copy("landing.footer.legal")}
+					className="col-span-2 flex flex-wrap gap-3 md:col-span-1 md:col-start-2 md:row-start-1"
+				>
 					<Link to="/privacy-and-terms" search={{ locale, tab: "privacy" }} className={link}>
 						{copy("legal.tab.privacy")}
 					</Link>
 					<Link to="/privacy-and-terms" search={{ locale, tab: "terms" }} className={link}>
 						{copy("legal.tab.terms")}
 					</Link>
-				</FooterColumn>
-			</div>
-			<div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
-				<p className="type-metadata text-ink-3">
+				</nav>
+				<div className="min-w-0 md:col-start-3 md:row-start-1 md:justify-self-end">
+					<LocaleSwitch presentation="choices" />
+				</div>
+				<p className="justify-self-end type-metadata text-ink-3 md:col-start-1 md:row-start-1 md:justify-self-start">
 					<bdi dir="ltr">
-						<Trans context="landing.footer.copyright">© {year} Master CV</Trans>
+						<Trans context="landing.footer.copyright">© {year} Sirawise</Trans>
 					</bdi>
 				</p>
-				<div className="flex items-center gap-1">
-					<Icon name="globe" size={16} className="me-1 text-ink-3" />
-					{languages.map((language) => (
-						<Link
-							key={language.locale}
-							to="."
-							search={(previous: Record<string, unknown>) => ({ ...previous, locale: language.locale })}
-							lang={language.locale}
-							aria-current={language.locale === locale ? "true" : undefined}
-							className={cn(
-								buttonVariants({ variant: "quiet", size: "link-compact" }),
-								"px-2",
-								language.locale === locale && "text-ink",
-							)}
-						>
-							{language.name}
-						</Link>
-					))}
-				</div>
 			</div>
 		</div>
 	);
 }
 
-function FooterColumn({ title, children }: { title: string; children: ReactNode }) {
+type FooterColumnProps = { title: string; children: ReactNode };
+function FooterColumn({ title, children }: FooterColumnProps) {
 	return (
 		<nav aria-label={title} className="grid content-start justify-items-start gap-2">
 			<p className="type-label text-ink">{title}</p>

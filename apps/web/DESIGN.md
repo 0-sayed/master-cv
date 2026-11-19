@@ -1,6 +1,6 @@
 ---
 version: 6.0.0
-name: Reactive Resume · Desk & Paper
+name: Sirawise · Desk & Paper
 description: A warm, quiet interface around bright paper. Moss green marks primary actions, selection, and progress. Light and dark themes keep document paper white.
 colors:
   light:
@@ -118,9 +118,9 @@ marketing:
 
 ## Overview
 
-For Master CV app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling. The frontmatter palette, type, spacing and control values preserve the upstream reference; do not apply them as Master CV styling authority.
+For Sirawise app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling. The frontmatter palette, type, spacing and control values preserve the upstream reference; do not apply them as Sirawise styling authority.
 
-Reactive Resume uses “Desk & Paper”: a warm, quiet interface around a bright resume or letter. Low-contrast surfaces, thin rules, and a moss-green accent keep attention on the document.
+Sirawise uses “Desk & Paper”: a warm, quiet interface around a bright resume or letter. Low-contrast surfaces, thin rules, and a moss-green accent keep attention on the document.
 
 This reference covers the current app and homepage. Implementation details live in the source files named below; [REDESIGN_PLAN.md](REDESIGN_PLAN.md) records the redesign milestones and deviations from the original handoff.
 
@@ -149,7 +149,7 @@ Use semantic tokens in app code. Legacy names such as `background`, `foreground`
 
 ## Typography
 
-For Master CV app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling.
+For Sirawise app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling.
 
 The front matter records the app type scale. Field labels use the separate `field-label` size.
 
@@ -172,7 +172,7 @@ Icons inside resumes use Phosphor names stored in resume data, drawn by the Phos
 
 ## Space, shape, and elevation
 
-For Master CV app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling.
+For Sirawise app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling.
 
 - **Spacing:** use the 4px scale in the front matter. Cards typically have 16px padding, panels 16–24px, mobile pages 16px margins, and desktop pages 32–40px margins.
 - **Radius:** 6px for chips and small buttons; 8px for inputs and controls; 10px for list items; 12px for cards and menus; 16px for dialogs; 18px for mobile sheets. Use `rounded-full` for pills; `rounded-4xl` is 24px where needed.
@@ -198,7 +198,7 @@ The homepage has separate motion rules below.
 
 ## Components
 
-For Master CV app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling.
+For Sirawise app UI, follow D35 and T002 shared tokens/roles; these upstream values are historical. Preserve independent document-template styling.
 
 Generic primitives live in `packages/ui/src/components`, using Base UI and cmdk for the command palette. Feature-specific UI belongs in its owning `apps/web` feature.
 
@@ -240,9 +240,9 @@ The public homepage in `apps/web/src/features/homepage` shares app colors and th
 
 ### Brand and type
 
-- **Header:** a 30px logomark from `apps/web/public/icon/{light,dark}.svg`. Keep “Reactive Resume” as visually hidden text inside the home link.
+- **Header:** a 30px logomark from `apps/web/public/icon/{light,dark}.svg`. Use the localized Sirawise name as visually hidden text inside the home link under D42.
 - **Footer:** a 140px logo from `apps/web/public/logo/{light,dark}.svg`, followed by community and MIT license copy.
-- **Wordmark:** Anybody 800, at 17.5cqw and 78% width, with “Reactive” in `ink` and “Resume” in `accent-text`. A 23cqw container crops it through a gradient mask. It rises from 60% translation as the footer enters and is decorative (`aria-hidden`).
+- **Wordmark:** Use the localized Sirawise name through the shared brand component and T002 typography. Keep the footer name readable without a crop or decorative translation.
 - **Anybody:** hero and closing headlines, selected scene titles, large numerals, and the wordmark. Use weights 300–400 for main display text; reserve 800 for the wordmark.
 - **Newsreader:** body copy, italic accents, and serif title treatments in the Design scene. The app's `font-display` still maps to Newsreader; use `font-anybody` explicitly.
 - **Martian Mono:** 11px uppercase labels at weight 500, with 0.08em tracking. Use `font-martian`.

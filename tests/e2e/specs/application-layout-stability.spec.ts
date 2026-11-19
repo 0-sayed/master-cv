@@ -61,8 +61,9 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await variantClient(page).applications.create({ company: "Validation Company", role: "Validation Engineer" });
 			await page.goto(`/dashboard/applications?view=calendar&locale=${locale}`);
 			await page
-				.getByTestId("interview-calendar")
+				.locator(".calendar-agenda")
 				.getByRole("button", { name: locale === "ar-SA" ? "جدولة المقابلة" : "Schedule interview", exact: true })
+				.first()
 				.click();
 			const dialog = page.getByRole("dialog");
 			const save = dialog.getByRole("button", {

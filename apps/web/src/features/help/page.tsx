@@ -12,6 +12,8 @@ import { RadioGroup, RadioGroupItem } from "@reactive-resume/ui/components/radio
 import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { PrivacyNotice } from "../settings/privacy/notice";
 import { SettingsSection } from "../settings/section";
+import { guideCopy } from "@/features/ats-guide/copy";
+import { ATS_GUIDE_ROUTE } from "@/features/ats-guide/links";
 import { client } from "@/libs/orpc/client";
 export function HelpPage({ user }: { user: { email: string; emailVerified: boolean } | null }) {
 	const { i18n } = useLingui();
@@ -57,6 +59,14 @@ export function HelpPage({ user }: { user: { email: string; emailVerified: boole
 	}, [send.isSuccess]);
 	return (
 		<>
+			{user && (
+				<a
+					href={`${ATS_GUIDE_ROUTE}?locale=${i18n.locale}`}
+					className={buttonVariants({ variant: "link", size: "link-touch" })}
+				>
+					{i18n._(guideCopy.title)}
+				</a>
+			)}
 			<div className="grid gap-8 md:grid-cols-2">
 				<SettingsSection
 					title={<Trans context="help.contact.title">Send us a message</Trans>}

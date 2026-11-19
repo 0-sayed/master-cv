@@ -15,14 +15,13 @@ import { createMemoryHistory, createRootRoute, createRouter, RouterContextProvid
 import { renderToString } from "react-dom/server";
 import { isRTL, productUiLocales } from "@reactive-resume/utils/locale";
 import { Homepage } from "./page";
-import { AtsCheckerPage } from "@/features/ats-checker/page";
 import { PublicHelp } from "@/features/help/public-page";
 import { LegalPage } from "@/features/legal/page";
 import { LocaleProvider } from "@/features/locale/provider";
 import { ThemeProvider } from "@/features/theme/provider";
+import { sessionQueryKey } from "@/libs/auth/identity";
 import { getUiLocaleMessages } from "@/libs/locale";
-import { getAtsCheckerMeta, getHomepageMeta, getPublicPageMeta } from "@/libs/seo";
-import { Header } from "@/routes/_home/-sections/header";
+import { getHomepageMeta, getPublicPageMeta } from "@/libs/seo";
 
 export const locales = productUiLocales;
 
@@ -46,17 +45,6 @@ const pages = {
 		render: () => <PublicHelp />,
 	},
 	home: { path: "/", meta: getHomepageMeta, render: () => <Homepage /> },
-	// What the /_home layout renders around the checker for a signed-out visitor (routes/_home/route.tsx).
-	"ats-checker": {
-		path: "/ats-checker",
-		meta: getAtsCheckerMeta,
-		render: () => (
-			<>
-				<Header />
-				<AtsCheckerPage signedIn={false} importPending={false} />
-			</>
-		),
-	},
 } satisfies Record<
 	string,
 	{ path: string; meta: () => { title: string; description: string }; render: () => ReactNode }
@@ -75,10 +63,13 @@ export async function renderPage(name: PrerenderedPage, locale: UiLocale) {
 		history: createMemoryHistory({ initialEntries: [page.path] }),
 	});
 	const dir = isRTL(locale) ? "rtl" : "ltr";
+	const queryClient = new QueryClient();
+	// Build-time pages have a known synthetic guest identity and never perform a session request.
+	queryClient.setQueryData(sessionQueryKey, null);
 
 	const html = renderToString(
 		<RouterContextProvider router={router}>
-			<QueryClientProvider client={new QueryClient()}>
+			<QueryClientProvider client={queryClient}>
 				<I18nProvider i18n={i18n}>
 					<IconContext.Provider value={iconContextValue}>
 						<ThemeProvider theme="system">

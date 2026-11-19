@@ -33,7 +33,7 @@ function show(value: unknown) {
 }
 it("accounts error is unknown not passwordless", () => {
 	show({ status: "error", refresh: vi.fn() });
-	expect(screen.queryByText("You sign in without one")).toBeNull();
+	expect(screen.queryByText("Not set")).toBeNull();
 	expect(screen.getByRole("alert")).toBeDefined();
 	expect(screen.getByRole("button", { name: "Try again" })).toBeDefined();
 });
@@ -48,7 +48,10 @@ it("successful empty is empty", () => {
 		data: { credentials: { hasPassword: false, mfaEnabled: false, passkeyCount: 0 }, sessions: [], pendingEmail: null },
 		refresh: vi.fn(),
 	});
-	expect(screen.getByText("You sign in without one")).toBeDefined();
+	expect(screen.getByText("Not set")).toBeDefined();
+	expect(screen.getByText("Off")).toBeDefined();
+	expect(screen.queryByText("You sign in without one")).toBeNull();
+	expect(screen.queryByText("Two-step verification is not enabled")).toBeNull();
 });
 it("stale known enrollment retains error label", () => {
 	show({
@@ -57,7 +60,7 @@ it("stale known enrollment retains error label", () => {
 		refresh: vi.fn(),
 	});
 	expect(screen.getByRole("alert")).toBeDefined();
-	expect(screen.getByText("Two-step verification is enabled")).toBeDefined();
+	expect(screen.getByText("On")).toBeDefined();
 });
 
 it("failed passkeys query disables method changes", async () => {

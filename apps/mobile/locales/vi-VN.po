@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-17 06:47+0200\n"
+"POT-Creation-Date: 2026-11-18 09:46+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -676,8 +676,8 @@ msgid "24 hours before"
 msgstr "Trước 24 giờ"
 
 #: src/features/letters/share.tsx
-msgid "A backup of this letter. Imports back into Reactive Resume as a letter."
-msgstr "Bản sao lưu của bức thư này. Nhập lại vào Reactive Resume dưới dạng một lá thư."
+msgid "A backup of this letter. Imports back into Sirawise as a letter."
+msgstr ""
 
 #: src/features/check/issues.ts
 msgid "A city and country let roles be matched to where you are."
@@ -1562,10 +1562,6 @@ msgstr "Yêu cầu trợ lý làm việc đó"
 msgid "Ask the coach"
 msgstr "Hỏi cố vấn"
 
-#: src/features/share/download.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "Hỏi cộng đồng. Hãy xóa thông tin cá nhân trước khi đăng."
-
 #: src/features/ai/error.ts
 msgid "Ask your server administrator to enable credential encryption or configure a shared connection."
 msgstr "Yêu cầu quản trị viên máy chủ của bạn bật mã hóa thông tin xác thực hoặc định cấu hình kết nối được chia sẻ."
@@ -1600,7 +1596,6 @@ msgid "ATS checker"
 msgstr "Máy kiểm tra ATS"
 
 #: src/features/ats-checker/checker.tsx
-#: src/features/search/search-screen.tsx
 msgid "ATS Checker"
 msgstr "Công cụ kiểm tra ATS"
 
@@ -1864,10 +1859,6 @@ msgstr "Danh sách có dấu đầu dòng"
 msgid "Burgundy"
 msgstr "Đỏ rượu vang"
 
-#: app/(tabs)/settings/index.tsx
-msgid "by <0>Amruth Pillai</0>"
-msgstr "bởi <0>Amruth Pillai</0>"
-
 #: src/features/applications-board/views.tsx
 msgid "Calendar"
 msgstr "Lịch"
@@ -1981,14 +1972,6 @@ msgstr "Các thay đổi đối với “{name}” đã được lưu trên mộ
 #: app/builder/[id]/_layout.tsx
 msgid "Check"
 msgstr "Kiểm tra"
-
-#: src/features/search/search-screen.tsx
-msgid "Check a PDF"
-msgstr "Kiểm tra PDF"
-
-#: src/features/documents/new-document.tsx
-msgid "Check a PDF with the ATS checker"
-msgstr "Kiểm tra PDF bằng công cụ kiểm tra ATS"
 
 #: src/features/ats-checker/checker.tsx
 msgid "Check a sample file"
@@ -2327,8 +2310,8 @@ msgid "Compares your resume with the posting"
 msgstr "So sánh lý lịch của bạn với tin tuyển dụng"
 
 #: src/features/share/download.tsx
-msgid "Complete data backup. Imports back into Reactive Resume or JSON Resume tools."
-msgstr "Sao lưu dữ liệu hoàn chỉnh. Nhập lại vào các công cụ Reactive Resume hoặc JSON Resume."
+msgid "Complete data backup. Imports back into Sirawise or JSON Resume tools."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
@@ -3425,10 +3408,6 @@ msgstr "Không gửi tin tuyển dụng {0}"
 msgid "Don't share"
 msgstr "Đừng chia sẻ"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Donate on Open Collective"
-msgstr "Quyên góp trên Open Collective"
-
 #: src/features/applications/list-screen.tsx
 #: src/features/career/today.tsx
 #: src/features/documents/library.tsx
@@ -3784,8 +3763,8 @@ msgid "Enter any model ID supported by your endpoint."
 msgstr "Nhập bất kỳ ID mẫu nào được điểm cuối của bạn hỗ trợ."
 
 #: app/(auth)/server.tsx
-msgid "Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue."
-msgstr "Nhập địa chỉ bạn sử dụng để mở Reactive Resume trong trình duyệt. Trước khi bạn tiếp tục, ứng dụng di động sẽ xác minh rằng đây là máy chủ Reactive Resume đã bật đăng nhập trên thiết bị di động."
+msgid "Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue."
+msgstr ""
 
 #: src/features/public/public-resume.tsx
 msgid "Enter the password the resume owner shared with you."
@@ -4186,10 +4165,6 @@ msgstr "“Xin nhận xét” sẽ gửi câu hỏi, câu trả lời của bạ
 msgid "Get new roles here every morning"
 msgstr "Nhận vị trí mới tại đây mỗi sáng"
 
-#: src/features/share/download.tsx
-msgid "Get resume feedback on Discord"
-msgstr "Nhận góp ý về sơ yếu lý lịch trên Discord"
-
 #: src/features/letters/write.tsx
 msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "Đang dài ra. Hãy thử “ngắn hơn” hoặc cắt đoạn văn ít cụ thể nhất."
@@ -4280,6 +4255,10 @@ msgstr "nghe lại"
 #: src/features/settings/locale-names.ts
 msgid "Hebrew"
 msgstr "Tiếng Do Thái"
+
+#: src/features/share/download.tsx
+msgid "Help"
+msgstr ""
 
 #: app/(tabs)/settings/index.tsx
 msgid "Help & docs"
@@ -4742,10 +4721,6 @@ msgstr "Quy trình tìm việc"
 #: src/features/search/search-screen.tsx
 msgid "Jobs"
 msgstr "Việc làm"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Join the Discord"
-msgstr "Tham gia Discord"
 
 #: src/features/letters/share.tsx
 #: src/features/share/download.tsx
@@ -5286,8 +5261,8 @@ msgid "Lower the design sheet"
 msgstr "Hạ tờ thiết kế xuống"
 
 #: src/features/public/public-resume.tsx
-msgid "Made with Reactive Resume, free and open source"
-msgstr "Được tạo bằng Reactive Resume, mã nguồn mở và miễn phí"
+msgid "Made with Sirawise, free and open source"
+msgstr ""
 
 #. Layout editor column label for the primary content area
 #: src/features/design/layout-screen.tsx
@@ -5963,10 +5938,6 @@ msgstr "Không có ảnh. Hầu hết ATS đều bỏ qua ảnh; một số khu 
 msgid "No postings found. Try different keywords."
 msgstr "Không tìm thấy tin tuyển dụng nào Hãy thử các từ khóa khác nhau."
 
-#: src/auth/messages.ts
-msgid "No Reactive Resume server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
-msgstr "Không có máy chủ Reactive Resume nào trả lời tại địa chỉ này. Kiểm tra chính tả hoặc hỏi quản trị viên của bạn xem máy chủ có cho phép đăng nhập ứng dụng hay không."
-
 #: src/features/check/job-match.tsx
 msgid "No recognisable terms in this posting."
 msgstr "Không có thuật ngữ nào dễ nhận biết trong tin tuyển dụng này."
@@ -5986,6 +5957,10 @@ msgstr "Không có kết quả"
 #: src/features/letters/write.tsx
 msgid "No resume"
 msgstr "Không có sơ yếu lý lịch"
+
+#: src/auth/messages.ts
+msgid "No Sirawise server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "No skills section was found."
@@ -6645,8 +6620,8 @@ msgid "PDF check cancelled. Retry when ready."
 msgstr "Đã hủy kiểm tra PDF. Thử lại khi sẵn sàng."
 
 #: src/features/application-detail/sections.tsx
-msgid "PDF only · up to 10 MB each. Linking a Reactive Resume enables AI match scoring and tailoring."
-msgstr "Chỉ PDF · tối đa 10 MB mỗi tệp. Liên kết sơ yếu lý lịch Reactive Resume để AI chấm độ phù hợp và điều chỉnh theo công việc."
+msgid "PDF only · up to 10 MB each. Linking a Sirawise enables AI match scoring and tailoring."
+msgstr ""
 
 #: src/features/design/advanced.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
@@ -6654,11 +6629,11 @@ msgstr "Các kiểu PDF hỗ trợ một tập hợp con của CSS. Các đườ
 
 #: src/features/documents/new-document.tsx
 msgid "PDF uses your AI provider when one is ready. Turn off the AI switch to read its text layer on your server. Word (.docx) needs an AI provider. Current and v4 Reactive Resume JSON, cover letters, JSON Resume and LinkedIn exports (.zip) are supported. Up to 10 MB."
-msgstr "Khi có nhà cung cấp AI, nó sẽ đọc các tệp PDF đã nhập. Thay vào đó, hãy tắt AI để trích xuất văn bản PDF trên máy chủ của bạn. Word (.docx) yêu cầu nhà cung cấp AI. Hỗ trợ Reactive Resume JSON hiện tại và v4, thư xin việc, xuất JSON Resume và LinkedIn (.zip). Giới hạn kích thước tệp: 10 MB."
+msgstr "Khi có nhà cung cấp AI, nó sẽ đọc các tệp PDF đã nhập. Thay vào đó, hãy tắt AI để trích xuất văn bản PDF trên máy chủ của bạn. Word (.docx) yêu cầu nhà cung cấp AI. Hỗ trợ Sirawise JSON hiện tại và v4, thư xin việc, xuất JSON Resume và LinkedIn (.zip). Giới hạn kích thước tệp: 10 MB."
 
 #: src/features/documents/new-document.tsx
 msgid "PDF, Word, Reactive Resume, JSON Resume or LinkedIn export."
-msgstr "Xuất PDF, Word, Reactive Resume, JSON Resume hoặc LinkedIn."
+msgstr "Xuất PDF, Word, Sirawise, JSON Resume hoặc LinkedIn."
 
 #: src/features/career/offers.tsx
 #: src/features/career/preferences.tsx
@@ -7102,10 +7077,6 @@ msgstr "Xuất lại với font đã nhúng, rồi kiểm tra xem văn bản có
 msgid "Re-export with fonts embedded, then open the file and check that the text copies out cleanly."
 msgstr "Xuất lại với font đã nhúng, sau đó mở tệp và kiểm tra xem văn bản có sao chép ra sạch sẽ không."
 
-#: src/auth/auth-header.tsx
-msgid "Reactive Resume"
-msgstr "Reactive Resume"
-
 #: src/features/workspace/tabs/prepare.tsx
 msgid "Read briefing"
 msgstr "Đọc bản tóm tắt"
@@ -7512,10 +7483,6 @@ msgstr "Báo cáo"
 msgid "Report AI content"
 msgstr "Báo cáo nội dung AI"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Report an issue"
-msgstr "Báo cáo sự cố"
-
 #: src/features/ai/report-content.tsx
 msgid "Report received by your server operator. Thank you."
 msgstr "Nhà điều hành máy chủ của bạn đã nhận được báo cáo. Cảm ơn."
@@ -7607,10 +7574,6 @@ msgstr "Không thể tải sơ yếu lý lịch."
 #: src/features/document-menu/index.tsx
 msgid "Resume details"
 msgstr "chi tiết sơ yếu lý lịch"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Resume feedback, product help, and community ideas."
-msgstr "Góp ý sơ yếu lý lịch, trợ giúp sản phẩm và ý tưởng từ cộng đồng."
 
 #: src/features/application-detail/sections.tsx
 msgid "Resume file"
@@ -8309,10 +8272,6 @@ msgstr "Định cấu hình tìm kiếm trên web trong “Cài đặt” để 
 msgid "Settings"
 msgstr "Cài đặt"
 
-#: app/(tabs)/settings/ai-mcp.tsx
-msgid "Setup guide"
-msgstr "Hướng dẫn thiết lập"
-
 #: src/features/ai/report-content.tsx
 msgid "Sexual content"
 msgstr "Nội dung khiêu dâm"
@@ -8615,6 +8574,11 @@ msgstr "Đã đăng xuất nhưng không thể xóa một số dữ liệu trên
 msgid "since last view"
 msgstr "kể từ lần xem cuối cùng"
 
+#: src/auth/auth-header.tsx
+#: src/shell/app-tabs.tsx
+msgid "Sirawise"
+msgstr "Sirawise"
+
 #: src/features/career/stories.tsx
 msgid "Situation (required)"
 msgstr "Tình huống (bắt buộc)"
@@ -8756,10 +8720,6 @@ msgstr "Nguồn"
 msgid "Source and correction history"
 msgstr "Nguồn và lịch sử chỉnh sửa"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Source code on GitHub"
-msgstr "Mã nguồn trên GitHub"
-
 #: src/features/assistant/chat-view.tsx
 #: src/features/assistant/messages.tsx
 msgid "Sources"
@@ -8867,6 +8827,10 @@ msgstr "Bắt đầu nhập hoặc soạn thảo từ những gì chúng tôi bi
 #: src/features/letters/write.tsx
 msgid "Start typing, or draft from what we know: your resume."
 msgstr "Bắt đầu nhập hoặc soạn thảo từ những gì chúng tôi biết: sơ yếu lý lịch của bạn."
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr ""
 
 #: src/features/letters/write.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
@@ -10912,8 +10876,8 @@ msgid "your Knowledge"
 msgstr "Kiến thức của bạn"
 
 #: app/(tabs)/settings/preferences.tsx
-msgid "Your language is saved. Restart Reactive Resume to apply the new left-to-right or right-to-left layout."
-msgstr "Ngôn ngữ của bạn đã được lưu. Khởi động lại Reactive Resume để áp dụng bố cục từ trái sang phải hoặc từ phải sang trái mới."
+msgid "Your language is saved. Restart Sirawise to apply the new left-to-right or right-to-left layout."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Your lines are packed very tightly."

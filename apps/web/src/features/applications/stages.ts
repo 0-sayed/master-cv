@@ -44,9 +44,3 @@ export const getClosedReasonLabel = (reason: ApplicationClosedReason) =>
 		"accepted-other": t`Accepted another offer`,
 		"no-response": t`No response`,
 	})[reason];
-
-/** The stage after this one in the pipeline, or null at Offer and for closed applications. */
-export function getNextStage(status: ApplicationStatus): ApplicationStatus | null {
-	const index = PIPELINE.indexOf(status);
-	return index === -1 ? null : (PIPELINE[index + 1] ?? null);
-}

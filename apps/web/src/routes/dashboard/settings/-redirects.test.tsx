@@ -13,6 +13,9 @@ vi.mock("@tanstack/react-router", async (importOriginal) => ({
 vi.mock("@reactive-resume/ui/hooks/use-breakpoint", () => ({ useBreakpoint: () => "desktop" }));
 vi.mock("@/features/locale/provider", () => ({ useUiLocale: () => ({ locale: "en-US" }) }));
 vi.mock("@/features/settings/root", () => ({ SettingsRoot: () => null }));
+vi.mock("@/features/settings/account/page", () => ({ AccountSettings: () => null }));
+vi.mock("@/features/settings/account/auth-hooks", () => ({ accountSecurityQueryOptions: vi.fn() }));
+import { Route as Account } from "./account";
 import { Route as ApiKeys } from "./api-keys";
 import { Route as Authentication } from "./authentication/index";
 import { Route as Root } from "./index";
@@ -23,6 +26,23 @@ import { Route as Profile } from "./profile";
 afterEach(() => {
 	cleanup();
 	vi.clearAllMocks();
+});
+
+it("redirects the account deletion search flag at the route boundary", () => {
+	const beforeLoad = Account.options.beforeLoad;
+	if (!beforeLoad) throw new Error("Account route must handle deletion links");
+	for (const locale of ["ar-SA", "en-US"]) {
+		let redirected: unknown;
+		try {
+			beforeLoad({ search: { deleteAccount: true, locale }, context: { locale } } as never);
+		} catch (error) {
+			redirected = error;
+		}
+		expect(redirected).toMatchObject({
+			options: { to: "/dashboard/settings/delete-account", search: { locale }, replace: true },
+		});
+		expect(beforeLoad({ search: { deleteAccount: false, locale }, context: { locale } } as never)).toBeUndefined();
+	}
 });
 
 it("preserves the active interface locale when desktop settings opens Account", () => {

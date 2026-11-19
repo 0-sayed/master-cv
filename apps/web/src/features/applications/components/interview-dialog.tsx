@@ -1,5 +1,6 @@
 import type { Application } from "../types";
 import type { InterviewKind, InterviewTimelineEntry } from "@reactive-resume/schema/applications/data";
+import type { RefObject } from "react";
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
@@ -10,6 +11,7 @@ import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -28,7 +30,7 @@ import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-valida
 import { generateId } from "@reactive-resume/utils/string";
 import { cn } from "@reactive-resume/utils/style";
 import { fromZonedDateTime } from "@reactive-resume/utils/timezone";
-import { dayKey, interviewTypeLabel } from "../interviews";
+import { dayKey, formatDuration, interviewTypeLabel } from "../interviews";
 import { isHttpLink } from "../links";
 import { applicationsListQueryKey } from "../queries";
 import { ApplicationPicker } from "./application-picker";
@@ -36,6 +38,7 @@ import { LocalDateInput } from "@/components/input/local-date-input";
 import { Combobox } from "@/components/ui/combobox";
 import { useCareerTime, useNow, confirmAction } from "@/features/career/shared";
 import { useClosingValue } from "@/hooks/use-closing-value";
+import { formatInterfaceDate } from "@/libs/locale";
 import { getInterfaceDateLocale } from "@/libs/locale";
 import { orpc } from "@/libs/orpc/client";
 
@@ -143,6 +146,8 @@ type InterviewDialogProps = {
 	interview?: InterviewTimelineEntry | null;
 	// Pre-selects this day when scheduling (e.g. a day clicked on the calendar).
 	day?: Date | null;
+	onOpenApplication?: (application: Application) => void;
+	finalFocus?: RefObject<HTMLElement | null>;
 };
 
 /** W20: type, time, length, people and what they asked for. Date and time are wall-clock in the interview's timezone. */
@@ -153,6 +158,8 @@ export function InterviewDialog({
 	applications = [],
 	interview,
 	day,
+	onOpenApplication,
+	finalFocus,
 }: InterviewDialogProps) {
 	const queryClient = useQueryClient();
 	const { i18n } = useLingui();
@@ -329,6 +336,7 @@ export function InterviewDialog({
 		<Dialog open={open} onOpenChange={onOpenChange} onOpenChangeComplete={onOpenChangeComplete}>
 			<DialogContent
 				mobile="full-screen"
+				finalFocus={finalFocus}
 				closeLabel={t`Close`}
 				className={cn("flex max-h-[min(820px,calc(100svh-2rem))] flex-col gap-0 overflow-hidden p-0 sm:max-w-xl")}
 			>
@@ -337,7 +345,7 @@ export function InterviewDialog({
 					<DialogDescription>
 						{application ? (
 							<>
-								{application.role} · {application.company}
+								<bdi dir="auto">{application.role}</bdi> · <bdi dir="auto">{application.company}</bdi>
 							</>
 						) : (
 							<Trans>It will show on the application's timeline and on the calendar.</Trans>
@@ -345,6 +353,51 @@ export function InterviewDialog({
 					</DialogDescription>
 				</div>
 
+				{editing && application && (
+					<div className="grid gap-2 px-6 pt-4 type-metadata">
+						<p>
+							{interviewTypeLabel(editing.kind)} · {formatDuration(editing.durationMinutes, i18n.locale)} ·{" "}
+							<bdi dir="ltr">
+								{formatInterfaceDate(new Date(editing.at), i18n.locale, {
+									dateStyle: "medium",
+									timeStyle: "short",
+									timeZone: draft.timezone,
+								})}{" "}
+								· {draft.timezone}
+							</bdi>
+						</p>
+						{editing.location && (
+							<bdi dir="auto" className="wrap-anywhere">
+								{editing.location}
+							</bdi>
+						)}
+						<div className="flex flex-wrap gap-2">
+							{isHttpLink(editing.location) && (
+								<Button
+									size="sm"
+									variant="secondary"
+									nativeButton={false}
+									role="link"
+									render={<a href={editing.location.trim()} target="_blank" rel="noopener noreferrer" />}
+								>
+									<Trans>Join</Trans>
+								</Button>
+							)}
+							{onOpenApplication && (
+								<Button
+									size="sm"
+									variant="secondary"
+									onClick={() => {
+										onOpenChange(false);
+										onOpenApplication(application);
+									}}
+								>
+									<Trans>View application</Trans>
+								</Button>
+							)}
+						</div>
+					</div>
+				)}
 				<ScrollArea className="flex-1">
 					<form
 						id={`${id}-form`}
@@ -590,9 +643,9 @@ export function InterviewDialog({
 						</Button>
 					)}
 					<span className="flex-1" />
-					<Button variant="secondary" onClick={() => onOpenChange(false)}>
+					<DialogClose render={<Button variant="secondary" />}>
 						<Trans>Cancel</Trans>
-					</Button>
+					</DialogClose>
 					<Button type="submit" form={`${id}-form`} loading={pending} disabled={pending}>
 						<Trans>Save interview</Trans>
 					</Button>

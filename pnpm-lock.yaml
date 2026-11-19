@@ -1574,6 +1574,9 @@ importers:
 
   packages/email:
     dependencies:
+      '@reactive-resume/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@reactive-resume/env':
         specifier: workspace:*
         version: link:../env
@@ -2022,6 +2025,15 @@ importers:
         specifier: workspace:*
         version: link:../packages/schema
     devDependencies:
+      '@orpc/server':
+        specifier: 'catalog:'
+        version: 1.15.7(ws@8.21.3)
+      '@reactive-resume/auth':
+        specifier: 'workspace:*'
+        version: link:../packages/auth
+      '@reactive-resume/utils':
+        specifier: workspace:*
+        version: link:../packages/utils
       '@lingui/core':
         specifier: 'catalog:'
         version: 6.10.0(@babel/core@7.29.7(supports-color@7.2.0))(babel-plugin-macros@3.1.0)

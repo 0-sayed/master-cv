@@ -35,7 +35,7 @@ describe("MCP OAuth flow with PostgreSQL", () => {
 		if (
 			url.protocol !== "postgresql:" ||
 			!["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) ||
-			url.port !== "55432" ||
+			url.port !== new URL(process.env.DATABASE_URL ?? "invalid:").port ||
 			url.search ||
 			url.hash
 		)

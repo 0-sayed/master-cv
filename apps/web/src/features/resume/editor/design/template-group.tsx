@@ -1,12 +1,11 @@
 import type { ResumeData } from "@reactive-resume/schema/resume/data";
 import type { Template } from "@reactive-resume/schema/templates";
 import type { FocusEvent, KeyboardEvent, PointerEvent } from "react";
-import { Radio } from "@base-ui/react/radio";
-import { RadioGroup } from "@base-ui/react/radio-group";
 import { t } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect, useId, useRef, useState } from "react";
+import { use, useEffect, useId, useRef, useState } from "react";
 import { templateLayouts } from "@reactive-resume/schema/templates";
+import { FilterChip, FilterChips } from "@reactive-resume/ui/components/filter-chips";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
 import { Slider } from "@reactive-resume/ui/components/slider";
@@ -14,6 +13,7 @@ import { TemplateThumbnail } from "@reactive-resume/ui/components/template-thumb
 import { toast } from "@reactive-resume/ui/components/toast";
 import { isRTL } from "@reactive-resume/utils/locale";
 import { useEditorStore } from "../store";
+import { TemplateThumbnailVisibility } from "./thumbnail-visibility";
 import { useTemplateThumbnail } from "./thumbnails";
 import { getTemplateImageUrl, templates } from "@/dialogs/resume/template/data";
 import { useResumeData, useResumeStore, useUpdateResumeData } from "@/features/resume/builder/draft";
@@ -95,33 +95,29 @@ export function TemplateGroup({ layout = "grid" }: TemplateGroupProps) {
 
 	return (
 		<div className="grid gap-3">
-			<RadioGroup
+			<FilterChips
 				aria-label={t`Show templates`}
 				value={filter}
 				onValueChange={(value) => setFilter(value as Filter)}
 				className="flex flex-wrap items-center gap-1.5"
 			>
 				{filters.map((option) => (
-					<Radio.Root
-						key={option.id}
-						value={option.id}
-						className="flex h-7 cursor-pointer items-center rounded-full border border-line-2 px-3 text-[13px] text-ink-2 transition-colors duration-quick hover:bg-hover data-checked:border-accent data-checked:bg-accent-soft data-checked:font-medium data-checked:text-accent-text"
-					>
+					<FilterChip key={option.id} value={option.id}>
 						{option.label}
-					</Radio.Root>
+					</FilterChip>
 				))}
 				<span className="ms-auto text-xs text-ink-3">
 					<Trans>
 						{shown.length} of {TEMPLATE_IDS.length} shown
 					</Trans>
 				</span>
-			</RadioGroup>
+			</FilterChips>
 
 			{/* oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- listens for Esc and pointer exit from the cards; each card is a button. */}
 			<div
 				className={
 					layout === "grid"
-						? "grid grid-cols-2 gap-3"
+						? "editor-panel-templates grid grid-cols-2 gap-3"
 						: "-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 *:w-28 *:shrink-0 *:snap-start"
 				}
 				onPointerLeave={() => setPreview(null)}
@@ -147,7 +143,8 @@ export function TemplateGroup({ layout = "grid" }: TemplateGroupProps) {
 type TemplateCardProps = { id: Template; data: ResumeData; selected: boolean; onPreview: () => void };
 
 function TemplateCard({ id, data, selected, onPreview }: TemplateCardProps) {
-	const { data: thumbnail } = useTemplateThumbnail(id, data, true);
+	const visible = use(TemplateThumbnailVisibility);
+	const { data: thumbnail } = useTemplateThumbnail(id, data, visible);
 	const metadata = templates[id];
 	const { i18n } = useLingui();
 	const hold = useRef<{ timer?: number; previewing: boolean }>({ previewing: false });

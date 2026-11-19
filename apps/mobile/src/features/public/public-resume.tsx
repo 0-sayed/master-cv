@@ -174,7 +174,7 @@ export function PublicResume({ username, slug }: PublicResumeProps) {
 					align="center"
 					style={{ color: colors.paperInk, opacity: 0.7, paddingBottom: space.s6 }}
 				>
-					{t`Made with Reactive Resume, free and open source`}
+					{t`Made with Sirawise, free and open source`}
 				</Text>
 			</ScrollView>
 			<SafeAreaView

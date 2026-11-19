@@ -6,9 +6,12 @@ for (const locale of ["ar-SA", "en-US"]) {
 		const target = locale === "ar-SA" ? "en-US" : "ar-SA";
 		await page
 			.getByRole("contentinfo")
-			.getByRole("link", { name: target === "ar-SA" ? "العربية" : "English", exact: true })
+			.getByRole("button", { name: target === "ar-SA" ? "العربية" : "English", exact: true })
 			.click();
 		await expect(page.locator("html")).toHaveAttribute("lang", target);
+		await expect(page.getByRole("contentinfo").getByRole("button", { pressed: true })).toHaveText(
+			target === "ar-SA" ? "العربية" : "English",
+		);
 		expect(new URL(page.url()).searchParams.get("tab")).toBe("terms");
 		await expect(page.getByRole("tab", { selected: true })).toHaveText(target === "ar-SA" ? "الشروط" : "Terms");
 	});

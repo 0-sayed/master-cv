@@ -2,6 +2,29 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 const messages = {
+	"editor.career.approvalNote": msg({
+		message: "Changes here update your CVs only with your approval.",
+		context: "editor.career.approvalNote",
+	}),
+	"editor.career.sectionNavigation": msg({ message: "On this page", context: "editor.career.sectionNavigation" }),
+	"editor.career.seeMore": msg({ message: "See more", context: "editor.career.seeMore" }),
+	"editor.career.seeLess": msg({ message: "See less", context: "editor.career.seeLess" }),
+	"editor.career.showAll": msg({ message: "Show all {count}", context: "editor.career.showAll" }),
+	"editor.career.showFewer": msg({ message: "Show fewer", context: "editor.career.showFewer" }),
+	"editor.career.editEntry": msg({ message: "Edit {name}", context: "editor.career.editEntry" }),
+	"editor.career.reviewPending": msg({
+		message: "Review pending entries ({count})",
+		context: "editor.career.reviewPending",
+	}),
+	"editor.field.usageCount": msg({
+		message: "{count, plural, one {In {countLabel} CV} other {In {countLabel} CVs}}",
+		context: "editor.field.usageCount",
+	}),
+	"editor.field.usageTitle": msg({ message: "Linked CVs", context: "editor.field.usageTitle" }),
+	"editor.field.usageHint": msg({
+		message: "These CVs use information from this entry.",
+		context: "editor.field.usageHint",
+	}),
 	"editor.field.usedIn": msg({ message: "Used in: {documentNames}", context: "editor.field.usedIn" }),
 	"editor.field.usedInLabel": msg({ message: "Used in", context: "editor.field.usedInLabel" }),
 	"editor.field.openCV": msg({ message: "Open CV {name}", context: "editor.field.openCV" }),
@@ -35,6 +58,10 @@ const messages = {
 	"editor.career.emptyHint": msg({
 		message: "Start by adding your information from the content panel.",
 		context: "editor.career.emptyHint",
+	}),
+	"editor.career.sectionEmptyHint": msg({
+		message: "Add your first entry to use it when you build a CV.",
+		context: "editor.career.sectionEmptyHint",
 	}),
 	"editor.experience.title": msg({ message: "Experience", context: "editor.experience.title" }),
 	"editor.experience.add": msg({ message: "Add experience", context: "editor.experience.add" }),

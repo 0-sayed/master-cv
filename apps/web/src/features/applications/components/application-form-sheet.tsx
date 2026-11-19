@@ -11,10 +11,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@r
 import { Button } from "@reactive-resume/ui/components/button";
 import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
 import {
 	Sheet,
+	SheetClose,
 	SheetContent,
 	SheetDescription,
 	SheetFooter,
@@ -462,7 +464,7 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 						</Field>
 					)}
 
-					{/* Resume: link a live Master CV (unlocks AI) or upload the exact PDF you sent. */}
+					{/* Resume: link a live Sirawise (unlocks AI) or upload the exact PDF you sent. */}
 					<Field label={t`Resume`}>
 						{(id) => (
 							<div className="flex flex-col gap-2">
@@ -471,7 +473,7 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 									className="w-full"
 									value={form.resumeId || null}
 									options={resumeOptions}
-									placeholder={t`Link a Master CV (recommended)`}
+									placeholder={t`Link a Sirawise (recommended)`}
 									showClear
 									emptyMessage={t`No resumes yet.`}
 									onValueChange={(value) =>
@@ -490,7 +492,7 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 									onChange={(value) => set("resumeFile", value)}
 								/>
 								<p className="type-metadata text-ink-3">
-									<Trans>Link a Master CV to use AI match scoring and tailoring.</Trans>
+									<Trans>Link a Sirawise to use AI match scoring and tailoring.</Trans>
 								</p>
 							</div>
 						)}
@@ -549,9 +551,9 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 				</div>
 
 				<SheetFooter className="flex-row justify-end gap-2">
-					<Button type="button" variant="secondary" disabled={pending} onClick={() => onOpenChange(false)}>
+					<SheetClose render={<Button type="button" variant="secondary" disabled={pending} />}>
 						<Trans>Cancel</Trans>
-					</Button>
+					</SheetClose>
 					<Button type="button" loading={pending} disabled={pending} onClick={submit}>
 						{isEditing ? <Trans>Save changes</Trans> : <Trans>Add to pipeline</Trans>}
 					</Button>
@@ -636,14 +638,15 @@ function TagsField({ id, value, suggestions, onChange }: TagsFieldProps) {
 							className="inline-flex items-center gap-1 rounded-full bg-sunken px-2 py-0.5 type-metadata text-ink-3"
 						>
 							{tag}
-							<button
+							<IconButton
 								type="button"
 								title={t`Remove tag`}
-								className="hover:text-danger-text"
+								label={t`Remove tag`}
+
 								onClick={() => onChange(value.filter((t) => t !== tag))}
-							>
-								<Icon name="x" size={12} />
-							</button>
+								icon="x"
+								iconSize={12}
+							/>
 						</span>
 					))}
 				</div>

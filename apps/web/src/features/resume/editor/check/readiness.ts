@@ -6,16 +6,23 @@ export function scheduleReadiness<T>(
 	delay: number,
 ) {
 	const controller = new AbortController();
-	const timer = setTimeout(() => {
+	let idle: number | undefined;
+	const start = () => {
+		if (controller.signal.aborted) return;
 		void Promise.resolve()
 			.then(() => run(controller.signal))
 			.then((value) => {
 				if (!controller.signal.aborted) publish(value);
 			})
 			.catch(() => {});
+	};
+	const timer = setTimeout(() => {
+		if (typeof requestIdleCallback === "function") idle = requestIdleCallback(start, { timeout: 250 });
+		else start();
 	}, delay);
 	return () => {
 		clearTimeout(timer);
+		if (idle !== undefined) cancelIdleCallback(idle);
 		controller.abort();
 	};
 }

@@ -175,38 +175,44 @@ export function DocumentsPage({ search: requestedSearch, onSearchChange }: Docum
 							<TabsList size="toolbar" variant="line" aria-label={t`Document type`}>
 								<TabsTrigger value="all">
 									{copy("editor.documents.all")}
-									<QuerySkeleton
-										inline
-										loading={loading.pending}
-										shape="badge"
-										label={<Trans>Loading the total</Trans>}
-									>
-										<TabsCount>{counts.all}</TabsCount>
-									</QuerySkeleton>
-								</TabsTrigger>
-								<TabsTrigger value="resume">
-									{copy("editor.documents.cvsTab")}
-									<QuerySkeleton
-										inline
-										loading={loading.pending}
-										shape="badge"
-										label={<Trans>Loading the total</Trans>}
-									>
-										<TabsCount>{counts.resume}</TabsCount>
-									</QuerySkeleton>
-								</TabsTrigger>
-								{lettersEnabled && (
-									<TabsTrigger value="letter">
-										{copy("editor.navigation.letters")}
-										<FeatureBetaBadge />
+									<span aria-hidden={loading.pending || undefined}>
 										<QuerySkeleton
 											inline
 											loading={loading.pending}
 											shape="badge"
 											label={<Trans>Loading the total</Trans>}
 										>
-											<TabsCount>{counts.letter}</TabsCount>
+											<TabsCount>{counts.all}</TabsCount>
 										</QuerySkeleton>
+									</span>
+								</TabsTrigger>
+								<TabsTrigger value="resume">
+									{copy("editor.documents.cvsTab")}
+									<span aria-hidden={loading.pending || undefined}>
+										<QuerySkeleton
+											inline
+											loading={loading.pending}
+											shape="badge"
+											label={<Trans>Loading the total</Trans>}
+										>
+											<TabsCount>{counts.resume}</TabsCount>
+										</QuerySkeleton>
+									</span>
+								</TabsTrigger>
+								{lettersEnabled && (
+									<TabsTrigger value="letter">
+										{copy("editor.navigation.letters")}
+										<FeatureBetaBadge />
+										<span aria-hidden={loading.pending || undefined}>
+											<QuerySkeleton
+												inline
+												loading={loading.pending}
+												shape="badge"
+												label={<Trans>Loading the total</Trans>}
+											>
+												<TabsCount>{counts.letter}</TabsCount>
+											</QuerySkeleton>
+										</span>
 									</TabsTrigger>
 								)}
 							</TabsList>
@@ -328,13 +334,15 @@ export function DocumentsPage({ search: requestedSearch, onSearchChange }: Docum
 									<th className="h-10 ps-3 text-start font-medium">
 										<Trans>Name</Trans>
 									</th>
-									<th className={documentCardLayout.typeColumn}>
-										<Trans>Type</Trans>
-									</th>
+									{search.type === "all" && (
+										<th className={documentCardLayout.typeColumn}>
+											<Trans>Type</Trans>
+										</th>
+									)}
 									<th className="w-1/4 px-2 text-start font-medium max-sm:hidden">
 										<Trans>Application</Trans>
 									</th>
-									<th className="w-28 px-2 text-start font-medium max-sm:w-24">
+									<th className="w-28 px-2 text-start font-medium max-sm:hidden">
 										<Trans>Edited</Trans>
 									</th>
 									<th className="w-12">
@@ -347,6 +355,7 @@ export function DocumentsPage({ search: requestedSearch, onSearchChange }: Docum
 							<tbody>
 								{shown.map((document, index) => (
 									<DocumentRow
+										showType={search.type === "all"}
 										key={documentKey(document)}
 										document={document}
 										introIndex={intro ? index : undefined}

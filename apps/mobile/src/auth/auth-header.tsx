@@ -26,7 +26,7 @@ export function AuthHeader({ subtitle }: AuthHeaderProps) {
 				}}
 			/>
 			<Text variant="display" align="center" accessibilityRole="header">
-				{t`Reactive Resume`}
+				{t`Sirawise`}
 			</Text>
 			{subtitle ? (
 				<Text color="ink2" align="center">
@@ -45,7 +45,7 @@ export function PrivacyPolicyLink() {
 				label={t`Privacy policy`}
 				variant="link"
 				onPress={() => {
-					void openBrowserAsync("https://docs.rxresu.me/legal/privacy-policy").catch(() =>
+					void openBrowserAsync("https://sirawise.io/privacy-and-terms").catch(() =>
 						showToast({ message: t`Couldn't open the browser. Try again.` }),
 					);
 				}}
@@ -54,5 +54,5 @@ export function PrivacyPolicyLink() {
 	);
 }
 
-/** The host of an origin, as people type it: `https://rxresu.me` → `rxresu.me`. */
+/** The host of an origin, as people type it: `https://sirawise.io` → `sirawise.io`. */
 export const hostOf = (origin: string) => origin.replace(/^https?:\/\//, "");

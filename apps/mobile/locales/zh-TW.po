@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-17 06:47+0200\n"
+"POT-Creation-Date: 2026-11-18 09:46+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -676,8 +676,8 @@ msgid "24 hours before"
 msgstr "提前 24 小時"
 
 #: src/features/letters/share.tsx
-msgid "A backup of this letter. Imports back into Reactive Resume as a letter."
-msgstr "這封信的備份。作為信件導入回 Reactive Resume。"
+msgid "A backup of this letter. Imports back into Sirawise as a letter."
+msgstr ""
 
 #: src/features/check/issues.ts
 msgid "A city and country let roles be matched to where you are."
@@ -1562,10 +1562,6 @@ msgstr "請助理幫忙處理"
 msgid "Ask the coach"
 msgstr "詢問教練"
 
-#: src/features/share/download.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "向社群提問。發佈前請移除個人資料。"
-
 #: src/features/ai/error.ts
 msgid "Ask your server administrator to enable credential encryption or configure a shared connection."
 msgstr "請您的伺服器管理員啟用憑證加密或設定共用連線。"
@@ -1600,7 +1596,6 @@ msgid "ATS checker"
 msgstr "ATS檢查器"
 
 #: src/features/ats-checker/checker.tsx
-#: src/features/search/search-screen.tsx
 msgid "ATS Checker"
 msgstr "ATS 檢查工具"
 
@@ -1864,10 +1859,6 @@ msgstr "項目符號清單"
 msgid "Burgundy"
 msgstr "勃根地"
 
-#: app/(tabs)/settings/index.tsx
-msgid "by <0>Amruth Pillai</0>"
-msgstr "作者：<0>Amruth Pillai</0>"
-
 #: src/features/applications-board/views.tsx
 msgid "Calendar"
 msgstr "日曆"
@@ -1981,14 +1972,6 @@ msgstr "對「{name}」的改變被儲存在另一個裝置上。您所做的編
 #: app/builder/[id]/_layout.tsx
 msgid "Check"
 msgstr "檢查"
-
-#: src/features/search/search-screen.tsx
-msgid "Check a PDF"
-msgstr "檢查 PDF"
-
-#: src/features/documents/new-document.tsx
-msgid "Check a PDF with the ATS checker"
-msgstr "使用 ATS 檢查工具檢查 PDF"
 
 #: src/features/ats-checker/checker.tsx
 msgid "Check a sample file"
@@ -2327,8 +2310,8 @@ msgid "Compares your resume with the posting"
 msgstr "將您的履歷與職缺發布進行比較"
 
 #: src/features/share/download.tsx
-msgid "Complete data backup. Imports back into Reactive Resume or JSON Resume tools."
-msgstr "完整的資料備份。匯入回 Reactive Resume 或 JSON Resume 工具。"
+msgid "Complete data backup. Imports back into Sirawise or JSON Resume tools."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
@@ -3425,10 +3408,6 @@ msgstr "不發送 {0} 職缺說明"
 msgid "Don't share"
 msgstr "不要分享"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Donate on Open Collective"
-msgstr "透過 Open Collective 捐款"
-
 #: src/features/applications/list-screen.tsx
 #: src/features/career/today.tsx
 #: src/features/documents/library.tsx
@@ -3784,8 +3763,8 @@ msgid "Enter any model ID supported by your endpoint."
 msgstr "輸入您的終端支援的任何型號 ID。"
 
 #: app/(auth)/server.tsx
-msgid "Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue."
-msgstr "請輸入您在瀏覽器中開啟 Reactive Resume 的地址。繼續前，應用程式會確認這是允許應用程式登入的 Reactive Resume 伺服器。"
+msgid "Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue."
+msgstr ""
 
 #: src/features/public/public-resume.tsx
 msgid "Enter the password the resume owner shared with you."
@@ -4186,10 +4165,6 @@ msgstr "「取得回饋」會將問題、您的回答、此職缺公告和您的
 msgid "Get new roles here every morning"
 msgstr "每天早上在這裡取得新職缺"
 
-#: src/features/share/download.tsx
-msgid "Get resume feedback on Discord"
-msgstr "在 Discord 上取得履歷回饋"
-
 #: src/features/letters/write.tsx
 msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "越來越長。嘗試“更短”，或刪除最不具體的段落。"
@@ -4280,6 +4255,10 @@ msgstr "收到回音"
 #: src/features/settings/locale-names.ts
 msgid "Hebrew"
 msgstr "希伯來語"
+
+#: src/features/share/download.tsx
+msgid "Help"
+msgstr ""
 
 #: app/(tabs)/settings/index.tsx
 msgid "Help & docs"
@@ -4742,10 +4721,6 @@ msgstr "求職流程"
 #: src/features/search/search-screen.tsx
 msgid "Jobs"
 msgstr "工作機會"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Join the Discord"
-msgstr "加入 Discord"
 
 #: src/features/letters/share.tsx
 #: src/features/share/download.tsx
@@ -5286,8 +5261,8 @@ msgid "Lower the design sheet"
 msgstr "降低設計表"
 
 #: src/features/public/public-resume.tsx
-msgid "Made with Reactive Resume, free and open source"
-msgstr "使用Reactive Resume製作，免費開源"
+msgid "Made with Sirawise, free and open source"
+msgstr ""
 
 #. Layout editor column label for the primary content area
 #: src/features/design/layout-screen.tsx
@@ -5963,10 +5938,6 @@ msgstr "沒有照片。大多數ATS忽略照片；有些地區預計會出現這
 msgid "No postings found. Try different keywords."
 msgstr "沒有找到招聘資訊。嘗試不同的關鍵字。"
 
-#: src/auth/messages.ts
-msgid "No Reactive Resume server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
-msgstr "沒有Reactive Resume伺服器在此位址應答。檢查拼寫，或詢問管理員伺服器是否允許應用程式登入。"
-
 #: src/features/check/job-match.tsx
 msgid "No recognisable terms in this posting."
 msgstr "該職缺說明中沒有可識別的術語。"
@@ -5986,6 +5957,10 @@ msgstr "無結果"
 #: src/features/letters/write.tsx
 msgid "No resume"
 msgstr "沒有履歷"
+
+#: src/auth/messages.ts
+msgid "No Sirawise server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "No skills section was found."
@@ -6645,8 +6620,8 @@ msgid "PDF check cancelled. Retry when ready."
 msgstr "PDF 檢查已取消。準備好後可重試。"
 
 #: src/features/application-detail/sections.tsx
-msgid "PDF only · up to 10 MB each. Linking a Reactive Resume enables AI match scoring and tailoring."
-msgstr "僅限 PDF · 每份最多 10 MB。連結 Reactive Resume 履歷後，可使用 AI 匹配評分及客製化功能。"
+msgid "PDF only · up to 10 MB each. Linking a Sirawise enables AI match scoring and tailoring."
+msgstr ""
 
 #: src/features/design/advanced.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
@@ -6654,11 +6629,11 @@ msgstr "PDF 樣式支援 CSS 的子集。旋轉、虛線和點線邊框以及某
 
 #: src/features/documents/new-document.tsx
 msgid "PDF uses your AI provider when one is ready. Turn off the AI switch to read its text layer on your server. Word (.docx) needs an AI provider. Current and v4 Reactive Resume JSON, cover letters, JSON Resume and LinkedIn exports (.zip) are supported. Up to 10 MB."
-msgstr "PDF 會使用已就緒的 AI 供應商。關閉 AI 開關即可由伺服器讀取文字圖層。Word（.docx）需要 AI 供應商。支援目前及 v4 的 Reactive Resume JSON、求職信、JSON Resume 和 LinkedIn 匯出檔（.zip）。最多 10 MB。"
+msgstr "PDF 會使用已就緒的 AI 供應商。關閉 AI 開關即可由伺服器讀取文字圖層。Word（.docx）需要 AI 供應商。支援目前及 v4 的 Sirawise JSON、求職信、JSON Resume 和 LinkedIn 匯出檔（.zip）。最多 10 MB。"
 
 #: src/features/documents/new-document.tsx
 msgid "PDF, Word, Reactive Resume, JSON Resume or LinkedIn export."
-msgstr "PDF、Word、Reactive Resume、JSON Resume 或 LinkedIn 匯出檔。"
+msgstr "PDF、Word、Sirawise、JSON Resume 或 LinkedIn 匯出檔。"
 
 #: src/features/career/offers.tsx
 #: src/features/career/preferences.tsx
@@ -7102,10 +7077,6 @@ msgstr "重新匯出並嵌入字體，然後檢查文字複製出來是否乾淨
 msgid "Re-export with fonts embedded, then open the file and check that the text copies out cleanly."
 msgstr "重新匯出並嵌入字體，然後開啟檔案檢查文字複製出來是否乾淨無誤。"
 
-#: src/auth/auth-header.tsx
-msgid "Reactive Resume"
-msgstr "Reactive Resume"
-
 #: src/features/workspace/tabs/prepare.tsx
 msgid "Read briefing"
 msgstr "閱讀簡報"
@@ -7512,10 +7483,6 @@ msgstr "報告"
 msgid "Report AI content"
 msgstr "檢舉 AI 內容"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Report an issue"
-msgstr "回報問題"
-
 #: src/features/ai/report-content.tsx
 msgid "Report received by your server operator. Thank you."
 msgstr "您的伺服器運營商收到的報告。謝謝。"
@@ -7607,10 +7574,6 @@ msgstr "無法載入履歷。"
 #: src/features/document-menu/index.tsx
 msgid "Resume details"
 msgstr "履歷詳情"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Resume feedback, product help, and community ideas."
-msgstr "履歷回饋、產品協助與社群點子。"
 
 #: src/features/application-detail/sections.tsx
 msgid "Resume file"
@@ -8309,10 +8272,6 @@ msgstr "在設定中設定網路搜尋，即可尋找職缺。"
 msgid "Settings"
 msgstr "設定"
 
-#: app/(tabs)/settings/ai-mcp.tsx
-msgid "Setup guide"
-msgstr "設定指南"
-
 #: src/features/ai/report-content.tsx
 msgid "Sexual content"
 msgstr "色情內容"
@@ -8615,6 +8574,11 @@ msgstr "已登出，但無法移除此裝置上的部分資料。"
 msgid "since last view"
 msgstr "自上次查看以來"
 
+#: src/auth/auth-header.tsx
+#: src/shell/app-tabs.tsx
+msgid "Sirawise"
+msgstr "Sirawise"
+
 #: src/features/career/stories.tsx
 msgid "Situation (required)"
 msgstr "情境（必填）"
@@ -8756,10 +8720,6 @@ msgstr "來源"
 msgid "Source and correction history"
 msgstr "來源與修正紀錄"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Source code on GitHub"
-msgstr "GitHub 上的原始碼"
-
 #: src/features/assistant/chat-view.tsx
 #: src/features/assistant/messages.tsx
 msgid "Sources"
@@ -8867,6 +8827,10 @@ msgstr "開始打字，或根據我們所知道的內容起草：{company} 職�
 #: src/features/letters/write.tsx
 msgid "Start typing, or draft from what we know: your resume."
 msgstr "開始打字，或根據我們所知道的內容起草：您的履歷。"
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr ""
 
 #: src/features/letters/write.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
@@ -10912,8 +10876,8 @@ msgid "your Knowledge"
 msgstr "您的知識庫"
 
 #: app/(tabs)/settings/preferences.tsx
-msgid "Your language is saved. Restart Reactive Resume to apply the new left-to-right or right-to-left layout."
-msgstr "語言已儲存。請重新啟動 Reactive Resume，以套用由左至右或由右至左的新配置。"
+msgid "Your language is saved. Restart Sirawise to apply the new left-to-right or right-to-left layout."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Your lines are packed very tightly."

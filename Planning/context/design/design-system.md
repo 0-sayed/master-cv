@@ -34,7 +34,7 @@ Competitor marketing does not establish user preferences, outcomes, compliance o
 
 ## 3. Visual direction and change log against upstream
 
-**Working name:** Master CV · Desk & Paper / المكتب والورق.
+**Current product name (owner, 2026-11-18):** Sirawise / SIRAWISE · سيراوايز. Primary domain: sirawise.io. Preserve existing artwork bytes and geometry under the T016 exception. Desk & Paper / المكتب والورق remains the visual direction.
 
 - Owner-approved D36 (2026-11-15): one original token-tinted Sadu tile at 3% opacity on auth/public-status and bounded EmptyState surfaces adds Saudi character while preserving readable, undecorated document paper.
 - Owner-approved D36 (2026-11-15): the approved logo check draws once in 800ms on auth entry and the existing HTML boot gate, giving arrival a quiet signature without repeated loading motion.

@@ -8,7 +8,7 @@ describe("interface formatting", () => {
 		expect(formatUiNumber(0.15, locale, { style: "percent", maximumFractionDigits: 0 })).toContain("15");
 		expect(formatUiNumber(12, locale, { numberingSystem: "arab" })).toBe("12");
 	});
-	it("forces Gregorian Riyadh instants even when a caller supplies a different zone", () => {
+	it("defaults to Riyadh but respects an explicit event timezone", () => {
 		const value = new Date("2026-01-01T22:30:00Z");
 		expect(
 			formatUiTimestamp(value, "en-US", {
@@ -20,7 +20,8 @@ describe("interface formatting", () => {
 				hourCycle: "h23",
 				timeZone: "UTC",
 			}),
-		).toBe("01/02/2026, 01:30");
+		).toBe("01/01/2026, 22:30");
+		expect(formatUiTimestamp(value, "en-US", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" })).toBe("01:30");
 		expect(() => formatUiTimestamp(new Date(Number.NaN), "ar-SA", {})).toThrow(RangeError);
 	});
 	it("normalizes comparison text only and preserves meaningful Arabic letters", () => {

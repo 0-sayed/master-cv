@@ -5,6 +5,7 @@ import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useMutation } from "@tanstack/react-query";
 import { useId, useState } from "react";
+import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	Dialog,
@@ -24,10 +25,10 @@ import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
+import { SectionCard, SectionCardTitle } from "@reactive-resume/ui/components/section-card";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
-import { cn } from "@reactive-resume/utils/style";
 import { buildIcs } from "../../ics";
 import { dayKey } from "../../interviews";
 import { describeNextStep, getNextStep } from "../../next-step";
@@ -36,6 +37,7 @@ import { orpc } from "@/libs/orpc/client";
 
 type NextStepCardProps = {
 	application: Application;
+	onReopen: () => void;
 	onScheduleInterview: (interview: InterviewTimelineEntry | null) => void;
 };
 
@@ -43,7 +45,7 @@ type NextStepCardProps = {
  * NEXT STEP: what the application needs, with Edit (schedule an interview or set the follow-up). Dated steps can go
  * to a calendar as an .ics file. Overdue steps are in warn.
  */
-export function NextStepCard({ application, onScheduleInterview }: NextStepCardProps) {
+export function NextStepCard({ application, onScheduleInterview, onReopen }: NextStepCardProps) {
 	const { i18n } = useLingui();
 	const [followUpOpen, setFollowUpOpen] = useState(false);
 	const step = getNextStep(application);
@@ -65,29 +67,49 @@ export function NextStepCard({ application, onScheduleInterview }: NextStepCardP
 		downloadWithAnchor(blob, `${application.company}-${dayKey(start)}.ics`.replace(/[^\w.-]+/g, "-"));
 	};
 
+	const dated = step.kind === "interview" || step.kind === "follow-up";
 	return (
-		<section aria-labelledby="application-next-step" className="grid gap-2">
-			<h3 id="application-next-step" className="text-xs font-semibold text-ink-3 uppercase">
+		<SectionCard aria-labelledby="application-next-step" tone="highlight">
+			<SectionCardTitle as="h2" id="application-next-step" className="text-accent-text">
 				<Trans>Next step</Trans>
-			</h3>
-			<div
-				className={cn(
-					"grid gap-2 rounded-xl border p-3",
-					text.tone === "warn" ? "border-warn bg-warn-soft" : "border-line",
-				)}
-			>
-				<div className="flex items-start gap-2.5">
-					<Icon
-						name={text.icon}
-						className={cn("mt-0.5 shrink-0", text.tone === "warn" ? "text-warn-text" : "text-ink-2")}
-					/>
-					<div className="grid min-w-0 flex-1">
-						<strong className="text-sm font-semibold">{text.title}</strong>
-						{text.sub && <span className="text-xs leading-[17px] text-ink-2">{text.sub}</span>}
-					</div>
-					{step.kind !== "closed" && (
+			</SectionCardTitle>
+			<div className="flex flex-wrap items-center gap-3">
+				<div className="grid min-w-0 flex-1 basis-full gap-1 sm:basis-0">
+					<strong dir="auto" className="type-label wrap-anywhere">
+						{step.kind === "closed" ? <Trans>Closed</Trans> : dated ? text.title : <Trans>Choose your next step</Trans>}
+					</strong>
+					<span dir="auto" className="type-metadata text-accent-text">
+						{dated ? text.sub : step.kind === "closed" ? "" : text.title}
+					</span>
+				</div>
+				{step.kind === "closed" ? (
+					<Button onClick={onReopen}>
+						<Trans>Reopen</Trans>
+					</Button>
+				) : (
+					<>
+						{step.kind === "interview" ? (
+							<Button onClick={() => onScheduleInterview(step.interview)}>
+								<Trans>Interview details</Trans>
+							</Button>
+						) : (
+							<Button onClick={() => setFollowUpOpen(true)}>
+								{step.kind === "follow-up" ? <Trans>Edit follow-up</Trans> : <Trans>Set follow-up</Trans>}
+							</Button>
+						)}
+						{!dated && (
+							<Button variant="secondary" onClick={() => onScheduleInterview(null)}>
+								<Trans>Schedule interview</Trans>
+							</Button>
+						)}
+						{dated && (
+							<Button variant="secondary" onClick={addToCalendar}>
+								<Icon name="calendar-dots" />
+								<Trans>Add to calendar</Trans>
+							</Button>
+						)}
 						<DropdownMenu>
-							<DropdownMenuTrigger render={<Button size="sm" variant="secondary" />}>
+							<DropdownMenuTrigger render={<Button variant="secondary" />}>
 								<Trans>Edit</Trans>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
@@ -104,18 +126,11 @@ export function NextStepCard({ application, onScheduleInterview }: NextStepCardP
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
-					)}
-				</div>
-				{(step.kind === "interview" || step.kind === "follow-up") && (
-					<Button size="sm" variant="ghost" className="ms-7 w-fit" onClick={addToCalendar}>
-						<Icon name="calendar-dots" size={16} />
-						<Trans>Add to calendar</Trans>
-					</Button>
+					</>
 				)}
 			</div>
-
 			<FollowUpDialog application={application} open={followUpOpen} onOpenChange={setFollowUpOpen} />
-		</section>
+		</SectionCard>
 	);
 }
 
@@ -197,11 +212,23 @@ function FollowUpDialog({ application, open, onOpenChange }: FollowUpDialogProps
 						<Input
 							id={`${id}-note`}
 							value={note}
+							dir="auto"
 							placeholder={t`Email the recruiter`}
 							onChange={(event) => setNote(event.target.value)}
 						/>
 					</div>
 				</form>
+				{update.isError && (
+					<Alert variant="error">
+						<Icon name="warning" />
+						<AlertTitle>
+							<Trans>Couldn't save the follow-up.</Trans>
+						</AlertTitle>
+						<AlertDescription>
+							<Trans>Your changes are kept. Retry Save or cancel.</Trans>
+						</AlertDescription>
+					</Alert>
+				)}
 				<DialogFooter>
 					{application.followUpAt && (
 						<Button

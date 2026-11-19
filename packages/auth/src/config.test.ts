@@ -40,4 +40,32 @@ it("publishes the configured native authentication HTTP contract", async () => {
 	expect(spec.paths).toHaveProperty("/sign-in/email");
 	expect(spec.paths).toHaveProperty("/get-session");
 	expect(spec.paths).toHaveProperty("/api-key/create");
+	expect(Object.keys(spec.paths).filter((path) => path.startsWith("/admin/"))).toEqual([]);
+});
+
+it.each([
+	["GET", "list-users"],
+	["POST", "impersonate-user"],
+	["POST", "stop-impersonating"],
+	["POST", "ban-user"],
+	["POST", "unban-user"],
+	["POST", "set-role"],
+	["POST", "create-user"],
+	["POST", "remove-user"],
+	["GET", "list-user-sessions"],
+	["POST", "revoke-user-session"],
+	["POST", "revoke-user-sessions"],
+	["POST", "set-user-password"],
+	["POST", "update-user"],
+	["GET", "get-user"],
+	["POST", "has-permission"],
+])("does not expose the former admin endpoint %s /admin/%s", async (method, path) => {
+	const response = await auth.handler(
+		new Request(`${env.APP_URL}/api/auth/admin/${path}`, {
+			method,
+			headers: { origin: env.APP_URL, "content-type": "application/json" },
+			...(method === "POST" ? { body: "{}" } : {}),
+		}),
+	);
+	expect([404, 405]).toContain(response.status);
 });

@@ -3,28 +3,28 @@ import { resolve } from "node:path";
 import { settleScreen } from "../fixtures/screen";
 import { expect, test } from "../fixtures/test";
 
-test("built shell and install manifest use Master CV and inline loader mark", async ({ request }) => {
+test("built shell and install manifest use Sirawise and inline loader mark", async ({ request }) => {
 	const index = await readFile(resolve("apps/web/dist/index.html"), "utf8");
 	const manifestFile = await readFile(resolve("apps/web/dist/manifest.webmanifest"), "utf8");
 	for (const content of [index, manifestFile]) {
 		expect.soft(content).not.toMatch(/Reactive Resume|\/icon\/light\.svg/i);
 	}
-	expect(index).toMatch(/<title>Master CV/);
+	expect(index).toMatch(/<title>Sirawise/);
 	expect(index).toContain('class="initial-loader__mark"');
 	expect(index).toContain('mask="url(#boot-tick)"');
 	const manifest = JSON.parse(manifestFile);
-	expect(manifest.name).toBe("Master CV");
-	expect(manifest.short_name).toBe("Master CV");
+	expect(manifest.name).toBe("Sirawise");
+	expect(manifest.short_name).toBe("Sirawise");
 	for (const icon of manifest.icons) await expect(await request.get(`/${icon.src}`)).toBeOK();
 	const served = await request.get("/auth/login");
 	const html = await served.text();
 	expect(html).not.toMatch(/Reactive Resume|\/icon\/light\.svg/i);
-	expect(html).toContain('name="application-name" content="Master CV"');
-	expect(html).toContain('name="apple-mobile-web-app-title" content="Master CV"');
+	expect(html).toContain('name="application-name" content="Sirawise"');
+	expect(html).toContain('name="apple-mobile-web-app-title" content="Sirawise"');
 });
 
 for (const theme of ["light", "dark"] as const) {
-	test(`${theme} first paint displays the square Master CV mark before the application loads`, async ({
+	test(`${theme} first paint displays the square Sirawise mark before the application loads`, async ({
 		browser,
 		baseURL,
 	}, testInfo) => {
@@ -47,13 +47,16 @@ for (const theme of ["light", "dark"] as const) {
 }
 
 for (const locale of ["ar-SA", "en-US"]) {
-	test(`${locale} homepage and browser metadata identify Master CV without upstream branding`, async ({ page }) => {
+	test(`${locale} homepage and browser metadata identify Sirawise without upstream branding`, async ({ page }) => {
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await page.goto(`/?locale=${locale}`);
-		await expect(page).toHaveTitle(/Master CV/);
+		await expect(page).toHaveTitle(locale === "ar-SA" ? /سيراوايز/ : /Sirawise/);
 		await expect(page.locator("html")).toHaveAttribute("lang", locale);
 		await settleScreen(page);
-		await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", "Master CV");
+		await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
+			"content",
+			locale === "ar-SA" ? "سيراوايز" : "Sirawise",
+		);
 		// Owner decision 2026-11-15 removed the visible footer credit; the MIT LICENSE file stays in the repository.
 		await expect(page.locator("[data-upstream-credit]")).toHaveCount(0);
 		expect(
@@ -67,10 +70,10 @@ for (const locale of ["ar-SA", "en-US"]) {
 	});
 }
 
-test("not-found browser shell and public text metadata use Master CV", async ({ request }) => {
+test("not-found browser shell and public text metadata use Sirawise", async ({ request }) => {
 	const error = await request.get("/missing-brand-audit-page");
 	expect(error.status()).toBe(404);
 	expect(await error.text()).not.toContain("Reactive Resume");
 	const llms = await request.get("/llms.txt");
-	expect(await llms.text()).toMatch(/^# Master CV/);
+	expect(await llms.text()).toMatch(/^# Sirawise/);
 });

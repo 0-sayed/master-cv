@@ -1,6 +1,6 @@
 {
 	"name": "reactive-resume",
-	"description": "Reactive Resume is a free and open-source resume builder that makes it easy to create, update, and share your resume.",
+	"description": "Sirawise: one master career record for Arabic and English CVs, cover letters and interview preparation.",
 	"version": "6.0.4",
 	"private": true,
 	"license": "MIT",
@@ -62,7 +62,8 @@
 		"security:secrets": "gitleaks git --redact --no-banner",
 		"security:staged": "gitleaks git --staged --redact --no-banner",
 		"security:audit": "pnpm audit --audit-level high",
-		"security:licenses": "node tooling/security/licenses.mjs"
+		"security:licenses": "node tooling/security/licenses.mjs",
+		"db:seed:demo": "node tooling/local/demo-seed.mjs"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^21.2.4",

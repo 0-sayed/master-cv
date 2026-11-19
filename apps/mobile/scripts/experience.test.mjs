@@ -182,38 +182,34 @@ assert.equal(control(tree, "Share sections").value, "history", "Explicit version
 reset();
 tree = render(DownloadTab, { resume, offline: false });
 assert.equal(control(tree, "File name").value, "Alex Example-Resume");
-const communityInvite = (view) => nodes(view).find((node) => node.props.title === "Get resume feedback on Discord");
-assert.equal(communityInvite(tree), undefined, "No community invitation before an export");
+const exportHelp = (view) => nodes(view).find((node) => node.props.title === "Help");
+assert.equal(exportHelp(tree), undefined, "No export help before an export");
 holdExport = true;
 control(tree, "Share PDF").onPress();
 control(tree, "Share PDF").onPress();
 await settle();
 assert.equal(calls.filter((call) => call?.export).length, 1, "Repeated taps must not duplicate generation");
-assert.equal(
-	communityInvite(render(DownloadTab, { resume, offline: false })),
-	undefined,
-	"No invitation while preparing",
-);
+assert.equal(exportHelp(render(DownloadTab, { resume, offline: false })), undefined, "No export help while preparing");
 releaseExport();
 await settle();
 holdExport = false;
 assert.equal(calls.filter((call) => call?.shared === "pdf").length, 1);
 assert.equal(calls.find((call) => call?.export).export.name, "Alex Example-Resume");
 tree = render(DownloadTab, { resume, offline: false });
-assert.ok(communityInvite(tree), "A prepared export offers optional peer feedback");
+assert.ok(exportHelp(tree), "A prepared export offers Sirawise help");
 assert.equal(
 	calls.some((call) => call?.browser),
 	false,
-	"Export never opens Discord automatically",
+	"Export never opens help automatically",
 );
-await communityInvite(tree).props.onPress();
-assert.equal(calls.at(-1).browser, "https://discord.gg/9kAqrGcwn5");
+await exportHelp(tree).props.onPress();
+assert.equal(calls.at(-1).browser, "https://sirawise.io/help");
 control(tree, "Print").onPress();
 await settle();
 assert.equal(
-	communityInvite(render(DownloadTab, { resume, offline: false })),
+	exportHelp(render(DownloadTab, { resume, offline: false })),
 	undefined,
-	"Printing does not trigger an invitation",
+	"Printing does not show export help",
 );
 
 reset();
@@ -246,7 +242,7 @@ control(tree, "Download DOCX").onPress();
 await settle();
 tree = render(DownloadTab, { resume, offline: false });
 assert.ok(nodes(tree).some((node) => node.props.message === "Export unavailable"));
-assert.equal(communityInvite(tree), undefined, "Failed exports do not trigger an invitation");
+assert.equal(exportHelp(tree), undefined, "Failed exports do not trigger an invitation");
 rejectExport = false;
 control(tree, "Share PDF instead").onPress();
 await settle();

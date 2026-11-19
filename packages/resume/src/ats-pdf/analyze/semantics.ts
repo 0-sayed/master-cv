@@ -1,12 +1,27 @@
 import type { ExtractedDocument, RawExtraction, ResumeSemantics, TextLine } from "../types";
+import {
+	arabicFirstPersonCount,
+	hasArabicContent,
+	isArabicQuantified,
+	isLongArabicBullet,
+	startsWithArabicAction,
+	startsWithArabicText,
+} from "./arabic-content";
+import { collectBullets } from "./bullets";
 import { analyzeContact } from "./contact";
 import { analyzeDates } from "./dates";
-import { detectHeadings, sectionTypesOf } from "./sections";
+import { detectHeadings, isLetterSpaced, sectionTypesOf } from "./sections";
 import { analyzeTextQuality } from "./text-quality";
 
 const BULLET_PREFIX = /^\s*(?:[•▪◦‣·∙●○■□▶▸*+]|[-–—]\s|[\u{E000}-\u{F8FF}])\s*/u;
 const LONG_BULLET_CHARS = 220;
 const FIRST_PERSON = /\b(?:I|I'm|I've|my|me|myself)\b/g;
+
+export const firstPersonCount = (text: string) =>
+	text
+		.split("\n")
+		.filter((line) => !isLetterSpaced(line))
+		.reduce((count, line) => count + (line.match(FIRST_PERSON) ?? []).length + arabicFirstPersonCount(line), 0);
 
 /** Share of a page's height that counts as the running-head zone at either end. */
 const RUNNING_HEAD_BAND = 0.08;
@@ -31,9 +46,15 @@ const ACTION_VERBS = new Set(
 
 const isBullet = (line: TextLine) => BULLET_PREFIX.test(line.text);
 
-const bulletBody = (line: TextLine) => line.text.replace(BULLET_PREFIX, "").trim();
+export function bulletLines(document: ExtractedDocument): { text: string; lines: TextLine[] }[] {
+	return collectBullets(document);
+}
 
-function isQuantified(text: string): boolean {
+export const isLongBullet = (text: string) =>
+	startsWithArabicText(text) ? isLongArabicBullet(text) : text.length > LONG_BULLET_CHARS;
+
+export function isQuantified(text: string): boolean {
+	if (hasArabicContent(text)) return isArabicQuantified(text);
 	// A bare year is not an achievement metric; a percentage, a currency figure or a real
 	// magnitude is.
 	if (/\d+\s*%|[$€£¥]\s*\d|\d+\s*x\b/i.test(text)) return true;
@@ -43,13 +64,14 @@ function isQuantified(text: string): boolean {
 	});
 }
 
-function startsWithActionVerb(text: string): boolean {
+export function startsWithActionVerb(text: string): boolean {
+	if (startsWithArabicText(text)) return startsWithArabicAction(text);
 	const first = text.trim().split(/\s+/)[0];
 	if (!first) return false;
 	return ACTION_VERBS.has(first.toLowerCase().replace(/[^a-z]/g, ""));
 }
 
-function uppercaseHeavy(text: string): boolean {
+export function uppercaseHeavy(text: string): boolean {
 	const letters = text.match(/\p{L}/gu) ?? [];
 	if (letters.length < 12) return false;
 
@@ -89,24 +111,38 @@ function singleCharItemRatio(raw: RawExtraction): number {
 function findRepeatedRunningHeads(document: ExtractedDocument): string[] {
 	if (document.pages.length < 2) return [];
 
-	const perPage = document.pages.map((page) => {
-		const topBand = page.height * RUNNING_HEAD_BAND;
-		const bottomBand = page.height * (1 - RUNNING_HEAD_BAND);
-
-		return new Set(
-			page.lines
-				.filter((line) => line.y <= topBand || line.y + line.height >= bottomBand)
-				.map((line) => line.text.trim())
-				.filter(Boolean)
-				// A page number differs on every page; the surrounding boilerplate does not.
-				.map((text) => text.replace(/\d+/g, "#")),
-		);
-	});
-
+	const normalize = (text: string) =>
+		text
+			.trim()
+			.replace(/\b(page\s+)\d+\b/gi, "$1#")
+			.replace(/^\d+$/, "#");
+	const perPage = document.pages.map((page) =>
+		page.lines.filter(
+			(line) =>
+				line.y <= page.height * RUNNING_HEAD_BAND || line.y + line.height >= page.height * (1 - RUNNING_HEAD_BAND),
+		),
+	);
 	const [first, ...rest] = perPage;
 	if (!first) return [];
-
-	return [...first].filter((candidate) => rest.every((page) => page.has(candidate)));
+	return [
+		...new Set(
+			first
+				.filter(
+					(candidate) =>
+						normalize(candidate.text) &&
+						rest.every((lines) =>
+							lines.some(
+								(line) =>
+									normalize(line.text) === normalize(candidate.text) &&
+									Math.abs(line.x - candidate.x) <= 2 &&
+									Math.abs(line.y - candidate.y) <= 2 &&
+									line.fontSize === candidate.fontSize,
+							),
+						),
+				)
+				.map((line) => normalize(line.text)),
+		),
+	];
 }
 
 function findRepeatedOpenings(bullets: readonly string[]): string[] {
@@ -149,8 +185,7 @@ export function buildResumeSemantics(
 	// The source document locale is explicit evidence, not an interface preference.
 	if (/^ar(?:-|$)/i.test(raw.metadata.language ?? "")) quality.isEnglish = false;
 
-	const bulletLines = document.lines.filter(isBullet);
-	const bullets = bulletLines.map(bulletBody);
+	const bullets = collectBullets(document).map((bullet) => bullet.text);
 
 	return {
 		locale,
@@ -159,13 +194,13 @@ export function buildResumeSemantics(
 		contact,
 		dates: dates.tokens,
 		quality,
-		bulletLineCount: bulletLines.length,
+		bulletLineCount: bullets.length,
 		roleLikeLineCount: document.lines.filter(isRoleLike).length,
 		allCapsLineCount: document.lines.filter((line) => uppercaseHeavy(line.text)).length,
 		quantifiedBulletCount: bullets.filter(isQuantified).length,
 		actionVerbBulletCount: bullets.filter(startsWithActionVerb).length,
-		firstPersonCount: (document.fullText.match(FIRST_PERSON) ?? []).length,
-		longBulletCount: bullets.filter((bullet) => bullet.length > LONG_BULLET_CHARS).length,
+		firstPersonCount: firstPersonCount(document.fullText),
+		longBulletCount: bullets.filter(isLongBullet).length,
 		unparseableRanges: dates.unparseableRanges,
 		ambiguousNumericDates: dates.ambiguousNumericDates,
 		employmentGapYears: dates.gaps,

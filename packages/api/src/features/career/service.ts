@@ -21,6 +21,7 @@ import { requestRunCancellation } from "../agent/cancellation";
 import { applicationService, recordSentResume } from "../applications/service";
 import { matchPosting } from "./matching";
 import { noticeText } from "./notices";
+import { careerPlainText } from "./plain-text";
 
 type Owned = { userId: string; applicationId?: string | null | undefined };
 type FactInput = z.infer<typeof careerFactInputSchema>;
@@ -290,14 +291,36 @@ export const careerService = {
 		return careerProfileDataSchema.parse(row?.data ?? {});
 	},
 	saveProfile: async (userId: string, data: z.infer<typeof careerProfileDataSchema>) => {
+		let savedData = data;
 		await db.transaction(async (tx) => {
 			await lockCareerUser(tx, userId);
+			const [existing] = await tx.select().from(tables.careerProfile).where(eq(tables.careerProfile.userId, userId));
+			const contact = data.contact ?? existing?.data.contact;
+			const summary = data.summary ?? existing?.data.summary;
+			savedData = careerProfileDataSchema.parse({
+				...data,
+				contact:
+					contact && Object.fromEntries(Object.entries(contact).map(([key, value]) => [key, careerPlainText(value)])),
+				summary: summary === undefined ? undefined : careerPlainText(summary),
+			});
 			await tx
 				.insert(tables.careerProfile)
-				.values({ userId, data })
-				.onConflictDoUpdate({ target: tables.careerProfile.userId, set: { data, updatedAt: new Date() } });
+				.values({ userId, data: savedData })
+				.onConflictDoUpdate({
+					target: tables.careerProfile.userId,
+					set: {
+						data: savedData,
+						updatedAt: new Date(),
+						profileRevision:
+							(existing?.profileRevision ?? 0) +
+							Number(
+								JSON.stringify(existing?.data.contact) !== JSON.stringify(savedData.contact) ||
+									existing?.data.summary !== savedData.summary,
+							),
+					},
+				});
 		});
-		return data;
+		return savedData;
 	},
 	/** Facts the coach can use for an application (or shared ones). `all` lists every scope, for Knowledge. */
 	facts: async (input: Owned & { query?: string | undefined; all?: boolean | undefined }) => {

@@ -8,6 +8,28 @@ import { resolveReviewVerifierRoute } from "@reactive-resume/api/features/ai/ver
 import { resolveWriterRoute } from "@reactive-resume/api/features/ai/writer-policy";
 import { createRealAiRuntime } from "./real-ai-runtime";
 
+it("registers every implemented local review task without enabling benchmark-only interview preparation", () => {
+	const runtime = createRealAiRuntime({ OPENROUTER_API_KEY: "fake-local-only" });
+	const route = runtime.routes[0];
+	if (!route) throw new Error("Missing local route");
+	expect(Object.keys(runtime.handlers).sort()).toEqual([
+		"review.cover-letter",
+		"review.extraction",
+		"review.job-evidence",
+		"review.summary",
+		"review.tailoring",
+		"review.translation",
+		"review.wording",
+	]);
+	// Follow-up questions use wording's result action, with its separately approved writer.
+	expect(resolveWriterRoute(route, { kind: "review.wording", parameters: { action: "result" } })).toMatchObject({
+		model: "openai/gpt-6.1-terra",
+		reasoningEffort: "medium",
+	});
+	for (const kind of ["review.summary", "review.tailoring", "review.translation", "review.cover-letter"])
+		expect(runtime.handlers[kind]?.verifier).toBeDefined();
+});
+
 it.each([
 	{ kind: "review.wording", parameters: {}, model: "openai/gpt-6-luna", effort: "low", tokens: 5120 },
 	{ kind: "review.extraction", parameters: {}, model: "openai/gpt-6-luna", effort: "high", tokens: 20480 },

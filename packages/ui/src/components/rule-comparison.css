@@ -1,0 +1,30 @@
+.rule-comparison-value {
+	overflow-wrap: anywhere;
+	white-space: pre-wrap;
+}
+.rule-comparison-value[data-expanded="false"] {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	overflow: hidden;
+}
+.rule-comparison-value del {
+	text-decoration-line: line-through;
+}
+.rule-comparison-value ins {
+	text-decoration-line: underline;
+}
+.rule-comparison-arrow {
+	display: inline-block;
+	vertical-align: middle;
+}
+.rule-comparison-value[data-layout="stacked"] del,
+.rule-comparison-value[data-layout="stacked"] ins {
+	display: block;
+	width: fit-content;
+}
+/* The shared Icon owns RTL mirroring; a second transform reverses it again. */
+.rule-comparison-value[data-layout="stacked"] .rule-comparison-arrow {
+	float: inline-start;
+	margin-inline-end: var(--space-4);
+}

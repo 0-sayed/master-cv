@@ -31,6 +31,7 @@ import {
 	DropdownMenuTrigger,
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Switch } from "@reactive-resume/ui/components/switch";
 import { cn } from "@reactive-resume/utils/style";
 import { resolveLayoutSectionTitle } from "./title";
@@ -636,12 +637,14 @@ function LayoutItemContent({
 			{!isOverlay && pageIndex !== undefined && columnId !== undefined && (
 				<DropdownMenu>
 					<DropdownMenuTrigger
-						aria-label={t`Move section to another column or page`}
-						onPointerDown={(event) => event.stopPropagation()}
-						className="flex cursor-context-menu items-center rounded p-0.5 opacity-40 transition-opacity group-hover/item:opacity-100 hover:bg-sunken/40 focus:outline-none focus-visible:ring-1"
-					>
-						<Icon name="dots-three-vertical" size={16} />
-					</DropdownMenuTrigger>
+						render={
+							<IconButton
+								icon="dots-three-vertical"
+								label={t`Move section to another column or page`}
+								onPointerDown={(event) => event.stopPropagation()}
+							/>
+						}
+					/>
 
 					<DropdownMenuContent align="end">
 						<MoveToSubmenu id={id} pageIndex={pageIndex} columnId={columnId} />

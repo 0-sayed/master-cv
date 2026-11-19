@@ -7,7 +7,7 @@ export function buildPatchGuide(serverName: string): string {
 	const t = (raw: string) => `\`mcp__${serverName}__${raw}\``;
 
 	return [
-		"## Reactive Resume",
+		"## Sirawise",
 		"",
 		"These tools operate on the user's real, live resumes and job applications. Changes are immediate and visible in their account.",
 		"",

@@ -69,12 +69,12 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 
 			test("certifications empty state includes its explanation", async ({ authPage: page }) => {
 				await expect(
-					page.getByText(
-						ar
-							? "الشهادات المهنية والدورات المعتمدة، إن وُجدت."
-							: "Professional certificates and accredited courses, if applicable.",
-						{ exact: true },
-					),
+					page
+						.locator("#career-section-certifications")
+						.getByText(
+							ar ? "أضف أول سجل ليصبح متاحًا عند إعداد سيرك." : "Add your first entry to use it when you build a CV.",
+							{ exact: true },
+						),
 				).toBeVisible();
 			});
 
@@ -107,12 +107,14 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				await page.getByRole("button", { name: ar ? "مراجعة التغييرات" : "Review changes", exact: true }).click();
 				await page.getByRole("button", { name: ar ? "تأكيد التغييرات" : "Confirm changes", exact: true }).click();
 				await expect(page.getByRole("dialog")).not.toBeVisible();
-				const row = page.locator('[data-slot="fact-chip"]').filter({ hasText: language });
+				const row = page.locator('[id^="career-entry-languages-"]').filter({ hasText: language });
 				await row.scrollIntoViewIfNeeded();
 				const positions = await row.evaluate(
 					(element, values) => {
 						const textBox = (value: string) => {
-							const node = [...element.querySelectorAll("bdi")].find((item) => item.textContent === value);
+							const node = [...element.querySelectorAll("h3, span[dir=auto]")].find(
+								(item) => item.textContent === value,
+							);
 							if (!node) throw new Error("Language row text missing");
 							const range = document.createRange();
 							range.selectNodeContents(node);
@@ -143,10 +145,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 					await page.getByRole("button", { name: ar ? "تأكيد التغييرات" : "Confirm changes", exact: true }).click();
 					await expect(page.getByRole("dialog")).not.toBeVisible();
 					await expect(page.getByText("Advanced".repeat(8), { exact: true })).toBeVisible();
-					const row = page.locator('[data-slot="fact-chip"]').filter({ hasText: "Advanced".repeat(8) });
+					const row = page.locator('[id^="career-entry-languages-"]').filter({ hasText: "Advanced".repeat(8) });
 					expect(await row.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
 					expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-					await row.click();
+					await row.locator("[data-career-edit]").click();
 					await page.locator('input[name="fluency"]').fill("Advanced");
 					await page.getByRole("button", { name: ar ? "مراجعة التغييرات" : "Review changes", exact: true }).click();
 					await expect(

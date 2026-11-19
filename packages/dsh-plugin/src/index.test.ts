@@ -20,7 +20,7 @@ it("mounts the MCP bridge with streamable-http and the api key header", async ()
 	expect(ctx.plugin.mock.calls[0]?.[1]).toEqual({
 		transport: "streamable-http",
 		serverName: "resume",
-		url: "https://rxresu.me/mcp",
+		url: "https://sirawise.io/mcp",
 		headers: { "x-api-key": "test-key" },
 		toolCallTimeoutMs: 60_000,
 		failOnStartupError: true,

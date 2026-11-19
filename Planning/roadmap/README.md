@@ -48,12 +48,12 @@ T005 owns free usage enforcement; T006/T007 add reviewed improvement, tailoring 
 T009 delivers active deletion/durable records; T012 depends on T005/T009/T013 and owns backup restore/deletion replay.
 D42 adds T016 after T008 merges and before T012 deployment, which needs the Sirawise name and owner-supplied domain.
 T011 follows T007/T009 with a simple truthful landing page; T010 adds paid grants and the pricing section later.
-D43 orders T008 -> T016 -> T017 Hostinger private beta -> T014 phone OTP -> T010 test-mode billing -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release. T012 requires client approval of the pilot;
+D43 (amended 2026-11-19) orders T008 -> T016 -> T017 Hostinger private beta with Google sign-in -> T010 test-mode billing -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release. T012 requires client approval of the pilot;
 T008 may explicitly withhold either tool. S32-S34 and S24-S27 are post-beta.
-T014 follows T003/T009/T017. T010 uses the T017 server for test mode; production charging remains gated behind T012/T015.
+T014 phone OTP is post-MVP (priority 160, after T015); it follows T003/T009/T017 and blocks nothing. T010 uses the T017 server for test mode; production charging remains gated behind T012/T015.
 Dependencies outrank numeric priority. After T005 merges, T006 and T009 may become eligible subject to
 their blockers. D39 moves T008 after T007. D42 retains the rename; D43 adds the two-stage deployment sequence above.
-T010 follows T014/T017 at priority 100 under D43. Preserve the exact
+T010 follows T017 at priority 100 under amended D43. Preserve the exact
 [scheduler contract](tasks.md#scheduler-contract): no waves, ID-only FIFO or fake completed setup nodes.
 
 ## Large-PR and ownership rules

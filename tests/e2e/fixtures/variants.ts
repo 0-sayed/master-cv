@@ -3,7 +3,7 @@ import type { Page, TestInfo } from "@playwright/test";
 import type router from "@reactive-resume/api/routers";
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
-import { expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { educationItemSchema, projectItemSchema } from "@reactive-resume/schema/resume/data";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { assertSyntheticSession } from "./isolation";
@@ -47,7 +47,7 @@ export async function seedVariantReview(page: Page, info: TestInfo, officialTerm
 export function variantClient(page: Page): RouterClient<typeof router> {
 	return createORPCClient(
 		new RPCLink({
-			url: new URL("/api/rpc", page.url()).href,
+			url: new URL("/api/rpc", String(test.info().project.use.baseURL)).href,
 			fetch: async (request, init) => {
 				const session = await page.request.get("/api/auth/get-session");
 				if (!session.ok()) throw new Error("Cannot establish disposable fixture ownership.");

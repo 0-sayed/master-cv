@@ -1,0 +1,94 @@
+/* One named boundary for CV and letter panels, independent of nested containers and viewport size. */
+.editor-panel-container {
+	container: editor-panel / inline-size;
+}
+
+/* Keep the reason beside its label and the comparison in the finding's reading flow. */
+[data-finding-card] [data-slot="accordion-trigger"] {
+	flex: none;
+	width: fit-content;
+	justify-content: flex-start;
+	padding-block: var(--space-4);
+	> span {
+		flex: none;
+	}
+	[data-slot="accordion-trigger-icon"] {
+		margin-inline-start: 0;
+	}
+}
+
+@container editor-panel (min-width: 520px) {
+	[data-finding-card] {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		align-items: start;
+		column-gap: var(--space-16);
+		padding-block: var(--space-8);
+	}
+	[data-finding-actions] {
+		align-self: start;
+		> * {
+			flex-shrink: 0;
+		}
+	}
+	[data-finding-card] [data-slot="rule-comparison"] {
+		padding-block: var(--space-4);
+	}
+	.editor-panel-fields {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		column-gap: var(--space-16);
+		> .editor-panel-short-field:not(.col-span-full):not(.col-span-2) {
+			grid-column: span 1;
+		}
+	}
+	.editor-panel-templates {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+	.editor-panel-controls {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		align-items: start;
+		> :first-child {
+			grid-row: span 2;
+		}
+	}
+	.editor-panel-colors {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		align-items: center;
+		> :is(p, [role="status"]) {
+			grid-column: 1 / -1;
+		}
+	}
+	.editor-panel-design-row {
+		gap: var(--space-16);
+	}
+	[data-slot="tabs-list"][data-size="review"] {
+		--type-control-compact-size: var(--type-label-size);
+		--type-control-compact-line: var(--type-label-line);
+		height: var(--space-56);
+		[data-slot="tabs-trigger"] {
+			gap: var(--space-8);
+		}
+		[data-slot="tabs-count"] {
+			font-size: var(--type-metadata-size);
+		}
+	}
+	.editor-panel-container [data-slot="filter-chip"] {
+		min-height: var(--space-44);
+		padding-inline: var(--space-16);
+	}
+	[data-slot="editor-panel-header"] [data-slot="filter-chips"] {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+	}
+}
+
+@container editor-panel (min-width: 900px) {
+	[data-finding-card] {
+		grid-template-columns: minmax(0, 1fr) auto;
+	}
+	[data-finding-actions] {
+		flex-wrap: nowrap;
+	}
+	.editor-panel-templates {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}

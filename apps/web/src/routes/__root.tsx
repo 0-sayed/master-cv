@@ -5,7 +5,6 @@ import type { FeatureFlags } from "@reactive-resume/api/features/flags";
 import type { AuthSession } from "@reactive-resume/auth/types";
 import type { UiLocale } from "@reactive-resume/utils/locale";
 import type { QueryClient } from "@tanstack/react-query";
-import { i18n } from "@lingui/core";
 import { IconContext } from "@phosphor-icons/react";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { HotkeysProvider } from "@tanstack/react-hotkeys";
@@ -17,7 +16,6 @@ import { domMax, LazyMotion, MotionConfig } from "motion/react";
 import { useEffect } from "react";
 import { Toaster } from "@reactive-resume/ui/components/toast";
 import { TooltipProvider } from "@reactive-resume/ui/components/tooltip";
-import { UiLabelsProvider } from "@reactive-resume/ui/components/ui-labels";
 import { isUiLocale } from "@reactive-resume/utils/locale";
 import { BreakpointIndicator } from "@/components/layout/breakpoint-indicator";
 import { DialogManager } from "@/dialogs/manager";
@@ -90,35 +88,33 @@ function RootComponent() {
 							<ThemeProvider theme={theme}>
 								<HotkeysProvider>
 									<LocaleProvider locale={locale} session={session}>
-										<UiLabelsProvider value={{ close: i18n._("Close") }}>
-											<TooltipProvider>
-												<ConfirmDialogProvider>
-													<IdentityBoundary queryClient={queryClient} session={session}>
-														<Outlet />
-														<DialogManager />
-														<CommandPalette />
-													</IdentityBoundary>
-													<Toaster />
+										<TooltipProvider>
+											<ConfirmDialogProvider>
+												<IdentityBoundary queryClient={queryClient} session={session}>
+													<Outlet />
+													<DialogManager />
+													<CommandPalette />
+												</IdentityBoundary>
+												<Toaster />
 
-													{import.meta.env.DEV && <BreakpointIndicator />}
-													{import.meta.env.DEV && (
-														<TanStackDevtools
-															config={{ position: "bottom-left" }}
-															plugins={[
-																{
-																	name: "TanStack Query",
-																	render: <ReactQueryDevtoolsPanel />,
-																},
-																{
-																	name: "TanStack Router",
-																	render: <TanStackRouterDevtoolsPanel />,
-																},
-															]}
-														/>
-													)}
-												</ConfirmDialogProvider>
-											</TooltipProvider>
-										</UiLabelsProvider>
+												{import.meta.env.DEV && <BreakpointIndicator />}
+												{import.meta.env.DEV && (
+													<TanStackDevtools
+														config={{ position: "bottom-left" }}
+														plugins={[
+															{
+																name: "TanStack Query",
+																render: <ReactQueryDevtoolsPanel />,
+															},
+															{
+																name: "TanStack Router",
+																render: <TanStackRouterDevtoolsPanel />,
+															},
+														]}
+													/>
+												)}
+											</ConfirmDialogProvider>
+										</TooltipProvider>
 									</LocaleProvider>
 								</HotkeysProvider>
 							</ThemeProvider>

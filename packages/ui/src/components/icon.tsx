@@ -1,6 +1,7 @@
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 import type * as React from "react";
 import {
+	MonitorIcon,
 	ArrowsOutIcon,
 	BuildingsIcon,
 	CertificateIcon,
@@ -8,6 +9,7 @@ import {
 	CircleNotchIcon,
 	ColumnsIcon,
 	CreditCardIcon,
+	DatabaseIcon,
 	DeviceMobileIcon,
 	FunnelIcon,
 	HourglassMediumIcon,
@@ -191,6 +193,7 @@ import { cn } from "@reactive-resume/utils/style";
 
 /** Every app icon, by its Phosphor name. Add an entry here to use another Phosphor glyph. */
 const icons = {
+	database: DatabaseIcon,
 	"arrows-out": ArrowsOutIcon,
 	buildings: BuildingsIcon,
 	calendar: CalendarBlankIcon,
@@ -224,6 +227,7 @@ const icons = {
 	"arrow-down": ArrowDownIcon,
 	"arrow-left": ArrowLeftIcon,
 	"arrow-right": ArrowRightIcon,
+	monitor: MonitorIcon,
 	"arrow-square-out": ArrowSquareOutIcon,
 	"arrow-u-up-left": ArrowUUpLeftIcon,
 	"arrow-u-up-right": ArrowUUpRightIcon,

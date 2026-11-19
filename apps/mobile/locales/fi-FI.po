@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-10-17 06:47+0200\n"
+"POT-Creation-Date: 2026-11-18 09:46+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -676,8 +676,8 @@ msgid "24 hours before"
 msgstr "24 tuntia ennen"
 
 #: src/features/letters/share.tsx
-msgid "A backup of this letter. Imports back into Reactive Resume as a letter."
-msgstr "Varmuuskopio tästä kirjeestä. Tuodaan takaisin Reactive Resume:hen kirjeenä."
+msgid "A backup of this letter. Imports back into Sirawise as a letter."
+msgstr ""
 
 #: src/features/check/issues.ts
 msgid "A city and country let roles be matched to where you are."
@@ -1562,10 +1562,6 @@ msgstr "Pyydä assistenttia käsittelemään se"
 msgid "Ask the coach"
 msgstr "Kysy valmentajalta"
 
-#: src/features/share/download.tsx
-msgid "Ask the community. Remove personal details before posting."
-msgstr "Kysy yhteisöltä. Poista henkilötiedot ennen julkaisemista."
-
 #: src/features/ai/error.ts
 msgid "Ask your server administrator to enable credential encryption or configure a shared connection."
 msgstr "Pyydä palvelimen järjestelmänvalvojaa ottamaan käyttöön tunnistetietojen salaus tai määrittämään jaettu yhteys."
@@ -1600,7 +1596,6 @@ msgid "ATS checker"
 msgstr "ATS-tarkistus"
 
 #: src/features/ats-checker/checker.tsx
-#: src/features/search/search-screen.tsx
 msgid "ATS Checker"
 msgstr "ATS-tarkistus"
 
@@ -1864,10 +1859,6 @@ msgstr "Luettelona"
 msgid "Burgundy"
 msgstr "Viininpunainen"
 
-#: app/(tabs)/settings/index.tsx
-msgid "by <0>Amruth Pillai</0>"
-msgstr "tekijä <0>Amruth Pillai</0>"
-
 #: src/features/applications-board/views.tsx
 msgid "Calendar"
 msgstr "Kalenteri"
@@ -1981,14 +1972,6 @@ msgstr "Asiakirjaa ”{name}” on muutettu toisella laitteella. Muokkauksesi ov
 #: app/builder/[id]/_layout.tsx
 msgid "Check"
 msgstr "Tarkistus"
-
-#: src/features/search/search-screen.tsx
-msgid "Check a PDF"
-msgstr "Tarkista PDF"
-
-#: src/features/documents/new-document.tsx
-msgid "Check a PDF with the ATS checker"
-msgstr "Tarkista PDF ATS-tarkistimella"
 
 #: src/features/ats-checker/checker.tsx
 msgid "Check a sample file"
@@ -2327,8 +2310,8 @@ msgid "Compares your resume with the posting"
 msgstr "Vertaa ansioluetteloasi työpaikkailmoitukseen"
 
 #: src/features/share/download.tsx
-msgid "Complete data backup. Imports back into Reactive Resume or JSON Resume tools."
-msgstr "Täydellinen tietojen varmuuskopiointi. Tuo takaisin Reactive Resume- tai JSON Resume-työkaluihin."
+msgid "Complete data backup. Imports back into Sirawise or JSON Resume tools."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Compress or remove large images to keep uploads quick."
@@ -3425,10 +3408,6 @@ msgstr "Älä lähetä {0} työpaikkailmoitusta"
 msgid "Don't share"
 msgstr "Älä jaa"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Donate on Open Collective"
-msgstr "Lahjoita Open Collectivessa"
-
 #: src/features/applications/list-screen.tsx
 #: src/features/career/today.tsx
 #: src/features/documents/library.tsx
@@ -3784,8 +3763,8 @@ msgid "Enter any model ID supported by your endpoint."
 msgstr "Anna mikä tahansa päätepisteesi tukema mallitunnus."
 
 #: app/(auth)/server.tsx
-msgid "Enter the address you open Reactive Resume at in a browser. The app checks it's a Reactive Resume server that allows app sign-in before you continue."
-msgstr "Kirjoita osoite, jota käytät Reactive Resume:n avaamiseen selaimessa. Ennen kuin jatkat, mobiilisovellus varmistaa, että tämä on Reactive Resume-palvelin, jossa mobiilisisäänkirjautuminen on käytössä."
+msgid "Enter the address you open Sirawise at in a browser. The app checks it's a Sirawise server that allows app sign-in before you continue."
+msgstr ""
 
 #: src/features/public/public-resume.tsx
 msgid "Enter the password the resume owner shared with you."
@@ -4186,10 +4165,6 @@ msgstr "Pyydä palautetta -toiminto lähettää kysymyksen, vastauksesi, tämän
 msgid "Get new roles here every morning"
 msgstr "Saat uusia työpaikkoja tänne joka aamu"
 
-#: src/features/share/download.tsx
-msgid "Get resume feedback on Discord"
-msgstr "Pyydä palautetta ansioluettelosta Discordissa"
-
 #: src/features/letters/write.tsx
 msgid "Getting long. Try “Shorter”, or cut the least specific paragraph."
 msgstr "Alkaa pitkäksi. Kokeile \"lyhyempää\" tai leikkaa vähiten tarkka kappale."
@@ -4280,6 +4255,10 @@ msgstr "kuultu takaisin"
 #: src/features/settings/locale-names.ts
 msgid "Hebrew"
 msgstr "heprea"
+
+#: src/features/share/download.tsx
+msgid "Help"
+msgstr ""
 
 #: app/(tabs)/settings/index.tsx
 msgid "Help & docs"
@@ -4742,10 +4721,6 @@ msgstr "Työnhaun eteneminen"
 #: src/features/search/search-screen.tsx
 msgid "Jobs"
 msgstr "Työpaikat"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Join the Discord"
-msgstr "Liity Discordiin"
 
 #: src/features/letters/share.tsx
 #: src/features/share/download.tsx
@@ -5286,8 +5261,8 @@ msgid "Lower the design sheet"
 msgstr "Laske suunnitteluarkki alas"
 
 #: src/features/public/public-resume.tsx
-msgid "Made with Reactive Resume, free and open source"
-msgstr "Valmistettu Reactive Resume:lla, ilmainen ja avoin lähdekoodi"
+msgid "Made with Sirawise, free and open source"
+msgstr ""
 
 #. Layout editor column label for the primary content area
 #: src/features/design/layout-screen.tsx
@@ -5963,10 +5938,6 @@ msgstr "Ei valokuvaa. Useimmat ATS jättävät valokuvat huomioimatta; jotkut al
 msgid "No postings found. Try different keywords."
 msgstr "Työpaikkailmoituksia ei löytynyt. Kokeile eri avainsanoja."
 
-#: src/auth/messages.ts
-msgid "No Reactive Resume server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
-msgstr "Tähän osoitteeseen ei vastannut Reactive Resume-palvelinta. Tarkista oikeinkirjoitus tai kysy järjestelmänvalvojaltasi, salliiko palvelin sovellukseen kirjautumisen."
-
 #: src/features/check/job-match.tsx
 msgid "No recognisable terms in this posting."
 msgstr "Tässä työpaikkailmoituksessa ei ole tunnistettavia termejä."
@@ -5986,6 +5957,10 @@ msgstr "Ei tuloksia"
 #: src/features/letters/write.tsx
 msgid "No resume"
 msgstr "Ei ansioluetteloa"
+
+#: src/auth/messages.ts
+msgid "No Sirawise server answered at this address. Check the spelling, or ask your administrator whether the server allows app sign-in."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "No skills section was found."
@@ -6645,8 +6620,8 @@ msgid "PDF check cancelled. Retry when ready."
 msgstr "PDF-tarkistus peruttu. Yritä uudelleen, kun olet valmis."
 
 #: src/features/application-detail/sections.tsx
-msgid "PDF only · up to 10 MB each. Linking a Reactive Resume enables AI match scoring and tailoring."
-msgstr "Vain PDF · enintään 10 Mt/tiedosto. Linkitä Reactive Resume -ansioluettelo, niin voit arvioida sopivuutta ja räätälöidä sitä tekoälyllä."
+msgid "PDF only · up to 10 MB each. Linking a Sirawise enables AI match scoring and tailoring."
+msgstr ""
 
 #: src/features/design/advanced.tsx
 msgid "PDF styles support a subset of CSS. Rotation, dashed and dotted borders, and some layout properties are ignored."
@@ -6654,11 +6629,11 @@ msgstr "PDF-tyylit tukevat CSS:n osajoukkoa. Kierto, katkoviivat ja katkoviivat 
 
 #: src/features/documents/new-document.tsx
 msgid "PDF uses your AI provider when one is ready. Turn off the AI switch to read its text layer on your server. Word (.docx) needs an AI provider. Current and v4 Reactive Resume JSON, cover letters, JSON Resume and LinkedIn exports (.zip) are supported. Up to 10 MB."
-msgstr "Kun tekoälypalveluntarjoaja on saatavilla, se lukee tuodut PDF-tiedostot. Poista AI käytöstä, jos haluat purkaa PDF-tekstin palvelimeltasi. Word (.docx) vaatii tekoälypalveluntarjoajan. Tukee nykyisiä ja v4 Reactive Resume JSON, saatekirjeitä, JSON Resume ja LinkedIn vientiä (.zip). Tiedoston kokorajoitus: 10 Mt."
+msgstr "Kun tekoälypalveluntarjoaja on saatavilla, se lukee tuodut PDF-tiedostot. Poista AI käytöstä, jos haluat purkaa PDF-tekstin palvelimeltasi. Word (.docx) vaatii tekoälypalveluntarjoajan. Tukee nykyisiä ja v4 Sirawise JSON, saatekirjeitä, JSON Resume ja LinkedIn vientiä (.zip). Tiedoston kokorajoitus: 10 Mt."
 
 #: src/features/documents/new-document.tsx
 msgid "PDF, Word, Reactive Resume, JSON Resume or LinkedIn export."
-msgstr "PDF, Word, Reactive Resume, JSON Resume tai LinkedIn vienti."
+msgstr "PDF, Word, Sirawise, JSON Resume tai LinkedIn vienti."
 
 #: src/features/career/offers.tsx
 #: src/features/career/preferences.tsx
@@ -7102,10 +7077,6 @@ msgstr "Vie tiedosto uudelleen fontit upotettuina ja tarkista, että teksti kopi
 msgid "Re-export with fonts embedded, then open the file and check that the text copies out cleanly."
 msgstr "Vie tiedosto uudelleen fontit upotettuina, avaa se sitten ja tarkista, että teksti kopioituu siististi."
 
-#: src/auth/auth-header.tsx
-msgid "Reactive Resume"
-msgstr "Reactive Resume"
-
 #: src/features/workspace/tabs/prepare.tsx
 msgid "Read briefing"
 msgstr "Lue muistio"
@@ -7512,10 +7483,6 @@ msgstr "Raportti"
 msgid "Report AI content"
 msgstr "Ilmoita tekoälysisällöstä"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Report an issue"
-msgstr "Ilmoita ongelmasta"
-
 #: src/features/ai/report-content.tsx
 msgid "Report received by your server operator. Thank you."
 msgstr "Palvelinoperaattorisi vastaanottama raportti. Kiitos."
@@ -7607,10 +7574,6 @@ msgstr "Ansioluetteloa ei voitu ladata."
 #: src/features/document-menu/index.tsx
 msgid "Resume details"
 msgstr "ansioluettelon tiedot"
-
-#: app/(tabs)/settings/index.tsx
-msgid "Resume feedback, product help, and community ideas."
-msgstr "Palautetta ansioluettelosta, apua tuotteen käyttöön ja yhteisön ideoita."
 
 #: src/features/application-detail/sections.tsx
 msgid "Resume file"
@@ -8309,10 +8272,6 @@ msgstr "Määritä verkkohaku ”Asetukset” löytääksesi avoimia työpaikkoj
 msgid "Settings"
 msgstr "Asetukset"
 
-#: app/(tabs)/settings/ai-mcp.tsx
-msgid "Setup guide"
-msgstr "Asennusopas"
-
 #: src/features/ai/report-content.tsx
 msgid "Sexual content"
 msgstr "Seksuaalinen sisältö"
@@ -8615,6 +8574,11 @@ msgstr "Kirjautunut ulos, mutta joitakin tämän laitteen tietoja ei voitu poist
 msgid "since last view"
 msgstr "edellisestä katselusta lähtien"
 
+#: src/auth/auth-header.tsx
+#: src/shell/app-tabs.tsx
+msgid "Sirawise"
+msgstr "Sirawise"
+
 #: src/features/career/stories.tsx
 msgid "Situation (required)"
 msgstr "Tilanne (pakollinen)"
@@ -8756,10 +8720,6 @@ msgstr "Lähde"
 msgid "Source and correction history"
 msgstr "Lähde- ja korjaushistoria"
 
-#: app/(tabs)/settings/index.tsx
-msgid "Source code on GitHub"
-msgstr "Lähdekoodi GitHubissa"
-
 #: src/features/assistant/chat-view.tsx
 #: src/features/assistant/messages.tsx
 msgid "Sources"
@@ -8867,6 +8827,10 @@ msgstr "Aloita kirjoittaminen tai luonnos siitä, mitä tiedämme: työpaikkailm
 #: src/features/letters/write.tsx
 msgid "Start typing, or draft from what we know: your resume."
 msgstr "Aloita kirjoittaminen tai luonnos siitä, mitä tiedämme: ansioluettelosi."
+
+#: src/features/letters/write.tsx
+msgid "Start typing."
+msgstr ""
 
 #: src/features/letters/write.tsx
 msgid "Start typing. To draft one, link a resume or an application first."
@@ -10912,8 +10876,8 @@ msgid "your Knowledge"
 msgstr "tietopankkisi"
 
 #: app/(tabs)/settings/preferences.tsx
-msgid "Your language is saved. Restart Reactive Resume to apply the new left-to-right or right-to-left layout."
-msgstr "Kielesi on tallennettu. Käynnistä Reactive Resume uudelleen ottaaksesi käyttöön uuden vasemmalta oikealle- tai oikealta vasemmalle -asettelun."
+msgid "Your language is saved. Restart Sirawise to apply the new left-to-right or right-to-left layout."
+msgstr ""
 
 #: src/features/ats-checker/messages.ts
 msgid "Your lines are packed very tightly."

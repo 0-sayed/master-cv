@@ -60,6 +60,7 @@ export function SettingsSection({
 }
 
 type SettingsRowProps = {
+	density?: "default" | "compact";
 	icon?: IconName;
 	status?: ReactNode;
 	title: ReactNode;
@@ -68,20 +69,33 @@ type SettingsRowProps = {
 };
 
 /** Keep a setting's label, explanation and control in one readable group. */
-export function SettingsRow({ title, description, children, icon, status }: SettingsRowProps) {
+export function SettingsRow({ title, description, children, icon, status, density = "default" }: SettingsRowProps) {
 	return (
-		<div data-slot="settings-row" className="settings-row items-center gap-3 py-2">
-			<div className="grid min-w-0 gap-0.5">
-				<span className="flex flex-wrap items-center gap-2 type-label wrap-anywhere">
-					{icon && <Icon name={icon} className="text-ink-2" />}
-					<span>{title}</span>
-					{status}
+		<div
+			data-slot="settings-row"
+			data-density={density}
+			className="settings-row items-center gap-3 py-2 data-[density=compact]:flex data-[density=compact]:justify-between"
+		>
+			<div className={cn("grid min-w-0 gap-0.5", density === "compact" && "flex-1")}>
+				<span
+					className={cn(
+						"flex items-center gap-2 type-label",
+						density === "compact" ? "min-w-0" : "flex-wrap wrap-anywhere",
+					)}
+				>
+					{icon && <Icon name={icon} className="shrink-0 text-ink-2" />}
+					<span className={cn(density === "compact" && "min-w-0 flex-1")}>{title}</span>
+					{density !== "compact" && status}
 				</span>
+				{density === "compact" && status && <span className="ps-6">{status}</span>}
 				{description && <span className="type-body wrap-anywhere text-ink-2">{description}</span>}
 			</div>
 			<div
 				data-slot="settings-row-action"
-				className="flex min-w-0 flex-wrap items-center justify-end gap-2 max-sm:justify-start max-sm:justify-self-start"
+				className={cn(
+					"flex min-w-0 flex-wrap items-center justify-end gap-2 max-sm:justify-start max-sm:justify-self-start",
+					density === "compact" && "shrink-0",
+				)}
 			>
 				{children}
 			</div>

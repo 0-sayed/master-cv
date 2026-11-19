@@ -36,7 +36,6 @@ vi.mock("@tanstack/react-router", () => ({
 	useNavigate: () => fixture.navigate,
 	Link: ({ children }: { children: import("react").ReactNode }) => <a href="/dashboard">{children}</a>,
 }));
-vi.mock("./resume-thumbnail", () => ({ ResumeThumbnail: () => null }));
 afterEach(() => {
 	cleanup();
 	vi.clearAllMocks();

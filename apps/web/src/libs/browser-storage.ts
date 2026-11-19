@@ -14,9 +14,11 @@ const registry = {
 	followUpDismissed: { key: "applications-follow-up-dismissed", scope: "personal" },
 	voice: { key: "career-voice-settings", scope: "device" },
 	documentsView: { key: "documents-view", scope: "device" },
+	applicationGroups: { key: "applications-collapsed-groups", scope: "device" },
 	sidebar: { prefix: "master-cv:sidebar:", scope: "device" },
 	checkIntroduction: { prefix: "master-cv:check-introduction:", scope: "device" },
 	variantContext: { prefix: "master-cv:variant-context:", scope: "personal" },
+	fitHintDismissed: { prefix: "sirawise:fit-hint-dismissed:", scope: "personal" },
 } as const;
 
 declare const registeredKey: unique symbol;

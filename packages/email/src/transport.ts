@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import nodemailer from "nodemailer";
 import { render } from "react-email";
 import { env } from "@reactive-resume/env/server";
+import { productBrand } from "@reactive-resume/utils/brand";
 
 type SendEmailOptions = { to: string; subject: string; react: ReactElement };
 
@@ -73,12 +74,15 @@ export async function sendCareerNotification({
 	const link = new URL(url, env.APP_URL);
 	if (link.origin !== new URL(env.APP_URL).origin)
 		throw new Error("Career notification links must point to this application.");
+	// The frozen study input keeps this legacy default. Custom notification text stays intact.
+	const notificationText =
+		text === "You have a career update in Master CV." ? `You have a career update in ${productBrand.name}.` : text;
 	try {
 		await transport.sendMail({
 			to,
 			from: env.SMTP_FROM,
 			subject,
-			text: `${text}\n\n${link.toString()}`,
+			text: `${notificationText}\n\n${link.toString()}`,
 			messageId: `<career-${createHash("sha256").update(key).digest("hex")}@reactive-resume.local>`,
 		});
 		return true;

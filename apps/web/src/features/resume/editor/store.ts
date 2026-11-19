@@ -26,7 +26,18 @@ export type EditorMode = (typeof EDITOR_MODES)[number];
 /** The Share & export sheet's tabs; each entry point opens its own. */
 export type ShareTab = "link" | "download" | "history";
 
-type CheckTab = "issues" | "match" | "writing";
+type ExportHistorySession = {
+	ownerId: string;
+	resumeId: string;
+	fileName: string | null;
+	tab: "download" | "history";
+	scrollTop: Record<"download" | "history", number>;
+	previewing: boolean;
+	reviewReturn: boolean;
+};
+
+export type ReviewTab = "ats" | "writing" | "ai";
+type ReviewFilter = "all" | "blocker" | "warning" | "tip";
 
 /** Phones show one view at a time: the page, or one mode's panel. */
 export type MobileView = "page" | EditorMode;
@@ -51,6 +62,14 @@ export const ZOOM_MAX = 1.5;
 export const ZOOM_STEP = 0.1;
 
 type EditorStore = {
+	reviewExpanded: boolean;
+	reviewTab: ReviewTab;
+	reviewFilters: Record<ReviewTab, ReviewFilter>;
+	reviewScrollTop: Record<ReviewTab, number>;
+	setReviewExpanded: (expanded: boolean) => void;
+	setReviewTab: (tab: ReviewTab) => void;
+	setReviewFilter: (tab: ReviewTab, filter: ReviewFilter) => void;
+	setReviewScrollTop: (tab: ReviewTab, top: number) => void;
 	reviewFeedback: ReviewEditFeedback | null;
 	setReviewFeedback: (feedback: ReviewEditFeedback) => void;
 	checkFixPreview: FixPreview | null;
@@ -68,6 +87,11 @@ type EditorStore = {
 	drawerPinned: boolean;
 	/** The open tab of the Share & export sheet, or null while it's closed. */
 	shareTab: ShareTab | null;
+	exportHistorySession: ExportHistorySession | null;
+	setExportHistoryFileName: (fileName: string) => void;
+	setExportHistoryScrollTop: (tab: "download" | "history", top: number) => void;
+	setExportHistoryPreview: (previewing: boolean) => void;
+	setExportHistoryReview: (reviewReturn: boolean) => void;
 	/** History: the version shown on the page, read-only, instead of the current resume. */
 	historyVersionId: string | null;
 	assistantOpen: boolean;
@@ -98,6 +122,7 @@ type EditorStore = {
 	 * counts renders, so Fit can wait for one.
 	 */
 	rendered: {
+		bytesHash?: string;
 		identity?: EditorIdentity | undefined;
 		pageCount: number;
 		pageMap: PageMap | undefined;
@@ -106,11 +131,10 @@ type EditorStore = {
 	};
 	/** Phones: the view on screen; null until one is picked, which shows the current mode. */
 	mobileView: MobileView | null;
-	checkScrollTop: number;
 	checkReturnIssue: string | null;
-	setCheckScrollTop: (top: number) => void;
-	setCheckReturnIssue: (key: string | null) => void;
-	checkTab: CheckTab;
+	checkReturnAction: string | null;
+	checkReturnIndex: number | null;
+	setCheckReturnIssue: (key: string | null, action?: "field" | "show") => void;
 	/** Check: the issue picked on its card or pin (its key). Both are outlined. */
 	checkIssue: string | null;
 	/** Check: the page as a person sees it, or the text a parser reads from it. */
@@ -153,7 +177,6 @@ type EditorStore = {
 		file: Blob;
 	}) => void;
 	setMobileView: (view: MobileView) => void;
-	setCheckTab: (tab: CheckTab) => void;
 	setCheckIssue: (key: string | null) => void;
 	setPageView: (view: "page" | "parser") => void;
 	setHighlightTerm: (term: string | null) => void;
@@ -178,6 +201,10 @@ export const isSameSelection = (a: EditorSelection | null, b: EditorSelection | 
 };
 
 const initialState = {
+	reviewExpanded: false,
+	reviewTab: "ats",
+	reviewFilters: { ats: "all", writing: "all", ai: "all" },
+	reviewScrollTop: { ats: 0, writing: 0, ai: 0 },
 	reviewFeedback: null,
 	checkFixPreview: null,
 	identity: null,
@@ -187,6 +214,7 @@ const initialState = {
 	drawerOpen: false,
 	drawerPinned: false,
 	shareTab: null,
+	exportHistorySession: null,
 	historyVersionId: null,
 	assistantOpen: false,
 	assistantInstant: false,
@@ -202,9 +230,9 @@ const initialState = {
 	styleHighlight: [],
 	rendered: { pageCount: 0, pageMap: undefined, file: undefined, version: 0 },
 	mobileView: null,
-	checkScrollTop: 0,
 	checkReturnIssue: null,
-	checkTab: "issues",
+	checkReturnAction: null,
+	checkReturnIndex: null,
 	checkIssue: null,
 	pageView: "page",
 	highlightTerm: null,
@@ -217,6 +245,10 @@ const initialState = {
 
 export const useEditorStore = create<EditorStore>()((set) => ({
 	...initialState,
+	setReviewExpanded: (reviewExpanded) => set({ reviewExpanded }),
+	setReviewTab: (reviewTab) => set({ reviewTab }),
+	setReviewFilter: (tab, filter) => set((state) => ({ reviewFilters: { ...state.reviewFilters, [tab]: filter } })),
+	setReviewScrollTop: (tab, top) => set((state) => ({ reviewScrollTop: { ...state.reviewScrollTop, [tab]: top } })),
 	setCheckFixPreview: (checkFixPreview) => set({ checkFixPreview }),
 	setIdentity: (identity) =>
 		set((state) => {
@@ -225,6 +257,11 @@ export const useEditorStore = create<EditorStore>()((set) => ({
 			return {
 				...(switched ? initialState : {}),
 				identity,
+				checkIssue: null,
+				checkReturnIssue: null,
+				checkReturnAction: null,
+				checkReturnIndex: null,
+				selection: switched ? null : state.selection,
 				checkFixPreview: null,
 				exportCheck: null,
 				exportReportOpen: false,
@@ -238,7 +275,51 @@ export const useEditorStore = create<EditorStore>()((set) => ({
 	setZoom: (zoom) => set({ zoom: zoom === "fit" ? "fit" : clampZoom(zoom) }),
 	setDrawerOpen: (drawerOpen) => set({ drawerOpen }),
 	setDrawerPinned: (drawerPinned) => set({ drawerPinned }),
-	setShareTab: (shareTab) => set(shareTab ? { shareTab } : { shareTab, historyVersionId: null }),
+	setShareTab: (shareTab) =>
+		set((state) => {
+			if (!shareTab) return { shareTab, historyVersionId: null, exportHistorySession: null };
+			const tab = shareTab === "history" ? "history" : "download";
+			const session = state.exportHistorySession;
+			const identity = state.identity;
+			return {
+				shareTab,
+				exportHistorySession: session
+					? { ...session, tab, previewing: false, reviewReturn: false }
+					: identity
+						? {
+								ownerId: identity.ownerId,
+								resumeId: identity.resumeId,
+								fileName: null,
+								tab,
+								scrollTop: { download: 0, history: 0 },
+								previewing: false,
+								reviewReturn: false,
+							}
+						: null,
+			};
+		}),
+	setExportHistoryFileName: (fileName) =>
+		set((state) => ({
+			exportHistorySession: state.exportHistorySession ? { ...state.exportHistorySession, fileName } : null,
+		})),
+	setExportHistoryScrollTop: (tab, top) =>
+		set((state) => ({
+			exportHistorySession: state.exportHistorySession
+				? { ...state.exportHistorySession, scrollTop: { ...state.exportHistorySession.scrollTop, [tab]: top } }
+				: null,
+		})),
+	setExportHistoryPreview: (previewing) =>
+		set((state) => ({
+			exportHistorySession: state.exportHistorySession ? { ...state.exportHistorySession, previewing } : null,
+		})),
+	setExportHistoryReview: (reviewReturn) =>
+		set((state) => ({
+			shareTab: reviewReturn ? null : "download",
+			reviewExpanded: reviewReturn,
+			exportHistorySession: state.exportHistorySession
+				? { ...state.exportHistorySession, tab: "download", reviewReturn, previewing: false }
+				: null,
+		})),
 	setHistoryVersion: (historyVersionId) => set({ historyVersionId }),
 	setAssistantOpen: (assistantOpen, instant = false) =>
 		set({ assistantOpen: assistantOpen && isFeatureAvailable("assistant"), assistantInstant: instant }),
@@ -270,12 +351,45 @@ export const useEditorStore = create<EditorStore>()((set) => ({
 				state.historyVersionId
 			)
 				return state;
-			return { rendered: { ...render, version: state.rendered.version + 1 } };
+			const version = state.rendered.version + 1;
+			void render.file
+				.arrayBuffer()
+				.then((bytes) => crypto.subtle.digest("SHA-256", bytes))
+				.then((bytes) => {
+					const bytesHash = Array.from(new Uint8Array(bytes), (byte) => byte.toString(16).padStart(2, "0")).join("");
+					set((current) =>
+						current.rendered.version === version && current.rendered.file === render.file
+							? { rendered: { ...current.rendered, bytesHash } }
+							: current,
+					);
+				})
+				.catch(() => {});
+			return {
+				rendered: { ...render, version },
+				...(state.rendered.file && state.rendered.file !== render.file
+					? { checkIssue: null, checkReturnIssue: null }
+					: {}),
+			};
 		}),
 	setMobileView: (mobileView) => set({ mobileView }),
-	setCheckScrollTop: (checkScrollTop) => set({ checkScrollTop }),
-	setCheckReturnIssue: (checkReturnIssue) => set({ checkReturnIssue }),
-	setCheckTab: (checkTab) => set({ checkTab }),
+	setCheckReturnIssue: (checkReturnIssue, action) =>
+		set((state) => ({
+			checkReturnIssue,
+			checkReturnIndex: checkReturnIssue
+				? (() => {
+						const cards = typeof document === "undefined" ? [] : [...document.querySelectorAll("[data-issue-card]")];
+						const index = cards.findIndex((card) => card.getAttribute("data-issue-card") === checkReturnIssue);
+						return index >= 0 ? index : state.checkReturnIndex;
+					})()
+				: null,
+			checkReturnAction: checkReturnIssue
+				? (action ??
+					(typeof document !== "undefined"
+						? (document.activeElement as HTMLElement | null)?.dataset.reviewAction
+						: undefined) ??
+					state.checkReturnAction)
+				: null,
+		})),
 	setCheckIssue: (checkIssue) => set({ checkIssue }),
 	setPageView: (pageView) => set({ pageView }),
 	setHighlightTerm: (highlightTerm) => set({ highlightTerm }),

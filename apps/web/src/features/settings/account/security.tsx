@@ -60,13 +60,6 @@ export function SecuritySection() {
 								</Badge>
 							}
 							title={<Trans context="workspace.privacy.e7cf3ef4f17c">Password</Trans>}
-							description={
-								known.hasPassword ? (
-									<Trans context="workspace.privacy.5becaca237be">Password is set</Trans>
-								) : (
-									<Trans context="workspace.privacy.7bed214aae60">You sign in without one</Trans>
-								)
-							}
 						>
 							{known.hasPassword ? (
 								<Button
@@ -90,13 +83,6 @@ export function SecuritySection() {
 								</Badge>
 							}
 							title={<Trans context="workspace.privacy.7c0ff7eab32d">Two-step verification</Trans>}
-							description={
-								known.mfaEnabled ? (
-									<Trans context="workspace.privacy.e77d274f0cab">Two-step verification is enabled</Trans>
-								) : (
-									<Trans context="workspace.privacy.ae30fd938ae2">Two-step verification is not enabled</Trans>
-								)
-							}
 						>
 							{known.hasPassword && (
 								<Button

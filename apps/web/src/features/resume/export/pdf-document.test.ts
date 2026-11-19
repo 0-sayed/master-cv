@@ -29,6 +29,47 @@ afterEach(() => {
 });
 
 describe("createResumePdfBlob", () => {
+	it("preempts a thumbnail for the visible preview and cancels hidden work", async () => {
+		const workers: Array<{ target: EventTarget; requests: PdfWorkerRequest[]; terminate: ReturnType<typeof vi.fn> }> =
+			[];
+		vi.stubGlobal(
+			"Worker",
+			class extends EventTarget {
+				requests: PdfWorkerRequest[] = [];
+				terminate = vi.fn();
+				constructor() {
+					super();
+					workers.push({ target: this, requests: this.requests, terminate: this.terminate });
+				}
+				postMessage(request: PdfWorkerRequest) {
+					this.requests.push(request);
+				}
+			},
+		);
+		const { createResumePdfBlob } = await import("./pdf-document");
+		const controller = new AbortController();
+		const thumbnail = createResumePdfBlob(sampleResumeData, undefined, undefined, {
+			priority: "thumbnail",
+			signal: controller.signal,
+		});
+		const cancelled = expect(thumbnail).rejects.toHaveProperty("name", "AbortError");
+		const preview = createResumePdfBlob(sampleResumeData);
+		await cancelled;
+		expect(workers[0]?.terminate).toHaveBeenCalledOnce();
+		const active = workers[1];
+		expect(active?.requests).toHaveLength(1);
+		const blob = new Blob(["preview"]);
+		active?.target.dispatchEvent(new MessageEvent("message", { data: { id: active.requests[0]?.id, blob } }));
+		await expect(preview).resolves.toBe(blob);
+		const hidden = createResumePdfBlob(sampleResumeData, undefined, undefined, {
+			priority: "thumbnail",
+			signal: controller.signal,
+		});
+		const aborted = expect(hidden).rejects.toHaveProperty("name", "AbortError");
+		controller.abort();
+		await aborted;
+		expect(active?.terminate).toHaveBeenCalledOnce();
+	});
 	it("renders on the main thread when the worker can't start", async () => {
 		const blob = new Blob(["%PDF"], { type: "application/pdf" });
 		mocks.renderHere.mockImplementation(({ onPageMap }) => {

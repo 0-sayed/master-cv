@@ -17,7 +17,7 @@ it("keeps inherited provider configuration out of both synthetic runtimes", () =
 			SMTP_SECURE: "false",
 			SMTP_USER: "synthetic",
 			SMTP_PASS: "synthetic",
-			SMTP_FROM: "Master CV <mail@example.test>",
+			SMTP_FROM: "Sirawise <mail@example.test>",
 		},
 	);
 });

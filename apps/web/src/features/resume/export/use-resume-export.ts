@@ -55,6 +55,32 @@ const UNSAFE_FILE_NAME_CHARACTERS = /[\\/:*?"<>|]/g;
 /** A file name as the user typed it, minus the characters file systems reject. */
 export const sanitizeFileName = (value: string) => value.replace(UNSAFE_FILE_NAME_CHARACTERS, "").trim();
 
+/** Normalize a PDF stem while preserving letters and legitimate joining characters. */
+export function normalizePdfFileNameStem(value: string, fallback: string): string {
+	const clean = (text: string) =>
+		sanitizeFileName(
+			Array.from(text)
+				.filter((character) => {
+					const code = character.codePointAt(0) ?? 0;
+					return (
+						code > 31 &&
+						!(code >= 127 && code <= 159) &&
+						code !== 0x061c &&
+						code !== 0x200e &&
+						code !== 0x200f &&
+						!(code >= 0x202a && code <= 0x202e) &&
+						!(code >= 0x2066 && code <= 0x2069)
+					);
+				})
+				.join(""),
+		)
+			.replace(/[. ]+$/g, "")
+			.replace(/(?:\.pdf[. ]*)+$/i, "")
+			.replace(/[. ]+$/g, "")
+			.trim();
+	return clean(value) || clean(fallback) || "Resume";
+}
+
 /**
  * "First-Last-Resume" (or "First-Last-Cover-Letter"): recruiters see this name. Without a name on the
  * resume it falls back to the document's name.

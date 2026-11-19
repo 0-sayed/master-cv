@@ -66,6 +66,7 @@ Keep `AUTH_SECRET` and `ENCRYPTION_SECRET` across deployments. Changing them inv
 
    - Replace the all-zero `hyperdrive[0].id` with your Hyperdrive ID.
    - Set `vars.APP_URL` to your final HTTPS origin, for example `https://reactive-resume.<your-subdomain>.workers.dev` or `https://resume.example.com`.
+   - Optional: set `vars.ADMIN_EMAILS` to a comma-separated list of verified account emails for unlimited operation and document allowances. Redeploy after changes. OpenRouter key caps still limit money.
    - If you chose another bucket name, update `r2_buckets[0].bucket_name`.
    - Keep `CLOUDFLARE=1`, `STORAGE_BACKEND=r2`, and `FLAG_DISABLE_IMAGE_PROCESSING=true`.
    - Keep both compatibility flags. `global_fetch_strictly_public` is part of the external image/page reader's private-network protection.

@@ -1,6 +1,6 @@
 import type { RouterOutput } from "@/libs/orpc/client";
 import { t } from "@lingui/core/macro";
-import { getInterfaceDateLocale } from "@/libs/locale";
+import { formatInterfaceDate, getInterfaceDateLocale } from "@/libs/locale";
 import { formatRelativeTimeUnit } from "@/libs/locale";
 
 type DailyStat = { date: string; views: number; downloads: number };
@@ -36,23 +36,79 @@ export function formatTimeSince(date: Date, locale: string, now = Date.now()) {
 	return formatRelativeTimeUnit(-Math.floor(elapsed / ms), unit, locale);
 }
 
-/** "Today 14:02", "Yesterday 09:15", "Sep 16", or "Sep 16, 2025" for another year. */
-export function formatVersionTime(date: Date, locale: string, now = new Date()) {
-	const time = date.toLocaleTimeString(getInterfaceDateLocale(locale), { hour: "2-digit", minute: "2-digit" });
-	const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-
-	if (date.getTime() >= startOfToday) return t`Today ${time}`;
-	if (date.getTime() >= startOfToday - DAY_MS) return t`Yesterday ${time}`;
-	return date.toLocaleDateString(getInterfaceDateLocale(locale), {
-		month: "short",
-		day: "numeric",
-		...(date.getFullYear() === now.getFullYear() ? {} : { year: "numeric" }),
-	});
+function riyadhDay(date: Date) {
+	const parts = new Intl.DateTimeFormat("en-US", {
+		timeZone: "Asia/Riyadh",
+		calendar: "gregory",
+		numberingSystem: "latn",
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	}).formatToParts(date);
+	const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? "";
+	const year = part("year");
+	const month = part("month");
+	const day = part("day");
+	return {
+		key: `${year}-${month}-${day}`,
+		year,
+		ordinal: Date.UTC(Number(year), Number(month) - 1, Number(day)) / DAY_MS,
+	};
 }
 
-/** A version's full date and time, for sentences: "Sep 28, 2026, 7:36 PM". */
+function dayLabel(date: Date, locale: string, now: Date) {
+	const day = riyadhDay(date);
+	const today = riyadhDay(now);
+	const dateLabel = formatInterfaceDate(date, locale, {
+		month: "short",
+		day: "numeric",
+		...(day.year !== today.year ? { year: "numeric" } : {}),
+	});
+	const difference = day.ordinal - today.ordinal;
+	const relative =
+		difference === 0 || difference === -1
+			? new Intl.RelativeTimeFormat(getInterfaceDateLocale(locale), { numeric: "auto" }).format(difference, "day")
+			: null;
+	return {
+		key: day.key,
+		dateLabel,
+		label: relative ? relative.replace(/^\p{L}/u, (letter) => letter.toLocaleUpperCase(locale)) : dateLabel,
+	};
+}
+
+export function groupVersionsByDay(
+	versions: readonly VersionSummary[],
+	locale: string,
+	now = new Date(),
+): Array<{ key: string; label: string; dateLabel: string; versions: VersionSummary[] }> {
+	const groups = new Map<string, { key: string; label: string; dateLabel: string; versions: VersionSummary[] }>();
+	for (const version of [...versions].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())) {
+		const day = dayLabel(version.createdAt, locale, now);
+		const group: { key: string; label: string; dateLabel: string; versions: VersionSummary[] } = groups.get(
+			day.key,
+		) ?? {
+			...day,
+			versions: [],
+		};
+		group.versions.push(version);
+		groups.set(day.key, group);
+	}
+	return [...groups.values()];
+}
+
+export function formatVersionTime(date: Date, locale: string, now = new Date()) {
+	const { label } = dayLabel(date, locale, now);
+	return `${label} · ${formatInterfaceDate(date, locale, { hour: "2-digit", minute: "2-digit" })}`;
+}
+
 export const formatVersionMoment = (date: Date, locale: string) =>
-	date.toLocaleString(getInterfaceDateLocale(locale), { dateStyle: "medium", timeStyle: "short" });
+	formatInterfaceDate(date, locale, {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+		hour: "numeric",
+		minute: "2-digit",
+	});
 
 /** A version's title in History: its name when the user named it, otherwise what made it. */
 export function getVersionTitle(version: Pick<VersionSummary, "kind" | "name">) {

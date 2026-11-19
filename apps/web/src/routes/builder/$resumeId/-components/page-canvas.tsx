@@ -5,9 +5,11 @@ import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Plural, Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
+import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
+import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { cn } from "@reactive-resume/utils/style";
 import { QuerySkeleton } from "@/components/query-skeleton";
@@ -15,6 +17,7 @@ import { templates } from "@/dialogs/resume/template/data";
 import { useCurrentBuilderResumeSelector, useResumeData } from "@/features/resume/builder/draft";
 import { CheckPageLayer } from "@/features/resume/editor/check/page-layer";
 import { ParserView } from "@/features/resume/editor/check/parser-view";
+import { PageViewToggle } from "@/features/resume/editor/check/review-findings";
 import { CanvasStatusPill, usePageScale, ZoomBar } from "@/features/resume/editor/chrome";
 import { measureOverflow, runFit } from "@/features/resume/editor/design/fit";
 import { PageOverlay } from "@/features/resume/editor/page-overlay";
@@ -22,10 +25,11 @@ import { markProposals, pendingProposals } from "@/features/resume/editor/propos
 import { useEditorStore } from "@/features/resume/editor/store";
 import { useEditorMode } from "@/features/resume/editor/use-editor-mode";
 import { revealSelectionInPanel } from "@/features/resume/editor/write/reveal";
+import { hashPdfInput } from "@/features/resume/export/pdf-artifact";
 import { ResumePreview } from "@/features/resume/preview/preview";
 import { formatVersionTime, getVersionTitle } from "@/features/resume/share/format";
+import { browserStorage, storageKey } from "@/libs/browser-storage";
 import { orpc } from "@/libs/orpc/client";
-import { formatPageNumberInSentence } from "@/libs/page-number";
 
 const NONE: readonly never[] = [];
 
@@ -42,10 +46,7 @@ export function PageCanvas() {
 	const previewTemplate = useEditorStore((state) => state.previewTemplate);
 	const historyVersionId = useEditorStore((state) => state.historyVersionId);
 	const pageView = useEditorStore((state) => state.pageView);
-	const checkTab = useEditorStore((state) => state.checkTab);
-	const proposals = useEditorStore((state) => state.proposals);
 	const assistantProposals = useEditorStore((state) => (state.assistantOpen ? state.assistantProposals : NONE));
-	const sheetOpen = useEditorStore((state) => state.shareTab !== null);
 	const resumeId = useCurrentBuilderResumeSelector((resume) => resume.id);
 	const rendered = useEditorStore((state) => state.rendered);
 	const setRendered = useEditorStore((state) => state.setRendered);
@@ -55,16 +56,18 @@ export function PageCanvas() {
 	const isPhone = breakpoint === "mobile";
 
 	// History: the picked version is drawn on the page, read-only, until the user restores it or goes back to now.
-	const { data: version } = useQuery({
+	const {
+		data: version,
+		isPending: versionPending,
+		isError: versionError,
+		refetch: retryVersion,
+	} = useQuery({
 		...orpc.resume.getVersion.queryOptions({ input: { resumeId, versionId: historyVersionId ?? "" } }),
 		enabled: historyVersionId !== null,
 	});
 	const viewing = historyVersionId !== null && version?.id === historyVersionId ? version : null;
 
-	// Check → Writing's and the assistant's proposed edits show on the page, the old text struck through and the new
-	// highlighted.
-	const markEdits = mode === "check" && checkTab === "writing" && pageView === "page" && proposals.length > 0;
-	const marked = [...(markEdits ? proposals : []), ...assistantProposals];
+	const marked = assistantProposals;
 	const pendingOnPage = data ? pendingProposals(data, assistantProposals).length : 0;
 	const parser = mode === "check" && pageView === "parser" && !viewing;
 
@@ -77,8 +80,6 @@ export function PageCanvas() {
 				? markProposals(data, marked)
 				: undefined;
 	const overflow = data && !previewTemplate && !viewing ? measureOverflow(data, rendered) : null;
-	// Desktop: the page moves 120px aside so it stays visible beside the Share & export sheet.
-	const shifted = sheetOpen && (breakpoint === "desktop" || breakpoint === "wide");
 
 	const onSelect = (selection: EditorSelection) => {
 		select(selection);
@@ -89,65 +90,104 @@ export function PageCanvas() {
 	};
 
 	const reviewFeedback = useEditorStore((state) => state.reviewFeedback);
-	const skeletonWait1 = useSkeletonLoading(historyVersionId !== null && !version);
-	if (skeletonWait1.pending || (historyVersionId !== null && !version)) return <QuerySkeleton shape="preview" />;
+	if (historyVersionId !== null && (versionError || (!versionPending && !viewing)))
+		return (
+			<div className="p-6">
+				<Alert variant="error">
+					<Icon name="warning-circle" />
+					<AlertTitle>
+						<Trans>Could not load this saved version</Trans>
+					</AlertTitle>
+					<AlertDescription>
+						<Trans>Your current CV is preserved. Try again or return to the current version.</Trans>
+					</AlertDescription>
+					<AlertActions>
+						<Button variant="secondary" onClick={() => void retryVersion()}>
+							<Trans>Try again</Trans>
+						</Button>
+						<Button variant="secondary" onClick={() => useEditorStore.getState().setHistoryVersion(null)}>
+							<Trans>Back to current</Trans>
+						</Button>
+					</AlertActions>
+				</Alert>
+			</div>
+		);
+	if (historyVersionId !== null && !viewing) return <QuerySkeleton shape="preview" />;
 	return (
-		<div className="relative h-full min-h-0 bg-sunken">
-			<section
-				ref={canvasRef}
-				data-slot="preview-scroll-area"
-				// The scroll area takes focus so the page can be scrolled from the keyboard even before its lines load.
-				// oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be reachable by keyboard.
-				tabIndex={0}
-				aria-label={t`Resume page`}
-				// Tapping the page (not a line) closes the tablet drawer but keeps the selection; on phones it
-				// dismisses the selection bar.
-				onPointerDown={(event) => {
-					if ((event.target as HTMLElement).closest("[data-kind]")) return;
-					if (breakpoint === "tablet") setDrawerOpen(false);
-					if (isPhone) select(null);
-				}}
-				className={cn("absolute inset-0 overflow-auto pt-7 pb-24 outline-none", isPhone ? "px-4" : "px-10")}
-			>
-				<ResumePreview
-					identity={identity ?? undefined}
-					highlightEdits={!viewing && !previewTemplate}
-					editFeedback={reviewFeedback}
-					data={previewData}
-					pageLayout="vertical"
-					pageGap={24}
-					pageScale={pageScale}
-					className={cn(
-						"mx-auto w-fit transition-transform duration-emphasized ease-enter",
-						shifted && "-translate-x-[120px] rtl:translate-x-[120px]",
-						parser && "hidden",
+		<div className="relative flex h-full min-h-0 flex-col bg-sunken">
+			{mode === "check" && !viewing && (
+				<div
+					data-slot="preview-toolbar"
+					className="flex shrink-0 flex-wrap items-center justify-center gap-2 border-b border-line bg-surface px-4 py-2"
+				>
+					{isPhone && (
+						<Button
+							variant="secondary"
+							onClick={() => {
+								const editor = useEditorStore.getState();
+								editor.setMobileView("check");
+								editor.setCheckReturnIssue(editor.checkIssue);
+							}}
+						>
+							<Trans>Back to findings</Trans>
+						</Button>
 					)}
-					pageClassName={cn("rounded-none shadow-page", viewing && "outline-2 outline-offset-4 outline-ink")}
-					onRender={previewData ? undefined : setRendered}
-					renderPageCaption={({ pageNumber }) => (
-						<ResumePageCaption
-							pageNumber={pageNumber}
-							viewing={viewing}
-							previewTemplate={previewTemplate}
-							pendingOnPage={pendingOnPage}
-							mode={mode}
-							format={format}
-							overflow={overflow}
-						/>
-					)}
-					renderPageOverlay={({ pageIndex, pageMap }) =>
-						// A version from History is read-only: its lines don't open entries.
-						viewing ? null : mode === "check" ? (
-							<CheckPageLayer pageIndex={pageIndex} pageMap={pageMap} />
-						) : (
-							<PageOverlay pageIndex={pageIndex} pageMap={pageMap} onSelect={onSelect} />
-						)
-					}
-				/>
-				{parser && <ParserView />}
-			</section>
+					<PageViewToggle />
+				</div>
+			)}
+			<div className="relative min-h-0 flex-1">
+				<section
+					ref={canvasRef}
+					data-slot="preview-scroll-area"
+					// The scroll area takes focus so the page can be scrolled from the keyboard even before its lines load.
+					// oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be reachable by keyboard.
+					tabIndex={0}
+					aria-label={t`Resume page`}
+					// Tapping the page (not a line) closes the tablet drawer but keeps the selection; on phones it
+					// dismisses the selection bar.
+					onPointerDown={(event) => {
+						if ((event.target as HTMLElement).closest("[data-kind]")) return;
+						if (breakpoint === "tablet") setDrawerOpen(false);
+						if (isPhone) select(null);
+					}}
+					className={cn("absolute inset-0 overflow-auto pt-7 pb-24 outline-none", isPhone ? "px-4" : "px-10")}
+				>
+					<ResumePreview
+						identity={identity ?? undefined}
+						highlightEdits={!viewing && !previewTemplate}
+						editFeedback={reviewFeedback}
+						data={previewData}
+						pageLayout="vertical"
+						pageGap={24}
+						pageScale={pageScale}
+						className={cn("mx-auto w-fit transition-transform duration-emphasized ease-enter", parser && "hidden")}
+						pageClassName={cn("rounded-none shadow-page", viewing && "outline-2 outline-offset-4 outline-ink")}
+						onRender={previewData ? undefined : setRendered}
+						renderPageCaption={({ pageNumber }) => (
+							<ResumePageCaption
+								pageNumber={pageNumber}
+								viewing={viewing}
+								previewTemplate={previewTemplate}
+								pendingOnPage={pendingOnPage}
+								mode={mode}
+								format={format}
+								overflow={overflow}
+							/>
+						)}
+						renderPageOverlay={({ pageIndex, pageMap }) =>
+							// A version from History is read-only: its lines don't open entries.
+							viewing ? null : mode === "check" ? (
+								<CheckPageLayer pageIndex={pageIndex} pageMap={pageMap} />
+							) : (
+								<PageOverlay pageIndex={pageIndex} pageMap={pageMap} onSelect={onSelect} />
+							)
+						}
+					/>
+					{parser && <ParserView />}
+				</section>
 
-			{!parser && <ZoomBar fitScale={fitScale} pageCount={Math.max(1, rendered.pageCount)} />}
+				{!parser && <ZoomBar fitScale={fitScale} pageCount={Math.max(1, rendered.pageCount)} />}
+			</div>
 		</div>
 	);
 }
@@ -174,7 +214,10 @@ function ResumePageCaption(props: ResumePageCaptionProps) {
 
 	if (pageNumber === 1) {
 		return (
-			<figcaption className="mb-2.5 flex flex-wrap items-center justify-center gap-2.5 text-center text-xs font-medium text-ink-3">
+			<figcaption
+				data-review-page={pageNumber}
+				className="mb-2.5 flex flex-wrap items-center justify-center gap-2.5 text-center text-xs font-medium text-ink-3"
+			>
 				{viewing ? (
 					<CanvasStatusPill icon="clock-counter-clockwise">
 						<Trans>
@@ -207,10 +250,10 @@ function ResumePageCaption(props: ResumePageCaptionProps) {
 		);
 	}
 
-	// Content past the authored pages: a dashed warn line at the page boundary.
-	if (overflow && pageNumber > overflow.authored) {
+	// Mark only the short last page that the fit hint offers to remove.
+	if (overflow && pageNumber === overflow.pageCount) {
 		return (
-			<figcaption className="relative mb-2.5 border-t-[1.5px] border-dashed border-warn">
+			<figcaption data-review-page={pageNumber} className="relative mb-2.5 border-t-[1.5px] border-dashed border-warn">
 				<span className="absolute end-0 -top-2.5 rounded bg-sunken px-1.5 text-[11px] font-semibold text-warn-text">
 					<Trans>Page {pageNumber}</Trans>
 				</span>
@@ -219,43 +262,90 @@ function ResumePageCaption(props: ResumePageCaptionProps) {
 	}
 
 	return (
-		<figcaption className="mb-2.5 text-center text-xs font-medium text-ink-3">
+		<figcaption data-review-page={pageNumber} className="mb-2.5 text-center text-xs font-medium text-ink-3">
 			<Trans>Page {pageNumber}</Trans>
 		</figcaption>
 	);
 }
 
-type OverflowChipProps = { authored: number; lines: number | null };
+type OverflowChipProps = NonNullable<ReturnType<typeof measureOverflow>>;
 
-/** "Runs onto page 2 by about 6 lines" with Fit, which tightens the design until it fits (one undo step). */
-function OverflowChip({ authored, lines }: OverflowChipProps) {
+/** Fit removes a short last page through the shared design compaction action. */
+function OverflowChip(props: OverflowChipProps) {
+	const resumeId = useCurrentBuilderResumeSelector((resume) => resume.id);
+	const data = useResumeData();
 	const [fitting, setFitting] = useState(false);
-	const { i18n } = useLingui();
-	const next = formatPageNumberInSentence(authored + 1, i18n.locale);
+	const onFit = () => {
+		setFitting(true);
+		void runFit(props.targetPages).finally(() => setFitting(false));
+	};
+	const [revision, setRevision] = useState<{ data: typeof data; hash: string } | null>(null);
+	useEffect(() => {
+		let active = true;
+		void hashPdfInput(data).then((hash) => {
+			if (active) setRevision({ data, hash });
+		});
+		return () => {
+			active = false;
+		};
+	}, [data]);
+	if (!revision || revision.data !== data) return null;
+	return (
+		<DismissibleOverflowChip
+			key={`${resumeId}:${revision.hash}`}
+			{...props}
+			resumeId={resumeId}
+			revision={revision.hash}
+			fitting={fitting}
+			onFit={onFit}
+		/>
+	);
+}
+
+function DismissibleOverflowChip({
+	pageCount,
+	targetPages,
+	lines,
+	resumeId,
+	revision,
+	fitting,
+	onFit,
+}: OverflowChipProps & { resumeId: string; revision: string; fitting: boolean; onFit: () => void }) {
+	const preference = storageKey("fitHintDismissed", `${resumeId}:${revision}`);
+	const [dismissed, setDismissed] = useState(() => {
+		try {
+			return browserStorage.local.getItem(preference) === "1";
+		} catch {
+			return false;
+		}
+	});
+	if (dismissed) return null;
 
 	return (
-		<span className="flex min-h-8 items-center gap-2 rounded-lg bg-warn-soft py-1 ps-3 pe-1.5 text-[13px] text-warn-text">
+		<span className="type-caption flex min-h-8 items-center gap-2 rounded-lg bg-warn-soft py-1 ps-3 pe-1.5 text-warn-text">
 			<Icon name="square-split-horizontal" size={18} />
-			{lines ? (
-				<Plural
-					value={lines}
-					one={`Runs onto page ${next} by about # line`}
-					other={`Runs onto page ${next} by about # lines`}
-				/>
-			) : (
-				<Trans>Runs onto page {next}</Trans>
-			)}
-			<button
-				type="button"
-				disabled={fitting}
+			<Plural
+				value={lines}
+				one={`The last # line spills onto page ${pageCount}`}
+				other={`The last # lines spill onto page ${pageCount}`}
+			/>
+			<Button variant="secondary" size="sm" type="button" disabled={fitting} onClick={onFit}>
+				<Plural value={targetPages} one="Fit to # page" other="Fit to # pages" />
+			</Button>
+			<IconButton
+				size="icon"
+				label={t`Dismiss page fit hint`}
 				onClick={() => {
-					setFitting(true);
-					void runFit().finally(() => setFitting(false));
+					setDismissed(true);
+					try {
+						browserStorage.local.setItem(preference, "1");
+					} catch {
+						/* Storage can be disabled in private contexts. */
+					}
 				}}
-				className="h-6 rounded-md bg-surface px-2.5 text-xs font-semibold whitespace-nowrap text-ink shadow-e1 disabled:opacity-60"
-			>
-				{authored === 1 ? <Trans>Fit to one page</Trans> : <Trans>Fit to {authored} pages</Trans>}
-			</button>
+				icon="x"
+				iconSize={16}
+			/>
 		</span>
 	);
 }

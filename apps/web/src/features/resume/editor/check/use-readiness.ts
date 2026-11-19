@@ -2,7 +2,7 @@ import type { ReadinessResults } from "@reactive-resume/resume/ats";
 import type { PdfAtsReport } from "@reactive-resume/resume/ats-pdf";
 import type { JobTermReport } from "@reactive-resume/schema/job-evidence";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { create } from "zustand/react";
 import { emptyReadiness, invalidateReadiness, jobReadiness } from "@reactive-resume/resume/ats";
 import { useResumeData, isEditableElementFocused } from "../../builder/draft";
@@ -12,6 +12,7 @@ import { useEditorStore, sameEditorIdentity } from "../store";
 import { evaluateReadiness } from "./evaluate";
 import { useCheckIntroduction } from "./introduction";
 import { mergeDocumentReadiness, scheduleReadiness } from "./readiness";
+import { createReadinessCache } from "./readiness-cache";
 import { orpc } from "@/libs/orpc/client";
 
 const empty = (): ReadinessResults => ({
@@ -34,6 +35,7 @@ const useReadinessStore = create<{
 }));
 /** Mounted once by the editor shell, independently of the visible panel. No extracted text is retained. */
 export function useReadinessLifecycle() {
+	const [cache] = useState(() => createReadinessCache(evaluateReadiness));
 	const identity = useEditorStore((state) => state.identity);
 	const data = useResumeData();
 	const retry = useReadinessStore((state) => state.retry);
@@ -123,7 +125,7 @@ export function useReadinessLifecycle() {
 							pdf: { ...emptyReadiness("pdf"), state: "checking", source: null, checkedAt: null },
 						},
 					}));
-				return evaluateReadiness({ identity, data }, signal);
+				return cache.evaluate({ identity, data }, signal, retry);
 			},
 			(result) => {
 				if (current())
@@ -134,8 +136,14 @@ export function useReadinessLifecycle() {
 			},
 			isEditableElementFocused() ? TYPING_DEBOUNCE_MS : UPDATE_DEBOUNCE_MS,
 		);
-	}, [identity, data, retry]);
-	useEffect(() => () => useReadinessStore.setState({ results: empty(), pdfReport: null, jobReport: null }), []);
+	}, [identity, data, retry, cache]);
+	useEffect(
+		() => () => {
+			cache.clear();
+			useReadinessStore.setState({ results: empty(), pdfReport: null, jobReport: null });
+		},
+		[cache],
+	);
 }
 /** Hook consumers get no obsolete success during the effect-cleanup boundary. */
 export function useReadiness() {

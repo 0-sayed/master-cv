@@ -70,3 +70,14 @@ describe("review decision coordinator", () => {
 		expect(f.replace).toHaveBeenCalledWith(response, 1);
 	});
 });
+
+it("preserves the explicit decision and request key across a failed request retry", async () => {
+	const f = fixture();
+	f.rpc.mockRejectedValueOnce(new Error("offline"));
+	const reject = { ...input, decision: "reject" as const };
+	await expect(f.submit(reject)).rejects.toThrow("offline");
+	expect(f.replace).not.toHaveBeenCalled();
+	await f.submit(reject);
+	expect(f.rpc.mock.calls[0]).toEqual(f.rpc.mock.calls[1]);
+	expect(f.replace).toHaveBeenCalledTimes(1);
+});

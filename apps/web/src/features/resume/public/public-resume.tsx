@@ -91,10 +91,10 @@ export function PublicResumePage({ resume, username, slug, flags, isRoot = false
 	const credit = (
 		<footer className="flex justify-center px-4 py-6 text-sm text-ink-3 print:hidden">
 			{flags.disableSignups ? (
-				<Trans>Made with Master CV, free and open source</Trans>
+				<Trans>Made with Sirawise, free and open source</Trans>
 			) : (
 				<a href={isRoot ? "/dashboard" : "/"} className="underline-offset-2 hover:text-ink hover:underline">
-					<Trans>Made with Master CV, free and open source</Trans>
+					<Trans>Made with Sirawise, free and open source</Trans>
 				</a>
 			)}
 		</footer>
@@ -120,7 +120,7 @@ export function PublicResumePage({ resume, username, slug, flags, isRoot = false
 						<div className="sticky bottom-0 flex gap-2 border-t border-line bg-surface px-4 pt-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] print:hidden">
 							{downloads && download}
 							<Button
-								variant="secondary"
+								variant="ghost"
 								size="icon-lg"
 								className={downloads ? "size-12" : "h-12 flex-1"}
 								aria-label={t`Share`}

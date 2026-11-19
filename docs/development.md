@@ -241,6 +241,21 @@ With Node 24 on PATH and the local database/storage configured in `.env.local`, 
 It loads the existing restricted-role `.env.runtime.local` first when present, then `.env.local` and
 ignored `.env.openrouter.local`; it does not alter servers on 3000/3050. Provision the restricted runtime
 role using the local database setup above before launching; unsafe database credentials fail closed.
+At startup, the launcher uses `DATABASE_MIGRATION_URL` to create the current UTC daily budget if no row exists.
+Both database URLs must select the same local database and port. Remote hosts and connection overrides are refused.
+The separate administrative connection closes before the HTTP server starts. The runtime role receives no additional privileges.
+The default is 3,000,000 USD micros ($3) per UTC day, 200,000 micros ($0.20) per request, and two concurrent operations.
+An existing row keeps all limits, spend, reservations, and active counts. Startup never resets accounting.
+After midnight UTC, restart this launcher to create that day's missing row. Requests fail closed until that setup completes.
+The OpenRouter key cap remains the real money limit. This setup runs only in the local launcher and refuses production mode.
+
+The launcher registers wording, extraction, summary, job evidence, tailoring, translation, and cover-letter handlers.
+Follow-up questions use the wording handler's result action and its separately approved writer.
+Interview preparation remains benchmark-only and unavailable in this launcher. The review guide states this limit.
+Launch errors distinguish unavailable AI, daily budget, account allowance, consent, and temporary provider failures.
+Only temporary failures offer Retry. Consent recovery returns to the notice and requires another explicit start.
+The dialog uses the server's remaining count and hides allowance text for unlimited accounts, including eligible admins.
+
 The banner reads **LOCAL REAL AI — dev only, provisional models**. Writer: Luna low/Azure;
 verifier: DeepSeek Flash 1017 low/Together. ZDR, deny collection, no provider fallbacks, consent,
 owner scope, durable accounting and fail-closed review remain enforced. This is not route/release approval.
@@ -249,8 +264,18 @@ Put `OPENROUTER_API_KEY=<app-key>` and, separately, `OPENROUTER_BENCHMARK_KEY=<b
 `.env.openrouter.local`. The owner must set hard key caps in OpenRouter: **$3 app / $5 benchmark**.
 The benchmark reads only its explicitly passed file's benchmark key, never the app key or inherited shell keys.
 Set `LOCAL_REAL_AI_OWNER_ID=<local-account-user-id>` in `.env.local` to give only that account
-50 operations in this launcher; without it the standard five apply. Production always retains five.
+50 operations in this launcher; without it the standard five apply to non-admin accounts.
 Operation allowances are not dollar limits; provider key caps are owner-managed.
+
+`ADMIN_EMAILS` grants unlimited AI operations and document allowances to listed accounts in every environment, including production.
+The server reads this comma-separated list once at startup, trims spaces, ignores empty entries, and compares email addresses without case.
+Restart the server after changes. For example, inject `ADMIN_EMAILS="owner@example.test,second@example.test"` into the server process.
+An account qualifies only while its stored email matches and `email_verified` is true. Each request uses the current database identity.
+The legacy database role does not grant this access. The browser cannot grant it, and the former Better Auth admin endpoints are unavailable.
+Usage and spend remain in durable accounting. Existing safety, consent, ownership, concurrency, and platform spend controls still apply.
+The OpenRouter key cap remains the money limit. Ordinary accounts retain their current limits, and letters remain uncapped as before.
+The API represents an unlimited allowance with `null`, while used and reserved counts remain numeric.
+
 Use synthetic/sample CVs only until Saudi processing compliance is approved. Each paid run still needs
 explicit owner permission; launcher/test verification does not authorize paid calls.
 
@@ -260,3 +285,83 @@ For offline launcher verification, `pnpm dev:real-ai --env-file /tmp/fake-openro
 credential file. Use a fake app key, `OPENROUTER_BASE_URL=http://127.0.0.1:<stub-port>/api/v1` and
 `FLAG_ALLOW_UNSAFE_AI_BASE_URL=true`; only explicit numeric loopback HTTP stubs are accepted and redirects
 are forbidden. Ordinary launches use the canonical OpenRouter endpoint. Do not export real keys into test shells.
+
+## Fictional local demo
+
+Use Node 24 and an already migrated database with the restricted runtime role.
+Supply `DATABASE_URL` and `APP_URL` through the prepared dotenvx root scripts.
+The configured database and application URLs must use loopback.
+Docker publication on a loopback host address is supported.
+The seed rejects production mode and inference credentials.
+The avatar upload requires the local storage backend.
+
+Run `pnpm db:seed:demo` with those runtime variables supplied.
+With pnpm 12, export `npm_config_verify_deps_before_run=false` before each pnpm command in the sandbox.
+The command does not load environment files or run migrations.
+It never uses administrator credentials.
+
+The reserved account is `demo@sirawise.test`.
+The fixed password is `SirawiseDemo-Local-2026!`.
+All saved people, companies, achievements, jobs, and documents are fictional.
+A completed seed skips later runs and preserves owner edits.
+A failed content transaction rolls back all fixture content.
+An unexpected partial workspace causes a refusal.
+
+Version 6 covers one invented Saudi professional with twenty years of experience, from 2006 through 2026.
+It creates 15 CVs from five authored exemplars, 11 active letters, 20 applications, eight job targets, and eight STAR stories.
+Eight letters link to applications. Three letters come from the custom cover-letter sections through the normal resume update path.
+The original three exemplars fill every standard section and every supported custom section type.
+Two Arabic showcase CVs present the same person and career: `سيرة قبل التحسين` and `سيرة احترافية`.
+The draft omits contact information and uses unresolved dates, a creative heading, dense prose, and cramped columns.
+The professional CV uses standard headings, grouped skills, reverse chronology, quantified results, and one readable column.
+Both showcase CVs hide the avatar and omit custom sections. They do not link to applications or alter the insights examples.
+The fixture units run structured rules and analyze actual server-rendered PDFs, without a browser, database, or AI service.
+The draft triggers 20 distinct rules. The professional CV produces no structured errors or warnings and no PDF blockers or warnings.
+English writing heuristics skip Arabic documents. The tests do not count skipped rules as findings.
+The app extracts the custom cover-letter section into its separate letter editor.
+The small PNG avatar is a local drawing of a fictional character. It uses the normal private storage upload path.
+Every application includes its own stage history, dated notes, contacts, salary text, and a follow-up date.
+Only eligible histories include past interviews. One Screening application includes a future appointment.
+The fixture covers all six stages and four closure reasons. Two sent applications have no attached CV.
+The other sends use 11 distinct tailored CVs and five base-CV links. Both saved jobs have base-CV links.
+The expected insights show 18 sends, 11 replies, a rounded 61% reply rate, and a six-day median.
+The funnel is `[18,10,6,2]`. The eight weekly totals are `[1,2,1,3,2,4,3,2]`.
+The tailored comparison is 8/11 replies. The base comparison is 3/5. Two unlinked sends are excluded.
+No AI service, external job site, real person, or email delivery participates in the seed.
+
+To replace an older demo or discard demo edits, run `pnpm db:seed:demo --reset` with the same runtime variables.
+Career facts use plain text. Resume descriptions keep their rich text formatting.
+Visible career content does not label the invented people or employers as fictional.
+Trash contains two extra cover letters, one Arabic and one English, deleted one and two days earlier.
+The displayed retention countdown leaves at least 28 days after each reset.
+The seed uses the document service to trash them. Restore and permanent deletion use the normal app procedures.
+Active counts are 15 CVs and 11 letters. Two additional letters remain in Trash.
+An extra trashed CV is blocked because the Start allowance counts all CVs, including Trash.
+The owner approved a seed-only exception on 2026-11-19 for the reserved demo account and a loopback database.
+The seed passes an explicit internal callback for ten additional application copies and the two showcase CVs through the document service.
+The callback allows at most 13 job copies. It cannot bypass base-CV or language-copy limits.
+Historical creation and replay use an internal service timestamp to preserve the injected clock.
+The public application procedures keep their existing date-only inputs.
+Product admission stays unchanged. The app server reads no new environment switch.
+
+The completion marker is the CV tag `Career portfolio · November 2026 · Showcase`.
+The former `Insights` marker requires an explicit reset. A plain seed never replaces the older content.
+Reset requires the reserved email, username, verified identity, reserved name, and matching demo password.
+The seed accepts the former reserved display name and changes it only after credential validation.
+Reset first revokes the reserved account's sessions through Better Auth.
+It removes that account's career content through owner-scoped deletes and creates the version 6 content in one transaction.
+It keeps the reserved login and other accounts. It removes old demo pictures after the content transaction succeeds.
+
+The master record contains contact details and an empty summary. The CV summaries remain complete.
+This gives the demo record 85% completeness and shows the summary hint.
+The shared calculation gives contact details 20%, summary 15%, experience 25%, education 15%, skills 15%, and languages 10%.
+An experience needs a company, role, and description. Education needs a school and degree.
+Only confirmed facts in the master record count. CV content does not affect the percentage.
+Owned browser fixtures sign out their sessions during teardown. Session tests keep extra sessions only until their revocation test ends.
+Run the plain command again to make sure that it reports `skipped` and preserves the new content.
+
+Database integration tests use disposable administrator credentials only to create and migrate their own test database.
+The seed itself always uses the restricted runtime role.
+
+The seed checks the configured client endpoint and the restricted database role.
+It does not require the PostgreSQL container address to use loopback.

@@ -1,32 +1,31 @@
 import type { Section } from "./model";
-import type { MasterFact } from "@reactive-resume/schema/career-master";
 import type { CareerMaster } from "@reactive-resume/schema/career-master";
-import { Trans, useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { createRef, useMemo, useRef, useState } from "react";
 import z from "zod";
 import { masterSectionSchema } from "@reactive-resume/schema/career-master";
 import { Button } from "@reactive-resume/ui/components/button";
-import { SectionCollection } from "@reactive-resume/ui/components/collection-grid";
 import { EmptyState } from "@reactive-resume/ui/components/empty-state";
-import { FactChip } from "@reactive-resume/ui/components/fact-chip";
 import { Icon } from "@reactive-resume/ui/components/icon";
-import { SectionCard, SectionCardHeader, SectionCardRow } from "@reactive-resume/ui/components/section-card";
-import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
-import { ProfileSectionsSkeleton } from "@reactive-resume/ui/components/skeleton-content";
+import { SectionCard, SectionCardHeader } from "@reactive-resume/ui/components/section-card";
+import { Skeleton, useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { SuccessTick } from "@reactive-resume/ui/components/success-tick";
 import { cn } from "@reactive-resume/utils/style";
 import { useCareerCopy } from "../copy.generated";
 import { useSessionDraft } from "../hooks";
 import { CareerLoadError } from "../load-state";
-import { CareerEntryDialog, fieldLabel } from "./entry-dialog";
-import { sectionFields } from "./model";
+import { CareerApprovalPromise } from "./approval-promise";
+import { CareerCompleteness } from "./completeness";
+import { CareerEntryDialog } from "./entry-dialog";
+import { CareerEntryRow, careerEntryLabel } from "./entry-row";
+import { careerSections, previewLimits, sectionEntries } from "./presentation";
+import { CareerProfileDetails } from "./profile-details";
+import { CareerSectionIndex } from "./section-index";
+import { CareerUsageDisclosure } from "./usage-disclosure";
 import { PageHeader } from "@/components/layout/page-header";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { orpc } from "@/libs/orpc/client";
 
-const sections = ["experience", "education", "skills", "languages", "certifications"] as const;
 const icons = {
 	experience: "briefcase",
 	education: "graduation-cap",
@@ -35,6 +34,15 @@ const icons = {
 	certifications: "certificate",
 } as const;
 const openEntrySchema = z.object({ section: masterSectionSchema, entityId: z.string().min(1).max(64) }).nullable();
+// This shape supplies only the inert, hidden loading layout. It never becomes saved account data.
+const emptyCareerMaster: CareerMaster = {
+	contact: { name: "", email: "", phone: "", location: "" },
+	summary: "",
+	profileRevision: 0,
+	sections: [],
+	facts: [],
+	links: [],
+};
 export function CareerInformationPage() {
 	const copy = useCareerCopy();
 	const query = useQuery(orpc.career.master.read.queryOptions({ input: {} }));
@@ -45,269 +53,225 @@ export function CareerInformationPage() {
 	const dialog = openEntry.value;
 	const setDialog = openEntry.setValue;
 	const [saved, setSaved] = useState(false);
+	const [expanded, setExpanded] = useState<Partial<Record<Section, boolean>>>({});
+	const [descriptions, setDescriptions] = useState<Record<string, boolean>>({});
+	const addRefs = useMemo(
+		() =>
+			Object.fromEntries(careerSections.map((section) => [section, createRef<HTMLButtonElement>()])) as Record<
+				Section,
+				React.RefObject<HTMLButtonElement | null>
+			>,
+		[],
+	);
+	const collapseRefs = useRef<Partial<Record<Section, HTMLButtonElement | null>>>({});
 	const loading = useSkeletonLoading(query.isPending);
-	const data = query.data;
+	const data = query.data ?? (loading.pending ? emptyCareerMaster : undefined);
+	const groups = data ? careerSections.map((section) => ({ section, entries: sectionEntries(data, section) })) : [];
+	if (dialog && !expanded[dialog.section]) {
+		const position =
+			groups
+				.find((group) => group.section === dialog.section)
+				?.entries.findIndex((entry) => entry.entityId === dialog.entityId) ?? -1;
+		if (position >= previewLimits[dialog.section]) setExpanded({ ...expanded, [dialog.section]: true });
+	}
+	const entryId = (section: Section, entityId: string) => `career-entry-${section}-${entityId}`;
+	const focusEntry = (section: Section, entityId: string, edit = false) =>
+		requestAnimationFrame(() => {
+			const target = document.getElementById(entryId(section, entityId));
+			const control = edit ? target?.querySelector<HTMLElement>("[data-career-edit]") : target;
+			(control ?? addRefs[section].current)?.focus();
+		});
+	const closeEditor = (didSave: boolean) => {
+		if (dialog) focusEntry(dialog.section, dialog.entityId, true);
+		setDialog(null);
+		setSaved(didSave);
+	};
+	const content = data ? (
+		<>
+			<CareerCompleteness master={data} />
+			{query.isError && <CareerLoadError retrying={query.isFetching} onRetry={() => void query.refetch()} />}
+			<div className="flex min-w-0 flex-col gap-6 lg:flex-row">
+				<CareerSectionIndex sections={groups.map(({ section, entries }) => ({ section, total: entries.length }))} />
+				<div className="min-w-0 flex-1 space-y-6">
+					<CareerProfileDetails master={data} />
+					{groups.map(({ section, entries }) => {
+						const title = copy(
+							section === "certifications" ? "editor.certificates.title" : (`editor.${section}.title` as const),
+						);
+						const add = copy(
+							section === "certifications" ? "editor.certificates.add" : (`editor.${section}.add` as const),
+						);
+						const isExpanded = !!expanded[section];
+						const limit = previewLimits[section];
+						const visible = isExpanded ? entries : entries.slice(0, limit);
+						const pending = entries.filter((entry) => entry.needsReview);
+						return (
+							<SectionCard key={section} id={`career-section-${section}`} aria-labelledby={`career-heading-${section}`}>
+								<SectionCardHeader className="flex-wrap justify-between border-b border-line pb-3">
+									<div className="flex min-w-0 items-center gap-2">
+										<span
+											className={cn(
+												"grid size-9 shrink-0 place-items-center rounded-full",
+												section === "education" || section === "certifications"
+													? "bg-career-gold-soft text-career-gold"
+													: section === "skills"
+														? "bg-career-teal-soft text-career-teal"
+														: "bg-accent-soft text-accent-text",
+											)}
+										>
+											<Icon name={icons[section]} />
+										</span>
+										<h2
+											id={`career-heading-${section}`}
+											tabIndex={-1}
+											className="scroll-mt-(--app-toolbar-height) type-section lg:scroll-mt-4"
+										>
+											{title}
+										</h2>
+										<span className="type-metadata text-ink-2" dir="ltr">
+											{entries.length}
+										</span>
+									</div>
+									<Button
+										ref={addRefs[section]}
+										variant="secondary"
+										onClick={() => {
+											setSaved(false);
+											setDialog({ section, entityId: crypto.randomUUID() });
+										}}
+									>
+										<Icon name="plus" />
+										{add}
+									</Button>
+								</SectionCardHeader>
+								{pending.length > 0 && (
+									<Button
+										variant="secondary"
+										size="default"
+										className="justify-start"
+										onClick={() => {
+											const first = pending[0];
+											if (!first) return;
+											setExpanded((value) => ({ ...value, [section]: true }));
+											focusEntry(section, first.entityId);
+										}}
+									>
+										{copy("editor.career.reviewPending", { count: String(pending.length) })}
+									</Button>
+								)}
+								{entries.length === 0 ? (
+									<EmptyState
+										density="compact"
+										title={copy("editor.career.emptyTitle")}
+										description={copy("editor.career.sectionEmptyHint")}
+									/>
+								) : (
+									<div
+										id={`career-entries-${section}`}
+										className={cn("grid", section === "skills" && "lg:grid-cols-2 lg:gap-x-4")}
+									>
+										{visible.map((entry) => (
+											<CareerEntryRow
+												key={entry.entityId}
+												entry={entry}
+												descriptionExpanded={!!descriptions[`${section}:${entry.entityId}`]}
+												onDescriptionExpandedChange={(value) =>
+													setDescriptions((previous) => ({ ...previous, [`${section}:${entry.entityId}`]: value }))
+												}
+												onEdit={() => {
+													setSaved(false);
+													setDialog({ section, entityId: entry.entityId });
+												}}
+												usage={
+													entry.documents.length > 0 ? (
+														<CareerUsageDisclosure
+															entryLabel={careerEntryLabel(entry, title)}
+															documents={entry.documents}
+															fallbackFocusRef={addRefs[section]}
+														/>
+													) : null
+												}
+											/>
+										))}
+									</div>
+								)}
+								{entries.length > limit && (
+									<Button
+										ref={(element) => {
+											collapseRefs.current[section] = element;
+										}}
+										variant="secondary"
+										size="default"
+										aria-expanded={isExpanded}
+										aria-controls={`career-entries-${section}`}
+										onClick={() => {
+											setExpanded((value) => ({ ...value, [section]: !isExpanded }));
+											if (isExpanded)
+												requestAnimationFrame(() => {
+													collapseRefs.current[section]?.focus();
+													collapseRefs.current[section]?.scrollIntoView({ block: "nearest" });
+												});
+										}}
+									>
+										{copy(isExpanded ? "editor.career.showFewer" : "editor.career.showAll", {
+											count: String(entries.length),
+										})}
+										<Icon name="caret-down" className={isExpanded ? "rotate-180" : undefined} />
+									</Button>
+								)}
+							</SectionCard>
+						);
+					})}
+				</div>
+			</div>
+			{saved && (
+				<p role="status" className="flex items-center gap-1.5 type-body text-ink-3">
+					<SuccessTick />
+					{copy("editor.save.status.saved")}
+				</p>
+			)}
+			{dialog && !loading.pending && (
+				<CareerEntryDialog
+					key={dialog.entityId}
+					{...dialog}
+					facts={data.facts.filter(
+						(fact) =>
+							(fact.proposedStructured ?? fact.structured)?.section === dialog.section &&
+							(fact.proposedStructured ?? fact.structured)?.entityId === dialog.entityId,
+					)}
+					profileRevision={data.profileRevision}
+					onClose={() => closeEditor(false)}
+					onSaved={() => closeEditor(true)}
+				/>
+			)}
+		</>
+	) : null;
 	return (
 		<div className="contents">
-			<PageHeader mobileTitleInShell title={copy("editor.navigation.career")} />
+			<PageHeader
+				mobileTitleInShell
+				title={
+					<span className="flex items-center gap-2">
+						{copy("editor.navigation.career")}
+						<span className="max-sm:hidden">
+							<CareerApprovalPromise />
+						</span>
+					</span>
+				}
+			/>
 			{loading.pending ? (
 				<QuerySkeleton
 					fallback={
-						<ProfileSectionsSkeleton
-							emptyLabel={copy("editor.career.emptyTitle")}
-							noticeLabel={copy("editor.certificates.empty")}
-							noticeHint={copy("editor.certificates.hint")}
-						/>
+						<Skeleton inert className="grid gap-6 rounded-none bg-transparent max-sm:gap-4 [&_*]:text-transparent">
+							{content}
+						</Skeleton>
 					}
 				/>
 			) : query.isError && !data ? (
 				<CareerLoadError retrying={query.isFetching} onRetry={() => void query.refetch()} />
-			) : data ? (
-				<>
-					{query.isError && <CareerLoadError retrying={query.isFetching} onRetry={() => void query.refetch()} />}
-					<SectionCollection>{sections.map((section) => group(section))}</SectionCollection>
-					{saved && (
-						<p role="status" className="flex items-center gap-1.5 type-body text-ink-3">
-							<SuccessTick />
-							{copy("editor.save.status.saved")}
-						</p>
-					)}
-					{dialog && (
-						<CareerEntryDialog
-							key={dialog.entityId}
-							{...dialog}
-							facts={data.facts.filter(
-								(fact) => (fact.proposedStructured ?? fact.structured)?.entityId === dialog.entityId,
-							)}
-							profileRevision={data.profileRevision}
-							onClose={() => {
-								setDialog(null);
-								setSaved(false);
-							}}
-							onSaved={() => {
-								setDialog(null);
-								setSaved(true);
-							}}
-						/>
-					)}
-				</>
-			) : null}
+			) : (
+				content
+			)}
 		</div>
-	);
-	function group(section: Section) {
-		if (!data) return null;
-		const facts = data.facts.filter((fact) => (fact.proposedStructured ?? fact.structured)?.section === section);
-		const order = data.sections.find((item) => item.section === section)?.entityIds ?? [];
-		const ids = [
-			...new Set([
-				...order,
-				...facts.flatMap((fact) => {
-					const entry = fact.proposedStructured ?? fact.structured;
-					return entry ? [entry.entityId] : [];
-				}),
-			]),
-		];
-		const titleKey = section === "certifications" ? "editor.certificates.title" : (`editor.${section}.title` as const);
-		const addKey = section === "certifications" ? "editor.certificates.add" : (`editor.${section}.add` as const);
-		const addAction = (
-			<Button
-				variant="secondary"
-				onClick={() => {
-					setSaved(false);
-					setDialog({ section, entityId: crypto.randomUUID() });
-				}}
-			>
-				<Icon name="plus" />
-				{copy(addKey)}
-			</Button>
-		);
-		return (
-			<SectionCard key={section}>
-				<SectionCardHeader>
-					<Icon
-						name={icons[section]}
-						size={18}
-						className="box-content rounded-md bg-accent-soft p-2 text-accent-text"
-					/>
-					<h2 className="type-section">{copy(titleKey)}</h2>
-				</SectionCardHeader>
-				{ids.length ? (
-					<div
-						className={
-							section === "skills" || section === "languages"
-								? "flex flex-wrap items-start gap-x-2 gap-y-4"
-								: "grid gap-2"
-						}
-					>
-						{ids.map((id) => (
-							<Entry
-								key={id}
-								section={section}
-								facts={facts.filter((fact) => (fact.proposedStructured ?? fact.structured)?.entityId === id)}
-								links={data.links.filter((link) =>
-									facts.some(
-										(fact) => fact.id === link.factId && (fact.proposedStructured ?? fact.structured)?.entityId === id,
-									),
-								)}
-								onEdit={() => setDialog({ section, entityId: id })}
-							/>
-						))}
-					</div>
-				) : (
-					<EmptyState
-						icon={icons[section]}
-						actions={addAction}
-						density="compact"
-						title={section === "certifications" ? copy("editor.certificates.empty") : copy("editor.career.emptyTitle")}
-						description={section === "certifications" ? copy("editor.certificates.hint") : undefined}
-					/>
-				)}
-				{ids.length > 0 && addAction}
-			</SectionCard>
-		);
-	}
-}
-function Entry({
-	section,
-	facts,
-	links,
-	onEdit,
-}: {
-	section: Section;
-	facts: MasterFact[];
-	links: CareerMaster["links"];
-	onEdit: () => void;
-}) {
-	const copy = useCareerCopy();
-	const documents = [...new Map(links.map((link) => [link.resumeId, link])).values()];
-	const [showAllDocuments, setShowAllDocuments] = useState(false);
-	const { t } = useLingui();
-	const titleField =
-		section === "experience" ? "position" : section === "education" ? "degree" : sectionFields[section][0];
-	const heading =
-		facts.find((fact) => {
-			const value = fact.structured ?? fact.proposedStructured;
-			return value?.field === titleField && typeof value.value === "string" && value.value.trim();
-		}) ?? facts.find((fact) => (fact.structured ?? fact.proposedStructured)?.field === sectionFields[section][0]);
-	const headingValue = (heading?.structured ?? heading?.proposedStructured)?.value;
-	const hasDraft = facts.some((fact) => fact.proposedStructured);
-	const details = facts.filter((fact) => fact.id !== heading?.id && fact.structured);
-	const metadataFields = new Set(["company", "school", "dates"]);
-	const metadata = details.filter((fact) => metadataFields.has(fact.structured?.field ?? ""));
-	if ((section === "skills" || section === "languages") && !hasDraft && documents.length === 0)
-		return (
-			<FactChip
-				onClick={onEdit}
-				aria-label={t`Edit entry`}
-				detail={
-					section === "languages"
-						? details
-								.map((fact) => (typeof fact.structured?.value === "string" ? fact.structured.value : ""))
-								.filter(Boolean)
-								.join(" · ")
-						: undefined
-				}
-			>
-				{typeof headingValue === "string" ? headingValue : ""}
-			</FactChip>
-		);
-	return (
-		<SectionCardRow
-			variant={section === "languages" ? "plain" : "outlined"}
-			className={section === "languages" ? "w-full" : undefined}
-		>
-			<div className={cn("grid min-w-0 flex-1", section === "languages" && "flex flex-wrap items-baseline gap-x-3")}>
-				<h3 dir="auto" className={cn("min-w-0 type-label break-words", section === "languages" && "text-start")}>
-					{typeof headingValue === "string" ? headingValue : ""}
-				</h3>
-				{metadata.length > 0 && (
-					<p className="type-metadata text-ink-3">
-						{metadata.map((fact, index) => (
-							<span key={fact.id}>
-								{index > 0 && " · "}
-								{typeof fact.structured?.value === "string" ? (
-									<bdi>{fact.structured.value}</bdi>
-								) : (
-									<>
-										<span className="sr-only">{fieldLabel("dates")}: </span>
-										<bdi dir="ltr">
-											{fact.structured?.value.start} –{" "}
-											{fact.structured?.value.present ? t`Present` : fact.structured?.value.end}
-										</bdi>
-									</>
-								)}
-							</span>
-						))}
-					</p>
-				)}
-				{details
-					.filter((fact) => !metadataFields.has(fact.structured?.field ?? ""))
-					.map((fact) => (
-						<p
-							key={fact.id}
-							dir="auto"
-							className={cn(
-								"min-w-0 type-body break-words whitespace-pre-wrap text-ink-2",
-								section === "languages" && "max-w-full text-start",
-							)}
-						>
-							{typeof fact.structured?.value === "string" ? (
-								fact.structured.value
-							) : (
-								<>
-									<span className="sr-only">{fieldLabel("dates")}: </span>
-									<bdi dir="ltr">
-										{fact.structured?.value.start} –{" "}
-										{fact.structured?.value.present ? t`Present` : fact.structured?.value.end}
-									</bdi>
-								</>
-							)}
-						</p>
-					))}
-				{facts.some((fact) => fact.proposedStructured) && (
-					<p className={cn("type-metadata text-ink-3", section === "languages" && "w-full")}>
-						<Trans>Draft — review before confirming</Trans>
-					</p>
-				)}
-				{documents.length > 0 && (
-					<div
-						className={cn(
-							"flex min-w-0 flex-wrap items-center gap-x-2 gap-y-4 type-metadata text-ink-3",
-							section === "languages" && "w-full",
-						)}
-					>
-						<span>{copy("editor.field.usedInLabel")}</span>
-						{(showAllDocuments ? documents : documents.slice(0, 3)).map((document) => (
-							<FactChip
-								key={document.resumeId}
-								nativeButton={false}
-								role="link"
-								render={<Link to="/builder/$resumeId" params={{ resumeId: document.resumeId }} />}
-								icon={<Icon name="file-text" />}
-								truncate
-								title={document.name}
-								aria-label={copy("editor.field.openCV", { name: document.name })}
-							>
-								{document.name}
-							</FactChip>
-						))}
-						{!showAllDocuments && documents.length > 3 && (
-							<FactChip aria-expanded={false} onClick={() => setShowAllDocuments(true)}>
-								{copy("editor.field.moreDocuments", { count: documents.length - 3 })}
-							</FactChip>
-						)}
-					</div>
-				)}
-			</div>
-			<Button
-				variant="ghost"
-				size="icon-compact"
-				disclosure={section === "languages" ? "hover" : undefined}
-				aria-label={t`Edit entry`}
-				onClick={onEdit}
-			>
-				<Icon name="pencil-simple" />
-			</Button>
-		</SectionCardRow>
 	);
 }

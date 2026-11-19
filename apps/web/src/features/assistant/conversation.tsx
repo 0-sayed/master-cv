@@ -15,6 +15,7 @@ import { agentWebSources, readPageOutputSchema } from "@reactive-resume/ai/tools
 import { reviewResultSchema } from "@reactive-resume/schema/resume/ai-review";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
+import { Chip } from "@reactive-resume/ui/components/chip";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
@@ -979,18 +980,16 @@ export function Composer(props: ComposerProps) {
 						/>
 					</>
 				)}
-				<button
+				<IconButton
 					type="button"
-					aria-label={streaming ? t`Stop` : t`Send`}
+					label={streaming ? t`Stop` : t`Send`}
+					variant={streaming ? "ghost" : "primary"}
 					disabled={!streaming && (!hasText || disabled || uploading)}
 					onClick={streaming ? props.onStop : submit}
-					className={cn(
-						"grid size-[34px] shrink-0 place-items-center rounded-lg transition-[background-color,color,scale] duration-quick ease-enter enabled:active:scale-[0.97]",
-						streaming ? "bg-ink text-bg" : hasText ? "bg-accent text-on-accent" : "bg-sunken text-ink-3",
-					)}
-				>
-					<Icon name={streaming ? "stop" : "arrow-up"} size={20} />
-				</button>
+					className={streaming ? "text-danger-text" : undefined}
+					icon={streaming ? "stop" : "arrow-up"}
+					iconSize={20}
+				/>
 			</div>
 
 			<p className="text-xs leading-4 text-ink-3">
@@ -1018,18 +1017,19 @@ type RemovableChipProps = {
 
 function RemovableChip({ icon, label, maxWidth, removeLabel, onRemove }: RemovableChipProps) {
 	return (
-		<span className="flex h-[26px] items-center gap-1 rounded-md bg-sunken ps-2 text-xs text-ink-2">
+		<Chip>
 			<Icon name={icon} size={15} />
 			<span className={cn(maxWidth, "truncate")}>{label}</span>
-			<button
+			<IconButton
 				type="button"
-				aria-label={removeLabel}
+				size="icon-chip"
+				variant="quiet"
+				label={removeLabel}
 				onClick={onRemove}
-				className="grid size-5 place-items-center rounded text-ink-3 transition-colors hover:bg-hover hover:text-ink"
-			>
-				<Icon name="x" size={14} />
-			</button>
-		</span>
+				icon="x"
+				iconSize={14}
+			/>
+		</Chip>
 	);
 }
 

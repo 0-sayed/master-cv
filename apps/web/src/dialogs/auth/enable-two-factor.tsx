@@ -75,7 +75,7 @@ export function EnableTwoFactorDialog(_: DialogProps<"auth.two-factor.enable">) 
 		onSubmit: async ({ value }) => {
 			setFailure(null);
 			try {
-				const { data, error } = await authClient.twoFactor.enable({ password: value.password, issuer: "Master CV" });
+				const { data, error } = await authClient.twoFactor.enable({ password: value.password, issuer: "Sirawise" });
 				if (error) {
 					setFailure(error);
 					return;
@@ -157,7 +157,7 @@ export function EnableTwoFactorDialog(_: DialogProps<"auth.two-factor.enable">) 
 
 	const handleDownloadBackupCodes = () => {
 		if (!backupCodes) return;
-		downloadWithAnchor(new Blob([backupCodes.join("\n")], { type: "text/plain" }), "master-cv_backup-codes.txt");
+		downloadWithAnchor(new Blob([backupCodes.join("\n")], { type: "text/plain" }), "sirawise_backup-codes.txt");
 	};
 
 	return (
@@ -372,7 +372,7 @@ function TwoFactorDialogDescription({ step }: TwoFactorStepProps) {
 				authenticator app every time you sign in.
 			</Trans>
 		))
-		.with("verify", () => <Trans>Add Master CV to your authenticator app, then verify the code.</Trans>)
+		.with("verify", () => <Trans>Add Sirawise to your authenticator app, then verify the code.</Trans>)
 		.with("backup", () => <Trans>Copy and store these backup codes in case you lose your device.</Trans>)
 		.exhaustive();
 }
@@ -385,7 +385,7 @@ function TwoFactorQRCode({ totpUri }: TwoFactorQRCodeProps) {
 			marginSize={4}
 			className="shrink-0"
 			role="img"
-			aria-label={t`QR code for adding Master CV to your authenticator app`}
+			aria-label={t`QR code for adding Sirawise to your authenticator app`}
 		/>
 	);
 }

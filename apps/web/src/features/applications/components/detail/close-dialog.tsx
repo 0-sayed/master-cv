@@ -2,15 +2,18 @@ import type { ApplicationClosedReason } from "@reactive-resume/schema/applicatio
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useId, useState } from "react";
+import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@reactive-resume/ui/components/dialog";
+import { Icon } from "@reactive-resume/ui/components/icon";
 import { RadioGroup, RadioGroupItem } from "@reactive-resume/ui/components/radio-group";
 import { CLOSED_REASONS, getClosedReasonLabel } from "../../stages";
 
@@ -18,10 +21,20 @@ type CloseDialogProps = {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onClose: (reason: ApplicationClosedReason) => void;
+	pending?: boolean;
+	error?: unknown;
+	waitForAcknowledgement?: boolean;
 };
 
 /** "Close this application": one reason, kept for Insights. It replaces Reject, Archive and Delete buttons. */
-export function CloseDialog({ open, onOpenChange, onClose }: CloseDialogProps) {
+export function CloseDialog({
+	open,
+	onOpenChange,
+	onClose,
+	pending = false,
+	error,
+	waitForAcknowledgement = false,
+}: CloseDialogProps) {
 	const id = useId();
 	const [reason, setReason] = useState<ApplicationClosedReason>("not-selected");
 
@@ -37,6 +50,7 @@ export function CloseDialog({ open, onOpenChange, onClose }: CloseDialogProps) {
 					</DialogDescription>
 				</DialogHeader>
 				<RadioGroup
+					disabled={pending}
 					aria-label={t`Reason`}
 					value={reason}
 					onValueChange={(value) => setReason(value as ApplicationClosedReason)}
@@ -54,14 +68,28 @@ export function CloseDialog({ open, onOpenChange, onClose }: CloseDialogProps) {
 						</div>
 					))}
 				</RadioGroup>
+				{!!error && (
+					<Alert variant="error">
+						<Icon name="warning" />
+						<AlertTitle>
+							<Trans>The application could not be closed.</Trans>
+						</AlertTitle>
+						<AlertDescription>
+							<Trans>Your reason is kept. Retry or cancel.</Trans>
+						</AlertDescription>
+					</Alert>
+				)}
 				<DialogFooter>
-					<Button variant="secondary" onClick={() => onOpenChange(false)}>
+					<DialogClose render={<Button variant="secondary" />}>
 						<Trans>Cancel</Trans>
-					</Button>
+					</DialogClose>
 					<Button
+						disabled={pending}
+						loading={pending}
 						onClick={() => {
+							if (pending) return;
 							onClose(reason);
-							onOpenChange(false);
+							if (!waitForAcknowledgement) onOpenChange(false);
 						}}
 					>
 						<Trans>Close application</Trans>

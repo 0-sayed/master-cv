@@ -7,14 +7,15 @@ interface FontDisplayProps {
 	label: string;
 	type: "standard" | "web";
 	url?: string | undefined;
+	showFamily?: boolean;
 }
 
 const loadedFonts = new Set<string>();
 
-export function FontDisplay({ family, label, type, url }: FontDisplayProps) {
+export function FontDisplay({ family, label, type, url, showFamily = true }: FontDisplayProps) {
 	const previewName = type === "standard" ? family : `${family} Preview`;
 
-	const containerRef = useRef<HTMLDivElement>(null);
+	const containerRef = useRef<HTMLSpanElement>(null);
 	const [isLoaded, setIsLoaded] = useState(() => type === "standard" || loadedFonts.has(previewName));
 	const isInView = useInView(containerRef, { once: true, amount: 0.1, margin: "50px" });
 
@@ -31,14 +32,14 @@ export function FontDisplay({ family, label, type, url }: FontDisplayProps) {
 	}, [isInView, isLoaded, previewName, url]);
 
 	return (
-		<div ref={containerRef} className="inline-flex items-baseline gap-2">
+		<span ref={containerRef} className="inline-flex items-baseline gap-2">
 			<span
-				style={{ fontFamily: isLoaded ? `'${previewName}', sans-serif` : "sans-serif" }}
+				style={{ fontFamily: `'${previewName}', sans-serif` }}
 				className={cn(isLoaded ? "opacity-100" : "opacity-50", "transition-opacity duration-quick ease-enter")}
 			>
 				{label}
 			</span>
-			{label !== family && <span className="text-xs text-ink-3">{family}</span>}
-		</div>
+			{showFamily && label !== family && <span className="text-xs text-ink-3">{family}</span>}
+		</span>
 	);
 }

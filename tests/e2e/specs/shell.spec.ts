@@ -64,8 +64,8 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 			await page.keyboard.press("Enter");
 			await expect(page.getByRole("menuitem")).toHaveText(
 				en
-					? ["Settings", "Help", "Language", "Theme", "Sign out"]
-					: ["الإعدادات", "المساعدة", "اللغة", "المظهر", "تسجيل الخروج"],
+					? ["Settings", "Help", "Review guide", "Language", "Sign out"]
+					: ["الإعدادات", "المساعدة", "دليل المراجعة", "اللغة", "تسجيل الخروج"],
 			);
 			await shot(`1440-account-menu-${collapsed ? "collapsed" : "expanded"}`);
 			await page.keyboard.press("Escape");
@@ -100,8 +100,10 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await shot("390-navigation");
 		await tabs.locator('[data-slot="sidebar-account"]').click();
 		await shot("390-account-menu");
-		await page.getByRole("menuitem", { name: en ? "Theme" : "المظهر", exact: true }).click();
-		await page.getByRole("menuitemradio", { name: en ? "Dark" : "داكن", exact: true }).click();
+		await page
+			.getByRole("radiogroup", { name: en ? "Theme" : "المظهر", exact: true })
+			.getByRole("radio", { name: en ? "Dark" : "داكن", exact: true })
+			.click();
 		await expect(page.locator("html")).toHaveClass(/dark/);
 		await settleScreen(page);
 		await page.keyboard.press("Escape");

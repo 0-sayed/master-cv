@@ -20,7 +20,7 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { useSignOut } from "@/features/auth/use-sign-out";
 import { useUiLocale } from "@/features/locale/provider";
-import { useTheme } from "@/features/theme/provider";
+import { ThemeChoices } from "@/features/theme/choices";
 import { useCurrentSession } from "@/hooks/use-current-session";
 import { getReadableErrorMessage } from "@/libs/error-message";
 
@@ -32,7 +32,6 @@ export function UserDropdownMenu({ children }: Props) {
 	const signOut = useSignOut();
 	const session = useCurrentSession();
 	const { locale, pending, changeLocale } = useUiLocale();
-	const { theme, setTheme } = useTheme();
 	const changeLanguage = (value: string) => {
 		if (value !== "ar-SA" && value !== "en-US") return;
 		void changeLocale(value).catch(() =>
@@ -67,7 +66,7 @@ export function UserDropdownMenu({ children }: Props) {
 		<DropdownMenu>
 			<DropdownMenuTrigger render={children({ session: session as AuthSession })} />
 
-			<DropdownMenuContent align="start" side="top" className="w-72 max-w-(--available-width)">
+			<DropdownMenuContent align="start" side="top" className="w-80 max-w-(--available-width)">
 				<DropdownMenuGroup>
 					<DropdownMenuLabel className="grid gap-0.5">
 						<bdi className="truncate type-label">{session.user.name}</bdi>
@@ -85,6 +84,10 @@ export function UserDropdownMenu({ children }: Props) {
 					<Icon name="question" />
 					<Trans context="account.menu.help">Help</Trans>
 				</DropdownMenuItem>
+				<DropdownMenuItem render={<Link to="/dashboard/review-guide" search={{ locale }} />}>
+					<Icon name="book-open" />
+					<Trans context="atsGuide.title">Review guide</Trans>
+				</DropdownMenuItem>
 				<DropdownMenuSub>
 					<DropdownMenuSubTrigger disabled={pending}>
 						<Icon name="globe" />
@@ -101,30 +104,12 @@ export function UserDropdownMenu({ children }: Props) {
 						</DropdownMenuRadioGroup>
 					</DropdownMenuSubContent>
 				</DropdownMenuSub>
-				<DropdownMenuSub>
-					<DropdownMenuSubTrigger>
-						<Icon name="sun" />
+				<DropdownMenuGroup>
+					<DropdownMenuLabel>
 						<Trans context="account.menu.theme">Theme</Trans>
-					</DropdownMenuSubTrigger>
-					<DropdownMenuSubContent>
-						<DropdownMenuRadioGroup
-							value={theme}
-							onValueChange={(value) => {
-								if (value === "light" || value === "dark" || value === "system") setTheme(value);
-							}}
-						>
-							<DropdownMenuRadioItem value="light">
-								<Trans context="account.theme.light">Light</Trans>
-							</DropdownMenuRadioItem>
-							<DropdownMenuRadioItem value="dark">
-								<Trans context="account.theme.dark">Dark</Trans>
-							</DropdownMenuRadioItem>
-							<DropdownMenuRadioItem value="system">
-								<Trans context="account.theme.system">Match my device</Trans>
-							</DropdownMenuRadioItem>
-						</DropdownMenuRadioGroup>
-					</DropdownMenuSubContent>
-				</DropdownMenuSub>
+					</DropdownMenuLabel>
+					<ThemeChoices />
+				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem onClick={handleLogout}>
 					<Icon name="sign-out" size={16} />
