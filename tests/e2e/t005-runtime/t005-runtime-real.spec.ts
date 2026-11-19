@@ -17,7 +17,10 @@ test("browser HTTP delivers five retried tasks once each and blocks the sixth", 
 	const user = (await (await page.request.get("/api/auth/get-session")).json()).user;
 	const pool = new Pool({ connectionString: process.env.DATABASE_MIGRATION_URL ?? process.env.DATABASE_URL });
 	try {
-		await pool.query("DELETE FROM ai_platform_budget WHERE id = 'browser-budget'");
+		// Other synthetic-route specs seed the same route window; this spec needs its own caps.
+		await pool.query(
+			"DELETE FROM ai_platform_budget WHERE id = 'browser-budget' OR (route_id = 'synthetic' AND route_revision = '1' AND window_date = (now() AT TIME ZONE 'UTC')::date)",
+		);
 		const revision = (
 			await pool.query("SELECT updated_at FROM resume WHERE id=$1 AND user_id=$2", [resumeId, user.id])
 		).rows[0].updated_at.toISOString();
