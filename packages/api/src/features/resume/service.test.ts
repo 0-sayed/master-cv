@@ -206,6 +206,15 @@ beforeEach(() => {
 });
 
 describe("versions.restore", () => {
+	it("restores saved default headings after a section was renamed", async () => {
+		const current = createSemanticResumeData();
+		const saved = createSemanticResumeData();
+		current.sections.experience.title = "My experience";
+		saved.sections.experience.title = "";
+		createRestoreHarness(current, saved);
+		const result = await resumeService.versions.restore({ resumeId: "r1", versionId: "v1", userId: "u1" });
+		expect(result.data.sections.experience.title).toBe("");
+	});
 	it("returns the exact before-restore checkpoint and restored revision", async () => {
 		const before = createSemanticResumeData();
 		const after = createSemanticResumeData();

@@ -91,10 +91,13 @@ it("uploads a file in the initial composer before sending its first message", as
 		</I18nProvider>,
 	);
 	expect(screen.getByRole("button", { name: "Attach a file" })).toBeDefined();
+	expect(screen.getByRole("button", { name: "Send" })).toHaveAttribute("data-variant", "primary");
 	const input = container.querySelector('input[type="file"]');
 	if (!input) throw new Error("File picker missing");
 	fireEvent.change(input, { target: { files: [new File(["foo"], "posting.txt", { type: "text/plain" })] } });
 	await waitFor(() => expect(screen.getByText("posting.txt")).toBeDefined());
+	expect(screen.getByRole("button", { name: "Remove posting.txt" })).toHaveAttribute("data-size", "icon-chip");
+	expect(screen.getByRole("button", { name: "Remove posting.txt" }).closest('[data-slot="chip"]')).not.toBeNull();
 	expect(mocks.attach).toHaveBeenCalledWith({
 		threadId: "draft-thread",
 		filename: "posting.txt",

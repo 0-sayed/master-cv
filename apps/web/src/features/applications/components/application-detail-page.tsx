@@ -13,6 +13,7 @@ import { Checkbox } from "@reactive-resume/ui/components/checkbox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@reactive-resume/ui/components/collapsible";
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
@@ -284,7 +285,7 @@ function Detail({ application, onEditDetails, onDeleted }: DetailProps) {
 				open={closing}
 				onOpenChange={setClosing}
 				pending={update.isPending}
-				error={update.error}
+				error={update.variables?.status === "closed" ? update.error : null}
 				waitForAcknowledgement
 				onClose={(reason) => close(application, reason)}
 			/>
@@ -425,9 +426,9 @@ function MarkAppliedDialog({ application, onClose }: MarkAppliedDialogProps) {
 						</p>
 					)}
 					<DialogFooter>
-						<Button type="button" variant="secondary" onClick={onClose}>
+						<DialogClose render={<Button type="button" variant="secondary" />}>
 							<Trans>Cancel</Trans>
-						</Button>
+						</DialogClose>
 						<Button type="submit" disabled={update.isPending} loading={update.isPending}>
 							<Trans>Confirm applied</Trans>
 						</Button>

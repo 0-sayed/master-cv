@@ -39,6 +39,9 @@ test("explores six branches, global bilingual search, severity types, table and 
 	});
 	await expect(page.locator("#ats-guide-results")).toBeVisible();
 	await expect(page.locator('details[id^="rule-"]')).toHaveCount(77);
+	const collapsedRule = page.locator('details[id^="rule-"]').first();
+	await expect(collapsedRule).not.toHaveAttribute("open", "");
+	await expect(collapsedRule.locator("..").getByRole("button", { name: /Copy.*link/i })).toBeVisible();
 	for (const area of ["parseability", "layout", "sections", "contact", "dates", "content"]) {
 		const branch = page.locator(`[data-guide-area="${area}"]`);
 		await branch.focus();

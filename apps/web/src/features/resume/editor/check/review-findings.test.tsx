@@ -13,6 +13,7 @@ import { useResumeStore } from "../../builder/draft";
 import { editWithUndo } from "./actions";
 import { prepareFix } from "./fix-preview";
 import { ReviewFindings } from "./review-findings";
+import { primaryEmailChoice } from "./review-fixes";
 import { getUiLocaleMessages } from "@/libs/locale";
 
 vi.mock("@tanstack/react-router", () => ({
@@ -388,4 +389,22 @@ it("disables acceptance for an empty heading even when a preview comes from anot
 	panel("writing");
 	expect(screen.getByRole("button", { name: "Accept change" })).toBeDisabled();
 	expect(editWithUndo).not.toHaveBeenCalled();
+});
+
+it("shows every custom-field change before accepting an email choice", () => {
+	documentState.fixable = true;
+	const identity = { ownerId: "owner", resumeId: "cv", baseRevision: "revision", editGeneration: 0 };
+	const resume = useResumeStore.getState().resume;
+	if (!resume) throw new Error("Expected a CV");
+	const data = structuredClone(resume.data);
+	data.basics.email = "owner@work.test";
+	data.basics.customFields = [
+		{ id: "email", icon: "envelope", text: "Personal", link: "mailto:owner@home.test?subject=Contact" },
+	];
+	const choice = primaryEmailChoice(data);
+	if (!choice) throw new Error("Expected an email choice");
+	useEditorStore.getState().setIdentity(identity);
+	useEditorStore.getState().setCheckFixPreview(prepareFix(identity, data, () => {}, [choice]));
+	panel("writing");
+	expect(screen.getByRole("dialog")).toHaveTextContent("mailto:owner@home.test?subject=Contact");
 });

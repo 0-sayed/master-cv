@@ -48,3 +48,13 @@ it("uses the current product brand in every locale translation", async () => {
 		}
 	}
 });
+
+it("uses Sirawise in release annotations, marketing guidance and mobile legal destinations", async () => {
+	const workflow = await readFile(new URL("../../.github/workflows/docker-build.yml", import.meta.url), "utf8");
+	expect(workflow).toContain("index:org.opencontainers.image.title=Sirawise");
+	expect(workflow).toContain("index:org.opencontainers.image.description=Sirawise,");
+	const guide = await readFile(new URL("../../apps/web/DESIGN.md", import.meta.url), "utf8");
+	expect(guide).not.toMatch(/with “Reactive”|name: Reactive Resume|Reactive Resume uses/);
+	const settings = await readFile(new URL("../../apps/mobile/app/(tabs)/settings/index.tsx", import.meta.url), "utf8");
+	expect(settings).toMatch(/Terms of service[\s\S]*?privacy-and-terms\?tab=terms/);
+});

@@ -249,7 +249,7 @@ export function ReviewFindings({ tab }: { tab: Extract<ReviewTab, "ats" | "writi
 							(change) =>
 								!preview.choices.some(
 									(choice) =>
-										choice.kind === "email" ||
+										(choice.kind === "email" && change.path.join(".") === "basics.email") ||
 										(choice.kind === "heading" && choice.label === change.before && choice.value === change.after),
 								),
 						)

@@ -1,6 +1,6 @@
 import type { CheckIssue } from "./issues";
 import type { AtsRuleCode } from "@reactive-resume/resume/ats";
-import type { ExtractedDocument, ResumeSemantics } from "@reactive-resume/resume/ats-pdf";
+import type { ExtractedDocument, ResumeSemantics, PdfFinding } from "@reactive-resume/resume/ats-pdf";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
@@ -10,9 +10,12 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { useSkeletonLoading } from "@reactive-resume/ui/components/skeleton";
 import { cn } from "@reactive-resume/utils/style";
 import { sameEditorIdentity, useEditorStore } from "../store";
+import { pdfFindingKey } from "./pdf-findings";
 import { useCheck } from "./use-check";
+import { useReadiness } from "./use-readiness";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { extractPdf } from "@/features/ats-checker/extract-client";
+import { getPdfFindingMessage } from "@/features/ats-checker/messages";
 import { blobToPdfFile } from "@/features/ats-checker/run-ats-check";
 import { useCurrentBuilderResumeSelector } from "@/features/resume/builder/draft";
 
@@ -71,6 +74,13 @@ export function ParserView() {
 	const current = Boolean(identity && file && sameEditorIdentity(identity, rendered.identity));
 	const selected = useEditorStore((state) => state.checkIssue);
 	const issues = (useCheck()?.issues ?? []).filter((issue) => current && issue.key === selected);
+	const { results, pdfReport } = useReadiness();
+	const pdfCurrent = current && (results.pdf.state === "complete" || results.pdf.state === "partial");
+	const selectedPdf = pdfCurrent
+		? [...(pdfReport?.findings ?? []), ...(pdfReport?.tips ?? [])].find(
+				(finding) => pdfFindingKey(finding) === selected,
+			)
+		: undefined;
 	const { data, isError, refetch } = useQuery({
 		queryKey: ["check-parser-view", identity?.ownerId, resumeId, version],
 		queryFn: () => {
@@ -98,13 +108,21 @@ export function ParserView() {
 			) : skeletonWait1.pending || !data || !current ? (
 				<QuerySkeleton shape="preview" label={<Trans>Reading the PDF…</Trans>} />
 			) : (
-				<ParsedText parsed={data} issues={issues} />
+				<ParsedText parsed={data} issues={issues} selectedPdf={selectedPdf} />
 			)}
 		</div>
 	);
 }
 
-function ParsedText({ parsed, issues }: { parsed: Parsed; issues: readonly CheckIssue[] }) {
+function ParsedText({
+	parsed,
+	issues,
+	selectedPdf,
+}: {
+	parsed: Parsed;
+	issues: readonly CheckIssue[];
+	selectedPdf?: PdfFinding | undefined;
+}) {
 	const { doc, semantics } = parsed;
 	const columns = doc.pages.some((page) => page.gutter) ? 2 : 1;
 	const notFound = t`not found`;
@@ -150,6 +168,13 @@ function ParsedText({ parsed, issues }: { parsed: Parsed; issues: readonly Check
 
 	return (
 		<>
+			{selectedPdf && (
+				<Alert variant="warn" data-parser-finding={pdfFindingKey(selectedPdf)}>
+					<Icon name="warning" />
+					<AlertTitle>{getPdfFindingMessage(selectedPdf.code).title}</AlertTitle>
+					<AlertDescription>{getPdfFindingMessage(selectedPdf.code).why}</AlertDescription>
+				</Alert>
+			)}
 			<div className="flex flex-wrap justify-between gap-2 text-[11px] font-medium text-ink-3 uppercase">
 				<span>
 					<Trans>Extracted from the PDF on the page · reading order</Trans>
@@ -185,7 +210,12 @@ function ParsedText({ parsed, issues }: { parsed: Parsed; issues: readonly Check
 							return (
 								<p
 									key={`${lineIndex}:${line}`}
-									className={cn("flex items-start gap-2 ps-3.5", issue ? "text-warn-text" : "text-ink-2")}
+									className={cn(
+										"flex items-start gap-2 ps-3.5",
+										issue || (selectedPdf?.evidence?.snippet && line.includes(selectedPdf.evidence.snippet))
+											? "text-warn-text"
+											: "text-ink-2",
+									)}
 								>
 									<span dir="auto" className="min-w-0 break-words">
 										{line}

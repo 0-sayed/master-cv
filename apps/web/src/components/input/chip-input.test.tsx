@@ -16,6 +16,11 @@ it("keeps commas in new and edited keywords and saves on Enter", () => {
 			<ChipInput allowCommas defaultValue={["Existing"]} onChange={onChange} />
 		</I18nProvider>,
 	);
+	for (const name of ["Edit Existing", "Remove Existing"]) {
+		const action = screen.getByRole("button", { name });
+		expect(action).toHaveAttribute("data-size", "icon-chip");
+		expect(action.closest('[data-slot="chip"]')).not.toBeNull();
+	}
 	const input = screen.getByRole("textbox", { name: "Add keyword" });
 	fireEvent.change(input, { target: { value: "Systems, distributed" } });
 	expect(onChange).not.toHaveBeenCalled();

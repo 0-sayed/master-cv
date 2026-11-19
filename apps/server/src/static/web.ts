@@ -295,6 +295,13 @@ export async function handleWebApp(request: Request, readFile: ReadWebFile = (pa
 	const isHead = request.method === "HEAD";
 	const pathname = new URL(request.url).pathname;
 	const respond = (body: BodyInit | null, init?: ResponseInit) => new Response(isHead ? null : body, init);
+	if (pathname === "/ats-checker") {
+		const source = new URL(request.url);
+		const search = new URLSearchParams({ callbackURL: "/dashboard" });
+		const locale = source.searchParams.get("locale");
+		if (locale === "ar-SA" || locale === "en-US") search.set("locale", locale);
+		return respond(null, { status: 308, headers: { ...BASE_SECURITY_HEADERS, Location: `/auth/login?${search}` } });
+	}
 	if (pathname === "/dashboard/ats-guide") {
 		const target = new URL(request.url);
 		target.pathname = "/dashboard/review-guide";

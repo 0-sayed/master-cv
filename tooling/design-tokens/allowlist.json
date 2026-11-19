@@ -132,14 +132,6 @@
 		},
 		{
 			"file": "apps/web/src/components/input/chip-input.tsx",
-			"context": "function:ChipDragPreview/jsx:Badge@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/components/input/chip-input.tsx",
 			"context": "function:ChipInput/jsx:Input@className",
 			"literal": "p-0",
 			"kind": "control-override",
@@ -158,14 +150,6 @@
 			"file": "apps/web/src/components/input/chip-input.tsx",
 			"context": "function:ChipInput/jsx:span@className",
 			"literal": "text-[0.7rem]",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/components/input/chip-input.tsx",
-			"context": "function:ChipItem/jsx:Badge@className",
-			"literal": "text-xs",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
@@ -796,22 +780,6 @@
 		},
 		{
 			"file": "apps/web/src/features/assistant/conversation.tsx",
-			"context": "function:RemovableChip/jsx:span@className",
-			"literal": "h-[26px]",
-			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/assistant/conversation.tsx",
-			"context": "function:RemovableChip/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/assistant/conversation.tsx",
 			"context": "function:Status/jsx:p@className",
 			"literal": "text-xs",
 			"kind": "typography",
@@ -959,14 +927,6 @@
 			"context": "function:Composer/jsx:div@className",
 			"literal": "max-w-[720px]",
 			"kind": "geometry",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/coach-thread.tsx",
-			"context": "function:Composer/jsx:span@className",
-			"literal": "text-xs",
-			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
@@ -1622,14 +1582,6 @@
 			"file": "apps/web/src/features/career/knowledge/preferences.tsx",
 			"context": "function:ChipField/jsx:label@className",
 			"literal": "text-xs",
-			"kind": "typography",
-			"count": 1,
-			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
-		},
-		{
-			"file": "apps/web/src/features/career/knowledge/preferences.tsx",
-			"context": "function:ChipField/jsx:span@className",
-			"literal": "text-[13px]",
 			"kind": "typography",
 			"count": 1,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
@@ -10145,6 +10097,38 @@
 			"kind": "geometry",
 			"count": 2,
 			"reason": "Synthetic PDF text-span and section coordinates for the owner-requested location regression. These values do not define interface styles."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:pageMap/property:width/property:pages",
+			"literal": "595",
+			"kind": "geometry",
+			"count": 2,
+			"reason": "PDF point geometry fixture for printable-height regression, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:pageMap/property:height/property:pages",
+			"literal": "842",
+			"kind": "geometry",
+			"count": 2,
+			"reason": "PDF point geometry fixture for printable-height regression, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:pageMap/property:width/property:nodes",
+			"literal": "500",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "PDF point geometry fixture for printable-height regression, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/resume/editor/design/fit.test.ts",
+			"context": "const:pageMap/property:height/property:nodes",
+			"literal": "110",
+			"kind": "geometry",
+			"count": 1,
+			"reason": "PDF point geometry fixture for printable-height regression, not interface styling."
 		}
 	]
 }

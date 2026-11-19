@@ -48,6 +48,13 @@ describe("web app fallback classification", () => {
 		);
 		expect(await response.text()).toBe("");
 	});
+	it.each(["GET", "HEAD"])("redirects the retired checker to an account entry point (%s)", async (method) => {
+		const response = await handleWebApp(new Request("https://sirawise.io/ats-checker?locale=ar-SA", { method }));
+		expect(response.status).toBe(308);
+		expect(response.headers.get("location")).toBe("/auth/login?callbackURL=%2Fdashboard&locale=ar-SA");
+		expect(await response.text()).toBe("");
+	});
+
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mocks.env.APP_URL = "https://rxresu.me";
@@ -213,14 +220,14 @@ describe("web app fallback classification", () => {
 	});
 
 	describe("retired public ATS route", () => {
-		it("serves the client redirect shell without indexing or public checker metadata", async () => {
+		it("redirects crawlers to the authenticated workspace entry", async () => {
 			vi.mocked(fs.readFile).mockResolvedValue(
 				'<html><head><title>Sirawise</title></head><body><div id="app"></div></body></html>',
 			);
 			const response = await handleWebApp(new Request("https://example.com/ats-checker"));
-			expect(response.status).toBe(200);
-			expect(response.headers.get("X-Robots-Tag")).toContain("noindex");
-			expect(await response.text()).not.toContain("opengraph/ats-checker.png");
+			expect(response.status).toBe(308);
+			expect(response.headers.get("Location")).toBe("/auth/login?callbackURL=%2Fdashboard");
+			expect(await response.text()).toBe("");
 		});
 	});
 

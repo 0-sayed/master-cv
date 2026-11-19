@@ -15,6 +15,7 @@ import z from "zod";
 import { agentWebSources } from "@reactive-resume/ai/tools/agent-tool-contracts";
 import { careerSourceSchema, factCategorySchema } from "@reactive-resume/schema/career";
 import { Button } from "@reactive-resume/ui/components/button";
+import { Chip } from "@reactive-resume/ui/components/chip";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Popover, PopoverContent, PopoverTrigger } from "@reactive-resume/ui/components/popover";
@@ -1080,22 +1081,21 @@ function Composer(props: ComposerProps) {
 						<div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
 							{props.chips}
 							{attachments.map((attachment) => (
-								<span
-									key={attachment.id}
-									className="inline-flex h-7 max-w-full items-center gap-1 rounded-sm border border-line-2 bg-sunken ps-2 text-xs font-medium"
-								>
+								<Chip key={attachment.id}>
 									<Icon name="paperclip" size={16} />
 									<span className="truncate">
 										{attachment.filename} · {size(attachment.size)}
 									</span>
 									<IconButton
 										type="button"
+										size="icon-chip"
+										variant="quiet"
 										label={t`Remove ${attachment.filename}`}
 										onClick={() => setAttachments((current) => current.filter((item) => item.id !== attachment.id))}
 										icon="x"
 										iconSize={14}
 									/>
-								</span>
+								</Chip>
 							))}
 						</div>
 						<IconButton

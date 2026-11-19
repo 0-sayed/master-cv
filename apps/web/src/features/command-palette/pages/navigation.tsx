@@ -88,7 +88,7 @@ export function NavigationCommandGroup() {
 				</CommandItem>
 
 				<CommandItem
-					disabled={!session}
+					disabled={!session || !applicationsEnabled}
 					keywords={[t`New Application`, t`Add application`, t`Job`]}
 					value="navigation.applications.new"
 					onSelect={async () => {

@@ -7,7 +7,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEditorStore } from "../store";
 import { ParserView } from "./parser-view";
 
-const mocks = vi.hoisted(() => ({ resumeId: "A", extract: vi.fn(async (file: File) => file.text()) }));
+const mocks = vi.hoisted(() => ({
+	pdfState: "complete",
+	resumeId: "A",
+	extract: vi.fn(async (file: File) => file.text()),
+}));
 afterEach(() => {
 	cleanup();
 	useEditorStore.getState().reset();
@@ -16,6 +20,15 @@ vi.mock("@/features/resume/builder/draft", () => ({
 	useCurrentBuilderResumeSelector: (select: (resume: { id: string }) => unknown) => select({ id: mocks.resumeId }),
 }));
 vi.mock("./use-check", () => ({ useCheck: () => null }));
+vi.mock("./use-readiness", () => ({
+	useReadiness: () => ({
+		results: { pdf: { state: mocks.pdfState } },
+		pdfReport: {
+			findings: [{ code: "NO_EMAIL", severity: "warning", category: "parseability", evidence: { page: 1 } }],
+			tips: [],
+		},
+	}),
+}));
 vi.mock("@/features/ats-checker/extract-client", () => ({ extractPdf: mocks.extract }));
 vi.mock("@reactive-resume/resume/ats-pdf", () => ({
 	buildExtractedDocument: (text: string) => ({ pages: [], lines: [{ text }], charCount: text.length }),
@@ -87,6 +100,7 @@ it("retries extraction failure and preserves actual text when a PDF finding is s
 	await screen.findByText("Actual saved passage");
 	act(() => useEditorStore.getState().setCheckIssue("pdf:NO_EMAIL:1:"));
 	expect(screen.getByText("Actual saved passage")).toHaveAttribute("dir", "auto");
+	expect(document.querySelector('[data-parser-finding="pdf:NO_EMAIL:1:"]')).not.toBeNull();
 	act(() => useEditorStore.getState().setIdentity({ ...identity, editGeneration: 1 }));
 	expect(screen.queryByText("Actual saved passage")).not.toBeInTheDocument();
 	client.clear();

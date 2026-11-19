@@ -150,3 +150,10 @@ it.each([
 ])("normalizes a PDF stem %s with the same safe fallback", (value, fallback, expected) => {
 	expect(normalizePdfFileNameStem(value, fallback)).toBe(expected);
 });
+
+it.each(["resume.pdf.", "resume.PDF... ", "resume.pdf. .PDF. "])(
+	"normalizes trailing punctuation after %s",
+	(value) => {
+		expect(normalizePdfFileNameStem(value, "Fallback")).toBe("resume");
+	},
+);

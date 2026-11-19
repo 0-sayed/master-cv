@@ -267,7 +267,9 @@ it.each(["en-US", "ar-SA"] as const)("groups rule guidance and copies its stable
 		const rule = document.getElementById("rule-NO_PHONE");
 		if (!rule) throw new Error("Missing phone rule");
 		const label = locale === "ar-SA" ? "نسخ رابط هذا الفحص" : "Copy link to this check";
-		fireEvent.click(within(rule).getByRole("button", { name: label }));
+		const actions = rule.parentElement;
+		if (!actions) throw new Error("Missing rule container");
+		fireEvent.click(within(actions).getByRole("button", { name: label }));
 		await waitFor(() =>
 			expect(writeText).toHaveBeenCalledWith(
 				expect.stringContaining("/dashboard/review-guide?tab=ats&locale=" + locale + "#rule-NO_PHONE"),
@@ -302,11 +304,13 @@ it("reports a blocked clipboard without claiming that the link copied", async ()
 		const rule = document.getElementById("rule-NO_PHONE");
 		if (!rule) throw new Error("Missing phone rule");
 		await waitFor(() => expect(rule).toHaveAttribute("open"));
-		fireEvent.click(within(rule).getByRole("button", { name: "Copy link to this check" }));
+		const actions = rule.parentElement;
+		if (!actions) throw new Error("Missing rule container");
+		fireEvent.click(within(actions).getByRole("button", { name: "Copy link to this check" }));
 		await waitFor(() =>
-			expect(within(rule).getByRole("status")).toHaveTextContent("Could not copy the link. Try again."),
+			expect(within(actions).getByRole("status")).toHaveTextContent("Could not copy the link. Try again."),
 		);
-		expect(within(rule).queryByText("Link copied")).toBeNull();
+		expect(within(actions).queryByText("Link copied")).toBeNull();
 		expect(rule).toHaveAttribute("open");
 	} finally {
 		vi.unstubAllGlobals();
@@ -337,7 +341,9 @@ it.each(["en-US", "ar-SA"] as const)(
 			expect(row.querySelectorAll('[data-slot="rule-comparison"]')).toHaveLength(1);
 			expect(row).toHaveTextContent(entry.text[locale].before);
 			expect(row).toHaveTextContent(entry.text[locale].after);
-			const button = within(row as HTMLElement).getByRole("button", {
+			const actions = row.parentElement;
+			if (!actions) throw new Error(`Missing rule container ${entry.code}`);
+			const button = within(actions).getByRole("button", {
 				name: locale === "ar-SA" ? "نسخ رابط هذا الفحص" : "Copy link to this check",
 			});
 			expect(button.closest("summary")).toBeNull();

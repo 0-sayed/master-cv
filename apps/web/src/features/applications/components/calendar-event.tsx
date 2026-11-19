@@ -24,8 +24,10 @@ export function CalendarEvent({ item, timeZone, presentation, tabIndex, onOpen }
 	const { i18n } = useLingui();
 	const locale = getInterfaceDateLocale(i18n.locale);
 	const time = new Intl.DateTimeFormat(locale, { timeZone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
-	const date = new Intl.DateTimeFormat(locale, { timeZone, dateStyle: "full" }).format(item.start);
-	const range = `${time.format(item.start)} – ${time.format(item.end)}`;
+	const dateFormat = new Intl.DateTimeFormat(locale, { timeZone, dateStyle: "full" });
+	const date = dateFormat.format(item.start);
+	const endDate = dateFormat.format(item.end);
+	const range = `${time.format(item.start)} – ${date !== endDate ? `${endDate} · ` : ""}${time.format(item.end)}`;
 	const kind = interviewTypeLabel(item.interview.kind);
 	const label = `${item.application.company} · ${item.application.role} · ${date} · ${range} · ${kind}`;
 	return (

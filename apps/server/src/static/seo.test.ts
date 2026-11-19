@@ -29,3 +29,7 @@ it("keeps drafts help and private documents outside the sitemap", async () => {
 	expect(text).toContain("<loc>https://resume.example/</loc>");
 	for (const path of ["privacy-and-terms", "help", "auth", "dashboard", "builder"]) expect(text).not.toContain(path);
 });
+
+it("allows crawlers to read the retired ATS route response", async () => {
+	expect(await handleRobots().text()).not.toContain("Disallow: /ats-checker");
+});

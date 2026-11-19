@@ -54,28 +54,27 @@ function GuideRule({
 			id={guideRuleId(entry.code)}
 			open={open}
 			onToggle={(event) => onToggle(entry.code, event.currentTarget.open)}
+
+			actions={
+				<IconButton
+					icon={copyState === "copied" ? "check" : "link"}
+					size="icon-sm"
+					label={i18n._(copy.permalink)}
+					onClick={async () => {
+						const url = new URL(atsGuideRuleHref(entry.code), window.location.origin);
+						url.searchParams.set("locale", locale);
+						url.hash = guideRuleId(entry.code);
+						try {
+							await navigator.clipboard.writeText(url.href);
+							setCopyState("copied");
+						} catch {
+							setCopyState("error");
+						}
+					}}
+				/>
+			}
 		>
-			<DisclosureSummary
-				description={<span className="font-medium text-ink">{text.action}</span>}
-				actions={
-					<IconButton
-						icon={copyState === "copied" ? "check" : "link"}
-						size="icon-sm"
-						label={i18n._(copy.permalink)}
-						onClick={async () => {
-							const url = new URL(atsGuideRuleHref(entry.code), window.location.origin);
-							url.searchParams.set("locale", locale);
-							url.hash = guideRuleId(entry.code);
-							try {
-								await navigator.clipboard.writeText(url.href);
-								setCopyState("copied");
-							} catch {
-								setCopyState("error");
-							}
-						}}
-					/>
-				}
-			>
+			<DisclosureSummary description={<span className="font-medium text-ink">{text.action}</span>}>
 				<Badge variant={severity === "blocker" ? "danger" : severity === "warning" ? "warn" : "info"}>
 					<Icon name={icon} />
 					{i18n._(label)}

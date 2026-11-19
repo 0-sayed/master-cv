@@ -49,6 +49,7 @@ const buttonStyles = cva(
 				"icon-sm": "size-8 rounded-md",
 				"icon-compact": "size-8 rounded-md",
 				"icon-xs": "size-7 rounded-sm",
+				"icon-chip": "size-6 rounded-sm pointer-coarse:size-11 pointer-coarse:min-h-11 pointer-coarse:min-w-11",
 				"icon-lg": "size-11 rounded-lg",
 				language: "h-12 w-13 rounded-md px-0 py-0 lg:h-11 lg:w-auto lg:px-3",
 				"language-compact": "h-12 w-13 rounded-md p-0",

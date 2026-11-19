@@ -30,6 +30,12 @@ it("ignores past actions and closed applications", () => {
 	expect(summarizeApplicationGroup([{ ...application, status: "closed" }], now).upcoming).toBeUndefined();
 });
 
+it("keeps an ongoing interview until its end, ahead of a later follow-up", () => {
+	const rows = [{ ...application, followUpAt: new Date("2026-11-18T12:00:00Z") }];
+	expect(summarizeApplicationGroup(rows, new Date("2026-11-18T10:10:00Z")).upcoming?.kind).toBe("interview");
+	expect(summarizeApplicationGroup(rows, new Date("2026-11-18T11:59:00Z")).upcoming?.kind).toBe("follow-up");
+});
+
 it("uses the latest update across collapsed rows and leaves an empty group empty", () => {
 	const newest = new Date("2026-11-19T10:00:00Z");
 	expect(summarizeApplicationGroup([{ ...application, updatedAt: newest }, application], now).updatedAt).toEqual(

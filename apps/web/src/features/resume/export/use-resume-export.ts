@@ -74,7 +74,8 @@ export function normalizePdfFileNameStem(value: string, fallback: string): strin
 				})
 				.join(""),
 		)
-			.replace(/(?:\.pdf)+$/i, "")
+			.replace(/[. ]+$/g, "")
+			.replace(/(?:\.pdf[. ]*)+$/i, "")
 			.replace(/[. ]+$/g, "")
 			.trim();
 	return clean(value) || clean(fallback) || "Resume";

@@ -1,27 +1,38 @@
 import type { ComponentProps, ReactNode } from "react";
+import { createContext, useContext } from "react";
 import { cn } from "@reactive-resume/utils/style";
 import { Icon } from "./icon";
 
-function Disclosure({ className, ...props }: ComponentProps<"details">) {
+const HasActions = createContext(false);
+function Disclosure({ className, actions, ...props }: ComponentProps<"details"> & { actions?: ReactNode }) {
 	return (
-		<details
-			data-slot="disclosure"
-			className={cn(
-				"group/disclosure has-[>summary:focus-visible]:outline-focus relative border-b border-line last:border-b-0 open:outline open:outline-accent has-[>summary:focus-visible]:outline-2 has-[>summary:focus-visible]:outline-offset-2",
-				className,
-			)}
-			{...props}
-		/>
+		<div className="relative border-b border-line last:border-b-0">
+			<HasActions.Provider value={Boolean(actions)}>
+				<details
+					data-slot="disclosure"
+					className={cn(
+						"group/disclosure has-[>summary:focus-visible]:outline-focus relative open:outline open:outline-accent has-[>summary:focus-visible]:outline-2 has-[>summary:focus-visible]:outline-offset-2",
+						className,
+					)}
+					{...props}
+				/>
+				{actions && (
+					<div data-slot="disclosure-actions" className="absolute end-4 top-3">
+						{actions}
+					</div>
+				)}
+			</HasActions.Provider>
+		</div>
 	);
 }
 
 function DisclosureSummary({
 	className,
 	description,
-	actions,
 	children,
 	...props
-}: ComponentProps<"summary"> & { description?: ReactNode; actions?: ReactNode }) {
+}: ComponentProps<"summary"> & { description?: ReactNode }) {
+	const actions = useContext(HasActions);
 	return (
 		<>
 			<summary
@@ -47,11 +58,6 @@ function DisclosureSummary({
 					aria-hidden
 				/>
 			</summary>
-			{actions && (
-				<div data-slot="disclosure-actions" className="absolute end-4 top-3">
-					{actions}
-				</div>
-			)}
 		</>
 	);
 }

@@ -89,6 +89,18 @@ it("chooses only personal emails and preserves other people's references and unr
 	expect(apply).toHaveBeenCalledExactlyOnceWith(preview.after);
 });
 
+it("removes the complete mailto URL, including its query", () => {
+	const data = structuredClone(defaultResumeData);
+	data.basics.email = "owner@work.test";
+	data.basics.customFields = [
+		{ id: "email", icon: "envelope", text: "Personal", link: "mailto:owner@home.test?subject=Contact" },
+	];
+	const choice = primaryEmailChoice(data);
+	if (!choice) throw new Error("Expected an email choice");
+	const preview = prepareFix(identity, data, () => {}, [choice]);
+	expect(preview.after.basics.customFields).toEqual([{ ...data.basics.customFields[0], link: "" }]);
+});
+
 it("clears multiple emails after the approved fix in a newly rendered PDF", async () => {
 	const data = structuredClone(defaultResumeData);
 	data.basics.name = "Jane Doe";

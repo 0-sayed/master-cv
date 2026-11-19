@@ -20,7 +20,6 @@ export function handleRobots(options?: StaticSeoOptions) {
 	const body = [
 		"User-agent: *",
 		"Allow: /",
-		"Disallow: /ats-checker",
 		"Disallow: /api/rpc",
 		"Disallow: /api/auth",
 		"Disallow: /mcp",

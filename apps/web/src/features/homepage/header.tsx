@@ -81,11 +81,7 @@ export function LandingHeader({
 	return (
 		<>
 			{!compact && (
-				<Link
-					to="/auth/login"
-					search={{ locale, callbackURL }}
-					className={buttonVariants({ variant: "secondary", className: "hidden sm:inline-flex" })}
-				>
+				<Link to="/auth/login" search={{ locale, callbackURL }} className={buttonVariants({ variant: "secondary" })}>
 					<Trans context="common.navigation.signIn">Sign in</Trans>
 				</Link>
 			)}

@@ -16,6 +16,7 @@ import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
 import {
 	Sheet,
+	SheetClose,
 	SheetContent,
 	SheetDescription,
 	SheetFooter,
@@ -550,9 +551,9 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 				</div>
 
 				<SheetFooter className="flex-row justify-end gap-2">
-					<Button type="button" variant="secondary" disabled={pending} onClick={() => onOpenChange(false)}>
+					<SheetClose render={<Button type="button" variant="secondary" disabled={pending} />}>
 						<Trans>Cancel</Trans>
-					</Button>
+					</SheetClose>
 					<Button type="button" loading={pending} disabled={pending} onClick={submit}>
 						{isEditing ? <Trans>Save changes</Trans> : <Trans>Add to pipeline</Trans>}
 					</Button>

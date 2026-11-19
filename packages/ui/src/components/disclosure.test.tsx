@@ -4,6 +4,17 @@ import { afterEach, expect, it } from "vite-plus/test";
 import { createRef } from "react";
 import { Disclosure, DisclosureContent, DisclosureSummary } from "./disclosure";
 afterEach(cleanup);
+it("keeps actions outside collapsed details and summary", () => {
+	render(
+		<Disclosure open={false} actions={<button>Copy link</button>}>
+			<DisclosureSummary>Rule</DisclosureSummary>
+			<DisclosureContent>Example</DisclosureContent>
+		</Disclosure>,
+	);
+	const action = screen.getByRole("button", { name: "Copy link" });
+	expect(action.closest("details,summary")).toBeNull();
+	expect(screen.getByText("Rule").closest("summary")).toHaveClass("pe-14");
+});
 it("keeps native details semantics and controlled expansion", () => {
 	const ref = createRef<HTMLElement>();
 	const view = render(

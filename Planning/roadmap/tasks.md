@@ -29,7 +29,7 @@ Read D35 and the handoff before every UI task. Share visual APIs across task own
 | [ ]  | 76       | `T017` - Private beta on Hostinger                                    | L    | `chore/t017-hostinger-private-beta`          | `T005`, `T009`, `T016`         | `roadmap/tasks/T017-hostinger-private-beta.md`, `context/decisions.md`, `context/technical/infrastructure.md`, `context/technical/security.md`             |
 | [ ]  | 140      | `T012` - Prepare Saudi production deployment and operational recovery | L    | `chore/t012-saudi-deployment-operations`     | `T005`, `T009`, `T013`         | `roadmap/tasks/T012-saudi-deployment-operations.md`, `context/technical/infrastructure.md`                                                                 |
 | [ ]  | 130      | `T013` - Qualify the free beta                                        | L    | `test/t013-integrated-release-qualification` | `T007`, `T009`, `T010`, `T011` | `roadmap/tasks/T013-integrated-release-qualification.md`, `context/business/requirements.md`                                                               |
-| [ ]  | 160      | `T014` - Activate mobile authentication                               | L    | `feat/t014-mobile-authentication`            | `T003`, `T009`, `T017`         | `roadmap/tasks/T014-mobile-authentication.md`, `context/design/specs/otp-spec.md`, `context/technical/security.md`                                         |
+| [ ]  | 160      | `T014` - Activate mobile authentication                               | L    | `feat/t014-mobile-authentication`            | `T003`, `T009`, `T015`, `T017` | `roadmap/tasks/T014-mobile-authentication.md`, `context/design/specs/otp-spec.md`, `context/technical/security.md`                                         |
 | [ ]  | 150      | `T015` - Qualify the paid release                                     | L    | `test/t015-paid-release-qualification`       | `T008`, `T010`, `T012`, `T013` | `roadmap/tasks/T015-paid-release-qualification.md`, `context/business/requirements.md`                                                                     |
 
 ## Task completion notes
@@ -42,7 +42,7 @@ Read D35 and the handoff before every UI task. Share visual APIs across task own
 
 ## Scheduler contract
 
-- D43 (OWNER DECIDED 2026-11-16 (Sayed)): build T008 -> T016 rename -> T017 Hostinger private beta -> T014 phone OTP -> T010 Moyasar billing in test mode on T017 -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release. T012 requires client approval of the pilot. Production charging remains gated behind T012/T015 and existing approvals.
+- D43 (OWNER DECIDED 2026-11-16 (Sayed)): build T008 -> T016 rename -> T017 Hostinger private beta -> T010 Moyasar billing in test mode on T017 -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release -> T014 phone OTP. T012 requires client approval of the pilot. Production charging remains gated behind T012/T015 and existing approvals.
 
 - D42 (Sayed, 2026-11-16): T016 starts after T008 merges and must land before T012 deployment. T012 needs the approved product name and domain.
 
@@ -69,4 +69,4 @@ The `Context` column points to the complete scope, source references, Figma keys
 
 ## Release is not the same as merge
 
-This graph organizes engineering PRs. It does not encode human procurement or legal approvals as fake feature tasks. Follow [external gates](README.md#external-gates-and-owner-actions) before real data, purchases, enabled formats or live charging. T013 qualifies the free beta and T015 the paid release; D43 places T014 and test-mode billing before T013, then client-approved Saudi production T012 before T015. None authorizes automatic activation.
+This graph organizes engineering PRs. It does not encode human procurement or legal approvals as fake feature tasks. Follow [external gates](README.md#external-gates-and-owner-actions) before real data, purchases, enabled formats or live charging. T013 qualifies the free beta and T015 the paid release; D43 places test-mode billing before T013 and T014 after T015, then client-approved Saudi production T012 before T015. None authorizes automatic activation.

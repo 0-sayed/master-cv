@@ -73,3 +73,17 @@ it.each(["screening", "technical", "behavioral", "onsite", "other"] as const)(
 		expect(event).toHaveAccessibleName(new RegExp(kind, "i"));
 	},
 );
+
+it("labels both dates when an interview crosses midnight in the display timezone", () => {
+	const original = calendarItems(1)[0];
+	if (!original) throw new Error("Expected an interview");
+	const item = { ...original, start: new Date("2026-11-18T20:30:00Z"), end: new Date("2026-11-18T21:30:00Z") };
+	render(
+		<I18nProvider i18n={i18n}>
+			<TooltipProvider>
+				<CalendarEvent item={item} timeZone="Asia/Riyadh" presentation="chip" onOpen={vi.fn()} />
+			</TooltipProvider>
+		</I18nProvider>,
+	);
+	expect(screen.getByRole("button")).toHaveAccessibleName(/November 18.*November 19/);
+});

@@ -49,10 +49,7 @@ export function primaryEmailChoice(data: ResumeData): FixChoice | undefined {
 			draft.basics.customFields = draft.basics.customFields.flatMap((field) => {
 				if (![field.text, field.link].some((text) => (text.match(EMAIL) ?? []).length)) return [field];
 				const text = field.text.replace(EMAIL, "").replace(/^[\s|·,;]+|[\s|·,;]+$/g, "");
-				const link = field.link
-					.replace(/^mailto:/i, "")
-					.replace(EMAIL, "")
-					.trim();
+				const link = /^mailto:/i.test(field.link) ? "" : field.link.replace(EMAIL, "").trim();
 				return text || link ? [{ ...field, text, link }] : [];
 			});
 		},

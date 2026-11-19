@@ -62,7 +62,7 @@ export default function SettingsScreen() {
 					title={t`Terms of service`}
 					leading="scroll"
 					external
-					onPress={() => openLink("https://sirawise.io/privacy-and-terms")}
+					onPress={() => openLink("https://sirawise.io/privacy-and-terms?tab=terms")}
 				/>
 				<ListRow
 					title={t`MIT License`}

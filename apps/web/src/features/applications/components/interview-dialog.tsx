@@ -11,6 +11,7 @@ import { isFeatureAvailable } from "@reactive-resume/schema/personal-tools";
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -37,6 +38,7 @@ import { LocalDateInput } from "@/components/input/local-date-input";
 import { Combobox } from "@/components/ui/combobox";
 import { useCareerTime, useNow, confirmAction } from "@/features/career/shared";
 import { useClosingValue } from "@/hooks/use-closing-value";
+import { formatInterfaceDate } from "@/libs/locale";
 import { getInterfaceDateLocale } from "@/libs/locale";
 import { orpc } from "@/libs/orpc/client";
 
@@ -355,7 +357,14 @@ export function InterviewDialog({
 					<div className="grid gap-2 px-6 pt-4 type-metadata">
 						<p>
 							{interviewTypeLabel(editing.kind)} · {formatDuration(editing.durationMinutes, i18n.locale)} ·{" "}
-							<bdi dir="ltr">{when(editing.at)}</bdi>
+							<bdi dir="ltr">
+								{formatInterfaceDate(new Date(editing.at), i18n.locale, {
+									dateStyle: "medium",
+									timeStyle: "short",
+									timeZone: draft.timezone,
+								})}{" "}
+								· {draft.timezone}
+							</bdi>
 						</p>
 						{editing.location && (
 							<bdi dir="auto" className="wrap-anywhere">
@@ -634,9 +643,9 @@ export function InterviewDialog({
 						</Button>
 					)}
 					<span className="flex-1" />
-					<Button variant="secondary" onClick={() => onOpenChange(false)}>
+					<DialogClose render={<Button variant="secondary" />}>
 						<Trans>Cancel</Trans>
-					</Button>
+					</DialogClose>
 					<Button type="submit" form={`${id}-form`} loading={pending} disabled={pending}>
 						<Trans>Save interview</Trans>
 					</Button>

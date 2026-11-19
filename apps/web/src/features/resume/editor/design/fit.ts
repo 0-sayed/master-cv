@@ -61,7 +61,7 @@ export function measureOverflow(data: ResumeData, rendered: { pageCount: number;
 	const bottom = Math.max(...nodes.map((node) => node.y + node.height));
 	const height = bottom - top;
 	const lineHeight = data.metadata.typography.body.fontSize * data.metadata.typography.body.lineHeight;
-	const printableHeight = (pageMap?.pages[lastPage]?.height ?? 0) - data.metadata.page.marginY * 2 * (72 / 25.4);
+	const printableHeight = (pageMap?.pages[lastPage]?.height ?? 0) - data.metadata.page.marginY * 2;
 	if (height <= 0 || lineHeight <= 0 || printableHeight <= 0) return null;
 	const lines = Math.ceil(height / lineHeight);
 	// Require both <=8 body-line equivalents and <=15% of the printable PDF height to avoid full-page hints.

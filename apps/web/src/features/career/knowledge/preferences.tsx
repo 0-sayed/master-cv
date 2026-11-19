@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { m } from "motion/react";
 import { useId, useRef, useState } from "react";
+import { Chip } from "@reactive-resume/ui/components/chip";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { SegmentedControl, SegmentedControlItem } from "@reactive-resume/ui/components/segmented-control";
@@ -297,19 +298,18 @@ function ChipField({ label, placeholder, value, onChange }: ChipFieldProps) {
 			</label>
 			<div className="flex min-h-10 flex-wrap items-center gap-[5px] rounded-md border border-line-2 bg-raised p-[5px] transition-[border-color,box-shadow] duration-quick focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--accent-soft)]">
 				{value.map((chip) => (
-					<span
-						key={chip}
-						className="flex h-7 items-center gap-0.5 rounded-sm bg-sunken ps-2.5 pe-1 text-[13px] font-medium"
-					>
+					<Chip key={chip}>
 						{chip}
 						<IconButton
 							type="button"
 							label={t`Remove ${chip}`}
+							size="icon-chip"
+							variant="quiet"
 							onClick={() => onChange(value.filter((item) => item !== chip))}
 							icon="x"
 							iconSize={16}
 						/>
-					</span>
+					</Chip>
 				))}
 				<input
 					id={id}

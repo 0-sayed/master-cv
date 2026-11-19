@@ -17,12 +17,13 @@ vi.mock("@/libs/ui-fonts", () => ({ loadUiFonts: vi.fn().mockResolvedValue(undef
 
 beforeEach(() => updateUser.mockReset());
 
-async function setup(choices = true) {
+async function setup(choices = true, second = false) {
 	i18n.loadAndActivate(await getUiLocaleMessages("en-US"));
 	const root = createRootRoute({
 		component: () => (
 			<LocaleProvider locale="en-US" session={{ user: { id: "synthetic-account" } }}>
 				<LocaleSwitch presentation={choices ? "choices" : "toggle"} />
+				{second && <LocaleSwitch />}
 			</LocaleProvider>
 		),
 	});
@@ -94,4 +95,14 @@ it("retains the default compact toggle", async () => {
 	await setup(false);
 	expect(screen.getByRole("button", { name: "Switch interface to Arabic" })).toBeEnabled();
 	expect(screen.queryByRole("group")).toBeNull();
+});
+
+it("clears a failed choice when another switch reaches that language", async () => {
+	updateUser.mockResolvedValueOnce({ error: { message: "Unavailable" } }).mockResolvedValueOnce({ error: null });
+	await setup(true, true);
+	await userEvent.click(screen.getByRole("button", { name: "العربية" }));
+	await screen.findByRole("alert");
+	await userEvent.click(screen.getByRole("button", { name: "Switch interface to Arabic" }));
+	await waitFor(() => expect(screen.getByRole("button", { name: "العربية", pressed: true })).toBeEnabled());
+	expect(screen.queryByRole("alert")).toBeNull();
 });

@@ -15,10 +15,10 @@ export function CareerProfileDetails({ master }: { master: CareerMaster }) {
 	const [editing, setEditing] = useState(false);
 	const [contact, setContact] = useState(master.contact ?? { name: "", email: "", phone: "", location: "" });
 	const [summary, setSummary] = useState(master.summary ?? "");
+	const [revision, setRevision] = useState(master.profileRevision);
 	const cache = useQueryClient();
 	const save = useMutation({
-		mutationFn: () =>
-			client.career.master.saveDetails({ contact, summary, expectedProfileRevision: master.profileRevision }),
+		mutationFn: () => client.career.master.saveDetails({ contact, summary, expectedProfileRevision: revision }),
 		onSuccess: async () => {
 			await cache.invalidateQueries({ queryKey: orpc.career.master.read.key() });
 			setEditing(false);
@@ -26,6 +26,9 @@ export function CareerProfileDetails({ master }: { master: CareerMaster }) {
 	});
 	const fields = { name: t`Name`, email: t`Email address`, phone: t`Phone`, location: t`Location` };
 	const beginEdit = () => {
+		if (save.isPending) return;
+		save.reset();
+		setRevision(master.profileRevision);
 		setContact(master.contact ?? { name: "", email: "", phone: "", location: "" });
 		setSummary(master.summary ?? "");
 		setEditing(true);
@@ -38,10 +41,10 @@ export function CareerProfileDetails({ master }: { master: CareerMaster }) {
 				</h2>
 				<Button
 					variant="secondary"
+					disabled={save.isPending}
 					onClick={() => {
-						setContact(master.contact ?? { name: "", email: "", phone: "", location: "" });
-						setSummary(master.summary ?? "");
-						setEditing(!editing);
+						if (editing) setEditing(false);
+						else beginEdit();
 					}}
 				>
 					<Icon name="pencil" />
@@ -53,47 +56,50 @@ export function CareerProfileDetails({ master }: { master: CareerMaster }) {
 					className="grid gap-4"
 					onSubmit={(event) => {
 						event.preventDefault();
+						if (save.isPending) return;
 						save.mutate();
 					}}
 				>
-					{(Object.keys(fields) as (keyof typeof fields)[]).map((field) => (
-						<label htmlFor={`${formId}-${field}`} className="grid gap-1 type-label" key={field}>
-							{fields[field]}
-							<Input
-								id={`${formId}-${field}`}
+					<fieldset disabled={save.isPending} className="grid gap-4">
+						{(Object.keys(fields) as (keyof typeof fields)[]).map((field) => (
+							<label htmlFor={`${formId}-${field}`} className="grid gap-1 type-label" key={field}>
+								{fields[field]}
+								<Input
+									id={`${formId}-${field}`}
+									dir="auto"
+									type={field === "email" ? "email" : field === "phone" ? "tel" : "text"}
+									maxLength={field === "location" ? 300 : field === "email" ? 254 : field === "phone" ? 100 : 200}
+									value={contact[field]}
+									onChange={(event) => setContact({ ...contact, [field]: event.target.value })}
+								/>
+							</label>
+						))}
+						<label htmlFor={`${formId}-summary`} className="grid gap-1 type-label">
+							<span id="career-heading-summary">
+								<Trans>Summary</Trans>
+							</span>
+							<Textarea
+								id={`${formId}-summary`}
 								dir="auto"
-								type={field === "email" ? "email" : field === "phone" ? "tel" : "text"}
-								maxLength={field === "location" ? 300 : field === "email" ? 254 : field === "phone" ? 100 : 200}
-								value={contact[field]}
-								onChange={(event) => setContact({ ...contact, [field]: event.target.value })}
+								maxLength={4000}
+								value={summary}
+								onChange={(event) => setSummary(event.target.value)}
 							/>
 						</label>
-					))}
-					<label htmlFor={`${formId}-summary`} className="grid gap-1 type-label">
-						<span id="career-heading-summary">
-							<Trans>Summary</Trans>
-						</span>
-						<Textarea
-							id={`${formId}-summary`}
-							dir="auto"
-							maxLength={4000}
-							value={summary}
-							onChange={(event) => setSummary(event.target.value)}
-						/>
-					</label>
-					{save.isError && (
-						<p role="alert" className="type-body text-danger-text">
-							<Trans>Could not save. Reload the record and try again.</Trans>
-						</p>
-					)}
-					<div className="flex justify-end gap-2">
-						<Button variant="secondary" onClick={() => setEditing(false)}>
-							<Trans>Cancel</Trans>
-						</Button>
-						<Button type="submit" loading={save.isPending}>
-							<Trans>Save</Trans>
-						</Button>
-					</div>
+						{save.isError && (
+							<p role="alert" className="type-body text-danger-text">
+								<Trans>Could not save. Reload the record and try again.</Trans>
+							</p>
+						)}
+						<div className="flex justify-end gap-2">
+							<Button variant="secondary" onClick={() => setEditing(false)}>
+								<Trans>Cancel</Trans>
+							</Button>
+							<Button type="submit" loading={save.isPending}>
+								<Trans>Save</Trans>
+							</Button>
+						</div>
+					</fieldset>
 				</form>
 			) : (
 				<div className="space-y-3">

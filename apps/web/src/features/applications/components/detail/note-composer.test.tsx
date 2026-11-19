@@ -114,3 +114,16 @@ it("recovers a legacy draft into the single composer and clears legacy through g
 	await waitFor(() => expect(api.save.mock.calls.at(0)?.[0].notes).toBeNull());
 	expect(api.remove).not.toHaveBeenCalled();
 });
+
+it("clears an empty note error on text and mode changes", () => {
+	show(<Activity application={application} onOpenInterview={vi.fn()} />);
+	fireEvent.click(screen.getByRole("button", { name: "Add note" }));
+	expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
+	fireEvent.change(screen.getByRole("textbox"), { target: { value: "Valid text" } });
+	expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "false");
+	fireEvent.change(screen.getByRole("textbox"), { target: { value: "" } });
+	fireEvent.click(screen.getByRole("button", { name: "Add note" }));
+	fireEvent.click(screen.getByRole("button", { name: "Edit application note" }));
+	expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "false");
+	expect(screen.queryByText("Enter a note.")).toBeNull();
+});

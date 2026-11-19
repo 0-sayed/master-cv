@@ -36,7 +36,7 @@
 	.editor-panel-fields {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		column-gap: var(--space-16);
-		> .editor-panel-short-field {
+		> .editor-panel-short-field:not(.col-span-full):not(.col-span-2) {
 			grid-column: span 1;
 		}
 	}

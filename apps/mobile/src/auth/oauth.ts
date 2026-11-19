@@ -195,12 +195,14 @@ export function parseAuthorizationResponse(url: string): Record<string, string> 
 
 /** The app's `client_id` on this server, if it registered there before. */
 export function getClientId(origin: string): Promise<string | null> {
-	return SecureStore.getItemAsync(storeKey("client", origin));
+	return SecureStore.getItemAsync(clientKey(origin));
 }
+
+const clientKey = (origin: string) => storeKey("client", `${origin}|${redirectUri(origin)}`);
 
 /** Forgets the client after the server answered `invalid_client`, so the next sign-in registers again. */
 export function forgetClient(origin: string): Promise<void> {
-	return SecureStore.deleteItemAsync(storeKey("client", origin));
+	return SecureStore.deleteItemAsync(clientKey(origin));
 }
 
 /** The cached `client_id`, or a new one from dynamic client registration (body: reports/S3.md §1). */
@@ -225,7 +227,7 @@ export async function registerClient(origin: string, discovery: Discovery): Prom
 	const body = (await response.json().catch(() => null)) as { client_id?: unknown } | null;
 	if (!response.ok || typeof body?.client_id !== "string")
 		throw new Error(`Client registration failed (${response.status})`);
-	await SecureStore.setItemAsync(storeKey("client", origin), body.client_id);
+	await SecureStore.setItemAsync(clientKey(origin), body.client_id);
 	return body.client_id;
 }
 

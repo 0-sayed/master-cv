@@ -17,6 +17,7 @@ const api = vi.hoisted(() => ({
 	remove: vi.fn(),
 	gate: false,
 	pending: false,
+	variables: null as { status: string } | null,
 	error: null as Error | null,
 }));
 vi.mock("@reactive-resume/schema/personal-tools", () => ({ isFeatureAvailable: () => api.gate }));
@@ -49,7 +50,7 @@ vi.mock("../use-application-actions", () => ({
 	useInvalidateApplications: () => vi.fn(),
 	useApplicationActions: () => ({
 		moveTo: api.moveTo,
-		update: { isPending: api.pending, error: api.error },
+		update: { isPending: api.pending, error: api.error, variables: api.variables },
 		close: api.close,
 		remove: { isPending: false, mutate: api.remove },
 	}),
@@ -122,6 +123,7 @@ beforeEach(() => {
 	api.gate = false;
 	api.pending = false;
 	api.error = null;
+	api.variables = null;
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	api.get.mockResolvedValue(application);
 });
@@ -297,6 +299,7 @@ it("keeps closure failure visible with the selected reason until acknowledgement
 	expect(api.close).toHaveBeenCalledExactlyOnceWith(application, "withdrew");
 	expect(screen.getByRole("dialog")).toBeTruthy();
 	api.error = new Error("offline");
+	api.variables = { status: "closed" };
 	assert(clients[0]);
 	view.rerender(
 		<QueryClientProvider client={clients[0]}>
@@ -313,4 +316,14 @@ it("keeps closure failure visible with the selected reason until acknowledgement
 		closedReason: "withdrew",
 	});
 	await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+});
+
+it("does not present a failed stage move as a closure failure", async () => {
+	api.error = new Error("offline");
+	api.variables = { status: "interview" };
+	mount();
+	await screen.findByRole("heading", { name: "Engineer" });
+	fireEvent.click(screen.getByRole("button", { name: "More actions" }));
+	fireEvent.click(await screen.findByRole("menuitem", { name: "Close application…" }));
+	expect(screen.queryByText("The application could not be closed.")).toBeNull();
 });

@@ -55,6 +55,7 @@ it("keeps sign-in and registration for signed-out visitors", () => {
 	show();
 	expect(screen.getByRole("link", { name: "Sign in" })).toBeDefined();
 	expect(screen.getByRole("link", { name: "Start free" })).toBeDefined();
+	expect(screen.getByRole("link", { name: "Sign in" }).className).not.toMatch(/hidden|sm:inline-flex/);
 });
 it("does not render the signed-out actions during session lookup", () => {
 	state.pending = true;

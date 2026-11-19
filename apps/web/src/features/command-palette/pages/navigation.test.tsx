@@ -65,6 +65,7 @@ it.each([true, false])(
 			"navigation.trash",
 			"navigation.review-guide",
 		]);
+		if (!enabled) expect(screen.getByRole("button", { name: "New Application" })).toBeDisabled();
 		fireEvent.click(screen.getByRole("button", { name: "Review guide" }));
 		expect(mocks.navigate).toHaveBeenCalledWith({ to: "/dashboard/review-guide" });
 		fireEvent.click(screen.getByRole("button", { name: "Career information" }));

@@ -223,3 +223,21 @@ it.each(["https://example.test/room", "javascript:alert(1)", "Office"])(
 		expect(onOpenApplication).toHaveBeenCalledWith(application);
 	},
 );
+
+it("shows the interview timezone in its summary even when the account uses another zone", () => {
+	const client = new QueryClient();
+	clients.push(client);
+	render(
+		<QueryClientProvider client={client}>
+			<I18nProvider i18n={i18n}>
+				<InterviewDialog
+					open
+					onOpenChange={vi.fn()}
+					application={application}
+					interview={{ ...interview, timezone: "America/New_York" }}
+				/>
+			</I18nProvider>
+		</QueryClientProvider>,
+	);
+	expect(screen.getByText(/America\/New_York/, { selector: "bdi" })).toHaveTextContent("6:00 AM");
+});

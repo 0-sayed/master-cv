@@ -16,8 +16,13 @@ export function LocaleSwitch({ compact = false, presentation = "toggle" }: Local
 	const arabic = locale === "ar-SA";
 	const [retryLocale, setRetryLocale] = useState(locale);
 	const choices = useRef<Partial<Record<typeof locale, HTMLButtonElement | null>>>({});
+	if (failed && retryLocale === locale) setFailed(false);
 	function change(value: typeof locale) {
-		if (pending || value === locale) return;
+		if (pending) return;
+		if (value === locale) {
+			setFailed(false);
+			return;
+		}
 		setRetryLocale(value);
 		setFailed(false);
 		void changeLocale(value).catch(() => setFailed(true));
@@ -87,10 +92,7 @@ export function LocaleSwitch({ compact = false, presentation = "toggle" }: Local
 						? t({ message: "Switch interface to English", context: "language.switch.englishAccessible" })
 						: t({ message: "Switch interface to Arabic", context: "language.switch.arabicAccessible" })
 				}
-				onClick={() => {
-					setFailed(false);
-					void changeLocale(arabic ? "en-US" : "ar-SA").catch(() => setFailed(true));
-				}}
+				onClick={() => change(arabic ? "en-US" : "ar-SA")}
 			>
 				{!compact && <Icon name="globe" size={18} className="hidden lg:inline-block" />}
 				<span lang="en-US">

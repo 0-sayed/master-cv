@@ -175,9 +175,9 @@ export function ZoomBar({ fitScale, pageCount }: ZoomBarProps) {
 				onClick={() => setZoom(current - ZOOM_STEP)}
 				icon="minus"
 			/>
-			<button type="button" aria-label={t`Fit page to width`} onClick={() => setZoom("fit")}>
+			<Button variant="ghost" size="sm" type="button" aria-label={t`Fit page to width`} onClick={() => setZoom("fit")}>
 				{zoom === "fit" ? <Trans>Fit</Trans> : `${Math.round(current * 100)}%`}
-			</button>
+			</Button>
 			<IconButton
 				type="button"
 				label={t`Zoom in`}

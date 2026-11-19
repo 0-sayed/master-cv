@@ -1,7 +1,7 @@
 # T014 — Activate mobile authentication
 
 **Task:** T014 · **PR size:** L · **Branch:** `feat/t014-mobile-authentication`
-**Depends on:** T003, T009, T017 · **Priority:** 160
+**Depends on:** T003, T009, T015, T017 · **Priority:** 160
 **Status:** Proposed implementation plan, 2026-11-03; owner review required. No release approval is asserted.
 **Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; keep [ ] until merged.
 

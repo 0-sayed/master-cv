@@ -6,6 +6,7 @@ import { Alert, AlertTitle, AlertDescription } from "@reactive-resume/ui/compone
 import { Button } from "@reactive-resume/ui/components/button";
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -79,9 +80,9 @@ export function CloseDialog({
 					</Alert>
 				)}
 				<DialogFooter>
-					<Button variant="secondary" onClick={() => onOpenChange(false)}>
+					<DialogClose render={<Button variant="secondary" />}>
 						<Trans>Cancel</Trans>
-					</Button>
+					</DialogClose>
 					<Button
 						disabled={pending}
 						loading={pending}

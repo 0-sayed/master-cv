@@ -42,5 +42,11 @@ for (const locale of ["ar-SA", "en-US"]) {
 		await page.mouse.up();
 		await expect(handle).toHaveAttribute("aria-valuenow", String(before + 96));
 		await expectCenteredGrip(page);
+		await handle.focus();
+		await page.keyboard.press("End");
+		const wide = page.locator(".editor-panel-fields .editor-panel-short-field.col-span-full").first();
+		await expect(wide).toBeVisible();
+		await expect(wide).toHaveCSS("grid-column-start", "1");
+		await expect(wide).toHaveCSS("grid-column-end", "-1");
 	});
 }

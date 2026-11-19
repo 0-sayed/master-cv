@@ -23,6 +23,11 @@ export function NoteComposer({ application, legacy, mode, onModeChange }: NoteCo
 	const id = useId();
 	const [note, setNote] = useState("");
 	const [invalid, setInvalid] = useState(false);
+	const [validatedMode, setValidatedMode] = useState(mode);
+	if (mode !== validatedMode) {
+		setValidatedMode(mode);
+		setInvalid(false);
+	}
 	const invalidate = useInvalidateApplications();
 	const add = useMutation({
 		...orpc.applications.addNote.mutationOptions(),
@@ -67,7 +72,11 @@ export function NoteComposer({ application, legacy, mode, onModeChange }: NoteCo
 				aria-invalid={invalid}
 				aria-describedby={`${id}-error`}
 				value={isLegacy ? legacy.value : note}
-				onChange={(event) => (isLegacy ? legacy.setValue(event.target.value) : setNote(event.target.value))}
+				onChange={(event) => {
+					setInvalid(false);
+					if (isLegacy) legacy.setValue(event.target.value);
+					else setNote(event.target.value);
+				}}
 			/>
 			<FieldError id={`${id}-error`}>{invalid ? t`Enter a note.` : undefined}</FieldError>
 			<div className="flex flex-wrap gap-2">

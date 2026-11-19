@@ -87,7 +87,7 @@ it("measures only the last physical page and hides substantial overflow", () => 
 	};
 	expect(measureOverflow(data, { pageCount: 2, pageMap: map })).toMatchObject({ lines: 6, targetPages: 1 });
 	expect(measureOverflow(data, { pageCount: 1, pageMap: map })).toBeNull();
-	const fullPageHeight = (map.pages[0]?.height ?? 0) - data.metadata.page.marginY * 2 * (72 / 25.4);
+	const fullPageHeight = (map.pages[0]?.height ?? 0) - data.metadata.page.marginY * 2;
 	map.pages = Array.from({ length: 6 }, () => map.pages).flat();
 	map.nodes = Array.from({ length: 12 }, (_, page) => ({
 		kind: "header" as const,
@@ -147,4 +147,19 @@ it.each([true, false])("fits to the requested physical page count, success=%s", 
 			actionProps: { children: "Undo", onClick: expect.any(Function) },
 		}),
 	);
+});
+
+it("measures printable PDF height using point margins", () => {
+	const data = structuredClone(defaultResumeData);
+	data.metadata.page.marginY = 40;
+	data.metadata.typography.body.fontSize = 10;
+	data.metadata.typography.body.lineHeight = 1.5;
+	const pageMap = {
+		pages: [
+			{ width: 595, height: 842 },
+			{ width: 595, height: 842 },
+		],
+		nodes: [{ kind: "header" as const, key: "tail", page: 1, x: 0, y: 40, width: 500, height: 110 }],
+	};
+	expect(measureOverflow(data, { pageCount: 2, pageMap })).toMatchObject({ lines: 8 });
 });

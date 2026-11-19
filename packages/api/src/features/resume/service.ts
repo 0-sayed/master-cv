@@ -123,7 +123,7 @@ type ResumeUpdateInput = {
 	sessionId?: string;
 };
 
-export async function updateResumeTx(tx: DbOrTx, input: ResumeUpdateInput) {
+export async function updateResumeTx(tx: DbOrTx, input: ResumeUpdateInput, restoringVersion = false) {
 	if (input.isPublic === true) {
 		if (!isFeatureAvailable("publicSharing")) throw new ORPCError("FORBIDDEN", { message: "FEATURE_UNAVAILABLE" });
 		await lockDocumentOwner(tx, input.userId);
@@ -162,7 +162,7 @@ export async function updateResumeTx(tx: DbOrTx, input: ResumeUpdateInput) {
 	}
 
 	const normalizedData = input.data
-		? parseWritableResumeData(input.data, parseStoredResumeData(existing.data))
+		? parseWritableResumeData(input.data, restoringVersion ? undefined : parseStoredResumeData(existing.data))
 		: undefined;
 	if (normalizedData)
 		await adoptEmbeddedLetters(tx, {
@@ -632,12 +632,16 @@ export const resumeService = {
 				});
 				if (!beforeRestore)
 					throw new ORPCError("INTERNAL_SERVER_ERROR", { message: "Restore checkpoint was not saved." });
-				const restored = await updateResumeTx(tx, {
-					id: input.resumeId,
-					userId: input.userId,
-					data: version.data,
-					expectedUpdatedAt: current.updatedAt,
-				});
+				const restored = await updateResumeTx(
+					tx,
+					{
+						id: input.resumeId,
+						userId: input.userId,
+						data: version.data,
+						expectedUpdatedAt: current.updatedAt,
+					},
+					true,
+				);
 				const [variant] = await tx
 					.select()
 					.from(schema.resumeVariantSource)

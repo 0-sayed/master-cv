@@ -15,6 +15,7 @@ import { agentWebSources, readPageOutputSchema } from "@reactive-resume/ai/tools
 import { reviewResultSchema } from "@reactive-resume/schema/resume/ai-review";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
+import { Chip } from "@reactive-resume/ui/components/chip";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
 import { Input } from "@reactive-resume/ui/components/input";
@@ -982,6 +983,7 @@ export function Composer(props: ComposerProps) {
 				<IconButton
 					type="button"
 					label={streaming ? t`Stop` : t`Send`}
+					variant={streaming ? "ghost" : "primary"}
 					disabled={!streaming && (!hasText || disabled || uploading)}
 					onClick={streaming ? props.onStop : submit}
 					className={streaming ? "text-danger-text" : undefined}
@@ -1015,11 +1017,19 @@ type RemovableChipProps = {
 
 function RemovableChip({ icon, label, maxWidth, removeLabel, onRemove }: RemovableChipProps) {
 	return (
-		<span className="flex h-[26px] items-center gap-1 rounded-md bg-sunken ps-2 text-xs text-ink-2">
+		<Chip>
 			<Icon name={icon} size={15} />
 			<span className={cn(maxWidth, "truncate")}>{label}</span>
-			<IconButton type="button" label={removeLabel} onClick={onRemove} icon="x" iconSize={14} />
-		</span>
+			<IconButton
+				type="button"
+				size="icon-chip"
+				variant="quiet"
+				label={removeLabel}
+				onClick={onRemove}
+				icon="x"
+				iconSize={14}
+			/>
+		</Chip>
 	);
 }
 

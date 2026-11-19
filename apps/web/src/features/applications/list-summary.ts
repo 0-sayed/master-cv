@@ -8,7 +8,8 @@ export function summarizeApplicationGroup(applications: Application[], now = new
 	let upcoming: UpcomingStep | undefined;
 	let updatedAt: Date | undefined;
 	const consider = (step: UpcomingStep) => {
-		if (step.at >= now && (!upcoming || step.at < upcoming.at)) upcoming = step;
+		const end = step.at.getTime() + (step.kind === "interview" ? step.interview.durationMinutes * 60_000 : 0);
+		if (end >= now.getTime() && (!upcoming || step.at < upcoming.at)) upcoming = step;
 	};
 	for (const application of applications) {
 		const updated = new Date(application.updatedAt);
