@@ -84,18 +84,19 @@ compose_file="$remote_dir/compose.yml"
 postgres_container="$(docker compose -p sirawise -f "$compose_file" ps -q postgres)"
 has_tables="$(docker exec "$postgres_container" psql -U sirawise -d sirawise -Atc "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_tables WHERE schemaname='public')")"
 if [[ "$has_tables" == "t" ]]; then
-  backup_output="$("$remote_dir/backup.sh")"
+  backup_output="$("$remote_dir/backup.sh" </dev/null)"
   printf '%s\n' "$backup_output"
   backup_folder="${backup_output##*/}"
+  backup_folder="${backup_folder%.}"
   printf '%s\n' "$backup_folder" > "$remote_dir/.last-predeploy-backup"
   echo "Pre-deploy backup folder: $backup_folder"
 fi
-SIRAWISE_TAG="$SIRAWISE_TAG" docker compose -p sirawise -f "$compose_file" run --rm --no-deps \
-  -v "$remote_dir/migrate.mjs:/app/apps/server/deploy-migrate.mjs:ro" app node /app/apps/server/deploy-migrate.mjs
+SIRAWISE_TAG="$SIRAWISE_TAG" docker compose -p sirawise -f "$compose_file" run --rm -T --no-deps \
+  -v "$remote_dir/migrate.mjs:/app/apps/server/deploy-migrate.mjs:ro" app node /app/apps/server/deploy-migrate.mjs </dev/null
 docker run --rm --network "container:$postgres_container" --env-file "$remote_dir/.env" \
   -v "$remote_dir/sync-runtime-role.mjs:/app/apps/server/sync-runtime-role.mjs:ro" \
   -v "$remote_dir/runtime-role.mjs:/app/apps/server/runtime-role.mjs:ro" \
-  --entrypoint node "sirawise-app:${SIRAWISE_TAG}" /app/apps/server/sync-runtime-role.mjs
+  --entrypoint node "sirawise-app:${SIRAWISE_TAG}" /app/apps/server/sync-runtime-role.mjs </dev/null
 REMOTE
 
 if ! ssh "$HOST" "SIRAWISE_TAG='$SHORT_SHA' docker compose -p sirawise -f '$COMPOSE_FILE' up -d app"; then
