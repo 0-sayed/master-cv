@@ -21,7 +21,7 @@ T012 remains the separate Saudi production deployment after T013 qualification a
 - Replay applicable deletion records before restored data becomes available, using the existing T009 contract.
 - Preserve existing security, authorization, processing and applicable A-gate controls.
 - Allow real user accounts and real CVs under the owner decision recorded 2026-11-20.
-- Hand the server to T014 for phone OTP testing, then T010 for Moyasar test-mode billing.
+- Hand the server to T010 for Moyasar test-mode billing. T014 phone OTP is post-MVP and does not block T010 or T013.
 
 ## Explicit exclusions
 

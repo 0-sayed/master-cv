@@ -24,9 +24,9 @@ activating production resources.
 
 ## Explicit exclusions
 
-- No paid provisioning, production deployment/publication, real CV/SMS processing, domain purchase or
+- No paid provisioning, Saudi production deployment/publication, SMS processing, domain purchase or
   production-secret use authorized here.
-- The Stage 1 pilot server (Contabo, D43 host amendment) stays a synthetic-data test server under D30, never a real-data target. No assumption a reported gateway is
+- The Contabo pilot accepts real users and real CVs under the 2026-11-20 D43 host amendment. Saudi production still requires Saudi residency, company registration and applicable real-data gates. No assumption a reported gateway is
   Saudi/approved/available; no new queue/cloud/telemetry product by habit.
 
 ## Requirement IDs
@@ -41,7 +41,7 @@ deferred.
 - Own no product screens. Exercise affected saved-work, service-unavailable and account deletion/export consumers.
 - Use the current [figma-map.json](../../context/design/figma-map.json) for consumer states during implementation.
   Verify names/renders using authorized access; do not hard-code node IDs or implement Popup Simulator/Note frames.
-- T014 owns S37-S39 supplier/outage acceptance before T013 under D43; consume its approved activation disposition.
+- T014 is post-MVP and does not block T013; keep S37-S39 mobile routes off until A14-A16 pass.
 
 Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
 
