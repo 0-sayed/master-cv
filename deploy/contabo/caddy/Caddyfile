@@ -1,0 +1,18 @@
+sirawise.io {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:3100
+}
+
+www.sirawise.io, sirawise.co, www.sirawise.co {
+	redir https://sirawise.io{uri} permanent
+}
+
+tebyaan.app, www.tebyaan.app {
+	reverse_proxy https://127.0.0.1:8443 {
+		header_up Host {host}
+		transport http {
+			tls_server_name {host}
+			tls_insecure_skip_verify
+		}
+	}
+}
