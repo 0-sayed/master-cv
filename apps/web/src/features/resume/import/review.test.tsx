@@ -6,12 +6,13 @@ import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { ORPCError } from "@orpc/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { parseResumeText } from "@reactive-resume/import/plain-text";
+import { parseResumeText, type ImportReviewIssue } from "@reactive-resume/import/plain-text";
 import { defaultResumeData } from "@reactive-resume/schema/resume/default";
 import { Dialog, DialogContent } from "@reactive-resume/ui/components/dialog";
 import { ImportReview } from "./review";
 import { createReviewState } from "./review-draft";
 import { ConfirmDialogProvider } from "@/hooks/use-confirm";
+import { loadUiLocale } from "@/libs/locale";
 vi.mock("./ai-assistance-panel", () => ({
 	ImportAssistance: () => <button type="button">Synthetic assistance action</button>,
 }));
@@ -38,6 +39,7 @@ function importedReview(
 		onCheckpoint?: (state: ReviewState) => Promise<void>;
 		file?: File;
 		pages?: { page: number; text: string }[];
+		issues?: (initial: ReturnType<typeof parseResumeText>) => ImportReviewIssue[];
 	} = {},
 ) {
 	const initial = parseResumeText(
@@ -52,7 +54,7 @@ function importedReview(
 							{...options}
 							initial={initial}
 							flowId={flowId}
-							issues={[{ field: "position", source: "Engineer" }]}
+							issues={options.issues?.(initial) ?? [{ field: "position", source: "Engineer" }]}
 							onBack={onBack}
 							onSaved={() => {}}
 						/>
@@ -121,6 +123,49 @@ it("requires individual section review for a partially read file instead of offe
 	).toBeVisible();
 	fireEvent.click(screen.getByRole("button", { name: "Confirm section" }));
 	expect(screen.getByRole("status", { name: "Review progress" })).toHaveTextContent("1 of 3 sections reviewed");
+});
+it("opens the first flagged field when the user chooses Review now", async () => {
+	importedReview();
+	const scrollIntoView = vi.fn();
+	HTMLElement.prototype.scrollIntoView = scrollIntoView;
+	fireEvent.click(screen.getByRole("button", { name: "Review now" }));
+	const experience = within(screen.getByRole("navigation", { name: "Review sections" })).getByRole("button", {
+		name: /^Experience/,
+	});
+	await waitFor(() => expect(experience).toHaveAttribute("aria-current", "step"));
+	const flagged = document.querySelector('[data-import-field="position"]');
+	await waitFor(() => expect(flagged).toBe(document.activeElement));
+	expect(screen.getByText("Please confirm this information")).toBeVisible();
+	expect(scrollIntoView).toHaveBeenCalled();
+});
+it("opens the matching experience entry for an uncertain experience location", async () => {
+	const scrollIntoView = vi.fn();
+	HTMLElement.prototype.scrollIntoView = scrollIntoView;
+	importedReview(vi.fn(), {
+		issues: (_initial) => [
+			{
+				field: "location",
+				source: "Unclear location",
+				section: "experience",
+				entryIndex: 0,
+			},
+		],
+	});
+	fireEvent.click(screen.getByRole("button", { name: "Review now" }));
+	const experience = within(screen.getByRole("navigation", { name: "Review sections" })).getByRole("button", {
+		name: /^Experience/,
+	});
+	await waitFor(() => expect(experience).toHaveAttribute("aria-current", "step"));
+	const flagged = document.querySelector('[data-import-entry] [data-entry-field="location"]');
+	await waitFor(() => expect(flagged).toBe(document.activeElement));
+});
+it("uses the Arabic please-confirm copy for flagged values", async () => {
+	await loadUiLocale("ar-SA");
+	importedReview();
+	fireEvent.click(
+		within(screen.getByRole("navigation", { name: "أقسام المراجعة" })).getByRole("button", { name: "الخبرة" }),
+	);
+	expect(screen.getByText("يرجى تأكيد هذه المعلومة")).toBeVisible();
 });
 it("keeps an identical confirmation payload after an unknown outcome", async () => {
 	mocks.read.mockResolvedValue({ profileRevision: 0, facts: [] });

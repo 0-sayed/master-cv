@@ -36,6 +36,48 @@ AWS Solutions Architect  Amazon  2021
 describe("parseResumeText", () => {
 	const data = parseResumeText(SAMPLE);
 
+	it("keeps roles under a shared dated company header as separate experience entries", () => {
+		const imported = parseResumeText(`
+Riyadh, Saudi Arabia   Saudi   Visa sponsorship not required
+
+EXPERIENCE
+Acme Labs | Riyadh, Saudi Arabia                Mar 2024 - Jul 2026
+Senior Software Engineer, Apr 2026 - Jul 2026
+• Led platform delivery
+Full Stack Developer, Mar 2024 - Apr 2026
+• Built customer workflows
+Northwind | Jeddah, Saudi Arabia    Nov 2021 - Mar 2023
+Backend Developer
+• Built service APIs
+`);
+		const entries = imported.sections.experience.items;
+		expect(imported.basics.location).toBe("Riyadh, Saudi Arabia");
+		expect(imported.basics.name).toBe("");
+		expect(entries).toHaveLength(3);
+		expect(entries.map(({ company, position, location, period }) => ({ company, position, location, period }))).toEqual(
+			[
+				{
+					company: "Acme Labs",
+					position: "Senior Software Engineer",
+					location: "Riyadh, Saudi Arabia",
+					period: "Apr 2026 – Jul 2026",
+				},
+				{
+					company: "Acme Labs",
+					position: "Full Stack Developer",
+					location: "Riyadh, Saudi Arabia",
+					period: "Mar 2024 – Apr 2026",
+				},
+				{
+					company: "Northwind",
+					position: "Backend Developer",
+					location: "Jeddah, Saudi Arabia",
+					period: "Nov 2021 – Mar 2023",
+				},
+			],
+		);
+	});
+
 	it("reads the contact block", () => {
 		expect(data.basics).toMatchObject({
 			name: "Ada Lovelace",
@@ -108,6 +150,39 @@ describe("parseResumeText", () => {
 });
 
 describe("parseResumeText edge cases", () => {
+	it("reads a comma-formatted name before location detection", () => {
+		const imported = parseResumeText("Smith, John\nSenior Engineer\n");
+		expect(imported.basics.name).toBe("Smith, John");
+		expect(imported.basics.location).toBe("");
+	});
+
+	it("identifies an uncertain experience location by section and entry", () => {
+		const issues: unknown[] = [];
+		parseResumeText("EXPERIENCE\nExample Labs | Engineer | Mystery City, Very Unclear Extra Name\n• Built a service.", {
+			onUncertain: (issue) => issues.push(issue),
+		});
+		expect(issues).toContainEqual({
+			field: "location",
+			source: "Mystery City, Very Unclear Extra Name",
+			section: "experience",
+			entryIndex: 0,
+		});
+	});
+
+	it("keeps experience issue indexes stable across repeated sections", () => {
+		const issues: unknown[] = [];
+		parseResumeText(
+			"EXPERIENCE\nFirst Labs | Engineer | Cairo\nEXPERIENCE\nSecond Labs | Engineer | Mystery City, Very Unclear Extra Name",
+			{ onUncertain: (issue) => issues.push(issue) },
+		);
+		expect(issues).toContainEqual({
+			field: "location",
+			source: "Mystery City, Very Unclear Extra Name",
+			section: "experience",
+			entryIndex: 1,
+		});
+	});
+
 	it("returns usable data for empty input", () => {
 		const data = parseResumeText("");
 		expect(() => resumeDataSchema.parse(data)).not.toThrow();
