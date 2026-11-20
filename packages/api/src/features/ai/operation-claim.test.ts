@@ -9,7 +9,7 @@ afterEach(() => {
 	vi.useRealTimers();
 	vi.resetAllMocks();
 });
-it.each(["queued", "running"])("starts the execution deadline only at the first claim: %s", async (state) => {
+it.each(["queued", "running"])("claims %s operations without changing the trigger-owned deadline", async (state) => {
 	vi.useFakeTimers();
 	vi.setSystemTime(new Date("2026-11-20T12:00:00Z"));
 	const now = Date.now();
@@ -21,15 +21,16 @@ it.each(["queued", "running"])("starts the execution deadline only at the first 
 			from: () => ({ where: () => ({ orderBy: () => ({ limit: () => ({ for: async () => [operation] }) }) }) }),
 		})
 		.mockReturnValueOnce({ from: () => ({ where: async () => [] }) });
-	const set = vi.fn((_values: { deadlineAt?: Date; leaseUntil: Date; leaseToken: string }) => ({
+	const set = vi.fn((_values: Record<string, unknown>) => ({
 		where: async () => undefined,
 	}));
 	mocks.tx.update.mockReturnValue({ set });
 	const lease = await claimNextOperation("owner");
 	expect(lease).toMatchObject({ ownerId: "owner", operationId: "operation" });
-	const update = set.mock.calls[0]?.[0] as { deadlineAt?: Date; leaseUntil: Date; leaseToken: string };
-	expect(update.leaseUntil.getTime()).toBe(now + 60000);
-	expect(update.leaseToken).toBe(lease?.token);
-	if (state === "queued") expect(update.deadlineAt?.getTime()).toBe(now + 120000);
-	else expect(update.deadlineAt).toBeUndefined();
+	expect(lease?.token).toEqual(expect.any(String));
+	expect(set).toHaveBeenCalledExactlyOnceWith({
+		state: "running",
+		leaseUntil: new Date(now + 60000),
+		leaseToken: lease?.token,
+	});
 });
