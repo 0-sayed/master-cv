@@ -87,6 +87,7 @@ if [[ "$has_tables" == "t" ]]; then
   backup_output="$("$remote_dir/backup.sh" </dev/null)"
   printf '%s\n' "$backup_output"
   backup_folder="${backup_output##*/}"
+  backup_folder="${backup_folder%.}"
   printf '%s\n' "$backup_folder" > "$remote_dir/.last-predeploy-backup"
   echo "Pre-deploy backup folder: $backup_folder"
 fi
