@@ -58,7 +58,7 @@ function MonthYearInput({
 		() =>
 			monthDateSamples.map((date, month) => ({
 				value: month,
-				label: new Intl.DateTimeFormat(locale, { month: "long" }).format(date),
+				label: new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }).format(date),
 			})),
 		[locale],
 	);

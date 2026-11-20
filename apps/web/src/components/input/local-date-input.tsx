@@ -54,7 +54,7 @@ export function LocalDateInput({
 	const selected = dateFromValue(value, today);
 	const [open, setOpen] = useState(false);
 	const [month, setMonth] = useState(() => new Date(selected.getFullYear(), selected.getMonth(), 1));
-	const [focusedDate, setFocusedDate] = useState(selected);
+	const [focusedDate, setFocusedDate] = useState<Date | null>(selected);
 	const dayButtons = useRef(new Map<string, HTMLButtonElement>());
 	const monthLabel = new Intl.DateTimeFormat(dateLocale, {
 		calendar: "gregory",
@@ -74,8 +74,29 @@ export function LocalDateInput({
 	const fieldNames = new Intl.DisplayNames(dateLocale, { type: "dateTimeField" });
 	const minValue = typeof min === "string" ? min : undefined;
 	const maxValue = typeof max === "string" ? max : undefined;
+	const isInRange = (date: Date) => {
+		const key = dateValue(date);
+		return (!minValue || key >= minValue) && (!maxValue || key <= maxValue);
+	};
+	const firstEnabledDate = (targetMonth: Date) => {
+		const first = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1);
+		const candidate = minValue && dateValue(first) < minValue ? dateFromValue(minValue, first) : first;
+		if (candidate.getFullYear() !== first.getFullYear() || candidate.getMonth() !== first.getMonth()) return null;
+		return maxValue && dateValue(candidate) > maxValue ? null : candidate;
+	};
+	const displayMonth = (year: number, monthIndex: number) => {
+		const nextMonth = new Date(year, monthIndex, 1);
+		setMonth(nextMonth);
+		if (
+			focusedDate?.getFullYear() === nextMonth.getFullYear() &&
+			focusedDate.getMonth() === nextMonth.getMonth() &&
+			isInRange(focusedDate)
+		)
+			return;
+		setFocusedDate(firstEnabledDate(nextMonth));
+	};
 	useEffect(() => {
-		if (open) dayButtons.current.get(dateValue(focusedDate))?.focus();
+		if (open && focusedDate) dayButtons.current.get(dateValue(focusedDate))?.focus();
 	}, [focusedDate, open]);
 	const choose = (date: Date) => {
 		const next = dateValue(date);
@@ -93,6 +114,19 @@ export function LocalDateInput({
 		else if (event.key === "ArrowUp") next.setDate(next.getDate() - 7);
 		else return;
 		event.preventDefault();
+		const step =
+			event.key === "ArrowRight"
+				? direction
+				: event.key === "ArrowLeft"
+					? -direction
+					: event.key === "ArrowDown"
+						? 7
+						: -7;
+		while (!isInRange(next)) {
+			const key = dateValue(next);
+			if ((minValue && key < minValue && step < 0) || (maxValue && key > maxValue && step > 0)) return;
+			next.setDate(next.getDate() + step);
+		}
 		setFocusedDate(next);
 		if (next.getMonth() !== month.getMonth() || next.getFullYear() !== month.getFullYear())
 			setMonth(new Date(next.getFullYear(), next.getMonth(), 1));
@@ -113,8 +147,11 @@ export function LocalDateInput({
 					const text = event.target.value.replace(/[\u0660-\u0669\u06f0-\u06f9]/gu, (digit) =>
 						String(digit.charCodeAt(0) % 16),
 					);
-					const parts = text.split(/\D+/).filter(Boolean);
-					const fields = Object.fromEntries(order.map((key, index) => [key, parts[index] ?? ""]));
+					const isoDate = /^(\d{4})-(\d{2})-(\d{2})$/u.exec(text);
+					const parts = isoDate ? [isoDate[1], isoDate[2], isoDate[3]] : text.split(/\D+/).filter(Boolean);
+					const fields = isoDate
+						? { year: isoDate[1], month: isoDate[2], day: isoDate[3] }
+						: Object.fromEntries(order.map((key, index) => [key, parts[index] ?? ""]));
 					const iso = `${fields.year}-${fields.month?.padStart(2, "0")}-${fields.day?.padStart(2, "0")}`;
 					const parsed = new Date(`${iso}T12:00:00`);
 					const valid =
@@ -132,8 +169,9 @@ export function LocalDateInput({
 				open={open}
 				onOpenChange={(nextOpen) => {
 					if (nextOpen) {
-						setMonth(new Date(selected.getFullYear(), selected.getMonth(), 1));
-						setFocusedDate(selected);
+						const selectedMonth = new Date(selected.getFullYear(), selected.getMonth(), 1);
+						setMonth(selectedMonth);
+						setFocusedDate(isInRange(selected) ? selected : firstEnabledDate(selectedMonth));
 					}
 					setOpen(nextOpen);
 				}}
@@ -150,7 +188,7 @@ export function LocalDateInput({
 						<NativeSelect
 							aria-label={fieldNames.of("month") ?? undefined}
 							value={month.getMonth()}
-							onChange={(event) => setMonth(new Date(month.getFullYear(), Number(event.target.value), 1))}
+							onChange={(event) => displayMonth(month.getFullYear(), Number(event.target.value))}
 						>
 							{Array.from({ length: 12 }, (_, index) => (
 								<option key={index} value={index}>
@@ -165,7 +203,7 @@ export function LocalDateInput({
 						<NativeSelect
 							aria-label={fieldNames.of("year") ?? undefined}
 							value={month.getFullYear()}
-							onChange={(event) => setMonth(new Date(Number(event.target.value), month.getMonth(), 1))}
+							onChange={(event) => displayMonth(Number(event.target.value), month.getMonth())}
 						>
 							{years.map((year) => (
 								<option key={year} value={year}>
@@ -190,7 +228,7 @@ export function LocalDateInput({
 							{days.map((date) => {
 								const dateKey = dateValue(date);
 								const inMonth = date.getMonth() === month.getMonth();
-								const inRange = (!minValue || dateKey >= minValue) && (!maxValue || dateKey <= maxValue);
+								const inRange = isInRange(date);
 								return (
 									<div role="gridcell" key={dateKey}>
 										<Button
@@ -201,7 +239,7 @@ export function LocalDateInput({
 											type="button"
 											variant={value === dateKey ? "secondary" : "ghost"}
 											size="calendar-date"
-											tabIndex={dateKey === dateValue(focusedDate) ? 0 : -1}
+											tabIndex={focusedDate && dateKey === dateValue(focusedDate) && inRange ? 0 : -1}
 											aria-selected={value === dateKey}
 											aria-label={new Intl.DateTimeFormat(dateLocale, {
 												calendar: "gregory",

@@ -101,6 +101,56 @@ it("confirms an uncertain basic field", () => {
 	fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
 	expect(screen.queryByText("Please confirm this information")).not.toBeInTheDocument();
 });
+
+it("includes confirmed uncertainty resolutions in its saved review state", async () => {
+	let saved: ReviewState | undefined;
+	importedReview(vi.fn(), {
+		issues: () => [{ field: "location", source: "Cairo, Egypt", section: "basics" }],
+		onCheckpoint: async (state) => {
+			saved = state;
+		},
+	});
+	fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+	await waitFor(() => expect(saved?.resolvedIssues).toEqual({ 0: true }));
+});
+
+it("shows and opens the first unresolved import issue", async () => {
+	importedReview(vi.fn(), {
+		issues: () => [
+			{ field: "name", source: "Sara Example", section: "basics" },
+			{ field: "position", source: "Engineer", section: "experience", entryIndex: 0 },
+		],
+	});
+	fireEvent.click(screen.getByRole("button", { name: "Review now" }));
+	const firstConfirmation = screen.getAllByRole("button", { name: "Confirm" })[0];
+	if (!firstConfirmation) throw new Error("Expected a confirmation button");
+	fireEvent.click(firstConfirmation);
+	expect(screen.getByText("Engineer")).toBeInTheDocument();
+	expect(screen.queryByText("Sara Example", { selector: "li span" })).not.toBeInTheDocument();
+	fireEvent.click(screen.getByRole("button", { name: "Review now" }));
+	expect(
+		within(screen.getByRole("navigation", { name: "Review sections" })).getByRole("button", { name: /^Experience/ }),
+	).toHaveAttribute("aria-current", "step");
+});
+it("routes and resolves a legacy experience issue without saved section or entry indexes", async () => {
+	let saved: ReviewState | undefined;
+	importedReview(vi.fn(), {
+		issues: () => [{ field: "position", source: "Engineer" }],
+		onCheckpoint: async (state) => {
+			saved = state;
+		},
+	});
+	fireEvent.click(screen.getByRole("button", { name: "Review now" }));
+	const experience = within(screen.getByRole("navigation", { name: "Review sections" })).getByRole("button", {
+		name: /^Experience/,
+	});
+	expect(experience).toHaveAttribute("aria-current", "step");
+	const entry = screen.getByRole("article", { name: /Engineer/ });
+	expect(within(entry).getByText("Please confirm this information")).toBeVisible();
+	fireEvent.click(within(entry).getByRole("button", { name: "Confirm" }));
+	expect(within(entry).queryByText("Please confirm this information")).not.toBeInTheDocument();
+	await waitFor(() => expect(saved?.resolvedIssues).toEqual({ 0: true }));
+});
 it("invalidates review after editing and removes entries from the submitted CV", async () => {
 	mocks.read.mockResolvedValue({ profileRevision: 0, facts: [] });
 	mocks.confirm.mockResolvedValue({ resumeId: "created" });

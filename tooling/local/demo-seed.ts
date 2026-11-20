@@ -145,8 +145,10 @@ export async function populateDemoWorkspace(
 					.select({ key: tables.storedFile.key })
 					.from(tables.storedFile)
 					.where(eq(tables.storedFile.userId, user.id));
-				oldPictureKeys.push(...pictures.map((picture) => picture.key));
-				if (options.effects) await tx.delete(tables.storedFile).where(eq(tables.storedFile.userId, user.id));
+				if (options.effects) {
+					const { deleteOwnedFile } = await import("@reactive-resume/api/features/storage");
+					for (const { key } of pictures) await deleteOwnedFile({ userId: user.id, key });
+				} else oldPictureKeys.push(...pictures.map((picture) => picture.key));
 				for (const table of [
 					tables.careerArtifact,
 					tables.careerWorkspace,
@@ -366,17 +368,7 @@ export async function populateDemoWorkspace(
 			return result;
 		});
 		committed = true;
-		const removeOldPictures = async () => {
-			for (const key of oldPictureKeys) {
-				if (options.effects) {
-					if (!key.startsWith(`uploads/${user.id}/`)) throw new Error("DEMO_STORAGE_OWNER_MISMATCH");
-					const { getStorageService } = await import("@reactive-resume/api/features/storage");
-					await getStorageService().delete(key);
-				} else await client.storage.deleteFile({ filename: key });
-			}
-		};
-		if (options.effects) options.effects.commit.push(removeOldPictures);
-		else await removeOldPictures();
+		for (const key of oldPictureKeys) await client.storage.deleteFile({ filename: key });
 		return result;
 	} catch (error) {
 		if (!options.effects && !committed) await rollbackUpload();

@@ -12,7 +12,7 @@ export function reviewGuideSearch(search: Record<string, unknown>): {
 	return {
 		tab: search.tab === "data" || search.tab === "ai" ? search.tab : "ats",
 		...(typeof search.rule === "string" ? { rule: search.rule } : {}),
-		...(typeof search.returnTo === "string" && /^\/builder\/(?!\/)[^\\?#]*$/.test(search.returnTo)
+		...(typeof search.returnTo === "string" && /^\/builder\/(?!\/)[^\\?#\s]*(?:\?[^\\#\s]*)?$/.test(search.returnTo)
 			? { returnTo: search.returnTo }
 			: {}),
 	};

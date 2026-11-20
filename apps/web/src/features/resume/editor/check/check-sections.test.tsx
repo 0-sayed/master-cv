@@ -57,6 +57,7 @@ it.each(["blocker", "warning", "tip"] as const)(
 it.each(["ar-SA", "en-US"] as const)(
 	"links PDF and editor findings in %s without invoking document actions",
 	async (locale) => {
+		window.history.replaceState({}, "", "/builder/test-resume?mode=check");
 		i18n.loadAndActivate(await getUiLocaleMessages(locale));
 		const action = vi.fn();
 		const codes = [...PDF_ATS_RULE_CODES, ...ATS_RULE_CODES];
@@ -106,7 +107,10 @@ it.each(["ar-SA", "en-US"] as const)(
 		});
 		expect(links).toHaveLength(codes.length);
 		for (let index = 0; index < codes.length; index++) {
-			expect(links[index]).toHaveAttribute("href", `/dashboard/review-guide?locale=${locale}#rule-${codes[index]}`);
+			expect(links[index]).toHaveAttribute(
+				"href",
+				`/dashboard/review-guide?locale=${locale}&returnTo=%2Fbuilder%2Ftest-resume%3Fmode%3Dcheck#rule-${codes[index]}`,
+			);
 			expect(links[index]?.closest('[data-slot="action-group"]')).not.toBeNull();
 			expect(links[index]).toHaveAttribute("aria-label");
 			links[index]?.focus();

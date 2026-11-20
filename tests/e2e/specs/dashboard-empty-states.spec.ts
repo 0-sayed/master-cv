@@ -72,7 +72,7 @@ for (const locale of ["en-US", "ar-SA"] as const)
 			await page.goto("/dashboard");
 			const empty = page.locator('[data-slot="empty-state"]');
 			await expect(empty).toBeVisible();
-			await expect(empty.getByRole("button")).toHaveCount(2);
+			await expect(empty.getByRole("button")).toHaveCount(1);
 			await expect(empty.locator('[data-slot="icon"]').first()).toHaveAttribute("aria-hidden", "true");
 			await expect(page.locator("html")).toHaveAttribute("dir", locale === "en-US" ? "ltr" : "rtl");
 			await shot("documents-first-use");

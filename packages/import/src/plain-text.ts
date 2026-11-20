@@ -400,6 +400,12 @@ function credibleLocation(value: string): boolean {
 function trimRecognizedLocation(value: string): string {
 	const parts = value.split(/\s*([,،·])\s*/u);
 	const kept: string[] = [];
+	const format = (items: string[]) =>
+		items
+			.join(" ")
+			.replace(/\s+([,،·])/gu, "$1")
+			.replace(/([,،·])\s*$/u, "")
+			.trim();
 	for (let index = 0; index < parts.length; index += 2) {
 		const part = parts[index]?.trim() ?? "";
 		if (!part) continue;
@@ -412,15 +418,10 @@ function trimRecognizedLocation(value: string): string {
 				break;
 			}
 		}
-		if (!recognized) return value;
+		if (!recognized) return kept.length && NON_LOCATION_TAIL.test(part) ? format(kept) : value;
 		const remainder = words.slice(recognized.split(/\s+/u).length).join(" ");
 		if (remainder) {
-			if (NON_LOCATION_TAIL.test(remainder))
-				return kept
-					.join(" ")
-					.concat(kept.length ? " " : "", recognized)
-					.replace(/\s+([,،·])/gu, "$1")
-					.trim();
+			if (NON_LOCATION_TAIL.test(remainder)) return format([...kept, recognized]);
 			return value;
 		}
 		kept.push(recognized);

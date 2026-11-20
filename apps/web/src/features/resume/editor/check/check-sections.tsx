@@ -111,7 +111,7 @@ export function FindingCard({
 								<Link
 									to={ATS_GUIDE_ROUTE}
 									hash={guideRuleId(guideCode)}
-									search={{ locale, returnTo: window.location.pathname }}
+									search={{ locale, returnTo: `${window.location.pathname}${window.location.search}` }}
 								/>
 							}
 						/>

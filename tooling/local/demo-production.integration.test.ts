@@ -16,6 +16,15 @@ import { seedProductionDemoWorkspace } from "./demo-production";
 const suffix = randomUUID().replaceAll("-", "");
 const databaseName = `production_demo_${suffix}`;
 const role = `production_demo_runtime_${suffix}`;
+function isolatedTestDatabaseUrl(value: string) {
+	const url = new URL(value);
+	if (url.hostname === "localhost") url.hostname = "127.0.0.1";
+	return url;
+}
+
+it("uses an allowed loopback hostname for the CI test database", () => {
+	expect(isolatedTestDatabaseUrl("postgresql://postgres:postgres@localhost:55432/postgres").hostname).toBe("127.0.0.1");
+});
 
 describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("restricted production demo seed", () => {
 	let admin: Pool;
@@ -23,7 +32,7 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("restricted product
 	let runtime: Pool;
 	const scoped = <T>(work: () => Promise<T>) => withDatabasePool(runtime, work);
 	beforeAll(async () => {
-		const url = new URL(process.env.COVER_LETTER_TEST_DATABASE_URL ?? "");
+		const url = isolatedTestDatabaseUrl(process.env.COVER_LETTER_TEST_DATABASE_URL ?? "");
 		admin = new Pool({ connectionString: url.toString(), max: 1 });
 		await admin.query(`CREATE DATABASE "${databaseName}"`);
 		url.pathname = `/${databaseName}`;

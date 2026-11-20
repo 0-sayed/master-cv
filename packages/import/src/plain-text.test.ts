@@ -156,6 +156,11 @@ describe("parseResumeText edge cases", () => {
 		expect(imported.basics.location).toBe("");
 	});
 
+	it("removes a separate visa sponsorship tail from an imported location", () => {
+		const imported = parseResumeText("Jane Doe\nRiyadh, Saudi Arabia, visa sponsorship\n");
+		expect(imported.basics.location).toBe("Riyadh, Saudi Arabia");
+	});
+
 	it("identifies an uncertain experience location by section and entry", () => {
 		const issues: unknown[] = [];
 		parseResumeText("EXPERIENCE\nExample Labs | Engineer | Mystery City, Very Unclear Extra Name\n• Built a service.", {

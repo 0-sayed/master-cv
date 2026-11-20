@@ -137050,6 +137050,7 @@
 			"nodeIds": ["22:560", "41:412", "64:683", "65:1392"],
 			"strings": [
 				"auth.email.label",
+				"resume.field.link",
 				"editor.summary.label",
 				"editor.mode.write",
 				"editor.save.status.recent",

@@ -45,6 +45,14 @@ describe("DatesField", () => {
 		expect(onChange).toHaveBeenCalledWith({ start: "2016-07", end: null, present: false });
 	});
 
+	it("formats month samples in UTC", () => {
+		const formatter = vi.spyOn(Intl, "DateTimeFormat");
+		renderField({ start: "2016-06", end: null, present: false });
+		fireEvent.focus(screen.getByRole("textbox", { name: "Start" }));
+		expect(formatter).toHaveBeenCalledWith("en-US", { month: "long", timeZone: "UTC" });
+		formatter.mockRestore();
+	});
+
 	it("opens the month picker from its calendar button", async () => {
 		const onChange = renderField({ start: "2016-06", end: null, present: false });
 		const [calendarButton] = screen.getAllByRole("button", { name: "Choose a date." });

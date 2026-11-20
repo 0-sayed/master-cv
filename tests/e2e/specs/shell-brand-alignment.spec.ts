@@ -72,21 +72,23 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				await page.goto(path);
 				await settleScreen(page);
 				const header = page.locator("header").first();
-				const mark = header.locator('[data-slot="brand-mark"]:visible');
-				const box = await mark.boundingBox();
-				if (!box) throw new Error("Missing public/auth brand");
+				const brand = header.locator('a:has([data-slot="brand-mark"]:visible)').first();
+				const mark = brand.locator('[data-slot="brand-mark"]:visible');
+				const brandBox = await brand.boundingBox();
+				const markBox = await mark.boundingBox();
+				if (!brandBox || !markBox) throw new Error("Missing public/auth brand");
 				for (const control of await header.locator("button:visible").all()) {
 					const bounds = await control.boundingBox();
 					if (!bounds) throw new Error("Missing public/auth control");
-					expect(Math.abs(box.y + box.height / 2 - bounds.y - bounds.height / 2)).toBeLessThanOrEqual(0.5);
+					expect(Math.abs(brandBox.y + brandBox.height / 2 - bounds.y - bounds.height / 2)).toBeLessThanOrEqual(0.5);
 				}
 				await expect(mark).toHaveAttribute("data-once", "true");
 				await expect(mark).toHaveAttribute("data-playing", "false");
 				await mark.hover();
 				await expect(mark).toHaveAttribute("data-playing", "false");
-				expect(await mark.boundingBox()).toEqual(box);
+				expect(await mark.boundingBox()).toEqual(markBox);
 				await expect(mark).toHaveAttribute("data-playing", "false");
-				expect(await mark.boundingBox()).toEqual(box);
+				expect(await mark.boundingBox()).toEqual(markBox);
 			}
 		}
 	});

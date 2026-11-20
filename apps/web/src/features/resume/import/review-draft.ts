@@ -1,3 +1,4 @@
+import type { ImportReviewIssue } from "@reactive-resume/import/plain-text";
 import z from "zod";
 import { sourceRevisionSchema } from "@reactive-resume/schema/ai-operation";
 import { masterFactSchema } from "@reactive-resume/schema/career-master";
@@ -5,9 +6,24 @@ import { reviewResultSchema } from "@reactive-resume/schema/resume/ai-review";
 import { resumeDataSchema } from "@reactive-resume/schema/resume/data";
 import { importReviewInputSchema } from "@reactive-resume/schema/resume/import-review";
 
+const issueSchema = z
+	.object({
+		field: z.enum(["name", "headline", "location", "position", "company", "phone"]),
+		source: z.string(),
+		section: z.enum(["basics", "experience"]).optional(),
+		entryIndex: z.number().int().nonnegative().optional(),
+	})
+	.transform((issue): ImportReviewIssue => ({
+		field: issue.field,
+		source: issue.source,
+		...(issue.section !== undefined ? { section: issue.section } : {}),
+		...(issue.entryIndex !== undefined ? { entryIndex: issue.entryIndex } : {}),
+	}));
+
 const stateSchema = z.object({
 	data: resumeDataSchema,
 	confirmed: z.record(z.string(), z.string()).default({}),
+	resolvedIssues: z.record(z.string(), z.boolean()).default({}),
 	reviewed: z.record(z.string(), z.string()).default({}),
 	active: z.string().default("basics"),
 	reused: z.array(masterFactSchema).default([]),
@@ -36,9 +52,7 @@ const draftSchema = z.object({
 	file: z.instanceof(File),
 	initial: resumeDataSchema,
 	pages: z.array(z.object({ page: z.number().int().positive(), text: z.string() })),
-	issues: z.array(
-		z.object({ field: z.enum(["name", "headline", "location", "position", "company", "phone"]), source: z.string() }),
-	),
+	issues: z.array(issueSchema),
 	partial: z.boolean(),
 	state: stateSchema,
 });

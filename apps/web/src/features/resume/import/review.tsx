@@ -72,7 +72,7 @@ export function ImportReview({
 	const [data, setData] = useState(state?.data ?? initial);
 	const [reused, setReused] = useState<MasterFact[]>(state?.reused ?? []);
 	const [confirmed, setConfirmed] = useState<Record<string, string>>(state?.confirmed ?? {});
-	const [resolvedIssues, setResolvedIssues] = useState<Record<number, boolean>>({});
+	const [resolvedIssues, setResolvedIssues] = useState<Record<number, boolean>>(state?.resolvedIssues ?? {});
 	const [reviewed, setReviewed] = useState<Record<string, string>>(state?.reviewed ?? {});
 	const [active, setActive] = useState(state?.active ?? "basics");
 	const [view, setView] = useState("information");
@@ -97,6 +97,7 @@ export function ImportReview({
 		(): ReviewState => ({
 			...createReviewState(data, flowId),
 			confirmed,
+			resolvedIssues,
 			reviewed,
 			active,
 			reused,
@@ -107,7 +108,18 @@ export function ImportReview({
 			...(revision.current !== undefined ? { revision: revision.current } : {}),
 			...(submission.current ? { submission: submission.current } : {}),
 		}),
-		[data, flowId, confirmed, reviewed, active, reused, needsReconciliation, changedMasterFacts, aiReview],
+		[
+			data,
+			flowId,
+			confirmed,
+			resolvedIssues,
+			reviewed,
+			active,
+			reused,
+			needsReconciliation,
+			changedMasterFacts,
+			aiReview,
+		],
 	);
 	useEffect(() => {
 		if (onCheckpoint)
@@ -295,6 +307,19 @@ export function ImportReview({
 		);
 	};
 	const entryKey = (section: string, id: string) => `${section}:${id}`;
+	const issueSection = (issue: ImportReviewIssue) =>
+		issue.section ?? (issue.field === "position" || issue.field === "company" ? "experience" : "basics");
+	const issueEntryIndex = (issue: ImportReviewIssue) => {
+		if (issue.entryIndex !== undefined) return issue.entryIndex;
+		return initial.sections.experience.items.findIndex((entry) => {
+			const value = (entry as unknown as Record<string, unknown>)[issue.field];
+			return (
+				typeof value === "string" &&
+				value.trim().length > 0 &&
+				(issue.source.includes(value) || value.includes(issue.source))
+			);
+		});
+	};
 	const isReviewed = (id: string) => {
 		if (id === "basics" || id === "summary") return reviewed[id] === fingerprint(id);
 		const section = resolveSection(data, id);
@@ -309,7 +334,11 @@ export function ImportReview({
 		setResolvedIssues((current) => {
 			const next = { ...current };
 			issues?.forEach((issue, index) => {
-				if (issue.field === field && (issue.section ?? "basics") === section && (issue.entryIndex ?? -1) === entryIndex)
+				if (
+					issue.field === field &&
+					issueSection(issue) === section &&
+					(section !== "experience" || issueEntryIndex(issue) === entryIndex)
+				)
 					next[index] = true;
 			});
 			return next;
@@ -319,9 +348,9 @@ export function ImportReview({
 		issues?.some(
 			(issue, index) =>
 				!resolvedIssues[index] &&
-				(issue.section ?? "basics") === section &&
+				issueSection(issue) === section &&
 				(section !== "experience" ||
-					issue.entryIndex === initial.sections.experience.items.findIndex((entry) => entry.id === entryId)) &&
+					issueEntryIndex(issue) === initial.sections.experience.items.findIndex((entry) => entry.id === entryId)) &&
 				issue.field === field &&
 				(!value || issue.source.includes(String(value)) || String(value).includes(issue.source)),
 		) ?? false;
@@ -389,22 +418,17 @@ export function ImportReview({
 	};
 	const reviewedCount = groups.filter(isReviewed).length;
 	const total = groups.length;
-	const hasOpenIssues = Boolean(
-		issues?.some((issue, index) => {
-			if (resolvedIssues[index]) return false;
-			const field = issue.field ?? "name";
-			const section = issue.section ?? (field === "position" || field === "company" ? "experience" : "basics");
-			return !isReviewed(section);
-		}),
-	);
+	const openIssues = (issues ?? []).filter((issue, index) => {
+		if (resolvedIssues[index]) return false;
+		return !isReviewed(issueSection(issue));
+	});
+	const hasOpenIssues = openIssues.length > 0;
 	const reviewFirstIssue = () => {
-		const issue = issues?.[0];
+		const issue = openIssues[0];
 		const field = issue?.field ?? "name";
-		const section = issue?.section ?? (field === "position" || field === "company" ? "experience" : "basics");
-		const entryId =
-			section === "experience" && issue?.entryIndex != null
-				? initial.sections.experience.items[issue.entryIndex]?.id
-				: undefined;
+		const section = issue ? issueSection(issue) : "basics";
+		const entryIndex = issue && section === "experience" ? issueEntryIndex(issue) : -1;
+		const entryId = entryIndex >= 0 ? initial.sections.experience.items[entryIndex]?.id : undefined;
 		setActive(section);
 		if (entryId) setEditing(entryKey(section, entryId));
 		setView("information");
@@ -543,7 +567,7 @@ export function ImportReview({
 					</AlertTitle>
 					<AlertDescription>
 						<ul>
-							{issues?.map((issue, index) => (
+							{openIssues.map((issue, index) => (
 								<li key={index}>
 									{fieldLabel(issue.field)}: <span dir="auto">{issue.source}</span>
 								</li>
@@ -746,8 +770,8 @@ export function ImportReview({
 																	.filter(
 																		({ issue, index }) =>
 																			!resolvedIssues[index] &&
-																			issue.section === section.id &&
-																			issue.entryIndex ===
+																			issueSection(issue) === section.id &&
+																			issueEntryIndex(issue) ===
 																				initial.sections.experience.items.findIndex((item) => item.id === entry.id),
 																	)
 																	.map(({ issue, index }) => (

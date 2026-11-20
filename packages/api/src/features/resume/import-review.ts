@@ -125,19 +125,21 @@ export async function confirmImport(userId: string, value: ImportReviewInput) {
 				throw new ORPCError("BAD_REQUEST");
 			links.push({ factId: saved.id, acceptedRevision: saved.revision });
 		}
-		const [profile] = await tx.select().from(t.careerProfile).where(eq(t.careerProfile.userId, userId)).for("update");
-		if (!profile || profile.profileRevision !== master.profileRevision)
-			throw new ORPCError("IMPORT_REVIEW_CONFLICT", { status: 409 });
-		const imported = importedProfileData(profile.data, input.data);
-		if (imported.changed) {
-			master = {
-				...master,
-				profileRevision: profile.profileRevision + 1,
-			};
-			await tx
-				.update(t.careerProfile)
-				.set({ data: imported.data, profileRevision: master.profileRevision })
-				.where(eq(t.careerProfile.userId, userId));
+		if (newGroups.size > 0) {
+			const [profile] = await tx.select().from(t.careerProfile).where(eq(t.careerProfile.userId, userId)).for("update");
+			if (!profile || profile.profileRevision !== master.profileRevision)
+				throw new ORPCError("IMPORT_REVIEW_CONFLICT", { status: 409 });
+			const imported = importedProfileData(profile.data, input.data);
+			if (imported.changed) {
+				master = {
+					...master,
+					profileRevision: profile.profileRevision + 1,
+				};
+				await tx
+					.update(t.careerProfile)
+					.set({ data: imported.data, profileRevision: master.profileRevision })
+					.where(eq(t.careerProfile.userId, userId));
+			}
 		}
 		await careerMasterService.linkResumeFacts(userId, { resumeId: id, links });
 		return { resumeId: id, profileRevision: master.profileRevision };
