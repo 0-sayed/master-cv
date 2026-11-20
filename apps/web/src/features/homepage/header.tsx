@@ -137,7 +137,7 @@ export function LandingSectionNav() {
 }
 
 /**
- * The phone header keeps language and the primary action visible. Sections, theme and sign-in open in a bottom sheet.
+ * The phone header keeps language and the primary action visible. The sheet also keeps language beside theme and sign-in.
  */
 export function LandingCompactActions() {
 	const copy = usePublicCopy();
@@ -171,6 +171,7 @@ export function LandingCompactActions() {
 						))}
 					</nav>
 					<div className="grid gap-3 border-t border-line p-4">
+						<LocaleSwitch />
 						<ThemeToggleButton showLabel size="row" variant="ghost" className="justify-start" />
 						{!pending && !session && (
 							<Link
