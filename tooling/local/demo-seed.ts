@@ -1,3 +1,4 @@
+import type { DemoUser } from "./demo-account";
 import type { SeedOnlyResumeAdmission } from "@reactive-resume/api/features/documents/service";
 import { readFile } from "node:fs/promises";
 import { demoApplicationNotes } from "./demo-career";
@@ -38,7 +39,11 @@ export async function createDemoJobCopyAdmission(
 ): Promise<SeedOnlyResumeAdmission> {
 	await assertDemoEnvironment(environment);
 	if (user.email !== demoCredentials.email) throw new Error("DEMO_IDENTITY_COLLISION");
-	const ownerId = user.id;
+	return createOwnerDemoJobCopyAdmission(user.id);
+}
+
+/** Internal fixture-only capability, never exposed through an API input. */
+export async function createOwnerDemoJobCopyAdmission(ownerId: string): Promise<SeedOnlyResumeAdmission> {
 	const { resume } = await import("@reactive-resume/db/schema");
 	const { and, count, eq } = await import("drizzle-orm");
 	return async (tx, requestedOwner, creation, reservationOperationId) => {
@@ -61,33 +66,53 @@ export async function closeDemoDatabase() {
 
 export async function seedDemoWorkspace(options: { reset?: boolean; now?: Date } = {}) {
 	const { appUrl } = await assertDemoEnvironment(process.env);
-	const now = options.now ?? new Date();
-	const demoFixture = createDemoFixture(now);
 	const hadPool = Boolean((globalThis as typeof globalThis & { __pool?: unknown }).__pool);
-	const { getPool, withOwnerDatabase } = await import("@reactive-resume/db/client");
+	const { getPool } = await import("@reactive-resume/db/client");
 	if (!hadPool) ownedPool = getPool();
 	const { assertRuntimeDatabaseRole } = await import("@reactive-resume/db/owner-scope");
 	await assertRuntimeDatabaseRole(getPool());
 	const { initializeAuth } = await import("@reactive-resume/auth/config");
 	await initializeAuth();
-	const { ensureDemoAccount, createDemoClient } = await import("./demo-account");
-	const { careerService } = await import("@reactive-resume/api/features/career/service");
-	const { documentsService } = await import("@reactive-resume/api/features/documents/service");
-	const { applicationService } = await import("@reactive-resume/api/features/applications/service");
-	const { lockActiveAccount } = await import("@reactive-resume/db/account-state");
-	const tables = await import("@reactive-resume/db/schema");
-	const { count, eq } = await import("drizzle-orm");
+	const { ensureDemoAccount } = await import("./demo-account");
 	const { user } = await ensureDemoAccount();
 	if (options.reset) {
 		const { auth } = await import("@reactive-resume/auth/config");
 		const authContext = await auth.$context;
 		await authContext.internalAdapter.deleteUserSessions(user.id);
 	}
+	return populateDemoWorkspace(user, appUrl, await createDemoJobCopyAdmission(user, process.env), options);
+}
+
+export type DemoSeedEffects = { commit: Array<() => Promise<void>>; rollback: Array<() => Promise<void>> };
+
+/** Production supplies effects that run only after its encompassing account transaction finishes. */
+export async function populateDemoWorkspace(
+	user: DemoUser,
+	appUrl: string,
+	seedOnlyAdmission: SeedOnlyResumeAdmission,
+	options: { reset?: boolean; now?: Date; effects?: DemoSeedEffects } = {},
+) {
+	const now = options.now ?? new Date();
+	const demoFixture = createDemoFixture(now);
+	const { withOwnerDatabase } = await import("@reactive-resume/db/client");
+	const { createDemoClient } = await import("./demo-account");
+	const { careerService } = await import("@reactive-resume/api/features/career/service");
+	const { documentsService } = await import("@reactive-resume/api/features/documents/service");
+	const { applicationService } = await import("@reactive-resume/api/features/applications/service");
+	const { lockActiveAccount } = await import("@reactive-resume/db/account-state");
+	const tables = await import("@reactive-resume/db/schema");
+	const { count, eq } = await import("drizzle-orm");
 	const client = createDemoClient(user, appUrl);
-	const seedOnlyAdmission = await createDemoJobCopyAdmission(user, process.env);
 	const oldPictureKeys: string[] = [];
 	let uploadedKey: string | undefined;
 	let committed = false;
+	const rollbackUpload = async () => {
+		if (!uploadedKey) return;
+		const { getStorageService } = await import("@reactive-resume/api/features/storage");
+		if (!uploadedKey.startsWith(`uploads/${user.id}/`)) throw new Error("DEMO_STORAGE_OWNER_MISMATCH");
+		await getStorageService().delete(uploadedKey);
+	};
+	options.effects?.rollback.push(rollbackUpload);
 	try {
 		const result = await withOwnerDatabase(user.id, async (tx) => {
 			await lockActiveAccount(tx, user.id);
@@ -121,6 +146,7 @@ export async function seedDemoWorkspace(options: { reset?: boolean; now?: Date }
 					.from(tables.storedFile)
 					.where(eq(tables.storedFile.userId, user.id));
 				oldPictureKeys.push(...pictures.map((picture) => picture.key));
+				if (options.effects) await tx.delete(tables.storedFile).where(eq(tables.storedFile.userId, user.id));
 				for (const table of [
 					tables.careerArtifact,
 					tables.careerWorkspace,
@@ -340,14 +366,20 @@ export async function seedDemoWorkspace(options: { reset?: boolean; now?: Date }
 			return result;
 		});
 		committed = true;
-		for (const key of oldPictureKeys) await client.storage.deleteFile({ filename: key });
+		const removeOldPictures = async () => {
+			for (const key of oldPictureKeys) {
+				if (options.effects) {
+					if (!key.startsWith(`uploads/${user.id}/`)) throw new Error("DEMO_STORAGE_OWNER_MISMATCH");
+					const { getStorageService } = await import("@reactive-resume/api/features/storage");
+					await getStorageService().delete(key);
+				} else await client.storage.deleteFile({ filename: key });
+			}
+		};
+		if (options.effects) options.effects.commit.push(removeOldPictures);
+		else await removeOldPictures();
 		return result;
 	} catch (error) {
-		if (uploadedKey && !committed) {
-			const { getStorageService } = await import("@reactive-resume/api/features/storage");
-			if (!uploadedKey.startsWith(`uploads/${user.id}/`)) throw new Error("DEMO_STORAGE_OWNER_MISMATCH");
-			await getStorageService().delete(uploadedKey);
-		}
+		if (!options.effects && !committed) await rollbackUpload();
 		throw error;
 	}
 }

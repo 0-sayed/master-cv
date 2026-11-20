@@ -31,6 +31,21 @@ export async function withOwnerDatabase<T>(userId: string, work: (tx: OwnerTrans
 	return await ownerTransaction(userId, work);
 }
 
+/** Bind a caller-owned transaction after resolving its account, without a second commit boundary. */
+export async function withOwnerTransaction<T>(
+	userId: string,
+	tx: OwnerTransaction,
+	work: () => Promise<T>,
+): Promise<T> {
+	const current = checkOwner(userId);
+	if (current?.transaction) {
+		if (current.database !== tx) throw new Error("Cannot replace an active owner transaction");
+		return work();
+	}
+	await tx.execute(sql`SELECT set_config('app.user_id', ${userId}, true)`);
+	return ownerDatabase.run({ userId, database: tx, transaction: true }, work);
+}
+
 async function ownerTransaction<T>(
 	userId: string,
 	work: (tx: OwnerTransaction) => Promise<T>,

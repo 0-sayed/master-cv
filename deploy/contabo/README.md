@@ -2,6 +2,34 @@
 
 Sirawise uses a private Docker Compose project on the Contabo VPS. Caddy owns ports 80 and 443 and routes requests to Sirawise and Tebyaan.
 
+## Production demo account
+
+Before deployment, add the dedicated demo email to the server's `ADMIN_EMAILS` value. Preserve its existing entries.
+This allowlist grants unlimited AI uses to verified emails. It grants no admin screens or powers.
+The seed keeps the account's normal `user` role. Existing AI consent, provider availability, and shared budget limits still apply.
+The existing `PERSONAL_CAREER_TOOLS_RELEASE_APPROVED=true` deployment flag must permit career tools. The seed refuses missing approval.
+
+After deployment, run this command once on the VPS. Replace the placeholders with a lowercase email and a private password.
+The password must contain at least 16 characters and differ from the public local fixture password.
+Both email placeholders must match exactly. Supply these values through the server environment, never repository fixtures.
+
+```sh
+cd /opt/sirawise
+DEMO_ACCOUNT_EMAIL='<dedicated-demo-email>' \
+DEMO_ACCOUNT_PASSWORD='<private-password-at-least-16-characters>' \
+DEMO_PRODUCTION_CONFIRM='<dedicated-demo-email>' \
+docker compose -f compose.yml run --rm -T --no-deps \
+  -e DEMO_ACCOUNT_EMAIL -e DEMO_ACCOUNT_PASSWORD -e DEMO_PRODUCTION_CONFIRM \
+  app node /app/apps/server/dist/seed-production-demo.mjs
+```
+
+The command uses the restricted `DATABASE_URL` at Compose host `postgres` and the existing storage volume.
+It refuses missing credentials, missing confirmation, and emails outside `ADMIN_EMAILS`.
+It creates one account or adopts an empty normal account. It refuses populated accounts without its reserved demo identity.
+Account credentials and synthetic fixture rows share one transaction. The command never calls an AI provider or sends email.
+Later runs preserve completed demo content without duplicates. An incomplete marked demo workspace is rebuilt within that account only.
+The command changes the password only when it differs. A password change revokes only that account's sessions.
+
 ## First install
 
 1. Create `/opt/caddy` and `/opt/sirawise` on the VPS. The image build needs Docker buildx. The VPS runs Ubuntu's `docker.io` package, which does not include it, so install it with `apt-get install docker-buildx`. Hosts that run Docker CE already have `docker-buildx-plugin`; do not install `docker-buildx` there.

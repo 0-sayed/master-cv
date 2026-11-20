@@ -39,3 +39,20 @@ it("does not trust arbitrary values in a connection error's code", async () => {
 	getPool().emit("error", { code: "private-data\ninjected" });
 	expect(log.mock.calls).toEqual([[{ event: "postgres_connection_error", code: "unknown" }]]);
 });
+
+it("binds an existing transaction without opening another one and refuses owner changes", async () => {
+	const { withOwnerTransaction, withOwnerDatabase, db } = await import("./client");
+	const execute = vi.fn().mockResolvedValue(undefined);
+	const transaction = { execute } as unknown as import("./client").OwnerTransaction;
+	await withOwnerTransaction("demo", transaction, async () => {
+		expect(db.execute).toBeDefined();
+		await withOwnerDatabase("demo", async (tx) => {
+			expect(tx).toBe(transaction);
+		});
+		await expect(withOwnerDatabase("other", async () => {})).rejects.toThrow("Cannot change database owner");
+		await expect(withOwnerTransaction("demo", {} as typeof transaction, async () => {})).rejects.toThrow(
+			"Cannot replace",
+		);
+	});
+	expect(execute).toHaveBeenCalledTimes(1);
+});
