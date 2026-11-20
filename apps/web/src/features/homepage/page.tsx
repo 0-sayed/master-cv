@@ -22,12 +22,7 @@ export function Homepage() {
 		<PublicShell
 			variant="landing"
 			navigation={<LandingSectionNav />}
-			compactActions={
-				<>
-					<ThemeToggleButton size="header-icon" />
-					<LandingCompactActions />
-				</>
-			}
+			compactActions={<LandingCompactActions />}
 			headerActions={
 				<>
 					<ThemeToggleButton size="header-icon" />
