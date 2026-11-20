@@ -1101,6 +1101,11 @@ msgstr "الرد هو انتقال مسجل إلى الفحص أو المقاب�
 msgid "A resume with this slug already exists."
 msgstr "توجد سيرة ذاتية بهذا الرابط بالفعل."
 
+#: src/features/public-copy.ts
+msgctxt "legal.terms.approval.title"
+msgid "A review draft"
+msgstr "مسودة للمراجعة"
+
 #: src/features/ats-guide/examples.ts
 msgid "A role description split across table cells"
 msgstr "وصف الوظيفة موزع بين خلايا جدول"
@@ -1276,16 +1281,6 @@ msgstr "إنجاز"
 msgctxt "account.settings.accountTab"
 msgid "Account"
 msgstr "الحساب"
-
-#: src/features/public-copy.ts
-msgctxt "legal.terms.approval.title"
-msgid "Account controls"
-msgstr "أدوات الحساب"
-
-#: src/features/public-copy.ts
-msgctxt "legal.draft.revision"
-msgid "Account data and controls"
-msgstr "بيانات الحساب وأدوات التحكم"
 
 #: src/dialogs/auth/change-email.tsx
 msgid "Account methods are unavailable"
@@ -6044,6 +6039,11 @@ msgstr "صياغة ملخص من الحقائق التي تختارها."
 msgid "Draft kept. Edit anything you like."
 msgstr "المسودة محفوظة. عدّل ما تشاء"
 
+#: src/features/public-copy.ts
+msgctxt "legal.draft.revision"
+msgid "Draft revision: 2026-11-15"
+msgstr "مراجعة المسودة: 2026-11-15"
+
 #: src/features/career/workspace/prepare.tsx
 msgid "Draft story"
 msgstr "صُغ قصة"
@@ -6765,11 +6765,6 @@ msgstr "لغة السيرة في المثال"
 #: src/features/ats-guide/examples.ts
 msgid "example.com"
 msgstr "example.com"
-
-#: src/features/public-copy.ts
-msgctxt "public.meta.legal.description"
-msgid "Existing account data controls and current capabilities."
-msgstr "أدوات بيانات الحساب الحالية والإمكانات المتاحة."
 
 #: src/features/resume/stylesheet/toolbar.tsx
 msgid "Exit focus mode"
@@ -11733,11 +11728,6 @@ msgctxt "privacy.navigation.data"
 msgid "Privacy & data"
 msgstr "الخصوصية والبيانات"
 
-#: src/features/public-copy.ts
-msgctxt "legal.draft.notice"
-msgid "Privacy and terms"
-msgstr "الخصوصية والشروط"
-
 #: src/features/help/public-shell.tsx
 #: src/features/public-copy.ts
 msgctxt "legal.page.title"
@@ -12853,6 +12843,16 @@ msgstr "مراجعة الموافقة"
 #: src/features/career/today.tsx
 msgid "Review draft"
 msgstr "راجع المسودة"
+
+#: src/features/public-copy.ts
+msgctxt "legal.draft.notice"
+msgid "Review draft — not an approved final policy."
+msgstr "مسودة للمراجعة — ليست سياسة نهائية معتمدة."
+
+#: src/features/public-copy.ts
+msgctxt "public.meta.legal.description"
+msgid "Review draft describing existing account data controls, current capabilities and pending policy approvals."
+msgstr "مسودة للمراجعة تصف أدوات بيانات الحساب الحالية والإمكانات المتاحة والسياسات التي تنتظر الاعتماد."
 
 #: src/features/resume/editor/write/write-panel.tsx
 msgid "Review each section before using this resume."
@@ -15897,8 +15897,8 @@ msgstr "هذا الشهر"
 
 #: src/features/public-copy.ts
 msgctxt "legal.terms.approval.body"
-msgid "This page describes the existing account controls. It does not introduce payment offers or a new acceptance step."
-msgstr "تصف هذه الصفحة أدوات الحساب الحالية. لا تقدم الصفحة عروض دفع أو خطوة قبول جديدة."
+msgid "This page describes the existing account controls. Final legal terms and publication approval remain pending. It does not introduce payment offers or a new acceptance step."
+msgstr "تصف هذه الصفحة أدوات الحساب الحالية. لا تزال الشروط القانونية النهائية والموافقة على النشر معلقتين. لا تقدم الصفحة عروض دفع أو خطوة قبول جديدة."
 
 #: src/routes/deletion-requested.tsx
 msgctxt "workspace.privacy.1ae0761f13c8"

@@ -23,7 +23,7 @@ function SectionCard({
 					: variant === "compact"
 						? "gap-2 p-3"
 						: variant === "spacious"
-							? "gap-6 p-4 sm:p-6 lg:p-8"
+							? "gap-4 p-4 sm:p-6 lg:p-8"
 							: "gap-3 p-4",
 				tone === "highlight" && "border-accent bg-accent-soft text-accent-text",
 				className,

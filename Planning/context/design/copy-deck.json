@@ -110014,8 +110014,8 @@
 		{
 			"key": "legal.draft.notice",
 			"messages": {
-				"ar-SA": "الخصوصية والشروط",
-				"en-US": "Privacy and terms"
+				"ar-SA": "مسودة للمراجعة — ليست سياسة نهائية معتمدة.",
+				"en-US": "Review draft — not an approved final policy."
 			},
 			"context": {
 				"surfaces": ["screens:S35"],
@@ -110028,9 +110028,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Privacy and terms",
+				"msgid": "Review draft — not an approved final policy.",
 				"msgctxt": "legal.draft.notice",
-				"runtimeId": "olzZWD",
+				"runtimeId": "yLi86R",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/public-copy.ts",
 				"mappingStatus": "verified extraction"
@@ -110976,8 +110976,8 @@
 		{
 			"key": "legal.draft.revision",
 			"messages": {
-				"ar-SA": "بيانات الحساب وأدوات التحكم",
-				"en-US": "Account data and controls"
+				"ar-SA": "مراجعة المسودة: 2026-11-15",
+				"en-US": "Draft revision: 2026-11-15"
 			},
 			"context": {
 				"surfaces": ["screens:S35"],
@@ -110990,9 +110990,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Account data and controls",
+				"msgid": "Draft revision: 2026-11-15",
 				"msgctxt": "legal.draft.revision",
-				"runtimeId": "fg6Inp",
+				"runtimeId": "tH30zw",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/public-copy.ts",
 				"mappingStatus": "verified extraction"
@@ -111383,8 +111383,8 @@
 		{
 			"key": "legal.terms.approval.title",
 			"messages": {
-				"ar-SA": "أدوات الحساب",
-				"en-US": "Account controls"
+				"ar-SA": "مسودة للمراجعة",
+				"en-US": "A review draft"
 			},
 			"context": {
 				"surfaces": ["screens:S35"],
@@ -111397,9 +111397,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Account controls",
+				"msgid": "A review draft",
 				"msgctxt": "legal.terms.approval.title",
-				"runtimeId": "mP0FON",
+				"runtimeId": "4S6emQ",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/public-copy.ts",
 				"mappingStatus": "verified extraction"
@@ -111420,8 +111420,8 @@
 		{
 			"key": "legal.terms.approval.body",
 			"messages": {
-				"ar-SA": "تصف هذه الصفحة أدوات الحساب الحالية. لا تقدم الصفحة عروض دفع أو خطوة قبول جديدة.",
-				"en-US": "This page describes the existing account controls. It does not introduce payment offers or a new acceptance step."
+				"ar-SA": "تصف هذه الصفحة أدوات الحساب الحالية. لا تزال الشروط القانونية النهائية والموافقة على النشر معلقتين. لا تقدم الصفحة عروض دفع أو خطوة قبول جديدة.",
+				"en-US": "This page describes the existing account controls. Final legal terms and publication approval remain pending. It does not introduce payment offers or a new acceptance step."
 			},
 			"context": {
 				"surfaces": ["screens:S35"],
@@ -111434,9 +111434,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "This page describes the existing account controls. It does not introduce payment offers or a new acceptance step.",
+				"msgid": "This page describes the existing account controls. Final legal terms and publication approval remain pending. It does not introduce payment offers or a new acceptance step.",
 				"msgctxt": "legal.terms.approval.body",
-				"runtimeId": "2iK0Tw",
+				"runtimeId": "_PoROV",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/public-copy.ts",
 				"mappingStatus": "verified extraction"
@@ -111531,8 +111531,8 @@
 		{
 			"key": "public.meta.legal.description",
 			"messages": {
-				"ar-SA": "أدوات بيانات الحساب الحالية والإمكانات المتاحة.",
-				"en-US": "Existing account data controls and current capabilities."
+				"ar-SA": "مسودة للمراجعة تصف أدوات بيانات الحساب الحالية والإمكانات المتاحة والسياسات التي تنتظر الاعتماد.",
+				"en-US": "Review draft describing existing account data controls, current capabilities and pending policy approvals."
 			},
 			"context": {
 				"surfaces": ["screens:S01"],
@@ -111545,9 +111545,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Existing account data controls and current capabilities.",
+				"msgid": "Review draft describing existing account data controls, current capabilities and pending policy approvals.",
 				"msgctxt": "public.meta.legal.description",
-				"runtimeId": "yflgSA",
+				"runtimeId": "2aceWQ",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/public-copy.ts",
 				"mappingStatus": "verified extraction"

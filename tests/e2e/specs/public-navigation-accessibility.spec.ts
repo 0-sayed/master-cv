@@ -13,7 +13,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 				await page.keyboard.press("Tab");
 				await expect(page.locator('a[href="#main-content"]')).toBeFocused();
 				const positions: { x: number; y: number }[] = [];
-				const controlCount = width < 1024 ? (path === "/" ? 3 : 4) : path === "/" ? 8 : path === "/help" ? 5 : 4;
+				const controlCount = width < 1024 ? 4 : path === "/" ? 9 : path === "/help" ? 5 : 4;
 				await expect(page.getByRole("banner").locator("a:visible, button:visible")).toHaveCount(controlCount);
 				for (let index = 0; index < controlCount; index++) {
 					await page.keyboard.press("Tab");

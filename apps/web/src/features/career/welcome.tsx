@@ -48,7 +48,7 @@ export function WelcomePage() {
 					const sourceTitle = copy(`auth.welcome.${step}.title`);
 					const title = sourceTitle.replace(/^[\p{Nd}]+\.\s*/u, "");
 					return (
-						<li key={step} className="flex items-start gap-4 py-4 first:pt-0 last:pb-0">
+						<li key={step} className="flex items-start gap-4 py-3 first:pt-0 last:pb-0">
 							<bdi
 								dir="ltr"
 								className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-soft type-label text-accent-text"

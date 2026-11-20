@@ -24,13 +24,13 @@ export function Homepage() {
 			navigation={<LandingSectionNav />}
 			compactActions={
 				<>
-					<ThemeToggleButton />
+					<ThemeToggleButton size="header-icon" />
 					<LandingCompactActions />
 				</>
 			}
 			headerActions={
 				<>
-					<ThemeToggleButton />
+					<ThemeToggleButton size="header-icon" />
 					<LandingHeader />
 				</>
 			}

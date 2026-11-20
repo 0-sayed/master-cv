@@ -1279,13 +1279,13 @@ msgstr "Account"
 
 #: src/features/public-copy.ts
 msgctxt "legal.terms.approval.title"
-msgid "Account controls"
-msgstr "Account controls"
+msgid "A review draft"
+msgstr "A review draft"
 
 #: src/features/public-copy.ts
 msgctxt "legal.draft.revision"
-msgid "Account data and controls"
-msgstr "Account data and controls"
+msgid "Draft revision: 2026-11-15"
+msgstr "Draft revision: 2026-11-15"
 
 #: src/dialogs/auth/change-email.tsx
 msgid "Account methods are unavailable"
@@ -6768,8 +6768,8 @@ msgstr "example.com"
 
 #: src/features/public-copy.ts
 msgctxt "public.meta.legal.description"
-msgid "Existing account data controls and current capabilities."
-msgstr "Existing account data controls and current capabilities."
+msgid "Review draft describing existing account data controls, current capabilities and pending policy approvals."
+msgstr "Review draft describing existing account data controls, current capabilities and pending policy approvals."
 
 #: src/features/resume/stylesheet/toolbar.tsx
 msgid "Exit focus mode"
@@ -11735,8 +11735,8 @@ msgstr "Privacy & data"
 
 #: src/features/public-copy.ts
 msgctxt "legal.draft.notice"
-msgid "Privacy and terms"
-msgstr "Privacy and terms"
+msgid "Review draft — not an approved final policy."
+msgstr "Review draft — not an approved final policy."
 
 #: src/features/help/public-shell.tsx
 #: src/features/public-copy.ts
@@ -15897,8 +15897,8 @@ msgstr "This month"
 
 #: src/features/public-copy.ts
 msgctxt "legal.terms.approval.body"
-msgid "This page describes the existing account controls. It does not introduce payment offers or a new acceptance step."
-msgstr "This page describes the existing account controls. It does not introduce payment offers or a new acceptance step."
+msgid "This page describes the existing account controls. Final legal terms and publication approval remain pending. It does not introduce payment offers or a new acceptance step."
+msgstr "This page describes the existing account controls. Final legal terms and publication approval remain pending. It does not introduce payment offers or a new acceptance step."
 
 #: src/routes/deletion-requested.tsx
 msgctxt "workspace.privacy.1ae0761f13c8"
