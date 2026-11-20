@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ $# -ne 1 || ! "$1" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
-	echo "Usage: $0 YYYY-MM-DD" >&2
+if [[ $# -ne 1 || ! "$1" =~ ^[0-9]{8}T[0-9]{6}Z$ ]]; then
+	echo "Usage: $0 YYYYMMDDTHHMMSSZ" >&2
 	exit 2
 fi
 
@@ -25,7 +25,7 @@ done
 
 DRILL_PASSWORD="$("$DOCKER_BIN" run --rm "$DRILL_IMAGE" sh -c 'head -c 32 /dev/urandom | od -An -tx1 | tr -d " \n"')"
 cleanup() {
-	"$DOCKER_BIN" rm -f "$DRILL_CONTAINER" >/dev/null 2>&1 || true
+	"$DOCKER_BIN" rm -fv "$DRILL_CONTAINER" >/dev/null 2>&1 || true
 	"$DOCKER_BIN" volume rm "$DRILL_STORAGE_VOLUME" >/dev/null 2>&1 || true
 }
 if "$DOCKER_BIN" container inspect "$DRILL_CONTAINER" >/dev/null 2>&1; then
@@ -42,7 +42,7 @@ trap cleanup EXIT
 	-e "POSTGRES_PASSWORD=$DRILL_PASSWORD" "$DRILL_IMAGE" >/dev/null
 
 deadline=$((SECONDS + 90))
-until "$DOCKER_BIN" exec "$DRILL_CONTAINER" pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; do
+until [[ "$("$DOCKER_BIN" logs "$DRILL_CONTAINER" 2>&1 | grep -c 'database system is ready to accept connections')" -ge 2 ]] && "$DOCKER_BIN" exec "$DRILL_CONTAINER" pg_isready -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; do
 	if (( SECONDS >= deadline )); then
 		echo "Throwaway PostgreSQL did not become ready." >&2
 		exit 1
@@ -52,7 +52,10 @@ done
 
 "$DOCKER_BIN" exec -i "$DRILL_CONTAINER" pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-privileges < "$BACKUP_DIR/sirawise.dump"
 while IFS=$'\t' read -r schema table expected; do
-	[[ -n "$schema" && -n "$table" && "$expected" =~ ^[0-9]+$ ]] || continue
+	if [[ -z "$schema" || -z "$table" || ! "$expected" =~ ^[0-9]+$ ]]; then
+		echo "Malformed table count row in $BACKUP_DIR/table_counts.tsv." >&2
+		exit 1
+	fi
 	actual="$(printf '%s\n' 'SELECT count(*) FROM :"schema".:"table";' | "$DOCKER_BIN" exec -i "$DRILL_CONTAINER" psql -X -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -At \
 		-v "schema=$schema" -v "table=$table" -f -)"
 	if [[ "$actual" != "$expected" ]]; then

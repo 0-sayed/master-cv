@@ -19,6 +19,11 @@ if [[ ! "$tag" =~ ^[a-zA-Z0-9_.-]+$ ]]; then
   echo "The previous image tag is invalid." >&2
   exit 1
 fi
-SIRAWISE_TAG="$tag" docker compose -p sirawise -f "$compose_file" up -d
+SIRAWISE_TAG="$tag" docker compose -p sirawise -f "$compose_file" up -d --wait app
+cp -p "$compose_file" "$remote_dir/compose.yml"
 echo "Sirawise restarted with image tag $tag."
+if [[ -s "$remote_dir/.last-predeploy-backup" ]]; then
+  backup="$(<"$remote_dir/.last-predeploy-backup")"
+  echo "WARNING: If this deploy ran migrations, restore pre-deploy backup folder $backup before using the previous image." >&2
+fi
 REMOTE

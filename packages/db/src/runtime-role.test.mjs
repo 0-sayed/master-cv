@@ -54,6 +54,14 @@ it("does not change an existing role password and keeps grants repeatable", asyn
 	await syncRuntimeRole("postgresql://sirawise:owner@localhost/sirawise", "sirawise_runtime", "unused");
 	expect(state.calls.some(([statement]) => statement.startsWith("CREATE ROLE"))).toBe(false);
 	expect(
+		state.calls.some(
+			([statement]) =>
+				statement ===
+				'ALTER ROLE "sirawise_runtime" LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS NOINHERIT',
+		),
+	).toBe(true);
+	expect(state.calls.some(([statement]) => statement.includes("PASSWORD"))).toBe(false);
+	expect(
 		state.calls.some(([statement]) => statement.startsWith("GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES")),
 	).toBe(true);
 });

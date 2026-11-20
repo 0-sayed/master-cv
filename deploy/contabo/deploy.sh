@@ -63,7 +63,13 @@ remote_dir='/opt/sirawise'
 compose_file="$remote_dir/compose.yml"
 postgres_container="$(docker compose -p sirawise -f "$compose_file" ps -q postgres)"
 has_tables="$(docker exec "$postgres_container" psql -U sirawise -d sirawise -Atc "SELECT EXISTS (SELECT 1 FROM pg_catalog.pg_tables WHERE schemaname='public')")"
-if [[ "$has_tables" == "t" ]]; then "$remote_dir/backup.sh"; fi
+if [[ "$has_tables" == "t" ]]; then
+  backup_output="$("$remote_dir/backup.sh")"
+  printf '%s\n' "$backup_output"
+  backup_folder="${backup_output##*/}"
+  printf '%s\n' "$backup_folder" > "$remote_dir/.last-predeploy-backup"
+  echo "Pre-deploy backup folder: $backup_folder"
+fi
 SIRAWISE_TAG="$SIRAWISE_TAG" docker compose -p sirawise -f "$compose_file" run --rm --no-deps \
   -v "$remote_dir/migrate.mjs:/app/apps/server/deploy-migrate.mjs:ro" app node /app/apps/server/deploy-migrate.mjs
 docker run --rm --network "container:$postgres_container" --env-file "$remote_dir/.env" \
@@ -80,7 +86,7 @@ fi
 if ssh -o ConnectTimeout=5 -o ServerAliveInterval=5 -o ServerAliveCountMax=2 "$HOST" 'bash -s' <<'REMOTE'
 set -euo pipefail
 deadline=$((SECONDS + 120))
-until curl -fsS http://127.0.0.1:3100/api/health >/dev/null; do
+until curl --max-time 5 -fsS http://127.0.0.1:3100/api/health >/dev/null; do
   if (( SECONDS >= deadline )); then exit 1; fi
   sleep 2
 done

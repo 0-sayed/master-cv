@@ -26,17 +26,17 @@ RUNTIME_DB_PASSWORD=<generated-hex-password>
 
 ## Deploy
 
-The deploy script starts PostgreSQL and waits for its health check. If the database has tables, the script takes a backup before migration. It then runs migrations from the new app image and syncs runtime grants. The app starts after these steps and must pass the 120-second health gate.
+Compose gives its default network subnet `172.31.240.0/24`; the app trusts gateway `172.31.240.1`. `getTrustedClient` reads `X-Forwarded-For`, which Caddy sends to the app. The deploy script starts PostgreSQL and waits for its health check. If the database has tables, the script takes a backup before migration. It then runs migrations from the new app image and syncs runtime grants. The app starts after these steps and must pass the 120-second health gate.
 
 The script copies the backup, restore-drill, migration, and role-sync scripts to `/opt/sirawise`. Keep `.env` out of source control and logs. The deploy stops if a required SMTP value is empty.
 
 ## Roll back
 
-Run `deploy/contabo/rollback.sh` from the repository root. It uses `/opt/sirawise/compose.yml.previous` and the tag in `/opt/sirawise/.previous-tag`. After an incompatible migration, restore the pre-deploy backup from the migration step before starting the previous app image.
+Run `deploy/contabo/rollback.sh` from the repository root. It uses `/opt/sirawise/compose.yml.previous` and the tag in `/opt/sirawise/.previous-tag`. Rollback waits for app health and restores the previous Compose file. If the deploy ran migrations, restore the pre-deploy backup named in `/opt/sirawise/.last-predeploy-backup` before using the previous image.
 
 ## Back up
 
-The backup script stores database dumps and the `sirawise_storage` volume, mounted at `/app/data`, under `/opt/sirawise/backups/<UTC date>/`. The script retains 14 days of date-named folders. Add this cron entry on the VPS:
+The backup script stores database dumps and the `sirawise_storage` volume, mounted at `/app/data`, under `/opt/sirawise/backups/<YYYYMMDDTHHMMSSZ>/`. The script retains matching folders for 14 days. Counts and the dump use one PostgreSQL snapshot. The storage archive is taken after the dump, so files written during the backup can be missing. Add this cron entry on the VPS:
 
 ```cron
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -45,10 +45,12 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 ## Restore drill
 
-Run the restore drill on the VPS after a backup completes. Pass its UTC date in `YYYY-MM-DD` form:
+Run the restore drill on the VPS after a backup completes. Pass the backup folder name:
 
 ```bash
-/opt/sirawise/restore-drill.sh 2026-11-20
+/opt/sirawise/restore-drill.sh 20261120T031500Z
 ```
 
 The script restores the dump to a throwaway `postgres:17-alpine` container, compares saved table counts, restores the storage archive to a throwaway volume, then removes both resources.
+
+Restoring a backup also restores accounts deleted after that backup. T012 owns deletion replay (A12).

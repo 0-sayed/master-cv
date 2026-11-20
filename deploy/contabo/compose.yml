@@ -12,6 +12,7 @@ services:
       STORAGE_BACKEND: local
       LOCAL_STORAGE_PATH: /app/data
       DEPLOYMENT_NAMESPACE: sirawise
+      TRUSTED_PROXIES: 172.31.240.1
     ports:
       - "127.0.0.1:3100:3000"
     volumes:
@@ -55,6 +56,12 @@ services:
         limits:
           cpus: "1.0"
           memory: 1G
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.31.240.0/24
 
 volumes:
   sirawise_pg:
