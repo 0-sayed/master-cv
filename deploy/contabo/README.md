@@ -4,7 +4,7 @@ Sirawise uses a private Docker Compose project on the Contabo VPS. Caddy owns po
 
 ## First install
 
-1. Create `/opt/caddy` and `/opt/sirawise` on the VPS. Install the Docker build tool with `apt-get install docker-buildx`. The image build needs it, and the Ubuntu `docker.io` package does not include it.
+1. Create `/opt/caddy` and `/opt/sirawise` on the VPS. The image build needs Docker buildx. The VPS runs Ubuntu's `docker.io` package, which does not include it, so install it with `apt-get install docker-buildx`. Hosts that run Docker CE already have `docker-buildx-plugin`; do not install `docker-buildx` there.
 2. Copy `caddy/Caddyfile` and `caddy/compose.yml` to `/opt/caddy`. Start Caddy with Docker Compose.
 3. Set Tebyaan Nginx to `127.0.0.1:8088:80` and `127.0.0.1:8443:443`. Tebyaan PR [#50](https://github.com/BandAI-sa/tebyaan/pull/50) records that port change.
 4. Copy `compose.yml` and `env.example` to `/opt/sirawise`. Copy `env.example` to `/opt/sirawise/.env` and set its mode to `600`.
