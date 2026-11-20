@@ -36892,11 +36892,11 @@
 		{
 			"key": "privacy.storage.aiDescription",
 			"messages": {
-				"ar-SA": "الذكاء الاصطناعي اختياري. بعد موافقتك الصريحة قبل أول استخدام، نرسل عبر OpenRouter النص اللازم فقط لمعالجته خارج السعودية، من دون بيانات الاتصال.",
-				"en-US": "AI is optional. After your explicit consent before first use, we send only necessary text through OpenRouter for processing outside Saudi Arabia, without contact fields."
+				"ar-SA": "الذكاء الاصطناعي اختياري ويتطلب موافقتك. يمر النص اللازم فقط، دون بيانات الاتصال، عبر OpenRouter. تستخدم نماذج OpenAI Luna وTerra خدمة Microsoft Azure، ويستخدم مدقق DeepSeek خدمة Together AI. تستخدم الطلبات توجيهًا مؤهلًا لانعدام الاحتفاظ بالبيانات (ZDR) وترفض جمع البيانات للتدريب. تخضع المعالجة الفعلية لشروط مزودي الخدمة.",
+				"en-US": "AI is optional and needs your consent. Only necessary text, without contact details, goes through OpenRouter. OpenAI Luna and Terra use Microsoft Azure. The DeepSeek checker uses Together AI. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
 			},
 			"context": {
-				"surfaces": ["screens:S29", "states:s29.privacy.data.re.authentication.required"],
+				"surfaces": ["screens:S29", "states:s29.privacy.data.re.authentication.required", "messages:privacy"],
 				"audience": "candidate/account owner",
 				"translatorNotes": [
 					"D09/D16 OWNER DECIDED 2026-11-04. Overseas transfer consent precedes first AI use; collection notices precede collection. Final AR/EN S35/notices require Saudi lawyer review; no A11 or release approval.",
@@ -36909,13 +36909,13 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "AI is optional. After your explicit consent before first use, we send only necessary text through OpenRouter for processing outside Saudi Arabia, without contact fields.",
+				"msgid": "AI is optional and needs your consent. Only necessary text, without contact details, goes through OpenRouter. OpenAI Luna and Terra use Microsoft Azure. The DeepSeek checker uses Together AI. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling.",
 				"msgctxt": "privacy.storage.aiDescription",
-				"runtimeId": "vFP1km",
-				"mappingStatus": "verified temporary extraction and compilation",
+				"runtimeId": "x_Eq5-",
+				"mappingStatus": "active runtime binding",
 				"sourceLocale": "en-US",
-				"sourcePath": "apps/web/src (planned; metadata only, not a second runtime catalog)",
-				"verification": "Saved temporary Lingui extraction and compilation evidence; owner locale review remains pending."
+				"sourcePath": "src/features/settings/privacy/page.tsx",
+				"verification": "Current source identity from Lingui extraction."
 			},
 			"review": {
 				"ar-SA": {
@@ -38006,8 +38006,8 @@
 		{
 			"key": "privacy.policy.draftStatus",
 			"messages": {
-				"ar-SA": "مسودة بانتظار اعتماد المالك",
-				"en-US": "Draft pending owner approval"
+				"ar-SA": "الخصوصية والشروط",
+				"en-US": "Privacy and terms"
 			},
 			"context": {
 				"surfaces": ["screens:S35", "states:s35.privacy.and.terms.terms"],
@@ -38020,9 +38020,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Draft pending owner approval",
+				"msgid": "Privacy and terms",
 				"msgctxt": "privacy.policy.draftStatus",
-				"runtimeId": "fl6-Xw",
+				"runtimeId": "DzDkC0",
 				"mappingStatus": "planned copy; no active runtime binding",
 				"sourceLocale": "en-US",
 				"verification": "Removed from delivered UI by owner; retained only as design reference."
@@ -38206,8 +38206,8 @@
 		{
 			"key": "privacy.policy.purposeDescription",
 			"messages": {
-				"ar-SA": "لتشغيل حسابك وإنشاء سيرتك وتصديرها. يبقى التطبيق وقاعدة البيانات والنسخ الاحتياطية في السعودية. الذكاء الاصطناعي اختياري وبموافقتك الصريحة قبل أول استخدام؛ يُرسل النص اللازم فقط عبر OpenRouter لمعالجته خارج السعودية، من دون بيانات الاتصال، وبموجب عقد معالجة يتضمن ضمانات نقل وفق نظام حماية البيانات الشخصية.",
-				"en-US": "To operate your account and build and export your CV. The app, database and backups stay in Saudi Arabia. AI is optional and requires your explicit consent before first use. Only necessary text is sent through OpenRouter for processing outside Saudi Arabia, without contact fields, under a processing contract with PDPL transfer safeguards."
+				"ar-SA": "نستخدم بيانات حسابك لتشغيل الحساب، وبيانات سيرتك لإنشائها وتصديرها. خلال المرحلة التجريبية، يُخزّن التطبيق وقاعدة البيانات والملفات والنسخ الاحتياطية على خادم Contabo الافتراضي في بورتسموث بالمملكة المتحدة. نخطط لنقل الاستضافة إلى السعودية لاحقًا. الذكاء الاصطناعي اختياري ويتطلب موافقتك الصريحة قبل أول استخدام. نرسل نص السيرة اللازم فقط، دون بيانات الاتصال، عبر OpenRouter إلى Microsoft Azure لنماذج OpenAI Luna وTerra، وإلى Together AI لمدقق DeepSeek. تتم معالجة الذكاء الاصطناعي خارج السعودية. تستخدم الطلبات انعدام الاحتفاظ بالبيانات ولا تُستخدم للتدريب.",
+				"en-US": "We use account data to run your account. We use CV data to create and export your CV. During the pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom. We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models."
 			},
 			"context": {
 				"surfaces": ["screens:S35"],
@@ -38223,9 +38223,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "To operate your account and build and export your CV. The app, database and backups stay in Saudi Arabia. AI is optional and requires your explicit consent before first use. Only necessary text is sent through OpenRouter for processing outside Saudi Arabia, without contact fields, under a processing contract with PDPL transfer safeguards.",
+				"msgid": "We use account data to run your account. We use CV data to create and export your CV. During the pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom. We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models.",
 				"msgctxt": "privacy.policy.purposeDescription",
-				"runtimeId": "xp3gQE",
+				"runtimeId": "qNm4sp",
 				"mappingStatus": "verified temporary extraction and compilation",
 				"sourceLocale": "en-US",
 				"sourcePath": "apps/web/src (planned; metadata only, not a second runtime catalog)",
@@ -43918,8 +43918,8 @@
 		{
 			"key": "privacy.storage.aiHint.compact",
 			"messages": {
-				"ar-SA": "الذكاء الاصطناعي اختياري وبموافقتك قبل أول استخدام. يُعالج النص اللازم خارج السعودية عبر OpenRouter، من دون بيانات الاتصال.",
-				"en-US": "AI is optional and requires consent before first use. Necessary text is processed outside Saudi Arabia through OpenRouter, without contact fields."
+				"ar-SA": "الذكاء الاصطناعي اختياري ويتطلب موافقتك. يمر النص اللازم فقط، دون بيانات الاتصال، عبر OpenRouter. تستخدم نماذج OpenAI Luna وTerra خدمة Microsoft Azure، ويستخدم مدقق DeepSeek خدمة Together AI. تستخدم الطلبات توجيه ZDR وترفض جمع البيانات للتدريب. تطبق شروط مزودي الخدمة.",
+				"en-US": "AI is optional and needs consent. Necessary text, without contact details, goes through OpenRouter. OpenAI Luna and Terra use Microsoft Azure; the DeepSeek checker uses Together AI. Requests use ZDR routing and deny training data collection. Provider terms apply."
 			},
 			"context": {
 				"surfaces": [
@@ -43940,9 +43940,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "AI is optional and requires consent before first use. Necessary text is processed outside Saudi Arabia through OpenRouter, without contact fields.",
+				"msgid": "AI is optional and needs consent. Necessary text, without contact details, goes through OpenRouter. OpenAI Luna and Terra use Microsoft Azure; the DeepSeek checker uses Together AI. Requests use ZDR routing and deny training data collection. Provider terms apply.",
 				"msgctxt": "privacy.storage.aiHint.compact",
-				"runtimeId": "4qWz92",
+				"runtimeId": "qi5Flg",
 				"mappingStatus": "verified temporary extraction and compilation",
 				"sourceLocale": "en-US",
 				"sourcePath": "apps/web/src (planned; metadata only, not a second runtime catalog)",
@@ -54241,6 +54241,82 @@
 			}
 		},
 		{
+			"key": "email.common.linkFallback",
+			"messages": {
+				"ar-SA": "إذا لم يعمل الزر، انسخ هذا الرابط:",
+				"en-US": "If the button does not work, copy this link:"
+			},
+			"context": {
+				"surfaces": [],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["User-requested fallback instruction for every authentication email."],
+				"channel": "email",
+				"purpose": "email.common.linkFallback",
+				"nonvisualUses": [
+					{
+						"channel": "email",
+						"purpose": "verify",
+						"slot": "linkFallback"
+					},
+					{
+						"channel": "email",
+						"purpose": "reset",
+						"slot": "linkFallback"
+					},
+					{
+						"channel": "email",
+						"purpose": "emailchange",
+						"slot": "linkFallback"
+					}
+				]
+			},
+			"nodeIds": [],
+			"source": "spec-only",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "If the button does not work, copy this link:",
+				"msgctxt": "email.common.linkFallback",
+				"runtimeId": "LnkFbk1",
+				"mappingStatus": "verified temporary extraction and compilation",
+				"sourceLocale": "en-US",
+				"sourcePath": "apps/web/src (planned; metadata only, not a second runtime catalog)",
+				"verification": "Generated from the user-requested bilingual email fallback copy."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "export9 / 2026-11-03"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "export9 / 2026-11-03"
+				}
+			},
+			"template": {
+				"pipeline": "packages/email/src/templates/auth.tsx",
+				"export": "VerifyEmail",
+				"previewModule": "packages/email/src/templates/verify-email.tsx",
+				"subjectSource": "packages/auth/src/config.ts",
+				"purpose": "shared authentication email",
+				"locale": "snapshot initiating UI locale; ar-SA fallback; action URL retains UI locale",
+				"html": "existing React Email template; locale lang/dir and escaped arguments",
+				"plainText": "render same ordered slots through existing template pipeline; preserve logical text order",
+				"actionUrl": {
+					"name": "url",
+					"type": "url",
+					"format": "approved first-party HTTPS action URL with interface locale",
+					"isolation": "bdi dir=ltr for numeric/date/email/URL/code tokens; bdi dir=auto for user text",
+					"security": "escape as text; never execute HTML; do not log token or personal value"
+				},
+				"status": "Added to shared verification, reset and email-change layouts.",
+				"slot": "linkFallback"
+			}
+		},
+		{
 			"key": "email.verification.outro",
 			"messages": {
 				"ar-SA": "إن لم تنشئ هذا الحساب، يمكنك تجاهل هذه الرسالة.",
@@ -56971,11 +57047,11 @@
 		{
 			"key": "privacy.ai.overseasNotice",
 			"messages": {
-				"ar-SA": "ميزات الذكاء الاصطناعي اختيارية. يتطلب استخدامها إرسال النص اللازم فقط عبر OpenRouter لمعالجته خارج السعودية، من دون بيانات الاتصال. يمكنك متابعة التحرير وتصدير PDF من دونها.",
-				"en-US": "AI features are optional. Using them requires sending only necessary text through OpenRouter for processing outside Saudi Arabia, without contact fields. You can keep editing and export PDF without them."
+				"ar-SA": "ميزات الذكاء الاصطناعي اختيارية وتتطلب موافقتك الصريحة قبل أول استخدام. نرسل نص السيرة اللازم فقط، دون بيانات الاتصال، عبر OpenRouter إلى Microsoft Azure لنماذج OpenAI Luna وTerra، وإلى Together AI لمدقق DeepSeek. تتم هذه المعالجة خارج السعودية. تستخدم الطلبات انعدام الاحتفاظ بالبيانات ولا تُستخدم للتدريب.",
+				"en-US": "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models."
 			},
 			"context": {
-				"surfaces": ["screens:S04", "screens:S11", "screens:S19", "screens:S29"],
+				"surfaces": ["screens:S04", "screens:S11", "screens:S19", "screens:S29", "messages:workspace"],
 				"audience": "candidate/account owner",
 				"translatorNotes": [
 					"D09/D16 OWNER DECIDED 2026-11-04. Overseas transfer consent precedes first AI use; collection notices precede collection. Final AR/EN S35/notices require Saudi lawyer review; no A11 or release approval.",
@@ -56988,13 +57064,13 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "AI features are optional. Using them requires sending only necessary text through OpenRouter for processing outside Saudi Arabia, without contact fields. You can keep editing and export PDF without them.",
+				"msgid": "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models.",
 				"msgctxt": "privacy.ai.overseasNotice",
-				"runtimeId": "hStvNa",
-				"mappingStatus": "verified temporary extraction and compilation",
+				"runtimeId": "QLDdv9",
+				"mappingStatus": "active runtime binding",
 				"sourceLocale": "en-US",
-				"sourcePath": "apps/web/src (planned; metadata only, not a second runtime catalog)",
-				"verification": "Saved temporary Lingui extraction and compilation evidence; owner locale review remains pending."
+				"sourcePath": "src/features/assistant/copy.generated.ts",
+				"verification": "Current source identity from Lingui extraction."
 			},
 			"review": {
 				"ar-SA": {
@@ -57012,8 +57088,8 @@
 		{
 			"key": "privacy.ai.transferConsent",
 			"messages": {
-				"ar-SA": "أوافق صراحةً على معالجة النص اللازم لسيرتي خارج السعودية عبر OpenRouter، كما يوضح إشعار الخصوصية.",
-				"en-US": "I explicitly consent to the necessary CV text being processed outside Saudi Arabia through OpenRouter, as explained in the privacy notice."
+				"ar-SA": "أوافق على معالجة النص اللازم لسيرتي، دون بيانات الاتصال، خارج السعودية عبر OpenRouter. تستخدم نماذج OpenAI Luna وTerra خدمة Microsoft Azure، ويستخدم مدقق DeepSeek خدمة Together AI. تستخدم الطلبات توجيهًا لانعدام الاحتفاظ بالبيانات (ZDR) وترفض جمع البيانات للتدريب. تخضع المعالجة الفعلية لشروط مزودي الخدمة.",
+				"en-US": "I consent to necessary CV text, without contact details, being processed outside Saudi Arabia through OpenRouter. OpenAI Luna and Terra use Microsoft Azure. The DeepSeek checker uses Together AI. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
 			},
 			"context": {
 				"surfaces": ["screens:S04", "screens:S11", "screens:S19", "screens:S29"],
@@ -57029,9 +57105,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "I explicitly consent to the necessary CV text being processed outside Saudi Arabia through OpenRouter, as explained in the privacy notice.",
+				"msgid": "I consent to necessary CV text, without contact details, being processed outside Saudi Arabia through OpenRouter. OpenAI Luna and Terra use Microsoft Azure. The DeepSeek checker uses Together AI. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling.",
 				"msgctxt": "privacy.ai.transferConsent",
-				"runtimeId": "eVJVwi",
+				"runtimeId": "jCj9XT",
 				"mappingStatus": "verified temporary extraction and compilation",
 				"sourceLocale": "en-US",
 				"sourcePath": "apps/web/src (planned; metadata only, not a second runtime catalog)",
@@ -70869,8 +70945,8 @@
 		{
 			"key": "review.import.copyqAqFl",
 			"messages": {
-				"en-US": "Check this information",
-				"ar-SA": "تحقق من هذه المعلومة"
+				"en-US": "Please confirm this information",
+				"ar-SA": "يرجى تأكيد هذه المعلومة"
 			},
 			"context": {
 				"surfaces": ["screens:S05", "screens:S06", "screens:S07", "screens:S08"],
@@ -70883,9 +70959,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Check this information",
+				"msgid": "Please confirm this information",
 				"msgctxt": "",
-				"runtimeId": "qA-qFl",
+				"runtimeId": "x8jYmq",
 				"mappingStatus": "extracted current source",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/resume/import/review.tsx",
@@ -76127,7 +76203,7 @@
 				"ar-SA": "يستهلك هذا الطلب عملية واحدة. يرسل النص المحدد والمعلومات المؤكدة المرتبطة به، دون بيانات التواصل، إلى جهة المعالجة المعتمدة. الاقتراحات اختيارية وتتطلب مراجعتك."
 			},
 			"context": {
-				"surfaces": ["messages:workspace"],
+				"surfaces": [],
 				"audience": "candidate/account owner",
 				"translatorNotes": ["T006 source-supported review. Draft AR/EN copy pending owner review; no A13 approval."]
 			},
@@ -76139,10 +76215,10 @@
 			"lingui": {
 				"msgid": "This task uses 1 operation. It sends the selected text and related confirmed facts, without contact details, to the approved processing provider. Suggestions are optional and require your review.",
 				"msgctxt": "",
-				"mappingStatus": "verified runtime extraction",
+				"mappingStatus": "superseded runtime binding",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/resume/editor/proposals/review-operation.tsx",
-				"verification": "T006 scoped extraction, 2026-11-12.",
+				"verification": "Replaced by privacy.ai.overseasNotice. Retained as specification history.",
 				"runtimeId": "ak5u6o"
 			},
 			"review": {
@@ -99276,7 +99352,7 @@
 				"en-US": "AI is optional and requires explicit approval and processing consent. Available processing routes and their notices are shown before use."
 			},
 			"context": {
-				"surfaces": ["messages:privacy"],
+				"surfaces": [],
 				"audience": "individual",
 				"translatorNotes": [
 					"Spec-only operational copy; synthetic implementation; pending owner Arabic and policy review."
@@ -99293,9 +99369,10 @@
 			"lingui": {
 				"msgid": "AI is optional and requires explicit approval and processing consent. Available processing routes and their notices are shown before use.",
 				"msgctxt": "workspace.privacy.59442732fa1f",
-				"mappingStatus": "active runtime binding",
+				"mappingStatus": "superseded runtime binding",
 				"sourceLocale": "en-US",
-				"runtimeId": "LW-LRQ"
+				"runtimeId": "LW-LRQ",
+				"verification": "Replaced by privacy.storage.aiDescription. Retained as specification history."
 			},
 			"review": {
 				"ar-SA": {
@@ -109937,8 +110014,8 @@
 		{
 			"key": "legal.draft.notice",
 			"messages": {
-				"ar-SA": "مسودة للمراجعة — ليست سياسة نهائية معتمدة.",
-				"en-US": "Review draft — not an approved final policy."
+				"ar-SA": "الخصوصية والشروط",
+				"en-US": "Privacy and terms"
 			},
 			"context": {
 				"surfaces": ["screens:S35"],
@@ -109951,9 +110028,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Review draft — not an approved final policy.",
+				"msgid": "Privacy and terms",
 				"msgctxt": "legal.draft.notice",
-				"runtimeId": "yLi86R",
+				"runtimeId": "olzZWD",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/public-copy.ts",
 				"mappingStatus": "verified extraction"
@@ -110899,8 +110976,8 @@
 		{
 			"key": "legal.draft.revision",
 			"messages": {
-				"ar-SA": "مراجعة المسودة: 2026-11-15",
-				"en-US": "Draft revision: 2026-11-15"
+				"ar-SA": "بيانات الحساب وأدوات التحكم",
+				"en-US": "Account data and controls"
 			},
 			"context": {
 				"surfaces": ["screens:S35"],
@@ -110913,9 +110990,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Draft revision: 2026-11-15",
+				"msgid": "Account data and controls",
 				"msgctxt": "legal.draft.revision",
-				"runtimeId": "tH30zw",
+				"runtimeId": "fg6Inp",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/public-copy.ts",
 				"mappingStatus": "verified extraction"
@@ -111306,8 +111383,8 @@
 		{
 			"key": "legal.terms.approval.title",
 			"messages": {
-				"ar-SA": "مسودة للمراجعة",
-				"en-US": "A review draft"
+				"ar-SA": "أدوات الحساب",
+				"en-US": "Account controls"
 			},
 			"context": {
 				"surfaces": ["screens:S35"],
@@ -111320,9 +111397,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "A review draft",
+				"msgid": "Account controls",
 				"msgctxt": "legal.terms.approval.title",
-				"runtimeId": "4S6emQ",
+				"runtimeId": "mP0FON",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/public-copy.ts",
 				"mappingStatus": "verified extraction"
@@ -111343,8 +111420,8 @@
 		{
 			"key": "legal.terms.approval.body",
 			"messages": {
-				"ar-SA": "تصف هذه الصفحة أدوات الحساب الحالية. لا تزال الشروط القانونية النهائية والموافقة على النشر معلقتين. لا تقدم الصفحة عروض دفع أو خطوة قبول جديدة.",
-				"en-US": "This page describes the existing account controls. Final legal terms and publication approval remain pending. It does not introduce payment offers or a new acceptance step."
+				"ar-SA": "تصف هذه الصفحة أدوات الحساب الحالية. لا تقدم الصفحة عروض دفع أو خطوة قبول جديدة.",
+				"en-US": "This page describes the existing account controls. It does not introduce payment offers or a new acceptance step."
 			},
 			"context": {
 				"surfaces": ["screens:S35"],
@@ -111357,9 +111434,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "This page describes the existing account controls. Final legal terms and publication approval remain pending. It does not introduce payment offers or a new acceptance step.",
+				"msgid": "This page describes the existing account controls. It does not introduce payment offers or a new acceptance step.",
 				"msgctxt": "legal.terms.approval.body",
-				"runtimeId": "_PoROV",
+				"runtimeId": "2iK0Tw",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/public-copy.ts",
 				"mappingStatus": "verified extraction"
@@ -111454,8 +111531,8 @@
 		{
 			"key": "public.meta.legal.description",
 			"messages": {
-				"ar-SA": "مسودة للمراجعة تصف أدوات بيانات الحساب الحالية والإمكانات المتاحة والسياسات التي تنتظر الاعتماد.",
-				"en-US": "Review draft describing existing account data controls, current capabilities and pending policy approvals."
+				"ar-SA": "أدوات بيانات الحساب الحالية والإمكانات المتاحة.",
+				"en-US": "Existing account data controls and current capabilities."
 			},
 			"context": {
 				"surfaces": ["screens:S01"],
@@ -111468,9 +111545,9 @@
 			"interpolations": [],
 			"variants": [],
 			"lingui": {
-				"msgid": "Review draft describing existing account data controls, current capabilities and pending policy approvals.",
+				"msgid": "Existing account data controls and current capabilities.",
 				"msgctxt": "public.meta.legal.description",
-				"runtimeId": "2aceWQ",
+				"runtimeId": "yflgSA",
 				"sourceLocale": "en-US",
 				"sourcePath": "src/features/public-copy.ts",
 				"mappingStatus": "verified extraction"
@@ -141958,7 +142035,7 @@
 			"review.ai.k5jxPp",
 			"review.ai.rXPQmJ",
 			"review.ai.mxb0da",
-			"review.ai.ak5u6o",
+			"privacy.ai.overseasNotice",
 			"review.ai.7swZVm",
 			"review.ai.5Xidck",
 			"review.ai.wU8gtd",
@@ -142807,7 +142884,7 @@
 			"workspace.privacy.ae1d88f0e45b",
 			"workspace.privacy.5722ef9e3d6b",
 			"workspace.privacy.d7b22c481606",
-			"workspace.privacy.59442732fa1f",
+			"privacy.storage.aiDescription",
 			"workspace.privacy.871b382d0e30",
 			"workspace.privacy.0d79b412fa4e",
 			"workspace.privacy.270ead5517b8",

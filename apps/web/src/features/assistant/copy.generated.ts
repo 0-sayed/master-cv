@@ -2,6 +2,11 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 const messages = {
+	"privacy.ai.overseasNotice": msg({
+		message:
+			"AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models.",
+		context: "privacy.ai.overseasNotice",
+	}),
 	"review.launch.budgetReached": msg({
 		message: "The daily AI budget is reached. Try again tomorrow. Your draft is kept.",
 		context: "review.launch.budgetReached",

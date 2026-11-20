@@ -50,6 +50,11 @@ const messages = {
 		context: "auth.welcome.export.description",
 	}),
 	"auth.welcome.privacy.title": msg({ message: "Your CV belongs to you", context: "auth.welcome.privacy.title" }),
+	"auth.welcome.privacy.description": msg({
+		message:
+			"We use your file to build your CV. See Privacy and data for what we send to the processing provider and why. You can download your data or request account deletion.",
+		context: "auth.welcome.privacy.description",
+	}),
 	"auth.welcome.explore": msg({ message: "Explore first", context: "auth.welcome.explore" }),
 	"auth.welcome.start": msg({ message: "Get started", context: "auth.welcome.start" }),
 	"editor.career.title": msg({ message: "My career information", context: "editor.career.title" }),

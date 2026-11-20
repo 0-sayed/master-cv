@@ -1,8 +1,10 @@
 import { t } from "@lingui/core/macro";
 import { useNavigate, useRouteContext } from "@tanstack/react-router";
 import { useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
+import { SectionCard } from "@reactive-resume/ui/components/section-card";
 import { AuthErrorSummary } from "../auth/components/auth-error-summary";
 import { useCareerCopy } from "./copy.generated";
 import { PageHeader } from "@/components/layout/page-header";
@@ -27,38 +29,50 @@ export function WelcomePage() {
 		}
 	}
 	return (
-		<div className="contents">
+		<SectionCard aria-labelledby="welcome-title" variant="spacious">
 			<PageHeader
-				title={copy("auth.welcome.title", { name: session.user.name })}
+				title={<span id="welcome-title">{copy("auth.welcome.title", { name: session.user.name })}</span>}
 				description={copy("auth.welcome.subtitle")}
 			/>
-			<div className="grid gap-4 lg:grid-cols-3 lg:gap-6">
-				{(["import", "review", "export"] as const).map((step, index) => (
-					<section
-						key={step}
-						className="grid grid-cols-[40px_1fr] items-center gap-x-3 gap-y-1 rounded-xl border border-line bg-surface p-4 lg:grid-cols-1 lg:justify-items-start lg:gap-4 lg:p-6"
-					>
-						<Icon
-							name={index === 0 ? "upload-simple" : index === 1 ? "list-checks" : "download-simple"}
-							size={20}
-							className="row-span-2 box-content rounded-md bg-accent-soft p-2.5 text-accent-text lg:row-span-1"
-						/>
-						<h2 className="type-section">{copy(`auth.welcome.${step}.title`)}</h2>
-						<p className="col-start-2 type-body text-ink-2 lg:col-start-auto">
-							{copy(`auth.welcome.${step}.description`)}
-						</p>
-					</section>
-				))}
-			</div>
+			<Button
+				size="lg"
+				loading={pending}
+				className="w-full sm:w-fit"
+				onClick={() => void complete("/dashboard/career/information")}
+			>
+				{copy("auth.welcome.start")}
+			</Button>
 			<AuthErrorSummary message={error} />
-			<div className="flex flex-col gap-3 lg:flex-row">
-				<Button size="lg" loading={pending} onClick={() => void complete("/dashboard/career/information")}>
-					{copy("auth.welcome.start")}
-				</Button>
-				<Button variant="link" size="link-touch" disabled={pending} onClick={() => void complete("/dashboard")}>
-					{copy("auth.welcome.explore")}
-				</Button>
-			</div>
-		</div>
+			<ol className="grid divide-y divide-line border-y border-line">
+				{(["import", "review", "export"] as const).map((step, index) => {
+					const sourceTitle = copy(`auth.welcome.${step}.title`);
+					const title = sourceTitle.replace(/^[\p{Nd}]+\.\s*/u, "");
+					return (
+						<li key={step} className="flex items-start gap-4 py-4 first:pt-0 last:pb-0">
+							<bdi
+								dir="ltr"
+								className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-soft type-label text-accent-text"
+							>
+								{index + 1}
+							</bdi>
+							<div className="grid min-w-0 gap-1">
+								<h2 className="type-section">{title}</h2>
+								<p className="type-body text-ink-2">{copy(`auth.welcome.${step}.description`)}</p>
+							</div>
+						</li>
+					);
+				})}
+			</ol>
+			<Alert variant="info">
+				<Icon name="info" />
+				<div className="grid gap-1">
+					<AlertTitle>{copy("auth.welcome.privacy.title")}</AlertTitle>
+					<AlertDescription>{copy("auth.welcome.privacy.description")}</AlertDescription>
+				</div>
+			</Alert>
+			<Button variant="link" size="link-touch" disabled={pending} onClick={() => void complete("/dashboard")}>
+				{copy("auth.welcome.explore")}
+			</Button>
+		</SectionCard>
 	);
 }

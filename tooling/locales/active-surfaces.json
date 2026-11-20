@@ -177,7 +177,6 @@
 				"workspace.privacy.ae1d88f0e45b",
 				"workspace.privacy.5722ef9e3d6b",
 				"workspace.privacy.d7b22c481606",
-				"workspace.privacy.59442732fa1f",
 				"workspace.privacy.0d79b412fa4e",
 				"workspace.privacy.270ead5517b8",
 				"workspace.privacy.3385155dcbc6",
@@ -240,7 +239,8 @@
 				"workspace.documents.cancel_dEgA5A",
 				"review.check.copyaz8lvo",
 				"applications.detail.binding.cnGeoo",
-				"applications.detail.binding.w61W3L"
+				"applications.detail.binding.w61W3L",
+				"privacy.storage.aiDescription"
 			],
 			"status": "active",
 			"owner": "T009",
@@ -503,7 +503,6 @@
 				"editor.conflict.preservedHint",
 				"workspace.cv.Z2Hzp9",
 				"review.import.copyY6GAc",
-				"review.import.copyqAqFl",
 				"review.import.copyxH9G0",
 				"review.import.copyFqZ4",
 				"review.import.copyEBUCXT",
@@ -613,7 +612,6 @@
 				"review.ai.k5jxPp",
 				"review.ai.rXPQmJ",
 				"review.ai.mxb0da",
-				"review.ai.ak5u6o",
 				"review.ai.7swZVm",
 				"review.ai.5Xidck",
 				"review.ai.wU8gtd",
@@ -981,7 +979,9 @@
 				"review.filter.tip",
 				"workspace.documents.grid_CXDHcv",
 				"account.interface.4895f73177ab",
-				"review.finding.location.pageNumber"
+				"review.finding.location.pageNumber",
+				"privacy.ai.overseasNotice",
+				"review.import.copyqAqFl"
 			],
 			"status": "active",
 			"owner": "T004",
@@ -1877,7 +1877,8 @@
 				"review.severity.all",
 				"review.severity.blocker",
 				"review.severity.warning",
-				"review.filter.tip"
+				"review.filter.tip",
+				"privacy.ai.overseasNotice"
 			],
 			"status": "active",
 			"owner": "T002/A13 feature owners",
@@ -2235,7 +2236,6 @@
 				"workspace.privacy.ae1d88f0e45b",
 				"workspace.privacy.5722ef9e3d6b",
 				"workspace.privacy.d7b22c481606",
-				"workspace.privacy.59442732fa1f",
 				"workspace.privacy.0d79b412fa4e",
 				"workspace.privacy.270ead5517b8",
 				"workspace.privacy.3385155dcbc6",
@@ -2349,7 +2349,8 @@
 				"workspace.documents.cancel_dEgA5A",
 				"review.check.copyaz8lvo",
 				"applications.detail.binding.cnGeoo",
-				"applications.detail.binding.w61W3L"
+				"applications.detail.binding.w61W3L",
+				"privacy.storage.aiDescription"
 			],
 			"status": "active",
 			"owner": "T009",

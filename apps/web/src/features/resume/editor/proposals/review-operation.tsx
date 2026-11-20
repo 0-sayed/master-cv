@@ -214,12 +214,7 @@ export function ReviewLaunch({
 					<DialogTitle>
 						<Trans>Review with the assistant</Trans>
 					</DialogTitle>
-					<DialogDescription>
-						<Trans>
-							This task uses 1 operation. It sends the selected text and related confirmed facts, without contact
-							details, to the approved processing provider. Suggestions are optional and require your review.
-						</Trans>
-					</DialogDescription>
+					<DialogDescription>{copy("privacy.ai.overseasNotice")}</DialogDescription>
 					{usage.data?.operations.remaining != null && (
 						<p className="type-metadata text-ink-2">
 							{copy("billing.usage.remainingOperations", { remaining: usage.data.operations.remaining })}

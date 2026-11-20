@@ -232,12 +232,12 @@ const publicMessages = {
 		message: "Clear, honest CVs, written in Arabic first.",
 		context: "landing.footer.tagline",
 	}),
-	"legal.draft.notice": msg({ message: "Review draft — not an approved final policy.", context: "legal.draft.notice" }),
+	"legal.draft.notice": msg({ message: "Privacy and terms", context: "legal.draft.notice" }),
 	"common.navigation.signIn": msg({ message: "Sign in", context: "common.navigation.signIn" }),
 	"legal.page.title": msg({ message: "Privacy and terms", context: "legal.page.title" }),
 	"legal.tab.privacy": msg({ message: "Privacy", context: "legal.tab.privacy" }),
 	"legal.tab.terms": msg({ message: "Terms", context: "legal.tab.terms" }),
-	"legal.draft.revision": msg({ message: "Draft revision: 2026-11-15", context: "legal.draft.revision" }),
+	"legal.draft.revision": msg({ message: "Account data and controls", context: "legal.draft.revision" }),
 	"legal.privacy.data.title": msg({ message: "Data in your account", context: "legal.privacy.data.title" }),
 	"legal.privacy.data.body": msg({
 		message:
@@ -277,10 +277,10 @@ const publicMessages = {
 			"Write and review your CV in a private account. Review proposed changes before applying them. Qualified PDF downloads follow account limits. Arabic and English versions remain separate. Word downloads and public sharing are unavailable.",
 		context: "legal.terms.capabilities.body",
 	}),
-	"legal.terms.approval.title": msg({ message: "A review draft", context: "legal.terms.approval.title" }),
+	"legal.terms.approval.title": msg({ message: "Account controls", context: "legal.terms.approval.title" }),
 	"legal.terms.approval.body": msg({
 		message:
-			"This page describes the existing account controls. Final legal terms and publication approval remain pending. It does not introduce payment offers or a new acceptance step.",
+			"This page describes the existing account controls. It does not introduce payment offers or a new acceptance step.",
 		context: "legal.terms.approval.body",
 	}),
 	"legal.navigation.data": msg({ message: "Manage your data", context: "legal.navigation.data" }),
@@ -290,8 +290,7 @@ const publicMessages = {
 		context: "public.meta.home.description",
 	}),
 	"public.meta.legal.description": msg({
-		message:
-			"Review draft describing existing account data controls, current capabilities and pending policy approvals.",
+		message: "Existing account data controls and current capabilities.",
 		context: "public.meta.legal.description",
 	}),
 	"public.meta.help.title": msg({ message: "Help and contact", context: "public.meta.help.title" }),

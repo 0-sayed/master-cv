@@ -41,6 +41,10 @@ export const authMessages = {
 		"ar-SA": "يؤكد هذا أن العنوان يخصّك ويساعد على حماية حسابك.",
 		"en-US": "This confirms the address belongs to you, which keeps your account secure.",
 	},
+	"email.common.linkFallback": {
+		"ar-SA": "إذا لم يعمل الزر، انسخ هذا الرابط:",
+		"en-US": "If the button does not work, copy this link:",
+	},
 	"email.verification.outro": {
 		"ar-SA": "إن لم تنشئ هذا الحساب، يمكنك تجاهل هذه الرسالة.",
 		"en-US": "If you did not create this account, you can safely ignore this email.",

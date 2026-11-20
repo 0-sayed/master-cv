@@ -12,6 +12,7 @@ import { Steps } from "./sections";
 import { TailorShowcase } from "./tailor";
 import { TrustBand } from "./trust";
 import { PublicShell } from "@/features/help/public-shell";
+import { ThemeToggleButton } from "@/features/theme/toggle-button";
 import { usePublicSeo } from "@/libs/public-seo";
 
 export function Homepage() {
@@ -21,8 +22,18 @@ export function Homepage() {
 		<PublicShell
 			variant="landing"
 			navigation={<LandingSectionNav />}
-			compactActions={<LandingCompactActions />}
-			headerActions={<LandingHeader />}
+			compactActions={
+				<>
+					<ThemeToggleButton />
+					<LandingCompactActions />
+				</>
+			}
+			headerActions={
+				<>
+					<ThemeToggleButton />
+					<LandingHeader />
+				</>
+			}
 			footer={<LandingFooter />}
 		>
 			<Hero />

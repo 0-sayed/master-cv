@@ -7,7 +7,10 @@ function SectionCard({
 	variant = "default",
 	tone = "default",
 	...props
-}: ComponentProps<"section"> & { variant?: "default" | "flush" | "compact"; tone?: "default" | "highlight" }) {
+}: ComponentProps<"section"> & {
+	variant?: "default" | "flush" | "compact" | "spacious";
+	tone?: "default" | "highlight";
+}) {
 	return (
 		<section
 			data-slot="section-card"
@@ -15,7 +18,13 @@ function SectionCard({
 			data-tone={tone}
 			className={cn(
 				"group/section-card grid content-start rounded-xl border border-line bg-surface",
-				variant === "flush" ? "divide-y divide-line" : variant === "compact" ? "gap-2 p-3" : "gap-3 p-4",
+				variant === "flush"
+					? "divide-y divide-line"
+					: variant === "compact"
+						? "gap-2 p-3"
+						: variant === "spacious"
+							? "gap-6 p-4 sm:p-6 lg:p-8"
+							: "gap-3 p-4",
 				tone === "highlight" && "border-accent bg-accent-soft text-accent-text",
 				className,
 			)}

@@ -145,6 +145,7 @@ it.each(["review.summary", "review.job-evidence"] as const)(
 			</I18nProvider>,
 		);
 		fireEvent.click(await screen.findByRole("button", { name: "Launch" }));
+		expect(screen.getByRole("dialog").textContent).toContain("outside Saudi Arabia");
 		fireEvent.click(screen.getByRole("button", { name: "Start review" }));
 		await waitFor(() => expect(onStarted).toHaveBeenCalledWith("started"));
 		view.unmount();

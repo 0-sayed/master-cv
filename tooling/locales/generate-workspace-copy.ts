@@ -122,6 +122,7 @@ const groups = {
 		"language.switch.englishAccessible",
 	],
 	assistant: [
+		"privacy.ai.overseasNotice",
 		"review.launch.budgetReached",
 		"review.launch.allowanceUsed",
 		"review.launch.consentRequired",
@@ -235,6 +236,7 @@ const groups = {
 		"auth.welcome.export.title",
 		"auth.welcome.export.description",
 		"auth.welcome.privacy.title",
+		"auth.welcome.privacy.description",
 		"auth.welcome.explore",
 		"auth.welcome.start",
 		"editor.career.title",

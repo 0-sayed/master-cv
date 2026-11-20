@@ -20,10 +20,13 @@ const inventoryPath = new URL("./active-surfaces.json", import.meta.url);
 const inventory = JSON.parse(await readFile(inventoryPath, "utf8")) as {
 	surfaces: Array<{ id: string; sources: string[]; excludeSources?: string[]; keys: string[] }>;
 };
+const selectedKeys = new Set(process.argv.slice(2));
+const targeted = selectedKeys.size > 0;
 
 for (const surface of inventory.surfaces) {
 	const matched = deck.entries
 		.filter((e) => {
+			if (targeted && !selectedKeys.has(e.key)) return false;
 			const message = catalog[e.lingui.runtimeId];
 			return (
 				message &&
@@ -36,9 +39,10 @@ for (const surface of inventory.surfaces) {
 			);
 		})
 		.map((e) => e.key);
-	const prior = surface.keys ?? [];
+	const prior = (surface.keys ?? []).filter((key) => !targeted || !selectedKeys.has(key));
 	surface.keys = [...new Set([...prior, ...matched])].filter(
 		(key) =>
+			targeted ||
 			surface.id !== "settings" ||
 			![
 				"workspace.documents.cancel_dEgA5A",

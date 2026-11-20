@@ -10129,6 +10129,14 @@
 			"kind": "geometry",
 			"count": 1,
 			"reason": "PDF point geometry fixture for printable-height regression, not interface styling."
+		},
+		{
+			"file": "apps/web/src/features/assistant/copy.generated.ts",
+			"context": "const:messages/property:message/property:\"privacy.ai.overseasNotice\"",
+			"literal": "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models.",
+			"kind": "color",
+			"count": 1,
+			"reason": "Azure is a processor name in pending owner-review privacy copy, not an interface color."
 		}
 	]
 }

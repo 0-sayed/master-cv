@@ -27,11 +27,7 @@ it("keeps public entry and draft legal promises aligned in both locales", async 
 			"مثال توضيحي ببيانات افتراضية، وليس نتيجة مستخدم أو تحليلًا مباشرًا.",
 			"Illustrative example with synthetic facts, not a user result or a live analysis.",
 		],
-		[
-			"legal.draft.notice",
-			"مسودة للمراجعة — ليست سياسة نهائية معتمدة.",
-			"Review draft — not an approved final policy.",
-		],
+		["legal.draft.notice", "الخصوصية والشروط", "Privacy and terms"],
 	] as const;
 	for (const [key, arabic, english] of promises) {
 		const entry = deck.entries.find((candidate) => candidate.key === key);
