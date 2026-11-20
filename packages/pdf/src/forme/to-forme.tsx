@@ -607,6 +607,9 @@ function convertNode(node: HostNode, parentContext: Context, key: number): React
 		case HOST.link: {
 			const converted = convertStyle(props.style, context, node);
 			const { style } = converted;
+			// Arabic pair kerning can exceed readers' word-space thresholds (IBM Plex Bold: 0.12 em).
+			// Keep contextual shaping, ligatures and mark positioning, but omit optional pair kerning.
+			if (/\p{Script=Arabic}/u.test(inlineText(node))) style.fontFeatureSettings = '"kern" 0';
 			if (context.fittedFontSize !== undefined)
 				style.fontSize = Math.min(Number(style.fontSize ?? context.fittedFontSize), context.fittedFontSize);
 			const fitIndex = props["data-export-no-wrap"] && !context.inText ? context.noWrap.count++ : undefined;

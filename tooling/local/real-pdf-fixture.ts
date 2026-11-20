@@ -92,3 +92,17 @@ export function realPdfFixture(template: Template, locale: "ar-SA" | "en-US", we
 	}
 	return parseResumeData(data);
 }
+
+/** Words that must survive extraction without removing spaces from the reader output. */
+export function realPdfExpectedWords(data: ResumeData): string[] {
+	const fields = [
+		data.basics.name,
+		data.basics.headline,
+		data.basics.location,
+		...data.sections.experience.items.flatMap((item) => [item.company, item.position]),
+		...data.sections.education.items.map((item) => item.school),
+		...data.sections.skills.items.flatMap((item) => [item.name, ...item.keywords]),
+		...data.sections.languages.items.map((item) => item.language),
+	];
+	return [...new Set(fields.flatMap((field) => field.match(/\p{L}+/gu) ?? []))];
+}
