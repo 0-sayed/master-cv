@@ -1,0 +1,47 @@
+{
+	"routeId": "sirawise-pilot-openrouter",
+	"routeRevision": "1",
+	"configRevision": "pilot-writers-2026-11-20-v1",
+	"endpoint": "https://openrouter.ai/api/v1",
+	"model": "openai/gpt-6-luna",
+	"downstreamProvider": "azure",
+	"reasoningEffort": "low",
+	"writers": [
+		{
+			"model": "openai/gpt-6-luna",
+			"downstreamProvider": "azure",
+			"reasoningEffort": "high",
+			"evidenceVersion": "pilot-2026-11-20-owner-approved",
+			"maxCallCostMicros": 100000
+		},
+		{
+			"model": "openai/gpt-6.1-terra",
+			"downstreamProvider": "azure",
+			"reasoningEffort": "medium",
+			"evidenceVersion": "pilot-2026-11-20-owner-approved",
+			"maxCallCostMicros": 100000
+		}
+	],
+	"noticeVersion": "1",
+	"evidenceVersion": "pilot-2026-11-20-owner-approved",
+	"maxCalls": 2,
+	"maxRepairs": 0,
+	"callTimeoutMs": 30000,
+	"deadlineMs": 120000,
+	"maxInputCodePoints": 32000,
+	"maxOutputTokens": 4096,
+	"maxCallCostMicros": 100000,
+	"requestCapMicros": 200000,
+	"dayCapMicros": 50000000,
+	"concurrency": 100,
+	"verifier": {
+		"evidenceVersion": "pilot-2026-11-20-owner-approved",
+		"maxOutputTokens": 16384,
+		"maxCallCostMicros": 100000,
+		"policy": {
+			"model": "deepseek/deepseek-v4.1-flash-1017",
+			"downstreamProvider": "together",
+			"reasoningEffort": "low"
+		}
+	}
+}

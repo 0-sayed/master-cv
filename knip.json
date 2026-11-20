@@ -114,7 +114,7 @@
 			]
 		},
 		"packages/db": {
-			"entry": ["src/deploy-migrations.mjs", "src/deploy-runtime-role.mjs"]
+			"entry": ["src/deploy-migrations.mjs", "src/deploy-runtime-role.mjs", "src/deploy-ai-budget.mjs"]
 		},
 		"tooling": {
 			"ignoreExportsUsedInFile": true,

@@ -30,7 +30,13 @@ Run the script from a clean `main` that matches `origin/main`. The VPS clones th
 
 Compose gives its default network subnet `172.31.240.0/24`; the app trusts gateway `172.31.240.1`. `getTrustedClient` reads `X-Forwarded-For`, which Caddy sends to the app. The deploy script starts PostgreSQL and waits for its health check. If the database has tables, the script takes a backup before migration. It then runs migrations from the new app image and syncs runtime grants. The app starts after these steps and must pass the 120-second health gate.
 
-The script copies the backup, restore-drill, migration, and role-sync scripts to `/opt/sirawise`. Keep `.env` out of source control and logs. The deploy stops if a required SMTP value is empty.
+The script copies the backup, restore-drill, migration, runtime-role, and AI-budget files to `/opt/sirawise`. Keep `.env` out of source control and logs. The deploy stops if a required SMTP value is empty.
+
+The deploy seeds eight daily AI budget rows through the migration database role. Install this cron entry on the VPS to keep eight UTC days available:
+
+```cron
+10 0 * * * /opt/sirawise/ai-budget.sh
+```
 
 ## Roll back
 

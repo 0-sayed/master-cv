@@ -217,6 +217,7 @@ export const env = createEnv({
 		AI_MODEL: z.string().trim().min(1).optional(),
 		AI_API_KEY: z.string().trim().min(1).optional(),
 		AI_BASE_URL: z.url({ protocol: /^https?$/ }).optional(),
+		OPENROUTER_API_KEY: z.string().trim().min(1).optional(),
 
 		// Feature Flags
 		FLAG_DISABLE_SIGNUPS: z.stringbool().default(false),
@@ -227,7 +228,10 @@ export const env = createEnv({
 		FLAG_ALLOW_UNSAFE_AI_BASE_URL: z.stringbool().default(false),
 		FLAG_ALLOW_UNSAFE_OAUTH_REDIRECT_URI: z.stringbool().default(false),
 	},
-	runtimeEnv: deploymentEnvironment(process.env),
+	runtimeEnv: deploymentEnvironment({
+		...process.env,
+		OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY?.trim() || undefined,
+	}),
 	emptyStringAsUndefined: true,
 });
 

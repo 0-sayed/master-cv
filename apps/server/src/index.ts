@@ -3,7 +3,9 @@ import { serve } from "@hono/node-server";
 import { getPool } from "@reactive-resume/db/client";
 import { getRedis } from "@reactive-resume/db/redis";
 import { env } from "@reactive-resume/env/server";
+import { createProductionAiRuntime, productionAiRoute } from "./startup/ai-runtime";
 import { runStartupChecks } from "./startup/checks";
+import { composeAi } from "./startup/with-ai";
 
 export async function main() {
 	await runStartupChecks();
@@ -28,10 +30,12 @@ export async function main() {
 		process.env.NODE_ENV === "production" ? Number.parseInt(process.env.PORT ?? "3000", 10) : env.SERVER_PORT;
 
 	const app = createApp();
+	const aiRuntime = createProductionAiRuntime(process.env);
+	const ai = composeAi(aiRuntime);
 
 	const server = serve(
 		{
-			fetch: app.fetch,
+			fetch: ai.fetch((...args) => app.fetch(...args)),
 			port,
 		},
 		(info) => {
@@ -39,8 +43,13 @@ export async function main() {
 		},
 	);
 	const careerScheduler = startCareerScheduler();
-	const aiScheduler = startAiScheduler();
+	const aiScheduler = ai.run(() => startAiScheduler());
 	const privacyScheduler = startPrivacyScheduler();
+	console.info(
+		aiRuntime
+			? `AI: enabled (${productionAiRoute.routeId} r${productionAiRoute.routeRevision})`
+			: "AI: off (no OPENROUTER_API_KEY)",
+	);
 
 	let shuttingDown = false;
 	const shutdown = () => {
