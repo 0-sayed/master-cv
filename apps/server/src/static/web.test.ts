@@ -189,7 +189,7 @@ describe("web app fallback classification", () => {
 		expect(html).not.toContain("amruth@rxresu.me");
 		expect(html.match(/property="og:site_name"/g)).toHaveLength(1);
 		expect(html.match(/name="twitter:title"/g)).toHaveLength(1);
-		expect(html).toContain("https://github.com/0-sayed/master-cv");
+		expect(html).toContain("https://github.com/0-sayed/sirawise");
 		expect(html).not.toContain("utm_source");
 
 		const dashboardResponse = await handleWebApp(new Request("https://example.com/dashboard"));

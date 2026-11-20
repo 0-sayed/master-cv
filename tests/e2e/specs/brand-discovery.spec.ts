@@ -17,7 +17,7 @@ test("public API and MCP metadata identify this Sirawise instance", async ({ req
 	await expect(specResponse).toBeOK();
 	const spec = await specResponse.json();
 	expect(spec.info.title).toBe("Sirawise");
-	expect(spec.info.contact).toEqual({ name: "Sirawise", url: "https://github.com/0-sayed/master-cv" });
+	expect(spec.info.contact).toEqual({ name: "Sirawise", url: "https://github.com/0-sayed/sirawise" });
 	expect(spec.externalDocs.description).toBe("Upstream documentation");
 	const cardResponse = await request.get("/.well-known/mcp/server-card.json");
 	await expect(cardResponse).toBeOK();

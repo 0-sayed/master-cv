@@ -162,7 +162,7 @@ and deployment details. Paths in that guide are relative to the repository root.
 The Master CV instructions above and these explicit scope rules take precedence
 where inherited guidance conflicts:
 
-- Product repository and PR/issue destination: `0-sayed/master-cv`. Keep `origin`
+- Product repository and PR/issue destination: `0-sayed/sirawise`. Keep `origin`
   there and `upstream` at `reactive-resume/reactive-resume`; review updates before merging.
 - Retain native/mobile source and validate affected shared packages. Native store
   delivery and web/native feature parity are not requirements of this personal

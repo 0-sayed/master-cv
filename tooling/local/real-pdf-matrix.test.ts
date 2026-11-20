@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterAll, beforeAll, expect, it } from "vite-plus/test";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { act } from "react";
@@ -15,7 +16,7 @@ import {
 } from "@reactive-resume/resume/ats-pdf";
 import { templateLayouts, templateSchema } from "@reactive-resume/schema/templates";
 import { verifiedPoppler } from "../document-qualification/toolchain";
-import { realPdfFixture } from "./real-pdf-fixture";
+import { realPdfExpectedWords, realPdfFixture } from "./real-pdf-fixture";
 
 const now = new Date("2026-11-19T09:00:00Z");
 const rows: unknown[] = [];
@@ -39,6 +40,11 @@ it.each(cases)(
 		const source = lintResumeForAts(data, { now });
 		const file = await act(() => createResumePdfFile({ data, filename: `${template}-${locale}.pdf` }));
 		const bytes = new Uint8Array(await file.arrayBuffer());
+		if (process.env.REAL_PDF_EXPORT_DIRECTORY)
+			writeFileSync(
+				join(process.env.REAL_PDF_EXPORT_DIRECTORY, `${template}-${locale}-${weak ? "weak" : "strong"}.pdf`),
+				bytes,
+			);
 		const popplerText = execFileSync(poppler.binaryPath, ["-enc", "UTF-8", "-", "-"], {
 			input: bytes,
 			env: poppler.env,
@@ -89,9 +95,9 @@ it.each(cases)(
 			];
 			const expectedPdf = [
 				"UNTAGGED_PDF",
-				...(weak ? [...seededCodes, "NO_QUANTIFIED_IMPACT", ...(locale === "en-US" ? ["REPEATED_PHRASES"] : [])] : []),
 				...(template === "gengar" ? ["NARROW_PAGE_MARGINS"] : []),
 				...(template === "glalie" && locale === "ar-SA" && !weak ? ["EMAIL_SPLIT_ACROSS_ITEMS"] : []),
+				...(weak ? [...seededCodes, "NO_QUANTIFIED_IMPACT", ...(locale === "en-US" ? ["REPEATED_PHRASES"] : [])] : []),
 			].sort();
 			expect.soft(codes.filter((code) => !layoutCodes.includes(code))).toEqual(expectedPdf);
 			const facts = [
@@ -109,6 +115,7 @@ it.each(cases)(
 					.replace(/[^\p{L}\p{N}]/gu, "")
 					.toLowerCase();
 			const rawText = raw.pages.map((page) => page.items.map((item) => item.str).join(" ")).join("\n");
+			const expectedWords = realPdfExpectedWords(data);
 			const diagnostics = (
 				[
 					["PDF.js", doc.fullText],
@@ -116,6 +123,17 @@ it.each(cases)(
 				] as const
 			).map(([reader, text]) => ({
 				reader,
+				fragmentedWords:
+					locale === "ar-SA"
+						? expectedWords.filter((word) => {
+								const words: string[] =
+									text
+										.normalize("NFKC")
+										.replace(/[\u064B-\u0652\u0670]/gu, "")
+										.match(/\p{L}+/gu) ?? [];
+								return !words.includes(word);
+							})
+						: [],
 				fragmentedFacts: facts.filter((fact) => !compact(text).includes(compact(fact))),
 				missingWords: facts
 					.flatMap((fact) => fact.match(/\p{L}+/gu) ?? [])
@@ -124,10 +142,11 @@ it.each(cases)(
 				splitArabicWords: ["التقار ير", "الإنجليز ية"].filter((word) => text.includes(word)),
 			}));
 			for (const diagnostic of diagnostics) {
-				// This wrapped email retains every character in the stream, but interleaves in geometric text.
-				const fragmentedEmail = diagnostic.reader === "PDF.js" && template === "glalie" && locale === "ar-SA" && !weak;
-				expect.soft(diagnostic.missingWords, diagnostic.reader).toEqual(fragmentedEmail ? ["test"] : []);
+				const wrappedEmail = diagnostic.reader === "PDF.js" && template === "glalie" && locale === "ar-SA" && !weak;
+				expect.soft(diagnostic.missingWords, diagnostic.reader).toEqual(wrappedEmail ? ["test"] : []);
 				expect.soft(diagnostic.damagedCharacters, diagnostic.reader).toBe(false);
+				expect.soft(diagnostic.splitArabicWords, diagnostic.reader).toEqual([]);
+				expect.soft(diagnostic.fragmentedWords, diagnostic.reader).toEqual([]);
 			}
 			for (const fact of facts) expect.soft(compact(rawText)).toContain(compact(fact));
 			const expectedRanges = [...data.sections.experience.items, ...data.sections.education.items].map((item) => {

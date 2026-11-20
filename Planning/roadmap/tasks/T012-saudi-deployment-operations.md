@@ -7,7 +7,7 @@
 
 ## Goal
 
-D43 Stage 2: prepare Saudi production deployment after T013 beta qualification and explicit client approval of the Hostinger pilot. T017 owns proportionate pilot recovery basics. Existing production processing and release gates remain.
+D43 Stage 2: prepare Saudi production deployment after T013 beta qualification and explicit client approval of the Contabo pilot. T017 owns proportionate pilot recovery basics. Existing production processing and release gates remain.
 
 Prepare owner-controlled Saudi deployment, restoration and operational controls with evidence, without procuring or
 activating production resources.
@@ -24,9 +24,9 @@ activating production resources.
 
 ## Explicit exclusions
 
-- No paid provisioning, production deployment/publication, real CV/SMS processing, domain purchase or
+- No paid provisioning, Saudi production deployment/publication, SMS processing, domain purchase or
   production-secret use authorized here.
-- Hostinger stays a synthetic-data test server under D30, never a real-data target. No assumption a reported gateway is
+- The Contabo pilot accepts real users and real CVs under the 2026-11-20 D43 host amendment. Saudi production still requires Saudi residency, company registration and applicable real-data gates. No assumption a reported gateway is
   Saudi/approved/available; no new queue/cloud/telemetry product by habit.
 
 ## Requirement IDs
@@ -41,7 +41,7 @@ deferred.
 - Own no product screens. Exercise affected saved-work, service-unavailable and account deletion/export consumers.
 - Use the current [figma-map.json](../../context/design/figma-map.json) for consumer states during implementation.
   Verify names/renders using authorized access; do not hard-code node IDs or implement Popup Simulator/Note frames.
-- T014 owns S37-S39 supplier/outage acceptance before T013 under D43; consume its approved activation disposition.
+- T014 is post-MVP and does not block T013; keep S37-S39 mobile routes off until A14-A16 pass.
 
 Implement this inventory with existing shared components, the appropriate shared shell/container and T002 type/spacing/radius/control APIs; use AppShell/PageHeader for dashboard pages. Use Figma for elements, icons, content, order, dialogs and states; do not copy pixel geometry or create per-screen styles. Apply the D35 verification record to every changed target.
 
@@ -74,6 +74,10 @@ Implement this inventory with existing shared components, the appropriate shared
 ## Implementation notes
 
 - D42: T016 must land before deployment. Use the approved Sirawise name and owner-supplied domain.
+- DNS cutover from the Contabo pilot: the T2 records for `sirawise.io`, `www.sirawise.io`, `sirawise.co` and
+  `www.sirawise.co` use a 12-hour TTL. At least 24 hours before switching them to the Saudi servers, lower
+  that TTL to 5 minutes in T2, switch, verify, then restore 12 hours. The Google OAuth origin and redirect
+  (`https://sirawise.io/api/auth/callback/google`) stay unchanged.
 
 - Extend current deployment/configuration and persistent job mechanisms; avoid a second scheduler.
 - Core app, database and backups stay in Saudi Arabia under D09/D16; overseas AI remains separately consented/gated.

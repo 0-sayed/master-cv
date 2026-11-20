@@ -8,12 +8,12 @@ beforeEach(() => {
 	vi.unstubAllGlobals();
 });
 
-test("the displayed GitHub stars belong to the Master CV repository", async () => {
+test("the displayed GitHub stars belong to the Sirawise repository", async () => {
 	const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ stargazers_count: 7 })));
 	vi.stubGlobal("fetch", fetch);
 	const { statisticsService } = await import("./service");
 	expect(await statisticsService.github.getStarCount()).toBe(7);
-	expect(fetch).toHaveBeenCalledWith("https://api.github.com/repos/0-sayed/master-cv", expect.any(Object));
+	expect(fetch).toHaveBeenCalledWith("https://api.github.com/repos/0-sayed/sirawise", expect.any(Object));
 });
 
 test("an unavailable repository never displays inherited upstream stars", async () => {

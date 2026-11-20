@@ -113,6 +113,9 @@
 				"uuid"
 			]
 		},
+		"packages/db": {
+			"entry": ["src/deploy-migrations.mjs", "src/deploy-runtime-role.mjs"]
+		},
 		"tooling": {
 			"ignoreExportsUsedInFile": true,
 			"entry": [

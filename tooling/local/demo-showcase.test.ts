@@ -32,8 +32,7 @@ const plannedPdfRules = [
 	"WEAK_ACTION_VERBS",
 	"NO_QUANTIFIED_IMPACT",
 	"LONG_BULLETS",
-	"MULTI_COLUMN_LAYOUT",
-	"TIGHT_LINE_SPACING",
+	"READING_ORDER_RISK",
 ] as const satisfies readonly PdfRuleCode[];
 
 it("adds an Arabic before-and-after pair for the existing invented career", () => {

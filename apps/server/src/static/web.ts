@@ -85,7 +85,7 @@ const BASE_SECURITY_HEADERS = {
 		"default-src 'self'; img-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
 };
 
-const githubUrl = "https://github.com/0-sayed/master-cv";
+const githubUrl = "https://github.com/0-sayed/sirawise";
 // The English copy, for a build without prerendered pages; a prerendered page carries its own locale's title and
 // description, and the social cards reuse them.
 const ROOT_TITLE = `${productBrand.name} — Write and review your CV`;

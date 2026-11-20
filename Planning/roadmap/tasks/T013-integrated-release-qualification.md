@@ -7,7 +7,7 @@
 
 ## Goal
 
-D43: qualify the Hostinger pilot after T014 phone OTP and T010 test-mode billing. Record the client pilot approval before T012 Saudi production deployment. T017 supplies pilot backup/restore evidence; T012 retains Saudi production recovery ownership.
+D43 as amended 2026-11-20: qualify the Contabo pilot after T010 test-mode billing (T014 phone OTP is post-MVP). Record the client pilot approval before T012 Saudi production deployment. T017 supplies pilot backup/restore evidence; T012 retains Saudi production recovery ownership.
 
 Qualify the free email-based CV beta with a bounded go/no-go and availability record.
 No automatic deployment, real-data activation or gate approval follows from task completion.
@@ -18,17 +18,17 @@ No automatic deployment, real-data activation or gate approval follows from task
   Arabic and English PDF, with saving, privacy, deletion and email recovery intact.
 - Own A13 enabled/withheld/deferred capability decisions; retain B-C14-B-C16, B-E01-B-E08 and A10
   as deferred-disposition ownership only, without implementing employer or other future features.
-- Own B-O03 candidate-outcome evidence using synthetic fixtures until real-user authorization.
+- Own B-O03 candidate-outcome evidence for the Contabo pilot with real-user authorization under D43; use synthetic fixtures for repeatable checks.
 - Reconcile A01-A04, A06-A08 and A11-A13 evidence for this scope; T017 supplies pilot backup restore/deletion replay; T012 owns later Saudi production evidence, outside this pilot qualification.
 - S32-S34 retained tools and S24-S27 paid billing are post-beta. T008 may withhold either tool.
-- Qualify T014 phone OTP and adjacent recovery states only within approved A14-A16 scope; keep unapproved mobile capabilities off.
-- Real users require company registration and applicable real-data gates; before then qualification stays synthetic.
+- T014 phone OTP is post-MVP and does not block T013. Keep unapproved mobile capabilities off.
+- The Contabo pilot accepts real users and real CVs under the 2026-11-20 D43 host amendment. Saudi production still requires Saudi residency, company registration and applicable real-data gates.
 
 ## Explicit exclusions
 
 - No paid release/charging, production activation, mobile implementation or mandatory S24-S27/S32-S34 delivery.
 - No DOCX availability, employer B2B, human review, public profiles or unreviewed integrations.
-- T015 owns paid-release qualification; T014 owns gated pilot mobile activation before this qualification.
+- T015 owns paid-release qualification; T014 is post-MVP and does not block this qualification.
 
 ## Requirement IDs
 

@@ -110,8 +110,8 @@ Example preparation commands **only after the repository/visibility decision**:
 # Example for the existing public fork ONLY if public publication is approved.
 # For a private/client-owned destination, replace the repository URL.
 # Skip clone/cd when already in the correct checkout.
-git clone https://github.com/0-sayed/master-cv.git master-cv
-cd master-cv
+git clone https://github.com/0-sayed/sirawise.git sirawise
+cd sirawise
 
 git status --short
 git remote -v

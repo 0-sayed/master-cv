@@ -2,7 +2,7 @@
 
 This is the complete Reactive Resume v6 application, extended in place. Product requirements live in
 [Planning/context](../Planning/context/README.md), and [T000](../Planning/roadmap/tasks/T000-project-bootstrap.md)
-owns this setup. The upstream MIT license and notices remain intact. Product PRs target `0-sayed/master-cv`;
+owns this setup. The upstream MIT license and notices remain intact. Product PRs target `0-sayed/sirawise`;
 `upstream` is only for reviewed updates from `reactive-resume/reactive-resume`.
 
 ## Toolchain and validation
@@ -73,7 +73,9 @@ Root development/database scripts load `.env.runtime.local` before `.env.local`;
 Existing process environment still takes precedence. The original local setup and its admin credentials
 are preserved. A worktree needs its own role/file; do not copy runtime files between databases.
 CI provisions a fresh restricted role after migrations and uses a separate admin URL for fixture cleanup.
-Future migrations that add tables or functions must explicitly extend its grants.
+Contabo uses `sirawise` as the migration owner and `sirawise_runtime` for app connections. Both URLs use
+the Compose host `postgres`. Each deploy runs migrations before syncing grants. Default table and sequence
+grants cover objects that those migrations add; the sync also reapplies the protected-table restrictions. Future migrations that add tables or functions must explicitly extend its grants.
 
 Accepted master snapshots are append-only for the application role. Queue and abandoned-run discovery
 functions return bounded owner IDs only; payload work then uses short owner-scoped transactions.

@@ -77,7 +77,7 @@ export function handleLlms(options?: StaticSeoOptions) {
 			"",
 			`- [Homepage](${baseUrl}/)`,
 			`- [Account entry](${baseUrl}/auth/register)`,
-			"- [Source code](https://github.com/0-sayed/master-cv)",
+			"- [Source code](https://github.com/0-sayed/sirawise)",
 			"",
 		].join("\n"),
 		options,

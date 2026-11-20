@@ -35,7 +35,7 @@ The fork-specific [bootstrap](../bootstrap.md) supersedes the earlier generic gr
   with PR title `chore: bootstrap project`. Register later main-driven scheduling after authorized merge.
 - Main-seeded Mode B needs explicit permission and must respect protection. Do not add a small planning-only PR
   or pretend Planning exists on main. Confirm product ownership/visibility before pushing private planning.
-- Product PR/issue destination is `0-sayed/master-cv`; preserve the reviewed upstream relationship. Audit inherited
+- Product PR/issue destination is `0-sayed/sirawise`; preserve the reviewed upstream relationship. Audit inherited
   deployment/publication before pushing; bootstrap does not authorize publication, paid resources or live deployment.
 
 Task rows and matching Mermaid classes change when the PR is first shipped (owner decision 2026-11-14). The checkbox records delivery bookkeeping; all release gates and branch protection still apply. Unshipped work stays pending.
@@ -48,7 +48,7 @@ T005 owns free usage enforcement; T006/T007 add reviewed improvement, tailoring 
 T009 delivers active deletion/durable records; T012 depends on T005/T009/T013 and owns backup restore/deletion replay.
 D42 adds T016 after T008 merges and before T012 deployment, which needs the Sirawise name and owner-supplied domain.
 T011 follows T007/T009 with a simple truthful landing page; T010 adds paid grants and the pricing section later.
-D43 (amended 2026-11-19) orders T008 -> T016 -> T017 Hostinger private beta with Google sign-in -> T010 test-mode billing -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release. T012 requires client approval of the pilot;
+D43 (amended 2026-11-20) orders T008 -> T016 -> T017 Contabo pilot accepting real users and real CVs with Google sign-in -> T010 test-mode billing -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release. T012 requires client approval of the pilot;
 T008 may explicitly withhold either tool. S32-S34 and S24-S27 are post-beta.
 T014 phone OTP is post-MVP (priority 160, after T015); it follows T003/T009/T017 and blocks nothing. T010 uses the T017 server for test mode; production charging remains gated behind T012/T015.
 Dependencies outrank numeric priority. After T005 merges, T006 and T009 may become eligible subject to
@@ -97,21 +97,20 @@ Reject newly added raw UI font/color/spacing/radius values and control-size over
 These are preconditions for affected operations, not S/M tasks or fake completed nodes. Synthetic work with test
 credentials/provider doubles may proceed; missing resources required for actual acceptance remain execution blockers.
 
-| Boundary                 | Owner action / gate                                                                                                                                                                            | Affected tasks                          |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| Repository/bootstrap     | Ownership/visibility, safe workflows, protection/access, setup mode and later scheduler registration                                                                                           | T000; all merges                        |
-| Input/export             | D04 PDF-only launch: A01/A04 and agreed input/template/font evidence; Word unavailable, future A05 Word Windows/Mac and Google Docs matrix                                                     | T001/T004/T011/T013                     |
-| Real CV/AI               | D09/D16 Saudi core/database/backups, opt-in overseas OpenRouter/first-use consent, PDPL transfer contract safeguards, minimized CV text/no contact fields; exact route and A11 evidence remain | T005-T009/T012/T013                     |
-| Later mobile Phase 1     | Off at launch; company registration, sender approval, D20/D21 and A14-A16 before activation; A15 before any real-number send                                                                   | T014 only; not a beta/paid prerequisite |
-| SMS Phase 2              | SMS-code-only sign-in stays off; separate owner risk decision and scoped A14-A16 evidence required                                                                                             | T014 disposition only                   |
-| Live paid offer          | D05/D18 launch hypothesis/server AI+CV enforcement decided; Moyasar written rate card/merchant-method activation, T07 tax/refund/renewal details and A09 still required. PDF never paywalled   | T010/T015; T011 pricing added with T010 |
-| Production resources     | D15 owner-controlled Saudi accounts, exact quote/region, retention/RPO/RTO and restore/operations evidence                                                                                     | T012/T013/T015                          |
-| Retained/public features | D17/A13 privacy/availability/support evidence; D23 requires authenticated owner-scoped PDF checks only, no public launch endpoint                                                              | T004/T005/T013                          |
-| Future scope             | D01 employer scope and D12 human review/public visibility need separate authorization; B-C14-B-C16/B-E01-B-E08 remain deferred                                                                 | T013 disposition only                   |
+| Boundary                 | Owner action / gate                                                                                                                                                                          | Affected tasks                          |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| Repository/bootstrap     | Ownership/visibility, safe workflows, protection/access, setup mode and later scheduler registration                                                                                         | T000; all merges                        |
+| Input/export             | D04 PDF-only launch: A01/A04 and agreed input/template/font evidence; Word unavailable, future A05 Word Windows/Mac and Google Docs matrix                                                   | T001/T004/T011/T013                     |
+| Real CV/AI               | Contabo pilot accepts real users and CVs under D43; Saudi production retains D09/D16 Saudi residency, company registration, real-data gates, PDPL transfer safeguards and A11 evidence       | T005-T009/T012/T013                     |
+| Later mobile Phase 1     | Off at launch; company registration, sender approval, D20/D21 and A14-A16 before activation; A15 before any real-number send                                                                 | T014 only; not a beta/paid prerequisite |
+| SMS Phase 2              | SMS-code-only sign-in stays off; separate owner risk decision and scoped A14-A16 evidence required                                                                                           | T014 disposition only                   |
+| Live paid offer          | D05/D18 launch hypothesis/server AI+CV enforcement decided; Moyasar written rate card/merchant-method activation, T07 tax/refund/renewal details and A09 still required. PDF never paywalled | T010/T015; T011 pricing added with T010 |
+| Production resources     | D15 owner-controlled Saudi accounts, exact quote/region, retention/RPO/RTO and restore/operations evidence                                                                                   | T012/T013/T015                          |
+| Retained/public features | D17/A13 privacy/availability/support evidence; D23 requires authenticated owner-scoped PDF checks only, no public launch endpoint                                                            | T004/T005/T013                          |
+| Future scope             | D01 employer scope and D12 human review/public visibility need separate authorization; B-C14-B-C16/B-E01-B-E08 remain deferred                                                               | T013 disposition only                   |
 
 **Open company inputs:** legal entity name, commercial registration, controller contact and Saudi lawyer review of
-final AR/EN privacy/terms/notices; SMS sender papers/provider quotes apply only to T014. Real users require company
-registration and applicable real-data gates; before then the beta journey remains synthetic.
+final AR/EN privacy/terms/notices; SMS sender papers/provider quotes apply only to T014. The Contabo pilot accepts real users and CVs under the 2026-11-20 D43 host amendment. Saudi production requires Saudi residency, company registration and applicable real-data gates.
 
 **Owner demand check:** alongside the build, run a small candidate validation of usefulness, interest at 49 SAR and
 reasons to return, using no real CVs and taking no payments; decide subscription automation after it. No new framework.

@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Questions and support
-    url: https://github.com/0-sayed/master-cv/issues/new?template=1-bug-report.yml
+    url: https://github.com/0-sayed/sirawise/issues/new?template=1-bug-report.yml
     about: Get help with Sirawise in the product repository. Do not include credentials or private CV data.
