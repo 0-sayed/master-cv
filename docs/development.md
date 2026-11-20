@@ -2,7 +2,7 @@
 
 This is the complete Reactive Resume v6 application, extended in place. Product requirements live in
 [Planning/context](../Planning/context/README.md), and [T000](../Planning/roadmap/tasks/T000-project-bootstrap.md)
-owns this setup. The upstream MIT license and notices remain intact. Product PRs target `0-sayed/master-cv`;
+owns this setup. The upstream MIT license and notices remain intact. Product PRs target `0-sayed/sirawise`;
 `upstream` is only for reviewed updates from `reactive-resume/reactive-resume`.
 
 ## Toolchain and validation

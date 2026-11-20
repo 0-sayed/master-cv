@@ -8,6 +8,7 @@ it("advertises only this instance's sitemap", async () => {
 it("describes available account capabilities without inherited offers or integration promises", async () => {
 	const text = await handleLlms().text();
 	expect(text).toContain("Qualified PDF");
+	expect(text).toContain("[Source code](https://github.com/0-sayed/sirawise)");
 	expect(text).toContain("account");
 	expect(text).toContain("Public sharing remains subject to release approval.");
 	expect(text).not.toContain("public sharing are unavailable");

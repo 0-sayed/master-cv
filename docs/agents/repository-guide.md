@@ -35,7 +35,7 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 
 ## Agent skills
 
-- Issues and specs: GitHub Issues for `0-sayed/master-cv`. Upstream is a read-only source of reviewed updates, not the destination for product work. See `docs/agents/issue-tracker.md`.
+- Issues and specs: GitHub Issues for `0-sayed/sirawise`. Upstream is a read-only source of reviewed updates, not the destination for product work. See `docs/agents/issue-tracker.md`.
 - Check `git status --short` before editing. Preserve unrelated changes, including existing edits in this file.
 - Use scripts and configuration as the source of truth when documentation disagrees with them.
 
