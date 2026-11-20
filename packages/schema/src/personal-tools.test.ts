@@ -61,17 +61,36 @@ it.each([
 });
 
 it.each([
-	"/mcp",
-	"/mcp/tools",
-	"/openapi.json",
-	"/.well-known/mcp/server-card.json",
-	"/.well-known/oauth-authorization-server",
-	"/api/auth/api-key/create",
-	"/api/auth/oauth2/register",
-	"/api/auth/callback/google",
-	"/api/auth/get-access-token",
-	"/api/resumes/owner/cv/pdf",
-	"/api/career/run",
-])("withholds external adapter %s", (path) => {
-	expect(deferredHttpRoute(path)).toBeDefined();
+	["/mcp", "POST"],
+	["/mcp/tools", "POST"],
+	["/openapi.json", "POST"],
+	["/.well-known/mcp/server-card.json", "POST"],
+	["/.well-known/oauth-authorization-server", "POST"],
+	["/api/auth/api-key/create", "POST"],
+	["/api/auth/oauth2/register", "POST"],
+	["/api/auth/callback/github", "POST"],
+	["/api/auth/link-social", "POST"],
+	["/api/auth/get-access-token", "POST"],
+	["/api/auth/refresh-token", "POST"],
+	["/api/auth/sign-in/social", "GET"],
+	["/api/auth/callback/google", "DELETE"],
+	["/api/resumes/owner/cv/pdf", "POST"],
+	["/api/career/run", "POST"],
+] as const)("withholds external adapter %s %s", (path, method) => {
+	expect(deferredHttpRoute(path, method)).toBeDefined();
+});
+
+it.each([
+	["/api/auth/sign-in/social", "POST"],
+	["/api/auth/callback/google", "GET"],
+	["/api/auth/callback/google", "POST"],
+] as const)("allows approved Google auth route %s %s", (path, method) => {
+	expect(deferredHttpRoute(path, method)).toBeUndefined();
+});
+
+it.each([
+	["/api/auth/sign-in/social", "GET"],
+	["/api/auth/callback/google", "DELETE"],
+] as const)("keeps unsupported Google auth method gated: %s %s", (path, method) => {
+	expect(deferredHttpRoute(path, method)).toBeDefined();
 });
