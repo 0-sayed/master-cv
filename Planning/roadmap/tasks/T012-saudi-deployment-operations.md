@@ -7,7 +7,7 @@
 
 ## Goal
 
-D43 Stage 2: prepare Saudi production deployment after T013 beta qualification and explicit client approval of the Hostinger pilot. T017 owns proportionate pilot recovery basics. Existing production processing and release gates remain.
+D43 Stage 2: prepare Saudi production deployment after T013 beta qualification and explicit client approval of the Contabo pilot. T017 owns proportionate pilot recovery basics. Existing production processing and release gates remain.
 
 Prepare owner-controlled Saudi deployment, restoration and operational controls with evidence, without procuring or
 activating production resources.
@@ -26,7 +26,7 @@ activating production resources.
 
 - No paid provisioning, production deployment/publication, real CV/SMS processing, domain purchase or
   production-secret use authorized here.
-- Hostinger stays a synthetic-data test server under D30, never a real-data target. No assumption a reported gateway is
+- The Stage 1 pilot server (Contabo, D43 host amendment) stays a synthetic-data test server under D30, never a real-data target. No assumption a reported gateway is
   Saudi/approved/available; no new queue/cloud/telemetry product by habit.
 
 ## Requirement IDs
@@ -74,6 +74,10 @@ Implement this inventory with existing shared components, the appropriate shared
 ## Implementation notes
 
 - D42: T016 must land before deployment. Use the approved Sirawise name and owner-supplied domain.
+- DNS cutover from the Contabo pilot: the T2 records for `sirawise.io`, `www.sirawise.io`, `sirawise.co` and
+  `www.sirawise.co` use a 12-hour TTL. At least 24 hours before switching them to the Saudi servers, lower
+  that TTL to 5 minutes in T2, switch, verify, then restore 12 hours. The Google OAuth origin and redirect
+  (`https://sirawise.io/api/auth/callback/google`) stay unchanged.
 
 - Extend current deployment/configuration and persistent job mechanisms; avoid a second scheduler.
 - Core app, database and backups stay in Saudi Arabia under D09/D16; overseas AI remains separately consented/gated.

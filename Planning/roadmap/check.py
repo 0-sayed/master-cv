@@ -211,7 +211,7 @@ def check(snapshot=None):
         if beta_ancestors == previous:
             break
     if not {'T010', 'T017'} <= beta_ancestors or {'T012', 'T014'} & beta_ancestors:
-        errors.append('Amended D43 requires Hostinger and test-mode billing before beta qualification, then Saudi production; phone OTP is post-MVP.')
+        errors.append('Amended D43 requires the Contabo pilot and test-mode billing before beta qualification, then Saudi production; phone OTP is post-MVP.')
     for row in table.values():
         for value in re.findall(r'`([^`]+)`', row['context']):
             if not (planning / value).is_file():

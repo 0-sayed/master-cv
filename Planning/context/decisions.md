@@ -265,6 +265,10 @@ Owner decision: Sayed, 2026-11-17, provisional. Use `openai/gpt-6.1-terra` at me
 
 The final decision document is `ui-audit/benchmark-decision-tasks-v1-final.md` in the sibling `master-cv-design-archive` directory. The Drive benchmark package also contains these results. The corrected study is `tasks-v1-personal-career-1b478d23ef9e`. Source results SHA-256: `f4253396195eee15e2de5e4db199cb74c39beb116386a1f4da8d8007e0520d63`. T008 evidence records measured limits and the policy ceiling.
 
+## D43 host amendment, owner decision 2026-11-20
+
+Stage 1 (T017) uses the existing Contabo VPS in Portsmouth, UK (6 vCPU, about 11 GB RAM, Ubuntu 24.04 LTS), because the Hostinger VPS has only 2 vCPU and already serves Siyasati and LPA. The Contabo VPS also hosts unrelated workloads (Tebyaan, Najiz, LPA, a job-alert bot): Sirawise must run isolated (own containers, database, volumes, domain and reverse-proxy entry, CPU/memory limits) and must not modify them. T017 uses open sign-up without an invite list, allows real users and real CVs, and sends email through Resend from `noreply@sirawise.io`. Google sign-in is published. Caddy is the shared front door with Tebyaan. These owner decisions amend D30's synthetic-data and invitation terms for T017; they do not change T012 Saudi production requirements. T017 is renamed "Private beta on Contabo" with branch `chore/t017-contabo-private-beta`.
+
 ## D43 amendment, owner decision 2026-11-19
 
 The 2026-11-16 build order above remains history. T014 phone OTP is not part of the MVP; it moves after T015 and blocks no MVP task. Google OAuth sign-in stays in T017. Current order: T017 Hostinger private beta (invite-only, Google sign-in) -> T010 Moyasar billing in test mode on T017 -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release -> T014 later. All other D43 terms, gates and approvals are unchanged.

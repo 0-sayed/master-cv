@@ -7,7 +7,7 @@
 
 ## Goal
 
-D43: qualify the Hostinger pilot after T014 phone OTP and T010 test-mode billing. Record the client pilot approval before T012 Saudi production deployment. T017 supplies pilot backup/restore evidence; T012 retains Saudi production recovery ownership.
+D43 as amended: qualify the Contabo pilot after T010 test-mode billing (T014 phone OTP is post-MVP). Record the client pilot approval before T012 Saudi production deployment. T017 supplies pilot backup/restore evidence; T012 retains Saudi production recovery ownership.
 
 Qualify the free email-based CV beta with a bounded go/no-go and availability record.
 No automatic deployment, real-data activation or gate approval follows from task completion.

@@ -7,7 +7,7 @@
 
 ## Goal
 
-D43 as amended 2026-11-19: build test-mode billing on the T017 Hostinger server right after T017; T014 phone OTP is post-MVP. Saudi deployment is not a test-mode prerequisite. Production charging requires T012, T015 and existing payment approvals.
+D43 as amended 2026-11-19: build test-mode billing on the T017 pilot server (Contabo) right after T017; T014 phone OTP is post-MVP. Saudi deployment is not a test-mode prerequisite. Production charging requires T012, T015 and existing payment approvals.
 
 Implement the selected Moyasar adapter and paid entitlement lifecycle in the existing backend with server-verified
 outcomes and sandbox evidence.

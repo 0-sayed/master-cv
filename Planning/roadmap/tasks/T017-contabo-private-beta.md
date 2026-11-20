@@ -1,32 +1,31 @@
-# T017 — Private beta on Hostinger
+# T017 — Private beta on Contabo
 
-**Task:** T017 · **PR size:** L · **Branch:** `chore/t017-hostinger-private-beta`
+**Task:** T017 · **PR size:** L · **Branch:** `chore/t017-contabo-private-beta`
 **Depends on:** T005, T009, T016 · **Priority:** 76
-**Status:** Owner-directed planning scope, 2026-11-16 (D43); no deployment or processing approval is asserted.
+**Status:** Owner-directed launch scope, 2026-11-20; deploy only from `main` after a normal GitHub PR.
 **Scheduling:** [Task Graph](../tasks.md#task-graph) is the only completion authority; pending until first shipped.
 
 ## Goal
 
-Prepare Stage 1, a closed client pilot on Hostinger outside Saudi infrastructure, for invited users only, under about 50 users.
-Stage 2 is T012 Saudi production deployment after T013 qualification and client approval of the pilot.
+Launch Stage 1 on the existing Contabo VPS in Portsmouth, UK (D43 host amendment 2026-11-20), with open sign-up and real users and CVs.
+T012 remains the separate Saudi production deployment after T013 qualification and client approval.
 
 ## Scope (in)
 
 - Use the existing application, backend and services with the T016 Sirawise name and approved domain.
-- Enforce invitation-only access, including registration and Google OAuth sign-in.
+- Allow registration without an invite list, including password and published Google sign-in.
 - Include Google OAuth sign-in with approved credentials, redirect URLs and account-linking safeguards.
 - Provide a public HTTPS URL for Moyasar test webhooks and SMS testing.
-- Keep the pilot private despite public authentication callbacks and provider webhook endpoints.
+- Protect private user data while serving public authentication callbacks and provider webhook endpoints.
 - Prepare proportionate database/private-object backups, a restore drill, rollback basics and operator recovery instructions.
 - Replay applicable deletion records before restored data becomes available, using the existing T009 contract.
 - Preserve existing security, authorization, processing and applicable A-gate controls.
-- Restrict data to synthetic/consenting-tester data until the owner/legal question below is resolved.
+- Allow real user accounts and real CVs under the owner decision recorded 2026-11-20.
 - Hand the server to T014 for phone OTP testing, then T010 for Moyasar test-mode billing.
 
 ## Explicit exclusions
 
-- Do not treat Hostinger as Saudi infrastructure or as the approved Saudi production environment.
-- Do not authorize real personal CV uploads through pilot access or tester consent alone.
+- Do not treat Contabo as Saudi infrastructure or as the approved Saudi production environment.
 - Do not buy infrastructure, activate paid services or deploy merely because this planning task exists.
 - Do not enable live payment credentials, production charging or paid release.
 - Do not implement T014 phone OTP or T010 billing inside this task.
@@ -60,16 +59,17 @@ T014 retains phone authentication ownership. T010 retains billing ownership.
 ## Ownership boundaries
 
 - Extend the existing application and deployment tooling. Do not create a second application or authentication service.
-- T017 owns closed-pilot infrastructure, Google OAuth readiness, public test endpoints and proportionate recovery basics.
+- T017 owns the open-sign-up launch infrastructure, Google OAuth readiness, public test endpoints and proportionate recovery basics.
 - T009 owns durable deletion records. T012 owns Saudi production recovery qualification.
 - T014 owns SMS supplier qualification, sender approval, phone OTP and A14-A16.
 - T010 owns Moyasar test-mode integration. T015 owns paid-release qualification.
 
 ## Implementation notes
 
-- D43 order: T008 -> T016 -> T017 -> T014 -> T010 -> T013 -> T012 -> T015.
-- Record the actual Hostinger location and processor/storage/backup locations before any approved pilot deployment.
-- Keep invitations effective across password and Google OAuth entry points.
+- D43 order (amended): T008 -> T016 -> T017 -> T010 -> T013 -> T012 -> T015; T014 is post-MVP.
+- The Contabo VPS is shared with unrelated workloads (Tebyaan, Najiz, LPA, a job-alert bot): isolate Sirawise containers, database, volumes, domain and reverse-proxy entry, set CPU/memory limits, and never modify other workloads.
+- Record the Contabo location as Portsmouth, UK, and record storage and backup locations.
+- Keep open registration consistent across password and Google OAuth entry points.
 - Separate test credentials and pilot data from future Saudi production credentials and data.
 - Preserve authenticated webhook handling and provider verification in the existing backend.
 - Use proportionate backups and restore evidence for this pilot size, with explicit operator responsibilities.
@@ -78,28 +78,27 @@ T014 retains phone authentication ownership. T010 retains billing ownership.
 
 ## Acceptance evidence
 
-- Record invited-user access and rejection of uninvited password and Google OAuth users.
+- Record open password registration and published Google sign-in behavior.
 - Record Google OAuth success, cancellation, failed callbacks and safe account linking.
 - Record public HTTPS reachability for provider test callbacks without exposing private pilot data.
 - Record a successful backup/restore drill with applicable deletion replay before serving restored data.
-- Record recovery responsibilities, rollback steps and the data restriction for the closed pilot.
+- Record recovery responsibilities and rollback steps for the live service.
 - Inspect affected authentication and recovery states in Arabic RTL and English LTR at desktop 1440 and mobile 390.
 - Inspect fonts and direction with approved interface strings from copy-deck.json.
-- Use synthetic fixtures and test credentials. Record functional evidence separately from visual evidence.
+- Use synthetic fixtures for automated checks. Record functional evidence separately from visual evidence.
 - Record unresolved approvals. Do not claim that planned work or Figma renders pass application or legal gates.
 
 ## Open approvals/blockers affecting the task
 
-- Owner/legal question: can real personal CV data be hosted outside Saudi Arabia under PDPL and applicable A-gate approvals?
-- Decide that question before real users upload real CVs. Until then, use synthetic/consenting-tester data only.
-- Tester consent alone does not establish approval for unrestricted real-CV uploads or cross-border processing.
-- Owner inputs include the pilot domain, Hostinger location, invited cohort and Google OAuth credentials/consent configuration.
+- Owner decision 2026-11-20 allows real users and real CVs on the Contabo VPS in Portsmouth, UK.
+- The owner selected `sirawise.io`, Resend SMTP from `noreply@sirawise.io`, and published Google sign-in.
+- The owner selected Caddy as the shared front door with Tebyaan. Tebyaan's port change is recorded in [PR #50](https://github.com/BandAI-sa/tebyaan/pull/50).
 - Verify the exact Saudi SMS provider name "T2" and its suitability later. Existing sender and A14-A16 approvals remain.
-- T012 requires explicit client approval of the pilot. Production charging requires T012/T015 and existing payment approvals.
+- Production charging requires T012/T015 and existing payment approvals.
 
 ## Done definition
 
-- Deliver the invitation-only pilot foundation and the evidence above within existing security and processing gates.
+- Deliver the open-sign-up service and the evidence above within existing security and processing gates.
 - Hand public test endpoints to T014 and T010 without enabling production charging.
-- Record the remaining owner/legal questions and subsequent client pilot approval separately from task completion.
+- Record remaining technical and owner actions separately from task completion.
 - Tick this task and update its Mermaid class when the task PR is first shipped, per the roadmap contract.

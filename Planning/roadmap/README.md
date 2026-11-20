@@ -35,7 +35,7 @@ The fork-specific [bootstrap](../bootstrap.md) supersedes the earlier generic gr
   with PR title `chore: bootstrap project`. Register later main-driven scheduling after authorized merge.
 - Main-seeded Mode B needs explicit permission and must respect protection. Do not add a small planning-only PR
   or pretend Planning exists on main. Confirm product ownership/visibility before pushing private planning.
-- Product PR/issue destination is `0-sayed/master-cv`; preserve the reviewed upstream relationship. Audit inherited
+- Product PR/issue destination is `0-sayed/sirawise`; preserve the reviewed upstream relationship. Audit inherited
   deployment/publication before pushing; bootstrap does not authorize publication, paid resources or live deployment.
 
 Task rows and matching Mermaid classes change when the PR is first shipped (owner decision 2026-11-14). The checkbox records delivery bookkeeping; all release gates and branch protection still apply. Unshipped work stays pending.
@@ -48,7 +48,7 @@ T005 owns free usage enforcement; T006/T007 add reviewed improvement, tailoring 
 T009 delivers active deletion/durable records; T012 depends on T005/T009/T013 and owns backup restore/deletion replay.
 D42 adds T016 after T008 merges and before T012 deployment, which needs the Sirawise name and owner-supplied domain.
 T011 follows T007/T009 with a simple truthful landing page; T010 adds paid grants and the pricing section later.
-D43 (amended 2026-11-19) orders T008 -> T016 -> T017 Hostinger private beta with Google sign-in -> T010 test-mode billing -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release. T012 requires client approval of the pilot;
+D43 (amended 2026-11-19) orders T008 -> T016 -> T017 Contabo private beta with Google sign-in -> T010 test-mode billing -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release. T012 requires client approval of the pilot;
 T008 may explicitly withhold either tool. S32-S34 and S24-S27 are post-beta.
 T014 phone OTP is post-MVP (priority 160, after T015); it follows T003/T009/T017 and blocks nothing. T010 uses the T017 server for test mode; production charging remains gated behind T012/T015.
 Dependencies outrank numeric priority. After T005 merges, T006 and T009 may become eligible subject to

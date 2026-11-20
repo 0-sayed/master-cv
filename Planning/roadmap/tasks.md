@@ -26,7 +26,7 @@ Read D35 and the handoff before every UI task. Share visual APIs across task own
 | [ ]  | 100      | `T010` - Deliver Moyasar billing and entitlement lifecycle            | L    | `feat/t010-moyasar-billing`                  | `T005`, `T017`                 | `roadmap/tasks/T010-moyasar-billing.md`, `context/technical/architecture.md`                                                                               |
 | [x]  | 110      | `T011` - Deliver the public landing and acquisition journey           | L    | `feat/t011-public-experience`                | `T007`, `T009`                 | `roadmap/tasks/T011-public-experience.md`, `context/business/product.md`                                                                                   |
 | [x]  | 75       | `T016` - Rename the product to Sirawise                               | L    | `chore/t016-sirawise-rename`                 | `T008`                         | `roadmap/tasks/T016-sirawise-rename.md`, `context/decisions.md`                                                                                            |
-| [ ]  | 76       | `T017` - Private beta on Hostinger                                    | L    | `chore/t017-hostinger-private-beta`          | `T005`, `T009`, `T016`         | `roadmap/tasks/T017-hostinger-private-beta.md`, `context/decisions.md`, `context/technical/infrastructure.md`, `context/technical/security.md`             |
+| [x]  | 76       | `T017` - Private beta on Contabo                                      | L    | `chore/t017-contabo-private-beta`            | `T005`, `T009`, `T016`         | `roadmap/tasks/T017-contabo-private-beta.md` , `context/decisions.md`, `context/technical/infrastructure.md`, `context/technical/security.md`              |
 | [ ]  | 140      | `T012` - Prepare Saudi production deployment and operational recovery | L    | `chore/t012-saudi-deployment-operations`     | `T005`, `T009`, `T013`         | `roadmap/tasks/T012-saudi-deployment-operations.md`, `context/technical/infrastructure.md`                                                                 |
 | [ ]  | 130      | `T013` - Qualify the free beta                                        | L    | `test/t013-integrated-release-qualification` | `T007`, `T009`, `T010`, `T011` | `roadmap/tasks/T013-integrated-release-qualification.md`, `context/business/requirements.md`                                                               |
 | [ ]  | 160      | `T014` - Activate mobile authentication                               | L    | `feat/t014-mobile-authentication`            | `T003`, `T009`, `T015`, `T017` | `roadmap/tasks/T014-mobile-authentication.md`, `context/design/specs/otp-spec.md`, `context/technical/security.md`                                         |
@@ -42,7 +42,7 @@ Read D35 and the handoff before every UI task. Share visual APIs across task own
 
 ## Scheduler contract
 
-- D43 (OWNER DECIDED 2026-11-16 (Sayed)): build T008 -> T016 rename -> T017 Hostinger private beta -> T010 Moyasar billing in test mode on T017 -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release -> T014 phone OTP. T012 requires client approval of the pilot. Production charging remains gated behind T012/T015 and existing approvals.
+- D43 (OWNER DECIDED 2026-11-16 (Sayed)): build T008 -> T016 rename -> T017 private beta (Contabo since 2026-11-20) -> T010 Moyasar billing in test mode on T017 -> T013 beta qualification -> T012 Saudi production deployment -> T015 paid release -> T014 phone OTP. T012 requires client approval of the pilot. Production charging remains gated behind T012/T015 and existing approvals.
 
 - D42 (Sayed, 2026-11-16): T016 starts after T008 merges and must land before T012 deployment. T012 needs the approved product name and domain.
 
@@ -59,7 +59,7 @@ Read D35 and the handoff before every UI task. Share visual APIs across task own
 
 ## Task briefs
 
-- [T017: Private beta on Hostinger](tasks/T017-hostinger-private-beta.md)
+- [T017: Private beta on Contabo](tasks/T017-contabo-private-beta.md)
 - [T016: Rename the product to Sirawise](tasks/T016-sirawise-rename.md)
 
 The `Context` column points to the complete scope, source references, Figma keys, ownership boundaries, acceptance evidence and explicit exclusions for each PR. Share visual APIs across feature/task ownership boundaries under D35. Internal steps and clean commits stay within the large PR; they are not separately scheduled small/medium PRs.
