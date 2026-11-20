@@ -13,7 +13,12 @@ if [[ $# -ne 0 ]]; then
 fi
 
 cd "$REPO_ROOT"
-if [[ "$(git branch --show-current)" != "main" ]]; then
+if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
+	if [[ "${GITHUB_REF:-}" != "refs/heads/main" ]]; then
+		echo "Refusing to deploy a ref other than main." >&2
+		exit 1
+	fi
+elif [[ "$(git branch --show-current)" != "main" ]]; then
 	echo "Refusing to deploy outside the main branch." >&2
 	exit 1
 fi
