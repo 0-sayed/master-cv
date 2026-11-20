@@ -13,21 +13,22 @@ vi.mock("@/libs/orpc/client", () => ({ orpc: { auth: { providers: { list: { quer
 vi.mock("@/libs/auth/client", () => ({ authClient: {} }));
 vi.mock("@/libs/root-context", () => ({ sessionQueryKey: [] }));
 beforeEach(() => i18n.loadAndActivate({ locale: "en-US", messages: {} }));
-it("does not advertise Google even if an older backend discovers it", () => {
+it("shows Google and passkey on sign-in", () => {
 	render(
 		<I18nProvider i18n={i18n}>
 			<SocialAuth />
 		</I18nProvider>,
 	);
-	expect(screen.queryByRole("button", { name: "Google" })).toBeNull();
+	expect(screen.getByRole("button", { name: "Google" })).toBeVisible();
 	expect(screen.getByRole("button", { name: "Passkey" })).toBeVisible();
 });
-it("omits sign-in-only passkeys from account creation", () => {
+it("shows Google but omits sign-in-only passkeys from account creation", () => {
 	render(
 		<I18nProvider i18n={i18n}>
 			<SocialAuth intent="sign-up" />
 		</I18nProvider>,
 	);
-	expect(screen.queryByText("Passkey")).toBeNull();
-	expect(screen.queryByText("or continue with")).toBeNull();
+	expect(screen.getByRole("button", { name: "Google" })).toBeVisible();
+	expect(screen.queryByRole("button", { name: "Passkey" })).toBeNull();
+	expect(screen.getByText("or continue with")).toBeVisible();
 });

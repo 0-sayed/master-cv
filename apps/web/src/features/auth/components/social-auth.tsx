@@ -15,9 +15,11 @@ import { sessionQueryKey } from "@/libs/root-context";
 
 export function SocialAuth({ intent = "sign-in" }: { intent?: "sign-in" | "sign-up" }) {
 	const { data: discovered = {}, isLoading } = useQuery(orpc.auth.providers.list.queryOptions());
-	// Keep launch advertising constrained even when discovery comes from an older server.
-	const providers: SocialAuthButtonsProps["providers"] =
-		intent === "sign-in" && discovered.passkey ? { passkey: discovered.passkey } : {};
+	const { callbackURL } = useSearch({ from: "/auth" });
+	const providers: SocialAuthButtonsProps["providers"] = {
+		...(discovered.google ? { google: discovered.google } : {}),
+		...(intent === "sign-in" && discovered.passkey ? { passkey: discovered.passkey } : {}),
+	};
 	// Available providers have no known shape before discovery. Do not invent workspace-loading content in auth.
 	if (isLoading || Object.keys(providers).length === 0) return null;
 
@@ -33,7 +35,7 @@ export function SocialAuth({ intent = "sign-in" }: { intent?: "sign-in" | "sign-
 				<hr className="flex-1" />
 			</div>
 
-			<SocialAuthButtons />
+			<SocialAuthButtons providers={providers} callbackURL={callbackURL} />
 		</>
 	);
 }
@@ -42,10 +44,9 @@ type SocialAuthButtonsProps = {
 	providers: RouterOutput["auth"]["providers"]["list"];
 };
 
-function SocialAuthButtons() {
+function SocialAuthButtons({ providers, callbackURL }: SocialAuthButtonsProps & { callbackURL?: string }) {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const { callbackURL } = useSearch({ from: "/auth" });
 
 	const runSignIn = async (
 		fn: () => Promise<{ data?: unknown; error: { message?: string | undefined } | null }>,
@@ -75,16 +76,32 @@ function SocialAuthButtons() {
 
 	return (
 		<div className={cn(ENTER_CLASS, "grid gap-4")}>
-			<Button
-				size="lg"
-				variant="secondary"
-				onClick={() =>
-					runSignIn(() => authClient.signIn.passkey({ autoFill: false, ...getOAuthPasskeyOptions(callbackURL) }), true)
-				}
-			>
-				<Icon name="fingerprint" />
-				<Trans comment="Label for passkey sign-in button">Passkey</Trans>
-			</Button>
+			{providers.google && (
+				<Button
+					size="lg"
+					variant="secondary"
+					onClick={() =>
+						runSignIn(() => authClient.signIn.social({ provider: "google", callbackURL: callbackURL ?? "/dashboard" }))
+					}
+				>
+					Google
+				</Button>
+			)}
+			{providers.passkey && (
+				<Button
+					size="lg"
+					variant="secondary"
+					onClick={() =>
+						runSignIn(
+							() => authClient.signIn.passkey({ autoFill: false, ...getOAuthPasskeyOptions(callbackURL) }),
+							true,
+						)
+					}
+				>
+					<Icon name="fingerprint" />
+					<Trans comment="Label for passkey sign-in button">Passkey</Trans>
+				</Button>
+			)}
 		</div>
 	);
 }

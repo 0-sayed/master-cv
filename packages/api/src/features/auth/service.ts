@@ -3,13 +3,17 @@ import { ORPCError } from "@orpc/client";
 import { eq } from "drizzle-orm";
 import { db } from "@reactive-resume/db/client";
 import * as schema from "@reactive-resume/db/schema";
+import { env } from "@reactive-resume/env/server";
 
 type ProviderList = Partial<Record<AuthProvider, string>>;
 
 const providers = {
 	list: (): ProviderList => {
-		// Email-first launch. Retained OAuth implementations do not authorize advertising them.
-		return { credential: "Password", passkey: "Passkey" };
+		return {
+			credential: "Password",
+			passkey: "Passkey",
+			...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET ? { google: "Google" } : {}),
+		};
 	},
 };
 
