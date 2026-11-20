@@ -2,6 +2,13 @@ import { afterEach, expect, it, vi } from "vite-plus/test";
 const { run } = vi.hoisted(() => ({ run: vi.fn() }));
 vi.mock("@reactive-resume/api/features/ai/operation-worker", () => ({ runAiOperations: run }));
 import { startAiScheduler } from "./ai-scheduler";
+it("leaves queued jobs untouched when the AI runtime is disabled", async () => {
+	vi.useFakeTimers();
+	const scheduler = startAiScheduler({ enabled: false });
+	await vi.advanceTimersByTimeAsync(5000);
+	expect(run).not.toHaveBeenCalled();
+	await scheduler.stop();
+});
 afterEach(() => {
 	vi.useRealTimers();
 	vi.clearAllMocks();

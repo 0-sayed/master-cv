@@ -236,11 +236,11 @@
 				"privacy.deletion.appleTitle",
 				"privacy.deletion.appleAction",
 				"privacy.deletion.appleHint",
-				"workspace.documents.cancel_dEgA5A",
 				"review.check.copyaz8lvo",
 				"applications.detail.binding.cnGeoo",
 				"applications.detail.binding.w61W3L",
-				"privacy.storage.aiDescription"
+				"privacy.storage.aiDescription",
+				"common.actions.cancel"
 			],
 			"status": "active",
 			"owner": "T009",
@@ -416,7 +416,6 @@
 				"editor.pageSentence.added",
 				"workspace.career-information.area.of.study_Jv-NPV",
 				"workspace.documents.back.to.documents_SlWKu4",
-				"workspace.documents.cancel_dEgA5A",
 				"workspace.career-information.close_yz7wBu",
 				"workspace.career-information.company_7i8j3G",
 				"workspace.documents.created_d-F6q9",
@@ -941,7 +940,6 @@
 				"review.suggestion.keepOriginal",
 				"review.suggestion.accept",
 				"review.suggestion.inputLabel",
-				"common.actions.cancel",
 				"review.suggestion.saveWording",
 				"review.suggestion.undoHint",
 				"review.suggestion.staleHint",
@@ -980,8 +978,17 @@
 				"workspace.documents.grid_CXDHcv",
 				"account.interface.4895f73177ab",
 				"review.finding.location.pageNumber",
+				"review.import.copyqAqFl",
 				"privacy.ai.overseasNotice",
-				"review.import.copyqAqFl"
+				"privacy.ai.scope.wording",
+				"privacy.ai.scope.extraction",
+				"privacy.ai.scope.job-evidence",
+				"privacy.ai.scope.tailoring",
+				"privacy.ai.scope.translation",
+				"privacy.ai.scope.summary",
+				"privacy.ai.scope.cover-letter",
+				"common.actions.cancel",
+				"workspace.documents.cancel_dEgA5A"
 			],
 			"status": "active",
 			"owner": "T004",
@@ -1012,7 +1019,6 @@
 				"workspace.documents.application_IrC12v",
 				"workspace.documents.back_iH8pgl",
 				"workspace.documents.back.to.documents_SlWKu4",
-				"workspace.documents.cancel_dEgA5A",
 				"workspace.documents.check.your.connection.and.try.again_mjuIQ9",
 				"workspace.documents.choose.a.file.to.import_xjC_9P",
 				"workspace.documents.choose.another.file_0KHIyx",
@@ -1165,7 +1171,8 @@
 				"editor.documents.letters.new",
 				"workspace.career-information.close_yz7wBu",
 				"applications.insights.connectionHint",
-				"applications.detail.binding.KmFagX"
+				"applications.detail.binding.KmFagX",
+				"workspace.documents.cancel_dEgA5A"
 			],
 			"status": "active",
 			"owner": "T003",
@@ -1176,7 +1183,6 @@
 			"sources": ["src/"],
 			"keys": [
 				"workspace.documents.application_IrC12v",
-				"workspace.documents.cancel_dEgA5A",
 				"workspace.career-information.close_yz7wBu",
 				"workspace.career-information.company_7i8j3G",
 				"workspace.documents.duplicate_euc6Ns",
@@ -1463,7 +1469,6 @@
 				"review.suggestion.keepOriginal",
 				"review.suggestion.accept",
 				"review.suggestion.inputLabel",
-				"common.actions.cancel",
 				"review.suggestion.saveWording",
 				"review.suggestion.undoHint",
 				"review.suggestion.staleHint",
@@ -1878,7 +1883,16 @@
 				"review.severity.blocker",
 				"review.severity.warning",
 				"review.filter.tip",
-				"privacy.ai.overseasNotice"
+				"privacy.ai.overseasNotice",
+				"privacy.ai.scope.wording",
+				"privacy.ai.scope.extraction",
+				"privacy.ai.scope.job-evidence",
+				"privacy.ai.scope.tailoring",
+				"privacy.ai.scope.translation",
+				"privacy.ai.scope.summary",
+				"privacy.ai.scope.cover-letter",
+				"common.actions.cancel",
+				"workspace.documents.cancel_dEgA5A"
 			],
 			"status": "active",
 			"owner": "T002/A13 feature owners",
@@ -2022,7 +2036,6 @@
 				"editor.field.openCV",
 				"editor.field.moreDocuments",
 				"workspace.career-information.area.of.study_Jv-NPV",
-				"workspace.documents.cancel_dEgA5A",
 				"workspace.career-information.certificate_lWGaqs",
 				"editor.certificates.title",
 				"workspace.career-information.close_yz7wBu",
@@ -2134,7 +2147,9 @@
 				"workspace.auth.name_6YtxFj",
 				"review.import.copyzmwvG2",
 				"workspace.documents.save_tfDRzk",
-				"review.import.copydXoieq"
+				"review.import.copydXoieq",
+				"auth.welcome.privacy.description",
+				"workspace.documents.cancel_dEgA5A"
 			],
 			"status": "active",
 			"owner": "T003",
@@ -2346,11 +2361,11 @@
 				"privacy.deletion.appleTitle",
 				"privacy.deletion.appleAction",
 				"privacy.deletion.appleHint",
-				"workspace.documents.cancel_dEgA5A",
 				"review.check.copyaz8lvo",
 				"applications.detail.binding.cnGeoo",
 				"applications.detail.binding.w61W3L",
-				"privacy.storage.aiDescription"
+				"privacy.storage.aiDescription",
+				"common.actions.cancel"
 			],
 			"status": "active",
 			"owner": "T009",
@@ -2496,7 +2511,8 @@
 				"jobs.evidence.clarify",
 				"jobs.evidence.addFact",
 				"account.settings.accountTab",
-				"landing.navigation.workspace"
+				"landing.navigation.workspace",
+				"privacy.policy.purposeDescription"
 			],
 			"status": "active",
 			"owner": "T011",
@@ -2937,7 +2953,6 @@
 				"applications.detail.binding.16we2X",
 				"applications.detail.binding.UY1vmE",
 				"applications.detail.binding.IJAVcb",
-				"workspace.documents.cancel_dEgA5A",
 				"applications.detail.binding.NARl6L",
 				"applications.detail.binding.GYjJu-",
 				"applications.detail.binding.gOgLQ6",
@@ -3090,7 +3105,8 @@
 				"applications.detail.63OkmG",
 				"applications.detail.8aXf8j",
 				"applications.detail.FJcc4x",
-				"applications.detail.lDARew"
+				"applications.detail.lDARew",
+				"workspace.documents.cancel_dEgA5A"
 			],
 			"status": "active",
 			"owner": "T016",

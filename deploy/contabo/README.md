@@ -35,6 +35,7 @@ The script copies the backup, restore-drill, migration, runtime-role, and AI-bud
 The deploy seeds eight daily AI budget rows through the migration database role. Install this cron entry on the VPS to keep eight UTC days available:
 
 ```cron
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 10 0 * * * /opt/sirawise/ai-budget.sh
 ```
 

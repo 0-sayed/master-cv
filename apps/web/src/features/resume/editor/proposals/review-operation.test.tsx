@@ -71,6 +71,36 @@ vi.mock("@/libs/orpc/client", () => ({
 	},
 }));
 import { ReviewLaunch, ReviewOperationPanel } from "./review-operation";
+it.each([
+	["review.wording", "selected CV passages"],
+	["review.extraction", "imported CV text"],
+	["review.job-evidence", "CV text and the saved job description"],
+	["review.tailoring", "CV text and the saved job description"],
+	["review.translation", "source CV text and the target language"],
+	["review.summary", "CV text and any selected job description"],
+	["review.cover-letter", "CV text, the saved job description"],
+] as const)("discloses the input and optional review scope before %s consent", async (kind, input) => {
+	state.remaining = 5;
+	state.reserved = 0;
+	i18n.loadAndActivate({ locale: "en-US", messages: {} });
+	const cache = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+	render(
+		<I18nProvider i18n={i18n}>
+			<QueryClientProvider client={cache}>
+				<ReviewLaunch kind={kind} prepare={async () => ({ sources: [], parameters: {} })} onStarted={() => {}}>
+					Request review
+				</ReviewLaunch>
+			</QueryClientProvider>
+		</I18nProvider>,
+	);
+	fireEvent.click(await screen.findByRole("button", { name: "Request review" }));
+	const description = screen.getByRole("dialog");
+	expect(description).toHaveTextContent(input);
+	expect(description).toHaveTextContent("Suggestions are optional. Review the results before you apply or use them.");
+	expect(description).toHaveTextContent("OpenRouter");
+	expect(state.grant).not.toHaveBeenCalled();
+	cache.clear();
+});
 it.each(["failed", "cancelled", "waiting_review", "succeeded"])(
 	"refreshes last-quota usage at the %s transition",
 	async (terminal) => {

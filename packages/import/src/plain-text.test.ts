@@ -426,3 +426,60 @@ it.each(["Acme, Software Engineer, London", "Software Engineer, Acme, London", "
 		});
 	},
 );
+
+describe("shared employer boundaries", () => {
+	it.each([
+		["Other Co | Backend Developer | Berlin", "Other Co", "Backend Developer"],
+		["Backend Developer | Northwind | Berlin", "Northwind", "Backend Developer"],
+		["Backend Developer at Northwind | Berlin", "Northwind", "Backend Developer"],
+	])("keeps a complete following job independent: %s", (header, company, position) => {
+		const data = parseResumeText(
+			`Ada Lovelace\nada@example.com\n\nEXPERIENCE\nAcme Labs | London | 2020 - 2024\nSenior Engineer | 2022 - 2024\n• Built parsers\n${header} | 2018 - 2020\n• Built APIs`,
+		);
+		expect(
+			data.sections.experience.items.map(({ company, position, location }) => ({ company, position, location })),
+		).toEqual([
+			{ company: "Acme Labs", position: "Senior Engineer", location: "London" },
+			{ company, position, location: "Berlin" },
+		]);
+	});
+	it("keeps a standalone employer before a complete job", () => {
+		const data = parseResumeText(
+			"Ada Lovelace\nada@example.com\n\nEXPERIENCE\nAcme Labs | London | 2020 - 2024\n• Won an award\nOther Co | Backend Developer | Berlin | 2018 - 2020\n• Built APIs",
+		);
+		expect(data.sections.experience.items).toHaveLength(2);
+		expect(data.sections.experience.items[0]).toMatchObject({ company: "Acme Labs", location: "London" });
+		expect(data.sections.experience.items[0]?.description).toContain("Won an award");
+		expect(data.sections.experience.items[1]).toMatchObject({
+			company: "Other Co",
+			position: "Backend Developer",
+			location: "Berlin",
+		});
+	});
+	it.each(["", "• Won an employer award."])("preserves employer context and body: %s", (body) => {
+		const data = parseResumeText(
+			`Ada Lovelace\nada@example.com\n\nEXPERIENCE\nAcme Labs | London | 2020 - 2024\n${body}\nSenior Engineer | 2022 - 2024\n• Built parsers\nDeveloper | 2020 - 2022\n• Built APIs`,
+		);
+		const entries = data.sections.experience.items;
+		expect(entries).toHaveLength(2);
+		expect(entries.map(({ company, location }) => ({ company, location }))).toEqual([
+			{ company: "Acme Labs", location: "London" },
+			{ company: "Acme Labs", location: "London" },
+		]);
+		if (body) expect(entries[0]?.description).toContain("Won an employer award.");
+		expect(entries[0]?.description).toContain("Built parsers");
+		expect(entries[1]?.description).toContain("Built APIs");
+	});
+});
+it("preserves an unlabelled location after a labelled name", () => {
+	const data = parseResumeText("Name: Jane Doe\nBerlin, Germany\nSenior Engineer\njane@example.test");
+	expect(data.basics).toMatchObject({ name: "Jane Doe", location: "Berlin, Germany", headline: "Senior Engineer" });
+});
+it("retains a custom section with short non-location columns after contacts", () => {
+	const data = parseResumeText(
+		"Ada Lovelace\nada@example.com\n\nCONFERENCES\nReactConf  Speaker\n2021\nSpoke about parsers",
+	);
+	expect(data.basics).toMatchObject({ name: "Ada Lovelace", email: "ada@example.com" });
+	expect(JSON.stringify(data.customSections)).toContain("ReactConf");
+	expect(JSON.stringify(data.customSections)).toContain("Spoke about parsers");
+});

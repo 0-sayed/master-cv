@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import { getSession, sessionRetryDelay } from "./session";
-import { recordSessionRetryAfter } from "./session-retry";
 
 const getSessionMock = vi.hoisted(() => vi.fn());
 
@@ -43,8 +42,7 @@ describe("getSession", () => {
 	});
 	it("carries the server x-retry-after delay into query backoff", async () => {
 		getSessionMock.mockImplementationOnce(async () => {
-			recordSessionRetryAfter("4");
-			return { data: null, error: { status: 429, message: "Too many requests." } };
+			return { data: null, error: { status: 429, message: "Too many requests.", retryAfterMs: 4_000 } };
 		});
 
 		await expect(getSession()).rejects.toMatchObject({ status: 429, retryAfterMs: 4_000 });

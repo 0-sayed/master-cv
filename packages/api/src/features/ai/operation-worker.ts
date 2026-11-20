@@ -349,11 +349,20 @@ async function executeLease(lease: OperationLease, shutdown?: AbortSignal): Prom
 	}
 }
 
-export async function runAiOperations(signal?: AbortSignal): Promise<void> {
-	for (const ownerId of await discoverAiOwners()) {
-		if (signal?.aborted) return;
-		await reconcileExpiredAccounting(ownerId);
-		const lease = await claimNextOperation(ownerId);
-		if (lease) await executeLease(lease, signal);
-	}
+export async function runAiOperations(signal?: AbortSignal, concurrency = 100): Promise<void> {
+	if (!Number.isSafeInteger(concurrency) || concurrency < 1) throw new Error("AI_INVALID_CONCURRENCY");
+	const owners = (await discoverAiOwners())[Symbol.iterator]();
+	const consume = async () => {
+		for (const ownerId of owners) {
+			if (signal?.aborted) return;
+			await reconcileExpiredAccounting(ownerId);
+			if (signal?.aborted) return;
+			const lease = await claimNextOperation(ownerId);
+			if (lease) await executeLease(lease, signal);
+		}
+	};
+	// A failed claim must not make shutdown finish while other leases still run.
+	const results = await Promise.allSettled(Array.from({ length: concurrency }, consume));
+	const failures = results.filter((result) => result.status === "rejected").map((result) => result.reason);
+	if (failures.length) throw new AggregateError(failures, "AI operation dispatch failed");
 }

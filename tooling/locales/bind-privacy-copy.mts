@@ -42,7 +42,6 @@ for (const surface of inventory.surfaces) {
 	const prior = (surface.keys ?? []).filter((key) => !targeted || !selectedKeys.has(key));
 	surface.keys = [...new Set([...prior, ...matched])].filter(
 		(key) =>
-			targeted ||
 			surface.id !== "settings" ||
 			![
 				"workspace.documents.cancel_dEgA5A",

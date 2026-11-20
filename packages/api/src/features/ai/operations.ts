@@ -323,7 +323,14 @@ export function claimNextOperation(ownerId: string): Promise<OperationLease | nu
 		const token = generateId();
 		await tx
 			.update(aiOperation)
-			.set({ state: "running", leaseToken: token, leaseUntil: new Date(Date.now() + 60000) })
+			.set({
+				state: "running",
+				leaseToken: token,
+				leaseUntil: new Date(Date.now() + 60000),
+				...(operation.state === "queued"
+					? { deadlineAt: new Date(Date.now() + operation.deadlineAt.getTime() - operation.createdAt.getTime()) }
+					: {}),
+			})
 			.where(eq(aiOperation.id, operation.id));
 		return { ownerId, operationId: operation.id, token };
 	});

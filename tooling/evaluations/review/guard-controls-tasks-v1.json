@@ -1,9 +1,9 @@
 {
 	"study": "tasks-v1",
-	"freezeHash": "27a6ccb0a8ddbc1679a386eb7c236bac2e697bf00ab580fd6673e223ba670262",
-	"reason": "Review corrections bind billing exposure, retry accounting, language validation, MQM scoring and verifier versions. Fresh offline controls only.",
+	"freezeHash": "e82cb647b1a750c872da0f7bb7b8f299e63cc93c7c5ee981423628c66c063b85",
+	"reason": "Owner-requested AI worker throughput fix. Run admitted owners concurrently and drain active leases during shutdown. Start queued execution deadlines at the first claim. Preserve prompts, guards, fixtures, scoring and model pins. Incorporate the unchanged D39 billing revisions. No paid results, approval or qualification are reused.",
 	"controlsBasis": "Fresh all-category, scoped and canary deterministic scans. No semantic qualification or paid calls.",
-	"scannedAt": "2026-11-17T19:44:03.829Z",
+	"scannedAt": "2026-11-20T17:20:29.985Z",
 	"all": {
 		"checked": 1540,
 		"pass": true,

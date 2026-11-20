@@ -2,9 +2,44 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 const messages = {
+	"privacy.ai.scope.wording": msg({
+		message:
+			"This review sends the selected CV passages and any answers you provide to the processing provider. Suggestions are optional. Review the results before you apply or use them.",
+		context: "privacy.ai.scope.wording",
+	}),
+	"privacy.ai.scope.extraction": msg({
+		message:
+			"This review sends the imported CV text and any answers you provide to the processing provider. Suggestions are optional. Review the results before you apply or use them.",
+		context: "privacy.ai.scope.extraction",
+	}),
+	"privacy.ai.scope.job-evidence": msg({
+		message:
+			"This review sends necessary CV text and the saved job description to the processing provider to compare your evidence with the job requirements. Suggestions are optional. Review the results before you apply or use them.",
+		context: "privacy.ai.scope.job-evidence",
+	}),
+	"privacy.ai.scope.tailoring": msg({
+		message:
+			"This review sends necessary CV text and the saved job description to the processing provider to suggest wording for this job. Suggestions are optional. Review the results before you apply or use them.",
+		context: "privacy.ai.scope.tailoring",
+	}),
+	"privacy.ai.scope.translation": msg({
+		message:
+			"This review sends the source CV text and the target language to the processing provider to prepare a language copy. Suggestions are optional. Review the results before you apply or use them.",
+		context: "privacy.ai.scope.translation",
+	}),
+	"privacy.ai.scope.summary": msg({
+		message:
+			"This review sends necessary CV text and any selected job description to the processing provider to suggest a summary. Suggestions are optional. Review the results before you apply or use them.",
+		context: "privacy.ai.scope.summary",
+	}),
+	"privacy.ai.scope.cover-letter": msg({
+		message:
+			"This review sends necessary CV text, the saved job description, and your language and length choices to the processing provider to draft a cover letter. Suggestions are optional. Review the results before you apply or use them.",
+		context: "privacy.ai.scope.cover-letter",
+	}),
 	"privacy.ai.overseasNotice": msg({
 		message:
-			"AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models.",
+			"AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling.",
 		context: "privacy.ai.overseasNotice",
 	}),
 	"review.launch.budgetReached": msg({

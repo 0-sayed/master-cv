@@ -110,7 +110,7 @@ cat > "$remote_dir/ai-budget.sh" <<'SCRIPT'
 set -euo pipefail
 remote_dir='/opt/sirawise'
 compose_file="$remote_dir/compose.yml"
-app_container="$(docker compose -p sirawise -f "$compose_file" ps -q app)"
+app_container="$(docker compose -p sirawise -f "$compose_file" ps -q --all app)"
 postgres_container="$(docker compose -p sirawise -f "$compose_file" ps -q postgres)"
 image="$(docker inspect --format '{{.Config.Image}}' "$app_container")"
 docker run --rm --network "container:$postgres_container" --env-file "$remote_dir/.env" \

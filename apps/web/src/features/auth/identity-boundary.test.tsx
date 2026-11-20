@@ -6,6 +6,30 @@ import { QueryClient } from "@tanstack/react-query";
 import { IdentityBoundary } from "./identity-boundary";
 import { authIdentity, sessionQueryKey } from "@/libs/auth/identity";
 
+it("unmounts a private outlet until the signed-out route commits after unconfirmed identity", async () => {
+	const session = { user: { id: "private-owner" } } as AuthSession;
+	mocks.session = session;
+	const queryClient = new QueryClient();
+	queryClient.setQueryData(sessionQueryKey, session);
+	const identity = authIdentity(queryClient);
+	const view = render(
+		<IdentityBoundary queryClient={queryClient} session={session}>
+			Private content
+		</IdentityBoundary>,
+	);
+	expect(view.getByText("Private content")).toBeVisible();
+	await act(async () => identity.markUnconfirmed());
+	expect(view.queryByText("Private content")).toBeNull();
+	view.rerender(
+		<IdentityBoundary queryClient={queryClient} session={null}>
+			Signed-out route
+		</IdentityBoundary>,
+	);
+	expect(view.getByText("Signed-out route")).toBeVisible();
+	mocks.session = null;
+	cleanup();
+});
+
 const mocks = vi.hoisted(() => ({
 	pending: false,
 	session: null as AuthSession | null,

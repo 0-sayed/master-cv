@@ -253,7 +253,9 @@ function headerBoundary(lines: string[]): number {
 			EMAIL_PATTERN.test(line) ||
 			URL_TEST.test(line) ||
 			extractPhone(line) ||
-			(/[ \t]{2,}/u.test(line) && splitHeaderParts(line).length > 1 && splitHeaderParts(line).some(credibleLocation))
+			(/[ \t]{2,}/u.test(line) &&
+				splitHeaderParts(line).length > 1 &&
+				splitHeaderParts(line).some((part) => looksLikeLocation(part) && credibleLocation(part)))
 		)
 			boundary = index;
 	}
@@ -447,9 +449,15 @@ function experienceFields(entry: RawEntry, options: ImportOptions, entryIndex: n
 	};
 }
 
+function isRoleOnlyHeader(entry: RawEntry | undefined): boolean {
+	if (!entry || entry.headerParts.length !== 1) return false;
+	const title = entry.headerParts[0] ?? "";
+	return looksLikeRole(title) && !/[,،]|\s+(?:at|@|لدى|في)\s+/iu.test(title);
+}
+
 function attachSharedEmployer(entries: RawEntry[]): RawEntry[] {
 	const expanded: RawEntry[] = [];
-	let employer: { company: string; location: string; period: string } | null = null;
+	let employer: { company: string; location: string; period: string; body: string[] } | null = null;
 
 	for (const [index, entry] of entries.entries()) {
 		const company = entry.headerParts[0] ?? "";
@@ -458,21 +466,23 @@ function attachSharedEmployer(entries: RawEntry[]): RawEntry[] {
 		const isEmployerHeader =
 			!!entry.period && !!company && !!location && !looksLikeRole(company) && !entry.headerParts.some(looksLikeRole);
 		if (isEmployerHeader) {
-			const nextRole = entries[index + 1]?.headerParts.some(looksLikeRole) ?? false;
+			const nextRole = isRoleOnlyHeader(entries[index + 1]);
 			if (nextRole && !roleInBody) {
-				employer = { company, location, period: entry.period };
+				employer = { company, location, period: entry.period, body: entry.body };
 				continue;
 			}
 			employer = null;
 			expanded.push(entry);
 			continue;
 		}
-		if (employer && entry.headerParts.some(looksLikeRole)) {
+		if (employer && isRoleOnlyHeader(entry)) {
 			expanded.push({
 				...entry,
 				period: entry.period || employer.period,
 				headerParts: [employer.company, employer.location, ...entry.headerParts],
+				body: [...employer.body, ...entry.body],
 			});
+			employer.body = [];
 			continue;
 		}
 		employer = null;
@@ -709,7 +719,7 @@ function parseHeader(lines: string[], options: ImportOptions) {
 		if (value && /\p{L}/u.test(value)) remaining.push(value);
 	}
 	const commaName = remaining[0]?.match(/^([\p{L}'’-]+),\s*([\p{L}'’-]+)$/u);
-	const nameCandidate = commaName ? remaining.shift() : undefined;
+	const nameCandidate = !labelled.name && commaName ? remaining.shift() : undefined;
 	const locationIndex = remaining.findIndex(looksLikeLocation);
 	const locationSource = labelled.location ?? (locationIndex >= 0 ? (remaining.splice(locationIndex, 1)[0] ?? "") : "");
 	const name = labelled.name ?? nameCandidate ?? remaining.shift() ?? "";

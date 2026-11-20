@@ -2448,5 +2448,23 @@
 				"afterSha256": "154986336bf629c4beef939533e287220b4cf9a4b60215828fdbdcb9aaa3b153"
 			}
 		]
+	},
+	{
+		"name": "tasks-study-serial-worker.json",
+		"date": "2026-11-17",
+		"reason": "Owner-requested AI worker throughput fix. Run admitted owners concurrently and drain active leases during shutdown. Start queued execution deadlines at the first claim. Preserve prompts, guards, fixtures, scoring and model pins. Incorporate the unchanged D39 billing revisions. No paid results, approval or qualification are reused.",
+		"sha256": "07cbb1ff4a5b49db0c73cecdece2826502b6a9f90046ce208237cd7578acb1a9",
+		"studyHash": "27a6ccb0a8ddbc1679a386eb7c236bac2e697bf00ab580fd6673e223ba670262",
+		"studyId": "tasks-v1-personal-career-0c679b93a99e",
+		"holdoutHash": "6e02a9a318a5104c8d40a3bc77b37079cdf5208b8a2d2071ecb6a51b6b985542",
+		"holdoutPassagesHash": "f6776e380684b0ff878fcfa0fdcede75c61277fed409d6ba71c90ab949b8a809",
+		"billingAmendmentSha256": "fc05c1c0acebb09ec171346c2e1f23992a52ec098ef73778e66ce29631c3f4c4"
+	},
+	{
+		"name": "guard-controls-serial-worker.json",
+		"date": "2026-11-17",
+		"reason": "Owner-requested AI worker throughput fix. Run admitted owners concurrently and drain active leases during shutdown. Start queued execution deadlines at the first claim. Preserve prompts, guards, fixtures, scoring and model pins. Incorporate the unchanged D39 billing revisions. No paid results, approval or qualification are reused.",
+		"sha256": "cd2a4cf9a6bf0bcca05b8969b8e978fc441ffc50c10380e330655b204e1dde1e",
+		"freezeHash": "27a6ccb0a8ddbc1679a386eb7c236bac2e697bf00ab580fd6673e223ba670262"
 	}
 ]

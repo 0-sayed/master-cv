@@ -1901,8 +1901,8 @@ msgstr "الذكاء الاصطناعي اختياري ويتطلب موافقت
 
 #: src/features/assistant/copy.generated.ts
 msgctxt "privacy.ai.overseasNotice"
-msgid "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models."
-msgstr "ميزات الذكاء الاصطناعي اختيارية وتتطلب موافقتك الصريحة قبل أول استخدام. نرسل نص السيرة اللازم فقط، دون بيانات الاتصال، عبر OpenRouter إلى Microsoft Azure لنماذج OpenAI Luna وTerra، وإلى Together AI لمدقق DeepSeek. تتم هذه المعالجة خارج السعودية. تستخدم الطلبات انعدام الاحتفاظ بالبيانات ولا تُستخدم للتدريب."
+msgid "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
+msgstr "ميزات الذكاء الاصطناعي اختيارية وتتطلب موافقتك الصريحة قبل أول استخدام. نرسل نص السيرة اللازم فقط، دون بيانات الاتصال، عبر OpenRouter إلى Microsoft Azure لنماذج OpenAI Luna وTerra، وإلى Together AI لمدقق DeepSeek. تتم هذه المعالجة خارج السعودية. نضبط توجيه الطلبات على انعدام الاحتفاظ بالبيانات (ZDR) ورفض جمع البيانات للتدريب. تخضع المعالجة الفعلية لشروط مزوّدي الخدمة."
 
 #: src/features/settings/ai/providers.tsx
 msgid "AI providers"
@@ -3166,12 +3166,12 @@ msgstr "تعذّر المسح؟ استخدم مفتاح الإعداد اليد�
 #: src/features/resume/variants/clarification.tsx
 #: src/features/resume/variants/term-dialog.tsx
 #: src/features/resume/variants/translation-review.tsx
-#: src/features/settings/account/sessions.tsx
 #: src/hooks/use-confirm.tsx
 msgid "Cancel"
 msgstr "إلغاء"
 
 #: src/features/assistant/copy.generated.ts
+#: src/features/settings/account/sessions.tsx
 msgctxt "common.actions.cancel"
 msgid "Cancel"
 msgstr "إلغاء"
@@ -15952,6 +15952,41 @@ msgstr "تم تحديث هذه السيرة الذاتية بواسطة برنا
 msgid "This resume's sharing settings changed elsewhere."
 msgstr "تم تغيير إعدادات مشاركة هذه السيرة الذاتية في مكان آخر."
 
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.summary"
+msgid "This review sends necessary CV text and any selected job description to the processing provider to suggest a summary. Suggestions are optional. Review the results before you apply or use them."
+msgstr "ترسل هذه المراجعة نص السيرة اللازم وأي وصف وظيفة محدد إلى مزوّد المعالجة لاقتراح ملخص. الاقتراحات اختيارية. راجع النتائج قبل تطبيقها أو استخدامها."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.job-evidence"
+msgid "This review sends necessary CV text and the saved job description to the processing provider to compare your evidence with the job requirements. Suggestions are optional. Review the results before you apply or use them."
+msgstr "ترسل هذه المراجعة نص السيرة اللازم ووصف الوظيفة المحفوظ إلى مزوّد المعالجة لمقارنة أدلتك بمتطلبات الوظيفة. الاقتراحات اختيارية. راجع النتائج قبل تطبيقها أو استخدامها."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.tailoring"
+msgid "This review sends necessary CV text and the saved job description to the processing provider to suggest wording for this job. Suggestions are optional. Review the results before you apply or use them."
+msgstr "ترسل هذه المراجعة نص السيرة اللازم ووصف الوظيفة المحفوظ إلى مزوّد المعالجة لاقتراح صياغة تناسب هذه الوظيفة. الاقتراحات اختيارية. راجع النتائج قبل تطبيقها أو استخدامها."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.cover-letter"
+msgid "This review sends necessary CV text, the saved job description, and your language and length choices to the processing provider to draft a cover letter. Suggestions are optional. Review the results before you apply or use them."
+msgstr "ترسل هذه المراجعة نص السيرة اللازم ووصف الوظيفة المحفوظ وخيارات اللغة والطول إلى مزوّد المعالجة لإعداد مسودة خطاب تقديم. الاقتراحات اختيارية. راجع النتائج قبل تطبيقها أو استخدامها."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.extraction"
+msgid "This review sends the imported CV text and any answers you provide to the processing provider. Suggestions are optional. Review the results before you apply or use them."
+msgstr "ترسل هذه المراجعة نص السيرة المستورد وأي إجابات تقدمها إلى مزوّد المعالجة. الاقتراحات اختيارية. راجع النتائج قبل تطبيقها أو استخدامها."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.wording"
+msgid "This review sends the selected CV passages and any answers you provide to the processing provider. Suggestions are optional. Review the results before you apply or use them."
+msgstr "ترسل هذه المراجعة مقاطع السيرة المحددة وأي إجابات تقدمها إلى مزوّد المعالجة. الاقتراحات اختيارية. راجع النتائج قبل تطبيقها أو استخدامها."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.translation"
+msgid "This review sends the source CV text and the target language to the processing provider to prepare a language copy. Suggestions are optional. Review the results before you apply or use them."
+msgstr "ترسل هذه المراجعة نص السيرة الأصلية واللغة المستهدفة إلى مزوّد المعالجة لإعداد نسخة بهذه اللغة. الاقتراحات اختيارية. راجع النتائج قبل تطبيقها أو استخدامها."
+
 #: src/features/applications/components/application-detail-page.tsx
 msgid "This saved description is clipped or incomplete. Review before preparing documents."
 msgstr "هذا الوصف المحفوظ مقتطع أو غير مكتمل. راجعه قبل إعداد المستندات."
@@ -17266,15 +17301,15 @@ msgctxt "jobs.tailoring.compareEvidence"
 msgid "We show what your content supports and where we found no evidence."
 msgstr "نعرض ما يدعمه محتواك، وما لا نجد له دليلًا."
 
-#: src/features/legal/page.tsx
+#: src/features/public-copy.ts
 msgctxt "privacy.policy.purposeDescription"
-msgid "We use account data to run your account. We use CV data to create and export your CV. During the pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom. We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models."
-msgstr "نستخدم بيانات حسابك لتشغيل الحساب، وبيانات سيرتك لإنشائها وتصديرها. خلال المرحلة التجريبية، يُخزّن التطبيق وقاعدة البيانات والملفات والنسخ الاحتياطية على خادم Contabo الافتراضي في بورتسموث بالمملكة المتحدة. نخطط لنقل الاستضافة إلى السعودية لاحقًا. الذكاء الاصطناعي اختياري ويتطلب موافقتك الصريحة قبل أول استخدام. نرسل نص السيرة اللازم فقط، دون بيانات الاتصال، عبر OpenRouter إلى Microsoft Azure لنماذج OpenAI Luna وTerra، وإلى Together AI لمدقق DeepSeek. تتم معالجة الذكاء الاصطناعي خارج السعودية. تستخدم الطلبات انعدام الاحتفاظ بالبيانات ولا تُستخدم للتدريب."
+msgid "We use account data to run your account. We use CV data to create and export your CV. During the pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom. We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
+msgstr "نستخدم بيانات حسابك لتشغيل الحساب، وبيانات سيرتك لإنشائها وتصديرها. خلال المرحلة التجريبية، يُخزّن التطبيق وقاعدة البيانات والملفات والنسخ الاحتياطية على خادم Contabo الافتراضي في بورتسموث بالمملكة المتحدة. نخطط لنقل الاستضافة إلى السعودية لاحقًا. الذكاء الاصطناعي اختياري ويتطلب موافقتك الصريحة قبل أول استخدام. نرسل نص السيرة اللازم فقط، دون بيانات الاتصال، عبر OpenRouter إلى Microsoft Azure لنماذج OpenAI Luna وTerra، وإلى Together AI لمدقق DeepSeek. تتم معالجة الذكاء الاصطناعي خارج السعودية. نضبط توجيه الطلبات على انعدام الاحتفاظ بالبيانات (ZDR) ورفض جمع البيانات للتدريب. تخضع المعالجة الفعلية لشروط مزوّدي الخدمة."
 
 #: src/features/career/copy.generated.ts
 msgctxt "auth.welcome.privacy.description"
 msgid "We use your file to build your CV. See Privacy and data for what we send to the processing provider and why. You can download your data or request account deletion."
-msgstr "نستخدم ملفك لبناء سيرتك. ما نرسله لمزوّد المعالجة ولماذا تجده في «الخصوصية والبيانات»، ويمكنك تنزيل بياناتك أو حذف حسابك متى شئت."
+msgstr "نستخدم ملفك لبناء سيرتك. ما نرسله لمزوّد المعالجة ولماذا تجده في «الخصوصية والبيانات»، ويمكنك تنزيل بياناتك أو طلب حذف حسابك."
 
 #: src/features/help/page.tsx
 msgid "We will reply to <0>{accountEmail}</0>"

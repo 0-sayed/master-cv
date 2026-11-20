@@ -135,7 +135,7 @@ export function SessionsSection({ sessions }: { sessions: RouterOutput["privacy"
 					</AlertDialogDescription>
 					<AlertDialogFooter>
 						<AlertDialogCancel>
-							<Trans>Cancel</Trans>
+							<Trans context="common.actions.cancel">Cancel</Trans>
 						</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={() => {

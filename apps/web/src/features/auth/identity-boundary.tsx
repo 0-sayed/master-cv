@@ -41,6 +41,7 @@ export function IdentityBoundary({ queryClient, session, children }: IdentityBou
 	);
 	if (state.status === "checking") return null;
 	if (state.status === "unconfirmed") {
+		if (session !== null) return null;
 		return (
 			<IdentitySessionContext.Provider key={state.generation} value={null}>
 				{children}

@@ -40,17 +40,7 @@ export function LegalPage({ tab }: { tab: LegalTab }) {
 							<h2 className="type-heading">
 								<Trans context="privacy.policy.purposeTitle">How we use it</Trans>
 							</h2>
-							<p className="type-body text-ink-2">
-								<Trans context="privacy.policy.purposeDescription">
-									We use account data to run your account. We use CV data to create and export your CV. During the
-									pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom.
-									We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We
-									send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to
-									Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker.
-									Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do
-									not use requests to train models.
-								</Trans>
-							</p>
+							<p className="type-body text-ink-2">{copy("privacy.policy.purposeDescription")}</p>
 						</section>
 					</div>
 				</TabsContent>

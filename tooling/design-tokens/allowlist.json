@@ -10133,10 +10133,18 @@
 		{
 			"file": "apps/web/src/features/assistant/copy.generated.ts",
 			"context": "const:messages/property:message/property:\"privacy.ai.overseasNotice\"",
-			"literal": "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models.",
+			"literal": "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling.",
 			"kind": "color",
 			"count": 1,
-			"reason": "Azure is a processor name in pending owner-review privacy copy, not an interface color."
+			"reason": "Azure names an AI processor in the copy deck. It does not specify an interface color."
+		},
+		{
+			"file": "apps/web/src/features/public-copy.ts",
+			"context": "const:publicMessages/property:message/property:\"privacy.policy.purposeDescription\"",
+			"kind": "color",
+			"count": 1,
+			"literal": "We use account data to run your account. We use CV data to create and export your CV. During the pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom. We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling.",
+			"reason": "Azure names an AI processor in the copy deck. It does not specify an interface color."
 		}
 	]
 }

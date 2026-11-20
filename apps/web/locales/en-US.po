@@ -1101,6 +1101,11 @@ msgstr "A reply is a recorded Screening, Interview, Offer, or Not selected trans
 msgid "A resume with this slug already exists."
 msgstr "A resume with this slug already exists."
 
+#: src/features/public-copy.ts
+msgctxt "legal.terms.approval.title"
+msgid "A review draft"
+msgstr "A review draft"
+
 #: src/features/ats-guide/examples.ts
 msgid "A role description split across table cells"
 msgstr "A role description split across table cells"
@@ -1276,16 +1281,6 @@ msgstr "Accomplishment"
 msgctxt "account.settings.accountTab"
 msgid "Account"
 msgstr "Account"
-
-#: src/features/public-copy.ts
-msgctxt "legal.terms.approval.title"
-msgid "A review draft"
-msgstr "A review draft"
-
-#: src/features/public-copy.ts
-msgctxt "legal.draft.revision"
-msgid "Draft revision: 2026-11-15"
-msgstr "Draft revision: 2026-11-15"
 
 #: src/dialogs/auth/change-email.tsx
 msgid "Account methods are unavailable"
@@ -1906,8 +1901,8 @@ msgstr "AI is optional and needs your consent. Only necessary text, without cont
 
 #: src/features/assistant/copy.generated.ts
 msgctxt "privacy.ai.overseasNotice"
-msgid "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models."
-msgstr "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models."
+msgid "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
+msgstr "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
 
 #: src/features/settings/ai/providers.tsx
 msgid "AI providers"
@@ -3171,12 +3166,12 @@ msgstr "Can't scan? Use the manual setup key"
 #: src/features/resume/variants/clarification.tsx
 #: src/features/resume/variants/term-dialog.tsx
 #: src/features/resume/variants/translation-review.tsx
-#: src/features/settings/account/sessions.tsx
 #: src/hooks/use-confirm.tsx
 msgid "Cancel"
 msgstr "Cancel"
 
 #: src/features/assistant/copy.generated.ts
+#: src/features/settings/account/sessions.tsx
 msgctxt "common.actions.cancel"
 msgid "Cancel"
 msgstr "Cancel"
@@ -6044,6 +6039,11 @@ msgstr "Draft a summary from facts you select."
 msgid "Draft kept. Edit anything you like."
 msgstr "Draft kept. Edit anything you like."
 
+#: src/features/public-copy.ts
+msgctxt "legal.draft.revision"
+msgid "Draft revision: 2026-11-15"
+msgstr "Draft revision: 2026-11-15"
+
 #: src/features/career/workspace/prepare.tsx
 msgid "Draft story"
 msgstr "Draft story"
@@ -6765,11 +6765,6 @@ msgstr "Example CV language"
 #: src/features/ats-guide/examples.ts
 msgid "example.com"
 msgstr "example.com"
-
-#: src/features/public-copy.ts
-msgctxt "public.meta.legal.description"
-msgid "Review draft describing existing account data controls, current capabilities and pending policy approvals."
-msgstr "Review draft describing existing account data controls, current capabilities and pending policy approvals."
 
 #: src/features/resume/stylesheet/toolbar.tsx
 msgid "Exit focus mode"
@@ -11733,11 +11728,6 @@ msgctxt "privacy.navigation.data"
 msgid "Privacy & data"
 msgstr "Privacy & data"
 
-#: src/features/public-copy.ts
-msgctxt "legal.draft.notice"
-msgid "Review draft — not an approved final policy."
-msgstr "Review draft — not an approved final policy."
-
 #: src/features/help/public-shell.tsx
 #: src/features/public-copy.ts
 msgctxt "legal.page.title"
@@ -12853,6 +12843,16 @@ msgstr "Review consent"
 #: src/features/career/today.tsx
 msgid "Review draft"
 msgstr "Review draft"
+
+#: src/features/public-copy.ts
+msgctxt "legal.draft.notice"
+msgid "Review draft — not an approved final policy."
+msgstr "Review draft — not an approved final policy."
+
+#: src/features/public-copy.ts
+msgctxt "public.meta.legal.description"
+msgid "Review draft describing existing account data controls, current capabilities and pending policy approvals."
+msgstr "Review draft describing existing account data controls, current capabilities and pending policy approvals."
 
 #: src/features/resume/editor/write/write-panel.tsx
 msgid "Review each section before using this resume."
@@ -15952,6 +15952,41 @@ msgstr "This resume was updated by an AI agent."
 msgid "This resume's sharing settings changed elsewhere."
 msgstr "This resume's sharing settings changed elsewhere."
 
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.summary"
+msgid "This review sends necessary CV text and any selected job description to the processing provider to suggest a summary. Suggestions are optional. Review the results before you apply or use them."
+msgstr "This review sends necessary CV text and any selected job description to the processing provider to suggest a summary. Suggestions are optional. Review the results before you apply or use them."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.job-evidence"
+msgid "This review sends necessary CV text and the saved job description to the processing provider to compare your evidence with the job requirements. Suggestions are optional. Review the results before you apply or use them."
+msgstr "This review sends necessary CV text and the saved job description to the processing provider to compare your evidence with the job requirements. Suggestions are optional. Review the results before you apply or use them."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.tailoring"
+msgid "This review sends necessary CV text and the saved job description to the processing provider to suggest wording for this job. Suggestions are optional. Review the results before you apply or use them."
+msgstr "This review sends necessary CV text and the saved job description to the processing provider to suggest wording for this job. Suggestions are optional. Review the results before you apply or use them."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.cover-letter"
+msgid "This review sends necessary CV text, the saved job description, and your language and length choices to the processing provider to draft a cover letter. Suggestions are optional. Review the results before you apply or use them."
+msgstr "This review sends necessary CV text, the saved job description, and your language and length choices to the processing provider to draft a cover letter. Suggestions are optional. Review the results before you apply or use them."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.extraction"
+msgid "This review sends the imported CV text and any answers you provide to the processing provider. Suggestions are optional. Review the results before you apply or use them."
+msgstr "This review sends the imported CV text and any answers you provide to the processing provider. Suggestions are optional. Review the results before you apply or use them."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.wording"
+msgid "This review sends the selected CV passages and any answers you provide to the processing provider. Suggestions are optional. Review the results before you apply or use them."
+msgstr "This review sends the selected CV passages and any answers you provide to the processing provider. Suggestions are optional. Review the results before you apply or use them."
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.translation"
+msgid "This review sends the source CV text and the target language to the processing provider to prepare a language copy. Suggestions are optional. Review the results before you apply or use them."
+msgstr "This review sends the source CV text and the target language to the processing provider to prepare a language copy. Suggestions are optional. Review the results before you apply or use them."
+
 #: src/features/applications/components/application-detail-page.tsx
 msgid "This saved description is clipped or incomplete. Review before preparing documents."
 msgstr "This saved description is clipped or incomplete. Review before preparing documents."
@@ -17266,10 +17301,10 @@ msgctxt "jobs.tailoring.compareEvidence"
 msgid "We show what your content supports and where we found no evidence."
 msgstr "We show what your content supports and where we found no evidence."
 
-#: src/features/legal/page.tsx
+#: src/features/public-copy.ts
 msgctxt "privacy.policy.purposeDescription"
-msgid "We use account data to run your account. We use CV data to create and export your CV. During the pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom. We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models."
-msgstr "We use account data to run your account. We use CV data to create and export your CV. During the pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom. We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention. Providers do not use requests to train models."
+msgid "We use account data to run your account. We use CV data to create and export your CV. During the pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom. We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
+msgstr "We use account data to run your account. We use CV data to create and export your CV. During the pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom. We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
 
 #: src/features/career/copy.generated.ts
 msgctxt "auth.welcome.privacy.description"

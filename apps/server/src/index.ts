@@ -43,7 +43,9 @@ export async function main() {
 		},
 	);
 	const careerScheduler = startCareerScheduler();
-	const aiScheduler = ai.run(() => startAiScheduler());
+	const aiScheduler = ai.run(() =>
+		startAiScheduler({ enabled: aiRuntime !== null, concurrency: productionAiRoute.concurrency }),
+	);
 	const privacyScheduler = startPrivacyScheduler();
 	console.info(
 		aiRuntime

@@ -45,3 +45,24 @@ describe("authRateLimitStorage", () => {
 		expect(await authRateLimitStorage?.consume("other:ip", rule)).toEqual({ allowed: true, retryAfter: null });
 	});
 });
+
+it("allows ordinary session navigation and bounds abusive checks per client", async () => {
+	vi.spyOn(console, "error").mockImplementation(() => {});
+	const { rateLimitConfig } = await import("@reactive-resume/utils/rate-limit");
+	const { authRateLimitStorage } = await import("./rate-limit");
+	const rule = rateLimitConfig.betterAuth.global.customRules["/get-session"];
+	expect(rule).not.toBe(false);
+	if (!rule) throw new Error("Session checks require a bounded rule");
+	mocks.eval.mockRejectedValue(new Error("Redis unavailable"));
+	for (let index = 0; index < 120; index++) {
+		expect(await authRateLimitStorage?.consume("get-session:client-a", rule)).toEqual({
+			allowed: true,
+			retryAfter: null,
+		});
+	}
+	expect(await authRateLimitStorage?.consume("get-session:client-a", rule)).toEqual({ allowed: false, retryAfter: 60 });
+	expect(await authRateLimitStorage?.consume("get-session:client-b", rule)).toEqual({
+		allowed: true,
+		retryAfter: null,
+	});
+});

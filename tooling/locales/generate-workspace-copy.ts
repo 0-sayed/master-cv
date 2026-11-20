@@ -122,6 +122,13 @@ const groups = {
 		"language.switch.englishAccessible",
 	],
 	assistant: [
+		"privacy.ai.scope.wording",
+		"privacy.ai.scope.extraction",
+		"privacy.ai.scope.job-evidence",
+		"privacy.ai.scope.tailoring",
+		"privacy.ai.scope.translation",
+		"privacy.ai.scope.summary",
+		"privacy.ai.scope.cover-letter",
 		"privacy.ai.overseasNotice",
 		"review.launch.budgetReached",
 		"review.launch.allowanceUsed",
