@@ -2,6 +2,7 @@
 import { msg } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 const messages = {
+	"auth.brand.home": msg({ message: "Sirawise home", context: "auth.brand.home" }),
 	"common.navigation.signIn": msg({ message: "Sign in", context: "common.navigation.signIn" }),
 	"editor.documents.subtitle": msg({ message: "Continue where you left off.", context: "editor.documents.subtitle" }),
 	"auth.signIn.createAccountHint": msg({ message: "No account yet?", context: "auth.signIn.createAccountHint" }),

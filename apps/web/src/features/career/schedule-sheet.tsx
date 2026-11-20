@@ -21,6 +21,7 @@ import { toast } from "@reactive-resume/ui/components/toast";
 import { useBreakpoint } from "@reactive-resume/ui/hooks/use-breakpoint";
 import { fromZonedDateTime } from "@reactive-resume/utils/timezone";
 import { PrivacyLine, Swap, useCareerTime, useNow } from "./shared";
+import { CalendarDateInput } from "@/components/input/calendar-date-input";
 import { QuerySkeleton } from "@/components/query-skeleton";
 import { collectInterviews, interviewTypeLabel } from "@/features/applications/interviews";
 import { applicationsListQueryOptions } from "@/features/applications/queries";
@@ -440,14 +441,13 @@ export function ScheduleSheet({ schedule, onScheduleChange, onDelete }: Schedule
 									<div className="grid grid-cols-2 gap-3">
 										<Field label={dateLabel}>
 											{(props) => (
-												<Input
+												<CalendarDateInput
 													{...props}
-													type="date"
+													label={dateLabel}
 													aria-invalid={Boolean(shownError("when")) || undefined}
 													value={draft.date}
-													onChange={(event) => set({ date: event.target.value })}
+													onChange={(date) => set({ date })}
 													onBlur={() => touch("when")}
-													className="pointer-coarse:text-base"
 												/>
 											)}
 										</Field>

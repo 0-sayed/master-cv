@@ -208,8 +208,9 @@ function CustomFields({ fields, locked }: CustomFieldsProps) {
 							<Input
 								disabled={locked}
 								type="url"
+								dir="ltr"
+								placeholder="https://..."
 								aria-label={t`Link address`}
-								placeholder="https://"
 								value={field.link}
 								onChange={(event) =>
 									edit(`${field.id}.link`, (list) => {

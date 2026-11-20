@@ -3,6 +3,29 @@ import { afterEach, expect, it, vi } from "vite-plus/test";
 import { Icon } from "./icon";
 import { SegmentedControl, SegmentedControlItem } from "./segmented-control";
 
+it("keeps wrapped labels inside equally padded LTR and RTL segments", () => {
+	const { container } = render(
+		<>
+			{(["ltr", "rtl"] as const).map((dir) => (
+				<SegmentedControl key={dir} dir={dir} data-wrap={true} defaultValue="parsed">
+					<SegmentedControlItem value="preview">معاينة السيرة الذاتية</SegmentedControlItem>
+					<SegmentedControlItem value="parsed">النص المستخرج من السيرة الذاتية</SegmentedControlItem>
+				</SegmentedControl>
+			))}
+		</>,
+	);
+
+	for (const group of container.querySelectorAll('[data-slot="segmented-control"]')) {
+		expect(group.className).toContain("flex-wrap");
+		const items = [...group.querySelectorAll('[data-slot="segmented-control-item"]')];
+		expect(items).toHaveLength(2);
+		for (const item of items) {
+			expect(item.className).toContain("px-3");
+			expect(item.querySelector('[data-slot="segmented-control-label"]')?.className).toContain("min-w-0");
+		}
+	}
+});
+
 it("preserves complete labels without ellipsis", () => {
 	render(
 		<SegmentedControl defaultValue="letter">

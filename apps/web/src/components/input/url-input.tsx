@@ -26,7 +26,10 @@ function ensurePrefix(url: string, prefix: string) {
 	return HTTP_PREFIX.test(url) ? url : prefix + url;
 }
 
-type Props<TValue extends Website = Website> = Omit<React.ComponentProps<"input">, "value" | "onChange"> & {
+type Props<TValue extends Website = Website> = Omit<
+	React.ComponentProps<"input">,
+	"value" | "onChange" | "dir" | "placeholder"
+> & {
 	value: TValue;
 	onChange: (value: TValue) => void;
 	hideLabelButton?: boolean;
@@ -48,18 +51,19 @@ export function URLInput<TValue extends Website>({ value, onChange, hideLabelBut
 	const urlValue = stripPrefix(value.url);
 
 	return (
-		<InputGroup dir={props.dir ?? "ltr"}>
+		<InputGroup dir="ltr">
 			<InputGroupAddon align="inline-start">
 				<InputGroupText>{prefix}</InputGroupText>
 			</InputGroupAddon>
 
 			<InputGroupInput
-				dir="ltr"
 				inputMode="url"
 				value={urlValue}
-				className={cn(props.className, "ps-0!")}
+				className={cn(props.className, "ps-0! text-start")}
 				onChange={handleUrlChange}
 				{...props}
+				dir="ltr"
+				placeholder="example.com"
 			/>
 
 			{!hideLabelButton && (
@@ -74,7 +78,7 @@ export function URLInput<TValue extends Website>({ value, onChange, hideLabelBut
 										message: "Add a label to the URL",
 									})}
 								>
-									<Icon name="tag" size={16} />
+									<Icon name="link" size={16} />
 								</InputGroupButton>
 							}
 						/>

@@ -107,7 +107,13 @@ export function FindingCard({
 							role="link"
 							size="icon-sm"
 							label={i18n._(guideCopy.learn)}
-							render={<Link to={ATS_GUIDE_ROUTE} hash={guideRuleId(guideCode)} search={{ locale }} />}
+							render={
+								<Link
+									to={ATS_GUIDE_ROUTE}
+									hash={guideRuleId(guideCode)}
+									search={{ locale, returnTo: window.location.pathname }}
+								/>
+							}
 						/>
 					)}
 				</span>

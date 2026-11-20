@@ -54,7 +54,11 @@ function importedReview(
 							{...options}
 							initial={initial}
 							flowId={flowId}
-							issues={options.issues?.(initial) ?? [{ field: "position", source: "Engineer" }]}
+							issues={
+								options.issues?.(initial) ?? [
+									{ field: "position", source: "Engineer", section: "experience", entryIndex: 0 },
+								]
+							}
 							onBack={onBack}
 							onSaved={() => {}}
 						/>
@@ -64,21 +68,38 @@ function importedReview(
 		</I18nProvider>,
 	);
 }
-it("reviews sections without per-field buttons or moving entries", () => {
+it("confirms uncertain fields directly and keeps section review available", () => {
 	importedReview();
 	expect(screen.getByRole("status", { name: "Review progress" })).toHaveTextContent("0 of 3 sections reviewed");
-	expect(screen.queryByRole("button", { name: "Confirm" })).not.toBeInTheDocument();
-	fireEvent.click(screen.getByRole("button", { name: "Confirm all remaining" }));
-	expect(screen.getByRole("status", { name: "Review progress" })).toHaveTextContent("2 of 3 sections reviewed");
 	fireEvent.click(
 		within(screen.getByRole("navigation", { name: "Review sections" })).getByRole("button", { name: /^Experience/ }),
 	);
 	const entry = screen.getByRole("article", { name: /Engineer/ });
 	expect(within(entry).getByText("Position").closest("div")).toHaveAttribute("data-uncertain", "true");
-	expect(within(entry).getByText("Company").closest("div")).not.toHaveAttribute("data-uncertain", "true");
-	fireEvent.click(within(entry).getByRole("button", { name: "Confirm entry" }));
+	expect(within(entry).getByRole("button", { name: "Confirm" })).toBeVisible();
+	fireEvent.click(within(entry).getByRole("button", { name: "Confirm" }));
+	expect(within(entry).queryByText("Please confirm this information")).not.toBeInTheDocument();
+	fireEvent.click(screen.getByRole("button", { name: "Confirm all remaining" }));
 	expect(screen.getByRole("status", { name: "Review progress" })).toHaveTextContent("3 of 3 sections reviewed");
 	expect(screen.getByRole("article", { name: /Engineer/ })).toBeVisible();
+});
+
+it("clears an uncertainty after the user corrects or confirms the field", async () => {
+	importedReview();
+	fireEvent.click(screen.getByRole("button", { name: "Review now" }));
+	const target = await screen.findByRole("textbox", { name: "Position" });
+	await waitFor(() => expect(target).toBe(document.activeElement));
+	fireEvent.change(target, { target: { value: "Senior Engineer" } });
+	expect(screen.queryByText("Please confirm this information")).not.toBeInTheDocument();
+});
+
+it("confirms an uncertain basic field", () => {
+	importedReview(vi.fn(), {
+		issues: () => [{ field: "location", source: "Cairo, Egypt", section: "basics" }],
+	});
+	expect(screen.getByRole("button", { name: "Confirm" })).toBeVisible();
+	fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+	expect(screen.queryByText("Please confirm this information")).not.toBeInTheDocument();
 });
 it("invalidates review after editing and removes entries from the submitted CV", async () => {
 	mocks.read.mockResolvedValue({ profileRevision: 0, facts: [] });
@@ -133,7 +154,7 @@ it("opens the first flagged field when the user chooses Review now", async () =>
 		name: /^Experience/,
 	});
 	await waitFor(() => expect(experience).toHaveAttribute("aria-current", "step"));
-	const flagged = document.querySelector('[data-import-field="position"]');
+	const flagged = screen.getByRole("textbox", { name: "Position" });
 	await waitFor(() => expect(flagged).toBe(document.activeElement));
 	expect(screen.getByText("Please confirm this information")).toBeVisible();
 	expect(scrollIntoView).toHaveBeenCalled();

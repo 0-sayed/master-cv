@@ -151,9 +151,9 @@ export function BrandIcon({
 						lang="en"
 						dir="ltr"
 						aria-hidden="true"
-						className="text-right type-metadata text-ink-2"
+						className="text-right type-wordmark text-accent-text uppercase"
 					>
-						Sirawise
+						SIRAWISE
 					</span>
 				)}
 			</span>

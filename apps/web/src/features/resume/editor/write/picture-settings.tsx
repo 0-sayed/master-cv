@@ -95,6 +95,8 @@ function PicturePreviewControls({
 								render={
 									<Input
 										type="url"
+										dir="ltr"
+										placeholder="https://..."
 										name={field.name}
 										value={field.state.value}
 										onBlur={field.handleBlur}

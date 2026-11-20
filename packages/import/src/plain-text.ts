@@ -369,6 +369,8 @@ const ROLE_WORD =
 const WORK_MODE = /^(?:remote|hybrid|on[- ]site|عن بعد|هجين|حضوري)$/iu;
 const PLACE =
 	/^(?:Saudi Arabia|Egypt|United Arab Emirates|UAE|UK|United Kingdom|United States|USA|Germany|France|Canada|India|Berlin|London|Cairo|Riyadh|Dubai|السعودية|مصر|الإمارات|الرياض|القاهرة|جدة|دبي|المملكة العربية السعودية)$/iu;
+const NON_LOCATION_TAIL =
+	/\b(?:visa|work[- ]permit|sponsor(?:ship|ed)?|nationality|citizen|work authorization|authorized to work)\b|تأشيرة|تصريح العمل|الجنسية|كفالة/iu;
 
 function looksLikeRole(value: string): boolean {
 	return (
@@ -393,6 +395,44 @@ function credibleLocation(value: string): boolean {
 			return !words.some((_word, index) => index < words.length - 1 && PLACE.test(words.slice(0, index + 1).join(" ")));
 		})
 	);
+}
+
+function trimRecognizedLocation(value: string): string {
+	const parts = value.split(/\s*([,،·])\s*/u);
+	const kept: string[] = [];
+	for (let index = 0; index < parts.length; index += 2) {
+		const part = parts[index]?.trim() ?? "";
+		if (!part) continue;
+		const words = part.split(/\s+/u);
+		let recognized = "";
+		for (let end = words.length; end > 0; end--) {
+			const candidate = words.slice(0, end).join(" ");
+			if (PLACE.test(candidate) || WORK_MODE.test(candidate)) {
+				recognized = candidate;
+				break;
+			}
+		}
+		if (!recognized) return value;
+		const remainder = words.slice(recognized.split(/\s+/u).length).join(" ");
+		if (remainder) {
+			if (NON_LOCATION_TAIL.test(remainder))
+				return kept
+					.join(" ")
+					.concat(kept.length ? " " : "", recognized)
+					.replace(/\s+([,،·])/gu, "$1")
+					.trim();
+			return value;
+		}
+		kept.push(recognized);
+		const separator = parts[index + 1];
+		if (separator && index + 2 < parts.length) kept.push(separator);
+	}
+	return kept
+		.join(" ")
+		.replace(/\s+([,،])/gu, "$1")
+		.replace(/([,،])\s*/gu, "$1 ")
+		.replace(/\s*·\s*/gu, " · ")
+		.trim();
 }
 
 function experienceFields(entry: RawEntry, options: ImportOptions, entryIndex: number) {
@@ -723,7 +763,7 @@ function parseHeader(lines: string[], options: ImportOptions) {
 	const locationIndex = remaining.findIndex(looksLikeLocation);
 	const locationSource = labelled.location ?? (locationIndex >= 0 ? (remaining.splice(locationIndex, 1)[0] ?? "") : "");
 	const name = labelled.name ?? nameCandidate ?? remaining.shift() ?? "";
-	let location = locationSource;
+	let location = trimRecognizedLocation(locationSource) || locationSource;
 	if (location && !credibleLocation(location)) {
 		options.onUncertain?.({ field: "location", source: location });
 		location = "";

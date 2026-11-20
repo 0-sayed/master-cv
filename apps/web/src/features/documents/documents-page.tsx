@@ -460,38 +460,18 @@ function FirstLetter() {
 
 function FirstRun() {
 	const open = useDialogStore((state) => state.openDialog);
-	const fileInput = useRef<HTMLInputElement>(null);
 	return (
 		<EmptyState
 			icon="file-text"
 			title={<Trans>Build a CV that grows with you</Trans>}
 			description={<Trans>Your CVs, tailored copies and cover letters will appear here.</Trans>}
 			actions={
-				<>
-					<Button onClick={() => open("document.new", undefined)}>
-						<Icon name="plus" />
-						<Trans>New CV</Trans>
-					</Button>
-					<Button variant="secondary" onClick={() => fileInput.current?.click()}>
-						<Icon name="upload" />
-						<Trans>Import PDF</Trans>
-					</Button>
-				</>
+				<Button onClick={() => open("document.new", undefined)}>
+					<Icon name="plus" />
+					<Trans>New CV</Trans>
+				</Button>
 			}
 		>
-			<input
-				ref={fileInput}
-				className="sr-only"
-				type="file"
-				accept=".pdf,application/pdf"
-				tabIndex={-1}
-				aria-hidden="true"
-				onChange={(event) => {
-					const file = event.target.files?.[0];
-					if (file) open("document.new", { file });
-					event.target.value = "";
-				}}
-			/>
 			<p className="type-metadata text-ink-3">
 				<Trans>Word import is not available.</Trans>
 			</p>

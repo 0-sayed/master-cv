@@ -22,7 +22,6 @@ import {
 } from "@reactive-resume/ui/components/dropdown-menu";
 import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
-import { Input } from "@reactive-resume/ui/components/input";
 import { NativeSelect } from "@reactive-resume/ui/components/native-select";
 import { SectionCard, SectionCardTitle } from "@reactive-resume/ui/components/section-card";
 import { Textarea } from "@reactive-resume/ui/components/textarea";
@@ -34,6 +33,7 @@ import { getStageColor, getStageLabel } from "../../stages";
 import { useInvalidateApplications } from "../../use-application-actions";
 import { useApplicationNotes } from "../application-notes";
 import { NoteComposer } from "./note-composer";
+import { CalendarDateInput } from "@/components/input/calendar-date-input";
 import { useClosingValue } from "@/hooks/use-closing-value";
 import { useConfirm } from "@/hooks/use-confirm";
 import { formatInterfaceDate } from "@/libs/locale";
@@ -318,16 +318,14 @@ export function Activity({ application, onOpenInterview }: ActivityProps) {
 									}}
 								/>
 							)}
-							<Input
+							<CalendarDateInput
 								id={`${id}-date`}
 								aria-required
 								aria-invalid={!!editValidation.errors[`${id}-date`]}
 								aria-describedby={`${id}-date-error`}
-								type="date"
-								aria-label={t`Date`}
+								label={t`Date`}
 								value={shownEdit.date}
-								onChange={(event) => {
-									const date = event.target.value;
+								onChange={(date) => {
 									setEditing((current) => current && { ...current, date });
 								}}
 							/>

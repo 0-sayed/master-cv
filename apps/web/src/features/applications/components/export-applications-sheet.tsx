@@ -5,7 +5,6 @@ import { Plural, Trans } from "@lingui/react/macro";
 import { useId, useState } from "react";
 import { Button } from "@reactive-resume/ui/components/button";
 import { FieldError } from "@reactive-resume/ui/components/field-error";
-import { Input } from "@reactive-resume/ui/components/input";
 import { Label } from "@reactive-resume/ui/components/label";
 import {
 	Sheet,
@@ -18,6 +17,7 @@ import {
 import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
 import { downloadWithAnchor } from "@reactive-resume/utils/file";
 import { exportApplicationsCsv, selectApplicationsForExport } from "../csv";
+import { CalendarDateInput } from "@/components/input/calendar-date-input";
 import { Combobox } from "@/components/ui/combobox";
 
 type ExportApplicationsSheetProps = {
@@ -85,26 +85,26 @@ export function ExportApplicationsSheet({ open, onOpenChange, applications, filt
 								<Label htmlFor={`${id}-from`}>
 									<Trans>Application date from</Trans>
 								</Label>
-								<Input
+								<CalendarDateInput
 									id={`${id}-from`}
+									label={t`Application date from`}
 									aria-invalid={!!validation.errors[`${id}-from`]}
 									aria-describedby={`${id}-from-error`}
-									type="date"
 									value={from}
 									max={to || undefined}
-									onChange={(event) => setFrom(event.target.value)}
+									onChange={setFrom}
 								/>
 							</div>
 							<div className="space-y-1.5">
 								<Label htmlFor={`${id}-to`}>
 									<Trans>Application date to</Trans>
 								</Label>
-								<Input
+								<CalendarDateInput
 									id={`${id}-to`}
-									type="date"
+									label={t`Application date to`}
 									value={to}
 									min={from || undefined}
-									onChange={(event) => setTo(event.target.value)}
+									onChange={setTo}
 								/>
 							</div>
 						</div>

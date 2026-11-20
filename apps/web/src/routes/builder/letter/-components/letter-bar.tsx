@@ -174,6 +174,7 @@ function DownloadButtons({ compact, iconOnly }: { compact: boolean; iconOnly: bo
 				/>
 			</Button>
 			<IconButton
+				variant={iconOnly ? "ghost" : "primary"}
 				size={iconOnly ? "icon" : "toolbar-icon"}
 				disabled={download.busy}
 				label={t`More download formats`}

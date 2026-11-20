@@ -446,6 +446,7 @@ export function InterviewDialog({
 									<LocalDateInput
 										id={`${id}-date`}
 										locale={i18n.locale}
+										calendarLabel={t`Choose a date.`}
 										required
 										{...fieldProps("date")}
 										value={draft.date}
@@ -591,10 +592,11 @@ export function InterviewDialog({
 									/>
 									<Input
 										type="url"
+										dir="ltr"
+										placeholder="https://..."
 										aria-label={t`Profile link of person ${index + 1}`}
 										id={`${id}-${participant.id}-profile`}
 										{...fieldProps(`${participant.id}-profile`)}
-										placeholder={t`Profile link (optional)`}
 										className="col-span-2"
 										value={participant.profileUrl}
 										maxLength={2048}

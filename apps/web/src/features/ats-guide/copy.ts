@@ -28,6 +28,7 @@ export const guideCopy = {
 	dates: msg({ message: "Dates", context: "atsGuide.dates" }),
 	content: msg({ message: "Content and writing", context: "atsGuide.content" }),
 	cv: msg({ message: "Your CV", context: "atsGuide.cv" }),
+	backToCv: msg({ message: "Back to your CV", context: "atsGuide.backToCv" }),
 	rules: msg({ message: "{count} rules", context: "atsGuide.rules" }),
 	showTable: msg({ message: "Show as table", context: "atsGuide.showTable" }),
 	showMap: msg({ message: "Show as map", context: "atsGuide.showMap" }),

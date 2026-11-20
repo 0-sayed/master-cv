@@ -21,6 +21,7 @@ import { Textarea } from "@reactive-resume/ui/components/textarea";
 import { toast } from "@reactive-resume/ui/components/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { cn } from "@reactive-resume/utils/style";
+import { CalendarDateInput } from "@/components/input/calendar-date-input";
 import { FontDisplay } from "@/components/typography/font-display";
 import { templates } from "@/dialogs/resume/template/data";
 import { ApplicationPicker } from "@/features/applications/components/application-picker";
@@ -215,12 +216,12 @@ function ToSection({ letter, application, disabled }: LetterSectionProps) {
 					<Label htmlFor={`${id}-date`}>
 						<Trans>Date</Trans>
 					</Label>
-					<Input
+					<CalendarDateInput
 						id={`${id}-date`}
-						type="date"
+						label={t`Date`}
 						value={letter.letterDate ?? ""}
 						disabled={disabled}
-						onChange={(event) => edit({ letterDate: event.target.value || null })}
+						onChange={(value) => edit({ letterDate: value || null })}
 					/>
 				</div>
 			</div>

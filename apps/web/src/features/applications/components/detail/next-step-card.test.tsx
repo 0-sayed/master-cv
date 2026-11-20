@@ -85,7 +85,7 @@ it("opens the follow-up with its saved date and note, then saves the edited note
 	);
 	fireEvent.click(screen.getByRole("button", { name: "Edit" }));
 	fireEvent.click(await screen.findByRole("menuitem", { name: "Change the follow-up…" }));
-	expect((screen.getByLabelText(/Date/) as HTMLInputElement).value).toBe("2026-10-15");
+	expect((screen.getByLabelText(/Date/) as HTMLInputElement).value).toBe("10/15/2026");
 	expect((screen.getByLabelText("What to do") as HTMLInputElement).value).toBe("Ask the recruiter");
 	fireEvent.change(screen.getByLabelText("What to do"), { target: { value: "Email the recruiter" } });
 	fireEvent.click(screen.getByRole("button", { name: "Save" }));

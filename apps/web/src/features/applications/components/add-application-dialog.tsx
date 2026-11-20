@@ -25,6 +25,7 @@ import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-valida
 import { cn } from "@reactive-resume/utils/style";
 import { isHttpLink as isLink } from "../links";
 import { useInvalidateApplications } from "../use-application-actions";
+import { CalendarDateInput } from "@/components/input/calendar-date-input";
 import { Combobox } from "@/components/ui/combobox";
 import { useDialogStore } from "@/dialogs/store";
 import { getOrpcErrorMessage } from "@/libs/error-message";
@@ -331,9 +332,10 @@ function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 								<Input
 									id={`${id}-posting`}
 									type="url"
+									dir="ltr"
+									placeholder="https://..."
 									value={input}
 									maxLength={2000}
-									placeholder="https://…"
 									onChange={(event) => {
 										setInput(event.target.value);
 										setDescription(null);
@@ -507,14 +509,14 @@ function AddApplicationForm({ onClose, onAdded }: AddApplicationFormProps) {
 							<Trans>Application date</Trans>
 							<span aria-hidden="true"> *</span>
 						</Label>
-						<Input
+						<CalendarDateInput
 							id={`${id}-date`}
+							label={t`Application date`}
 							aria-invalid={Boolean(validation.errors[`${id}-date`])}
 							aria-describedby={`${id}-date-error`}
-							type="date"
 							value={stageDate}
 							required
-							onChange={(event) => setStageDate(event.target.value)}
+							onChange={setStageDate}
 						/>
 						<FieldError id={`${id}-date-error`}>{validation.errors[`${id}-date`]}</FieldError>
 					</div>

@@ -36,4 +36,21 @@ describe("DatesField", () => {
 		fireEvent.change(screen.getByRole("textbox", { name: "Start" }), { target: { value: "soon" } });
 		expect(onChange).not.toHaveBeenCalled();
 	});
+
+	it("opens the month picker from the field and commits a selected month", async () => {
+		const onChange = renderField({ start: "2016-06", end: null, present: false });
+		fireEvent.focus(screen.getByRole("textbox", { name: "Start" }));
+		const month = await screen.findByRole("button", { name: "July" });
+		fireEvent.click(month);
+		expect(onChange).toHaveBeenCalledWith({ start: "2016-07", end: null, present: false });
+	});
+
+	it("opens the month picker from its calendar button", async () => {
+		const onChange = renderField({ start: "2016-06", end: null, present: false });
+		const [calendarButton] = screen.getAllByRole("button", { name: "Choose a date." });
+		if (!calendarButton) throw new Error("Expected the start date calendar button");
+		fireEvent.click(calendarButton);
+		fireEvent.click(await screen.findByRole("button", { name: "July" }));
+		expect(onChange).toHaveBeenCalledWith({ start: "2016-07", end: null, present: false });
+	});
 });

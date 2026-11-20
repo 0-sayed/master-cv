@@ -8,7 +8,8 @@ it("shows one accessible localized name and a hidden English subtitle only in th
 	const name = container.querySelector('[data-slot="brand-name"]');
 	expect(name).toHaveTextContent("سيراوايز");
 	const secondary = container.querySelector('[data-slot="brand-secondary"]');
-	expect(secondary).toHaveTextContent("Sirawise");
+	expect(secondary).toHaveTextContent("SIRAWISE");
+	expect(secondary).toHaveClass("text-accent-text", "type-wordmark", "uppercase");
 	expect(secondary).toHaveAttribute("lang", "en");
 	expect(secondary).toHaveAttribute("dir", "ltr");
 	expect(secondary).toHaveAttribute("aria-hidden", "true");
@@ -16,6 +17,7 @@ it("shows one accessible localized name and a hidden English subtitle only in th
 	expect(container.querySelectorAll('img:not([alt=""])')).toHaveLength(0);
 	rerender(<BrandIcon locale="en-US" />);
 	expect(container.textContent).toBe("Sirawise");
+	expect(container.querySelector('[data-slot="brand-name"]')).toHaveClass("type-section");
 	expect(container.querySelector('[data-slot="brand-secondary"]')).toBeNull();
 	rerender(<BrandIcon variant="icon" locale="ar-SA" />);
 	expect(container.querySelector("img")?.alt).toBe("سيراوايز");

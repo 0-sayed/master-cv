@@ -136,6 +136,8 @@ Ratios were calculated from these sRGB values, not eyeballed. This table tests t
 
 The Figma Type collection records Arabic/English family and weight modes as reference data. Use the shared type roles: display 48, title/display-small 32, title-small 24, section 19, lead 17, Arabic body/label/input 16 and metadata 14px (English body/label 14, metadata 12); mobile navigation uses Arabic 14px / English 12px, with each role's shared line-height and weight. Never add arbitrary UI font sizes or line-heights, including Figma instance overrides. Keep document-paper typography separate.
 
+The shared `type-wordmark` role sets metadata size, semibold weight and wide tracking. Use `accent-text` for the uppercase Latin wordmark line.
+
 | Shared role       | Size / line height, px | Arabic                      | English                     |
 | ----------------- | ---------------------- | --------------------------- | --------------------------- |
 | Display           | 48 / 70                | Noto Sans Arabic Medium     | Noto Serif Medium           |

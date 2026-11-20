@@ -11,5 +11,5 @@ export const Route = createFileRoute("/dashboard/review-guide")({
 	errorComponent: AtsGuideError,
 });
 function GuideRoute() {
-	return <AtsGuidePage entries={Route.useLoaderData()} />;
+	return <AtsGuidePage entries={Route.useLoaderData()} returnTo={Route.useSearch().returnTo} />;
 }

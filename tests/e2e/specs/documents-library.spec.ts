@@ -236,7 +236,7 @@ test("initial error, compact loading and empty letters retain distinct recovery 
 	await restoreRead();
 	await page.getByRole("button", { name: "Try again", exact: true }).click();
 	await expect(page.getByRole("button", { name: "New CV", exact: true })).toBeVisible();
-	await expect(page.getByRole("button", { name: "Import PDF", exact: true })).toBeVisible();
+	await expect(page.getByRole("button", { name: "Import PDF", exact: true })).toHaveCount(0);
 	await capture(page, info, "empty-account");
 	await page.goto("/dashboard?locale=en-US&type=letter");
 	await expect(page.getByRole("button", { name: "New cover letter", exact: true })).toBeVisible();

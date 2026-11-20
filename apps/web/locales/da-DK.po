@@ -1983,8 +1983,18 @@ msgid "AI is not available in this environment."
 msgstr ""
 
 #: src/features/settings/privacy/page.tsx
-msgctxt "workspace.privacy.59442732fa1f"
-msgid "AI is optional and requires explicit approval and processing consent. Available processing routes and their notices are shown before use."
+msgctxt "privacy.storage.aiDescription"
+msgid "AI is optional and needs your consent. Only necessary text, without contact details, goes through OpenRouter. OpenAI Luna and Terra use Microsoft Azure. The DeepSeek checker uses Together AI. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
+msgstr ""
+
+#: src/features/settings/privacy/page.tsx
+#~ msgctxt "workspace.privacy.59442732fa1f"
+#~ msgid "AI is optional and requires explicit approval and processing consent. Available processing routes and their notices are shown before use."
+#~ msgstr ""
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.overseasNotice"
+msgid "AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
 msgstr ""
 
 #: src/features/settings/ai/providers.tsx
@@ -2891,6 +2901,11 @@ msgstr ""
 msgid "Back to stories"
 msgstr "Tilbage til historier"
 
+#: src/features/ats-guide/copy.ts
+msgctxt "atsGuide.backToCv"
+msgid "Back to your CV"
+msgstr ""
+
 #: src/features/career/knowledge/stories.tsx
 #: src/features/career/workspace/apply.tsx
 msgid "Backed by"
@@ -3286,12 +3301,12 @@ msgstr ""
 #: src/features/resume/variants/clarification.tsx
 #: src/features/resume/variants/term-dialog.tsx
 #: src/features/resume/variants/translation-review.tsx
-#: src/features/settings/account/sessions.tsx
 #: src/hooks/use-confirm.tsx
 msgid "Cancel"
 msgstr "Annuller"
 
 #: src/features/assistant/copy.generated.ts
+#: src/features/settings/account/sessions.tsx
 msgctxt "common.actions.cancel"
 msgid "Cancel"
 msgstr ""
@@ -3561,8 +3576,8 @@ msgid "Check the year; mark ongoing work as current only if it is."
 msgstr ""
 
 #: src/features/resume/import/review.tsx
-msgid "Check this information"
-msgstr ""
+#~ msgid "Check this information"
+#~ msgstr ""
 
 #: src/features/career/workspace/fit.tsx
 msgid "Check this role against your evidence"
@@ -3698,6 +3713,7 @@ msgstr ""
 #: src/features/applications/components/application-detail-page.tsx
 #: src/features/applications/components/detail/activity.tsx
 #: src/features/applications/components/detail/next-step-card.tsx
+#: src/features/resume/editor/write/dates-field.tsx
 msgid "Choose a date."
 msgstr ""
 
@@ -4134,6 +4150,7 @@ msgid "Concrete verbs make your contribution clearer."
 msgstr ""
 
 #: src/features/career/shared.tsx
+#: src/features/resume/import/review.tsx
 #: src/hooks/use-confirm.tsx
 msgid "Confirm"
 msgstr "Bekræft"
@@ -4564,8 +4581,13 @@ msgid "Copy it now. For your security, it won't be shown again."
 msgstr "Kopier det nu. For din sikkerhed vil den ikke blive vist igen."
 
 #: src/features/resume/public/public-resume.tsx
+#~ msgid "Copy link"
+#~ msgstr "Kopiér link"
+
+#: src/features/resume/public/public-resume.tsx
+msgctxt "resume.public.copyLink"
 msgid "Copy link"
-msgstr "Kopiér link"
+msgstr ""
 
 #: src/features/ats-guide/copy.ts
 msgctxt "atsGuide.permalink"
@@ -8090,6 +8112,11 @@ msgstr "Hvor mange feriedage følger med?"
 msgid "How often"
 msgstr "Hvor ofte"
 
+#: src/features/legal/page.tsx
+msgctxt "privacy.policy.purposeTitle"
+msgid "How we use it"
+msgstr ""
+
 #: src/features/assistant/assistant-panel.tsx
 msgid "How well do I fit this role?"
 msgstr "Hvor godt passer jeg denne rolle?"
@@ -8243,10 +8270,6 @@ msgstr "Importer eller opret et CV"
 #: src/routes/dashboard/applications/index.tsx
 msgid "Import or export CSV"
 msgstr "Importer eller eksporter CSV"
-
-#: src/features/documents/documents-page.tsx
-msgid "Import PDF"
-msgstr ""
 
 #: src/features/documents/new-document-dialog.tsx
 msgid "Import progress"
@@ -11758,6 +11781,10 @@ msgstr "Planlæg, hvad du vil spørge om"
 msgid "Planning your week"
 msgstr "Planlægger din uge"
 
+#: src/features/resume/import/review.tsx
+msgid "Please confirm this information"
+msgstr ""
+
 #: src/features/applications/components/file-attachment-field.tsx
 msgid "Please upload a PDF file."
 msgstr "Upload venligst en PDF-fil."
@@ -12127,8 +12154,8 @@ msgid "Profile"
 msgstr ""
 
 #: src/features/applications/components/interview-dialog.tsx
-msgid "Profile link (optional)"
-msgstr "Profillink (valgfrit)"
+#~ msgid "Profile link (optional)"
+#~ msgstr "Profillink (valgfrit)"
 
 #. placeholder {0}: index + 1
 #: src/features/applications/components/interview-dialog.tsx
@@ -14767,6 +14794,11 @@ msgstr "Sirawise"
 msgid "Sirawise - Go to homepage"
 msgstr ""
 
+#: src/features/auth/copy.generated.ts
+msgctxt "auth.brand.home"
+msgid "Sirawise home"
+msgstr ""
+
 #: src/features/career/knowledge/stories.tsx
 msgid "Situation"
 msgstr "Situation"
@@ -16340,6 +16372,41 @@ msgstr "Dette CV blev opdateret af en AI-agent."
 msgid "This resume's sharing settings changed elsewhere."
 msgstr "Delingsindstillingerne for dette CV er ændret et andet sted."
 
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.summary"
+msgid "This review sends necessary CV text and any selected job description to the processing provider to suggest a summary. Suggestions are optional. Review the results before you apply or use them."
+msgstr ""
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.job-evidence"
+msgid "This review sends necessary CV text and the saved job description to the processing provider to compare your evidence with the job requirements. Suggestions are optional. Review the results before you apply or use them."
+msgstr ""
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.tailoring"
+msgid "This review sends necessary CV text and the saved job description to the processing provider to suggest wording for this job. Suggestions are optional. Review the results before you apply or use them."
+msgstr ""
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.cover-letter"
+msgid "This review sends necessary CV text, the saved job description, and your language and length choices to the processing provider to draft a cover letter. Suggestions are optional. Review the results before you apply or use them."
+msgstr ""
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.extraction"
+msgid "This review sends the imported CV text and any answers you provide to the processing provider. Suggestions are optional. Review the results before you apply or use them."
+msgstr ""
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.wording"
+msgid "This review sends the selected CV passages and any answers you provide to the processing provider. Suggestions are optional. Review the results before you apply or use them."
+msgstr ""
+
+#: src/features/assistant/copy.generated.ts
+msgctxt "privacy.ai.scope.translation"
+msgid "This review sends the source CV text and the target language to the processing provider to prepare a language copy. Suggestions are optional. Review the results before you apply or use them."
+msgstr ""
+
 #: src/features/applications/components/application-detail-page.tsx
 msgid "This saved description is clipped or incomplete. Review before preparing documents."
 msgstr "Denne gemte beskrivelse er beskåret eller ufuldstændig. Gennemgå før du udarbejder dokumenter."
@@ -16381,8 +16448,8 @@ msgid "This task uses 1 assistant operation when its result is saved."
 msgstr ""
 
 #: src/features/resume/editor/proposals/review-operation.tsx
-msgid "This task uses 1 operation. It sends the selected text and related confirmed facts, without contact details, to the approved processing provider. Suggestions are optional and require your review."
-msgstr ""
+#~ msgid "This task uses 1 operation. It sends the selected text and related confirmed facts, without contact details, to the approved processing provider. Suggestions are optional and require your review."
+#~ msgstr ""
 
 #: src/features/career/schedule-sheet.tsx
 msgid "This time does not exist in your timezone. Choose another time."
@@ -17685,6 +17752,16 @@ msgstr ""
 #: src/features/resume/variants/copy.generated.ts
 msgctxt "jobs.tailoring.compareEvidence"
 msgid "We show what your content supports and where we found no evidence."
+msgstr ""
+
+#: src/features/public-copy.ts
+msgctxt "privacy.policy.purposeDescription"
+msgid "We use account data to run your account. We use CV data to create and export your CV. During the pilot, we store the app, database, files and backups on a Contabo VPS in Portsmouth, United Kingdom. We plan to move hosting to Saudi Arabia later. AI is optional. You must consent before first use. We send only necessary CV text without contact details through OpenRouter. OpenRouter sends requests to Microsoft Azure for OpenAI Luna and Terra. It sends requests to Together AI for the DeepSeek checker. Both services process requests outside Saudi Arabia. Requests use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern actual handling."
+msgstr ""
+
+#: src/features/career/copy.generated.ts
+msgctxt "auth.welcome.privacy.description"
+msgid "We use your file to build your CV. See Privacy and data for what we send to the processing provider and why. You can download your data or request account deletion."
 msgstr ""
 
 #: src/features/help/page.tsx

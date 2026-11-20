@@ -412,6 +412,7 @@
 				"src/features/review/"
 			],
 			"keys": [
+				"applications.detail.binding.gOgLQ6",
 				"editor.pageSentence.add",
 				"editor.pageSentence.added",
 				"workspace.career-information.area.of.study_Jv-NPV",
@@ -1163,7 +1164,6 @@
 				"trash.selection.all",
 				"editor.save.status.saved",
 				"account.interface.d72bc4ba085e",
-				"account.interface.ed4badc048ec",
 				"account.interface.ef059a0488c1",
 				"account.interface.a0e75e229be7",
 				"editor.documents.letters.emptyTitle",
@@ -2528,6 +2528,7 @@
 				"src/features/review/"
 			],
 			"keys": [
+				"atsGuide.backToCv",
 				"atsGuide.example.NO_TEXT_LAYER.before",
 				"atsGuide.example.NO_TEXT_LAYER.after",
 				"atsGuide.example.IMAGE_ONLY_DOCUMENT.before",
