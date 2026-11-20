@@ -138,7 +138,11 @@ export function PublicResumePage({ resume, username, slug, flags, isRoot = false
 								<h1 className="truncate font-display text-xl leading-6 font-medium">{basics.name || resume.name}</h1>
 								{subtitle && <p className="truncate text-xs text-ink-3">{subtitle}</p>}
 							</div>
-							<CopyLinkButton url={window.location.href} label={t`Copy link`} icon="link-simple-horizontal" />
+							<CopyLinkButton
+								url={window.location.href}
+								label={t({ message: "Copy link", context: "resume.public.copyLink" })}
+								icon="link-simple-horizontal"
+							/>
 							{downloads && download}
 						</header>
 						<main id="main-content" className="flex flex-1 justify-center px-6 pt-8 pb-5 print:block print:p-0">

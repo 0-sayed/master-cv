@@ -32,6 +32,11 @@ COPY --from=pruner /app/out/full/ ./
 COPY --from=pruner /app/plugins/reactive-resume/skills ./plugins/reactive-resume/skills
 # The web Vite config imports this guard, which lives outside any pruned workspace.
 COPY --from=pruner /app/tooling/local/test-ai-guard.mjs ./tooling/local/test-ai-guard.mjs
+# The one-off production demo seed reuses the local synthetic fixtures.
+COPY --from=pruner /app/tooling/local/demo-*.ts ./tooling/local/
+COPY --from=pruner /app/tooling/local/fixtures/demo-avatar.png ./tooling/local/fixtures/demo-avatar.png
+# The tooling workspace is outside this prune. Resolve fixture imports through the server's installed dependencies.
+RUN ln -s ../apps/server/node_modules tooling/node_modules
 RUN rm -rf apps/web/dist apps/web/dist-prerender apps/server/dist && pnpm turbo run build --filter=web --filter=server --force
 
 FROM base AS runtime-pruner

@@ -30,7 +30,6 @@ import {
 import { FieldError } from "@reactive-resume/ui/components/field-error";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { IconButton } from "@reactive-resume/ui/components/icon-button";
-import { Input } from "@reactive-resume/ui/components/input";
 import { NativeSelect } from "@reactive-resume/ui/components/native-select";
 import { SectionCard, SectionCardTitle } from "@reactive-resume/ui/components/section-card";
 import { useSubmitValidation } from "@reactive-resume/ui/hooks/use-submit-validation";
@@ -44,6 +43,7 @@ import { NextStepCard } from "./detail/next-step-card";
 import { ApplicationProperties } from "./detail/properties";
 import { SentDocuments } from "./detail/sent-documents";
 import { InterviewDialog } from "./interview-dialog";
+import { CalendarDateInput } from "@/components/input/calendar-date-input";
 import { PageHeader } from "@/components/layout/page-header";
 import { RecordLayout } from "@/components/layout/record-layout";
 import { QuerySkeleton } from "@/components/query-skeleton";
@@ -363,14 +363,14 @@ function MarkAppliedDialog({ application, onClose }: MarkAppliedDialogProps) {
 							<Trans>Application date</Trans>
 							<span aria-hidden="true"> *</span>
 						</label>
-						<Input
+						<CalendarDateInput
 							id={`${id}-date`}
-							type="date"
+							label={t`Application date`}
 							aria-required
 							aria-invalid={!!validation.errors[`${id}-date`]}
 							aria-describedby={`${id}-date-error`}
 							value={date}
-							onChange={(event) => setDate(event.target.value)}
+							onChange={setDate}
 						/>
 						<FieldError id={`${id}-date-error`}>{validation.errors[`${id}-date`]}</FieldError>
 					</div>

@@ -1,67 +1,48 @@
 // @vitest-environment happy-dom
-
-import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeAll, describe, expect, it, vi } from "vite-plus/test";
+import type { Website } from "@reactive-resume/schema/resume/data";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { URLInput } from "./url-input";
 
-beforeAll(() => {
-	i18n.loadAndActivate({ locale: "en", messages: {} });
-});
+afterEach(cleanup);
 
-const renderInput = (value: { url: string; label: string }, onChange = vi.fn()) =>
+const renderInput = (url: string, onChange = vi.fn()) => {
+	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	render(
 		<I18nProvider i18n={i18n}>
-			<URLInput value={value} onChange={onChange} />
+			<URLInput<Website> value={{ url, label: "Portfolio" }} onChange={onChange} />
 		</I18nProvider>,
 	);
+	return { input: screen.getByRole("textbox"), onChange };
+};
 
-describe("URLInput", () => {
-	it("adds https:// prefix on edit when not already present", () => {
-		const onChange = vi.fn();
-		renderInput({ url: "https://example.com", label: "" }, onChange);
-
-		const input = screen.getByRole("textbox") as HTMLInputElement;
-		fireEvent.change(input, { target: { value: "new.example" } });
-
-		expect(onChange).toHaveBeenCalledWith({
-			url: "https://new.example",
-			label: "",
-		});
-	});
-
-	it.each(["http://other.example/path", "HTTP://other.example/path"])(
-		"preserves an explicitly pasted HTTP URL: %s",
-		(url) => {
-			const onChange = vi.fn();
-			renderInput({ url: "https://example.com", label: "Company" }, onChange);
-
-			fireEvent.change(screen.getByRole("textbox"), { target: { value: url } });
-
-			expect(onChange).toHaveBeenCalledWith({ url, label: "Company" });
-		},
+it("shows a non-duplicated URL example in an LTR field", () => {
+	i18n.loadAndActivate({ locale: "ar-SA", messages: {} });
+	render(
+		<I18nProvider i18n={i18n}>
+			<URLInput<Website> value={{ url: "https://example.org", label: "" }} onChange={vi.fn()} />
+		</I18nProvider>,
 	);
+	const input = screen.getByRole("textbox");
+	expect(input).toHaveAttribute("placeholder", "example.com");
+	expect(input).toHaveAttribute("dir", "ltr");
+	expect(input).toHaveClass("text-start");
+});
 
-	it("preserves HTTP while editing the host or path", () => {
-		const onChange = vi.fn();
-		renderInput({ url: "http://example.com/path", label: "Company" }, onChange);
+it.each([
+	["adds the default HTTPS prefix", "", "example.org/path", "https://example.org/path"],
+	["preserves an existing HTTP prefix", "http://old.example", "new.example/path", "http://new.example/path"],
+	["preserves an explicit HTTPS prefix", "http://old.example", "https://new.example", "https://new.example"],
+])("%s while editing", (_name, initial, edited, expected) => {
+	const { input, onChange } = renderInput(initial);
+	fireEvent.change(input, { target: { value: edited } });
+	expect(onChange).toHaveBeenCalledWith({ url: expected, label: "Portfolio" });
+});
 
-		fireEvent.change(screen.getByRole("textbox"), { target: { value: "example.com/new-path" } });
-
-		expect(onChange).toHaveBeenCalledWith({ url: "http://example.com/new-path", label: "Company" });
-	});
-
-	it("emits an empty url string when cleared", () => {
-		const onChange = vi.fn();
-		renderInput({ url: "https://example.com", label: "" }, onChange);
-
-		const input = screen.getByRole("textbox") as HTMLInputElement;
-		fireEvent.change(input, { target: { value: "" } });
-
-		expect(onChange).toHaveBeenCalledWith({
-			url: "",
-			label: "",
-		});
-	});
+it("clears the URL instead of restoring its prefix", () => {
+	const { input, onChange } = renderInput("https://example.org");
+	fireEvent.change(input, { target: { value: "" } });
+	expect(onChange).toHaveBeenCalledWith({ url: "", label: "Portfolio" });
 });

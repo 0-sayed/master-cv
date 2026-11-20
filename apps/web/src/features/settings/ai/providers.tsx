@@ -415,8 +415,9 @@ function ProviderFieldsForm({ provider, value, onChange, keyOptional }: Provider
 				<Input
 					id={`${id}-url`}
 					type="url"
+					dir="ltr"
+					placeholder="https://..."
 					value={value.baseURL}
-					placeholder={defaults.baseURL || "https://gateway.example.com/v1"}
 					onChange={(event) => set({ baseURL: event.target.value })}
 					{...secretInputProps}
 				/>

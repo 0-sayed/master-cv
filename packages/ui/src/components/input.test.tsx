@@ -5,7 +5,7 @@ import { Input } from "./input";
 import { InputGroup, InputGroupInput } from "./input-group";
 import { Textarea } from "./textarea";
 
-it.each(["url", "email", "tel"])("keeps the interface placeholder direction and LTR typed %s values", (type) => {
+it.each(["email", "tel"])("keeps the interface placeholder direction and LTR typed %s values", (type) => {
 	const view = render(
 		<DirectionProvider direction="rtl">
 			<Input aria-label="Contact" type={type} placeholder="https://example.test" />

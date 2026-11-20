@@ -4,10 +4,17 @@ import { ATS_RULE_CODES } from "@reactive-resume/resume/ats";
 
 export const ATS_GUIDE_ROUTE = "/dashboard/review-guide";
 export type ReviewGuideTab = "ats" | "data" | "ai";
-export function reviewGuideSearch(search: Record<string, unknown>): { tab?: ReviewGuideTab; rule?: string } {
+export function reviewGuideSearch(search: Record<string, unknown>): {
+	tab?: ReviewGuideTab;
+	rule?: string;
+	returnTo?: string;
+} {
 	return {
 		tab: search.tab === "data" || search.tab === "ai" ? search.tab : "ats",
 		...(typeof search.rule === "string" ? { rule: search.rule } : {}),
+		...(typeof search.returnTo === "string" && /^\/builder\/(?!\/)[^\\?#\s]*(?:\?[^\\#\s]*)?$/.test(search.returnTo)
+			? { returnTo: search.returnTo }
+			: {}),
 	};
 }
 export function reviewGuideRedirect(location: { searchStr: string; hash: string }) {

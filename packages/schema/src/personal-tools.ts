@@ -60,7 +60,12 @@ export function deferredProcedure(route: {
 }
 
 /** HTTP adapters outside oRPC use the same policy. */
-export function deferredHttpRoute(path: string): DeferredFeature | undefined {
+export function deferredHttpRoute(path: string, method?: string): DeferredFeature | undefined {
+	if (
+		(path === "/api/auth/sign-in/social" && method === "POST") ||
+		(path === "/api/auth/callback/google" && (method === "GET" || method === "POST"))
+	)
+		return undefined;
 	if (
 		/^\/(?:mcp|openapi.json|schema.json)(?:\/|$)/u.test(path) ||
 		/^\/.well-known\/(?:integrations|api-catalog|agent-skills|mcp|oauth|openid|openai)/u.test(path)

@@ -10,14 +10,11 @@ import {
 	demoJobs as jobs,
 	demoSource as source,
 } from "./demo-career";
+import { demoCredentials } from "./demo-credentials";
 import { createDemoResume } from "./demo-resume";
 import { demoShowcaseResumes } from "./demo-showcase";
 
-export const demoCredentials = {
-	email: "demo@sirawise.test",
-	password: "SirawiseDemo-Local-2026!",
-	username: "sirawise-demo-local",
-} as const;
+export { demoCredentials } from "./demo-credentials";
 export const demoAccountName = "Nawaf Al-Suhaili";
 const resumes = [createDemoResume(true), createDemoResume(false), createDemoResume(false, true)] as const;
 const arabic = resumes[0];

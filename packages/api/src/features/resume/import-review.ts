@@ -12,6 +12,7 @@ import { protectedProcedure } from "../../context";
 import { resumeMutationRateLimit } from "../../middleware/rate-limit";
 import { careerMasterService } from "../career/master";
 import { lockDocumentOwner } from "../documents/ownership";
+import { importedProfileData } from "./import-profile";
 import { createResumeInTransaction, notifyResumeUpdated } from "./service";
 
 const canonical = (value: unknown): string => {
@@ -29,7 +30,6 @@ export async function confirmImport(userId: string, value: ImportReviewInput) {
 	const newGroups = new Set(
 		input.acceptedFacts.filter((a) => a.decision.kind === "new").map((a) => `${a.fact.section}:${a.fact.entityId}`),
 	);
-	const profileRevision = input.expectedProfileRevision + newGroups.size;
 	const result = await withOwnerDatabase(userId, async (tx) => {
 		await lockDocumentOwner(tx, userId);
 		const [existing] = await tx
@@ -38,7 +38,8 @@ export async function confirmImport(userId: string, value: ImportReviewInput) {
 			.where(and(eq(t.resume.userId, userId), eq(t.resume.importFlowId, input.flowId)));
 		if (existing) {
 			if (existing.importFlowHash !== hash || existing.trashedAt) throw new ORPCError("CONFLICT");
-			return { resumeId: existing.id, profileRevision };
+			const current = await careerMasterService.read(userId);
+			return { resumeId: existing.id, profileRevision: current.profileRevision };
 		}
 		let master = await careerMasterService.read(userId);
 		if (master.profileRevision !== input.expectedProfileRevision)
@@ -123,6 +124,22 @@ export async function confirmImport(userId: string, value: ImportReviewInput) {
 			)
 				throw new ORPCError("BAD_REQUEST");
 			links.push({ factId: saved.id, acceptedRevision: saved.revision });
+		}
+		if (newGroups.size > 0) {
+			const [profile] = await tx.select().from(t.careerProfile).where(eq(t.careerProfile.userId, userId)).for("update");
+			if (!profile || profile.profileRevision !== master.profileRevision)
+				throw new ORPCError("IMPORT_REVIEW_CONFLICT", { status: 409 });
+			const imported = importedProfileData(profile.data, input.data);
+			if (imported.changed) {
+				master = {
+					...master,
+					profileRevision: profile.profileRevision + 1,
+				};
+				await tx
+					.update(t.careerProfile)
+					.set({ data: imported.data, profileRevision: master.profileRevision })
+					.where(eq(t.careerProfile.userId, userId));
+			}
 		}
 		await careerMasterService.linkResumeFacts(userId, { resumeId: id, links });
 		return { resumeId: id, profileRevision: master.profileRevision };

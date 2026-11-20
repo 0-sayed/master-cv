@@ -49,10 +49,7 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		);
 	});
 }
-test("Arabic job link placeholder follows the interface and typed links stay LTR", async ({
-	authPage: page,
-	baseURL,
-}) => {
+test("Arabic application job link field and tab stay LTR", async ({ authPage: page, baseURL }) => {
 	await page.request.post("/api/auth/update-user", {
 		headers: { origin: baseURL ?? "http://localhost:3030" },
 		data: { uiLocale: "ar-SA" },
@@ -60,19 +57,20 @@ test("Arabic job link placeholder follows the interface and typed links stay LTR
 	await page.context().addCookies([{ name: "locale", value: "ar-SA", url: baseURL ?? "http://localhost:3030" }]);
 	await page.goto("/dashboard/applications");
 	await page.getByRole("button", { name: "حفظ الوظيفة", exact: true }).click();
-	const field = page.getByPlaceholder("https://…");
+	const field = page.getByPlaceholder("https://...");
 	await expect(field).toBeVisible();
 	await expect(field).toHaveAttribute("dir", "ltr");
-	expect(await field.evaluate((el) => getComputedStyle(el).direction)).toBe("rtl");
-	expect(await field.evaluate((el) => getComputedStyle(el).textAlign)).toBe("start");
+	expect(await field.evaluate((el) => getComputedStyle(el).direction)).toBe("ltr");
+	expect(["start", "left"]).toContain(await field.evaluate((el) => getComputedStyle(el).textAlign));
 	await page.getByRole("tab", { name: "لصق النص", exact: true }).click();
 	const description = page.getByRole("dialog").locator("textarea");
 	await description.fill("مهندس برمجيات في الرياض");
 	await expect(description).toHaveAttribute("dir", "auto");
 	expect(await description.evaluate((el) => getComputedStyle(el).direction)).toBe("rtl");
-	await page.getByRole("tab", { name: "وصلة", exact: true }).click();
+	await page.getByRole("tab", { name: "رابط", exact: true }).click();
 	await field.fill("https://example.test/job");
 	expect(await field.evaluate((el) => getComputedStyle(el).direction)).toBe("ltr");
+	expect(["start", "left"]).toContain(await field.evaluate((el) => getComputedStyle(el).textAlign));
 });
 test("career keeps its subtitle without the duplicate ownership footer", async ({ authPage: page }) => {
 	await page.goto("/dashboard/career/information");

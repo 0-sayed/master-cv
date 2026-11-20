@@ -133,8 +133,6 @@ describe("createApp", () => {
 		"/.well-known/integrations.json",
 		"/api/auth/api-key/create",
 		"/api/auth/oauth2/register",
-		"/api/auth/sign-in/social",
-		"/api/auth/callback/google",
 		"/api/resumes/synthetic/cv/pdf",
 		"/api/career/run",
 	])("denies deferred HTTP %s before its adapter", async (path) => {
@@ -145,6 +143,16 @@ describe("createApp", () => {
 		expect(mocks.handleAuth).not.toHaveBeenCalled();
 		expect(mocks.handleMcp).not.toHaveBeenCalled();
 		expect(mocks.handlePublicResumePdf).not.toHaveBeenCalled();
+	});
+	it.each([
+		["/api/auth/sign-in/social", "POST"],
+		["/api/auth/callback/google", "GET"],
+		["/api/auth/callback/google", "POST"],
+	] as const)("delegates approved Google auth route %s %s", async (path, method) => {
+		policy.enabled = false;
+		const response = await createApp().request(`http://localhost:3000${path}`, { method });
+		expect(response.status).toBe(200);
+		expect(mocks.handleAuth).toHaveBeenCalledOnce();
 	});
 	it.each([
 		["127.0.0.1", "127.0.0.1", "198.51.100.1", "198.51.100.1"],

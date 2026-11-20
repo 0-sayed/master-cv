@@ -192,6 +192,90 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("CV persistence", (
 			code: "CONFLICT",
 		});
 	});
+	it("fills missing profile details when the import saves career facts", async () => {
+		const { confirmImport } = await import("./import-review");
+		const { careerMasterService } = await import("../career/master");
+		const { buildCareerFactCandidates } = await import("@reactive-resume/import/career-facts");
+		await migration.query("DELETE FROM resume WHERE user_id='alice'");
+		await owned(() => careerMasterService.read("alice"));
+		const profile = (await migration.query("SELECT data FROM career_profile WHERE user_id='alice'")).rows[0];
+		if (!profile) throw new Error("Missing career profile fixture");
+		await migration.query(
+			"UPDATE career_profile SET data=$1,profile_revision=profile_revision+1 WHERE user_id='alice'",
+			[
+				{
+					...profile.data,
+					contact: { name: "Saved name", email: "", phone: "123", location: "" },
+					summary: "Saved summary",
+				},
+			],
+		);
+		const master = await owned(() => careerMasterService.read("alice"));
+		const imported = data("Imported contact");
+		imported.basics.email = "imported@example.test";
+		imported.basics.phone = "+1 555 0100";
+		imported.basics.location = "Riyadh";
+		imported.summary.content = "<p>Imported summary</p>";
+		imported.sections.skills.items = [
+			{
+				id: randomUUID(),
+				hidden: false,
+				name: "Imported skill",
+				proficiency: "",
+				level: 0,
+				icon: "",
+				iconColor: "",
+				keywords: [],
+			},
+		];
+		const fact = buildCareerFactCandidates(imported, { kind: "manual", id: "", quote: "" }).find(
+			(candidate) => candidate.section === "skills",
+		);
+		if (!fact) throw new Error("Missing imported skill fact fixture");
+		const result = await owned(() =>
+			confirmImport("alice", {
+				flowId: randomUUID(),
+				name: "Imported contact",
+				data: imported,
+				expectedProfileRevision: master.profileRevision,
+				acceptedFacts: [{ fact, decision: { kind: "new" } }],
+			}),
+		);
+		const after = (await migration.query("SELECT data,profile_revision FROM career_profile WHERE user_id='alice'"))
+			.rows[0];
+		expect(after.data).toMatchObject({
+			contact: { name: "Saved name", email: "imported@example.test", phone: "123", location: "Riyadh" },
+			summary: "Saved summary",
+		});
+		expect(after.profile_revision).toBe(master.profileRevision + 2);
+		expect(result.profileRevision).toBe(master.profileRevision + 2);
+	});
+	it("leaves the career profile unchanged when the import saves no facts", async () => {
+		const { confirmImport } = await import("./import-review");
+		const { careerMasterService } = await import("../career/master");
+		await migration.query("DELETE FROM resume WHERE user_id='alice'");
+		const master = await owned(() => careerMasterService.read("alice"));
+		const before = (await migration.query("SELECT data,profile_revision FROM career_profile WHERE user_id='alice'"))
+			.rows[0];
+		if (!before) throw new Error("Missing career profile fixture");
+		const imported = data("Imported contact");
+		imported.basics.email = "imported@example.test";
+		imported.basics.phone = "+1 555 0100";
+		imported.basics.location = "Riyadh";
+		imported.summary.content = "<p>Imported summary</p>";
+		await owned(() =>
+			confirmImport("alice", {
+				flowId: randomUUID(),
+				name: "Imported contact",
+				data: imported,
+				expectedProfileRevision: master.profileRevision,
+				acceptedFacts: [],
+			}),
+		);
+		expect(
+			(await migration.query("SELECT data,profile_revision FROM career_profile WHERE user_id='alice'")).rows[0],
+		).toEqual(before);
+	});
 	it("rolls back the CV and master facts when confirmation fails", async () => {
 		const { confirmImport } = await import("./import-review");
 		// Prior persistence fixtures deliberately retain many bases; this case needs an empty creation slot.

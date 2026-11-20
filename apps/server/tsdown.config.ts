@@ -82,6 +82,17 @@ const promptAssetsPlugin: TsdownPlugin = {
 
 const agentSkillsDir = resolve(dirname(fileURLToPath(import.meta.url)), "../../plugins/reactive-resume/skills");
 
+const demoAssetsPlugin: TsdownPlugin = {
+	name: "demo-assets",
+	buildStart() {
+		this.emitFile({
+			type: "asset",
+			fileName: "fixtures/demo-avatar.png",
+			source: readFileSync(new URL("../../tooling/local/fixtures/demo-avatar.png", import.meta.url)),
+		});
+	},
+};
+
 // Copies the published agent skills beside the bundle; src/static/agent-skills.ts archives them for discovery.
 const agentSkillAssetsPlugin: TsdownPlugin = {
 	name: "agent-skill-assets",
@@ -105,6 +116,7 @@ export default defineConfig({
 		vercel: "src/vercel.ts",
 		"prepare-deployment": "src/prepare-deployment.ts",
 		"migrate-legacy-styles": "src/migrate-legacy-styles.ts",
+		"seed-production-demo": "../../tooling/local/demo-production-cli.ts",
 	},
 	// Keep import.meta.url-based asset lookup adjacent to the entrypoints.
 	outputOptions: { chunkFileNames: "[name]-[hash].mjs" },
@@ -124,5 +136,5 @@ export default defineConfig({
 		alwaysBundle: shouldBundle,
 		neverBundle: shouldExternalizeThirdParty,
 	},
-	plugins: [promptAssetsPlugin, agentSkillAssetsPlugin],
+	plugins: [promptAssetsPlugin, agentSkillAssetsPlugin, demoAssetsPlugin],
 });

@@ -175,6 +175,7 @@ const groups = {
 		"editor.documents.empty.hint",
 	],
 	auth: [
+		"auth.brand.home",
 		"common.navigation.signIn",
 		"editor.documents.subtitle",
 		"auth.signIn.createAccountHint",

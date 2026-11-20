@@ -250,6 +250,7 @@
 			"id": "auth",
 			"sources": ["src/features/auth/", "src/routes/auth/"],
 			"keys": [
+				"auth.brand.home",
 				"common.navigation.signIn",
 				"editor.documents.subtitle",
 				"auth.signIn.createAccountHint",
@@ -412,6 +413,8 @@
 				"src/features/review/"
 			],
 			"keys": [
+				"applications.detail.binding.gOgLQ6",
+				"resume.field.link",
 				"editor.pageSentence.add",
 				"editor.pageSentence.added",
 				"workspace.career-information.area.of.study_Jv-NPV",
@@ -1163,7 +1166,6 @@
 				"trash.selection.all",
 				"editor.save.status.saved",
 				"account.interface.d72bc4ba085e",
-				"account.interface.ed4badc048ec",
 				"account.interface.ef059a0488c1",
 				"account.interface.a0e75e229be7",
 				"editor.documents.letters.emptyTitle",
@@ -1182,6 +1184,7 @@
 			"id": "retained-fork-exposure-audit",
 			"sources": ["src/"],
 			"keys": [
+				"resume.field.link",
 				"workspace.documents.application_IrC12v",
 				"workspace.career-information.close_yz7wBu",
 				"workspace.career-information.company_7i8j3G",
@@ -2528,6 +2531,7 @@
 				"src/features/review/"
 			],
 			"keys": [
+				"atsGuide.backToCv",
 				"atsGuide.example.NO_TEXT_LAYER.before",
 				"atsGuide.example.NO_TEXT_LAYER.after",
 				"atsGuide.example.IMAGE_ONLY_DOCUMENT.before",

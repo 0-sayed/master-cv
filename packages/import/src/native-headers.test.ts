@@ -171,4 +171,11 @@ describe("native basics headers (synthetic)", () => {
 		expect(data.basics.location).toBe("");
 		expect(issues).toContainEqual({ field: "location", source: "Cairo, Egypt Egyptian Employer-specific" });
 	});
+
+	it("keeps visa and nationality text out of an inline location", () => {
+		const data = parseResumeText(
+			"Sara Example\nCairo, Egypt Egyptian Employer-sponsored visa required\nsara@example.test",
+		);
+		expect(data.basics.location).toBe("Cairo, Egypt");
+	});
 });

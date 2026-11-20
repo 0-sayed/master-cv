@@ -1,15 +1,19 @@
 import type { DateFormat, ResumeDates, YearMonth } from "@reactive-resume/schema/resume/dates";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { formatYearMonth, getPresentLabel, toYearMonth } from "@reactive-resume/schema/resume/dates";
 import { readSingleDate } from "@reactive-resume/schema/resume/period";
+import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { inputBaseClassName, fieldDirectionProps } from "@reactive-resume/ui/components/input";
+import { NativeSelect } from "@reactive-resume/ui/components/native-select";
+import { Popover, PopoverContent, PopoverTrigger } from "@reactive-resume/ui/components/popover";
 import { Switch } from "@reactive-resume/ui/components/switch";
 import { cn } from "@reactive-resume/utils/style";
 
 type DateSettings = { locale: string; format?: DateFormat | undefined };
+const monthDateSamples = Array.from({ length: 12 }, (_, month) => new Date(Date.UTC(2020, month, 1)));
 
 /** What someone typed as a date: a year-month, null when cleared, or undefined when it can't be read. */
 function readTypedDate(text: string, locale: string): YearMonth | null | undefined {
@@ -46,38 +50,97 @@ function MonthYearInput({
 	onInvalid,
 }: MonthYearInputProps) {
 	const [typed, setTyped] = useState<string | null>(null);
+	const [open, setOpen] = useState(false);
+	const [currentYear] = useState(() => new Date().getFullYear());
+	const selectedYear = value ? Number(value.slice(0, 4)) : currentYear;
+	const [calendarYear, setCalendarYear] = useState(selectedYear);
+	const months = useMemo(
+		() =>
+			monthDateSamples.map((date, month) => ({
+				value: month,
+				label: new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }).format(date),
+			})),
+		[locale],
+	);
 	const formatted = value ? formatYearMonth(value, { locale, format }) : "";
+	const years = Array.from({ length: 111 }, (_, index) => selectedYear + 10 - index);
+	const chooseMonth = (month: number) => {
+		const next = `${calendarYear}-${String(month + 1).padStart(2, "0")}` as YearMonth;
+		setTyped(null);
+		setOpen(false);
+		onInvalid(false);
+		if (next !== value) onCommit(next);
+	};
 
 	return (
 		<div className="relative min-w-0 flex-1">
-			<Icon
-				name="calendar-dots"
-				size={18}
-				className="pointer-events-none absolute start-2.5 top-1/2 -translate-y-1/2 text-ink-3"
-			/>
-			<input
-				{...fieldDirectionProps({ placeholder: t`Mar 2022` })}
-				type="text"
-				inputMode="text"
-				autoComplete="off"
-				aria-label={label}
-				disabled={disabled}
-				placeholder={t`Mar 2022`}
-				value={placeholderValue ?? typed ?? formatted}
-				className={cn(inputBaseClassName, "h-9 ps-9 disabled:bg-sunken disabled:text-ink-2 disabled:opacity-100")}
-				onChange={(event) => {
-					setTyped(event.target.value);
-					const next = readTypedDate(event.target.value, locale);
-					onInvalid(next === undefined);
-					if (next !== undefined && next !== value) onCommit(next);
-				}}
-				onBlur={() => {
-					if (typed === null) return;
-					const next = readTypedDate(typed, locale);
-					onInvalid(next === undefined);
-					if (next !== undefined) setTyped(null);
-				}}
-			/>
+			<Popover open={open} onOpenChange={setOpen}>
+				<input
+					{...fieldDirectionProps({ placeholder: t`Mar 2022` })}
+					type="text"
+					inputMode="text"
+					autoComplete="off"
+					aria-label={label}
+					disabled={disabled}
+					placeholder={t`Mar 2022`}
+					value={placeholderValue ?? typed ?? formatted}
+					className={cn(inputBaseClassName, "h-11 pe-12 disabled:bg-sunken disabled:text-ink-2 disabled:opacity-100")}
+					onFocus={() => {
+						setCalendarYear(selectedYear);
+						setOpen(true);
+					}}
+					onChange={(event) => {
+						setTyped(event.target.value);
+						const next = readTypedDate(event.target.value, locale);
+						onInvalid(next === undefined);
+						if (next !== undefined && next !== value) onCommit(next);
+					}}
+					onBlur={() => {
+						if (typed === null) return;
+						const next = readTypedDate(typed, locale);
+						onInvalid(next === undefined);
+						if (next !== undefined) setTyped(null);
+					}}
+				/>
+				<PopoverTrigger
+					render={
+						<Button
+							variant="ghost"
+							size="icon-lg"
+							className="absolute inset-e-0 top-0"
+							aria-label={t`Choose a date.`}
+							disabled={disabled}
+						>
+							<Icon name="calendar-dots" />
+						</Button>
+					}
+				/>
+				<PopoverContent className="w-72" aria-label={label}>
+					<NativeSelect
+						aria-label={label}
+						value={calendarYear}
+						onChange={(event) => setCalendarYear(Number(event.target.value))}
+					>
+						{years.map((year) => (
+							<option key={year} value={year}>
+								{year}
+							</option>
+						))}
+					</NativeSelect>
+					<div className="grid grid-cols-3 gap-1">
+						{months.map(({ value: month, label: monthLabel }) => (
+							<Button
+								key={month}
+								variant={value === `${calendarYear}-${String(month + 1).padStart(2, "0")}` ? "secondary" : "ghost"}
+								size="calendar-date"
+								onClick={() => chooseMonth(month)}
+							>
+								{monthLabel}
+							</Button>
+						))}
+					</div>
+				</PopoverContent>
+			</Popover>
 		</div>
 	);
 }

@@ -12,7 +12,7 @@ import { provisionRuntimeRole } from "@reactive-resume/db/runtime-role";
 import * as tables from "@reactive-resume/db/schema";
 import { ensureDemoAccount, createDemoClient } from "./demo-account";
 import { createDemoFixture, demoCredentials, demoFixture } from "./demo-fixture";
-import { seedDemoWorkspace } from "./demo-seed.ts";
+import { createOwnerDemoJobCopyAdmission, populateDemoWorkspace, seedDemoWorkspace } from "./demo-seed.ts";
 
 const suffix = randomUUID().replaceAll("-", "");
 const databaseName = `demo_seed_${suffix}`;
@@ -201,6 +201,25 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("restricted local d
 					letters: 11,
 					applications: 20,
 				});
+				const currentFiles = await fixture.query(
+					"select key from stored_file where user_id=$1 and revoked_at is null",
+					[user.id],
+				);
+				const oldKeys = currentFiles.rows.map((row: { key: string }) => row.key);
+				expect(oldKeys.length).toBeGreaterThan(0);
+				const effects: import("./demo-seed.ts").DemoSeedEffects = { commit: [], rollback: [] };
+				await populateDemoWorkspace(user, "http://127.0.0.1:23100", await createOwnerDemoJobCopyAdmission(user.id), {
+					reset: true,
+					now,
+					effects,
+				});
+				const deleteWork = await fixture.query(
+					"select payload->>'key' as key, status from privacy_work where user_id=$1 and key like 'file-delete:%'",
+					[user.id],
+				);
+				const scheduled = deleteWork.rows.filter((row: { key: string; status: string }) => oldKeys.includes(row.key));
+				expect(scheduled).toHaveLength(oldKeys.length);
+				expect(scheduled.every((row: { status: string }) => row.status === "queued")).toBe(true);
 				const afterReset = await fixture.query("select count(*)::int as n from resume where user_id=$1", [user.id]);
 				expect(afterReset.rows[0].n).toBe(15);
 				expect(

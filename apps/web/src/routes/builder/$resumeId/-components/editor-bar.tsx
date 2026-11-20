@@ -154,6 +154,7 @@ function DownloadButtons({ compact, iconOnly, disabled }: ToolbarActionProps & {
 				<TooltipContent>{t`Download PDF`}</TooltipContent>
 			</Tooltip>
 			<IconButton
+				variant={iconOnly ? "ghost" : "primary"}
 				size={iconOnly ? "icon" : "toolbar-icon"}
 				disabled={disabled || isExporting}
 				label={t`More download formats`}

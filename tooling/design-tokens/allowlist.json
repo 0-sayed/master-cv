@@ -2447,7 +2447,7 @@
 			"context": "function:ScheduleSheet/jsx:Input@className",
 			"literal": "pointer-coarse:text-base",
 			"kind": "typography",
-			"count": 3,
+			"count": 2,
 			"reason": "Inherited shared component or UI occurrence from b617646fa; D35 permits current defaults, no new occurrences."
 		},
 		{

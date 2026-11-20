@@ -2783,6 +2783,11 @@ msgstr "Back to sign in"
 msgid "Back to stories"
 msgstr "Back to stories"
 
+#: src/features/ats-guide/copy.ts
+msgctxt "atsGuide.backToCv"
+msgid "Back to your CV"
+msgstr "Back to your CV"
+
 #: src/features/career/knowledge/stories.tsx
 #: src/features/career/workspace/apply.tsx
 msgid "Backed by"
@@ -3557,6 +3562,7 @@ msgstr "Choose a CSV file or paste a header row and at least one application to 
 #: src/features/applications/components/application-detail-page.tsx
 #: src/features/applications/components/detail/activity.tsx
 #: src/features/applications/components/detail/next-step-card.tsx
+#: src/features/resume/editor/write/dates-field.tsx
 msgid "Choose a date."
 msgstr "Choose a date."
 
@@ -3989,6 +3995,7 @@ msgid "Concrete verbs make your contribution clearer."
 msgstr "Concrete verbs make your contribution clearer."
 
 #: src/features/career/shared.tsx
+#: src/features/resume/import/review.tsx
 #: src/hooks/use-confirm.tsx
 msgid "Confirm"
 msgstr "Confirm"
@@ -4419,6 +4426,11 @@ msgid "Copy it now. For your security, it won't be shown again."
 msgstr "Copy it now. For your security, it won't be shown again."
 
 #: src/features/resume/public/public-resume.tsx
+#~ msgid "Copy link"
+#~ msgstr "Copy link"
+
+#: src/features/resume/public/public-resume.tsx
+msgctxt "resume.public.copyLink"
 msgid "Copy link"
 msgstr "Copy link"
 
@@ -8006,10 +8018,6 @@ msgstr "Import or create a resume"
 #: src/routes/dashboard/applications/index.tsx
 msgid "Import or export CSV"
 msgstr "Import or export CSV"
-
-#: src/features/documents/documents-page.tsx
-msgid "Import PDF"
-msgstr "Import PDF"
 
 #: src/features/documents/new-document-dialog.tsx
 msgid "Import progress"
@@ -11797,8 +11805,8 @@ msgid "Profile"
 msgstr "Profile"
 
 #: src/features/applications/components/interview-dialog.tsx
-msgid "Profile link (optional)"
-msgstr "Profile link (optional)"
+#~ msgid "Profile link (optional)"
+#~ msgstr "Profile link (optional)"
 
 #. placeholder {0}: index + 1
 #: src/features/applications/components/interview-dialog.tsx
@@ -14398,6 +14406,11 @@ msgstr "Sirawise"
 #: src/routes/_home/-sections/header.tsx
 msgid "Sirawise - Go to homepage"
 msgstr "Sirawise - Go to homepage"
+
+#: src/features/auth/copy.generated.ts
+msgctxt "auth.brand.home"
+msgid "Sirawise home"
+msgstr "Sirawise home"
 
 #: src/features/career/knowledge/stories.tsx
 msgid "Situation"

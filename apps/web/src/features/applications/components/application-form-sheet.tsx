@@ -31,6 +31,7 @@ import { applicationsListQueryKey } from "../queries";
 import { getStageLabel } from "../stages";
 import { FileAttachmentField } from "./file-attachment-field";
 import { ResumeVersionSelect } from "./resume-version-select";
+import { CalendarDateInput } from "@/components/input/calendar-date-input";
 import { Combobox } from "@/components/ui/combobox";
 import { useClosingValue } from "@/hooks/use-closing-value";
 import { isImeComposing } from "@/libs/keyboard";
@@ -442,10 +443,11 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 							<Input
 								id={id}
 								type="url"
+								dir="ltr"
+								placeholder="https://..."
 								aria-invalid={!!validation.errors[`${formId}-sourceUrl`]}
 								aria-describedby={`${formId}-sourceUrl-error`}
 								value={form.sourceUrl}
-								placeholder="https://…"
 								onChange={(event) => set("sourceUrl", event.target.value)}
 							/>
 						)}
@@ -454,11 +456,11 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 					{!isEditing && (
 						<Field label={t`Stage date`}>
 							{(id) => (
-								<Input
+								<CalendarDateInput
 									id={id}
-									type="date"
+									label={t`Stage date`}
 									value={form.stageEnteredAt}
-									onChange={(event) => set("stageEnteredAt", event.target.value)}
+									onChange={(value) => set("stageEnteredAt", value)}
 								/>
 							)}
 						</Field>
@@ -518,11 +520,11 @@ export function ApplicationFormSheet({ open, onOpenChange, application: requeste
 					<div className="grid grid-cols-2 gap-3">
 						<Field label={t`Follow-up date`}>
 							{(id) => (
-								<Input
+								<CalendarDateInput
 									id={id}
-									type="date"
+									label={t`Follow-up date`}
 									value={form.followUpAt}
-									onChange={(event) => set("followUpAt", event.target.value)}
+									onChange={(value) => set("followUpAt", value)}
 								/>
 							)}
 						</Field>

@@ -24419,6 +24419,44 @@
 			}
 		},
 		{
+			"key": "auth.brand.home",
+			"messages": {
+				"ar-SA": "الصفحة الرئيسية لسيراوايز",
+				"en-US": "Sirawise home"
+			},
+			"context": {
+				"surfaces": ["screens:S02"],
+				"audience": "candidate/account owner",
+				"translatorNotes": []
+			},
+			"nodeIds": [],
+			"source": "translated",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Sirawise home",
+				"msgctxt": "auth.brand.home",
+				"runtimeId": "BZjoPB",
+				"mappingStatus": "verified temporary extraction and compilation",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/auth/layout.tsx",
+				"verification": "Accessible name for the auth logo home link."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "2026-11-20"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "2026-11-20"
+				}
+			}
+		},
+		{
 			"key": "auth.reset.title",
 			"messages": {
 				"ar-SA": "استعادة كلمة المرور",
@@ -103871,44 +103909,6 @@
 			}
 		},
 		{
-			"key": "account.interface.ed4badc048ec",
-			"messages": {
-				"en-US": "Import PDF",
-				"ar-SA": "استيراد PDF"
-			},
-			"context": {
-				"surfaces": ["messages:workspace"],
-				"audience": "candidate/account owner",
-				"translatorNotes": ["Owner-requested empty collections, account preferences and email recovery copy."]
-			},
-			"nodeIds": [],
-			"source": "spec-only",
-			"sourceReferences": ["Planning/roadmap/tasks/T009-account-data-controls.md"],
-			"interpolations": [],
-			"variants": [],
-			"lingui": {
-				"msgid": "Import PDF",
-				"msgctxt": "",
-				"runtimeId": "-HOkuz",
-				"mappingStatus": "verified extraction",
-				"sourceLocale": "en-US",
-				"sourcePath": "src/features/documents/documents-page.tsx",
-				"verification": "Extracted from implemented UI; owner wording review pending."
-			},
-			"review": {
-				"ar-SA": {
-					"status": "pending owner review",
-					"owner": "product owner",
-					"version": "2026-11-15"
-				},
-				"en-US": {
-					"status": "pending owner review",
-					"owner": "product owner",
-					"version": "2026-11-15"
-				}
-			}
-		},
-		{
 			"key": "account.interface.bcdf701c4dfb",
 			"messages": {
 				"en-US": "Last active",
@@ -136382,6 +136382,120 @@
 				"sourcePath": "src/features/assistant/copy.generated.ts",
 				"verification": "Operation input and optional review disclosure."
 			}
+		},
+		{
+			"key": "resume.field.link",
+			"messages": {
+				"ar-SA": "رابط",
+				"en-US": "Link"
+			},
+			"context": {
+				"surfaces": ["screens:S08"],
+				"audience": "candidate/account owner",
+				"translatorNotes": ["Use this label for a web link."]
+			},
+			"nodeIds": [],
+			"source": "translated",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Link",
+				"msgctxt": "",
+				"mappingStatus": "verified extraction and compilation",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/resume/editor/write/fields.tsx",
+				"verification": "Owner-selected Arabic label.",
+				"runtimeId": "yzF66j"
+			},
+			"review": {
+				"ar-SA": {
+					"status": "owner-approved",
+					"owner": "product owner",
+					"version": "2026-11-20"
+				},
+				"en-US": {
+					"status": "owner-approved",
+					"owner": "product owner",
+					"version": "2026-11-20"
+				}
+			}
+		},
+		{
+			"key": "resume.public.copyLink",
+			"messages": {
+				"ar-SA": "نسخ الرابط",
+				"en-US": "Copy link"
+			},
+			"context": {
+				"surfaces": [],
+				"audience": "candidate/account owner",
+				"translatorNotes": []
+			},
+			"nodeIds": [],
+			"source": "translated",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Copy link",
+				"msgctxt": "resume.public.copyLink",
+				"runtimeId": "aQFkvF",
+				"mappingStatus": "verified extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/resume/public/public-resume.tsx",
+				"verification": "Public CV link action."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "2026-11-20"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "2026-11-20"
+				}
+			}
+		},
+		{
+			"key": "atsGuide.backToCv",
+			"messages": {
+				"ar-SA": "العودة إلى سيرتك الذاتية",
+				"en-US": "Back to your CV"
+			},
+			"context": {
+				"surfaces": [],
+				"audience": "candidate/account owner",
+				"translatorNotes": []
+			},
+			"nodeIds": [],
+			"source": "translated",
+			"sourceReferences": [],
+			"interpolations": [],
+			"variants": [],
+			"lingui": {
+				"msgid": "Back to your CV",
+				"msgctxt": "atsGuide.backToCv",
+				"runtimeId": "sSomc-",
+				"mappingStatus": "verified extraction",
+				"sourceLocale": "en-US",
+				"sourcePath": "src/features/ats-guide/copy.ts",
+				"verification": "Back link from the review guide to the current CV."
+			},
+			"review": {
+				"ar-SA": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "2026-11-20"
+				},
+				"en-US": {
+					"status": "pending owner review",
+					"owner": "product owner",
+					"version": "2026-11-20"
+				}
+			}
 		}
 	],
 	"screens": {
@@ -136646,6 +136760,7 @@
 			"nodeIds": ["25:677", "41:692"],
 			"strings": [
 				"common.brand.name",
+				"auth.brand.home",
 				"auth.email.label",
 				"language.switch.english",
 				"common.navigation.signIn",
@@ -136935,6 +137050,7 @@
 			"nodeIds": ["22:560", "41:412", "64:683", "65:1392"],
 			"strings": [
 				"auth.email.label",
+				"resume.field.link",
 				"editor.summary.label",
 				"editor.mode.write",
 				"editor.save.status.recent",
@@ -142905,7 +143021,6 @@
 			"account.interface.ffd3b3a09457",
 			"account.interface.8bbafc0c4a84",
 			"account.interface.09742c0f0a86",
-			"account.interface.ed4badc048ec",
 			"account.interface.bcdf701c4dfb",
 			"account.interface.ba3bbbe10d8b",
 			"account.interface.4895f73177ab",

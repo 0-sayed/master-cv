@@ -3,6 +3,7 @@ import { useLingui } from "@lingui/react";
 import { useLocation, useRouter } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, AlertActions, AlertDescription, AlertTitle } from "@reactive-resume/ui/components/alert";
+import { BackNavigation } from "@reactive-resume/ui/components/back-navigation";
 import { Button } from "@reactive-resume/ui/components/button";
 import { Icon } from "@reactive-resume/ui/components/icon";
 import { Input } from "@reactive-resume/ui/components/input";
@@ -20,7 +21,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { reviewTabs } from "@/features/resume/editor/check/review-tabs";
 import { SeverityFilter } from "@/features/review/severity-filter";
 
-export function AtsGuidePage({ entries }: { entries: readonly GuideEntry[] }) {
+export function AtsGuidePage({ entries, returnTo }: { entries: readonly GuideEntry[]; returnTo?: string | undefined }) {
 	const { i18n } = useLingui();
 	const router = useRouter();
 	const location = useLocation();
@@ -46,6 +47,11 @@ export function AtsGuidePage({ entries }: { entries: readonly GuideEntry[] }) {
 	};
 	return (
 		<>
+			{returnTo && (
+				<div className="px-(--space-18) pt-4">
+					<BackNavigation render={<a href={returnTo} />}>{i18n._(copy.backToCv)}</BackNavigation>
+				</div>
+			)}
 			<PageHeader title={i18n._(copy.title)} />
 			<Tabs
 				value={tab}

@@ -137,9 +137,10 @@ function ConnectForm({ choice }: { choice: Choice }) {
 					</Label>
 					<Input
 						type="url"
+						dir="ltr"
+						placeholder="https://..."
 						id={`${id}-url`}
 						value={baseURL}
-						placeholder="https://…/v1"
 						onChange={(event) => setBaseURL(event.target.value)}
 					/>
 				</div>

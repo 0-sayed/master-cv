@@ -5,6 +5,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vite-plus/test";
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import { careerSections, previewLimits } from "./presentation";
+import { loadUiLocale } from "@/libs/locale";
 const state = vi.hoisted(() => ({
 	query: {} as Record<string, unknown>,
 	restored: null as { section: string; entityId: string } | null,
@@ -83,6 +84,15 @@ function section(name: string) {
 	if (!element) throw new Error(`MISSING_SECTION_${name}`);
 	return element;
 }
+it("renders the Arabic contact completeness sentence on the career information page", async () => {
+	await loadUiLocale("ar-SA");
+	const data = master();
+	data.summary = "Saved summary";
+	state.query.data = data;
+	mount();
+	const link = await screen.findByRole("link", { name: "أضف بيانات التواصل للوصول إلى 60%" });
+	expect(link).not.toHaveTextContent("Add contact details to reach 60%");
+});
 beforeEach(() => {
 	i18n.loadAndActivate({ locale: "en-US", messages: {} });
 	state.restored = null;

@@ -661,6 +661,7 @@
 	--type-metadata-weight: 400;
 	--type-count-line: 1;
 	--type-sidebar-count-size: 11px;
+	--type-wordmark-weight: 600;
 	--space-0: 0px;
 	--space-4: 4px;
 	--space-6: 6px;
@@ -771,6 +772,14 @@
 	font-weight: var(--type-metadata-weight);
 }
 
+@utility type-wordmark {
+	font-family: var(--font-ui);
+	font-size: var(--type-metadata-size);
+	line-height: var(--type-metadata-line);
+	font-weight: var(--type-wordmark-weight);
+	letter-spacing: var(--tracking-wide);
+}
+
 /* Numeric markers must fit their circle even under Arabic's taller body line metrics. */
 /* Compact icon, label, and status groups in narrow editor tab strips. */
 @utility type-control-compact {
@@ -846,7 +855,9 @@
 /* Empty mixed fields follow the placeholder; filled fields use native dir=auto. */
 @utility field-direction {
 	text-align: start;
-	&[dir="ltr"]:placeholder-shown {
+	&[dir="ltr"]:placeholder-shown:not([type="url"]):not([inputmode="url"]):not([autocomplete~="url"]):not(
+			[name="url"]
+		):not([name="website"]) {
 		direction: var(--field-interface-direction);
 	}
 	&[dir="auto"]:placeholder-shown {

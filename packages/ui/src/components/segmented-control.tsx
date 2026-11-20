@@ -99,7 +99,7 @@ function SegmentedControlItem({
 					data-slot="segmented-control-label"
 					data-overflow={labelOverflow}
 					className={cn(
-						"inline-flex items-center justify-center gap-1.5 text-center [&>svg]:shrink-0",
+						"inline-flex min-w-0 items-center justify-center gap-1.5 text-center [&>svg]:shrink-0",
 						icon ? "whitespace-nowrap" : "whitespace-normal",
 					)}
 				>

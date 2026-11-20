@@ -71,7 +71,7 @@ export function createApp(options: AppOptions = {}) {
 	const app = new Hono<ServerEnvironment>();
 	app.use("*", requestObservability);
 	app.use("*", async (c, next) => {
-		const feature = deferredHttpRoute(c.req.path);
+		const feature = deferredHttpRoute(c.req.path, c.req.method);
 		if (feature && !isFeatureAvailable(feature)) return c.json({ code: "FEATURE_UNAVAILABLE" }, 403);
 		await next();
 	});

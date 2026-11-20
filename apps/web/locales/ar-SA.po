@@ -2783,6 +2783,11 @@ msgstr "العودة إلى تسجيل الدخول"
 msgid "Back to stories"
 msgstr "العودة إلى القصص"
 
+#: src/features/ats-guide/copy.ts
+msgctxt "atsGuide.backToCv"
+msgid "Back to your CV"
+msgstr "العودة إلى سيرتك الذاتية"
+
 #: src/features/career/knowledge/stories.tsx
 #: src/features/career/workspace/apply.tsx
 msgid "Backed by"
@@ -3557,6 +3562,7 @@ msgstr "اختر ملف CSV أو الصق صف عناوين الأعمدة وط�
 #: src/features/applications/components/application-detail-page.tsx
 #: src/features/applications/components/detail/activity.tsx
 #: src/features/applications/components/detail/next-step-card.tsx
+#: src/features/resume/editor/write/dates-field.tsx
 msgid "Choose a date."
 msgstr "اختر تاريخًا."
 
@@ -3989,6 +3995,7 @@ msgid "Concrete verbs make your contribution clearer."
 msgstr "توضح الأفعال المحدّدة مساهمتك."
 
 #: src/features/career/shared.tsx
+#: src/features/resume/import/review.tsx
 #: src/hooks/use-confirm.tsx
 msgid "Confirm"
 msgstr "تأكيد"
@@ -4419,8 +4426,13 @@ msgid "Copy it now. For your security, it won't be shown again."
 msgstr "انسخه الآن. حرصًا على أمانك، لن يتم عرضه مرة أخرى."
 
 #: src/features/resume/public/public-resume.tsx
+#~ msgid "Copy link"
+#~ msgstr "نسخ الرابط"
+
+#: src/features/resume/public/public-resume.tsx
+msgctxt "resume.public.copyLink"
 msgid "Copy link"
-msgstr "نسخ الوصلة"
+msgstr "نسخ الرابط"
 
 #: src/features/ats-guide/copy.ts
 msgctxt "atsGuide.permalink"
@@ -8007,10 +8019,6 @@ msgstr "استيراد أو إنشاء السيرة الذاتية"
 msgid "Import or export CSV"
 msgstr "استيراد أو تصدير CSV"
 
-#: src/features/documents/documents-page.tsx
-msgid "Import PDF"
-msgstr "استيراد PDF"
-
 #: src/features/documents/new-document-dialog.tsx
 msgid "Import progress"
 msgstr "تقدم الاستيراد"
@@ -8883,7 +8891,7 @@ msgstr "تداخل السطور بعد التصدير"
 #: src/features/resume/editor/write/rich-text-editor.tsx
 #: src/features/resume/import/field-label.ts
 msgid "Link"
-msgstr "وصلة"
+msgstr "رابط"
 
 #: src/features/applications/components/application-form-sheet.tsx
 msgid "Link a Sirawise (recommended)"
@@ -11797,8 +11805,8 @@ msgid "Profile"
 msgstr "الملخص المهني"
 
 #: src/features/applications/components/interview-dialog.tsx
-msgid "Profile link (optional)"
-msgstr "رابط الملف الشخصي (اختياري)"
+#~ msgid "Profile link (optional)"
+#~ msgstr "رابط الملف الشخصي (اختياري)"
 
 #. placeholder {0}: index + 1
 #: src/features/applications/components/interview-dialog.tsx
@@ -14398,6 +14406,11 @@ msgstr "سيراوايز"
 #: src/routes/_home/-sections/header.tsx
 msgid "Sirawise - Go to homepage"
 msgstr "سيراوايز - الانتقال إلى الصفحة الرئيسية"
+
+#: src/features/auth/copy.generated.ts
+msgctxt "auth.brand.home"
+msgid "Sirawise home"
+msgstr "الصفحة الرئيسية لسيراوايز"
 
 #: src/features/career/knowledge/stories.tsx
 msgid "Situation"

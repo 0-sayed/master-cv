@@ -33,6 +33,7 @@ import { buildIcs } from "../../ics";
 import { dayKey } from "../../interviews";
 import { describeNextStep, getNextStep } from "../../next-step";
 import { useInvalidateApplications } from "../../use-application-actions";
+import { CalendarDateInput } from "@/components/input/calendar-date-input";
 import { orpc } from "@/libs/orpc/client";
 
 type NextStepCardProps = {
@@ -194,14 +195,14 @@ function FollowUpDialog({ application, open, onOpenChange }: FollowUpDialogProps
 							<Trans>Date</Trans>
 							<span aria-hidden="true"> *</span>
 						</Label>
-						<Input
+						<CalendarDateInput
 							id={`${id}-date`}
-							type="date"
+							label={t`Date`}
 							aria-required
 							aria-invalid={!!validation.errors[`${id}-date`]}
 							aria-describedby={`${id}-date-error`}
 							value={date}
-							onChange={(event) => setDate(event.target.value)}
+							onChange={setDate}
 						/>
 						<FieldError id={`${id}-date-error`}>{validation.errors[`${id}-date`]}</FieldError>
 					</div>
