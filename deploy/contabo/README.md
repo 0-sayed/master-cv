@@ -26,6 +26,8 @@ RUNTIME_DB_PASSWORD=<generated-hex-password>
 
 ## Deploy
 
+Run the script from a clean `main` that matches `origin/main`. The VPS clones the repository into `/opt/sirawise/src`, checks out that exact commit and builds the image there; no image leaves the operator's machine.
+
 Compose gives its default network subnet `172.31.240.0/24`; the app trusts gateway `172.31.240.1`. `getTrustedClient` reads `X-Forwarded-For`, which Caddy sends to the app. The deploy script starts PostgreSQL and waits for its health check. If the database has tables, the script takes a backup before migration. It then runs migrations from the new app image and syncs runtime grants. The app starts after these steps and must pass the 120-second health gate.
 
 The script copies the backup, restore-drill, migration, and role-sync scripts to `/opt/sirawise`. Keep `.env` out of source control and logs. The deploy stops if a required SMTP value is empty.

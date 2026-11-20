@@ -22,11 +22,26 @@ if ! git diff --quiet || ! git diff --cached --quiet || [[ -n "$(git ls-files --
 	exit 1
 fi
 
+git fetch --quiet origin main
+if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]]; then
+	echo "Local main must match origin/main; pull or push first." >&2
+	exit 1
+fi
+
+# The VPS builds the merged commit from GitHub; only small files travel from this machine.
+FULL_SHA="$(git rev-parse HEAD)"
 SHORT_SHA="$(git rev-parse --short HEAD)"
-IMAGE="sirawise-app:${SHORT_SHA}"
-docker build --build-arg "APP_REVISION=$(git rev-parse HEAD)" -t "$IMAGE" -f "$REPO_ROOT/Dockerfile" "$REPO_ROOT"
-docker save "$IMAGE" | gzip | ssh "$HOST" 'gunzip | docker load'
+REPO_URL="$(git remote get-url origin)"
 ssh "$HOST" "mkdir -p '$REMOTE_DIR'"
+ssh "$HOST" "FULL_SHA='$FULL_SHA' SHORT_SHA='$SHORT_SHA' REPO_URL='$REPO_URL' bash -s" <<'REMOTE'
+set -euo pipefail
+src=/opt/sirawise/src
+if [[ ! -d "$src/.git" ]]; then git clone --quiet "$REPO_URL" "$src"; fi
+git -C "$src" fetch --quiet origin main
+git -C "$src" checkout --quiet --detach "$FULL_SHA"
+docker build --build-arg "APP_REVISION=$FULL_SHA" -t "sirawise-app:$SHORT_SHA" -f "$src/Dockerfile" "$src"
+docker builder prune -f --filter until=168h >/dev/null
+REMOTE
 scp "$SCRIPT_DIR/compose.yml" "$HOST:$REMOTE_DIR/compose.yml.tmp"
 scp "$SCRIPT_DIR/backup.sh" "$SCRIPT_DIR/restore-drill.sh" "$HOST:$REMOTE_DIR/"
 scp "$REPO_ROOT/packages/db/src/deploy-migrations.mjs" "$HOST:$REMOTE_DIR/migrate.mjs"
