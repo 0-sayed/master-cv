@@ -111,7 +111,12 @@ describe("native experience headers (synthetic)", () => {
 			onUncertain: (issue) => issues.push(issue),
 		});
 		expect(data.sections.experience.items[0]?.position).toBe("");
-		expect(issues).toContainEqual({ field: "position", source: "Unclear field" });
+		expect(issues).toContainEqual({
+			field: "position",
+			source: "Unclear field",
+			section: "experience",
+			entryIndex: 0,
+		});
 	});
 });
 

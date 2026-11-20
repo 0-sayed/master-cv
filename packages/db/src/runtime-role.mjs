@@ -99,7 +99,7 @@ export async function syncRuntimeRole(migrationUrl, role, password) {
 			);
 		} else {
 			await pool.query(
-				`ALTER ROLE "${role}" LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS NOINHERIT`,
+				`ALTER ROLE "${role}" LOGIN PASSWORD ${quoteLiteral(password)} NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS NOINHERIT`,
 			);
 		}
 		await grantRuntimePrivileges(pool, role);

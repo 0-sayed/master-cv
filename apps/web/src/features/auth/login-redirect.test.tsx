@@ -135,7 +135,12 @@ describe("OAuth callback after sign-in", () => {
 		},
 	);
 
-	it.each(["Google", "GitHub", "LinkedIn", "SSO"])("keeps unapproved %s sign-in hidden", (label) => {
+	it("shows Google sign-in when the server lists it", () => {
+		renderLogin();
+		expect(screen.getByRole("button", { name: "Google" })).toBeTruthy();
+	});
+
+	it.each(["GitHub", "LinkedIn", "SSO"])("keeps unapproved %s sign-in hidden", (label) => {
 		renderLogin();
 		expect(screen.queryByRole("button", { name: label })).toBeNull();
 		expect(mocks.social).not.toHaveBeenCalled();

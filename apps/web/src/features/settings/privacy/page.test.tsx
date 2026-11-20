@@ -53,6 +53,14 @@ it("summarizes stored categories with expandable details and a draft policy link
 	);
 	expect(screen.queryByText(/owner approval/i)).not.toBeInTheDocument();
 });
+it("shows the approved AI processors and routing controls in the privacy details", async () => {
+	show();
+	fireEvent.click(screen.getByRole("button", { name: /Assistant requests/ }));
+	expect(
+		await screen.findByText(/OpenRouter.*Microsoft Azure.*Together AI.*zero data retention.*training/i),
+	).toBeVisible();
+	expect(screen.queryByText(/pending.*(?:owner|approval)|بانتظار.*المالك/i)).toBeNull();
+});
 it("a new export requires fresh proof and has one request action", async () => {
 	show();
 	await screen.findByText("No data copy requested yet");

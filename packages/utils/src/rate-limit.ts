@@ -13,6 +13,7 @@ export const rateLimitConfig = {
 			window: 60,
 			max: 60,
 			customRules: {
+				"/get-session": { window: 60, max: 120 },
 				"/sign-in/email": { window: 60, max: 5 },
 				"/sign-in/username": { window: 60, max: 5 },
 				"/sign-up/email": { window: 60, max: 3 },

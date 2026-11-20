@@ -160,7 +160,7 @@ export const aiPlatformBudget = pg.pgTable.withRLS(
 		pg.unique().on(t.routeId, t.routeRevision, t.windowDate),
 		pg.check(
 			"ai_budget_finite",
-			sql`${t.capMicros} > 0 AND ${t.requestCapMicros} > 0 AND ${t.requestCapMicros} <= ${t.capMicros} AND ${t.concurrency} BETWEEN 1 AND 2 AND ${t.active} >= 0 AND ${t.reservedMicros} >= 0 AND ${t.spentMicros} >= 0`,
+			sql`${t.capMicros} > 0 AND ${t.requestCapMicros} > 0 AND ${t.requestCapMicros} <= ${t.capMicros} AND ${t.concurrency} BETWEEN 1 AND 100 AND ${t.active} >= 0 AND ${t.reservedMicros} >= 0 AND ${t.spentMicros} >= 0`,
 		),
 	],
 );

@@ -48,19 +48,18 @@ it("creates a restricted role and grants current and future migration tables in 
 	expect(state.ended).toBe(true);
 });
 
-it("does not change an existing role password and keeps grants repeatable", async () => {
+it("updates an existing role password and keeps grants repeatable", async () => {
 	reset();
 	state.existing = true;
-	await syncRuntimeRole("postgresql://sirawise:owner@localhost/sirawise", "sirawise_runtime", "unused");
+	await syncRuntimeRole("postgresql://sirawise:owner@localhost/sirawise", "sirawise_runtime", "rotated'password");
 	expect(state.calls.some(([statement]) => statement.startsWith("CREATE ROLE"))).toBe(false);
 	expect(
 		state.calls.some(
 			([statement]) =>
 				statement ===
-				'ALTER ROLE "sirawise_runtime" LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS NOINHERIT',
+				`ALTER ROLE "sirawise_runtime" LOGIN PASSWORD 'rotated''password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS NOINHERIT`,
 		),
 	).toBe(true);
-	expect(state.calls.some(([statement]) => statement.includes("PASSWORD"))).toBe(false);
 	expect(
 		state.calls.some(([statement]) => statement.startsWith("GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES")),
 	).toBe(true);

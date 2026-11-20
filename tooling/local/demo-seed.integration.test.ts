@@ -115,9 +115,9 @@ describe.skipIf(!process.env.COVER_LETTER_TEST_DATABASE_URL)("restricted local d
 				expect(trash).toHaveLength(2);
 				expect(trash.map((item) => item.type).sort()).toEqual(["letter", "letter"]);
 				expect(
-					new Set(trash.map((item) => Math.floor((Date.now() - (item.trashedAt?.getTime() ?? 0)) / 86400000))).size,
+					new Set(trash.map((item) => Math.floor((now.getTime() - (item.trashedAt?.getTime() ?? 0)) / 86400000))).size,
 				).toBe(2);
-				for (const item of trash) expect(Date.now() - (item.trashedAt?.getTime() ?? 0)).toBeLessThan(3 * 86400000);
+				for (const item of trash) expect(now.getTime() - (item.trashedAt?.getTime() ?? 0)).toBeLessThan(3 * 86400000);
 				for (const type of ["letter"] as const) {
 					const item = trash.find((item) => item.type === type);
 					if (!item) throw new Error("Missing trashed document");

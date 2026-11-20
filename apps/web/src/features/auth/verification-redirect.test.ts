@@ -3,32 +3,51 @@ import { Route as RegisterRoute } from "@/routes/auth/register";
 import { Route } from "@/routes/auth/verify-email";
 
 type VerificationInput = {
-	context: { flags: { disableEmailAuth: boolean } };
+	context: { flags: { disableEmailAuth: boolean }; session: { user: { id: string } } | null };
 	search: { done?: boolean; error?: string; callbackURL?: string };
 };
 const beforeLoad = Route.options.beforeLoad as (input: VerificationInput) => unknown;
 
 describe("verification callback destination", () => {
-	it("sends completed verification to sign-in with the original callback", () => {
+	it("sends a signed-in user after verification to the safe callback", () => {
 		expect(() =>
 			beforeLoad({
-				context: { flags: { disableEmailAuth: false } },
+				context: { flags: { disableEmailAuth: false }, session: { user: { id: "verified-user" } } },
 				search: { done: true, callbackURL: "/dashboard/career" },
 			}),
 		).toThrow(
 			expect.objectContaining({
 				options: expect.objectContaining({
-					to: "/auth/login",
-					search: { callbackURL: "/dashboard/career" },
+					href: "/dashboard/career",
 					replace: true,
 				}),
+			}),
+		);
+	});
+	it("defaults a signed-in user to the dashboard when the callback is unsafe", () => {
+		expect(() =>
+			beforeLoad({
+				context: { flags: { disableEmailAuth: false }, session: { user: { id: "verified-user" } } },
+				search: { done: true, callbackURL: "https://evil.example" },
+			}),
+		).toThrow(expect.objectContaining({ options: expect.objectContaining({ href: "/dashboard", replace: true }) }));
+	});
+	it("keeps a signed-out user on login after verification", () => {
+		expect(() =>
+			beforeLoad({
+				context: { flags: { disableEmailAuth: false }, session: null },
+				search: { done: true, callbackURL: "/dashboard/career" },
+			}),
+		).toThrow(
+			expect.objectContaining({
+				options: expect.objectContaining({ to: "/auth/login", search: { callbackURL: "/dashboard/career" } }),
 			}),
 		);
 	});
 	it.each([{}, { done: true, error: "TOKEN_EXPIRED" }])(
 		"keeps pending and failed proof on the recovery screen: %j",
 		(search) => {
-			expect(beforeLoad({ context: { flags: { disableEmailAuth: false } }, search })).toBeUndefined();
+			expect(beforeLoad({ context: { flags: { disableEmailAuth: false }, session: null }, search })).toBeUndefined();
 		},
 	);
 });

@@ -19,6 +19,7 @@ import { useUiLocale } from "@/features/locale/provider";
 import { LocaleSwitch } from "@/features/locale/switch";
 import { usePublicCopy } from "@/features/public-copy";
 import { usePublicSession } from "@/features/public-session";
+import { ThemeToggleButton } from "@/features/theme/toggle-button";
 import { UserDropdownMenu } from "@/features/user/dropdown-menu";
 
 type LandingPrimaryActionProps = { placement: "header" | "closing"; callbackURL?: string; compact?: boolean };
@@ -136,8 +137,7 @@ export function LandingSectionNav() {
 }
 
 /**
- * The phone header: the primary action stays visible, and everything else (sections, language, sign in) opens in a
- * bottom sheet, so no control has to shrink to fit one row.
+ * The phone header keeps language and the primary action visible. The sheet also keeps language beside theme and sign-in.
  */
 export function LandingCompactActions() {
 	const copy = usePublicCopy();
@@ -145,7 +145,8 @@ export function LandingCompactActions() {
 	const { session, pending } = usePublicSession();
 	return (
 		<>
-			<LandingHeader compact />
+			<LocaleSwitch compact />
+			<LandingHeader compact presentation="compact" />
 			<Sheet>
 				<SheetTrigger
 					render={<IconButton icon="list" size="icon-lg" iconSize={22} label={copy("landing.navigation.menu")} />}
@@ -171,6 +172,7 @@ export function LandingCompactActions() {
 					</nav>
 					<div className="grid gap-3 border-t border-line p-4">
 						<LocaleSwitch />
+						<ThemeToggleButton showLabel size="row" variant="ghost" className="justify-start" />
 						{!pending && !session && (
 							<Link
 								to="/auth/login"

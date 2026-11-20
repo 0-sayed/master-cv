@@ -153,15 +153,24 @@ for (const locale of ["ar-SA", "en-US"] as const) {
 		await page.goto("/dashboard/welcome");
 		const titles =
 			locale === "ar-SA"
-				? ["1. اجمع خبرتك", "2. راجع كل معلومة", "3. نزّل سيرتك"]
-				: ["1. Gather your experience", "2. Review every detail", "3. Download your CV"];
+				? ["اجمع خبرتك", "راجع كل معلومة", "نزّل سيرتك"]
+				: ["Gather your experience", "Review every detail", "Download your CV"];
+		const card = page.locator('[data-slot="section-card"]');
+		await expect(card).toBeVisible();
+		const primary = card.getByRole("button", { name: locale === "ar-SA" ? "لنبدأ" : "Get started" });
+		await expect(primary).toBeVisible();
+		await expect(card.locator("ol > li")).toHaveCount(3);
+		const order = await card.evaluate((section) => {
+			const children = [...section.children];
+			return {
+				primary: children.findIndex((element) => element.matches("button")),
+				steps: children.findIndex((element) => element.matches("ol")),
+			};
+		});
+		expect(order.primary).toBeGreaterThanOrEqual(0);
+		expect(order.steps).toBeGreaterThan(order.primary);
 		for (const title of titles) await expect(page.getByRole("heading", { name: title, exact: true })).toBeVisible();
-		await expect(
-			page.getByText(
-				"Start by adding your career information yourself. File import and AI assistance are not enabled yet.",
-				{ exact: true },
-			),
-		).toHaveCount(0);
+		await expect(card.locator('[data-slot="alert"]')).toBeVisible();
 	});
 }
 

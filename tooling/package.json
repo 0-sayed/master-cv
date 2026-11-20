@@ -8,6 +8,7 @@
 		"copy:check": "tsx locales/check-copy.ts",
 		"copy:check:bindings": "tsx locales/check-copy.ts --bindings",
 		"copy:generate:auth-mail": "tsx locales/generate-auth-mail.ts",
+		"copy:generate:public": "tsx locales/generate-public-copy.ts",
 		"copy:generate:workspace": "tsx locales/generate-workspace-copy.ts",
 		"copy:sync:workspace": "tsx locales/sync-workspace-catalogs.ts",
 		"db:reset": "tsx database/reset.ts",

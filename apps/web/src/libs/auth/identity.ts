@@ -4,6 +4,7 @@ import { browserStorage, storageKey, clearPersonalStorage, invalidatePersonalReq
 export const sessionQueryKey = ["auth", "session"] as const;
 type IdentityState =
 	| { status: "confirmed"; generation: number; session: AuthSession | null }
+	| { status: "unconfirmed"; generation: number; previousOwnerId: string | null }
 	| { status: "checking"; generation: number; previousOwnerId: string | null };
 const identities = new WeakMap<QueryClient, ReturnType<typeof createIdentity>>();
 function createIdentity(client: QueryClient) {
@@ -42,6 +43,11 @@ function createIdentity(client: QueryClient) {
 			void client.cancelQueries();
 			client.clear();
 			publish({ status: "checking", generation: state.generation + 1, previousOwnerId });
+		},
+		markUnconfirmed: (expectedGeneration = state.generation) => {
+			if (expectedGeneration !== state.generation) return false;
+			publish({ status: "unconfirmed", generation: state.generation, previousOwnerId: owner() });
+			return true;
 		},
 		accept: (session: AuthSession | null, expectedGeneration = state.generation) => {
 			if (expectedGeneration !== state.generation) return false;

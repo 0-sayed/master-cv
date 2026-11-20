@@ -84,9 +84,11 @@ export function PrivacyPage() {
 							<Trans context="privacy.storage.aiTitle">Assistant requests</Trans>
 						</AccordionTrigger>
 						<AccordionContent>
-							<Trans context="workspace.privacy.59442732fa1f">
-								AI is optional and requires explicit approval and processing consent. Available processing routes and
-								their notices are shown before use.
+							<Trans context="privacy.storage.aiDescription">
+								AI is optional and needs your consent. Only necessary text, without contact details, goes through
+								OpenRouter. OpenAI Luna and Terra use Microsoft Azure. The DeepSeek checker uses Together AI. Requests
+								use zero data retention (ZDR) routing and deny data collection for training. Provider terms govern
+								actual handling.
 							</Trans>
 						</AccordionContent>
 					</AccordionItem>

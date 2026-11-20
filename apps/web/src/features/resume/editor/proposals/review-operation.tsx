@@ -83,6 +83,16 @@ function launchIssue(error: Error | null) {
 	return { key: "review.launch.requestChanged", action: "none" } as const;
 }
 
+const reviewScopes = {
+	"review.wording": "privacy.ai.scope.wording",
+	"review.extraction": "privacy.ai.scope.extraction",
+	"review.job-evidence": "privacy.ai.scope.job-evidence",
+	"review.tailoring": "privacy.ai.scope.tailoring",
+	"review.translation": "privacy.ai.scope.translation",
+	"review.summary": "privacy.ai.scope.summary",
+	"review.cover-letter": "privacy.ai.scope.cover-letter",
+} as const;
+
 /** Consent is an explicit choice before preparation/staging; a decline makes no mutation request. */
 export function ReviewLaunch({
 	kind,
@@ -91,14 +101,7 @@ export function ReviewLaunch({
 	children,
 	disabled = false,
 }: {
-	kind:
-		| "review.wording"
-		| "review.extraction"
-		| "review.job-evidence"
-		| "review.tailoring"
-		| "review.translation"
-		| "review.summary"
-		| "review.cover-letter";
+	kind: keyof typeof reviewScopes;
 	prepare: () => Promise<{ sources: SourceRevision[]; parameters: Record<string, unknown> }>;
 	onStarted: (operationId: string) => void;
 	children: ReactNode;
@@ -215,10 +218,7 @@ export function ReviewLaunch({
 						<Trans>Review with the assistant</Trans>
 					</DialogTitle>
 					<DialogDescription>
-						<Trans>
-							This task uses 1 operation. It sends the selected text and related confirmed facts, without contact
-							details, to the approved processing provider. Suggestions are optional and require your review.
-						</Trans>
+						{copy(reviewScopes[kind])} {copy("privacy.ai.overseasNotice")}
 					</DialogDescription>
 					{usage.data?.operations.remaining != null && (
 						<p className="type-metadata text-ink-2">

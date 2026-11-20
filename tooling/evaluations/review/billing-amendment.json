@@ -2,7 +2,7 @@
 	"owner": "Sayed",
 	"date": "2026-11-17",
 	"scope": "billing-only",
-	"studyId": "tasks-v1-personal-career-0c679b93a99e",
+	"studyId": "tasks-v1-personal-career-c802ec134cdf",
 	"decision": "D39 billing settlement and exposure amendment",
 	"revisions": {
 		"tooling/evaluations/review/attempt.ts": {
@@ -30,5 +30,6 @@
 			"after": "a5f057c6730e7c1f18b5e4cba5e1fee96d13a255c2f2bd50c464ac5b0c924e19"
 		}
 	},
-	"runtimeSha256": "bde47daa196830da2e1342829544b7a2dcc2fc81c2cebf59482c4ae44857538a"
+	"runtimeSha256": "bde47daa196830da2e1342829544b7a2dcc2fc81c2cebf59482c4ae44857538a",
+	"previousStudyId": "tasks-v1-personal-career-0c679b93a99e"
 }

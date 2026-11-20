@@ -5,7 +5,10 @@ import { Icon } from "@reactive-resume/ui/components/icon";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@reactive-resume/ui/components/tooltip";
 import { useTheme } from "./provider";
 
-export function ThemeToggleButton(props: React.ComponentProps<typeof Button>) {
+export function ThemeToggleButton({
+	showLabel = false,
+	...props
+}: React.ComponentProps<typeof Button> & { showLabel?: boolean }) {
 	const { resolvedTheme, toggleTheme } = useTheme();
 
 	const onToggleTheme = () => {
@@ -22,6 +25,7 @@ export function ThemeToggleButton(props: React.ComponentProps<typeof Button>) {
 				render={<Button size="icon" variant="control" onClick={onToggleTheme} aria-label={ariaLabel} {...props} />}
 			>
 				<Icon name={resolvedTheme === "dark" ? "moon" : "sun"} />
+				{showLabel && ariaLabel}
 			</TooltipTrigger>
 			<TooltipContent>{ariaLabel}</TooltipContent>
 		</Tooltip>

@@ -1,5 +1,7 @@
+// @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vite-plus/test";
 import { QueryClient } from "@tanstack/react-query";
+import { authIdentity } from "./auth/identity";
 import { loadRootContext, sessionQueryKey } from "./root-context";
 
 const getSessionMock = vi.hoisted(() => vi.fn());
@@ -8,6 +10,7 @@ const getLocaleMock = vi.hoisted(() => vi.fn((saved?: string) => saved ?? "ar-SA
 
 vi.mock("./auth/session", () => ({
 	getSession: getSessionMock,
+	sessionRetryDelay: () => 0,
 }));
 
 vi.mock("./locale", () => ({
@@ -68,7 +71,7 @@ describe("loadRootContext", () => {
 		expect(context.session).toEqual(mockSession);
 	});
 
-	it("rejects an unverifiable identity instead of retaining private cached identity", async () => {
+	it("keeps personal data and marks a failed session check as unconfirmed", async () => {
 		const queryClient = new QueryClient({
 			defaultOptions: { queries: { retry: false } },
 		});
@@ -77,22 +80,27 @@ describe("loadRootContext", () => {
 			session: { id: "sess-1" },
 		};
 		queryClient.setQueryData(sessionQueryKey, cachedSession);
+		queryClient.setQueryData(["documents"], [{ id: "private-user" }]);
+		localStorage.setItem("reactive-resume:unsaved:alice:resume-1", "backup");
 		// Mark stale/invalid so getSession is invoked
 		void queryClient.invalidateQueries({ queryKey: sessionQueryKey });
 
-		getSessionMock.mockRejectedValueOnce(new Error("Too many requests. Please try again later."));
+		getSessionMock.mockRejectedValue(new Error("Too many requests. Please try again later."));
 
-		await expect(loadRootContext(queryClient)).rejects.toThrow("Too many requests");
-		expect(queryClient.getQueryData(sessionQueryKey)).toBeUndefined();
+		await expect(loadRootContext(queryClient)).resolves.toMatchObject({ session: null });
+		expect(authIdentity(queryClient).snapshot().status).toBe("unconfirmed");
+		expect(queryClient.getQueryData(["documents"])).toEqual([{ id: "private-user" }]);
+		expect(localStorage.getItem("reactive-resume:unsaved:alice:resume-1")).toBe("backup");
+		localStorage.removeItem("reactive-resume:unsaved:alice:resume-1");
 	});
 
-	it("re-throws error when getSession fails and there is no cached session", async () => {
+	it("treats a failed session check as signed out when no session is cached", async () => {
 		const queryClient = new QueryClient({
 			defaultOptions: { queries: { retry: false } },
 		});
-		getSessionMock.mockRejectedValueOnce(new Error("Session check failed with status 500"));
+		getSessionMock.mockRejectedValue(new Error("Session check failed with status 500"));
 
-		await expect(loadRootContext(queryClient)).rejects.toThrow("Session check failed with status 500");
+		await expect(loadRootContext(queryClient)).resolves.toMatchObject({ session: null });
 	});
 });
 

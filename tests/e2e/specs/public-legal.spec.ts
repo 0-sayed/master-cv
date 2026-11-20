@@ -3,6 +3,7 @@ import { expect, test } from "../fixtures/test";
 for (const locale of ["ar-SA", "en-US"]) {
 	test(`footer language navigation preserves the selected legal terms ${locale}`, async ({ page }) => {
 		await page.goto(`/privacy-and-terms?tab=terms&locale=${locale}`);
+		await settleScreen(page);
 		const target = locale === "ar-SA" ? "en-US" : "ar-SA";
 		await page
 			.getByRole("contentinfo")

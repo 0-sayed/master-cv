@@ -62,13 +62,12 @@ export function PublicShell({
 						aria-label={getProductName(locale)}
 						className={buttonVariants({ variant: "ghost", size: landing ? "default" : "compact" })}
 					>
-						{/* On narrow screens only the mark fits beside the header actions (below 360px on the landing, which
-						    moves its actions into a menu; below sm on content pages); the link keeps the full name. */}
-						<span className={landing ? "inline-flex narrow:hidden" : "inline-flex max-sm:hidden"}>
+						{/* Phones use the mark beside header actions; the link keeps the full accessible name. */}
+						<span className="inline-flex max-sm:hidden">
 							<BrandIcon variant="logo" animateOnce={statusPage || landing} />
 						</span>
-						<span className={landing ? "hidden narrow:inline-flex" : "hidden max-sm:inline-flex"}>
-							<BrandIcon variant="icon" alt="" />
+						<span className="hidden max-sm:inline-flex">
+							<BrandIcon variant="icon" alt="" animateOnce={statusPage || landing} />
 						</span>
 					</Link>
 					{navigation && <div className="hidden lg:ms-6 lg:flex">{navigation}</div>}

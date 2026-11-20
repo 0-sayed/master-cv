@@ -6,9 +6,15 @@ import { oauthProviderResourceClient } from "@better-auth/oauth-provider/resourc
 import { passkeyClient } from "@better-auth/passkey/client";
 import { anonymousClient, inferAdditionalFields, twoFactorClient, usernameClient } from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
+import { sessionRetryResponse } from "./session-retry";
 import { authSearchSchema } from "@/features/auth/redirect";
 
 export const authClient = createAuthClient({
+	fetchOptions: {
+		onResponse({ request, response }) {
+			return sessionRetryResponse(request.url, response);
+		},
+	},
 	plugins: [
 		dashClient(),
 		apiKeyClient(),

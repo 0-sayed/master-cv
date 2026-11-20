@@ -5,6 +5,7 @@ import { serve } from "@hono/node-server";
 const events = vi.hoisted(() => [] as string[]);
 const appFetch = vi.hoisted(() => vi.fn());
 const closePool = vi.hoisted(() => vi.fn(async () => {}));
+const aiStates = vi.hoisted(() => [] as string[]);
 vi.mock("@reactive-resume/db/client", () => ({ getPool: () => ({ end: closePool }) }));
 vi.mock("@reactive-resume/db/redis", () => ({ getRedis: () => null }));
 vi.mock("./startup/checks", () => ({
@@ -36,8 +37,19 @@ vi.mock("@hono/node-server", () => ({
 vi.mock("@reactive-resume/env/server", () => ({ env: { SERVER_PORT: 0 } }));
 // Scheduled career work has its own test; here it only has to stop when the server does.
 vi.mock("./startup/career-scheduler", () => ({ startCareerScheduler: () => ({ stop: async () => {} }) }));
-vi.mock("./startup/ai-scheduler", () => ({ startAiScheduler: () => ({ stop: async () => {} }) }));
-afterEach(() => vi.restoreAllMocks());
+vi.mock("./startup/ai-scheduler", async () => {
+	const { getAiAvailability } = await import("@reactive-resume/api/features/ai/route-policy");
+	return {
+		startAiScheduler: () => {
+			aiStates.push(getAiAvailability().state);
+			return { stop: async () => {} };
+		},
+	};
+});
+afterEach(() => {
+	vi.restoreAllMocks();
+	vi.unstubAllEnvs();
+});
 
 describe("server startup", () => {
 	it("finishes migrations before importing auth and seeding OAuth resources", async () => {
@@ -47,6 +59,23 @@ describe("server startup", () => {
 		expect(events).toEqual([]);
 		await entry.main();
 		expect(events).toEqual(["migrations complete", "auth imported", "auth ready", "app created", "server listening"]);
+	});
+
+	it("composes HTTP requests and the AI scheduler inside the configured runtime", async () => {
+		vi.spyOn(process, "on").mockReturnValue(process);
+		vi.spyOn(process, "once").mockReturnValue(process);
+		vi.stubEnv("OPENROUTER_API_KEY", "sk-test");
+		const { getAiAvailability } = await import("@reactive-resume/api/features/ai/route-policy");
+		appFetch.mockImplementation(() => getAiAvailability());
+
+		await (await import("./index")).main();
+		const options = vi.mocked(serve).mock.calls.at(-1)?.[0];
+		expect(options).toBeDefined();
+		expect(await options?.fetch(new Request("http://localhost"), {} as never)).toEqual({
+			state: "ready",
+			reason: null,
+		});
+		expect(aiStates.at(-1)).toBe("ready");
 	});
 
 	it.each(["SIGTERM", "SIGINT"])("drains active requests before exiting on %s", async (signal) => {

@@ -44,6 +44,11 @@ it.each(["content", "landing"] as const)(
 		);
 		expect(screen.getAllByRole("main")).toHaveLength(1);
 		expect(screen.getAllByRole("banner")).toHaveLength(1);
+		const brandMarks = screen.getByRole("banner").querySelectorAll('[data-slot="brand-mark"]');
+		expect(brandMarks).toHaveLength(2);
+		for (const mark of brandMarks) {
+			expect(mark).toHaveAttribute("data-once", String(variant === "landing"));
+		}
 		expect(screen.getAllByRole("contentinfo")).toHaveLength(1);
 		expect(screen.getByRole("contentinfo")).toHaveClass(variant === "landing" ? "bg-sunken" : "bg-surface");
 		expect(screen.getByRole("main").id).toBe("main-content");

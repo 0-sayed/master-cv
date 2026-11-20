@@ -13,7 +13,9 @@ describe("transactional auth mail", () => {
 		expect(authMessages).toEqual(
 			Object.fromEntries(
 				deck.entries
-					.filter(({ key }) => /^email\.(verification|reset|emailChange|passwordResetNotice|privacy)\./.test(key))
+					.filter(({ key }) =>
+						/^email\.(common|verification|reset|emailChange|passwordResetNotice|privacy)\./.test(key),
+					)
 					.map(({ key, messages }) => [key, messages]),
 			),
 		);
@@ -41,9 +43,13 @@ describe("transactional auth mail", () => {
 			);
 			expect(html).toContain(`lang="${locale}"`);
 			expect(html).toContain(`dir="${locale === "ar-SA" ? "rtl" : "ltr"}"`);
+			expect(html).toMatch(new RegExp(`<body[^>]*lang="${locale}"[^>]*dir="${locale === "ar-SA" ? "rtl" : "ltr"}"`));
 			expect(html).toContain(locale === "ar-SA" ? "سيراوايز" : "Sirawise");
 			expect(html).not.toContain("Master CV");
 			expect(html).not.toMatch(/fonts\.google|rxresu|<img|<script/);
+			expect(html).toContain("<table");
+			expect(html).toContain(authMessages["email.common.linkFallback"][locale]);
+			expect(html).toMatch(/overflow-wrap:\s*anywhere/);
 			expect(html).toContain("https://master.example.test/verify?token=synthetic");
 		}
 	});

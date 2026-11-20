@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vite-plus/test";
-import { getSession } from "./session";
+import { getSession, sessionRetryDelay } from "./session";
 
 const getSessionMock = vi.hoisted(() => vi.fn());
 
@@ -40,6 +40,13 @@ describe("getSession", () => {
 
 		await expect(getSession()).rejects.toThrow("Too many requests. Please try again later.");
 	});
+	it("carries the server x-retry-after delay into query backoff", async () => {
+		getSessionMock.mockImplementationOnce(async () => {
+			return { data: null, error: { status: 429, message: "Too many requests.", retryAfterMs: 4_000 } };
+		});
+
+		await expect(getSession()).rejects.toMatchObject({ status: 429, retryAfterMs: 4_000 });
+	});
 
 	it("throws on server errors (HTTP 500)", async () => {
 		getSessionMock.mockResolvedValueOnce({
@@ -57,5 +64,15 @@ describe("getSession", () => {
 		});
 
 		await expect(getSession()).rejects.toThrow("Failed to fetch");
+	});
+});
+
+describe("sessionRetryDelay", () => {
+	it("uses the server retry-after value when present", () => {
+		expect(sessionRetryDelay(2, Object.assign(new Error("Too many requests"), { retryAfterMs: 4_000 }))).toBe(4_000);
+	});
+	it("uses capped exponential backoff when no server delay exists", () => {
+		expect(sessionRetryDelay(1, new Error("Session unavailable"))).toBe(1_000);
+		expect(sessionRetryDelay(10, new Error("Session unavailable"))).toBe(30_000);
 	});
 });

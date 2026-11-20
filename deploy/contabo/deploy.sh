@@ -52,7 +52,10 @@ scp "$SCRIPT_DIR/backup.sh" "$SCRIPT_DIR/restore-drill.sh" "$HOST:$REMOTE_DIR/"
 scp "$REPO_ROOT/packages/db/src/deploy-migrations.mjs" "$HOST:$REMOTE_DIR/migrate.mjs"
 scp "$REPO_ROOT/packages/db/src/runtime-role.mjs" "$HOST:$REMOTE_DIR/runtime-role.mjs"
 scp "$REPO_ROOT/packages/db/src/deploy-runtime-role.mjs" "$HOST:$REMOTE_DIR/sync-runtime-role.mjs"
-ssh "$HOST" "chmod 700 '$REMOTE_DIR/backup.sh' '$REMOTE_DIR/restore-drill.sh'; chmod 644 '$REMOTE_DIR/migrate.mjs' '$REMOTE_DIR/sync-runtime-role.mjs' '$REMOTE_DIR/runtime-role.mjs'"
+scp "$REPO_ROOT/packages/db/src/ai-budget.mjs" "$HOST:$REMOTE_DIR/ai-budget.mjs"
+scp "$REPO_ROOT/packages/db/src/deploy-ai-budget.mjs" "$HOST:$REMOTE_DIR/sync-ai-budget.mjs"
+scp "$REPO_ROOT/apps/server/src/startup/ai-route.json" "$HOST:$REMOTE_DIR/ai-route.json"
+ssh "$HOST" "chmod 700 '$REMOTE_DIR/backup.sh' '$REMOTE_DIR/restore-drill.sh'; chmod 644 '$REMOTE_DIR/migrate.mjs' '$REMOTE_DIR/sync-runtime-role.mjs' '$REMOTE_DIR/runtime-role.mjs' '$REMOTE_DIR/ai-budget.mjs' '$REMOTE_DIR/sync-ai-budget.mjs' '$REMOTE_DIR/ai-route.json'"
 
 ssh "$HOST" "bash -s" <<'REMOTE'
 set -euo pipefail
@@ -97,6 +100,26 @@ docker run --rm --network "container:$postgres_container" --env-file "$remote_di
   -v "$remote_dir/sync-runtime-role.mjs:/app/apps/server/sync-runtime-role.mjs:ro" \
   -v "$remote_dir/runtime-role.mjs:/app/apps/server/runtime-role.mjs:ro" \
   --entrypoint node "sirawise-app:${SIRAWISE_TAG}" /app/apps/server/sync-runtime-role.mjs </dev/null
+docker run --rm --network "container:$postgres_container" --env-file "$remote_dir/.env" \
+  -v "$remote_dir/sync-ai-budget.mjs:/app/apps/server/deploy-ai-budget.mjs:ro" \
+  -v "$remote_dir/ai-budget.mjs:/app/apps/server/ai-budget.mjs:ro" \
+  -v "$remote_dir/ai-route.json:/app/apps/server/ai-route.json:ro" \
+  --entrypoint node "sirawise-app:${SIRAWISE_TAG}" /app/apps/server/deploy-ai-budget.mjs </dev/null
+cat > "$remote_dir/ai-budget.sh" <<'SCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+remote_dir='/opt/sirawise'
+compose_file="$remote_dir/compose.yml"
+app_container="$(docker compose -p sirawise -f "$compose_file" ps -q --all app)"
+postgres_container="$(docker compose -p sirawise -f "$compose_file" ps -q postgres)"
+image="$(docker inspect --format '{{.Config.Image}}' "$app_container")"
+docker run --rm --network "container:$postgres_container" --env-file "$remote_dir/.env" \
+  -v "$remote_dir/sync-ai-budget.mjs:/app/apps/server/deploy-ai-budget.mjs:ro" \
+  -v "$remote_dir/ai-budget.mjs:/app/apps/server/ai-budget.mjs:ro" \
+  -v "$remote_dir/ai-route.json:/app/apps/server/ai-route.json:ro" \
+  --entrypoint node "$image" /app/apps/server/deploy-ai-budget.mjs </dev/null
+SCRIPT
+chmod 700 "$remote_dir/ai-budget.sh"
 REMOTE
 
 if ! ssh "$HOST" "SIRAWISE_TAG='$SHORT_SHA' docker compose -p sirawise -f '$COMPOSE_FILE' up -d app"; then

@@ -372,6 +372,27 @@ export function ImportReview({
 	};
 	const reviewedCount = groups.filter(isReviewed).length;
 	const total = groups.length;
+	const reviewFirstIssue = () => {
+		const issue = issues?.[0];
+		const field = issue?.field ?? "name";
+		const section = issue?.section ?? (field === "position" || field === "company" ? "experience" : "basics");
+		const entryId =
+			section === "experience" && issue?.entryIndex != null
+				? initial.sections.experience.items[issue.entryIndex]?.id
+				: undefined;
+		setActive(section);
+		if (entryId) setEditing(entryKey(section, entryId));
+		setView("information");
+		requestAnimationFrame(() => {
+			const entrySelector = entryId ? `[data-import-entry="${entryId}"] ` : "";
+			const target = document.querySelector<HTMLElement>(
+				`${entrySelector}[data-import-field="${field}"], ${entrySelector}[data-entry-field="${field}"]`,
+			);
+			if (!target) return;
+			target.scrollIntoView({ block: "center" });
+			target.focus({ preventScroll: true });
+		});
+	};
 	const sectionTitle = (id: string) =>
 		id === "basics"
 			? t`Basic information`
@@ -476,8 +497,7 @@ export function ImportReview({
 						<Button
 							variant="secondary"
 							onClick={() => {
-								setView("information");
-								setActive("basics");
+								reviewFirstIssue();
 							}}
 						>
 							<Trans>Review now</Trans>
@@ -504,8 +524,7 @@ export function ImportReview({
 						<Button
 							variant="secondary"
 							onClick={() => {
-								setView("information");
-								setActive("basics");
+								reviewFirstIssue();
 							}}
 						>
 							<Trans>Review now</Trans>
@@ -585,7 +604,13 @@ export function ImportReview({
 										const flagged =
 											uncertain(field, data.basics[field]) || (field === "name" && missing(data.basics[field]));
 										return (
-											<div key={field} data-uncertain={flagged || undefined} className="grid gap-1">
+											<div
+												key={field}
+												data-uncertain={flagged || undefined}
+												data-import-field={field}
+												tabIndex={flagged ? -1 : undefined}
+												className="grid gap-1"
+											>
 												<TextField
 													dir={field === "phone" || field === "email" ? "ltr" : "auto"}
 													label={label}
@@ -594,7 +619,7 @@ export function ImportReview({
 													hint={
 														flagged ? (
 															<span className="text-warn-text">
-																<Trans>Check this information</Trans>
+																<Trans>Please confirm this information</Trans>
 															</span>
 														) : (
 															sourceTag(sourceFor("basics", "", field))
@@ -648,7 +673,12 @@ export function ImportReview({
 												if (section.type === "experience" && !values.some(([field]) => field === "position"))
 													values.unshift(["position", ""]);
 												return (
-													<SectionCardRow key={entry.id} aria-label={title} className="grid gap-3">
+													<SectionCardRow
+														key={entry.id}
+														aria-label={title}
+														data-import-entry={entry.id}
+														className="grid gap-3"
+													>
 														<SectionCardHeader>
 															<h3 className="min-w-0 flex-1 type-label wrap-anywhere" dir="auto">
 																{title}
@@ -702,6 +732,8 @@ export function ImportReview({
 																		<div
 																			key={field}
 																			data-uncertain={flagged || undefined}
+																			data-import-field={field}
+																			tabIndex={flagged ? -1 : undefined}
 																			className={cn(
 																				"grid gap-1",
 																				flagged && "rounded-md bg-warn-soft p-3 text-warn-text",
@@ -713,7 +745,7 @@ export function ImportReview({
 																			</dd>
 																			{flagged && (
 																				<p className="type-meta">
-																					<Trans>Check this information</Trans>
+																					<Trans>Please confirm this information</Trans>
 																				</p>
 																			)}
 																			{sourceTag(sourceFor(section.id, entry.id, field))}

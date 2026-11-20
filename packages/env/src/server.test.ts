@@ -98,6 +98,14 @@ describe("server web access configuration", () => {
 	});
 });
 
+describe("optional OpenRouter configuration", () => {
+	it("starts with a whitespace-only key and treats AI as unconfigured", async () => {
+		vi.stubEnv("OPENROUTER_API_KEY", " \t ");
+		const { env } = await import("./server");
+		expect(env.OPENROUTER_API_KEY).toBeUndefined();
+	});
+});
+
 describe("storage health check timeout", () => {
 	it.each([undefined, ""])("defaults to 5000 ms when unset or blank (%s)", async (value) => {
 		vi.stubEnv("STORAGE_HEALTHCHECK_TIMEOUT_MS", value);

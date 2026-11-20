@@ -18,7 +18,7 @@ export function IdentityBoundary({ queryClient, session, children }: IdentityBou
 	const router = useRouter();
 	const routeOwner = session?.user.id ?? null;
 	const liveOwner = live.data?.user.id ?? null;
-	const mismatched = !live.isPending && !live.error && liveOwner !== routeOwner;
+	const mismatched = state.status !== "unconfirmed" && !live.isPending && !live.error && liveOwner !== routeOwner;
 	useEffect(() => {
 		// A current reconciliation (or its confirmed result awaiting router commit) must finish.
 		// Rechecking on every pending→resolved toggle cancels that very loader and loops forever.
@@ -39,7 +39,16 @@ export function IdentityBoundary({ queryClient, session, children }: IdentityBou
 	useDocumentWebMcpTools(
 		state.status === "confirmed" && !mismatched && state.session !== null && state.session?.user.id === routeOwner,
 	);
-	if (state.status === "checking" || mismatched || state.session?.user.id !== session?.user.id) return null;
+	if (state.status === "checking") return null;
+	if (state.status === "unconfirmed") {
+		if (session !== null) return null;
+		return (
+			<IdentitySessionContext.Provider key={state.generation} value={null}>
+				{children}
+			</IdentitySessionContext.Provider>
+		);
+	}
+	if (mismatched || state.session?.user.id !== session?.user.id) return null;
 	const confirmed =
 		!live.isPending && !live.error && liveOwner === routeOwner ? (live.data as AuthSession | null) : state.session;
 	return (

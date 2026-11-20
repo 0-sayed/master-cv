@@ -6,8 +6,33 @@ import { QueryClient } from "@tanstack/react-query";
 import { IdentityBoundary } from "./identity-boundary";
 import { authIdentity, sessionQueryKey } from "@/libs/auth/identity";
 
+it("unmounts a private outlet until the signed-out route commits after unconfirmed identity", async () => {
+	const session = { user: { id: "private-owner" } } as AuthSession;
+	mocks.session = session;
+	const queryClient = new QueryClient();
+	queryClient.setQueryData(sessionQueryKey, session);
+	const identity = authIdentity(queryClient);
+	const view = render(
+		<IdentityBoundary queryClient={queryClient} session={session}>
+			Private content
+		</IdentityBoundary>,
+	);
+	expect(view.getByText("Private content")).toBeVisible();
+	await act(async () => identity.markUnconfirmed());
+	expect(view.queryByText("Private content")).toBeNull();
+	view.rerender(
+		<IdentityBoundary queryClient={queryClient} session={null}>
+			Signed-out route
+		</IdentityBoundary>,
+	);
+	expect(view.getByText("Signed-out route")).toBeVisible();
+	mocks.session = null;
+	cleanup();
+});
+
 const mocks = vi.hoisted(() => ({
 	pending: false,
+	session: null as AuthSession | null,
 	refetch: vi.fn().mockResolvedValue(undefined),
 	router: { invalidate: vi.fn().mockResolvedValue(undefined) },
 }));
@@ -16,9 +41,26 @@ vi.mock("better-auth/client", () => ({ getGlobalBroadcastChannel: () => ({ subsc
 vi.mock("@/features/documents/webmcp", () => ({ useDocumentWebMcpTools: () => {} }));
 vi.mock("@/libs/auth/client", () => ({
 	authClient: {
-		useSession: () => ({ data: null, isPending: mocks.pending, error: null, refetch: mocks.refetch }),
+		useSession: () => ({ data: mocks.session, isPending: mocks.pending, error: null, refetch: mocks.refetch }),
 	},
 }));
+it("does not hide signed-out routing or start another check while session identity is unconfirmed", () => {
+	const queryClient = new QueryClient();
+	const identity = authIdentity(queryClient);
+	identity.markUnconfirmed();
+	mocks.session = { user: { id: "still-reported-signed-in" } } as AuthSession;
+	const view = render(
+		<IdentityBoundary queryClient={queryClient} session={null}>
+			Signed-out route
+		</IdentityBoundary>,
+	);
+	expect(view.getByText("Signed-out route")).toBeVisible();
+	expect(mocks.refetch).not.toHaveBeenCalled();
+	expect(mocks.router.invalidate).not.toHaveBeenCalled();
+	mocks.session = null;
+	cleanup();
+});
+
 it("does not cancel an in-flight identity reconciliation when reactive session pending toggles or the router has not committed", async () => {
 	const session = { user: { id: "previous-owner" } } as AuthSession;
 	const queryClient = new QueryClient();

@@ -36,6 +36,12 @@ export function LegalPage({ tab }: { tab: LegalTab }) {
 								<p className="type-body text-ink-2">{copy(`legal.privacy.${section}.body`)}</p>
 							</section>
 						))}
+						<section className="grid gap-3">
+							<h2 className="type-heading">
+								<Trans context="privacy.policy.purposeTitle">How we use it</Trans>
+							</h2>
+							<p className="type-body text-ink-2">{copy("privacy.policy.purposeDescription")}</p>
+						</section>
 					</div>
 				</TabsContent>
 				<TabsContent value="terms" keepMounted>

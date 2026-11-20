@@ -10,6 +10,8 @@ import { normalizeImportedText } from "./normalize";
 export type ImportReviewIssue = {
 	field: "name" | "headline" | "location" | "position" | "company" | "phone";
 	source: string;
+	section?: "basics" | "experience";
+	entryIndex?: number;
 };
 type ImportOptions = { locale?: string; onUncertain?: (issue: ImportReviewIssue) => void };
 
@@ -247,7 +249,15 @@ function headerBoundary(lines: string[]): number {
 
 	for (const [index, line] of lines.slice(0, HEADER_SCAN_LINES).entries()) {
 		if (knownHeading(line)) break;
-		if (EMAIL_PATTERN.test(line) || URL_TEST.test(line) || extractPhone(line)) boundary = index;
+		if (
+			EMAIL_PATTERN.test(line) ||
+			URL_TEST.test(line) ||
+			extractPhone(line) ||
+			(/[ \t]{2,}/u.test(line) &&
+				splitHeaderParts(line).length > 1 &&
+				splitHeaderParts(line).some((part) => looksLikeLocation(part) && credibleLocation(part)))
+		)
+			boundary = index;
 	}
 
 	return boundary;
@@ -385,7 +395,7 @@ function credibleLocation(value: string): boolean {
 	);
 }
 
-function experienceFields(entry: RawEntry, options: ImportOptions) {
+function experienceFields(entry: RawEntry, options: ImportOptions, entryIndex: number) {
 	let parts = [...entry.headerParts];
 	const first = parts[0] ?? "";
 	const at = /^(.+?)\s+(?:at|@|لدى|في)\s+(.+)$/iu.exec(first);
@@ -422,9 +432,15 @@ function experienceFields(entry: RawEntry, options: ImportOptions) {
 		}
 	}
 	if (!position)
-		options.onUncertain?.({ field: "position", source: unused.join(" | ") || entry.headerParts.join(" | ") });
+		options.onUncertain?.({
+			field: "position",
+			source: unused.join(" | ") || entry.headerParts.join(" | "),
+			section: "experience",
+			entryIndex,
+		});
 	const location = locations.join(" · ");
-	if (location && !credibleLocation(location)) options.onUncertain?.({ field: "location", source: location });
+	if (location && !credibleLocation(location))
+		options.onUncertain?.({ field: "location", source: location, section: "experience", entryIndex });
 	return {
 		company,
 		position,
@@ -433,7 +449,56 @@ function experienceFields(entry: RawEntry, options: ImportOptions) {
 	};
 }
 
-function buildSectionItems(key: SectionKey, lines: string[], locale: string, options: ImportOptions): unknown[] {
+function isRoleOnlyHeader(entry: RawEntry | undefined): boolean {
+	if (!entry || entry.headerParts.length !== 1) return false;
+	const title = entry.headerParts[0] ?? "";
+	return looksLikeRole(title) && !/[,،]|\s+(?:at|@|لدى|في)\s+/iu.test(title);
+}
+
+function attachSharedEmployer(entries: RawEntry[]): RawEntry[] {
+	const expanded: RawEntry[] = [];
+	let employer: { company: string; location: string; period: string; body: string[] } | null = null;
+
+	for (const [index, entry] of entries.entries()) {
+		const company = entry.headerParts[0] ?? "";
+		const location = entry.headerParts.find(looksLikeLocation) ?? "";
+		const roleInBody = entry.body[0] ? looksLikeRole(entry.body[0]) : false;
+		const isEmployerHeader =
+			!!entry.period && !!company && !!location && !looksLikeRole(company) && !entry.headerParts.some(looksLikeRole);
+		if (isEmployerHeader) {
+			const nextRole = isRoleOnlyHeader(entries[index + 1]);
+			if (nextRole && !roleInBody) {
+				employer = { company, location, period: entry.period, body: entry.body };
+				continue;
+			}
+			employer = null;
+			expanded.push(entry);
+			continue;
+		}
+		if (employer && isRoleOnlyHeader(entry)) {
+			expanded.push({
+				...entry,
+				period: entry.period || employer.period,
+				headerParts: [employer.company, employer.location, ...entry.headerParts],
+				body: [...employer.body, ...entry.body],
+			});
+			employer.body = [];
+			continue;
+		}
+		employer = null;
+		expanded.push(entry);
+	}
+
+	return expanded;
+}
+
+function buildSectionItems(
+	key: SectionKey,
+	lines: string[],
+	locale: string,
+	options: ImportOptions,
+	experienceEntryOffset = 0,
+): unknown[] {
 	if (key === "skills" || key === "interests") {
 		return splitList(lines).map((name) => ({
 			...baseItem(),
@@ -478,12 +543,13 @@ function buildSectionItems(key: SectionKey, lines: string[], locale: string, opt
 	}
 
 	const dated = key === "awards" || key === "certifications" || key === "publications";
-	const entries = groupEntries(lines, dated, locale);
+	const groupedEntries = groupEntries(lines, dated, locale);
+	const entries = key === "experience" ? attachSharedEmployer(groupedEntries) : groupedEntries;
 
 	if (key === "experience") {
-		return entries.map((entry) => ({
+		return entries.map((entry, entryIndex) => ({
 			...baseItem(),
-			...experienceFields(entry, options),
+			...experienceFields(entry, options, experienceEntryOffset + entryIndex),
 			period: entry.period,
 			website: emptyWebsite,
 			roles: [],
@@ -615,7 +681,7 @@ function parseHeader(lines: string[], options: ImportOptions) {
 			return value && extractPhone(value) === value ? [field] : field.split(/[ \t]{2,}/);
 		})
 		.map((field) => field.trim())
-		.filter(Boolean);
+		.filter((field) => field && !/^(?:Saudi|visa sponsorship not required)$/iu.test(field));
 	const email = fields.map((field) => field.match(EMAIL_PATTERN)?.[0]).find(Boolean) ?? "";
 	const phone = fields.map(extractPhone).find(Boolean) ?? "";
 	const urls = fields.flatMap((field) => field.match(URL_PATTERN) ?? []);
@@ -652,9 +718,11 @@ function parseHeader(lines: string[], options: ImportOptions) {
 			.trim();
 		if (value && /\p{L}/u.test(value)) remaining.push(value);
 	}
-	const name = labelled.name ?? remaining.shift() ?? "";
+	const commaName = remaining[0]?.match(/^([\p{L}'’-]+),\s*([\p{L}'’-]+)$/u);
+	const nameCandidate = !labelled.name && commaName ? remaining.shift() : undefined;
 	const locationIndex = remaining.findIndex(looksLikeLocation);
 	const locationSource = labelled.location ?? (locationIndex >= 0 ? (remaining.splice(locationIndex, 1)[0] ?? "") : "");
+	const name = labelled.name ?? nameCandidate ?? remaining.shift() ?? "";
 	let location = locationSource;
 	if (location && !credibleLocation(location)) {
 		options.onUncertain?.({ field: "location", source: location });
@@ -686,6 +754,7 @@ export function parseResumeText(text: string, options: ImportOptions = {}): Resu
 	data.basics.location = contact.location;
 	data.basics.website = { url: contact.website, label: "" };
 
+	let experienceEntryOffset = 0;
 	for (const item of segments) {
 		if (item.lines.length === 0) continue;
 
@@ -713,8 +782,15 @@ export function parseResumeText(text: string, options: ImportOptions = {}): Resu
 			continue;
 		}
 
-		const items = buildSectionItems(item.key, item.lines, data.metadata.page.locale, options);
+		const items = buildSectionItems(
+			item.key,
+			item.lines,
+			data.metadata.page.locale,
+			options,
+			item.key === "experience" ? experienceEntryOffset : 0,
+		);
 		if (items.length === 0) continue;
+		if (item.key === "experience") experienceEntryOffset += items.length;
 
 		const section = data.sections[item.key];
 		section.items = [...section.items, ...items] as typeof section.items;

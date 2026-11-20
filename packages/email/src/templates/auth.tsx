@@ -22,24 +22,42 @@ function Layout({
 		<Html lang={locale} dir={locale === "ar-SA" ? "rtl" : "ltr"}>
 			<Head />
 			<Preview>{preview}</Preview>
-			<Body style={{ margin: 0, backgroundColor: "#faf8f4", color: "#172e29", fontFamily: "Arial, sans-serif" }}>
-				<Container style={{ maxWidth: 560, padding: 32 }}>
-					<Text>{getProductName(locale)}</Text>
-					<Heading>{text("heading")}</Heading>
-					<Text>{text("intro")}</Text>
-					<Text>{text("details")}</Text>
+			<Body
+				lang={locale}
+				dir={locale === "ar-SA" ? "rtl" : "ltr"}
+				style={{ margin: 0, backgroundColor: "#F1F0EB", color: "#1C1B15", fontFamily: "Arial, sans-serif" }}
+			>
+				<Container
+					style={{
+						maxWidth: 560,
+						padding: "32px 24px",
+						backgroundColor: "#FAF9F6",
+						border: "1px solid #DDDCD6",
+					}}
+				>
+					<Text style={{ margin: "0 0 24px", color: "#337344", fontSize: 20, fontWeight: 700 }}>
+						{getProductName(locale)}
+					</Text>
+					<Heading style={{ margin: "0 0 16px", color: "#1C1B15", fontSize: 24, lineHeight: "32px" }}>
+						{text("heading")}
+					</Heading>
+					<Text style={{ margin: "0 0 24px", color: "#4F4D47", fontSize: 16, lineHeight: "26px" }}>
+						{[text("intro"), text("details"), text("outro")].join(" ")}
+					</Text>
 					<Button
 						href={url}
-						style={{ backgroundColor: "#172e29", color: "#fff", padding: "12px 24px", borderRadius: 8 }}
+						style={{ backgroundColor: "#337344", color: "#F7FEF8", padding: "14px 24px", borderRadius: 8 }}
 					>
 						{action}
 					</Button>
-					<Text>
-						<Link href={url} dir="ltr" style={{ overflowWrap: "anywhere" }}>
+					<Text style={{ margin: "24px 0 6px", color: "#4F4D47", fontSize: 14, lineHeight: "20px" }}>
+						{authMailMessage("email.common.linkFallback", locale)}
+					</Text>
+					<Text style={{ margin: 0, color: "#66655E", fontSize: 12, lineHeight: "18px", overflowWrap: "anywhere" }}>
+						<Link href={url} dir="ltr" style={{ color: "#66655E", overflowWrap: "anywhere", wordBreak: "break-all" }}>
 							{url}
 						</Link>
 					</Text>
-					<Text>{text("outro")}</Text>
 				</Container>
 			</Body>
 		</Html>
